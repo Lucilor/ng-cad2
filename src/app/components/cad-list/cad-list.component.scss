@@ -1,0 +1,54 @@
+@import "../../../mat-theme.scss";
+
+:host {
+	width: calc(80vw - 48px);
+	display: block;
+}
+
+mat-paginator,
+.data-container {
+	line-height: 1.5rem;
+	font-size: 1rem;
+}
+
+mat-radio-group,
+.checkbox-group {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.data-container {
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	padding: 12px;
+	width: 20%;
+	box-sizing: border-box;
+
+	img {
+		object-fit: scale-down;
+		cursor: pointer;
+	}
+}
+
+.mat-dialog-actions {
+	justify-content: center !important;
+}
+
+.search-button {
+	cursor: pointer;
+
+	&:hover {
+		color: mat-color($primary);
+	}
+}
+
+table {
+	width: 100%;
+}
+
+.toolbar {
+	> *:not(:last-child) {
+		margin-right: 10px;
+	}
+}

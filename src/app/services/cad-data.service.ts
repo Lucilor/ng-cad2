@@ -4,16 +4,14 @@ import {State} from "../store/state";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {AlertComponent} from "../components/alert/alert.component";
+import {MessageComponent} from "../components/message/message.component";
 import {LoadingAction} from "../store/actions";
-import {Response} from "../app.common";
+import {Response, session} from "../app.common";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
 import {CadViewer} from "../cad-viewer/cad-viewer";
-import {SessionStorage, RSAEncrypt} from "@lucilor/utils";
+import {RSAEncrypt} from "@lucilor/utils";
 import {ActivatedRoute} from "@angular/router";
 import {Expressions} from "../cad-viewer/cad-data/utils";
-
-const session = new SessionStorage("cad-data");
 
 @Injectable({
 	providedIn: "root"
@@ -38,7 +36,7 @@ export class CadDataService {
 
 	private alert(content: any) {
 		if (!this.silent) {
-			this.dialog.open(AlertComponent, {data: {content}});
+			this.dialog.open(MessageComponent, {data: {type: "alert", content}});
 		}
 	}
 

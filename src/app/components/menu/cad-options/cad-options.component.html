@@ -1,0 +1,30 @@
+<form>
+	<mat-form-field>
+		<mat-label>搜索选项</mat-label>
+		<input name="search" matInput type="search" (keydown)="searchKeydown($event)" [(ngModel)]="searchInput" />
+		<mat-icon class="search-button" ty matSuffix (click)="search()">search</mat-icon>
+	</mat-form-field>
+</form>
+
+<div class="checkbox-group add-empty-msg">
+	<div class="data-container" *ngFor="let item of pageData; let i = index">
+		<mat-checkbox [(ngModel)]="item.checked">{{ item.value }}</mat-checkbox>
+		<br />
+		<!-- <img [src]="item.img" /> -->
+		<app-image [src]="item.img"></app-image>
+	</div>
+</div>
+
+<mat-paginator
+	#paginator
+	[length]="length"
+	[pageSize]="pageSize"
+	[pageSizeOptions]="pageSizeOptions"
+	[showFirstLastButtons]="true"
+	(page)="changePage($event)"
+></mat-paginator>
+
+<div mat-dialog-actions>
+	<button mat-raised-button color="primary" (click)="submit()">确定</button>
+	<button mat-raised-button color="primary" (click)="close()">取消</button>
+</div>

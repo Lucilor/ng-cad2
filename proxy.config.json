@@ -1,0 +1,9 @@
+{
+	"/api": {
+		"target": "http://www.n.com:12305/n/zy/index",
+		"pathRewrite": {"^/api" : ""},
+		"secure": false,
+		"changeOrigin": true,
+		"logLevel": "debug"
+	}
+}

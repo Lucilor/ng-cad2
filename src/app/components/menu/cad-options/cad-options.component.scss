@@ -1,0 +1,20 @@
+.checkbox-group {
+	display: flex;
+	flex-wrap: wrap;
+	height: 400px;
+    width: 70vw;
+    overflow: auto;
+
+	.data-container {
+		width: calc(14vw  - 5px);
+        height: 200px;
+        padding: 5px;
+        box-sizing: border-box;
+	}
+
+	app-image {
+		width: 100%;
+        height: calc(100% - 1.5rem);
+        display: block;
+	}
+}
