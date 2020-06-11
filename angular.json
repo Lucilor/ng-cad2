@@ -106,7 +106,8 @@
               "e2e/tsconfig.json"
             ],
             "exclude": [
-              "**/node_modules/**"
+              "**/node_modules/**",
+              "e2e/**"
             ]
           }
         },
@@ -123,6 +124,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "ng-cad2"
+    }
+  },
+  "defaultProject": "ng-cad2",
+  "cli": {
+    "analytics": "2a246a9d-a682-41b0-bbd8-8cf574506f9e"
+  }
 }

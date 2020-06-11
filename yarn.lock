@@ -999,6 +999,19 @@
     merge-source-map "^1.1.0"
     schema-utils "^2.6.4"
 
+"@lucilor/utils@^1.0.19":
+  version "1.0.19"
+  resolved "https://registry.yarnpkg.com/@lucilor/utils/-/utils-1.0.19.tgz#6824c3791c1e404539feca2dcf386f84e4514581"
+  integrity sha512-iUuN7T2ICoWM+kJypkfHTGTMF72aC0AEtwxfaqhtGiXLBNzHa7rzeSHTt9s6JLRufwCbEx09oMIh5vtnFP3g0g==
+  dependencies:
+    color "^3.1.2"
+    jsencrypt "^3.0.0-rc.1"
+
+"@ngrx/store@^9.2.0":
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@ngrx/store/-/store-9.2.0.tgz#39f663f98b5332b33c8d197be3ab08bafd85bc88"
+  integrity sha512-V8AI3mxbMztVpbZpALkLZYlGkofKcu9GaOCY5e+sZ1VcJ90oxhFjBpnmd6MuVdmhep1XAHALb1B8ZbBFn+xsgQ==
+
 "@ngtools/webpack@9.1.8":
   version "9.1.8"
   resolved "https://registry.yarnpkg.com/@ngtools/webpack/-/webpack-9.1.8.tgz#50a906047b284098e5cd669e8174c9cfcaf3bafc"
@@ -1059,6 +1072,18 @@
     rxjs "6.5.4"
     semver "7.1.3"
     semver-intersect "1.4.0"
+
+"@seregpie/three.text-sprite@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@seregpie/three.text-sprite/-/three.text-sprite-2.0.0.tgz#4868b7084992726d78e70a0d9186bf577b3b15e0"
+  integrity sha512-YaHmMNOmaXDGEOam1/STmVkI/rBdQqfcKlhcgHqhujjUG5skF2uc5cWYig0u3inn0m9oYsp6xqWb3rwtMOdoRg==
+  dependencies:
+    "@seregpie/three.text-texture" "^2.0.1"
+
+"@seregpie/three.text-texture@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@seregpie/three.text-texture/-/three.text-texture-2.0.1.tgz#2f0b1aaa429bfc84c8c5e3f7b0503d9faa2079ea"
+  integrity sha512-9uO/mP5PyGyl1LqrkObe9OOAwL/jp9rKjdphWf5gUH8LHDJuNy5GQCjr+nKqJG2lGID8gMNNnub1CSALl4BZHw==
 
 "@types/color-name@^1.1.1":
   version "1.1.1"
@@ -2367,7 +2392,7 @@ color-string@^1.5.2:
     color-name "^1.0.0"
     simple-swizzle "^0.2.2"
 
-color@^3.0.0:
+color@^3.0.0, color@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/color/-/color-3.1.2.tgz#68148e7f85d41ad7649c5fa8c8106f098d229e10"
   integrity sha512-vXTJhHebByxZn3lDvDJYw4lR5+uB3vuoHsuYA5AKuxRVn5wzzIfQKGLBmgdVRHKTJYeK5rvJcHnrd0Li49CFpg==
@@ -4813,6 +4838,11 @@ jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
   integrity sha1-peZUwuWi3rXyAdls77yoDA7y9RM=
+
+jsencrypt@^3.0.0-rc.1:
+  version "3.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/jsencrypt/-/jsencrypt-3.0.0-rc.1.tgz#0e0a4744ba43cc557fb5cf62fe8646bceb561b1c"
+  integrity sha512-gcvGaqerlUJy1Kq6tNgPYteVEoWNemu+9hBe2CdsCIz4rVcwjoTQ72iD1W76/PRMlnkzG0yVh7nwOOMOOUfKmg==
 
 jsesc@^2.5.1:
   version "2.5.2"
@@ -8006,6 +8036,11 @@ terser@^4.1.2, terser@^4.4.3:
     commander "^2.20.0"
     source-map "~0.6.1"
     source-map-support "~0.5.12"
+
+three@^0.117.1:
+  version "0.117.1"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.117.1.tgz#a49bcb1a6ddea2f250003e42585dc3e78e92b9d3"
+  integrity sha512-t4zeJhlNzUIj9+ub0l6nICVimSuRTZJOqvk3Rmlu+YGdTOJ49Wna8p7aumpkXJakJfITiybfpYE1XN1o1Z34UQ==
 
 through2@^2.0.0:
   version "2.0.5"
