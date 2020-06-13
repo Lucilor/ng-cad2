@@ -17,5 +17,6 @@ export interface CurrCadsAction extends Action {
 export type CadStatusActionType = "set cad status" | "refresh cad status";
 export interface CadStatusAction extends Action {
 	readonly type: CadStatusActionType;
-	cadStatus?: State["cadStatus"];
+	name?: State["cadStatus"]["name"];
+	index?: State["cadStatus"]["index"];
 }

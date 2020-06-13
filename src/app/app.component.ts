@@ -90,6 +90,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 				}
 			} else if (cadStatus.name === "select baseline") {
 				this.cadStatusStr = "选择基准线";
+			} else if (cadStatus.name === "select jointpoint") {
+				this.cadStatusStr = "";
 			} else if (cadStatus.name === "edit dimension") {
 				this.cadStatusStr = "编辑标注";
 			}
@@ -124,7 +126,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 		window.addEventListener("keydown", ({key}) => {
 			if (key === "Escape") {
 				if (this.cadStatus.name !== "normal") {
-					this.store.dispatch<CadStatusAction>({type: "set cad status", cadStatus: {name: "normal", index: -1}});
+					this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal", index: -1});
 				}
 			}
 		});

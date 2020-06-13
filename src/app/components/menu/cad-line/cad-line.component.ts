@@ -48,7 +48,7 @@ export class CadLineComponent implements OnInit {
 
 	setLineLength(event: InputEvent) {
 		const {selectedLines, cad} = this;
-		const pointsMap = generatePointsMap(cad.data.getAllEntities());
+		const pointsMap = generatePointsMap(cad.data.getAllEntities(), cad);
 		selectedLines.forEach((line) => {
 			if (line instanceof CadLine) {
 				const {entities, closed} = findAllAdjacentLines(pointsMap, line, line.end);
@@ -77,7 +77,7 @@ export class CadLineComponent implements OnInit {
 				return strs[0];
 			}
 		}
-		return "white";
+		return "#ffffff";
 	}
 
 	setLineColor(event: MatSelectChange) {

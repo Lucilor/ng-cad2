@@ -16,6 +16,7 @@ export interface CadViewerControlsConfig {
 }
 
 export interface CadEvents {
+	entityclick: [PointerEvent, CadEntity, Object3D];
 	entityselect: [PointerEvent, CadEntity, Object3D];
 	entityunselect: [PointerEvent, CadEntity, Object3D];
 	entitiesselect: [PointerEvent | KeyboardEvent, never, never];
@@ -357,6 +358,7 @@ export class CadViewerControls extends EventEmitter {
 				object.userData.selected = true;
 				this.emit("entityselect", event, entity, object);
 			}
+			this.emit("entityclick", event, entity, object);
 			this.pointerLock = false;
 			this._hover();
 		}

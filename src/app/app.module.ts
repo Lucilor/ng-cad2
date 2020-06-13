@@ -42,6 +42,8 @@ import {CadDimensionFormComponent} from "./components/menu/cad-dimension-form/ca
 import {CadInfoComponent} from "./components/menu/cad-info/cad-info.component";
 import {CadOptionsComponent} from "./components/menu/cad-options/cad-options.component";
 import {ExpressionAnalysisComponent} from "./components/expression-analysis/expression-analysis.component";
+import {OrderListComponent} from "./components/order-list/order-list.component";
+import {CadPointsComponent} from "./components/menu/cad-points/cad-points.component";
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -75,7 +77,9 @@ export class MyMatPaginatorIntl extends MatPaginatorIntl {
 		CadDimensionFormComponent,
 		CadInfoComponent,
 		CadOptionsComponent,
-		ExpressionAnalysisComponent
+		ExpressionAnalysisComponent,
+		OrderListComponent,
+		CadPointsComponent
 	],
 	imports: [
 		BrowserModule,

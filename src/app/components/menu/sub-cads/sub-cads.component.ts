@@ -204,7 +204,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 
 	downloadDxf() {
 		const data = this.contextMenuCad;
-		this.dataService.downloadDxf(data.id);
+		this.dataService.downloadDxf(data);
 	}
 
 	deleteSelected() {

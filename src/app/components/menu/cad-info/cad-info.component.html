@@ -62,7 +62,7 @@
 				</mat-form-field>
 			</div>
 		</div>
-		<div class="form-item-group">
+		<div class="form-item-group hint">
 			<div *ngFor="let b of cad.baseLines; let i = index">
 				<mat-form-field [color]="getItemColor(i)">
 					<mat-label>基准</mat-label>
@@ -74,7 +74,7 @@
 				</mat-form-field>
 			</div>
 		</div>
-		<div class="form-item-group">
+		<div class="form-item-group hint">
 			<div *ngFor="let j of cad.jointPoints">
 				<mat-form-field>
 					<mat-label>连接点</mat-label>
@@ -111,3 +111,4 @@
 		</mat-form-field>
 	</form>
 </div>
+<app-cad-points [points]="points"></app-cad-points>

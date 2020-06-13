@@ -1,19 +1,19 @@
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 
-import {LoadingComponent} from "./loading.component";
+import {CadPointsComponent} from "./cad-points.component";
 
-describe("LoadingComponent", () => {
-	let component: LoadingComponent;
-	let fixture: ComponentFixture<LoadingComponent>;
+describe("CadPointsComponent", () => {
+	let component: CadPointsComponent;
+	let fixture: ComponentFixture<CadPointsComponent>;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [LoadingComponent]
+			declarations: [CadPointsComponent]
 		}).compileComponents();
 	}));
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(LoadingComponent);
+		fixture = TestBed.createComponent(CadPointsComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});

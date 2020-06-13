@@ -6,6 +6,8 @@ import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimensio
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {State} from "@src/app/store/state";
+import {Store} from "@ngrx/store";
+import {CadStatusAction} from "@src/app/store/actions";
 
 @Component({
 	selector: "app-cad-dimension",
@@ -20,75 +22,70 @@ export class CadDimensionComponent implements OnInit {
 		return this.cad.data.getAllEntities().dimension;
 	}
 
-	constructor(private dialog: MatDialog) {}
+	constructor(private dialog: MatDialog, private store: Store<State>) {}
 
 	ngOnInit() {
-		// const {cad, cadStatus} = this;
-		// cad.controls.on("entityselect", (event, entity) => {
-		// 	const {name, index, extra} = cadStatus;
-		// 	const dimensions = this.data;
-		// 	if (name === "select line" && extra === "dimension" && entity instanceof CadLine) {
-		// 		let thatData: CadData;
-		// 		let thatIndex: number;
-		// 		cad.data.components.data.some((d, i) => {
-		// 			if (d.findEntity(entity.id)) {
-		// 				thatData = d;
-		// 				thatIndex = i;
-		// 				return true;
-		// 			}
-		// 			return false;
-		// 		});
-		// 		for (const d of cad.data.components.data) {
-		// 			if (d.findEntity(entity.id)) {
-		// 				thatData = d;
-		// 				break;
-		// 			}
-		// 		}
-		// 		let dimension = dimensions[index];
-		// 		if (!dimension) {
-		// 			dimension = new CadDimension();
-		// 			mode.index = 0;
-		// 			for (let i = 0; i < thatIndex; i++) {
-		// 				mode.index += this.menu.getData(i, -1).entities.dimension.length;
-		// 			}
-		// 			mode.index += thatData.entities.dimension.push(dimension) - 1;
-		// 		}
-		// 		if (!dimension.entity1.id) {
-		// 			dimension.entity1 = {id: entity.originalId, location: "start"};
-		// 			dimension.cad1 = thatData.name;
-		// 		} else if (!dimension.entity2.id) {
-		// 			dimension.entity2 = {id: entity.originalId, location: "end"};
-		// 			dimension.cad2 = thatData.name;
-		// 		} else {
-		// 			dimension.entity1 = dimension.entity2;
-		// 			dimension.entity2 = {id: entity.originalId, location: "end"};
-		// 			dimension.cad2 = thatData.name;
-		// 		}
-		// 		const e1 = cad.data.findEntity(dimension.entity1.id);
-		// 		const e2 = cad.data.findEntity(dimension.entity2.id);
-		// 		if (e1 instanceof CadLine && e2 instanceof CadLine) {
-		// 			const slope1 = e1.slope;
-		// 			const slope2 = e2.slope;
-		// 			// default axis: x
-		// 			if (Math.abs(slope1 - slope2) <= 1) {
-		// 				if (Math.abs(slope1) <= 1) {
-		// 					dimension.axis = "y";
-		// 				} else {
-		// 					dimension.axis = "x";
-		// 				}
-		// 			}
-		// 		}
-		// 		cad.data.updateComponents();
-		// 		cad.render();
-		// 	}
-		// });
-		// window.addEventListener("keydown", ({key}) => {
-		// 	if (key === "Escape") {
-		// 		if (mode.index >= 0) {
-		// 			this.selectDimLine(mode.index);
-		// 		}
-		// 	}
-		// });
+		const {cad} = this;
+		cad.controls.on("entityselect", (event, entity) => {
+			const data = cad.data.components.data;
+			const {name, index} = this.cadStatus;
+			const dimensions = this.data;
+			if (name === "edit dimension" && entity instanceof CadLine) {
+				let thatData: CadData;
+				let thatIndex: number;
+				cad.data.components.data.some((d, i) => {
+					if (d.findEntity(entity.id)) {
+						thatData = d;
+						thatIndex = i;
+						return true;
+					}
+					return false;
+				});
+				for (const d of cad.data.components.data) {
+					if (d.findEntity(entity.id)) {
+						thatData = d;
+						break;
+					}
+				}
+				let dimension = dimensions[index];
+				if (!dimension) {
+					dimension = new CadDimension();
+					let newIndex = 0;
+					for (let i = 0; i < thatIndex; i++) {
+						newIndex += data[i].entities.dimension.length;
+					}
+					newIndex += thatData.entities.dimension.push(dimension) - 1;
+					this.store.dispatch<CadStatusAction>({type: "set cad status", index: newIndex});
+				}
+				if (!dimension.entity1.id) {
+					dimension.entity1 = {id: entity.originalId, location: "start"};
+					dimension.cad1 = thatData.name;
+				} else if (!dimension.entity2.id) {
+					dimension.entity2 = {id: entity.originalId, location: "end"};
+					dimension.cad2 = thatData.name;
+				} else {
+					dimension.entity1 = dimension.entity2;
+					dimension.entity2 = {id: entity.originalId, location: "end"};
+					dimension.cad2 = thatData.name;
+				}
+				const e1 = cad.data.findEntity(dimension.entity1.id);
+				const e2 = cad.data.findEntity(dimension.entity2.id);
+				if (e1 instanceof CadLine && e2 instanceof CadLine) {
+					const slope1 = e1.slope;
+					const slope2 = e2.slope;
+					// default axis: x
+					if (Math.abs(slope1 - slope2) <= 1) {
+						if (Math.abs(slope1) <= 1) {
+							dimension.axis = "y";
+						} else {
+							dimension.axis = "x";
+						}
+					}
+				}
+				cad.data.updateComponents();
+				cad.render();
+			}
+		});
 	}
 
 	// editDimension(i: number) {

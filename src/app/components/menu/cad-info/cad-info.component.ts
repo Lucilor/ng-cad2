@@ -12,6 +12,7 @@ import {CadDataService} from "@src/app/services/cad-data.service";
 import {MessageComponent} from "../../message/message.component";
 import {CadStatusAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
+import {CadPointsComponent} from "../cad-points/cad-points.component";
 
 @Component({
 	selector: "app-cad-info",
@@ -24,6 +25,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 	@Input() cadStatus: State["cadStatus"];
 	lengths: string[] = [];
 	sampleFormulas: string[] = [];
+	points: CadPointsComponent["points"] = [];
 
 	constructor(private store: Store<State>, private dialog: MatDialog, private dataService: CadDataService) {
 		super();
@@ -37,23 +39,23 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 		this.dataService.getSampleFormulas().then((result) => {
 			this.sampleFormulas = result;
 		});
-		this.cad.controls.on("entityselect", (event, entity, object) => {
+		this.cad.controls.on("entityclick", (event, entity, object) => {
 			const data = this.currCads[0];
 			const {name, index} = this.cadStatus;
 			if (name === "select baseline") {
 				if (entity instanceof CadLine) {
 					const baseLine = data.baseLines[index];
 					if (entity.isHorizonal()) {
-						baseLine.idY = object.userData.selected ? entity.id : "";
+						baseLine.idY = object.userData.selected ? entity.originalId : "";
 					}
 					if (entity.isVertical()) {
-						baseLine.idX = object.userData.selected ? entity.id : "";
+						baseLine.idX = object.userData.selected ? entity.originalId : "";
 					}
 					data.updateBaseLines();
-					data.entities.forEach((e) => {
+					data.getAllEntities().forEach((e) => {
 						const object = this.cad.objects[e.id];
 						if (object) {
-							object.userData.selected = [baseLine.idX, baseLine.idY].includes(e.id);
+							object.userData.selected = [baseLine.idX, baseLine.idY].includes(e.originalId);
 						}
 					});
 					this.cad.render();
@@ -177,9 +179,9 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 				}, v.getAllEntities());
 			});
 			cad.controls.config.selectMode = "single";
-			store.dispatch<CadStatusAction>({type: "set cad status", cadStatus: {name: "select baseline", index}});
+			store.dispatch<CadStatusAction>({type: "set cad status", name: "select baseline", index});
 		} else {
-			store.dispatch<CadStatusAction>({type: "set cad status", cadStatus: {name: "normal", index}});
+			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		}
 	}
 

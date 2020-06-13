@@ -39,9 +39,16 @@ export function currCadsReducer(currCads = initialState.currCads, action: CurrCa
 }
 
 export function cadStatusReducer(cadStatus = initialState.cadStatus, action: CadStatusAction) {
-	const {type} = action;
+	const {type, name, index} = action;
 	if (type === "set cad status") {
-		return action.cadStatus;
+		const result = cloneDeep(cadStatus);
+		if (name !== undefined) {
+			result.name = name;
+		}
+		if (index !== undefined) {
+			result.index = index;
+		}
+		return result;
 	} else if (type === "refresh cad status") {
 		return cloneDeep(cadStatus);
 	}

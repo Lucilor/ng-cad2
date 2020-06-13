@@ -1,0 +1,8 @@
+<div
+	*ngFor="let p of points; let i = index"
+	class="point joint-point"
+	[class.selected]="p.active"
+	[style.left.px]="p.x"
+	[style.top.px]="p.y"
+	(click)="onPointClick()"
+></div>
