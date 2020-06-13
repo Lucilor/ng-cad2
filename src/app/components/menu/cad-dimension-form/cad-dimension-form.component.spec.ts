@@ -1,19 +1,19 @@
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 
-import {CadDimensionComponent} from "./cad-dimension.component";
+import {CadDimensionFormComponent} from "./cad-dimension-form.component";
 
-describe("CadDimensionComponent", () => {
-	let component: CadDimensionComponent;
-	let fixture: ComponentFixture<CadDimensionComponent>;
+describe("CadDimensionFormComponent", () => {
+	let component: CadDimensionFormComponent;
+	let fixture: ComponentFixture<CadDimensionFormComponent>;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [CadDimensionComponent]
+			declarations: [CadDimensionFormComponent]
 		}).compileComponents();
 	}));
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(CadDimensionComponent);
+		fixture = TestBed.createComponent(CadDimensionFormComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});

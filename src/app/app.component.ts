@@ -88,23 +88,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 					});
 					this.cad.controls.config.dragAxis = "xy";
 				}
-			} else if (cadStatus.name === "select line") {
-				this.cadStatusStr = "选择线";
-				this.cad.traverse((o, e) => {
-					if (e instanceof CadLine) {
-						if (e.isHorizonal() || e.isVertical()) {
-							e.opacity = 1;
-							o.userData.selectable = true;
-						} else {
-							e.opacity = 0.3;
-							o.userData.selectable = false;
-						}
-					} else {
-						e.opacity = 0.3;
-						o.userData.selectable = false;
-					}
-				});
-				this.cad.controls.config.selectMode = "single";
+			} else if (cadStatus.name === "select baseline") {
+				this.cadStatusStr = "选择基准线";
+			} else if (cadStatus.name === "edit dimension") {
+				this.cadStatusStr = "编辑标注";
 			}
 			this.cad.render();
 		});

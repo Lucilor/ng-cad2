@@ -20,6 +20,7 @@ import {MatPaginatorModule, MatPaginatorIntl} from "@angular/material/paginator"
 import {MatTableModule} from "@angular/material/table";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatTabsModule} from "@angular/material/tabs";
+import {MatSelectModule} from "@angular/material/select";
 
 import {SimplebarAngularModule} from "simplebar-angular";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
@@ -37,6 +38,7 @@ import {SubCadsComponent} from "./components/menu/sub-cads/sub-cads.component";
 import {CadLineComponent} from "./components/menu/cad-line/cad-line.component";
 import {CadMtextComponent} from "./components/menu/cad-mtext/cad-mtext.component";
 import {CadDimensionComponent} from "./components/menu/cad-dimension/cad-dimension.component";
+import {CadDimensionFormComponent} from "./components/menu/cad-dimension-form/cad-dimension-form.component";
 import {CadInfoComponent} from "./components/menu/cad-info/cad-info.component";
 import {CadOptionsComponent} from "./components/menu/cad-options/cad-options.component";
 import {ExpressionAnalysisComponent} from "./components/expression-analysis/expression-analysis.component";
@@ -70,6 +72,7 @@ export class MyMatPaginatorIntl extends MatPaginatorIntl {
 		CadLineComponent,
 		CadMtextComponent,
 		CadDimensionComponent,
+		CadDimensionFormComponent,
 		CadInfoComponent,
 		CadOptionsComponent,
 		ExpressionAnalysisComponent
@@ -102,6 +105,7 @@ export class MyMatPaginatorIntl extends MatPaginatorIntl {
 		MatTableModule,
 		MatAutocompleteModule,
 		MatTabsModule,
+		MatSelectModule,
 		SimplebarAngularModule,
 		ColorPickerModule
 	],

@@ -39,16 +39,14 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 		});
 		this.cad.controls.on("entityselect", (event, entity, object) => {
 			const data = this.currCads[0];
-			const {name, index, extra} = this.cadStatus;
-			if (name === "select line" && extra === "baseLine") {
+			const {name, index} = this.cadStatus;
+			if (name === "select baseline") {
 				if (entity instanceof CadLine) {
 					const baseLine = data.baseLines[index];
 					if (entity.isHorizonal()) {
-						console.log(1);
 						baseLine.idY = object.userData.selected ? entity.id : "";
 					}
 					if (entity.isVertical()) {
-						console.log(2);
 						baseLine.idX = object.userData.selected ? entity.id : "";
 					}
 					data.updateBaseLines();
@@ -155,17 +153,33 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 	}
 
 	selectBaseLine(data: CadData, index: number) {
-		if (this.getItemColor("baseLine", index) === "primary") {
+		const {cad, store} = this;
+		if (this.getItemColor(index) === "primary") {
 			const {idX, idY} = data.baseLines[index];
-			if (this.cad.objects[idX]) {
-				this.cad.objects[idX].userData.selected = true;
+			if (cad.objects[idX]) {
+				cad.objects[idX].userData.selected = true;
 			}
-			if (this.cad.objects[idY]) {
-				this.cad.objects[idY].userData.selected = true;
+			if (cad.objects[idY]) {
+				cad.objects[idY].userData.selected = true;
 			}
-			this.store.dispatch<CadStatusAction>({type: "set cad status", cadStatus: {name: "select line", index, extra: "baseLine"}});
+			cad.traverse((o, e) => {
+				e.opacity = 0.3;
+				o.userData.selectable = false;
+			});
+			this.currCads.forEach((v) => {
+				cad.traverse((o, e) => {
+					if (e instanceof CadLine) {
+						if (e.isHorizonal() || e.isVertical()) {
+							e.opacity = 1;
+							o.userData.selectable = true;
+						}
+					}
+				}, v.getAllEntities());
+			});
+			cad.controls.config.selectMode = "single";
+			store.dispatch<CadStatusAction>({type: "set cad status", cadStatus: {name: "select baseline", index}});
 		} else {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", cadStatus: {name: "normal", index}});
+			store.dispatch<CadStatusAction>({type: "set cad status", cadStatus: {name: "normal", index}});
 		}
 	}
 
@@ -184,8 +198,8 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 		}
 	}
 
-	getItemColor(field: string, index: number) {
-		if (this.cadStatus.extra === field && this.cadStatus.index === index) {
+	getItemColor(index: number) {
+		if (this.cadStatus.name === "select baseline" && this.cadStatus.index === index) {
 			return "accent";
 		}
 		return "primary";

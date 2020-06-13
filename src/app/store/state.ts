@@ -1,7 +1,14 @@
+export type CadStatusName  = "normal" | "select baseline" | "edit dimension";
+export interface CadStatus {
+	name: CadStatusName;
+	index: number;
+	extra?: any;
+}
+
 export interface State {
 	loading: {list: Set<string>; progress: number};
 	currCads: {[key: string]: {self: boolean; full: boolean; partners: string[]; components: string[]}};
-	cadStatus: {name: "normal" | "select line"; index: number; extra?: any};
+	cadStatus: CadStatus;
 }
 
 export const initialState: State = {
