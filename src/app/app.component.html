@@ -5,7 +5,7 @@
 <div class="menu left">
 	<app-sub-cads [cad]="cad" [currCads]="currCads" [cadStatus]="cadStatus"></app-sub-cads>
 </div>
-<ngx-simplebar class="menu right">
+<perfect-scrollbar class="menu right">
 		<mat-accordion multi>
 			<mat-expansion-panel expanded>
 				<mat-expansion-panel-header>
@@ -30,6 +30,6 @@
 				</mat-tab-group>
 			</mat-expansion-panel>
 		</mat-accordion>
-</ngx-simplebar>
+</perfect-scrollbar>
 <div class="menu bottom" [class.accent]="cadStatus.name !== 'normal'">当前状态：{{ cadStatusStr }}</div>
 <app-loading></app-loading>

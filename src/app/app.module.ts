@@ -22,7 +22,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatSelectModule} from "@angular/material/select";
 
-import {SimplebarAngularModule} from "simplebar-angular";
+import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
 
 import {AppRoutingModule} from "./app-routing.module";
@@ -59,6 +59,10 @@ export class MyMatPaginatorIntl extends MatPaginatorIntl {
 		// tslint:disable-next-line: semicolon
 	};
 }
+
+const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
+	wheelPropagation: true
+};
 
 @NgModule({
 	declarations: [
@@ -110,12 +114,13 @@ export class MyMatPaginatorIntl extends MatPaginatorIntl {
 		MatAutocompleteModule,
 		MatTabsModule,
 		MatSelectModule,
-		SimplebarAngularModule,
+		PerfectScrollbarModule,
 		ColorPickerModule
 	],
 	providers: [
 		{provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 3000, verticalPosition: "top"}},
-		{provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl}
+		{provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
+		{provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG}
 	],
 	bootstrap: [AppComponent]
 })
