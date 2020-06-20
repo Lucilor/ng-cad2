@@ -53,3 +53,6 @@
 	padding: 3px !important;
 	margin: 3px !important;
 }
+::ng-deep .mat-tab-body-content {
+	padding: 10px 0;
+}

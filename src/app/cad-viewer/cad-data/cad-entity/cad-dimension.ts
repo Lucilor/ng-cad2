@@ -1,7 +1,7 @@
 import {CadEntity} from "./cad-entity";
 import {CAD_TYPES} from "../cad-types";
 import {CadLayer} from "../cad-layer";
-import {intersection} from "lodash";
+import {intersection} from "lodash"
 
 export class CadDimension extends CadEntity {
 	font_size: number;
@@ -74,7 +74,7 @@ export class CadDimension extends CadEntity {
 		return new CadDimension(data);
 	}
 
-	equals(dimension: CadDimension) {
+	equals(dimension:CadDimension) {
 		const aIds = [this.entity1.id, this.entity2.id];
 		const bIds = [dimension.entity1.id, dimension.entity2.id];
 		return intersection(aIds, bIds).length === 2 || this.id === dimension.id || this.originalId === dimension.originalId;

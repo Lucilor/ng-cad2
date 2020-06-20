@@ -5,8 +5,10 @@ export abstract class MenuComponent implements OnDestroy {
 	session = new SessionStorage("ngCadMenu");
 	contextMenuPosition = {x: "0px", y: "0px"};
 
-	constructor() {
-		this.loadStatus();
+	constructor(load = true) {
+		if (load) {
+			this.loadStatus();
+		}
 		window.addEventListener("beforeunload", () => this.saveStatus());
 	}
 

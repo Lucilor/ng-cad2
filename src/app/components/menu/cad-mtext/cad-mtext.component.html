@@ -1,5 +1,5 @@
 <form *ngIf="selected.length">
-	<button [hidden]="true"></button>
+	<button hidden></button>
 	<div class="form-item length">
 		<label>内容</label>
 		<mat-form-field>
@@ -39,6 +39,7 @@
 	</div>
 </form>
 <div class="btn-group">
+	<div *ngIf="currCads.length !== 1">要添加或复制文本，请先选择（仅）一个CAD。</div>
 	<button mat-raised-button color="primary" [disabled]="currCads.length !== 1" (click)="addMtext()">添加文本</button>
 	<button mat-raised-button color="primary" [disabled]="currCads.length !== 1" (click)="cloneMtexts()">复制文本</button>
 </div>

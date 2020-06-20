@@ -38,11 +38,18 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 	multiSelect = true;
 	checkedIndex = -1;
 	field: LeftMenuField;
+	disabled = false;
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
-	contextMenuCad: CadData;
+	contextMenuCad: {isChild: boolean; data: CadData};
+	get selected() {
+		const cads = this.cads.filter((v) => v.checked).map((v) => v.data);
+		const partners = this.partners.filter((v) => v.checked).map((v) => v.data);
+		const components = this.components.filter((v) => v.checked).map((v) => v.data);
+		return {cads, partners, components};
+	}
 
 	constructor(private store: Store<State>, private dialog: MatDialog, private dataService: CadDataService) {
-		super();
+		super(false);
 	}
 
 	ngOnInit() {}
@@ -120,6 +127,9 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 	}
 
 	clickCad(field: LeftMenuField, index: number, event?: MatCheckboxChange) {
+		if (this.disabled) {
+			return;
+		}
 		const cad = this[field][index];
 		const checked = event ? event.checked : !cad.checked;
 		if (checked) {
@@ -145,6 +155,9 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 	}
 
 	setCurrCads() {
+		if (this.disabled) {
+			return;
+		}
 		const cads: State["currCads"] = {};
 		this.cads.forEach((v) => {
 			cads[v.data.id] = {self: v.checked, full: false, partners: [], components: []};
@@ -169,14 +182,17 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 		this.store.dispatch<CurrCadsAction>({type: "set curr cads", cads});
 	}
 
-	onContextMenu(event: PointerEvent, cad: CadData) {
+	onContextMenu(event: PointerEvent, data: CadData, isChild: boolean) {
+		if (this.disabled) {
+			return;
+		}
 		super.onContextMenu(event);
-		this.contextMenuCad = cad;
+		this.contextMenuCad = {isChild, data};
 		this.contextMenu.openMenu();
 	}
 
 	editChildren(type: "partners" | "components") {
-		const data = this.contextMenuCad;
+		const data = this.contextMenuCad.data;
 		let checkedItems: CadData[];
 		if (type === "partners") {
 			checkedItems = [...data.partners];
@@ -203,8 +219,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 	}
 
 	downloadDxf() {
-		const data = this.contextMenuCad;
-		this.dataService.downloadDxf(data);
+		this.dataService.downloadDxf(this.contextMenuCad.data);
 	}
 
 	deleteSelected() {
@@ -228,22 +243,57 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 				toRemove[v.parent].c.push(v.data.id);
 			}
 		});
-		for (const id in toRemove) {
-			const {p, c} = toRemove[id];
-			const parent = data.components.data.find((v) => v.id === id);
-			parent.partners = parent.partners.filter((v) => !p.includes(v.id));
-			parent.components.data = parent.components.data.filter((v) => !c.includes(v.id));
+		if (Object.keys(toRemove).length) {
+			for (const id in toRemove) {
+				const {p, c} = toRemove[id];
+				const parent = data.components.data.find((v) => v.id === id);
+				parent.partners = parent.partners.filter((v) => !p.includes(v.id));
+				parent.components.data = parent.components.data.filter((v) => !c.includes(v.id));
+			}
+			this.update();
+			this.cad.reset(null, false);
+			this.setCurrCads();
 		}
-		this.update();
-		this.cad.reset(null, false);
-		this.setCurrCads();
 	}
 
 	editSelected() {
-		open("index?data=" + RSAEncrypt({ids: this.currCads.map((v) => v.id)}));
+		const selected = this.selected;
+		let ids = [];
+		if (selected.cads.length) {
+			ids = selected.cads.map((v) => v.id);
+		} else {
+			ids = selected.partners.concat(selected.components).map((v) => v.id);
+		}
+		// const ids = this.currCads.map((v) => v.id);
+		if (ids.length) {
+			console.log(ids);
+			open("index?data=" + RSAEncrypt({ids}));
+		}
 	}
 
-	saveStatus() {}
+	saveStatus() {
+		const data: {[key: string]: number[]} = {};
+		["cads", "partners", "components"].forEach((v) => {
+			data[v] = [];
+			(this[v] as CadNode[]).forEach((vv, ii) => {
+				if (vv.checked) {
+					data[v].push(ii);
+				}
+			});
+		});
+		this.session.save("subCads", data);
+	}
 
-	loadStatus() {}
+	loadStatus() {
+		const data: {[key: string]: number[]} = this.session.load("subCads", true);
+		for (const field in data) {
+			data[field].forEach((i) => {
+				const node = this[field][i] as CadNode;
+				if (node) {
+					node.checked = true;
+				}
+			});
+		}
+		this.setCurrCads();
+	}
 }

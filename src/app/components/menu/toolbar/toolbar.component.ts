@@ -11,6 +11,7 @@ import {State} from "@src/app/store/state";
 import {MenuComponent} from "../menu.component";
 import {MessageComponent} from "../../message/message.component";
 import {CadListComponent} from "../../cad-list/cad-list.component";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
 	selector: "app-toolbar",
@@ -46,7 +47,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 				this.clickBtn(key);
 			}
 		});
-
 		if (this.dataService.data) {
 			const data = await this.dataService.getCadData(this.dataService.data);
 			this.openCad.emit(data);
@@ -172,7 +172,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 		this.session.save("toolbar", data);
 	}
 
-	async loadStatus() {
+	loadStatus() {
 		const data = this.session.load("toolbar", true);
 		this.collection = data.collection || "";
 		this.ids = data.ids || [];

@@ -88,61 +88,65 @@ export class CadDimensionComponent implements OnInit {
 		});
 	}
 
-	// editDimension(i: number) {
-	// 	const {cad, data} = this;
-	// 	const ref: MatDialogRef<CadDimensionFormComponent, CadDimension> = this.dialog.open(CadDimensionFormComponent, {
-	// 		data: {data: data[i]},
-	// 		disableClose: true
-	// 	});
-	// 	ref.afterClosed().subscribe((dimension) => {
-	// 		if (dimension) {
-	// 			cad.render();
-	// 		}
-	// 	});
-	// }
+	editDimension(i: number) {
+		const {cad, data} = this;
+		const ref: MatDialogRef<CadDimensionFormComponent, CadDimension> = this.dialog.open(CadDimensionFormComponent, {
+			data: {data: data[i]},
+			disableClose: true
+		});
+		ref.afterClosed().subscribe((dimension) => {
+			if (dimension) {
+				cad.render();
+			}
+		});
+	}
 
-	// getDimensionName(dimension: CadDimension, index: number) {
-	// 	if (this.dimNameFocus === index) {
-	// 		return dimension.mingzi || "";
-	// 	} else {
-	// 		return `${dimension.mingzi || ""} ${dimension.qujian || ""}`;
-	// 	}
-	// }
+	getDimensionName(dimension: CadDimension, index: number) {
+		if (this.dimNameFocus === index) {
+			return dimension.mingzi || "";
+		} else {
+			return `${dimension.mingzi || ""} ${dimension.qujian || ""}`;
+		}
+	}
 
-	// setDimensionName(event: InputEvent, dimension: CadDimension) {
-	// 	const str = (event.target as HTMLInputElement).value;
-	// 	dimension.mingzi = str;
-	// 	this.cad.render();
-	// }
+	setDimensionName(event: InputEvent, dimension: CadDimension) {
+		const str = (event.target as HTMLInputElement).value;
+		dimension.mingzi = str;
+		this.cad.render();
+	}
 
-	// selectDimLine(i: number) {
-	// 	const {cad, data} = this;
-	// 	if (menu.mode.type === "dimension" && menu.mode.index === i) {
-	// 		menu.selectLineEnd();
-	// 		menu.mode.index = -1;
-	// 	} else {
-	// 		const {entity1, entity2} = data[i] || {};
-	// 		cad.traverse((o, e) => {
-	// 			if (e instanceof CadLine) {
-	// 				o.userData.selectable = true;
-	// 				o.userData.selected = [entity1?.id, entity2?.id].includes(e.id);
-	// 				e.opacity = 1;
-	// 			} else if (e instanceof CadDimension) {
-	// 				e.opacity = 1;
-	// 			} else {
-	// 				o.userData.selectable = false;
-	// 				e.opacity = 0.3;
-	// 			}
-	// 		});
-	// 		menu.selectLineBegin("dimension", i);
-	// 	}
-	// }
+	isSelectingDimLine(index: number) {
+		return this.cadStatus.name === "edit dimension" && this.cadStatus.index === index;
+	}
 
-	// addDimension() {
-	// 	this.selectDimLine(-1);
-	// }
+	selectDimLine(index: number) {
+		const {cad, data, cadStatus} = this;
+		if (cadStatus.name === "edit dimension" && cadStatus.index === index) {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+		} else {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "edit dimension", index});
+			const {entity1, entity2} = data[index] || {};
+			cad.traverse((o, e) => {
+				if (e instanceof CadLine) {
+					o.userData.selectable = true;
+					o.userData.selected = [entity1?.id, entity2?.id].includes(e.id);
+					e.opacity = 1;
+				} else if (e instanceof CadDimension) {
+					e.opacity = 1;
+				} else {
+					o.userData.selectable = false;
+					e.opacity = 0.3;
+				}
+			});
+			// menu.selectLineBegin("dimension", i);
+		}
+	}
 
-	// removeDimension(dimension: CadDimension) {
-	// 	this.menu.cad.removeEntity(dimension);
-	// }
+	addDimension() {
+		this.selectDimLine(-1);
+	}
+
+	removeDimension(index: number) {
+		this.cad.removeEntity(this.data[index]);
+	}
 }

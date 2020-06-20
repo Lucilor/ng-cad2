@@ -7,11 +7,13 @@ import {SubCadsComponent} from "./components/menu/sub-cads/sub-cads.component";
 import {environment} from "@src/environments/environment";
 import {getCurrCads, getCadStatus} from "./store/selectors";
 import {CadStatusAction, CurrCadsAction} from "./store/actions";
-import {CadLine} from "./cad-viewer/cad-data/cad-entity/cad-line";
 import {Vector2} from "three";
 import {CadTransformation} from "./cad-viewer/cad-data/cad-transformation";
 import {timeout} from "./app.common";
 import {State} from "./store/state";
+import {CadInfoComponent} from "./components/menu/cad-info/cad-info.component";
+import {CadDimensionComponent} from "./components/menu/cad-dimension/cad-dimension.component";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
 	selector: "app-root",
@@ -24,12 +26,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 	currCads: CadData[];
 	cadStatus: State["cadStatus"];
 	cadStatusStr: string;
+	subCadsNeedsLoad: State["cadStatus"]["name"];
 	@ViewChild("cadContainer", {read: ElementRef}) cadContainer: ElementRef<HTMLElement>;
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
-	// @ViewChild(CadInfoComponent) cadInfo: CadInfoComponent;
+	@ViewChild(CadInfoComponent) cadInfo: CadInfoComponent;
+	@ViewChild(CadDimensionComponent) cadDimension: CadDimensionComponent;
 
-	constructor(private store: Store<State>) {}
+	constructor(private store: Store<State>, private route: ActivatedRoute) {}
 
 	ngOnInit() {
 		this.cad = new CadViewer(new CadData(), {
@@ -63,6 +67,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 		});
 		this.store.select(getCadStatus).subscribe((cadStatus) => {
 			this.cadStatus = cadStatus;
+			if (this.subCadsNeedsLoad && this.subCadsNeedsLoad !== cadStatus.name) {
+				this.subCads.loadStatus();
+				this.subCadsNeedsLoad = null;
+				this.subCads.disabled = false;
+			}
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
 				this.cad.controls.config.selectMode = "multiple";
@@ -94,6 +103,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 				this.cadStatusStr = "";
 			} else if (cadStatus.name === "edit dimension") {
 				this.cadStatusStr = "编辑标注";
+				if (!this.subCadsNeedsLoad) {
+					this.subCads.saveStatus();
+					this.subCads.unselectAll();
+					this.subCads.disabled = true;
+					this.subCadsNeedsLoad = "edit dimension";
+				}
 			}
 			this.cad.render();
 		});
@@ -133,7 +148,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 		window.addEventListener("contextmenu", (event) => {
 			event.preventDefault();
 		});
-		window.addEventListener("beforeunload", () => this.cad.destroy());
 	}
 
 	ngAfterViewInit() {
@@ -145,7 +159,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		this.cad.destroy();
+		// this.cad.destroy();
 	}
 
 	afterOpenCad(data: CadData[]) {
