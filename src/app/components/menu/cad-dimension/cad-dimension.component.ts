@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from "@angular/core";
+import {Component, OnInit, Input, OnDestroy} from "@angular/core";
 import {MatDialogRef, MatDialog} from "@angular/material/dialog";
 import {CadDimensionFormComponent} from "../cad-dimension-form/cad-dimension-form.component";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
@@ -8,16 +8,21 @@ import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {State} from "@src/app/store/state";
 import {Store} from "@ngrx/store";
 import {CadStatusAction} from "@src/app/store/actions";
+import {Observable, Subject} from "rxjs";
+import {getCadStatus} from "@src/app/store/selectors";
+import {take, takeUntil} from "rxjs/operators";
 
 @Component({
 	selector: "app-cad-dimension",
 	templateUrl: "./cad-dimension.component.html",
 	styleUrls: ["./cad-dimension.component.scss"]
 })
-export class CadDimensionComponent implements OnInit {
+export class CadDimensionComponent implements OnInit, OnDestroy {
 	@Input() cad: CadViewer;
-	@Input() cadStatus: State["cadStatus"];
+	cadStatus: Observable<State["cadStatus"]>;
 	dimNameFocus = -1;
+	dimLineSelecting = -1;
+	destroyed = new Subject();
 	get data() {
 		return this.cad.data.getAllEntities().dimension;
 	}
@@ -26,9 +31,16 @@ export class CadDimensionComponent implements OnInit {
 
 	ngOnInit() {
 		const {cad} = this;
-		cad.controls.on("entityselect", (event, entity) => {
+		this.cadStatus = this.store.select(getCadStatus);
+		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name, index}) => {
+			if (name === "assemble") {
+				return index;
+			}
+			return -1;
+		});
+		cad.controls.on("entityselect", async (event, entity) => {
 			const data = cad.data.components.data;
-			const {name, index} = this.cadStatus;
+			const {name, index} = await this.cadStatus.pipe(take(1)).toPromise();
 			const dimensions = this.data;
 			if (name === "edit dimension" && entity instanceof CadLine) {
 				let thatData: CadData;
@@ -88,6 +100,10 @@ export class CadDimensionComponent implements OnInit {
 		});
 	}
 
+	ngOnDestroy() {
+		this.destroyed.next();
+	}
+
 	editDimension(i: number) {
 		const {cad, data} = this;
 		const ref: MatDialogRef<CadDimensionFormComponent, CadDimension> = this.dialog.open(CadDimensionFormComponent, {
@@ -115,12 +131,14 @@ export class CadDimensionComponent implements OnInit {
 		this.cad.render();
 	}
 
-	isSelectingDimLine(index: number) {
-		return this.cadStatus.name === "edit dimension" && this.cadStatus.index === index;
+	async isSelectingDimLine(index: number) {
+		const cadStatus = await this.cadStatus.pipe(take(1)).toPromise();
+		return cadStatus.name === "edit dimension" && cadStatus.index === index;
 	}
 
-	selectDimLine(index: number) {
-		const {cad, data, cadStatus} = this;
+	async selectDimLine(index: number) {
+		const {cad, data} = this;
+		const cadStatus = await this.cadStatus.pipe(take(1)).toPromise();
 		if (cadStatus.name === "edit dimension" && cadStatus.index === index) {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		} else {

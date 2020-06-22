@@ -3,7 +3,6 @@ import {State, initialState} from "./state";
 import {ActionReducerMap, MetaReducer} from "@ngrx/store";
 import {environment} from "src/environments/environment";
 import {cloneDeep} from "lodash";
-import {CadData} from "../cad-viewer/cad-data/cad-data";
 
 export function loadingReducer(loading = initialState.loading, action: LoadingAction) {
 	const newLoading: State["loading"] = cloneDeep(loading);
@@ -47,6 +46,8 @@ export function cadStatusReducer(cadStatus = initialState.cadStatus, action: Cad
 		}
 		if (index !== undefined) {
 			result.index = index;
+		} else {
+			result.index = -1;
 		}
 		return result;
 	} else if (type === "refresh cad status") {

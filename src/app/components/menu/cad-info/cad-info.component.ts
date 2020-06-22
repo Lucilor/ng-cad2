@@ -6,13 +6,15 @@ import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {CadOptionsComponent} from "../../menu/cad-options/cad-options.component";
-import {getCurrCads} from "@src/app/store/selectors";
+import {getCurrCads, getCadStatus} from "@src/app/store/selectors";
 import {timeout} from "@src/app/app.common";
 import {CadDataService} from "@src/app/services/cad-data.service";
 import {MessageComponent} from "../../message/message.component";
 import {CadStatusAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {CadPointsComponent} from "../cad-points/cad-points.component";
+import {Observable} from "rxjs";
+import {take} from "rxjs/operators";
 
 @Component({
 	selector: "app-cad-info",
@@ -22,26 +24,32 @@ import {CadPointsComponent} from "../cad-points/cad-points.component";
 export class CadInfoComponent extends MenuComponent implements OnInit {
 	@Input() cad: CadViewer;
 	@Input() currCads: CadData[];
-	@Input() cadStatus: State["cadStatus"];
+	@Input() formulas: string[] = [];
+	cadStatus: Observable<State["cadStatus"]>;
 	lengths: string[] = [];
-	sampleFormulas: string[] = [];
 	points: CadPointsComponent["points"] = [];
+	baseLineIndex = -1;
 
 	constructor(private store: Store<State>, private dialog: MatDialog, private dataService: CadDataService) {
 		super();
 	}
 
 	ngOnInit() {
+		this.cadStatus = this.store.select(getCadStatus);
+		this.cadStatus.subscribe(({name, index}) => {
+			if (name === "select baseline") {
+				this.baseLineIndex = index;
+			} else {
+				this.baseLineIndex = -1;
+			}
+		});
 		this.store.select(getCurrCads).subscribe(async () => {
 			await timeout(0);
 			this.updateLengths();
 		});
-		this.dataService.getSampleFormulas().then((result) => {
-			this.sampleFormulas = result;
-		});
-		this.cad.controls.on("entityclick", (event, entity, object) => {
+		this.cad.controls.on("entityclick", async (event, entity, object) => {
 			const data = this.currCads[0];
-			const {name, index} = this.cadStatus;
+			const {name, index} = await this.cadStatus.pipe(take(1)).toPromise();
 			if (name === "select baseline") {
 				if (entity instanceof CadLine) {
 					const baseLine = data.baseLines[index];
@@ -154,9 +162,9 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 		}
 	}
 
-	selectBaseLine(data: CadData, index: number) {
+	async selectBaseLine(data: CadData, index: number) {
 		const {cad, store} = this;
-		if (this.getItemColor(index) === "primary") {
+		if ((await this.getItemColor(index)) === "primary") {
 			const {idX, idY} = data.baseLines[index];
 			if (cad.objects[idX]) {
 				cad.objects[idX].userData.selected = true;
@@ -200,8 +208,9 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 		}
 	}
 
-	getItemColor(index: number) {
-		if (this.cadStatus.name === "select baseline" && this.cadStatus.index === index) {
+	async getItemColor(index: number) {
+		const {name} = await this.cadStatus.pipe(take(1)).toPromise();
+		if (name === "select baseline" && index === index) {
 			return "accent";
 		}
 		return "primary";

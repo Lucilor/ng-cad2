@@ -13,7 +13,9 @@ import {timeout} from "./app.common";
 import {State} from "./store/state";
 import {CadInfoComponent} from "./components/menu/cad-info/cad-info.component";
 import {CadDimensionComponent} from "./components/menu/cad-dimension/cad-dimension.component";
-import {ActivatedRoute} from "@angular/router";
+import {CadDataService} from "./services/cad-data.service";
+import {take, takeUntil} from "rxjs/operators";
+import {Observable, Subject} from "rxjs";
 
 @Component({
 	selector: "app-root",
@@ -24,18 +26,22 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 	cad: CadViewer;
 	collection = "";
 	currCads: CadData[];
-	cadStatus: State["cadStatus"];
 	cadStatusStr: string;
-	subCadsNeedsLoad: State["cadStatus"]["name"];
+	formulas: string[] = [];
+	cadStatus: Observable<State["cadStatus"]>;
+	destroyed = new Subject();
 	@ViewChild("cadContainer", {read: ElementRef}) cadContainer: ElementRef<HTMLElement>;
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
 	@ViewChild(CadInfoComponent) cadInfo: CadInfoComponent;
 	@ViewChild(CadDimensionComponent) cadDimension: CadDimensionComponent;
 
-	constructor(private store: Store<State>, private route: ActivatedRoute) {}
+	constructor(private store: Store<State>, private dataService: CadDataService) {}
 
 	ngOnInit() {
+		this.dataService.getSampleFormulas().then((result) => {
+			this.formulas = result;
+		});
 		this.cad = new CadViewer(new CadData(), {
 			width: innerWidth,
 			height: innerHeight,
@@ -49,7 +55,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.cad.stats.dom.style.left = "";
 		}
 		this.store.select(getCurrCads).subscribe((cads) => {
-			console.log(cads);
 			const ids = [];
 			for (const id in cads) {
 				const cad = cads[id];
@@ -61,54 +66,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 			}
 			this.currCads = this.cad.data.findChildren(ids);
 			this.currCads.forEach((v) => this.setCadData(v));
-			if (this.cadStatus) {
-				this.store.dispatch<CadStatusAction>({type: "refresh cad status"});
-			}
 		});
-		this.store.select(getCadStatus).subscribe((cadStatus) => {
-			this.cadStatus = cadStatus;
-			if (this.subCadsNeedsLoad && this.subCadsNeedsLoad !== cadStatus.name) {
-				this.subCads.loadStatus();
-				this.subCadsNeedsLoad = null;
-				this.subCads.disabled = false;
-			}
+		this.cadStatus = this.store.select(getCadStatus);
+		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
-				this.cad.controls.config.selectMode = "multiple";
-				const controls = this.cad.controls;
-				if (this.currCads.length) {
-					this.cad.traverse((o, e) => {
-						o.userData.selectable = false;
-						o.userData.selected = false;
-						e.opacity = 0.3;
-					});
-					this.currCads.forEach((v) => {
-						this.cad.traverse((o, e) => {
-							o.userData.selectable = true;
-							e.opacity = 1;
-						}, v.getAllEntities());
-					});
-					controls.config.dragAxis = "";
-				} else {
-					this.cad.traverse((o, e) => {
-						o.userData.selectable = true;
-						o.userData.selected = false;
-						e.opacity = 1;
-					});
-					this.cad.controls.config.dragAxis = "xy";
-				}
 			} else if (cadStatus.name === "select baseline") {
 				this.cadStatusStr = "选择基准线";
 			} else if (cadStatus.name === "select jointpoint") {
 				this.cadStatusStr = "";
 			} else if (cadStatus.name === "edit dimension") {
 				this.cadStatusStr = "编辑标注";
-				if (!this.subCadsNeedsLoad) {
-					this.subCads.saveStatus();
-					this.subCads.unselectAll();
-					this.subCads.disabled = true;
-					this.subCadsNeedsLoad = "edit dimension";
-				}
+			} else if (cadStatus.name === "assemble") {
+				this.cadStatusStr = "装配";
 			}
 			this.cad.render();
 		});
@@ -138,9 +108,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		Object.assign(window, {app: this});
 		window.addEventListener("resize", () => this.cad.resize(innerWidth, innerHeight));
-		window.addEventListener("keydown", ({key}) => {
+		window.addEventListener("keydown", async ({key}) => {
+			const {name} = await this.cadStatus.pipe(take(1)).toPromise();
 			if (key === "Escape") {
-				if (this.cadStatus.name !== "normal") {
+				if (name !== "normal") {
 					this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal", index: -1});
 				}
 			}
@@ -159,7 +130,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		// this.cad.destroy();
+		this.destroyed.next();
 	}
 
 	afterOpenCad(data: CadData[]) {
@@ -199,5 +170,16 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	refreshCurrCads() {
 		this.store.dispatch<CurrCadsAction>({type: "refresh curr cads"});
+	}
+
+	async isMenuVisible(type: number) {
+		const {name} = await this.cadStatus.pipe(take(1)).toPromise();
+		if (type === 0) {
+			return name !== "assemble";
+		}
+		if (type === 1) {
+			return name === "assemble";
+		}
+		return false;
 	}
 }

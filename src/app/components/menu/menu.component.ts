@@ -20,7 +20,7 @@ export abstract class MenuComponent implements OnDestroy {
 
 	abstract loadStatus(): void;
 
-	onContextMenu(event: PointerEvent, ...args: any[]) {
+	onContextMenu(event: PointerEvent, ..._args: any[]) {
 		event.preventDefault();
 		this.contextMenuPosition.x = event.clientX + "px";
 		this.contextMenuPosition.y = event.clientY + "px";

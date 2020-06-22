@@ -44,6 +44,7 @@ import {CadOptionsComponent} from "./components/menu/cad-options/cad-options.com
 import {ExpressionAnalysisComponent} from "./components/expression-analysis/expression-analysis.component";
 import {OrderListComponent} from "./components/order-list/order-list.component";
 import {CadPointsComponent} from "./components/menu/cad-points/cad-points.component";
+import {CadAssembleComponent} from "./components/menu/cad-assemble/cad-assemble.component";
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -83,7 +84,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		CadOptionsComponent,
 		ExpressionAnalysisComponent,
 		OrderListComponent,
-		CadPointsComponent
+		CadPointsComponent,
+		CadAssembleComponent
 	],
 	imports: [
 		BrowserModule,

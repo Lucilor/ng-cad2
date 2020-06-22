@@ -1,0 +1,22 @@
+<div>
+    <button [hidden]="true"></button>
+	<form>
+		<mat-form-field>
+			<mat-label>距离</mat-label>
+			<input matInput type="text" name="distance" [(ngModel)]="options.space" placeholder="请输入距离" />
+		</mat-form-field>
+		<mat-form-field>
+			<mat-label>定位</mat-label>
+			<mat-select name="position" [(ngModel)]="options.position">
+				<mat-option value="absolute">绝对定位</mat-option>
+				<mat-option value="relative">相对定位</mat-option>
+			</mat-select>
+		</mat-form-field>
+	</form>
+	<!-- <div class="btn-group">
+		<button mat-raised-button [color]="assembling ? 'accent' : 'primary'" (click)="toggleAssemble()">
+			{{ assembling ? "结束" : "开始" }}装配
+		</button>
+		<button mat-raised-button color="primary" (click)="directAssemble()">快速装配</button>
+	</div> -->
+</div>

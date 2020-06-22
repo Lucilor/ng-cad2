@@ -99,6 +99,10 @@ export class CadViewerControls extends EventEmitter {
 		return super.on(type, listener);
 	}
 
+	off<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1], object?: CadEvents[K][2]) => void) {
+		return super.off(type, listener);
+	}
+
 	// Normalized Device Coordinate
 	private _getNDC(point: Vector2) {
 		const {width, height, top, left} = this.cad.renderer.domElement.getBoundingClientRect();

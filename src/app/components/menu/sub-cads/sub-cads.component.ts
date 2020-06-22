@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild} from "@angular/core";
+import {Component, OnInit, Input, ViewChild, OnDestroy} from "@angular/core";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {Store} from "@ngrx/store";
@@ -12,6 +12,9 @@ import {RSAEncrypt} from "@lucilor/utils";
 import {State} from "@src/app/store/state";
 import {MenuComponent} from "../menu.component";
 import {CadListComponent} from "../../cad-list/cad-list.component";
+import {getCadStatus, getCurrCads} from "@src/app/store/selectors";
+import {take, takeUntil} from "rxjs/operators";
+import {Observable, Subject} from "rxjs";
 
 interface CadNode {
 	data: CadData;
@@ -21,26 +24,31 @@ interface CadNode {
 	parent?: string;
 }
 
-type LeftMenuField = "cads" | "partners" | "components";
+type SubCadsField = "cads" | "partners" | "components";
 
 @Component({
 	selector: "app-sub-cads",
 	templateUrl: "./sub-cads.component.html",
 	styleUrls: ["./sub-cads.component.scss"]
 })
-export class SubCadsComponent extends MenuComponent implements OnInit {
+export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy {
 	@Input() cad: CadViewer;
 	@Input() currCads: CadData[];
-	@Input() cadStatus: State["cadStatus"];
+	cadStatus: Observable<State["cadStatus"]>;
+	destroyed = new Subject();
 	cads: CadNode[] = [];
 	partners: CadNode[] = [];
 	components: CadNode[] = [];
 	multiSelect = true;
 	checkedIndex = -1;
-	field: LeftMenuField;
-	disabled = false;
+	field: SubCadsField;
+	disabled: SubCadsField[] = [];
+	cadDisabled = false;
+	partnersDisabled = false;
+	componentsDisabled = false;
+	needsReload: State["cadStatus"]["name"];
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
-	contextMenuCad: {isChild: boolean; data: CadData};
+	contextMenuCad: {field: SubCadsField; data: CadData};
 	get selected() {
 		const cads = this.cads.filter((v) => v.checked).map((v) => v.data);
 		const partners = this.partners.filter((v) => v.checked).map((v) => v.data);
@@ -52,7 +60,26 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 		super(false);
 	}
 
-	ngOnInit() {}
+	ngOnInit() {
+		let lock = false;
+		this.store
+			.select(getCurrCads)
+			.pipe(takeUntil(this.destroyed))
+			.subscribe(async () => {
+				await timeout(0);
+				const cadStatus = await this.store.select(getCadStatus).pipe(take(1)).toPromise();
+				this.updateCad(cadStatus);
+				console.log(this.currCads);
+			});
+		this.cadStatus = this.store.select(getCadStatus);
+		this.cadStatus.pipe(take(1)).subscribe((cadStatus) => {
+			this.updateCad(cadStatus);
+		});
+	}
+
+	ngOnDestroy() {
+		this.destroyed.next();
+	}
 
 	private async _getCadNode(data: CadData, parent?: string) {
 		const cad = new CadViewer(data, {width: 200, height: 100, padding: 10});
@@ -60,6 +87,55 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 		cad.destroy();
 		await timeout(0);
 		return node;
+	}
+
+	updateCad({name}: State["cadStatus"]) {
+		const {cad, currCads} = this;
+		const controls = cad.controls;
+		if (this.needsReload && this.needsReload !== name) {
+			this.loadStatus();
+			this.needsReload = null;
+			this.disabled = [];
+		}
+		if (name === "normal" || name === "assemble") {
+			cad.controls.config.selectMode = "multiple";
+			if (currCads.length) {
+				cad.traverse((o, e) => {
+					o.userData.selectable = false;
+					o.userData.selected = false;
+					e.opacity = 0.3;
+				});
+				currCads.forEach((v) => {
+					cad.traverse((o, e) => {
+						o.userData.selectable = true;
+						e.opacity = 1;
+					}, v.getAllEntities());
+				});
+				controls.config.dragAxis = "";
+			} else {
+				cad.traverse((o, e) => {
+					o.userData.selectable = true;
+					o.userData.selected = false;
+					e.opacity = 1;
+				});
+				controls.config.dragAxis = "xy";
+			}
+			if (name === "assemble") {
+				this.disabled = ["cads", "partners"];
+			} else {
+				this.disabled = [];
+			}
+		} else if (name === "select baseline") {
+		} else if (name === "select jointpoint") {
+		} else if (name === "edit dimension") {
+			if (!this.needsReload) {
+				this.saveStatus();
+				this.unselectAll();
+				this.disabled = ["cads", "components", "partners"];
+				this.needsReload = "edit dimension";
+			}
+		}
+		cad.render();
 	}
 
 	async update() {
@@ -88,7 +164,10 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 		}
 	}
 
-	selectAll(field: LeftMenuField = null, sync = true) {
+	selectAll(field: SubCadsField = null, sync = true) {
+		if (this.disabled.includes(field)) {
+			return;
+		}
 		let arr: CadNode[];
 		if (field) {
 			arr = this[field];
@@ -106,7 +185,10 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 		}
 	}
 
-	unselectAll(field: LeftMenuField = null, sync = true) {
+	unselectAll(field: SubCadsField = null, sync = true) {
+		if (this.disabled.includes(field)) {
+			return;
+		}
 		let arr: CadNode[];
 		if (field) {
 			arr = this[field];
@@ -126,8 +208,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 		}
 	}
 
-	clickCad(field: LeftMenuField, index: number, event?: MatCheckboxChange) {
-		if (this.disabled) {
+	clickCad(field: SubCadsField, index: number, event?: MatCheckboxChange) {
+		if (this.disabled.includes(field)) {
 			return;
 		}
 		const cad = this[field][index];
@@ -149,18 +231,17 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 			const parent = this.cads.find((v) => v.data.id === cad.parent);
 			if (parent.checked && !checked) {
 				parent.checked = false;
+				parent.indeterminate = true;
 			}
 		}
 		this.setCurrCads();
 	}
 
-	setCurrCads() {
-		if (this.disabled) {
-			return;
-		}
+	async setCurrCads() {
+		const {name} = await this.cadStatus.pipe(take(1)).toPromise();
 		const cads: State["currCads"] = {};
 		this.cads.forEach((v) => {
-			cads[v.data.id] = {self: v.checked, full: false, partners: [], components: []};
+			cads[v.data.id] = {self: v.checked || v.indeterminate, full: false, partners: [], components: []};
 		});
 		this.partners.forEach((v) => {
 			if (v.checked) {
@@ -177,17 +258,29 @@ export class SubCadsComponent extends MenuComponent implements OnInit {
 			const fullPartners = cad.partners.length === v.data.partners.length;
 			const fullComponents = cad.components.length === v.data.components.data.length;
 			cad.full = fullPartners && fullComponents;
+			if (cad.self === cad.full) {
+				if (cad.self) {
+					v.checked = true;
+					v.indeterminate = false;
+				} else {
+					v.checked = false;
+					v.indeterminate = false;
+				}
+			} else {
+				v.checked = false;
+				v.indeterminate = true;
+			}
 			v.indeterminate = !cad.full && cad.self;
 		});
 		this.store.dispatch<CurrCadsAction>({type: "set curr cads", cads});
 	}
 
-	onContextMenu(event: PointerEvent, data: CadData, isChild: boolean) {
-		if (this.disabled) {
+	onContextMenu(event: PointerEvent, data: CadData, field: SubCadsField) {
+		if (this.disabled.includes(field)) {
 			return;
 		}
 		super.onContextMenu(event);
-		this.contextMenuCad = {isChild, data};
+		this.contextMenuCad = {field, data};
 		this.contextMenu.openMenu();
 	}
 

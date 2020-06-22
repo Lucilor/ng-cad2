@@ -1,16 +1,20 @@
-<h1 mat-dialog-title>{{ data.title }}</h1>
-<p mat-dialog-content *ngIf="data.type === 'alert' || data.type === 'confirm'">{{ data.content }}</p>
-<p mat-dialog-content *ngIf="data.type === 'prompt'">
-	<mat-form-field>
+<h1 mat-dialog-title [innerHTML]="titleHTML"></h1>
+<div mat-dialog-content>
+	<div [innerHTML]="contentHTML"></div>
+	<mat-form-field *ngIf="data.type === 'prompt'">
 		<input type="text" matInput [(ngModel)]="input" />
 	</mat-form-field>
-</p>
+</div>
 <div mat-dialog-actions style="justify-content: center;">
 	<ng-container *ngIf="data.type === 'alert'">
 		<button mat-raised-button (click)="cancle()" cdkFocusInitial>好的</button>
 	</ng-container>
-	<ng-container *ngIf="data.type === 'confirm' || data.type === 'prompt'">
+	<ng-container *ngIf="data.type === 'confirm'">
 		<button mat-raised-button (click)="submit()">当然</button>
 		<button mat-raised-button (click)="cancle()" cdkFocusInitial>算了</button>
+	</ng-container>
+	<ng-container *ngIf="data.type === 'prompt'">
+		<button mat-raised-button (click)="submit()" cdkFocusInitial>确定</button>
+		<button mat-raised-button (click)="cancle()">取消</button>
 	</ng-container>
 </div>

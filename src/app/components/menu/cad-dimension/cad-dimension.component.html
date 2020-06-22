@@ -15,12 +15,12 @@
 			<mat-icon matSuffix color="primary" (click)="removeDimension(i)">remove_circle</mat-icon>
 			<mat-hint [align]="'start'">
 				<button mat-raised-button color="primary" (click)="editDimension(i)">编辑</button>
-				<button mat-raised-button [color]="isSelectingDimLine(i) ? 'accent' : 'primary'" (click)="selectDimLine(i)">选线</button>
+				<button mat-raised-button [color]="dimLineSelecting === i ? 'accent' : 'primary'" (click)="selectDimLine(i)">选线</button>
 			</mat-hint>
 		</mat-form-field>
 	</div>
 	<div class="btn-group">
-		<button mat-raised-button [color]="isSelectingDimLine(-1) ? 'accent' : 'primary'" (click)="addDimension()">
+		<button mat-raised-button [color]="dimLineSelecting === -1 ? 'accent' : 'primary'" (click)="addDimension()">
 			添加标注
 		</button>
 	</div>

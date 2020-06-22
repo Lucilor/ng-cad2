@@ -15,6 +15,7 @@
 <button mat-icon-button [matMenuTriggerFor]="edit">编辑</button>
 <mat-menu #edit="matMenu">
 	<button mat-menu-item [matMenuTriggerFor]="transform">变形</button>
+	<button mat-menu-item (click)="clickBtn('g')">装配<span class="shortcut">Ctrl + G</span></button>
 </mat-menu>
 <mat-menu #transform="matMenu">
 	<button mat-menu-item (click)="flip($event, true, false)">垂直翻转</button>

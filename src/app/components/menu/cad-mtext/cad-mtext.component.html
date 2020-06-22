@@ -38,8 +38,9 @@
 		</mat-form-field>
 	</div>
 </form>
-<div class="btn-group">
-	<div *ngIf="currCads.length !== 1">要添加或复制文本，请先选择（仅）一个CAD。</div>
-	<button mat-raised-button color="primary" [disabled]="currCads.length !== 1" (click)="addMtext()">添加文本</button>
-	<button mat-raised-button color="primary" [disabled]="currCads.length !== 1" (click)="cloneMtexts()">复制文本</button>
+<div class="btn-group only-one-cad">
+	<ng-container *ngIf="currCads.length === 1">
+		<button mat-raised-button color="primary" (click)="addMtext()">添加文本</button>
+		<button mat-raised-button color="primary" (click)="cloneMtexts()">复制文本</button>
+	</ng-container>
 </div>

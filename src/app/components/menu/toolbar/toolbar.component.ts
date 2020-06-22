@@ -4,14 +4,16 @@ import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {CadDataService} from "@src/app/services/cad-data.service";
 import {Store} from "@ngrx/store";
-import {CurrCadsAction} from "@src/app/store/actions";
+import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
 import {RSAEncrypt} from "@lucilor/utils";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {State} from "@src/app/store/state";
 import {MenuComponent} from "../menu.component";
 import {MessageComponent} from "../../message/message.component";
 import {CadListComponent} from "../../cad-list/cad-list.component";
-import {ActivatedRoute} from "@angular/router";
+import {Observable} from "rxjs";
+import {getCadStatus} from "@src/app/store/selectors";
+import {take} from "rxjs/operators";
 
 @Component({
 	selector: "app-toolbar",
@@ -22,6 +24,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 	@Input() cad: CadViewer;
 	@Input() currCads: CadData[];
 	@Output() openCad = new EventEmitter<CadData[]>();
+	cadStatus: Observable<State["cadStatus"]>;
 	canSave = true;
 	collection: string;
 	ids: string[];
@@ -32,7 +35,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 		2: () => this.open("cad"),
 		3: () => this.open("cadmuban"),
 		4: () => this.open("qiliaozuhe"),
-		5: () => this.open("qieliaocad")
+		5: () => this.open("qieliaocad"),
+		g: () => this.assemble()
 	};
 
 	constructor(private dialog: MatDialog, private dataService: CadDataService, private store: Store<State>) {
@@ -60,6 +64,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 				this.canSave = this.cad.data.components.data.length > 0;
 			}
 		}
+		this.cadStatus = this.store.select(getCadStatus);
 	}
 
 	clickBtn(key: string) {
@@ -162,6 +167,32 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 		this.dialog.open(MessageComponent, {
 			data: {type: "alert", title: "帮助信息", content: "..."}
 		});
+	}
+
+	async assemble() {
+		const ids = this.currCads.map((v) => v.id);
+		const selected = this.cad.data.components.data.filter((v) => ids.includes(v.id));
+		if (selected.length < 1) {
+			this.dialog.open(MessageComponent, {data: {type: "alert", content: "请先选择一个CAD"}});
+			return;
+		} else if (selected.length > 1) {
+			const ref = this.dialog.open(MessageComponent, {
+				data: {
+					type: "confirm",
+					content: `你选择了多个CAD。进入装配将自动选取<span style="color:red">${selected[0].name}</span>来装配，是否继续？`
+				}
+			});
+			const yes = await ref.afterClosed().toPromise();
+			if (!yes) {
+				return;
+			}
+		}
+		const {name} = await this.cadStatus.pipe(take(1)).toPromise();
+		if (name === "assemble") {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+		} else {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "assemble"});
+		}
 	}
 
 	saveStatus() {

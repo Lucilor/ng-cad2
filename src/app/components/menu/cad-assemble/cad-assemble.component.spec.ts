@@ -1,19 +1,19 @@
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 
-import {CadLineComponent} from "./cad-line.component";
+import {CadAssembleComponent} from "./cad-assemble.component";
 
-describe("CadLineComponent", () => {
-	let component: CadLineComponent;
-	let fixture: ComponentFixture<CadLineComponent>;
+describe("CadAssembleComponent", () => {
+	let component: CadAssembleComponent;
+	let fixture: ComponentFixture<CadAssembleComponent>;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [CadLineComponent]
+			declarations: [CadAssembleComponent]
 		}).compileComponents();
 	}));
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(CadLineComponent);
+		fixture = TestBed.createComponent(CadAssembleComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
