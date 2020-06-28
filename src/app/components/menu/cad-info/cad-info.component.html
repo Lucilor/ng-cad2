@@ -1,6 +1,6 @@
 <div class="only-one-cad">
-	<ng-container *ngIf="currCads.length === 1">
-		<form *ngFor="let cad of currCads; let i = index" [class.add-divider]="i < currCads.length - 1">
+	<ng-container *ngIf="cadData.length === 1">
+		<form *ngFor="let cad of cadData; let i = index" [class.add-divider]="i < cadData.length - 1">
 			<button hidden></button>
 			<mat-form-field>
 				<mat-label>总长</mat-label>
@@ -65,10 +65,10 @@
 			</div>
 			<div class="form-item-group hint">
 				<div *ngFor="let b of cad.baseLines; let i = index">
-					<mat-form-field [color]="getItemColor(i)">
+					<mat-form-field [color]="getItemColor(i, 'baseLine')">
 						<mat-label>基准</mat-label>
 						<input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
-						<mat-icon matSuffix [color]="getItemColor(i)" (click)="selectBaseLine(cad, i)">link</mat-icon>
+						<mat-icon matSuffix [color]="getItemColor(i, 'baseLine')" (click)="selectBaseLine(cad, i)">link</mat-icon>
 						<mat-icon matSuffix color="primary" (click)="addBaseLine(cad, i)">add_circle</mat-icon>
 						<mat-icon matSuffix color="primary" (click)="removeBaseLine(cad, i)">remove_circle</mat-icon>
 						<mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>
@@ -77,10 +77,12 @@
 			</div>
 			<div class="form-item-group hint">
 				<div *ngFor="let j of cad.jointPoints">
-					<mat-form-field>
+					<mat-form-field [color]="getItemColor(i, 'jointPoint')">
 						<mat-label>连接点</mat-label>
 						<input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />
-						<mat-icon matSuffix color="primary" (click)="addJointPoint(cad, i)">link</mat-icon>
+						<mat-icon matSuffix color="primary" [color]="getItemColor(i, 'jointPoint')" (click)="selectJointPoint(cad, i)"
+							>link</mat-icon
+						>
 						<mat-icon matSuffix color="primary" (click)="addJointPoint(cad, i)">add_circle</mat-icon>
 						<mat-icon matSuffix color="primary" (click)="removeJointPoint(cad, i)">remove_circle</mat-icon>
 						<mat-hint [align]="'start'">x:{{ j.valueX?.toFixed(2) }}, y:{{ j.valueY?.toFixed(2) }}</mat-hint>
@@ -113,4 +115,4 @@
 		</form>
 	</ng-container>
 </div>
-<app-cad-points [points]="points"></app-cad-points>
+<app-cad-points></app-cad-points>

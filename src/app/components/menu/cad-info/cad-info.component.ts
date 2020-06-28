@@ -6,15 +6,14 @@ import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {CadOptionsComponent} from "../../menu/cad-options/cad-options.component";
-import {getCurrCads, getCadStatus} from "@src/app/store/selectors";
-import {timeout} from "@src/app/app.common";
+import {getCurrCads, getCadStatus, getCurrCadsData} from "@src/app/store/selectors";
 import {CadDataService} from "@src/app/services/cad-data.service";
 import {MessageComponent} from "../../message/message.component";
-import {CadStatusAction} from "@src/app/store/actions";
+import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {CadPointsComponent} from "../cad-points/cad-points.component";
 import {Observable, Subject} from "rxjs";
 import {take, takeUntil} from "rxjs/operators";
+import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 
 @Component({
 	selector: "app-cad-info",
@@ -23,12 +22,13 @@ import {take, takeUntil} from "rxjs/operators";
 })
 export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy {
 	@Input() cad: CadViewer;
-	@Input() currCads: CadData[];
 	@Input() formulas: string[] = [];
+	currCads: Observable<State["currCads"]>;
+	cadData: CadData[];
 	cadStatus: Observable<State["cadStatus"]>;
 	lengths: string[] = [];
-	points: CadPointsComponent["points"] = [];
 	baseLineIndex = -1;
+	jointPointIndex = -1;
 	destroyed = new Subject();
 
 	constructor(private store: Store<State>, private dialog: MatDialog, private dataService: CadDataService) {
@@ -36,23 +36,15 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	ngOnInit() {
+		this.currCads = this.store.select(getCurrCads);
 		this.cadStatus = this.store.select(getCadStatus);
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name, index}) => {
-			if (name === "select baseline") {
-				this.baseLineIndex = index;
-			} else {
-				this.baseLineIndex = -1;
-			}
+		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
+			this.updateLengths(currCads);
+			this.cadData = getCurrCadsData(this.cad.data, currCads);
 		});
-		this.store
-			.select(getCurrCads)
-			.pipe(takeUntil(this.destroyed))
-			.subscribe(async () => {
-				await timeout(0);
-				this.updateLengths();
-			});
 		this.cad.controls.on("entityclick", async (event, entity, object) => {
-			const data = this.currCads[0];
+			const currCads = await this.currCads.pipe(take(1)).toPromise();
+			const data = getCurrCadsData(this.cad.data, currCads)[0];
 			const {name, index} = await this.cadStatus.pipe(take(1)).toPromise();
 			if (name === "select baseline") {
 				if (entity instanceof CadLine) {
@@ -74,20 +66,24 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 			}
 		});
+		// this.cad.controls.on("")
 	}
 
 	ngOnDestroy() {
 		this.destroyed.next();
 	}
 
-	updateLengths() {
-		this.currCads.forEach((v, i) => {
-			let length = 0;
-			const entities = v.getAllEntities();
-			entities.line.forEach((e) => (length += e.length));
-			entities.arc.forEach((e) => (length += e.curve.getLength()));
-			entities.circle.forEach((e) => (length += e.curve.getLength()));
-			this.lengths[i] = length.toFixed(2);
+	updateLengths(currCads: State["currCads"]) {
+		this.lengths = [];
+		this.cad.data.components.data.forEach((v) => {
+			if (currCads.cads.includes(v.id)) {
+				let length = 0;
+				const entities = v.getAllEntities();
+				entities.line.forEach((e) => (length += e.length));
+				entities.arc.forEach((e) => (length += e.curve.getLength()));
+				entities.circle.forEach((e) => (length += e.curve.getLength()));
+				this.lengths.push(length.toFixed(2));
+			}
 		});
 	}
 
@@ -116,13 +112,9 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 	}
 
-	confirmRemove() {
-		const ref = this.dialog.open(MessageComponent, {data: {content: "是否确定删除？", confirm: true}});
-		return new Promise((r) => {
-			ref.afterClosed().subscribe((res) => {
-				r(res);
-			});
-		});
+	async confirmRemove() {
+		const ref = this.dialog.open(MessageComponent, {data: {content: "是否确定删除？", type: "confirm"}});
+		return ref.afterClosed().toPromise();
 	}
 
 	addCondition(data: CadData, index: number) {
@@ -170,9 +162,9 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 	}
 
-	async selectBaseLine(data: CadData, index: number) {
+	selectBaseLine(data: CadData, index: number) {
 		const {cad, store} = this;
-		if ((await this.getItemColor(index)) === "primary") {
+		if (this.getItemColor(index, "baseLine") === "primary") {
 			const {idX, idY} = data.baseLines[index];
 			if (cad.objects[idX]) {
 				cad.objects[idX].userData.selected = true;
@@ -184,7 +176,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				e.opacity = 0.3;
 				o.userData.selectable = false;
 			});
-			this.currCads.forEach((v) => {
+			this.cadData.forEach((v) => {
 				cad.traverse((o, e) => {
 					if (e instanceof CadLine) {
 						if (e.isHorizonal() || e.isVertical()) {
@@ -196,7 +188,9 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			});
 			cad.controls.config.selectMode = "single";
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "select baseline", index});
+			this.baseLineIndex = index;
 		} else {
+			this.baseLineIndex = -1;
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		}
 	}
@@ -216,8 +210,29 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 	}
 
-	getItemColor(index: number) {
-		if (index === this.baseLineIndex) {
+	selectJointPoint(data: CadData, index: number) {
+		const {cad, store} = this;
+		if (this.getItemColor(index, "jointPoint") === "primary") {
+			this.jointPointIndex = index;
+			const map = generatePointsMap(this.cadData[0].getAllEntities(), this.cad);
+			const points: State["cadPoints"] = map.map((v) => {
+				const {x, y} = cad.getScreenPoint(v.point);
+				return {x, y, active: false};
+			});
+			store.dispatch<CadPointsAction>({type: "set cad points", points});
+			store.dispatch<CadStatusAction>({type: "set cad status", name: "select jointpoint", index});
+		} else {
+			this.jointPointIndex = -1;
+			store.dispatch<CadPointsAction>({type: "set cad points", points: []});
+			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+		}
+	}
+
+	getItemColor(index: number, type: "baseLine" | "jointPoint") {
+		if (type === "baseLine" && index === this.baseLineIndex) {
+			return "accent";
+		}
+		if (type === "jointPoint" && index === this.jointPointIndex) {
 			return "accent";
 		}
 		return "primary";

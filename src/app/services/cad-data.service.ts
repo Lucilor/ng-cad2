@@ -88,7 +88,7 @@ export class CadDataService {
 		}
 	}
 
-	async getCadData(postData?: string | {id?: string; ids?: string[]; vid?: string}) {
+	async getCadData(postData?: string | {id?: string; ids?: string[]; collection?: string}) {
 		if (!this.data && !postData) {
 			try {
 				return [new CadData(this.loadCurrentCad())];

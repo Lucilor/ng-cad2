@@ -20,3 +20,9 @@ export interface CadStatusAction extends Action {
 	name?: State["cadStatus"]["name"];
 	index?: State["cadStatus"]["index"];
 }
+
+export type CadPointsActionType = "set cad points";
+export interface CadPointsAction extends Action {
+	readonly type: CadPointsActionType;
+	points: State["cadPoints"];
+}

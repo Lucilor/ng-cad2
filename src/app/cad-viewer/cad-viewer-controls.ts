@@ -163,7 +163,7 @@ export class CadViewerControls extends EventEmitter {
 				cad.position.sub(new Vector3(offset.x, offset.y, 0));
 			} else if (button === 0) {
 				let triggerMultiple = this.config.selectMode === "multiple";
-				triggerMultiple = triggerMultiple && !this._dragObject(p, offset);
+				triggerMultiple = !this._dragObject(p, offset) && triggerMultiple;
 				if (triggerMultiple) {
 					this._multiSelector.hidden = false;
 					this._multiSelector.style.left = Math.min(pFrom.x, pTo.x) + "px";

@@ -91,7 +91,7 @@ export class CadListComponent implements AfterViewInit {
 
 	async submit() {
 		if (this.data.selectMode === "table") {
-			const data = await this.dataService.getCadData({vid: this.checkedColumns[0].vid});
+			const data = await this.dataService.getCadData({id: this.checkedColumns[0].vid});
 			this.dialogRef.close(data);
 		} else {
 			this.syncCheckedItems();

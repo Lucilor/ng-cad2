@@ -55,10 +55,10 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 			const data = await this.dataService.getCadData(this.dataService.data);
 			this.openCad.emit(data);
 		} else {
-			const ids = this.ids;
+			const {ids, collection} = this;
 			if (ids.length) {
 				this.canSave = this.collection !== "p_yuanshicadwenjian";
-				const data = await this.dataService.getCadData({ids});
+				const data = await this.dataService.getCadData({ids, collection});
 				this.openCad.emit(data);
 			} else {
 				this.canSave = this.cad.data.components.data.length > 0;

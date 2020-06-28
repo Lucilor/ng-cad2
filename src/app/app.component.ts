@@ -74,7 +74,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 			} else if (cadStatus.name === "select baseline") {
 				this.cadStatusStr = "选择基准线";
 			} else if (cadStatus.name === "select jointpoint") {
-				this.cadStatusStr = "";
+				this.cadStatusStr = "选择连接点";
 			} else if (cadStatus.name === "edit dimension") {
 				this.cadStatusStr = "编辑标注";
 			} else if (cadStatus.name === "assemble") {
@@ -133,6 +133,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	afterOpenCad(data: CadData[]) {
+		data.forEach((v) => this.setCadData(v));
 		this.cad.data.components.data = data;
 		this.cad.reset();
 		document.title = data.map((v) => v.name).join(", ");

@@ -1,16 +1,27 @@
-import {Component, OnInit, Input} from "@angular/core";
+import {Component, OnInit, Input, OnDestroy} from "@angular/core";
+import {Observable, Subject} from "rxjs";
+import {State} from "@src/app/store/state";
+import {Store} from "@ngrx/store";
+import {getCadPoints} from "@src/app/store/selectors";
 
 @Component({
 	selector: "app-cad-points",
 	templateUrl: "./cad-points.component.html",
 	styleUrls: ["./cad-points.component.scss"]
 })
-export class CadPointsComponent implements OnInit {
-	@Input() points: {x: string; y: string; active: boolean}[];
+export class CadPointsComponent implements OnInit, OnDestroy {
+	points: Observable<State["cadPoints"]>;
+	destroyed = new Subject();
 
-	constructor() {}
+	constructor(private store: Store<State>) {}
 
-	ngOnInit() {}
+	ngOnInit() {
+		this.points = this.store.select(getCadPoints);
+	}
+
+	ngOnDestroy() {
+		this.destroyed.next();
+	}
 
 	onPointClick() {}
 }

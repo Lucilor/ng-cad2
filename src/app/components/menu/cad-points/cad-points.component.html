@@ -1,6 +1,6 @@
 <div
-	*ngFor="let p of points; let i = index"
-	class="point joint-point"
+	*ngFor="let p of points | async; let i = index"
+	class="point"
 	[class.selected]="p.active"
 	[style.left.px]="p.x"
 	[style.top.px]="p.y"

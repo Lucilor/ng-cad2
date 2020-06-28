@@ -64,13 +64,11 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 
 	ngOnInit() {
 		this.currCads = this.store.select(getCurrCads);
-		this.currCads.pipe(takeUntil(this.destroyed)).subscribe(async (cads) => {
-			await timeout(0);
-			this.updateCad();
-			console.log(cads);
-		});
 		this.cadStatus = this.store.select(getCadStatus);
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe((cadStatus) => {
+		this.currCads.pipe(takeUntil(this.destroyed)).subscribe(() => {
+			this.updateCad();
+		});
+		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(() => {
 			this.updateCad();
 		});
 	}
@@ -108,24 +106,35 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		const {cads, partners, components} = await this.currCads.pipe(take(1)).toPromise();
 		const {cad} = this;
 		const controls = cad.controls;
+		const count = cads.length + partners.length + components.length;
 		if (this.needsReload && this.needsReload !== name) {
 			this.loadStatus();
 			this.needsReload = null;
 			this.disabled = [];
 		}
-		const cadData = cad.data.components.data;
 		if (name === "normal") {
-			cadData.forEach((v) => v.show());
 			cad.controls.config.selectMode = "multiple";
-			this.blur();
-			cadData.forEach((v) => {
-				v.show();
-				if (cads.includes(v.id)) {
-					this.focus(v.entities);
-				}
-			});
-			// cads.forEach((v) => this.focus(v.data.entities));
-			// [...partners, ...components].forEach((v) => this.focus(v.data.getAllEntities()));
+			if (count === 0) {
+				this.focus();
+			} else {
+				this.blur();
+				this.cads.forEach((v) => {
+					v.data.show();
+					if (cads.includes(v.data.id)) {
+						this.focus(v.data.entities);
+					}
+				});
+				this.partners.forEach((v) => {
+					if (partners.includes(v.data.id)) {
+						this.focus(v.data.getAllEntities());
+					}
+				});
+				this.components.forEach((v) => {
+					if (components.includes(v.data.id)) {
+						this.focus(v.data.getAllEntities());
+					}
+				});
+			}
 		} else if (name === "select baseline") {
 		} else if (name === "select jointpoint") {
 		} else if (name === "edit dimension") {
@@ -259,19 +268,26 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				parent.checked = false;
 				parent.indeterminate = true;
 			}
+			if (parent.indeterminate && checked) {
+				parent.checked = true;
+				parent.indeterminate = false;
+			}
 		}
 		this.setCurrCads();
 	}
 
 	async setCurrCads() {
-		const currCads: State["currCads"] = {cads: [], partners: [], components: []};
+		const currCads: State["currCads"] = {cads: [], partners: [], components: [], fullCads: []};
 		this.cads.forEach((v) => {
 			if (v.checked || v.indeterminate) {
 				currCads.cads.push(v.data.id);
 			}
+			if (v.checked) {
+				currCads.fullCads.push(v.data.id);
+			}
 		});
 		this.partners.forEach((v) => {
-			if (v.checked || v.indeterminate) {
+			if (v.checked) {
 				currCads.partners.push(v.data.id);
 			}
 		});
