@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from "@angular/core";
+import {Component, OnInit, Input, OnDestroy} from "@angular/core";
 import {MenuComponent} from "../menu.component";
 import {Store} from "@ngrx/store";
 import {State} from "@src/app/store/state";
@@ -13,15 +13,15 @@ import {MessageComponent} from "../../message/message.component";
 import {CadStatusAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {CadPointsComponent} from "../cad-points/cad-points.component";
-import {Observable} from "rxjs";
-import {take} from "rxjs/operators";
+import {Observable, Subject} from "rxjs";
+import {take, takeUntil} from "rxjs/operators";
 
 @Component({
 	selector: "app-cad-info",
 	templateUrl: "./cad-info.component.html",
 	styleUrls: ["./cad-info.component.scss"]
 })
-export class CadInfoComponent extends MenuComponent implements OnInit {
+export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy {
 	@Input() cad: CadViewer;
 	@Input() currCads: CadData[];
 	@Input() formulas: string[] = [];
@@ -29,6 +29,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 	lengths: string[] = [];
 	points: CadPointsComponent["points"] = [];
 	baseLineIndex = -1;
+	destroyed = new Subject();
 
 	constructor(private store: Store<State>, private dialog: MatDialog, private dataService: CadDataService) {
 		super();
@@ -36,17 +37,20 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 
 	ngOnInit() {
 		this.cadStatus = this.store.select(getCadStatus);
-		this.cadStatus.subscribe(({name, index}) => {
+		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name, index}) => {
 			if (name === "select baseline") {
 				this.baseLineIndex = index;
 			} else {
 				this.baseLineIndex = -1;
 			}
 		});
-		this.store.select(getCurrCads).subscribe(async () => {
-			await timeout(0);
-			this.updateLengths();
-		});
+		this.store
+			.select(getCurrCads)
+			.pipe(takeUntil(this.destroyed))
+			.subscribe(async () => {
+				await timeout(0);
+				this.updateLengths();
+			});
 		this.cad.controls.on("entityclick", async (event, entity, object) => {
 			const data = this.currCads[0];
 			const {name, index} = await this.cadStatus.pipe(take(1)).toPromise();
@@ -70,6 +74,10 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 				}
 			}
 		});
+	}
+
+	ngOnDestroy() {
+		this.destroyed.next();
 	}
 
 	updateLengths() {
@@ -208,9 +216,8 @@ export class CadInfoComponent extends MenuComponent implements OnInit {
 		}
 	}
 
-	async getItemColor(index: number) {
-		const {name} = await this.cadStatus.pipe(take(1)).toPromise();
-		if (name === "select baseline" && index === index) {
+	getItemColor(index: number) {
+		if (index === this.baseLineIndex) {
 			return "accent";
 		}
 		return "primary";

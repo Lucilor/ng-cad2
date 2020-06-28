@@ -25,7 +25,7 @@ import {Observable, Subject} from "rxjs";
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 	cad: CadViewer;
 	collection = "";
-	currCads: CadData[];
+	currCads: CadData[] = [];
 	cadStatusStr: string;
 	formulas: string[] = [];
 	cadStatus: Observable<State["cadStatus"]>;
@@ -54,19 +54,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.cad.stats.dom.style.right = "0";
 			this.cad.stats.dom.style.left = "";
 		}
-		this.store.select(getCurrCads).subscribe((cads) => {
-			const ids = [];
-			for (const id in cads) {
-				const cad = cads[id];
-				if (cad.self && cad.full) {
-					ids.push(id);
-				} else {
-					ids.push(...cad.partners, ...cad.components);
-				}
-			}
-			this.currCads = this.cad.data.findChildren(ids);
-			this.currCads.forEach((v) => this.setCadData(v));
-		});
+		// this.store.select(getCurrCads).subscribe((cads) => {
+		// 	const ids = [];
+		// 	for (const id in cads) {
+		// 		const cad = cads[id];
+		// 		if (cad.self && cad.full) {
+		// 			ids.push(id);
+		// 		} else {
+		// 			ids.push(...cad.partners, ...cad.components);
+		// 		}
+		// 	}
+		// 	this.currCads = this.cad.data.findChildren(ids);
+		// 	this.currCads.forEach((v) => this.setCadData(v));
+		// });
 		this.cadStatus = this.store.select(getCadStatus);
 		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
@@ -80,7 +80,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 			} else if (cadStatus.name === "assemble") {
 				this.cadStatusStr = "装配";
 			}
-			this.cad.render();
 		});
 
 		let lastPointer: Vector2 = null;
@@ -125,7 +124,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.cadContainer.nativeElement.appendChild(this.cad.dom);
 		(async () => {
 			await timeout(0);
-			this.subCads.update();
+			this.subCads.updateList();
 		})();
 	}
 
@@ -137,7 +136,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.cad.data.components.data = data;
 		this.cad.reset();
 		document.title = data.map((v) => v.name).join(", ");
-		this.subCads.update();
+		this.subCads.updateList();
 	}
 
 	setCadData(data: CadData) {

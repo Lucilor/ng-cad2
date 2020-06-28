@@ -6,12 +6,12 @@ export interface CadStatus {
 
 export interface State {
 	loading: {list: Set<string>; progress: number};
-	currCads: {[key: string]: {self: boolean; full: boolean; partners: string[]; components: string[]}};
+	currCads: {cads: string[]; partners: string[]; components: string[]};
 	cadStatus: CadStatus;
 }
 
 export const initialState: State = {
 	loading: {list: new Set(), progress: -1},
-	currCads: {},
+	currCads: {cads: [], partners: [], components: []},
 	cadStatus: {name: "normal", index: -1}
 };

@@ -28,7 +28,7 @@ export function loadingReducer(loading = initialState.loading, action: LoadingAc
 export function currCadsReducer(currCads = initialState.currCads, action: CurrCadsAction) {
 	const {type, cads} = action;
 	if (type === "clear curr cads") {
-		return {};
+		return initialState.currCads;
 	} else if (type === "set curr cads") {
 		return cads;
 	} else if (type === "refresh curr cads") {

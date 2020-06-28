@@ -171,15 +171,21 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 
 	async assemble() {
 		const ids = this.currCads.map((v) => v.id);
-		const selected = this.cad.data.components.data.filter((v) => ids.includes(v.id));
-		if (selected.length < 1) {
+		const selected = {names: [], indices: []};
+		this.cad.data.components.data.forEach((v, i) => {
+			if (ids.includes(v.id)) {
+				selected.names.push(v.name);
+				selected.indices.push(i);
+			}
+		});
+		if (selected.indices.length < 1) {
 			this.dialog.open(MessageComponent, {data: {type: "alert", content: "请先选择一个CAD"}});
 			return;
-		} else if (selected.length > 1) {
+		} else if (selected.indices.length > 1) {
 			const ref = this.dialog.open(MessageComponent, {
 				data: {
 					type: "confirm",
-					content: `你选择了多个CAD。进入装配将自动选取<span style="color:red">${selected[0].name}</span>来装配，是否继续？`
+					content: `你选择了多个CAD。进入装配将自动选取<span style="color:red">${selected.names[0]}</span>来装配，是否继续？`
 				}
 			});
 			const yes = await ref.afterClosed().toPromise();
@@ -191,7 +197,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 		if (name === "assemble") {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		} else {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "assemble"});
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "assemble", index: selected.indices[0]});
 		}
 	}
 

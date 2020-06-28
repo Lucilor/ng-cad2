@@ -65,10 +65,10 @@
 			</div>
 			<div class="form-item-group hint">
 				<div *ngFor="let b of cad.baseLines; let i = index">
-					<mat-form-field [color]="i === baseLineIndex">
+					<mat-form-field [color]="getItemColor(i)">
 						<mat-label>基准</mat-label>
 						<input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
-						<mat-icon matSuffix [color]="i === baseLineIndex" (click)="selectBaseLine(cad, i)">link</mat-icon>
+						<mat-icon matSuffix [color]="getItemColor(i)" (click)="selectBaseLine(cad, i)">link</mat-icon>
 						<mat-icon matSuffix color="primary" (click)="addBaseLine(cad, i)">add_circle</mat-icon>
 						<mat-icon matSuffix color="primary" (click)="removeBaseLine(cad, i)">remove_circle</mat-icon>
 						<mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>

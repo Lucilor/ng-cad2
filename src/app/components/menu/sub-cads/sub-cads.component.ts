@@ -15,6 +15,10 @@ import {CadListComponent} from "../../cad-list/cad-list.component";
 import {getCadStatus, getCurrCads} from "@src/app/store/selectors";
 import {take, takeUntil} from "rxjs/operators";
 import {Observable, Subject} from "rxjs";
+import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {cloneDeep} from "lodash";
+
+type SubCadsField = "cads" | "partners" | "components";
 
 interface CadNode {
 	data: CadData;
@@ -24,8 +28,6 @@ interface CadNode {
 	parent?: string;
 }
 
-type SubCadsField = "cads" | "partners" | "components";
-
 @Component({
 	selector: "app-sub-cads",
 	templateUrl: "./sub-cads.component.html",
@@ -33,8 +35,8 @@ type SubCadsField = "cads" | "partners" | "components";
 })
 export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy {
 	@Input() cad: CadViewer;
-	@Input() currCads: CadData[];
 	cadStatus: Observable<State["cadStatus"]>;
+	currCads: Observable<State["currCads"]>;
 	destroyed = new Subject();
 	cads: CadNode[] = [];
 	partners: CadNode[] = [];
@@ -61,19 +63,15 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	ngOnInit() {
-		let lock = false;
-		this.store
-			.select(getCurrCads)
-			.pipe(takeUntil(this.destroyed))
-			.subscribe(async () => {
-				await timeout(0);
-				const cadStatus = await this.store.select(getCadStatus).pipe(take(1)).toPromise();
-				this.updateCad(cadStatus);
-				console.log(this.currCads);
-			});
+		this.currCads = this.store.select(getCurrCads);
+		this.currCads.pipe(takeUntil(this.destroyed)).subscribe(async (cads) => {
+			await timeout(0);
+			this.updateCad();
+			console.log(cads);
+		});
 		this.cadStatus = this.store.select(getCadStatus);
-		this.cadStatus.pipe(take(1)).subscribe((cadStatus) => {
-			this.updateCad(cadStatus);
+		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe((cadStatus) => {
+			this.updateCad();
 		});
 	}
 
@@ -89,42 +87,45 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		return node;
 	}
 
-	updateCad({name}: State["cadStatus"]) {
-		const {cad, currCads} = this;
+	private focus(entities?: CadEntities) {
+		this.cad.traverse((o, e) => {
+			o.userData.selectable = true;
+			o.userData.selected = false;
+			e.opacity = 1;
+		}, entities);
+	}
+
+	private blur(entities?: CadEntities) {
+		this.cad.traverse((o, e) => {
+			o.userData.selectable = false;
+			o.userData.selected = false;
+			e.opacity = 0.3;
+		}, entities);
+	}
+
+	async updateCad() {
+		const {name, index} = await this.cadStatus.pipe(take(1)).toPromise();
+		const {cads, partners, components} = await this.currCads.pipe(take(1)).toPromise();
+		const {cad} = this;
 		const controls = cad.controls;
 		if (this.needsReload && this.needsReload !== name) {
 			this.loadStatus();
 			this.needsReload = null;
 			this.disabled = [];
 		}
-		if (name === "normal" || name === "assemble") {
+		const cadData = cad.data.components.data;
+		if (name === "normal") {
+			cadData.forEach((v) => v.show());
 			cad.controls.config.selectMode = "multiple";
-			if (currCads.length) {
-				cad.traverse((o, e) => {
-					o.userData.selectable = false;
-					o.userData.selected = false;
-					e.opacity = 0.3;
-				});
-				currCads.forEach((v) => {
-					cad.traverse((o, e) => {
-						o.userData.selectable = true;
-						e.opacity = 1;
-					}, v.getAllEntities());
-				});
-				controls.config.dragAxis = "";
-			} else {
-				cad.traverse((o, e) => {
-					o.userData.selectable = true;
-					o.userData.selected = false;
-					e.opacity = 1;
-				});
-				controls.config.dragAxis = "xy";
-			}
-			if (name === "assemble") {
-				this.disabled = ["cads", "partners"];
-			} else {
-				this.disabled = [];
-			}
+			this.blur();
+			cadData.forEach((v) => {
+				v.show();
+				if (cads.includes(v.id)) {
+					this.focus(v.entities);
+				}
+			});
+			// cads.forEach((v) => this.focus(v.data.entities));
+			// [...partners, ...components].forEach((v) => this.focus(v.data.getAllEntities()));
 		} else if (name === "select baseline") {
 		} else if (name === "select jointpoint") {
 		} else if (name === "edit dimension") {
@@ -134,11 +135,35 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				this.disabled = ["cads", "components", "partners"];
 				this.needsReload = "edit dimension";
 			}
+		} else if (name === "assemble") {
+			if (this.needsReload !== "assemble") {
+				this.saveStatus();
+				this.unselectAll(null, false);
+				this.clickCad("cads", index);
+				this.disabled = ["cads", "partners"];
+				this.needsReload = "assemble";
+			}
+			cad.data.components.data.forEach((v, i) => {
+				if (i === index) {
+					v.show();
+					// const ids = currCads.map((v) => v.id);
+					// this.focus(v.getAllEntities());
+					// if (ids[0] !== v.id) {
+					// 	v.components.data.forEach((vv) => {
+					// 		if (!ids.includes(vv.id)) {
+					// 			this.blur(vv.getAllEntities());
+					// 		}
+					// 	});
+					// }
+				} else {
+					v.hide();
+				}
+			});
 		}
 		cad.render();
 	}
 
-	async update() {
+	async updateList() {
 		this.cads = [];
 		this.partners = [];
 		this.components = [];
@@ -155,6 +180,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				this.components.push(node);
 			}
 		}
+		this.setCurrCads();
 	}
 
 	toggleMultiSelect() {
@@ -238,41 +264,23 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async setCurrCads() {
-		const {name} = await this.cadStatus.pipe(take(1)).toPromise();
-		const cads: State["currCads"] = {};
+		const currCads: State["currCads"] = {cads: [], partners: [], components: []};
 		this.cads.forEach((v) => {
-			cads[v.data.id] = {self: v.checked || v.indeterminate, full: false, partners: [], components: []};
+			if (v.checked || v.indeterminate) {
+				currCads.cads.push(v.data.id);
+			}
 		});
 		this.partners.forEach((v) => {
-			if (v.checked) {
-				cads[v.parent].partners.push(v.data.id);
+			if (v.checked || v.indeterminate) {
+				currCads.partners.push(v.data.id);
 			}
 		});
 		this.components.forEach((v) => {
-			if (v.checked) {
-				cads[v.parent].components.push(v.data.id);
+			if (v.checked || v.indeterminate) {
+				currCads.components.push(v.data.id);
 			}
 		});
-		this.cads.forEach((v) => {
-			const cad = cads[v.data.id];
-			const fullPartners = cad.partners.length === v.data.partners.length;
-			const fullComponents = cad.components.length === v.data.components.data.length;
-			cad.full = fullPartners && fullComponents;
-			if (cad.self === cad.full) {
-				if (cad.self) {
-					v.checked = true;
-					v.indeterminate = false;
-				} else {
-					v.checked = false;
-					v.indeterminate = false;
-				}
-			} else {
-				v.checked = false;
-				v.indeterminate = true;
-			}
-			v.indeterminate = !cad.full && cad.self;
-		});
-		this.store.dispatch<CurrCadsAction>({type: "set curr cads", cads});
+		this.store.dispatch<CurrCadsAction>({type: "set curr cads", cads: currCads});
 	}
 
 	onContextMenu(event: PointerEvent, data: CadData, field: SubCadsField) {
@@ -306,7 +314,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 					data.components.data = cads;
 				}
 				this.cad.data.updatePartners().updateComponents();
-				this.update();
+				this.updateList();
 			}
 		});
 	}
@@ -343,7 +351,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				parent.partners = parent.partners.filter((v) => !p.includes(v.id));
 				parent.components.data = parent.components.data.filter((v) => !c.includes(v.id));
 			}
-			this.update();
+			this.updateList();
 			this.cad.reset(null, false);
 			this.setCurrCads();
 		}
