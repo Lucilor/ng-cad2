@@ -24,12 +24,11 @@
     "@lucilor/utils": "^1.0.19",
     "@ngrx/store": "^9.2.0",
     "@seregpie/three.text-sprite": "^2.0.0",
-    "@syncfusion/ej2-angular-inputs": "^18.1.56",
-    "@types/lodash": "^4.14.155",
+    "@syncfusion/ej2-angular-inputs": "^18.1.59",
     "lodash": "^4.17.15",
     "ngx-perfect-scrollbar": "^9.0.0",
-    "rxjs": "~6.5.4",
-    "three": "^0.117.1",
+    "rxjs": "~6.5.5",
+    "three": "^0.118.3",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"
   },
@@ -39,7 +38,8 @@
     "@angular/compiler-cli": "~10.0.2",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
-    "@types/node": "^12.11.1",
+    "@types/lodash": "^4.14.157",
+    "@types/node": "^14.0.14",
     "codelyzer": "^5.1.2",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~5.0.0",
@@ -50,7 +50,7 @@
     "karma-jasmine-html-reporter": "^1.5.0",
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
-    "tslint": "~6.1.0",
+    "tslint": "~6.1.2",
     "typescript": "~3.9.5"
   }
 }
