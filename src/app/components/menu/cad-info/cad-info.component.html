@@ -80,7 +80,7 @@
 					<mat-form-field [color]="getItemColor(i, 'jointPoint')">
 						<mat-label>连接点</mat-label>
 						<input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />
-						<mat-icon matSuffix color="primary" [color]="getItemColor(i, 'jointPoint')" (click)="selectJointPoint(cad, i)"
+						<mat-icon matSuffix color="primary" [color]="getItemColor(i, 'jointPoint')" (click)="selectJointPoint(i)"
 							>link</mat-icon
 						>
 						<mat-icon matSuffix color="primary" (click)="addJointPoint(cad, i)">add_circle</mat-icon>

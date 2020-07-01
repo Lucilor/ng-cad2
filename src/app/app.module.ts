@@ -30,6 +30,7 @@ import {AppComponent} from "./app.component";
 import {LoadingComponent} from "./components/loading/loading.component";
 import {ImageComponent} from "./components/image/image.component";
 import {PrintCadComponent} from "./components/print-cad/print-cad.component";
+import {MenuComponent} from "./components/menu/menu.component";
 import {PageNotFoundComponent} from "./components/page-not-found/page-not-found.component";
 import {ToolbarComponent} from "./components/menu/toolbar/toolbar.component";
 import {MessageComponent} from "./components/message/message.component";
@@ -72,6 +73,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		ImageComponent,
 		PageNotFoundComponent,
 		PrintCadComponent,
+		MenuComponent,
 		ToolbarComponent,
 		MessageComponent,
 		CadListComponent,

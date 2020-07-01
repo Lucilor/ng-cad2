@@ -1,9 +1,6 @@
-import {Component, OnInit, Input, Output, EventEmitter} from "@angular/core";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {Component, OnInit, Input, Output, EventEmitter, Injector} from "@angular/core";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {MatDialog, MatDialogRef} from "@angular/material/dialog";
-import {CadDataService} from "@src/app/services/cad-data.service";
-import {Store} from "@ngrx/store";
+import {MatDialogRef} from "@angular/material/dialog";
 import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
 import {RSAEncrypt} from "@lucilor/utils";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
@@ -21,7 +18,6 @@ import {take} from "rxjs/operators";
 	styleUrls: ["./toolbar.component.scss"]
 })
 export class ToolbarComponent extends MenuComponent implements OnInit {
-	@Input() cad: CadViewer;
 	@Input() currCads: CadData[];
 	@Output() openCad = new EventEmitter<CadData[]>();
 	cadStatus: Observable<State["cadStatus"]>;
@@ -39,11 +35,12 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 		g: () => this.assemble()
 	};
 
-	constructor(private dialog: MatDialog, private dataService: CadDataService, private store: Store<State>) {
-		super();
+	constructor(injector: Injector) {
+		super(injector);
 	}
 
 	async ngOnInit() {
+		super.ngOnInit();
 		window.addEventListener("keydown", (event) => {
 			const {key, ctrlKey} = event;
 			if (ctrlKey) {

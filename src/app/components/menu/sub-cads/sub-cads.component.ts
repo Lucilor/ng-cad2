@@ -1,10 +1,8 @@
-import {Component, OnInit, Input, ViewChild, OnDestroy} from "@angular/core";
+import {Component, OnInit, ViewChild, OnDestroy, Injector} from "@angular/core";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {Store} from "@ngrx/store";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {MatDialog, MatDialogRef} from "@angular/material/dialog";
-import {CadDataService} from "@src/app/services/cad-data.service";
+import {MatDialogRef} from "@angular/material/dialog";
 import {timeout} from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
@@ -16,7 +14,6 @@ import {getCadStatus, getCurrCads} from "@src/app/store/selectors";
 import {take, takeUntil} from "rxjs/operators";
 import {Observable, Subject} from "rxjs";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {cloneDeep} from "lodash";
 
 type SubCadsField = "cads" | "partners" | "components";
 
@@ -34,7 +31,6 @@ interface CadNode {
 	styleUrls: ["./sub-cads.component.scss"]
 })
 export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy {
-	@Input() cad: CadViewer;
 	cadStatus: Observable<State["cadStatus"]>;
 	currCads: Observable<State["currCads"]>;
 	destroyed = new Subject();
@@ -58,11 +54,12 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		return {cads, partners, components};
 	}
 
-	constructor(private store: Store<State>, private dialog: MatDialog, private dataService: CadDataService) {
-		super(false);
+	constructor(injector: Injector) {
+		super(injector);
 	}
 
 	ngOnInit() {
+		super.ngOnInit();
 		this.currCads = this.store.select(getCurrCads);
 		this.cadStatus = this.store.select(getCadStatus);
 		this.currCads.pipe(takeUntil(this.destroyed)).subscribe(() => {
@@ -74,6 +71,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	ngOnDestroy() {
+		super.ngOnDestroy();
 		this.destroyed.next();
 	}
 
@@ -105,7 +103,6 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		const {name, index} = await this.cadStatus.pipe(take(1)).toPromise();
 		const {cads, partners, components} = await this.currCads.pipe(take(1)).toPromise();
 		const {cad} = this;
-		const controls = cad.controls;
 		const count = cads.length + partners.length + components.length;
 		if (this.needsReload && this.needsReload !== name) {
 			this.loadStatus();

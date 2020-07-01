@@ -1,13 +1,10 @@
-import {Component, OnInit, Input, OnDestroy} from "@angular/core";
+import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {MenuComponent} from "../menu.component";
-import {Store} from "@ngrx/store";
 import {State} from "@src/app/store/state";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {MatDialogRef} from "@angular/material/dialog";
 import {CadOptionsComponent} from "../../menu/cad-options/cad-options.component";
 import {getCurrCads, getCadStatus, getCurrCadsData} from "@src/app/store/selectors";
-import {CadDataService} from "@src/app/services/cad-data.service";
 import {MessageComponent} from "../../message/message.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
@@ -21,7 +18,6 @@ import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 	styleUrls: ["./cad-info.component.scss"]
 })
 export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy {
-	@Input() cad: CadViewer;
 	@Input() formulas: string[] = [];
 	currCads: Observable<State["currCads"]>;
 	cadData: CadData[];
@@ -31,11 +27,12 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	jointPointIndex = -1;
 	destroyed = new Subject();
 
-	constructor(private store: Store<State>, private dialog: MatDialog, private dataService: CadDataService) {
-		super();
+	constructor(injector: Injector) {
+		super(injector);
 	}
 
 	ngOnInit() {
+		super.ngOnInit();
 		this.currCads = this.store.select(getCurrCads);
 		this.cadStatus = this.store.select(getCadStatus);
 		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
@@ -70,6 +67,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	ngOnDestroy() {
+		super.ngOnDestroy();
 		this.destroyed.next();
 	}
 
@@ -210,7 +208,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 	}
 
-	selectJointPoint(data: CadData, index: number) {
+	selectJointPoint(index: number) {
 		const {cad, store} = this;
 		if (this.getItemColor(index, "jointPoint") === "primary") {
 			this.jointPointIndex = index;
