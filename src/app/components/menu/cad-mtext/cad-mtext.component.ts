@@ -1,26 +1,38 @@
-import {Component, OnInit, Input} from "@angular/core";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {Component, OnInit, Injector, OnDestroy} from "@angular/core";
 import {Color} from "three";
 import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
 import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity/cad-mtext";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {MenuComponent} from "../menu.component";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {takeUntil} from "rxjs/operators";
+import {getCurrCadsData} from "@src/app/store/selectors";
 
 @Component({
 	selector: "app-cad-mtext",
 	templateUrl: "./cad-mtext.component.html",
 	styleUrls: ["./cad-mtext.component.scss"]
 })
-export class CadMtextComponent implements OnInit {
-	@Input() cad: CadViewer;
-	@Input() currCads: CadData[];
+export class CadMtextComponent extends MenuComponent implements OnInit, OnDestroy {
+	data: CadData;
 	get selected() {
 		return this.cad.selectedEntities.mtext;
 	}
 
-	constructor() {}
+	constructor(injector: Injector) {
+		super(injector);
+	}
 
-	ngOnInit() {}
+	ngOnInit() {
+		super.ngOnInit();
+		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
+			this.data = getCurrCadsData(this.cad.data, currCads)[0];
+		});
+	}
+
+	ngOnDestroy() {
+		super.ngOnDestroy();
+	}
 
 	getInfo(field: string) {
 		const selected = this.selected;
@@ -67,8 +79,7 @@ export class CadMtextComponent implements OnInit {
 	}
 
 	addMtext() {
-		const data = this.currCads[0];
-		const cad = this.cad;
+		const {cad, data} = this;
 		const mtext = new CadMtext();
 		const {x, y} = cad.position;
 		mtext.insert.set(x, y);
@@ -81,12 +92,13 @@ export class CadMtextComponent implements OnInit {
 		cad.render(false, new CadEntities().add(mtext));
 	}
 
-	cloneMtexts() {
-		const data = this.currCads[0];
+	async cloneMtexts() {
+		const {cad, data} = this;
+		const {cads} = await this.getCurrCads();
 		this.selected.forEach((mtext) => {
 			const newText = mtext.clone(true);
 			data.entities.mtext.push(newText);
 		});
-		this.cad.render();
+		cad.render();
 	}
 }

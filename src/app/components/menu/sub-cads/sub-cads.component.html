@@ -1,14 +1,16 @@
 <div style="height: 100%;">
 	<div style="margin: 10px;">
-		<mat-slide-toggle [checked]="multiSelect" (change)="toggleMultiSelect()">{{
-			multiSelect ? "多选" : "单选"
-		}}</mat-slide-toggle>
+		<mat-slide-toggle [checked]="multiSelect" (change)="toggleMultiSelect()">{{ multiSelect ? "多选" : "单选" }}</mat-slide-toggle>
+	</div>
+	<div class="btn-group">
+		<button mat-raised-button color="primary" (click)="deleteSelected()">删除已选</button>
+		<button mat-raised-button color="primary" (click)="editSelected()">编辑已选</button>
 	</div>
 	<perfect-scrollbar>
 		<mat-accordion multi>
 			<mat-expansion-panel expanded>
 				<mat-expansion-panel-header>
-					<mat-panel-title>CAD</mat-panel-title>
+					<mat-panel-title>主CAD</mat-panel-title>
 				</mat-expansion-panel-header>
 				<div class="btn-group">
 					<button mat-raised-button color="primary" [disabled]="disabled.includes('cads')" (click)="selectAll('cads')">
@@ -25,7 +27,6 @@
 						(contextmenu)="onContextMenu($event, item.data, 'cads')"
 					>
 						<mat-checkbox
-							class="example-margin"
 							[checked]="item.checked"
 							[indeterminate]="item.indeterminate"
 							(change)="clickCad('cads', i, $event)"
@@ -43,10 +44,10 @@
 					<mat-panel-title>关联CAD</mat-panel-title>
 				</mat-expansion-panel-header>
 				<div class="btn-group">
-					<button mat-raised-button color="primary" [disabled]="disabled.includes('partners')" (click)="selectAll('cads')">
+					<button mat-raised-button color="primary" [disabled]="disabled.includes('partners')" (click)="selectAll('partners')">
 						全选
 					</button>
-					<button mat-raised-button color="primary" [disabled]="disabled.includes('partners')" (click)="unselectAll('cads')">
+					<button mat-raised-button color="primary" [disabled]="disabled.includes('partners')" (click)="unselectAll('partners')">
 						全不选
 					</button>
 				</div>
@@ -75,10 +76,20 @@
 					<mat-panel-title>装配CAD</mat-panel-title>
 				</mat-expansion-panel-header>
 				<div class="btn-group">
-					<button mat-raised-button color="primary" [disabled]="disabled.includes('components')" (click)="selectAll('cads')">
+					<button
+						mat-raised-button
+						color="primary"
+						[disabled]="disabled.includes('components')"
+						(click)="selectAll('components')"
+					>
 						全选
 					</button>
-					<button mat-raised-button color="primary" [disabled]="disabled.includes('components')" (click)="unselectAll('cads')">
+					<button
+						mat-raised-button
+						color="primary"
+						[disabled]="disabled.includes('components')"
+						(click)="unselectAll('components')"
+					>
 						全不选
 					</button>
 				</div>
@@ -117,8 +128,7 @@
 				<button mat-menu-item (click)="editChildren('components')">编辑装配</button>
 			</ng-container>
 			<button mat-menu-item (click)="downloadDxf()">下载dxf文件</button>
-			<button mat-menu-item (click)="deleteSelected()">删除已选</button>
-			<button mat-menu-item (click)="editSelected()">编辑已选</button>
+			<button mat-menu-item (click)="replaceData()">替换数据</button>
 		</ng-template>
 	</mat-menu>
 </div>

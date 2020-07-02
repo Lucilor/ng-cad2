@@ -1,5 +1,5 @@
 <div>
-    <button [hidden]="true"></button>
+	<button [hidden]="true"></button>
 	<form>
 		<mat-form-field>
 			<mat-label>距离</mat-label>
@@ -12,11 +12,21 @@
 				<mat-option value="relative">相对定位</mat-option>
 			</mat-select>
 		</mat-form-field>
+		<div class="btn-group">
+			<button mat-raised-button color="primary" (click)="directAssemble()">快速装配</button>
+		</div>
+
+		<div class="connections" *ngIf="connections.length">
+			<div class="btn-group">
+				<button mat-raised-button color="primary" (click)="clearConnections()">清空</button>
+			</div>
+			<perfect-scrollbar class="connection" *ngFor="let c of connections; let i = index">
+				<p>名字: {{ c.names[0] }} &harr; {{ c.names[1] }}</p>
+				<p>方向: {{ c.axis }}</p>
+				<p>距离: {{ c.space || 0 }}</p>
+				<p>定位: {{ c.position === "relative" ? "相对定位" : "绝对定位" }}</p>
+				<button mat-raised-button color="primary" (click)="removeConnection(i)">删除</button>
+			</perfect-scrollbar>
+		</div>
 	</form>
-	<!-- <div class="btn-group">
-		<button mat-raised-button [color]="assembling ? 'accent' : 'primary'" (click)="toggleAssemble()">
-			{{ assembling ? "结束" : "开始" }}装配
-		</button>
-		<button mat-raised-button color="primary" (click)="directAssemble()">快速装配</button>
-	</div> -->
 </div>

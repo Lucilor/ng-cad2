@@ -1,19 +1,19 @@
 <div #cadContainer></div>
 <div class="menu top">
-	<app-toolbar [cad]="cad" [currCads]="currCads" (openCad)="afterOpenCad($event)"></app-toolbar>
+	<app-toolbar [cad]="cad" (openCad)="afterOpenCad($event)"></app-toolbar>
 </div>
 <div class="menu left">
 	<app-sub-cads [cad]="cad"></app-sub-cads>
 </div>
 <perfect-scrollbar class="menu right">
-	<mat-accordion multi *ngIf="(cadStatus | async).name !== 'assemble'">
-		<mat-expansion-panel expanded>
+	<mat-accordion multi>
+		<mat-expansion-panel expanded *ngIf="shownMenus.includes('cadInfo')">
 			<mat-expansion-panel-header>
 				<mat-panel-title>CAD信息</mat-panel-title>
 			</mat-expansion-panel-header>
 			<app-cad-info [cad]="cad" [formulas]="formulas"></app-cad-info>
 		</mat-expansion-panel>
-		<mat-expansion-panel expanded>
+		<mat-expansion-panel expanded *ngIf="shownMenus.includes('entityInfo')">
 			<mat-expansion-panel-header>
 				<mat-panel-title>实体信息</mat-panel-title>
 			</mat-expansion-panel-header>
@@ -22,15 +22,20 @@
 					<app-cad-line [cad]="cad"></app-cad-line>
 				</mat-tab>
 				<mat-tab label="文本">
-					<app-cad-mtext [cad]="cad" [currCads]="currCads"></app-cad-mtext>
+					<app-cad-mtext [cad]="cad"></app-cad-mtext>
 				</mat-tab>
 				<mat-tab label="标注">
 					<app-cad-dimension [cad]="cad"></app-cad-dimension>
 				</mat-tab>
 			</mat-tab-group>
 		</mat-expansion-panel>
-	</mat-accordion>
-	<app-cad-assemble [cad]="cad" *ngIf="(cadStatus | async).name === 'assemble'"></app-cad-assemble>
+		<mat-expansion-panel expanded *ngIf="shownMenus.includes('cadAssemble')">
+			<mat-expansion-panel-header>
+				<mat-panel-title>装配CAD</mat-panel-title>
+			</mat-expansion-panel-header>
+			<app-cad-assemble [cad]="cad"></app-cad-assemble>
+		</mat-expansion-panel>
+	</mat-accordion>  
 </perfect-scrollbar>
 <div class="menu bottom" [class.accent]="(cadStatus | async).name !== 'normal'">当前状态：{{ cadStatusStr }}</div>
 <app-loading></app-loading>

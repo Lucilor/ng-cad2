@@ -4,7 +4,7 @@ import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadData, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadDataService} from "@services/cad-data.service";
-import {timeout} from "@src/app/app.common";
+import {timeout, Collection} from "@src/app/app.common";
 
 @Component({
 	selector: "app-cad-list",
@@ -31,7 +31,7 @@ export class CadListComponent implements AfterViewInit {
 	constructor(
 		public dialogRef: MatDialogRef<CadListComponent, CadData[]>,
 		@Inject(MAT_DIALOG_DATA)
-		public data: {selectMode: "single" | "multiple" | "table"; checkedItems?: CadData[]; options?: CadOption[]; type: string},
+		public data: {selectMode: "single" | "multiple" | "table"; checkedItems?: CadData[]; options?: CadOption[]; collection: Collection},
 		private dataService: CadDataService
 	) {}
 
@@ -54,14 +54,14 @@ export class CadListComponent implements AfterViewInit {
 			options = this.data.options || [];
 		}
 		const limit = this.paginator.pageSize;
-		const type = this.data.type;
+		const collection = this.data.collection;
 		if (this.data.selectMode === "table") {
-			const data = await this.dataService.getCadListPage(type, page, limit, this.searchValue);
+			const data = await this.dataService.getCadListPage(collection, page, limit, this.searchValue);
 			this.length = data.count;
 			this.pageData.length = 0;
 			this.tableData = data.data;
 		} else {
-			const data = await this.dataService.getCadDataPage(type, page, limit, this.searchValue, true, options);
+			const data = await this.dataService.getCadDataPage(collection, page, limit, this.searchValue, options);
 			this.length = data.count;
 			this.pageData.length = 0;
 			for (const d of data.data) {
@@ -73,7 +73,7 @@ export class CadListComponent implements AfterViewInit {
 					const img = cad.exportImage().src;
 					this.pageData.push({data: cad.data, img, checked});
 					cad.destroy();
-					// (trying to) prevent WebGL contexts lost
+					// TODO: prevent WebGL contexts lost
 					await timeout(0);
 				} catch (e) {
 					console.warn(e);
@@ -91,7 +91,7 @@ export class CadListComponent implements AfterViewInit {
 
 	async submit() {
 		if (this.data.selectMode === "table") {
-			const data = await this.dataService.getCadData({id: this.checkedColumns[0].vid});
+			const data = await this.dataService.getCadData({id: this.checkedColumns[0].vid, collection: "p_yuanshicadwenjian"});
 			this.dialogRef.close(data);
 		} else {
 			this.syncCheckedItems();

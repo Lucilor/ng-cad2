@@ -4,12 +4,11 @@ import {State} from "@src/app/store/state";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatDialogRef} from "@angular/material/dialog";
 import {CadOptionsComponent} from "../../menu/cad-options/cad-options.component";
-import {getCurrCads, getCadStatus, getCurrCadsData} from "@src/app/store/selectors";
+import {getCurrCadsData} from "@src/app/store/selectors";
 import {MessageComponent} from "../../message/message.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {Observable, Subject} from "rxjs";
-import {take, takeUntil} from "rxjs/operators";
+import {takeUntil} from "rxjs/operators";
 import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 
 @Component({
@@ -19,13 +18,10 @@ import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 })
 export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy {
 	@Input() formulas: string[] = [];
-	currCads: Observable<State["currCads"]>;
-	cadData: CadData[];
-	cadStatus: Observable<State["cadStatus"]>;
+	cadsData: CadData[];
 	lengths: string[] = [];
 	baseLineIndex = -1;
 	jointPointIndex = -1;
-	destroyed = new Subject();
 
 	constructor(injector: Injector) {
 		super(injector);
@@ -33,16 +29,13 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 
 	ngOnInit() {
 		super.ngOnInit();
-		this.currCads = this.store.select(getCurrCads);
-		this.cadStatus = this.store.select(getCadStatus);
 		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
-			this.updateLengths(currCads);
-			this.cadData = getCurrCadsData(this.cad.data, currCads);
+			this.cadsData = getCurrCadsData(this.cad.data, currCads);
+			this.updateLengths(this.cadsData);
 		});
 		this.cad.controls.on("entityclick", async (event, entity, object) => {
-			const currCads = await this.currCads.pipe(take(1)).toPromise();
-			const data = getCurrCadsData(this.cad.data, currCads)[0];
-			const {name, index} = await this.cadStatus.pipe(take(1)).toPromise();
+			const {name, index} = await this.getCadStatus();
+			const data = this.getCurrCadsData()[0];
 			if (name === "select baseline") {
 				if (entity instanceof CadLine) {
 					const baseLine = data.baseLines[index];
@@ -63,25 +56,21 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 			}
 		});
-		// this.cad.controls.on("")
 	}
 
 	ngOnDestroy() {
 		super.ngOnDestroy();
-		this.destroyed.next();
 	}
 
-	updateLengths(currCads: State["currCads"]) {
+	updateLengths(cadsData: CadData[]) {
 		this.lengths = [];
-		this.cad.data.components.data.forEach((v) => {
-			if (currCads.cads.includes(v.id)) {
-				let length = 0;
-				const entities = v.getAllEntities();
-				entities.line.forEach((e) => (length += e.length));
-				entities.arc.forEach((e) => (length += e.curve.getLength()));
-				entities.circle.forEach((e) => (length += e.curve.getLength()));
-				this.lengths.push(length.toFixed(2));
-			}
+		cadsData.forEach((v) => {
+			let length = 0;
+			const entities = v.getAllEntities();
+			entities.line.forEach((e) => (length += e.length));
+			entities.arc.forEach((e) => (length += e.curve.getLength()));
+			entities.circle.forEach((e) => (length += e.curve.getLength()));
+			this.lengths.push(length.toFixed(2));
 		});
 	}
 
@@ -174,7 +163,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				e.opacity = 0.3;
 				o.userData.selectable = false;
 			});
-			this.cadData.forEach((v) => {
+			this.cadsData.forEach((v) => {
 				cad.traverse((o, e) => {
 					if (e instanceof CadLine) {
 						if (e.isHorizonal() || e.isVertical()) {
@@ -212,7 +201,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		const {cad, store} = this;
 		if (this.getItemColor(index, "jointPoint") === "primary") {
 			this.jointPointIndex = index;
-			const map = generatePointsMap(this.cadData[0].getAllEntities(), this.cad);
+			const map = generatePointsMap(this.cadsData[0].getAllEntities(), this.cad);
 			const points: State["cadPoints"] = map.map((v) => {
 				const {x, y} = cad.getScreenPoint(v.point);
 				return {x, y, active: false};

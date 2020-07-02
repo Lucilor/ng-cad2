@@ -6,7 +6,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MessageComponent} from "../components/message/message.component";
 import {LoadingAction} from "../store/actions";
-import {Response, session} from "../app.common";
+import {Response, session, Collection} from "../app.common";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
 import {CadViewer} from "../cad-viewer/cad-viewer";
 import {RSAEncrypt} from "@lucilor/utils";
@@ -24,21 +24,11 @@ export interface Order {
 })
 export class CadDataService {
 	baseURL: string;
-	encode: string;
-	data: string;
+	encode = "";
+	data = "";
 	silent = false;
-	constructor(
-		private store: Store<State>,
-		private http: HttpClient,
-		private dialog: MatDialog,
-		private snackBar: MatSnackBar,
-		route: ActivatedRoute
-	) {
+	constructor(private store: Store<State>, private http: HttpClient, private dialog: MatDialog, private snackBar: MatSnackBar) {
 		this.baseURL = localStorage.getItem("baseURL") || "/api";
-		route.queryParams.subscribe((params) => {
-			this.encode = params.encode ? encodeURIComponent(params.encode) : "";
-			this.data = params.data ? encodeURIComponent(params.data) : "";
-		});
 	}
 
 	private alert(content: any) {
@@ -88,14 +78,9 @@ export class CadDataService {
 		}
 	}
 
-	async getCadData(postData?: string | {id?: string; ids?: string[]; collection?: string}) {
-		if (!this.data && !postData) {
-			try {
-				return [new CadData(this.loadCurrentCad())];
-			} catch (error) {
-				this.alert(error);
-				return [new CadData()];
-			}
+	async getCadData(postData?: string | {id?: string; ids?: string[]; collection?: Collection}) {
+		if (!postData) {
+			return [];
 		}
 		const response = await this._request("peijian/cad/getCad", "getCadData", "POST", postData);
 		if (!response) {
@@ -171,8 +156,8 @@ export class CadDataService {
 		});
 	}
 
-	async getCadDataPage(collection: string, page: number, limit: number, search?: string, zhuangpei = false, options?: CadOption[]) {
-		const postData = {page, limit, search, xiaodaohang: "CAD", zhuangpei, options, collection};
+	async getCadDataPage(collection: Collection, page: number, limit: number, search?: string, options?: CadOption[]) {
+		const postData = {page, limit, search, options, collection};
 		const response = await this._request("peijian/cad/getCad", "getCadDataPage", "POST", postData);
 		if (!response) {
 			return {data: [], count: 0};
@@ -194,7 +179,7 @@ export class CadDataService {
 		return {data: result, count: response.count};
 	}
 
-	async getCadListPage(collection: string, page: number, limit: number, search?: string) {
+	async getCadListPage(collection: Collection, page: number, limit: number, search?: string) {
 		const postData = {page, limit, search, collection};
 		const response = await this._request("peijian/cad/getCadList", "getCadDataPage", "POST", postData);
 		if (!response) {
@@ -203,7 +188,7 @@ export class CadDataService {
 		return {data: response.data, count: response.count};
 	}
 
-	async replaceData(source: CadData, target: string, collection?: string) {
+	async replaceData(source: CadData, target: string, collection?: Collection) {
 		source.sortComponents();
 		const response = await this._request("peijian/cad/replaceCad", "replaceData", "POST", {
 			source: source.export(),
@@ -233,14 +218,6 @@ export class CadDataService {
 		} else {
 			return null;
 		}
-	}
-
-	saveCurrentCad(data: CadData) {
-		session.save("currentCad", data.export());
-	}
-
-	loadCurrentCad() {
-		return session.load("currentCad", true);
 	}
 
 	async getOptions(

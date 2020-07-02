@@ -1,7 +1,7 @@
 <button mat-icon-button [matMenuTriggerFor]="file">文件</button>
 <mat-menu #file="matMenu">
 	<button mat-menu-item [matMenuTriggerFor]="openType">打开</button>
-	<button mat-menu-item (click)="clickBtn('s')" [disabled]="!canSave">保存<span class="shortcut">Ctrl + S</span></button>
+	<button mat-menu-item (click)="clickBtn('s')">保存<span class="shortcut">Ctrl + S</span></button>
 	<!-- <button mat-menu-item>另存为</button> -->
 </mat-menu>
 <mat-menu #openType="matMenu">
@@ -16,6 +16,7 @@
 <mat-menu #edit="matMenu">
 	<button mat-menu-item [matMenuTriggerFor]="transform">变形</button>
 	<button mat-menu-item (click)="clickBtn('g')">装配<span class="shortcut">Ctrl + G</span></button>
+	<button mat-menu-item (click)="clickBtn('h')">选取<span class="shortcut">Ctrl + H</span></button>
 </mat-menu>
 <mat-menu #transform="matMenu">
 	<button mat-menu-item (click)="flip($event, true, false)">垂直翻转</button>

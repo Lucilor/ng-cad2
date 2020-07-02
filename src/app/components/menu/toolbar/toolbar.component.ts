@@ -1,28 +1,27 @@
-import {Component, OnInit, Input, Output, EventEmitter, Injector} from "@angular/core";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy, Input, AfterViewInit} from "@angular/core";
+import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatDialogRef} from "@angular/material/dialog";
 import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
 import {RSAEncrypt} from "@lucilor/utils";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {State} from "@src/app/store/state";
 import {MenuComponent} from "../menu.component";
 import {MessageComponent} from "../../message/message.component";
 import {CadListComponent} from "../../cad-list/cad-list.component";
-import {Observable} from "rxjs";
-import {getCadStatus} from "@src/app/store/selectors";
-import {take} from "rxjs/operators";
+import {getCadStatus, getCurrCadsData} from "@src/app/store/selectors";
+import {Collection} from "@src/app/app.common";
+import {ActivatedRoute} from "@angular/router";
+import {takeUntil} from "rxjs/operators";
+import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity/cad-mtext";
+import {Vector2} from "three";
 
 @Component({
 	selector: "app-toolbar",
 	templateUrl: "./toolbar.component.html",
 	styleUrls: ["./toolbar.component.scss"]
 })
-export class ToolbarComponent extends MenuComponent implements OnInit {
-	@Input() currCads: CadData[];
+export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy {
 	@Output() openCad = new EventEmitter<CadData[]>();
-	cadStatus: Observable<State["cadStatus"]>;
-	canSave = true;
-	collection: string;
+	collection: Collection;
 	ids: string[];
 	openLock = false;
 	keyMap: {[key: string]: () => void} = {
@@ -32,10 +31,15 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 		3: () => this.open("cadmuban"),
 		4: () => this.open("qiliaozuhe"),
 		5: () => this.open("qieliaocad"),
-		g: () => this.assemble()
+		g: () => this.assembleCads(),
+		h: () => this.splitCad(),
+		"`": () => this.repeatLastCommand()
 	};
+	lastCommand: {name: string; args: IArguments};
+	showCadGongshis = true;
+	cadGongshis: CadMtext[] = [];
 
-	constructor(injector: Injector) {
+	constructor(injector: Injector, private route: ActivatedRoute) {
 		super(injector);
 	}
 
@@ -43,42 +47,42 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 		super.ngOnInit();
 		window.addEventListener("keydown", (event) => {
 			const {key, ctrlKey} = event;
-			if (ctrlKey) {
+			if (ctrlKey && this.keyMap[key]) {
 				event.preventDefault();
 				this.clickBtn(key);
 			}
 		});
-		if (this.dataService.data) {
-			const data = await this.dataService.getCadData(this.dataService.data);
-			this.openCad.emit(data);
-		} else {
-			const {ids, collection} = this;
-			if (ids.length) {
-				this.canSave = this.collection !== "p_yuanshicadwenjian";
-				const data = await this.dataService.getCadData({ids, collection});
+		const {ids, collection, dataService} = this;
+		if (location.search) {
+			this.route.queryParams.pipe(takeUntil(this.destroyed)).subscribe(async (params) => {
+				dataService.encode = params.encode ? encodeURIComponent(params.encode) : "";
+				dataService.data = params.data ? encodeURIComponent(params.data) : "";
+				const data = await dataService.getCadData(dataService.data);
 				this.openCad.emit(data);
-			} else {
-				this.canSave = this.cad.data.components.data.length > 0;
-			}
+			});
+		} else if (ids.length) {
+			const data = await dataService.getCadData({ids, collection});
+			this.openCad.emit(data);
 		}
 		this.cadStatus = this.store.select(getCadStatus);
+	}
+
+	ngOnDestroy() {
+		super.ngOnDestroy();
 	}
 
 	clickBtn(key: string) {
 		this.keyMap[key]?.();
 	}
 
-	open(collection: string) {
+	open(collection: Collection) {
+		this.lastCommand = {name: this.open.name, args: arguments};
 		if (this.openLock) {
-			return;
-		}
-		if (collection === "p_yuanshicadwenjian") {
-			this.dialog.open(MessageComponent, {data: {type: "alert", content: "暂未支持"}});
 			return;
 		}
 		const selectMode = collection === "p_yuanshicadwenjian" ? "table" : "multiple";
 		const ref: MatDialogRef<CadListComponent, CadData[]> = this.dialog.open(CadListComponent, {
-			data: {type: collection, selectMode, checkedItems: this.cad.data.components.data}
+			data: {collection, selectMode, checkedItems: this.cad.data.components.data}
 		});
 		this.openLock = true;
 		ref.afterClosed().subscribe((data) => {
@@ -92,19 +96,34 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 	}
 
 	async save() {
-		if (this.canSave) {
-			const {cad, dataService, collection} = this;
-			const response = await dataService.postCadData(cad.data.components.data, RSAEncrypt({collection}));
-			console.log(response);
+		this.lastCommand = {name: this.save.name, args: arguments};
+		const {cad, dataService, collection} = this;
+		let result: CadData[] = [];
+		const data = cad.data.components.data;
+		if (this.collection === "p_yuanshicadwenjian") {
+			const {name, extra} = await this.getCadStatus();
+			if (name === "split") {
+				result = await dataService.postCadData(data[extra.index].components.data, RSAEncrypt({collection: "cad"}));
+				cad.data.components.data[0].components.data = result;
+				cad.render();
+			} else {
+				this.dialog.open(MessageComponent, {data: {type: "alert", content: "无法保存CAD原始文件"}});
+			}
+		} else {
+			data.forEach((v) => this.removeCadGongshis(v));
+			result = await dataService.postCadData(data, RSAEncrypt({collection}));
 		}
+		return result;
 	}
 
 	flip(event: PointerEvent, vertical: boolean, horizontal: boolean) {
+		this.lastCommand = {name: this.flip.name, args: arguments};
 		event.stopPropagation();
 		this.transform(new CadTransformation({flip: {vertical, horizontal}}));
 	}
 
 	async rotate(event: PointerEvent, clockwise?: boolean) {
+		this.lastCommand = {name: this.rotate.name, args: arguments};
 		event.stopPropagation();
 		let angle = 0;
 		if (clockwise === undefined) {
@@ -128,7 +147,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 		this.transform(new CadTransformation({rotate: {angle}}), typeof clockwise === "boolean");
 	}
 
-	transform(trans: CadTransformation, rotateDimension = false) {
+	async transform(trans: CadTransformation, rotateDimension = false) {
 		const {cad} = this;
 		const seleted = cad.selectedEntities;
 		if (seleted.length) {
@@ -150,8 +169,10 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 					});
 				}
 			};
-			if (this.currCads.length) {
-				this.currCads.forEach((data) => t(data));
+			const currCads = await this.getCurrCads();
+			const currCadsData = getCurrCadsData(this.cad.data, currCads);
+			if (currCadsData.length) {
+				currCadsData.forEach((data) => t(data));
 			} else {
 				this.cad.data.components.data.forEach((data) => t(data));
 			}
@@ -166,9 +187,44 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 		});
 	}
 
-	async assemble() {
-		const ids = this.currCads.map((v) => v.id);
-		const selected = {names: [], indices: []};
+	async assembleCads() {
+		this.lastCommand = {name: this.assembleCads.name, args: arguments};
+		const {name} = await this.getCadStatus();
+		if (name === "assemble") {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+		} else {
+			const index = await this.takeOneMajorCad("装配");
+			if (index !== null) {
+				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "assemble", index});
+			}
+		}
+	}
+
+	async splitCad() {
+		this.lastCommand = {name: this.splitCad.name, args: arguments};
+		const {name} = await this.getCadStatus();
+		if (name === "split") {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+		} else {
+			const index = await this.takeOneMajorCad("选取");
+			if (index !== null) {
+				const collection = this.collection;
+				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "split", index, extra: {collection, index}});
+			}
+		}
+	}
+
+	repeatLastCommand() {
+		if (this.lastCommand) {
+			const {name, args} = this.lastCommand;
+			this[name](...args);
+		}
+	}
+
+	async takeOneMajorCad(desc: string) {
+		const currCadsData = await this.getCurrCadsData();
+		const ids = currCadsData.map((v) => v.id);
+		const selected: {names: string[]; indices: number[]} = {names: [], indices: []};
 		this.cad.data.components.data.forEach((v, i) => {
 			if (ids.includes(v.id)) {
 				selected.names.push(v.name);
@@ -176,13 +232,13 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 			}
 		});
 		if (selected.indices.length < 1) {
-			this.dialog.open(MessageComponent, {data: {type: "alert", content: "请先选择一个CAD"}});
-			return;
+			this.dialog.open(MessageComponent, {data: {type: "alert", content: "请先选择一个主CAD"}});
+			return null;
 		} else if (selected.indices.length > 1) {
 			const ref = this.dialog.open(MessageComponent, {
 				data: {
 					type: "confirm",
-					content: `你选择了多个CAD。进入装配将自动选取<span style="color:red">${selected.names[0]}</span>来装配，是否继续？`
+					content: `你选择了多个主CAD。进入${desc}将自动选择<span style="color:red">${selected.names[0]}</span>，是否继续？`
 				}
 			});
 			const yes = await ref.afterClosed().toPromise();
@@ -190,12 +246,49 @@ export class ToolbarComponent extends MenuComponent implements OnInit {
 				return;
 			}
 		}
-		const {name} = await this.cadStatus.pipe(take(1)).toPromise();
-		if (name === "assemble") {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
-		} else {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "assemble", index: selected.indices[0]});
+		return selected.indices[0];
+	}
+
+	setCadData(data: CadData) {
+		if (data.options.length < 1) {
+			data.options.push(new CadOption());
 		}
+		if (data.conditions.length < 1) {
+			data.conditions.push("");
+		}
+		if (data.baseLines.length < 1) {
+			data.baseLines.push(new CadBaseLine());
+		}
+		if (data.jointPoints.length < 1) {
+			data.jointPoints.push(new CadJointPoint());
+		}
+		data.partners.forEach((v) => this.setCadData(v));
+		data.components.data.forEach((v) => this.setCadData(v));
+		if (this.collection !== "p_yuanshicadwenjian") {
+			this.addCadGongshi(data);
+		}
+	}
+
+	addCadGongshi(data: CadData) {
+		const {zhankaikuan, zhankaigao, shuliang, shuliangbeishu} = data;
+		const mtext = new CadMtext();
+		const {x, y, width, height} = data.getAllEntities().getBounds();
+		mtext.text = `${zhankaikuan} x ${zhankaigao} = ${shuliang}`;
+		if (Number(shuliangbeishu) > 1) {
+			mtext.text += " x " + shuliangbeishu;
+		}
+		mtext.insert = new Vector2(x - width / 2, y - height / 2 - 10);
+		mtext.visible = this.showCadGongshis;
+		data.entities.add(mtext);
+		this.cadGongshis.push(mtext);
+		data.partners.forEach((d) => this.addCadGongshi(d));
+		data.components.data.forEach((d) => this.addCadGongshi(d));
+	}
+
+	removeCadGongshis(data: CadData) {
+		const toRemove = new CadData();
+		toRemove.entities.mtext = this.cadGongshis;
+		data.separate(toRemove);
 	}
 
 	saveStatus() {

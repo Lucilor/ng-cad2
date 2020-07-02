@@ -1,6 +1,6 @@
 <div class="only-one-cad">
-	<ng-container *ngIf="cadData.length === 1">
-		<form *ngFor="let cad of cadData; let i = index" [class.add-divider]="i < cadData.length - 1">
+	<ng-container *ngIf="cadsData.length === 1">
+		<form *ngFor="let cad of cadsData; let i = index" [class.add-divider]="i < cadsData.length - 1">
 			<button hidden></button>
 			<mat-form-field>
 				<mat-label>总长</mat-label>
