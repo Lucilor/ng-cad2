@@ -81,7 +81,7 @@ export class CadLineComponent implements OnInit {
 	}
 
 	setLineColor(event: MatSelectChange) {
-		const color = parseInt(event.value.slice("1"), 16);
+		const color = parseInt(event.value.slice(1, 7), 16);
 		this.selectedLines.forEach((e) => e.color.set(color));
 		this.cad.render();
 	}

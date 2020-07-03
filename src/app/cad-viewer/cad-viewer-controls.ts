@@ -114,7 +114,12 @@ export class CadViewerControls extends EventEmitter {
 
 	private _getInterSection(pointer: Vector2) {
 		const {raycaster, camera, data} = this.cad;
-		const objects = data.getAllEntities().objects;
+		const objects: Object3D[] = [];
+		data.getAllEntities().forEach((e) => {
+			if (e.object && e.visible && e.selectable) {
+				objects.push(e.object);
+			}
+		});
 		const points = [pointer];
 		const d = 1;
 		points.push(pointer.clone().add(new Vector2(d, 0)));
@@ -133,10 +138,7 @@ export class CadViewerControls extends EventEmitter {
 				while (intersect.parent.type !== "Scene") {
 					intersect = intersect.parent;
 				}
-				const result = data.findEntity(intersect.name);
-				if (result.visible) {
-					return result;
-				}
+				return data.findEntity(intersect.name);
 			}
 		}
 		return null;

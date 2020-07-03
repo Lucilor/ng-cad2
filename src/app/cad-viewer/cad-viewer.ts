@@ -645,7 +645,8 @@ export class CadViewer {
 	}
 
 	reset(data?: CadData, center = true) {
-		this.data.getAllEntities().forEach((e) => this.scene.remove(e.object));
+		this.data.getAllEntities().forEach((e) => (e.object = null));
+		this.scene.remove(...this.scene.children);
 		if (data instanceof CadData) {
 			this.data = data;
 		} else if (data) {
@@ -681,7 +682,7 @@ export class CadViewer {
 	}
 
 	removeEntity(entity: CadEntity) {
-		this.removeEntities(new CadEntities().add(entity));
+		return this.removeEntities(new CadEntities().add(entity));
 	}
 
 	addEntities(entities: CadEntities) {

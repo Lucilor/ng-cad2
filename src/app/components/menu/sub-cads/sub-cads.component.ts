@@ -135,6 +135,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			this.cads.push(node);
 			if (collection !== "p_yuanshicadwenjian") {
 				data.separate(split);
+				split.conditions = data.conditions;
+				split.options = data.options;
 				data.addComponent(split);
 				data.directAssemble(split);
 				cad.removeEntities(entities);
@@ -408,6 +410,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				checkedCads.forEach((v) => {
 					data.entities.merge(v.getAllEntities());
 				});
+				data.components.data = data.components.data.filter((v) => !checkedIds.includes(v.id));
 			}
 			this.cads = this.cads.filter((v) => !v.checked);
 			this.cad.render();

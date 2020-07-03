@@ -67,7 +67,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 
 		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(async () => {
-			await timeout(0);
+			await timeout(100);
 			this.updateCadGongshis();
 		});
 	}
@@ -121,6 +121,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				postData.collection = this.collection;
 			}
 			result = await dataService.postCadData(data, RSAEncrypt(postData));
+			data.forEach((v) => this.addCadGongshi(v));
+			cad.render();
 		}
 		return result;
 	}
@@ -280,9 +282,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		data.partners.forEach((v) => this.setCadData(v));
 		data.components.data.forEach((v) => this.setCadData(v));
-		if (this.collection !== "p_yuanshicadwenjian") {
-			this.addCadGongshi(data);
-		}
 	}
 
 	addCadGongshi(data: CadData) {
@@ -295,6 +294,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		mtext.insert = new Vector2(x - width / 2, y - height / 2 - 10);
 		mtext.visible = this.showCadGongshis;
+		mtext.selectable = false;
 		data.entities.add(mtext);
 		this.cadGongshis[data.id] = mtext;
 		data.partners.forEach((d) => this.addCadGongshi(d));
@@ -303,6 +303,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	removeCadGongshi(data: CadData) {
 		this.cad.removeEntity(this.cadGongshis[data.id]);
+		data.partners.forEach((d) => this.removeCadGongshi(d));
+		data.components.data.forEach((d) => this.removeCadGongshi(d));
 	}
 
 	updateCadGongshis() {
@@ -311,6 +313,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.traverse((e) => {
 			e.selectable = false;
 			e.selected = false;
+			e.visible = this.showCadGongshis;
 		}, entities);
 	}
 

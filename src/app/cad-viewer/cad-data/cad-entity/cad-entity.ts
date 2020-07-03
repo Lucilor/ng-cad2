@@ -1,6 +1,6 @@
 import {CadLayer} from "../cad-layer";
 import {CAD_TYPES} from "../cad-types";
-import {MathUtils, Color, Mesh, Object3D} from "three";
+import {MathUtils, Color, Object3D} from "three";
 import {index2RGB, RGB2Index} from "@lucilor/utils";
 import {CadTransformation} from "../cad-transformation";
 

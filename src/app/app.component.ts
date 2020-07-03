@@ -99,9 +99,12 @@ export class AppComponent extends MenuComponent implements OnInit, AfterViewInit
 	}
 
 	afterOpenCad(data: CadData[]) {
-		data.forEach((v) => this.toolbar.setCadData(v));
+		data.forEach((v) => {
+			this.toolbar.setCadData(v);
+			this.toolbar.addCadGongshi(v);
+		});
 		this.cad.data.components.data = data;
-		this.cad.reset();
+		this.cad.render(true);
 		document.title = data.map((v) => v.name).join(", ");
 		this.subCads.updateList();
 	}
