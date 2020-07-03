@@ -2,6 +2,7 @@ import {CadEntity} from "./cad-entity";
 import {CAD_TYPES} from "../cad-types";
 import {CadLayer} from "../cad-layer";
 import {intersection} from "lodash";
+import {Line} from "three";
 
 export class CadDimension extends CadEntity {
 	font_size: number;
@@ -20,6 +21,7 @@ export class CadDimension extends CadEntity {
 	cad2: string;
 	mingzi: string;
 	qujian: string;
+	object?: Line;
 
 	constructor(data: any = {type: CAD_TYPES.dimension}, layers: CadLayer[] = []) {
 		super(data, layers);

@@ -43,7 +43,8 @@ export class AppComponent extends MenuComponent implements OnInit, AfterViewInit
 			height: innerHeight,
 			showStats: !environment.production,
 			padding: [50, 300, 30, 250],
-			showLineLength: 8
+			showLineLength: 8,
+			showGongshi: 8
 		});
 		this.cad.setControls({selectMode: "multiple"});
 		if (this.cad.stats) {
@@ -104,7 +105,6 @@ export class AppComponent extends MenuComponent implements OnInit, AfterViewInit
 		document.title = data.map((v) => v.name).join(", ");
 		this.subCads.updateList();
 	}
-
 
 	refreshCurrCads() {
 		this.store.dispatch<CurrCadsAction>({type: "refresh curr cads"});

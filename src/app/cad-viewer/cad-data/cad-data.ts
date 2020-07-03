@@ -27,6 +27,7 @@ export class CadData {
 	shuliang: string;
 	shuliangbeishu: string;
 	huajian: string;
+	needZhankai: boolean;
 	readonly visible: boolean;
 	constructor(data: any = {}) {
 		if (typeof data !== "object") {
@@ -76,6 +77,11 @@ export class CadData {
 		this.shuliang = data.shuliang || "1";
 		this.shuliangbeishu = data.shuliangbeishu || "1";
 		this.huajian = data.huajian || "";
+		if (typeof data.needZhankai === "boolean") {
+			this.needZhankai = data.needZhankai;
+		} else {
+			this.needZhankai = true;
+		}
 		this.updateDimensions();
 	}
 
@@ -108,7 +114,8 @@ export class CadData {
 			zhankaigao: this.zhankaigao,
 			shuliang: this.shuliang,
 			shuliangbeishu: this.shuliangbeishu,
-			huajian: this.huajian
+			huajian: this.huajian,
+			needZhankai: this.needZhankai
 		};
 	}
 	export2(i = 0) {
@@ -303,7 +310,7 @@ export class CadData {
 		if (rect1.width && rect1.height) {
 			const rect2 = component.getAllEntities().getBounds();
 			const translate = new Vector2(rect1.x - rect2.x, rect1.y - rect2.y);
-			if (translate.x > 1000 || translate.y > 1000) {
+			if (Math.abs(translate.x) > 1000 || Math.abs(translate.y) > 1000) {
 				translate.x += (rect1.width + rect2.width) / 2 + 15;
 				// offset1[1] += (rect1.height - rect2.height) / 2;
 				component.transform(new CadTransformation({translate}));

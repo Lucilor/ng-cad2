@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy, Input, AfterViewInit} from "@angular/core";
+import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatDialogRef} from "@angular/material/dialog";
 import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
@@ -7,12 +7,13 @@ import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation
 import {MenuComponent} from "../menu.component";
 import {MessageComponent} from "../../message/message.component";
 import {CadListComponent} from "../../cad-list/cad-list.component";
-import {getCadStatus, getCurrCadsData} from "@src/app/store/selectors";
-import {Collection} from "@src/app/app.common";
+import {getCurrCadsData} from "@src/app/store/selectors";
+import {Collection, timeout} from "@src/app/app.common";
 import {ActivatedRoute} from "@angular/router";
 import {takeUntil} from "rxjs/operators";
 import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity/cad-mtext";
 import {Vector2} from "three";
+import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 
 @Component({
 	selector: "app-toolbar",
@@ -28,7 +29,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		s: () => this.save(),
 		1: () => this.open("p_yuanshicadwenjian"),
 		2: () => this.open("cad"),
-		3: () => this.open("cadmuban"),
+		3: () => this.open("CADmuban"),
 		4: () => this.open("qiliaozuhe"),
 		5: () => this.open("qieliaocad"),
 		g: () => this.assembleCads(),
@@ -37,7 +38,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	};
 	lastCommand: {name: string; args: IArguments};
 	showCadGongshis = true;
-	cadGongshis: CadMtext[] = [];
+	cadGongshis: {[key: string]: CadMtext} = {};
 
 	constructor(injector: Injector, private route: ActivatedRoute) {
 		super(injector);
@@ -64,7 +65,11 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			const data = await dataService.getCadData({ids, collection});
 			this.openCad.emit(data);
 		}
-		this.cadStatus = this.store.select(getCadStatus);
+
+		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(async () => {
+			await timeout(0);
+			this.updateCadGongshis();
+		});
 	}
 
 	ngOnDestroy() {
@@ -97,7 +102,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	async save() {
 		this.lastCommand = {name: this.save.name, args: arguments};
-		const {cad, dataService, collection} = this;
+		const {cad, dataService} = this;
 		let result: CadData[] = [];
 		const data = cad.data.components.data;
 		if (this.collection === "p_yuanshicadwenjian") {
@@ -110,8 +115,12 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				this.dialog.open(MessageComponent, {data: {type: "alert", content: "无法保存CAD原始文件"}});
 			}
 		} else {
-			data.forEach((v) => this.removeCadGongshis(v));
-			result = await dataService.postCadData(data, RSAEncrypt({collection}));
+			data.forEach((v) => this.removeCadGongshi(v));
+			const postData: any = {};
+			if (this.collection) {
+				postData.collection = this.collection;
+			}
+			result = await dataService.postCadData(data, RSAEncrypt(postData));
 		}
 		return result;
 	}
@@ -168,6 +177,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 						}
 					});
 				}
+				this.removeCadGongshi(data);
+				this.addCadGongshi(data);
 			};
 			const currCads = await this.getCurrCads();
 			const currCadsData = getCurrCadsData(this.cad.data, currCads);
@@ -179,11 +190,16 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		cad.data.updatePartners().updateComponents();
 		cad.render();
+		this.updateCadGongshis();
 	}
 
 	showHelpInfo() {
 		this.dialog.open(MessageComponent, {
-			data: {type: "alert", title: "帮助信息", content: "..."}
+			data: {
+				type: "alert",
+				title: "帮助信息",
+				content: "按下 <span style='color:red'>Ctrl + ~</span> 以重复上一次按下的顶部菜单栏按钮。"
+			}
 		});
 	}
 
@@ -280,15 +296,22 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		mtext.insert = new Vector2(x - width / 2, y - height / 2 - 10);
 		mtext.visible = this.showCadGongshis;
 		data.entities.add(mtext);
-		this.cadGongshis.push(mtext);
+		this.cadGongshis[data.id] = mtext;
 		data.partners.forEach((d) => this.addCadGongshi(d));
 		data.components.data.forEach((d) => this.addCadGongshi(d));
 	}
 
-	removeCadGongshis(data: CadData) {
-		const toRemove = new CadData();
-		toRemove.entities.mtext = this.cadGongshis;
-		data.separate(toRemove);
+	removeCadGongshi(data: CadData) {
+		this.cad.removeEntity(this.cadGongshis[data.id]);
+	}
+
+	updateCadGongshis() {
+		const entities = new CadEntities();
+		entities.mtext = Object.values(this.cadGongshis);
+		this.cad.traverse((e) => {
+			e.selectable = false;
+			e.selected = false;
+		}, entities);
 	}
 
 	saveStatus() {
@@ -301,7 +324,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	loadStatus() {
 		const data = this.session.load("toolbar", true);
-		this.collection = data.collection || "";
+		this.collection = data.collection;
 		this.ids = data.ids || [];
 	}
 }

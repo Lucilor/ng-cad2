@@ -3,6 +3,9 @@
 	<app-toolbar [cad]="cad" (openCad)="afterOpenCad($event)"></app-toolbar>
 </div>
 <div class="menu left">
+	<div class="btn-group">
+		<button mat-raised-button color="accent" (click)="toolbar.save()">保存</button>
+	</div>
 	<app-sub-cads [cad]="cad"></app-sub-cads>
 </div>
 <perfect-scrollbar class="menu right">

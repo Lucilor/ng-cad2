@@ -8,7 +8,7 @@ import {CadLayer} from "./cad-layer";
 import {CAD_TYPES, CadTypes} from "./cad-types";
 import {CadEntity} from "./cad-entity/cad-entity";
 import {CadTransformation} from "./cad-transformation";
-import {Box2, ArcCurve, MathUtils, Vector2} from "three";
+import {Box2, ArcCurve, MathUtils, Vector2, Object3D} from "three";
 import {mergeArray, separateArray} from "./utils";
 
 export class CadEntities {
@@ -18,9 +18,20 @@ export class CadEntities {
 	mtext: CadMtext[] = [];
 	dimension: CadDimension[] = [];
 	hatch: CadHatch[] = [];
+
 	get length() {
 		let result = 0;
 		this.forEachType((array) => (result += array.length));
+		return result;
+	}
+
+	get objects() {
+		const result: Object3D[] = [];
+		this.forEach((e) => {
+			if (e.object) {
+				result.push(e.object);
+			}
+		});
 		return result;
 	}
 

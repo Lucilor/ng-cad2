@@ -39,7 +39,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 		this.cad.controls.off("entityclick", this.onEntityClick);
 	}
 
-	async onEntityClick(_event: PointerEvent, entity: CadEntity, object: Object3D) {
+	async onEntityClick(_event: PointerEvent, entity: CadEntity) {
 		const {name} = await this.getCadStatus();
 		if (name !== "assemble") {
 			return;
@@ -56,7 +56,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 			if (found) {
 				const prev = ids.findIndex((id) => id === component.id || id === component.id);
 				const {space, position} = this.options;
-				if (object.userData.selected) {
+				if (entity.selected) {
 					if (position === "absolute") {
 						if (prev > -1) {
 							lines[prev] = found.originalId;
@@ -81,7 +81,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 							names.push(component.name);
 							lines.push(found.originalId);
 						}
-						lines.forEach((l) => (cad.objects[l].userData.selected = true));
+						lines.forEach((l) => (data.findEntity(l).selected = true));
 					}
 					if ((lines.length === 2 && position === "absolute") || (lines.length === 3 && position === "relative")) {
 						try {

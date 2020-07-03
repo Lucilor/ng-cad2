@@ -134,7 +134,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			this.cads.push(node);
 			if (collection !== "p_yuanshicadwenjian") {
 				data.separate(split);
-				data.components.data.push(split);
+				data.addComponent(split);
+				data.directAssemble(split);
 				cad.removeEntities(entities);
 				this.blur(split.entities);
 				cad.render();
@@ -143,17 +144,17 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	private focus(entities?: CadEntities) {
-		this.cad.traverse((o, e) => {
-			o.userData.selectable = true;
-			o.userData.selected = false;
+		this.cad.traverse((e) => {
+			e.selectable = true;
+			e.selected = false;
 			e.opacity = 1;
 		}, entities);
 	}
 
 	private blur(entities?: CadEntities) {
-		this.cad.traverse((o, e) => {
-			o.userData.selectable = false;
-			o.userData.selected = false;
+		this.cad.traverse((e) => {
+			e.selectable = false;
+			e.selected = false;
 			e.opacity = 0.3;
 		}, entities);
 	}
@@ -374,16 +375,16 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			checkedItems = [...data.components.data];
 		}
 		const ref: MatDialogRef<CadListComponent, CadData[]> = this.dialog.open(CadListComponent, {
-			data: {selectMode: "multiple", checkedItems, options: data.options}
+			data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad"}
 		});
 		ref.afterClosed().subscribe(async (cads) => {
 			if (Array.isArray(cads)) {
 				cads = cads.map((v) => v.clone(true));
 				if (type === "partners") {
-					data.partners = cads;
+					cads.forEach((v) => data.addPartner(v));
 				}
 				if (type === "components") {
-					data.components.data = cads;
+					cads.forEach((v) => data.addComponent(v));
 				}
 				this.cad.data.updatePartners().updateComponents();
 				this.updateList();
@@ -429,7 +430,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 					toRemove[v.parent].c.push(v.data.id);
 				}
 			});
-			if (Object.keys(toRemove).length) {
+			if (checkedIds.length || Object.keys(toRemove).length) {
 				for (const id in toRemove) {
 					const {p, c} = toRemove[id];
 					const parent = data.components.data.find((v) => v.id === id);
@@ -458,7 +459,10 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 
 	async replaceData() {
 		const data = this.contextMenuCad.data;
-		const ref = this.dialog.open(CadListComponent, {data: {selectMode: "single", options: data.options}, width: "80vw"});
+		const ref = this.dialog.open(CadListComponent, {
+			data: {selectMode: "single", options: data.options, collection: "cad"},
+			width: "80vw"
+		});
 		ref.afterClosed().subscribe((cads: CadData[]) => {
 			if (cads && cads[0]) {
 				this.dataService.replaceData(data, cads[0].id);

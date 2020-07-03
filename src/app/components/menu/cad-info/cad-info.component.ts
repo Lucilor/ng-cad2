@@ -33,24 +33,21 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			this.cadsData = getCurrCadsData(this.cad.data, currCads);
 			this.updateLengths(this.cadsData);
 		});
-		this.cad.controls.on("entityclick", async (event, entity, object) => {
+		this.cad.controls.on("entityclick", async (event, entity) => {
 			const {name, index} = await this.getCadStatus();
-			const data = this.getCurrCadsData()[0];
+			const data = (await this.getCurrCadsData())[0];
 			if (name === "select baseline") {
 				if (entity instanceof CadLine) {
 					const baseLine = data.baseLines[index];
 					if (entity.isHorizonal()) {
-						baseLine.idY = object.userData.selected ? entity.originalId : "";
+						baseLine.idY = entity.selected ? entity.originalId : "";
 					}
 					if (entity.isVertical()) {
-						baseLine.idX = object.userData.selected ? entity.originalId : "";
+						baseLine.idX = entity.selected ? entity.originalId : "";
 					}
 					data.updateBaseLines();
 					data.getAllEntities().forEach((e) => {
-						const object = this.cad.objects[e.id];
-						if (object) {
-							object.userData.selected = [baseLine.idX, baseLine.idY].includes(e.originalId);
-						}
+						e.selected = [baseLine.idX, baseLine.idY].includes(e.originalId);
 					});
 					this.cad.render();
 				}
@@ -74,8 +71,8 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		});
 	}
 
-	selectOptions(option: CadOption | string) {
-		const data = this.currCads[0];
+	async selectOptions(option: CadOption | string) {
+		const data = (await this.getCurrCadsData())[0];
 		if (option instanceof CadOption) {
 			const checkedItems = option.value.split(",");
 			const ref: MatDialogRef<CadOptionsComponent, string[]> = this.dialog.open(CadOptionsComponent, {
@@ -153,22 +150,24 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		const {cad, store} = this;
 		if (this.getItemColor(index, "baseLine") === "primary") {
 			const {idX, idY} = data.baseLines[index];
-			if (cad.objects[idX]) {
-				cad.objects[idX].userData.selected = true;
+			const entityX = cad.data.findEntity(idX);
+			const entityY = cad.data.findEntity(idY);
+			if (entityX) {
+				entityX.selected = true;
 			}
-			if (cad.objects[idY]) {
-				cad.objects[idY].userData.selected = true;
+			if (entityY) {
+				entityY.selected = true;
 			}
-			cad.traverse((o, e) => {
+			cad.traverse((e) => {
 				e.opacity = 0.3;
-				o.userData.selectable = false;
+				e.selectable = false;
 			});
 			this.cadsData.forEach((v) => {
-				cad.traverse((o, e) => {
+				cad.traverse((e) => {
 					if (e instanceof CadLine) {
 						if (e.isHorizonal() || e.isVertical()) {
 							e.opacity = 1;
-							o.userData.selectable = true;
+							e.selectable = true;
 						}
 					}
 				}, v.getAllEntities());

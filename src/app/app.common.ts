@@ -40,4 +40,4 @@ export async function timeout(time = 0) {
 	return new Promise((r) => setTimeout(() => r(), time));
 }
 
-export type Collection = "p_yuanshicadwenjian" | "cad" | "cadmuban" | "qiliaozuhe" | "qieliaocad";
+export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad";

@@ -156,8 +156,15 @@ export class CadDataService {
 		});
 	}
 
-	async getCadDataPage(collection: Collection, page: number, limit: number, search?: string, options?: CadOption[]) {
-		const postData = {page, limit, search, options, collection};
+	async getCadDataPage(
+		collection: Collection,
+		page: number,
+		limit: number,
+		search?: string,
+		options?: CadOption[],
+		optionsMatchType: "and" | "or" = "and"
+	) {
+		const postData = {page, limit, search, options, collection, optionsMatchType};
 		const response = await this._request("peijian/cad/getCad", "getCadDataPage", "POST", postData);
 		if (!response) {
 			return {data: [], count: 0};

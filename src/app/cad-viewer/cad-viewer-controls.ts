@@ -1,5 +1,5 @@
 import {CadViewer} from "./cad-viewer";
-import {Vector2, Vector3, Object3D, MathUtils, Box2} from "three";
+import {Vector2, Vector3, Object3D, MathUtils, Box2, Mesh} from "three";
 import {EventEmitter} from "events";
 import {CadEntity} from "./cad-data/cad-entity/cad-entity";
 import {CadDimension} from "./cad-data/cad-entity/cad-dimension";
@@ -16,18 +16,18 @@ export interface CadViewerControlsConfig {
 }
 
 export interface CadEvents {
-	entityclick: [PointerEvent, CadEntity, Object3D];
-	entityselect: [PointerEvent, CadEntity, Object3D];
-	entityunselect: [PointerEvent, CadEntity, Object3D];
-	entitiesselect: [PointerEvent | KeyboardEvent, never, never];
+	entityclick: [PointerEvent, CadEntity];
+	entityselect: [PointerEvent, CadEntity];
+	entityunselect: [PointerEvent, CadEntity];
+	entitiesselect: [PointerEvent | KeyboardEvent, never];
 	entitiesdelete: [KeyboardEvent, never, never];
-	entitiesunselect: [PointerEvent | KeyboardEvent, never, never];
-	dragstart: [PointerEvent, never, never];
-	drag: [PointerEvent, never, never];
-	dragend: [PointerEvent, never, never];
-	click: [PointerEvent, never, never];
-	wheel: [WheelEvent, never, never];
-	keyboard: [KeyboardEvent, never, never];
+	entitiesunselect: [PointerEvent | KeyboardEvent, never];
+	dragstart: [PointerEvent, never];
+	drag: [PointerEvent, never];
+	dragend: [PointerEvent, never];
+	click: [PointerEvent, never];
+	wheel: [WheelEvent, never];
+	keyboard: [KeyboardEvent, never];
 	// move = "move",
 	// scale = "scale"
 }
@@ -43,7 +43,7 @@ export class CadViewerControls extends EventEmitter {
 		enableScale: true,
 		entitiesDraggable: true
 	};
-	currentObject: Object3D;
+	currentEntity: CadEntity;
 	pointerLock = false;
 	private _status = {
 		pFrom: new Vector2(),
@@ -91,15 +91,18 @@ export class CadViewerControls extends EventEmitter {
 		// }
 	}
 
-	emit<K extends keyof CadEvents>(type: K, event: CadEvents[K][0], entity?: CadEvents[K][1], object?: CadEvents[K][2]) {
-		return super.emit(type, event, entity, object);
+	emit<K extends keyof CadEvents>(type: K, event: CadEvents[K][0], entity?: CadEvents[K][1]) {
+		return super.emit(type, event, entity);
 	}
 
-	on<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1], object?: CadEvents[K][2]) => void) {
+	on<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1]) => void) {
 		return super.on(type, listener);
 	}
 
-	off<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1], object?: CadEvents[K][2]) => void) {
+	off<K extends keyof CadEvents>(
+		type: K,
+		listener: (event: CadEvents[K][0], entity?: CadEvents[K][1], object?: CadEvents[K][2]) => void
+	) {
 		return super.off(type, listener);
 	}
 
@@ -110,7 +113,8 @@ export class CadViewerControls extends EventEmitter {
 	}
 
 	private _getInterSection(pointer: Vector2) {
-		const {raycaster, camera, objects} = this.cad;
+		const {raycaster, camera, data} = this.cad;
+		const objects = data.getAllEntities().objects;
 		const points = [pointer];
 		const d = 1;
 		points.push(pointer.clone().add(new Vector2(d, 0)));
@@ -123,14 +127,15 @@ export class CadViewerControls extends EventEmitter {
 		points.push(pointer.clone().add(new Vector2(0, -2 * d)));
 		for (const p of points) {
 			raycaster.setFromCamera(this._getNDC(p), camera);
-			const intersects = raycaster.intersectObjects(Object.values(objects), true);
+			const intersects = raycaster.intersectObjects(objects, true);
 			let intersect = intersects[0]?.object;
 			if (intersect) {
 				while (intersect.parent.type !== "Scene") {
 					intersect = intersect.parent;
 				}
-				if (intersect.visible) {
-					return intersect;
+				const result = data.findEntity(intersect.name);
+				if (result.visible) {
+					return result;
 				}
 			}
 		}
@@ -183,7 +188,8 @@ export class CadViewerControls extends EventEmitter {
 
 	private _pointerUp(event: PointerEvent) {
 		const {cad, _status} = this;
-		const {camera, objects} = cad;
+		const {camera, data} = cad;
+		const entities = data.getAllEntities();
 		const {pFrom, pTo, dragging, ctrl} = _status;
 		if (dragging) {
 			if (this._multiSelector.hidden === false) {
@@ -205,23 +211,26 @@ export class CadViewerControls extends EventEmitter {
 				const y1 = y + (h / 2) * from.y;
 				const y2 = y + (h / 2) * to.y;
 				const box = new Box2(new Vector2(x1, y1), new Vector2(x2, y2));
-				const toSelect = [];
-				for (const key in objects) {
-					const object = objects[key];
+				const toSelect: CadEntity[] = [];
+				entities.forEach((entity) => {
+					const object = entity.object as Mesh;
+					if (!object) {
+						return;
+					}
 					object.geometry.computeBoundingBox();
 					const {min, max} = object.geometry.boundingBox;
 					min.add(object.position);
 					max.add(object.position);
 					const objBox = new Box2(new Vector2(min.x, min.y), new Vector2(max.x, max.y));
-					if (box.containsBox(objBox) && object.userData.selectable === true) {
-						toSelect.push(object);
+					if (box.containsBox(objBox) && entity.selectable === true) {
+						toSelect.push(entity);
 					}
-				}
-				if (toSelect.every((o) => o.userData.selected)) {
-					toSelect.forEach((o) => (o.userData.selected = false));
+				});
+				if (toSelect.every((e) => e.selected)) {
+					toSelect.forEach((e) => (e.selected = false));
 					this.emit("entitiesunselect", event);
 				} else {
-					toSelect.forEach((object) => (object.userData.selected = true));
+					toSelect.forEach((e) => (e.selected = true));
 					this.emit("entitiesselect", event);
 				}
 				cad.render();
@@ -318,17 +327,17 @@ export class CadViewerControls extends EventEmitter {
 	}
 
 	private _hover() {
-		const {cad, currentObject, _status} = this;
-		if (currentObject && currentObject.userData.selected !== true) {
+		const {cad, currentEntity, _status} = this;
+		if (currentEntity && currentEntity.selected !== true) {
 			this._unHover();
 		}
-		const object = this._getInterSection(_status.pTo);
-		const selectable = object && object.userData.selectable;
+		const entity = this._getInterSection(_status.pTo);
+		const selectable = entity && entity.selectable;
 		if (selectable) {
-			object.userData.hover = true;
+			entity.hover = true;
 			cad.render();
 			cad.dom.style.cursor = "pointer";
-			this.currentObject = object;
+			this.currentEntity = entity;
 			if (_status.ctrl) {
 				this.pointerLock = true;
 			}
@@ -338,42 +347,40 @@ export class CadViewerControls extends EventEmitter {
 	}
 
 	private _unHover() {
-		const {cad, currentObject} = this;
-		if (currentObject) {
+		const {cad, currentEntity} = this;
+		if (currentEntity) {
 			cad.dom.style.cursor = "default";
-			currentObject.userData.hover = false;
+			currentEntity.hover = false;
 			cad.render();
-			this.currentObject = null;
+			this.currentEntity = null;
 		}
 	}
 
 	private _click(event: PointerEvent) {
-		const {currentObject, cad} = this;
-		const object = this.pointerLock ? currentObject : this._getInterSection(new Vector2(event.clientX, event.clientY));
-		if (this.config.selectMode !== "none" && object) {
-			const entity = cad.data.findEntity(object.name);
-			if (object.userData.selected === true) {
-				object.userData.selected = false;
-				this.emit("entityunselect", event, entity, object);
-			} else if (object.userData.selectable === true) {
+		const {currentEntity, cad} = this;
+		const entity = this.pointerLock ? currentEntity : this._getInterSection(new Vector2(event.clientX, event.clientY));
+		if (this.config.selectMode !== "none" && entity) {
+			if (entity.selected === true) {
+				entity.selected = false;
+				this.emit("entityunselect", event, entity);
+			} else if (entity.selectable === true) {
 				if (this.config.selectMode === "single") {
 					cad.unselectAll();
 				}
-				object.userData.selected = true;
-				this.emit("entityselect", event, entity, object);
+				entity.selected = true;
+				this.emit("entityselect", event, entity);
 			}
-			this.emit("entityclick", event, entity, object);
+			this.emit("entityclick", event, entity);
 			this.pointerLock = false;
 			this._hover();
 		}
 	}
 
 	private _dragObject(p: Vector2, offset: Vector2) {
-		const {cad, currentObject: object, _multiSelector, config} = this;
-		if (!object || !_multiSelector.hidden) {
+		const {cad, currentEntity: entity, _multiSelector, config} = this;
+		if (!entity || !_multiSelector.hidden) {
 			return false;
 		}
-		const entity = cad.data.findEntity(object.name);
 		if (entity instanceof CadDimension) {
 			let {point1, point2} = cad.data.getDimensionPoints(entity);
 			if (!point1 || !point2) {
@@ -407,7 +414,7 @@ export class CadViewerControls extends EventEmitter {
 				}
 			}
 			this.pointerLock = true;
-		} else if (object.userData.selected && config.entitiesDraggable) {
+		} else if (entity.selected && config.entitiesDraggable) {
 			const entities = cad.selectedEntities;
 			entities.transform(new CadTransformation({translate: offset}));
 			this.pointerLock = true;

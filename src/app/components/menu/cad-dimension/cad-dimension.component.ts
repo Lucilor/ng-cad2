@@ -1,37 +1,32 @@
-import {Component, OnInit, Input, OnDestroy} from "@angular/core";
-import {MatDialogRef, MatDialog} from "@angular/material/dialog";
+import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
+import {MatDialogRef} from "@angular/material/dialog";
 import {CadDimensionFormComponent} from "../cad-dimension-form/cad-dimension-form.component";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
-import {State} from "@src/app/store/state";
-import {Store} from "@ngrx/store";
 import {CadStatusAction} from "@src/app/store/actions";
-import {Observable, Subject} from "rxjs";
-import {getCadStatus} from "@src/app/store/selectors";
 import {take, takeUntil} from "rxjs/operators";
+import {MenuComponent} from "../menu.component";
 
 @Component({
 	selector: "app-cad-dimension",
 	templateUrl: "./cad-dimension.component.html",
 	styleUrls: ["./cad-dimension.component.scss"]
 })
-export class CadDimensionComponent implements OnInit, OnDestroy {
-	@Input() cad: CadViewer;
-	cadStatus: Observable<State["cadStatus"]>;
+export class CadDimensionComponent extends MenuComponent implements OnInit, OnDestroy {
 	dimNameFocus = -1;
-	dimLineSelecting = -1;
-	destroyed = new Subject();
+	dimLineSelecting: number = null;
 	get data() {
 		return this.cad.data.getAllEntities().dimension;
 	}
 
-	constructor(private dialog: MatDialog, private store: Store<State>) {}
+	constructor(injector: Injector) {
+		super(injector);
+	}
 
 	ngOnInit() {
+		super.ngOnInit();
 		const {cad} = this;
-		this.cadStatus = this.store.select(getCadStatus);
 		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name, index}) => {
 			if (name === "assemble") {
 				return index;
@@ -101,7 +96,7 @@ export class CadDimensionComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		this.destroyed.next();
+		super.ngOnDestroy();
 	}
 
 	editDimension(i: number) {
@@ -141,22 +136,23 @@ export class CadDimensionComponent implements OnInit, OnDestroy {
 		const cadStatus = await this.cadStatus.pipe(take(1)).toPromise();
 		if (cadStatus.name === "edit dimension" && cadStatus.index === index) {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+			this.dimLineSelecting = null;
 		} else {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "edit dimension", index});
 			const {entity1, entity2} = data[index] || {};
-			cad.traverse((o, e) => {
+			cad.traverse((e) => {
 				if (e instanceof CadLine) {
-					o.userData.selectable = true;
-					o.userData.selected = [entity1?.id, entity2?.id].includes(e.id);
+					e.selectable = true;
+					e.selected = [entity1?.id, entity2?.id].includes(e.id);
 					e.opacity = 1;
 				} else if (e instanceof CadDimension) {
 					e.opacity = 1;
 				} else {
-					o.userData.selectable = false;
+					e.selectable = false;
 					e.opacity = 0.3;
 				}
 			});
-			// menu.selectLineBegin("dimension", i);
+			this.dimLineSelecting = index;
 		}
 	}
 

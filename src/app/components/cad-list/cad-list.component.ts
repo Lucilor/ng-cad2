@@ -6,6 +6,13 @@ import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadDataService} from "@services/cad-data.service";
 import {timeout, Collection} from "@src/app/app.common";
 
+interface CadListData {
+	selectMode: "single" | "multiple" | "table";
+	checkedItems?: CadData[];
+	options?: CadOption[];
+	collection: Collection;
+}
+
 @Component({
 	selector: "app-cad-list",
 	templateUrl: "./cad-list.component.html",
@@ -31,7 +38,7 @@ export class CadListComponent implements AfterViewInit {
 	constructor(
 		public dialogRef: MatDialogRef<CadListComponent, CadData[]>,
 		@Inject(MAT_DIALOG_DATA)
-		public data: {selectMode: "single" | "multiple" | "table"; checkedItems?: CadData[]; options?: CadOption[]; collection: Collection},
+		public data: CadListData,
 		private dataService: CadDataService
 	) {}
 
@@ -48,7 +55,7 @@ export class CadListComponent implements AfterViewInit {
 		this.getData(event.pageIndex + 1);
 	}
 
-	async getData(page: number, withOption = false) {
+	async getData(page: number, withOption = false, matchType: "and" | "or" = "and") {
 		let options: CadOption[] = [];
 		if (withOption) {
 			options = this.data.options || [];
@@ -61,7 +68,7 @@ export class CadListComponent implements AfterViewInit {
 			this.pageData.length = 0;
 			this.tableData = data.data;
 		} else {
-			const data = await this.dataService.getCadDataPage(collection, page, limit, this.searchValue, options);
+			const data = await this.dataService.getCadDataPage(collection, page, limit, this.searchValue, options, matchType);
 			this.length = data.count;
 			this.pageData.length = 0;
 			for (const d of data.data) {
@@ -73,7 +80,7 @@ export class CadListComponent implements AfterViewInit {
 					const img = cad.exportImage().src;
 					this.pageData.push({data: cad.data, img, checked});
 					cad.destroy();
-					// TODO: prevent WebGL contexts lost
+					// (trying to) prevent WebGL contexts lost
 					await timeout(0);
 				} catch (e) {
 					console.warn(e);
@@ -103,10 +110,10 @@ export class CadListComponent implements AfterViewInit {
 		this.dialogRef.close();
 	}
 
-	search(withOption = false) {
+	search(withOption = false, matchType: "and" | "or" = "and") {
 		this.searchValue = this.searchInput;
 		this.paginator.pageIndex = 0;
-		this.getData(this.paginator.pageIndex + 1, withOption);
+		this.getData(this.paginator.pageIndex + 1, withOption, matchType);
 	}
 
 	searchKeydown(event: KeyboardEvent) {

@@ -1,5 +1,5 @@
 import {CadEntity} from "./cad-entity";
-import {Vector2} from "three";
+import {Vector2, Line} from "three";
 import {CAD_TYPES} from "../cad-types";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray, isBetween} from "../utils";
@@ -12,6 +12,8 @@ export class CadLine extends CadEntity {
 	qujian: string;
 	gongshi: string;
 	guanlianbianhuagongshi: string;
+	object?: Line;
+
 	get valid() {
 		const {start, end} = this;
 		const dx = Math.abs(start.x - end.x);
