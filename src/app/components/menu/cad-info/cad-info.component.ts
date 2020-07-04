@@ -10,6 +10,8 @@ import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {takeUntil} from "rxjs/operators";
 import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {getCadGongshiText} from "@src/app/app.common";
+import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 
 @Component({
 	selector: "app-cad-info",
@@ -222,6 +224,12 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			return "accent";
 		}
 		return "primary";
+	}
+
+	updateCadGongshi(data: CadData) {
+		const mtext = data.entities.mtext.find((e) => (e.info.isCadGongshi = true));
+		mtext.text = getCadGongshiText(data);
+		this.cad.render(false, new CadEntities().add(mtext));
 	}
 
 	saveStatus() {}

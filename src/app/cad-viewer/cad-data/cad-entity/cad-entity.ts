@@ -16,6 +16,7 @@ export abstract class CadEntity {
 	selected: boolean;
 	hover: boolean;
 	object?: Object3D = null;
+	info?: {[key: string]: any} = {};
 	_indexColor: number;
 
 	constructor(data: any = {}, layers: CadLayer[] = []) {

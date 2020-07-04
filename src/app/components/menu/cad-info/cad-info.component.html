@@ -92,8 +92,15 @@
 			<div class="form-item-group">
 				<mat-form-field>
 					<mat-label>展开</mat-label>
-					<input matInput type="text" [matAutocomplete]="auto" [(ngModel)]="cad.zhankaikuan" name="zhankaikuan" />
-					<mat-autocomplete #auto="matAutocomplete">
+					<input
+						matInput
+						type="text"
+						[matAutocomplete]="auto"
+						[(ngModel)]="cad.zhankaikuan"
+						name="zhankaikuan"
+						(change)="updateCadGongshi(cad)"
+					/>
+					<mat-autocomplete #auto="matAutocomplete" (optionSelected)="updateCadGongshi(cad)">
 						<mat-option *ngFor="let str of formulas" [value]="str">
 							{{ str }}
 						</mat-option>
@@ -101,16 +108,16 @@
 				</mat-form-field>
 				<mat-form-field>
 					<mat-label>展开</mat-label>
-					<input matInput type="text" [(ngModel)]="cad.zhankaigao" name="zhankaigao" />
+					<input matInput type="text" [(ngModel)]="cad.zhankaigao" name="zhankaigao" (change)="updateCadGongshi(cad)" />
 				</mat-form-field>
 			</div>
 			<mat-form-field>
 				<mat-label>数量</mat-label>
-				<input matInput type="text" [(ngModel)]="cad.shuliang" name="shuliang" />
+				<input matInput type="text" [(ngModel)]="cad.shuliang" name="shuliang" (change)="updateCadGongshi(cad)" />
 			</mat-form-field>
 			<mat-form-field>
 				<mat-label>数量倍数</mat-label>
-				<input matInput type="text" [(ngModel)]="cad.shuliangbeishu" name="shuliangbeishu" />
+				<input matInput type="text" [(ngModel)]="cad.shuliangbeishu" name="shuliangbeishu" (change)="updateCadGongshi(cad)" />
 			</mat-form-field>
 			<mat-form-field>
 				<mat-label>需要展开</mat-label>

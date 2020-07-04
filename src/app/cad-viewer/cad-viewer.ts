@@ -644,7 +644,7 @@ export class CadViewer {
 		}
 	}
 
-	reset(data?: CadData, center = true) {
+	reset(data?: CadData, center = false) {
 		this.data.getAllEntities().forEach((e) => (e.object = null));
 		this.scene.remove(...this.scene.children);
 		if (data instanceof CadData) {

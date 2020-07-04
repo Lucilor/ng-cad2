@@ -147,10 +147,12 @@ export class CadDataService {
 					}, 200);
 					if (successCounter === counter) {
 						this.snackBar.open(`${successCounter > 1 ? "全部" : ""}成功`);
+						resolve(result);
 					} else {
 						this.snackBar.open(`${counter > 1 ? (successCounter > 0 ? "部分" : "全部") : ""}失败`);
+						resolve(null);
 					}
-					resolve(result);
+					// resolve(result);
 				}
 			}
 		});

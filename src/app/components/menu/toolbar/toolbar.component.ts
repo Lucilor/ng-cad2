@@ -8,12 +8,9 @@ import {MenuComponent} from "../menu.component";
 import {MessageComponent} from "../../message/message.component";
 import {CadListComponent} from "../../cad-list/cad-list.component";
 import {getCurrCadsData} from "@src/app/store/selectors";
-import {Collection, timeout} from "@src/app/app.common";
+import {Collection, removeCadGongshi, addCadGongshi} from "@src/app/app.common";
 import {ActivatedRoute} from "@angular/router";
 import {takeUntil} from "rxjs/operators";
-import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity/cad-mtext";
-import {Vector2} from "three";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 
 @Component({
 	selector: "app-toolbar",
@@ -21,7 +18,7 @@ import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 	styleUrls: ["./toolbar.component.scss"]
 })
 export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy {
-	@Output() openCad = new EventEmitter<CadData[]>();
+	@Output() afterOpenCad = new EventEmitter<void>();
 	collection: Collection;
 	ids: string[];
 	openLock = false;
@@ -37,8 +34,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		"`": () => this.repeatLastCommand()
 	};
 	lastCommand: {name: string; args: IArguments};
-	showCadGongshis = true;
-	cadGongshis: {[key: string]: CadMtext} = {};
 
 	constructor(injector: Injector, private route: ActivatedRoute) {
 		super(injector);
@@ -59,17 +54,12 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				dataService.encode = params.encode ? encodeURIComponent(params.encode) : "";
 				dataService.data = params.data ? encodeURIComponent(params.data) : "";
 				const data = await dataService.getCadData(dataService.data);
-				this.openCad.emit(data);
+				this.afterOpen(data);
 			});
 		} else if (ids.length) {
 			const data = await dataService.getCadData({ids, collection});
-			this.openCad.emit(data);
+			this.afterOpen(data);
 		}
-
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(async () => {
-			await timeout(100);
-			this.updateCadGongshis();
-		});
 	}
 
 	ngOnDestroy() {
@@ -93,11 +83,24 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		ref.afterClosed().subscribe((data) => {
 			if (data) {
 				this.collection = collection;
-				this.openCad.emit(data);
 				this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
+				this.afterOpen(data);
 			}
 			this.openLock = false;
 		});
+	}
+
+	afterOpen(data?: CadData[]) {
+		const cad = this.cad;
+		if (data) {
+			cad.data.components.data = data;
+			data.forEach((v) => {
+				this.setCadData(v);
+				addCadGongshi(v);
+			});
+		}
+		cad.reset(null, true);
+		this.afterOpenCad.emit();
 	}
 
 	async save() {
@@ -109,20 +112,21 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			const {name, extra} = await this.getCadStatus();
 			if (name === "split") {
 				result = await dataService.postCadData(data[extra.index].components.data, RSAEncrypt({collection: "cad"}));
-				cad.data.components.data[0].components.data = result;
-				cad.render();
+				data[extra.index].components.data = result;
+				this.afterOpen();
 			} else {
 				this.dialog.open(MessageComponent, {data: {type: "alert", content: "无法保存CAD原始文件"}});
 			}
 		} else {
-			data.forEach((v) => this.removeCadGongshi(v));
+			data.forEach((v) => removeCadGongshi(v));
 			const postData: any = {};
 			if (this.collection) {
 				postData.collection = this.collection;
 			}
 			result = await dataService.postCadData(data, RSAEncrypt(postData));
-			data.forEach((v) => this.addCadGongshi(v));
-			cad.render();
+			if (result) {
+				this.afterOpen(result);
+			}
 		}
 		return result;
 	}
@@ -179,8 +183,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 						}
 					});
 				}
-				this.removeCadGongshi(data);
-				this.addCadGongshi(data);
+				removeCadGongshi(data);
+				addCadGongshi(data);
 			};
 			const currCads = await this.getCurrCads();
 			const currCadsData = getCurrCadsData(this.cad.data, currCads);
@@ -192,7 +196,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		cad.data.updatePartners().updateComponents();
 		cad.render();
-		this.updateCadGongshis();
 	}
 
 	showHelpInfo() {
@@ -282,39 +285,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		data.partners.forEach((v) => this.setCadData(v));
 		data.components.data.forEach((v) => this.setCadData(v));
-	}
-
-	addCadGongshi(data: CadData) {
-		const {zhankaikuan, zhankaigao, shuliang, shuliangbeishu} = data;
-		const mtext = new CadMtext();
-		const {x, y, width, height} = data.getAllEntities().getBounds();
-		mtext.text = `${zhankaikuan} x ${zhankaigao} = ${shuliang}`;
-		if (Number(shuliangbeishu) > 1) {
-			mtext.text += " x " + shuliangbeishu;
-		}
-		mtext.insert = new Vector2(x - width / 2, y - height / 2 - 10);
-		mtext.visible = this.showCadGongshis;
-		mtext.selectable = false;
-		data.entities.add(mtext);
-		this.cadGongshis[data.id] = mtext;
-		data.partners.forEach((d) => this.addCadGongshi(d));
-		data.components.data.forEach((d) => this.addCadGongshi(d));
-	}
-
-	removeCadGongshi(data: CadData) {
-		this.cad.removeEntity(this.cadGongshis[data.id]);
-		data.partners.forEach((d) => this.removeCadGongshi(d));
-		data.components.data.forEach((d) => this.removeCadGongshi(d));
-	}
-
-	updateCadGongshis() {
-		const entities = new CadEntities();
-		entities.mtext = Object.values(this.cadGongshis);
-		this.cad.traverse((e) => {
-			e.selectable = false;
-			e.selected = false;
-			e.visible = this.showCadGongshis;
-		}, entities);
 	}
 
 	saveStatus() {

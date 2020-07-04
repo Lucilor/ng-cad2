@@ -148,7 +148,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 
 	private focus(entities?: CadEntities) {
 		this.cad.traverse((e) => {
-			e.selectable = true;
+			e.selectable = !e.info.isCadGongshi;
 			e.selected = false;
 			e.opacity = 1;
 		}, entities);
@@ -442,7 +442,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 					parent.components.data = parent.components.data.filter((v) => !c.includes(v.id));
 				}
 				this.updateList();
-				this.cad.reset(null, false);
+				this.cad.reset();
 				this.setCurrCads();
 			}
 		}
