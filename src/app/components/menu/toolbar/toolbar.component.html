@@ -2,6 +2,7 @@
 <mat-menu #file="matMenu">
 	<button mat-menu-item [matMenuTriggerFor]="openType">打开</button>
 	<button mat-menu-item (click)="clickBtn('s')">保存<span class="shortcut">Ctrl + S</span></button>
+	<button mat-menu-item (click)="clickBtn('p')">打印<span class="shortcut">Ctrl + P</span></button>
 	<!-- <button mat-menu-item>另存为</button> -->
 </mat-menu>
 <mat-menu #openType="matMenu">
@@ -25,6 +26,12 @@
 	<button mat-menu-item (click)="rotate($event, true)">顺时针旋转</button>
 	<button mat-menu-item (click)="rotate($event, false)">逆时针旋转</button>
 	<button mat-menu-item (click)="rotate($event)">旋转</button>
+</mat-menu>
+
+<button mat-icon-button [matMenuTriggerFor]="view">视图</button>
+<mat-menu #view="matMenu">
+	<button mat-menu-item (click)="toggleShowDimensions()">{{ showDimensions ? "隐藏" : "显示" }}标注</button>
+	<button mat-menu-item (click)="toggleShowCadGongshis()">{{ showCadGongshis ? "隐藏" : "显示" }}公式</button>
 </mat-menu>
 
 <button mat-icon-button (click)="showHelpInfo()">帮助</button>

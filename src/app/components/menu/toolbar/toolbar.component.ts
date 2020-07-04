@@ -31,9 +31,13 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		5: () => this.open("qieliaocad"),
 		g: () => this.assembleCads(),
 		h: () => this.splitCad(),
-		"`": () => this.repeatLastCommand()
+		"`": () => this.repeatLastCommand(),
+		p: () => this.printCad()
 	};
 	lastCommand: {name: string; args: IArguments};
+	showDimensions = true;
+	showCadGongshis = true;
+	validateLines = true;
 
 	constructor(injector: Injector, private route: ActivatedRoute) {
 		super(injector);
@@ -49,7 +53,18 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		});
 		const {ids, collection, dataService} = this;
-		if (location.search) {
+		let cachedData: any = null;
+		let vid: string = null;
+		try {
+			cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data"));
+			vid = sessionStorage.getItem("vid");
+		} catch (error) {
+			console.warn(error);
+		}
+		if (cachedData && vid) {
+			this.collection = "order";
+			this.afterOpen([new CadData(cachedData)]);
+		} else if (location.search) {
 			this.route.queryParams.pipe(takeUntil(this.destroyed)).subscribe(async (params) => {
 				dataService.encode = params.encode ? encodeURIComponent(params.encode) : "";
 				dataService.data = params.data ? encodeURIComponent(params.data) : "";
@@ -285,6 +300,35 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		data.partners.forEach((v) => this.setCadData(v));
 		data.components.data.forEach((v) => this.setCadData(v));
+	}
+
+	toggleShowDimensions() {
+		this.showDimensions = !this.showDimensions;
+		const cad = this.cad;
+		cad.data.getAllEntities().dimension.forEach((e) => (e.visible = this.showDimensions));
+		cad.render();
+	}
+
+	toggleShowCadGongshis() {
+		this.showCadGongshis = !this.showCadGongshis;
+		const cad = this.cad;
+		cad.data.getAllEntities().mtext.forEach((e) => {
+			if (e.info.isCadGongshi) {
+				e.visible = this.showCadGongshis;
+			}
+		});
+		cad.render();
+	}
+
+	toggleValidateLines() {
+		this.validateLines = !this.validateLines;
+		const cad = this.cad;
+	}
+
+	async printCad() {
+		const data = (await this.getCurrCadsData())[0];
+		sessionStorage["cache-cad-data"] = JSON.stringify(data.export());
+		open("print-cad");
 	}
 
 	saveStatus() {

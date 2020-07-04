@@ -15,7 +15,8 @@ export const session = new SessionStorage(projectName);
 export const local = new LocalStorage(projectName);
 
 export const paths = {
-	index: "index"
+	index: "index",
+	"print-cad": "print-cad"
 };
 
 export interface Response {
@@ -43,7 +44,7 @@ export async function timeout(time = 0) {
 	return new Promise((r) => setTimeout(() => r(), time));
 }
 
-export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad";
+export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order";
 
 export function addCadGongshi(data: CadData) {
 	const mtext = new CadMtext();
@@ -65,9 +66,9 @@ export function removeCadGongshi(data: CadData) {
 
 export function getCadGongshiText(data: CadData) {
 	const {zhankaikuan, zhankaigao, shuliang, shuliangbeishu} = data;
-	let text = `${zhankaikuan} x ${zhankaigao} = ${shuliang}`;
+	let text = `${zhankaikuan} × ${zhankaigao} = ${shuliang}`;
 	if (Number(shuliangbeishu) > 1) {
-		text += " x " + shuliangbeishu;
+		text += " × " + shuliangbeishu;
 	}
 	return text;
 }

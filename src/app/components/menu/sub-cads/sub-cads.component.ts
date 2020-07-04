@@ -168,6 +168,13 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		const {cad} = this;
 		const count = cads.length + partners.length + components.length;
 		if (this.needsReload && this.needsReload !== name) {
+			if (this.needsReload === "assemble") {
+				cad.data.getAllEntities().mtext.forEach((e) => {
+					if (e.info.isCadGongshi) {
+						e.visible = true;
+					}
+				});
+			}
 			if (this.needsReload === "split") {
 				await this.updateList();
 			}
@@ -217,6 +224,11 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				this.unselectAll("components");
 				this.disabled = ["cads", "partners"];
 				this.needsReload = "assemble";
+				cad.data.getAllEntities().mtext.forEach((e) => {
+					if (e.info.isCadGongshi) {
+						e.visible = false;
+					}
+				});
 			}
 			cad.data.components.data.forEach((v, i) => {
 				if (i === index) {
