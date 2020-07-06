@@ -98,7 +98,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		ref.afterClosed().subscribe((data) => {
 			if (data) {
 				this.collection = collection;
-				this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
 				this.afterOpen(data);
 			}
 			this.openLock = false;
@@ -115,6 +114,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			});
 		}
 		cad.reset(null, true);
+		this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
 		this.afterOpenCad.emit();
 	}
 

@@ -1,4 +1,17 @@
-<div #cadContainer></div>
+<div #cadContainer (contextmenu)="onContextMenu($event)"></div>
+<div
+	style="visibility: hidden; position: fixed;"
+	[style.left]="contextMenuPosition.x"
+	[style.top]="contextMenuPosition.y"
+	[matMenuTriggerFor]="contextMenu"
+></div>
+<mat-menu #contextMenu="matMenu">
+	<ng-template matMenuContent>
+		<button mat-menu-item (click)="zoomAll()">居中</button>
+		<button mat-menu-item (click)="refresh()">刷新</button>
+	</ng-template>
+</mat-menu>
+
 <div class="menu top">
 	<app-toolbar [cad]="cad" (afterOpenCad)="afterOpenCad()"></app-toolbar>
 </div>

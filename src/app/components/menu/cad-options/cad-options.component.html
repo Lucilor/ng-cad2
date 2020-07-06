@@ -6,14 +6,15 @@
 	</mat-form-field>
 </form>
 
-<div class="checkbox-group add-empty-msg">
-	<div class="data-container" *ngFor="let item of pageData; let i = index">
-		<mat-checkbox [(ngModel)]="item.checked">{{ item.value }}</mat-checkbox>
-		<br />
-		<!-- <img [src]="item.img" /> -->
-		<app-image [src]="item.img"></app-image>
+<perfect-scrollbar style="height: 400px;">
+	<div class="checkbox-group add-empty-msg">
+		<div class="data-container" *ngFor="let item of pageData; let i = index">
+			<mat-checkbox [(ngModel)]="item.checked">{{ item.value }}</mat-checkbox>
+			<br />
+			<app-image [src]="item.img"></app-image>
+		</div>
 	</div>
-</div>
+</perfect-scrollbar>
 
 <mat-paginator
 	#paginator

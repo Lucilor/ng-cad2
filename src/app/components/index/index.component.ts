@@ -10,7 +10,7 @@ import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {environment} from "@src/environments/environment";
 import {takeUntil, take} from "rxjs/operators";
 import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
-import {timeout} from "@src/app/app.common";
+import {MatMenuTrigger} from "@angular/material/menu";
 
 @Component({
 	selector: "app-index",
@@ -28,6 +28,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(CadInfoComponent) cadInfo: CadInfoComponent;
 	@ViewChild(CadDimensionComponent) cadDimension: CadDimensionComponent;
 	@ViewChild(CadAssembleComponent) cadAssemble: CadAssembleComponent;
+	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
 
 	constructor(injector: Injector) {
 		super(injector);
@@ -93,6 +94,20 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	ngOnDestroy() {
 		super.ngOnDestroy();
+	}
+
+	onContextMenu(event: PointerEvent) {
+		super.onContextMenu(event);
+		this.contextMenu.openMenu();
+	}
+
+	zoomAll() {
+		this.cad.center();
+	}
+
+	refresh() {
+		this.refreshCurrCads();
+		this.afterOpenCad();
 	}
 
 	afterOpenCad() {
