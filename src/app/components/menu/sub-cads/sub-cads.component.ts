@@ -137,6 +137,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				data.separate(split);
 				split.conditions = data.conditions;
 				split.options = data.options;
+				split.type = data.type;
 				data.addComponent(split);
 				data.directAssemble(split);
 				cad.removeEntities(entities);
@@ -389,8 +390,10 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		if (type === "components") {
 			checkedItems = [...data.components.data];
 		}
+		// TODO: get collection
+		const qiliao = type === "components" && window["app"].toolbar.collection === "qiliaozuhe";
 		const ref: MatDialogRef<CadListComponent, CadData[]> = this.dialog.open(CadListComponent, {
-			data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad"}
+			data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
 		});
 		ref.afterClosed().subscribe(async (cads) => {
 			if (Array.isArray(cads)) {

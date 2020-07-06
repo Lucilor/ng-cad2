@@ -11,6 +11,7 @@ interface CadListData {
 	checkedItems?: CadData[];
 	options?: CadOption[];
 	collection: Collection;
+	qiliao?: boolean;
 }
 
 @Component({
@@ -47,6 +48,7 @@ export class CadListComponent implements AfterViewInit {
 		if (Array.isArray(this.data.checkedItems)) {
 			this.checkedItems = this.data.checkedItems;
 		}
+		this.data.qiliao = this.data.qiliao === true;
 		this.getData(1);
 	}
 
@@ -68,7 +70,9 @@ export class CadListComponent implements AfterViewInit {
 			this.pageData.length = 0;
 			this.tableData = data.data;
 		} else {
-			const data = await this.dataService.getCadDataPage(collection, page, limit, this.searchValue, options, matchType);
+			const search = this.searchValue;
+			const qiliao = this.data.qiliao;
+			const data = await this.dataService.getCadDataPage(collection, page, limit, search, options, matchType, qiliao);
 			this.length = data.count;
 			this.pageData.length = 0;
 			for (const d of data.data) {

@@ -169,9 +169,10 @@ export class CadDataService {
 		limit: number,
 		search?: string,
 		options?: CadOption[],
-		optionsMatchType: "and" | "or" = "and"
+		optionsMatchType: "and" | "or" = "and",
+		qiliao = false
 	) {
-		const postData = {page, limit, search, options, collection, optionsMatchType};
+		const postData = {page, limit, search, options, collection, optionsMatchType, qiliao};
 		const response = await this._request("peijian/cad/getCad", "getCadDataPage", "POST", postData);
 		if (!response) {
 			return {data: [], count: 0};

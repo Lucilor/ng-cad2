@@ -89,10 +89,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	ngAfterViewInit() {
 		this.cadContainer.nativeElement.appendChild(this.cad.dom);
-		(async () => {
-			await timeout(0);
-			this.subCads.updateList();
-		})();
 	}
 
 	ngOnDestroy() {
