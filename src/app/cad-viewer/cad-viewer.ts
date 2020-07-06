@@ -49,6 +49,7 @@ export interface CadViewerConfig {
 	showStats?: boolean;
 	reverseSimilarColor?: boolean;
 	validateLines?: boolean;
+	antialias?: boolean;
 }
 
 export class CadViewer {
@@ -68,7 +69,8 @@ export class CadViewer {
 		fps: 60,
 		showStats: false,
 		reverseSimilarColor: true,
-		validateLines: false
+		validateLines: false,
+		antialias: true
 	};
 	dom: HTMLDivElement;
 	scene: Scene;
@@ -107,11 +109,11 @@ export class CadViewer {
 	constructor(data: CadData, config: CadViewerConfig = {}) {
 		this.data = data;
 		this.config = {...this.config, ...config};
-		const {width, height, backgroundColor, backgroundAlpha} = this.config;
+		const {width, height, backgroundColor, backgroundAlpha, antialias} = this.config;
 
 		const scene = new Scene();
 		const camera = new PerspectiveCamera(60, width / height, 0.1, 15000);
-		const renderer = new WebGLRenderer({preserveDrawingBuffer: true});
+		const renderer = new WebGLRenderer({preserveDrawingBuffer: true, antialias});
 		renderer.setClearColor(backgroundColor, backgroundAlpha);
 		renderer.setSize(width, height);
 
