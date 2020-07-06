@@ -10,7 +10,6 @@ import {Response, session, Collection} from "../app.common";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
 import {CadViewer} from "../cad-viewer/cad-viewer";
 import {RSAEncrypt} from "@lucilor/utils";
-import {ActivatedRoute} from "@angular/router";
 import {Expressions} from "../cad-viewer/cad-data/utils";
 
 export interface Order {
@@ -28,7 +27,10 @@ export class CadDataService {
 	data = "";
 	silent = false;
 	constructor(private store: Store<State>, private http: HttpClient, private dialog: MatDialog, private snackBar: MatSnackBar) {
-		this.baseURL = localStorage.getItem("baseURL") || "/api";
+		this.baseURL = localStorage.getItem("baseURL");
+		if (!this.baseURL && location.origin === "http://localhost:4200") {
+			this.baseURL = "/api";
+		}
 	}
 
 	private alert(content: any) {
@@ -38,6 +40,9 @@ export class CadDataService {
 	}
 
 	private async _request(url: string, name: string, method: "GET" | "POST", postData: any = {}, encrypt = true) {
+		if (!this.baseURL) {
+			return null;
+		}
 		const {baseURL, encode, data} = this;
 		this.store.dispatch<LoadingAction>({type: "add loading", name});
 		url = `${baseURL}/${url}/${encode}`;
