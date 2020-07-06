@@ -2,21 +2,16 @@ import {
 	Scene,
 	PerspectiveCamera,
 	WebGLRenderer,
-	LineBasicMaterial,
 	Vector2,
-	Line,
 	MathUtils,
 	Raycaster,
-	Geometry,
 	Color,
 	ShapeGeometry,
 	Shape,
 	Mesh,
 	MeshBasicMaterial,
 	Material,
-	BufferGeometry,
 	Vector3,
-	LineDashedMaterial,
 	BoxGeometry,
 	AmbientLight
 } from "three";
@@ -37,7 +32,6 @@ import {CadTypes} from "./cad-data/cad-types";
 import {Line2} from "three/examples/jsm/lines/Line2";
 import {LineGeometry} from "three/examples/jsm/lines/LineGeometry";
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 export interface CadViewerConfig {
 	width?: number;
@@ -533,7 +527,6 @@ export class CadViewer {
 			object.remove(...object.children);
 			this._updateLineObject(entity, points, color, linewidth, opacity);
 		} else {
-			const material = new LineBasicMaterial({color, linewidth, opacity, transparent: true});
 			object = this._getLineObject(points, color, linewidth, opacity);
 			object.renderOrder = -1;
 			object.name = entity.id;
