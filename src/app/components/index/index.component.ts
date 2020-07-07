@@ -11,6 +11,7 @@ import {environment} from "@src/environments/environment";
 import {takeUntil, take} from "rxjs/operators";
 import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
+import {timeout} from "@src/app/app.common";
 
 @Component({
 	selector: "app-index",
@@ -111,9 +112,14 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		// this.cad.reset();
 	}
 
-	afterOpenCad() {
+	async afterOpenCad() {
 		document.title = this.cad.data.components.data.map((v) => v.name).join(", ");
-		this.subCads?.updateList();
+		if (this.subCads) {
+			this.subCads.updateList();
+		} else {
+			await timeout(0);
+			this.refresh();
+		}
 	}
 
 	refreshCurrCads() {

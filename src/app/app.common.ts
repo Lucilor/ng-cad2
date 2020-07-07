@@ -72,3 +72,15 @@ export function getCadGongshiText(data: CadData) {
 	}
 	return text;
 }
+
+export function copyToClipboard(str: string) {
+	const el = document.createElement("textarea");
+	el.value = str;
+	el.setAttribute("readonly", "");
+	el.style.position = "absolute";
+	el.style.opacity = "0";
+	document.body.appendChild(el);
+	el.select();
+	document.execCommand("copy");
+	document.body.removeChild(el);
+}

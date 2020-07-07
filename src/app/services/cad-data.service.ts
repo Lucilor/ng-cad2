@@ -224,7 +224,7 @@ export class CadDataService {
 	}
 
 	loadCadStatus(cad: CadViewer, field: string) {
-		const status = session.load(field, true);
+		const status = session.load(field);
 		if (status && status.id === cad.data.id) {
 			if (Array.isArray(status.position)) {
 				cad.position.set(status.position[0], status.position[1], status.position[2]);

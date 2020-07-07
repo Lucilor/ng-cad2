@@ -22,7 +22,6 @@ export class MenuComponent implements OnInit, OnDestroy {
 	cadStatus: Observable<State["cadStatus"]>;
 	currCads: Observable<State["currCads"]>;
 	destroyed = new Subject();
-	session = new SessionStorage("ngCadMenu");
 	contextMenuPosition = {x: "0px", y: "0px"};
 
 	constructor(injector: Injector) {

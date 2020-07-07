@@ -8,9 +8,10 @@ import {MenuComponent} from "../menu.component";
 import {MessageComponent} from "../../message/message.component";
 import {CadListComponent} from "../../cad-list/cad-list.component";
 import {getCurrCadsData} from "@src/app/store/selectors";
-import {Collection, removeCadGongshi, addCadGongshi} from "@src/app/app.common";
-import {ActivatedRoute} from "@angular/router";
+import {Collection, removeCadGongshi, addCadGongshi, timeout, session} from "@src/app/app.common";
+import {ActivatedRoute, Router} from "@angular/router";
 import {takeUntil} from "rxjs/operators";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 
 @Component({
 	selector: "app-toolbar",
@@ -38,7 +39,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	showDimensions = true;
 	showCadGongshis = true;
 
-	constructor(injector: Injector, private route: ActivatedRoute) {
+	constructor(injector: Injector, private route: ActivatedRoute, private router: Router) {
 		super(injector);
 	}
 
@@ -106,6 +107,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	afterOpen(data?: CadData[]) {
 		const cad = this.cad;
 		if (data) {
+			console.log(data);
 			cad.data.components.data = data;
 			data.forEach((v) => {
 				this.setCadData(v);
@@ -352,9 +354,25 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.render();
 	}
 
-	async printCad() {
+	async printCad(scale = 16) {
 		const data = (await this.getCurrCadsData())[0];
-		sessionStorage["cache-cad-data"] = JSON.stringify(data.export());
+		const width = 210 * scale;
+		const height = 297 * scale;
+		data.entities.dimension.forEach((e) => (e.selected = true));
+		const cad = new CadViewer(data.clone(), {
+			...this.cad.config,
+			width,
+			height,
+			backgroundColor: 0xffffff,
+			padding: 18,
+			showStats: false
+		});
+		document.body.appendChild(cad.dom);
+		cad.render();
+		await timeout(100);
+		const src = cad.exportImage().src;
+		cad.destroy();
+		session.save("printCadImg", src);
 		open("print-cad");
 	}
 
@@ -363,11 +381,11 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			collection: this.collection,
 			ids: this.cad.data.components.data.map((v) => v.id)
 		};
-		this.session.save("toolbar", data);
+		session.save("toolbar", data);
 	}
 
 	loadStatus() {
-		const data = this.session.load("toolbar", true);
+		const data = session.load("toolbar");
 		this.collection = data.collection;
 		this.ids = data.ids || [];
 	}

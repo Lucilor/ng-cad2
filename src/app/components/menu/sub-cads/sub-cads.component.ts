@@ -3,7 +3,7 @@ import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatDialogRef} from "@angular/material/dialog";
-import {timeout, Collection} from "@src/app/app.common";
+import {timeout, Collection, session, copyToClipboard} from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
 import {RSAEncrypt} from "@lucilor/utils";
@@ -15,6 +15,8 @@ import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {Vector2} from "three";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {getCurrCadsData} from "@src/app/store/selectors";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {environment} from "@src/environments/environment";
 
 type SubCadsField = "cads" | "partners" | "components";
 
@@ -53,7 +55,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		return {cads, partners, components};
 	}
 
-	constructor(injector: Injector) {
+	constructor(injector: Injector, private snackBar: MatSnackBar) {
 		super(injector);
 	}
 
@@ -414,6 +416,13 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		this.dataService.downloadDxf(this.contextMenuCad.data);
 	}
 
+	getJson() {
+		const data = this.contextMenuCad.data;
+		copyToClipboard(JSON.stringify(data.export()));
+		this.snackBar.open("内容已复制");
+		console.log(data);
+	}
+
 	async deleteSelected() {
 		const checkedCads = this.cads.filter((v) => v.checked).map((v) => v.data);
 		const checkedIds = checkedCads.map((v) => v.id);
@@ -499,11 +508,11 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 			});
 		});
-		this.session.save("subCads", data);
+		session.save("subCads", data);
 	}
 
 	loadStatus() {
-		const data: {[key: string]: number[]} = this.session.load("subCads", true);
+		const data: {[key: string]: number[]} = session.load("subCads");
 		for (const field in data) {
 			data[field].forEach((i) => {
 				const node = this[field][i] as CadNode;
