@@ -48,7 +48,7 @@ export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuh
 
 export function addCadGongshi(data: CadData) {
 	const mtext = new CadMtext();
-	const {x, y, width, height} = data.getAllEntities().getBounds();
+	const {x, y, width, height} = data.getBounds();
 	mtext.text = getCadGongshiText(data);
 	mtext.insert = new Vector2(x - width / 2, y - height / 2 - 10);
 	mtext.selectable = false;

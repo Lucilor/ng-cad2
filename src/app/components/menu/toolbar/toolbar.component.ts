@@ -107,7 +107,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	afterOpen(data?: CadData[]) {
 		const cad = this.cad;
 		if (data) {
-			console.log(data);
 			cad.data.components.data = data;
 			data.forEach((v) => {
 				this.setCadData(v);
@@ -178,12 +177,12 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		const {cad} = this;
 		const seleted = cad.selectedEntities;
 		if (seleted.length) {
-			const {x, y} = seleted.getBounds();
+			const {x, y} = cad.getBounds(seleted);
 			trans.anchor.set(x, y);
 			seleted.transform(trans);
 		} else {
 			const t = (data: CadData) => {
-				const {x, y} = data.getAllEntities().getBounds();
+				const {x, y} = data.getBounds();
 				trans.anchor.set(x, y);
 				data.transform(trans);
 				if (rotateDimension) {

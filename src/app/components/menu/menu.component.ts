@@ -1,4 +1,3 @@
-import {SessionStorage} from "@lucilor/utils";
 import {Component, OnDestroy, Injector, Input, OnInit} from "@angular/core";
 import {CadDataService} from "@src/app/services/cad-data.service";
 import {Store} from "@ngrx/store";
