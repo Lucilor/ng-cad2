@@ -21,7 +21,7 @@
     "@angular/platform-browser": "~10.0.2",
     "@angular/platform-browser-dynamic": "~10.0.2",
     "@angular/router": "~10.0.2",
-    "@lucilor/utils": "^1.0.19",
+    "@lucilor/utils": "^1.0.20",
     "@ngrx/store": "^9.2.0",
     "@seregpie/three.text-sprite": "^2.0.0",
     "@syncfusion/ej2-angular-inputs": "^18.1.59",

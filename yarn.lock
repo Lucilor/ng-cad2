@@ -1227,10 +1227,10 @@
     merge-source-map "^1.1.0"
     schema-utils "^2.6.4"
 
-"@lucilor/utils@^1.0.19":
-  version "1.0.19"
-  resolved "https://registry.yarnpkg.com/@lucilor/utils/-/utils-1.0.19.tgz#6824c3791c1e404539feca2dcf386f84e4514581"
-  integrity sha512-iUuN7T2ICoWM+kJypkfHTGTMF72aC0AEtwxfaqhtGiXLBNzHa7rzeSHTt9s6JLRufwCbEx09oMIh5vtnFP3g0g==
+"@lucilor/utils@^1.0.20":
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/@lucilor/utils/-/utils-1.0.20.tgz#1654450e0e190bffe0abb27edb0a536abd2c67fa"
+  integrity sha512-yi/KQ65C2XWEYYvZnBhT9mHfpzaBIjU4jtrCKjvLY5j0a9eBdgNL6bJMfNkVqHG+lSYBm/zQiY1jH1/vCXyFtw==
   dependencies:
     color "^3.1.2"
     jsencrypt "^3.0.0-rc.1"
