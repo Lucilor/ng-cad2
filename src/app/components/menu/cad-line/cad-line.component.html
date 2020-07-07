@@ -29,6 +29,18 @@
 			/>
 		</mat-form-field>
 	</div>
+	<div class="form-item linewidth">
+		<mat-form-field>
+			<mat-label>线宽</mat-label>
+			<input
+				matInput
+				type="text"
+				[ngModel]="getLinewidth()"
+				(change)="setLinewidth($event)"
+				name="linewidth"
+			/>
+		</mat-form-field>
+	</div>
 	<div class="form-item mingzi">
 		<mat-form-field>
 			<mat-label>名字</mat-label>

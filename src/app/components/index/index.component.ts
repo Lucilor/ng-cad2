@@ -108,6 +108,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	refresh() {
 		this.refreshCurrCads();
 		this.afterOpenCad();
+		// this.cad.reset();
 	}
 
 	afterOpenCad() {

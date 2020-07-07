@@ -32,6 +32,9 @@
 <mat-menu #view="matMenu">
 	<button mat-menu-item (click)="toggleShowDimensions()">{{ showDimensions ? "隐藏" : "显示" }}标注</button>
 	<button mat-menu-item (click)="toggleShowCadGongshis()">{{ showCadGongshis ? "隐藏" : "显示" }}公式</button>
+	<button mat-menu-item (click)="toggleValidateLines()">{{ cad.config.validateLines ? "" : "不" }}验证线段</button>
+	<button mat-menu-item (click)="setShowLineLength()">设置线长显示</button>
+	<button mat-menu-item (click)="setShowGongshi()">设置公式显示</button>
 </mat-menu>
 
 <button mat-icon-button (click)="showHelpInfo()">帮助</button>

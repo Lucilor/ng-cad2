@@ -34,10 +34,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		"`": () => this.repeatLastCommand(),
 		p: () => this.printCad()
 	};
-	lastCommand: {name: string; args: IArguments};
+	lastCommand: {name: string; arguments: IArguments};
 	showDimensions = true;
 	showCadGongshis = true;
-	validateLines = true;
 
 	constructor(injector: Injector, private route: ActivatedRoute) {
 		super(injector);
@@ -86,7 +85,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	open(collection: Collection) {
-		this.lastCommand = {name: this.open.name, args: arguments};
+		this.lastCommand = {name: this.open.name, arguments};
 		if (this.openLock) {
 			return;
 		}
@@ -119,7 +118,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async save() {
-		this.lastCommand = {name: this.save.name, args: arguments};
+		this.lastCommand = {name: this.save.name, arguments};
 		const {cad, dataService} = this;
 		let result: CadData[] = [];
 		const data = cad.data.components.data;
@@ -147,26 +146,22 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	flip(event: PointerEvent, vertical: boolean, horizontal: boolean) {
-		this.lastCommand = {name: this.flip.name, args: arguments};
+		this.lastCommand = {name: this.flip.name, arguments};
 		event.stopPropagation();
 		this.transform(new CadTransformation({flip: {vertical, horizontal}}));
 	}
 
 	async rotate(event: PointerEvent, clockwise?: boolean) {
-		this.lastCommand = {name: this.rotate.name, args: arguments};
+		this.lastCommand = {name: this.rotate.name, arguments};
 		event.stopPropagation();
 		let angle = 0;
 		if (clockwise === undefined) {
-			const ref = this.dialog.open(MessageComponent, {data: {type: "prompt", title: "输入角度"}});
+			const ref = this.dialog.open(MessageComponent, {data: {type: "prompt", title: "输入角度", promptData: {type: "number"}}});
 			const input = await ref.afterClosed().toPromise();
 			if (input === false) {
 				return;
 			}
 			angle = Number(input);
-			if (isNaN(angle)) {
-				this.dialog.open(MessageComponent, {data: {type: "alert", content: "请输入数字"}});
-				return;
-			}
 		} else {
 			if (clockwise === true) {
 				angle = Math.PI / 2;
@@ -224,7 +219,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async assembleCads() {
-		this.lastCommand = {name: this.assembleCads.name, args: arguments};
+		this.lastCommand = {name: this.assembleCads.name, arguments};
 		const {name} = await this.getCadStatus();
 		if (name === "assemble") {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
@@ -237,7 +232,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async splitCad() {
-		this.lastCommand = {name: this.splitCad.name, args: arguments};
+		this.lastCommand = {name: this.splitCad.name, arguments};
 		const {name} = await this.getCadStatus();
 		if (name === "split") {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
@@ -252,7 +247,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	repeatLastCommand() {
 		if (this.lastCommand) {
-			const {name, args} = this.lastCommand;
+			const {name, arguments: args} = this.lastCommand;
 			this[name](...args);
 		}
 	}
@@ -303,6 +298,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	toggleShowDimensions() {
+		this.lastCommand = {name: this.toggleShowDimensions.name, arguments};
 		this.showDimensions = !this.showDimensions;
 		const cad = this.cad;
 		cad.data.getAllEntities().dimension.forEach((e) => (e.visible = this.showDimensions));
@@ -310,6 +306,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	toggleShowCadGongshis() {
+		this.lastCommand = {name: this.toggleShowCadGongshis.name, arguments};
 		this.showCadGongshis = !this.showCadGongshis;
 		const cad = this.cad;
 		cad.data.getAllEntities().mtext.forEach((e) => {
@@ -321,8 +318,38 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	toggleValidateLines() {
-		this.validateLines = !this.validateLines;
+		this.lastCommand = {name: this.toggleValidateLines.name, arguments};
 		const cad = this.cad;
+		cad.config.validateLines = !cad.config.validateLines;
+		cad.render();
+	}
+
+	async setShowLineLength() {
+		this.lastCommand = {name: this.setShowLineLength.name, arguments};
+		const ref = this.dialog.open(MessageComponent, {
+			data: {
+				type: "prompt",
+				title: "线长字体大小",
+				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.showLineLength}
+			}
+		});
+		const num = Number(await ref.afterClosed().toPromise());
+		this.cad.config.showLineLength = num;
+		this.cad.render();
+	}
+
+	async setShowGongshi() {
+		this.lastCommand = {name: this.setShowGongshi.name, arguments};
+		const ref = this.dialog.open(MessageComponent, {
+			data: {
+				type: "prompt",
+				title: "公式字体大小",
+				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.showGongshi}
+			}
+		});
+		const num = Number(await ref.afterClosed().toPromise());
+		this.cad.config.showGongshi = num;
+		this.cad.render();
 	}
 
 	async printCad() {

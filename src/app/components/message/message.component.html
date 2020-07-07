@@ -2,7 +2,8 @@
 <div mat-dialog-content>
 	<div [innerHTML]="contentHTML"></div>
 	<mat-form-field *ngIf="data.type === 'prompt'">
-		<input type="text" matInput [(ngModel)]="input" />
+		<input matInput [type]="data.promptData.type" [(ngModel)]="input" />
+		<mat-hint>{{data.promptData.hint}}</mat-hint>
 	</mat-form-field>
 </div>
 <div mat-dialog-actions style="justify-content: center;">

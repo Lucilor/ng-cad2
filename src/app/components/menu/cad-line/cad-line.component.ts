@@ -7,6 +7,8 @@ import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation
 import {findAllAdjacentLines, generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getColorLightness} from "@lucilor/utils";
 import {MatSelectChange} from "@angular/material/select";
+import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
+import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 
 @Component({
 	selector: "app-cad-line",
@@ -108,5 +110,28 @@ export class CadLineComponent implements OnInit {
 				e[field] = value;
 			}
 		});
+	}
+
+	getLinewidth() {
+		const lines = this.selectedLines;
+		if (lines.length === 1) {
+			return (linewidth2lineweight(lines[0].linewidth) / 100).toString();
+		}
+		if (lines.length) {
+			const texts = Array.from(new Set(lines.map((l) => l.linewidth)));
+			if (texts.length === 1) {
+				return (linewidth2lineweight(texts[0]) / 100).toString();
+			}
+			return "多个值";
+		}
+		return "";
+	}
+
+	setLinewidth(event: InputEvent) {
+		this.selectedLines.forEach((entity) => {
+			const width = Number((event.target as HTMLInputElement).value) * 100;
+			entity.linewidth = lineweight2linewidth(width);
+		});
+		this.cad.render();
 	}
 }

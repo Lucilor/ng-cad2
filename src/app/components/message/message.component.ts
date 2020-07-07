@@ -6,6 +6,11 @@ export interface MessageData {
 	title?: string;
 	content?: any;
 	type?: "alert" | "confirm" | "prompt";
+	promptData?: {
+		type?: string;
+		hint?: string;
+		value?: string;
+	};
 }
 
 @Component({
@@ -25,25 +30,41 @@ export class MessageComponent implements OnInit {
 	) {}
 
 	ngOnInit() {
-		const {title, content} = this.data;
-		if (title === null || title === undefined) {
-			this.data.title = "";
+		const data = this.data;
+		if (data.title === null || data.title === undefined) {
+			data.title = "";
 		}
 		this.titleHTML = this.sanitizer.bypassSecurityTrustHtml(this.data.title);
-		if (content === null || content === undefined) {
-			this.data.content = "";
-		} else if (content instanceof Error) {
-			this.data.title = "Oops!";
-			this.data.content = content.message;
-			console.warn(content);
-		} else if (typeof content !== "string") {
+		if (data.content === null || data.content === undefined) {
+			data.content = "";
+		} else if (data.content instanceof Error) {
+			data.title = "Oops!";
+			data.content = data.content.message;
+			console.warn(data.content);
+		} else if (typeof data.content !== "string") {
 			try {
-				this.data.content = JSON.stringify(content);
+				this.data.content = JSON.stringify(data.content);
 			} catch (error) {
 				console.warn(error);
 			}
 		}
-		this.contentHTML = this.sanitizer.bypassSecurityTrustHtml(this.data.content);
+		this.contentHTML = this.sanitizer.bypassSecurityTrustHtml(data.content);
+
+		if (this.data.type === "prompt") {
+			if (!data.promptData) {
+				data.promptData = {};
+			}
+			const promptData = data.promptData;
+			if (typeof promptData.type !== "string") {
+				promptData.type = "text";
+			}
+			if (typeof promptData.hint !== "string") {
+				promptData.hint = "";
+			}
+			if (promptData.value) {
+				this.input = promptData.value;
+			}
+		}
 	}
 
 	submit() {
