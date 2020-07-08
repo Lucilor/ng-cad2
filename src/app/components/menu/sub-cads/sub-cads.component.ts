@@ -113,7 +113,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	private async getCadNode(data: CadData, parent?: string) {
-		const cad = new CadViewer(data.clone(), {width: 200, height: 100, padding: 10});
+		const cad = new CadViewer(new CadData(data.export()), {width: 200, height: 100, padding: 10});
 		const img = cad.exportImage().src;
 		const node: CadNode = {data, img, checked: false, indeterminate: false, parent};
 		cad.destroy();

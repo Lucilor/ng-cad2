@@ -354,17 +354,18 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async printCad(scale = 16) {
-		const data = (await this.getCurrCadsData())[0];
+		const data = this.cad.data.clone();
 		const width = 210 * scale;
 		const height = 297 * scale;
 		data.entities.dimension.forEach((e) => (e.selected = true));
-		const cad = new CadViewer(data.clone(), {
+		const cad = new CadViewer(data, {
 			...this.cad.config,
 			width,
 			height,
 			backgroundColor: 0xffffff,
 			padding: 18,
-			showStats: false
+			showStats: false,
+			showLineLength: 0
 		});
 		document.body.appendChild(cad.dom);
 		cad.render();
