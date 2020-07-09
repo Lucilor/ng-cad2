@@ -1227,14 +1227,6 @@
     merge-source-map "^1.1.0"
     schema-utils "^2.6.4"
 
-"@lucilor/utils@^1.0.22":
-  version "1.0.22"
-  resolved "https://registry.yarnpkg.com/@lucilor/utils/-/utils-1.0.22.tgz#6ff728117e5d2f895c6b2f75220f134658814fc6"
-  integrity sha512-WFL2IYOf8m42VvWq/g+rs+d/OxMbxv0QRJWQJVLt1y/IHlmuPXFOIWLd0G1d63VWF011+u4SGJq9OlNwedQXpw==
-  dependencies:
-    color "^3.1.2"
-    jsencrypt "^3.0.0-rc.1"
-
 "@ngrx/store@^9.2.0":
   version "9.2.0"
   resolved "https://registry.yarnpkg.com/@ngrx/store/-/store-9.2.0.tgz#39f663f98b5332b33c8d197be3ab08bafd85bc88"
@@ -1317,6 +1309,11 @@
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@seregpie/three.text-texture/-/three.text-texture-2.0.1.tgz#2f0b1aaa429bfc84c8c5e3f7b0503d9faa2079ea"
   integrity sha512-9uO/mP5PyGyl1LqrkObe9OOAwL/jp9rKjdphWf5gUH8LHDJuNy5GQCjr+nKqJG2lGID8gMNNnub1CSALl4BZHw==
+
+"@svgdotjs/svg.js@^3.0.16":
+  version "3.0.16"
+  resolved "https://registry.yarnpkg.com/@svgdotjs/svg.js/-/svg.js-3.0.16.tgz#7044754e45daf62c8e2b115c45ca33ca5b967aff"
+  integrity sha512-yZ4jfP/SeLHEnCi9PIrzienKCrA4vW9+jm5uUV3N5DG2e9zgXLY5FgywK2u8/gMFIeKO0HuqTLFFfWJj+MfMLA==
 
 "@syncfusion/ej2-angular-base@~18.2.44":
   version "18.2.44"
@@ -2722,7 +2719,7 @@ color-string@^1.5.2:
     color-name "^1.0.0"
     simple-swizzle "^0.2.2"
 
-color@^3.0.0, color@^3.1.2:
+color@^3.0.0:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/color/-/color-3.1.2.tgz#68148e7f85d41ad7649c5fa8c8106f098d229e10"
   integrity sha512-vXTJhHebByxZn3lDvDJYw4lR5+uB3vuoHsuYA5AKuxRVn5wzzIfQKGLBmgdVRHKTJYeK5rvJcHnrd0Li49CFpg==

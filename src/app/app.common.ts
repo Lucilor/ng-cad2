@@ -1,5 +1,5 @@
 import {environment} from "src/environments/environment";
-import {SessionStorage, LocalStorage} from "@lucilor/utils";
+import {SessionStorage, LocalStorage} from "@app/utils";
 import {CadData} from "./cad-viewer/cad-data/cad-data";
 import {CadMtext} from "./cad-viewer/cad-data/cad-entity/cad-mtext";
 import {Vector2} from "three";
@@ -16,7 +16,8 @@ export const local = new LocalStorage(projectName);
 
 export const paths = {
 	index: "index",
-	"print-cad": "print-cad"
+	"print-cad": "print-cad",
+	test: "test"
 };
 
 export interface Response {

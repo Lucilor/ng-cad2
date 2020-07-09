@@ -5,11 +5,13 @@ import {PageNotFoundComponent} from "./components/page-not-found/page-not-found.
 import {PathResolveService} from "./services/path-resolve.service";
 import {IndexComponent} from "./components/index/index.component";
 import {PrintCadComponent} from "./components/print-cad/print-cad.component";
+import {TestComponent} from "./components/test/test.component";
 
 const routes: Routes = [
 	{path: "", pathMatch: "full", redirectTo: paths.index},
 	{path: paths.index, component: IndexComponent},
 	{path: paths["print-cad"], component: PrintCadComponent},
+	{path: paths.test, component: TestComponent},
 	{path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
 ];
 

@@ -2,7 +2,7 @@ import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@ang
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatDialogRef} from "@angular/material/dialog";
 import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
-import {RSAEncrypt} from "@lucilor/utils";
+import {RSAEncrypt} from "@app/utils";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {MenuComponent} from "../menu.component";
 import {MessageComponent} from "../../message/message.component";
