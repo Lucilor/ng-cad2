@@ -17,7 +17,7 @@
 	</mat-checkbox>
 </form>
 
-<ng-container *ngIf="data.selectMode === 'single'">
+<perfect-scrollbar *ngIf="data.selectMode === 'single'">
 	<mat-radio-group class="add-empty-msg" [(ngModel)]="checkedIndex">
 		<div class="data-container" *ngFor="let item of pageData; let i = index">
 			<mat-radio-button class="example-radio-button" [value]="i">
@@ -26,18 +26,18 @@
 			<img [src]="item.img" (click)="checkedIndex = i" />
 		</div>
 	</mat-radio-group>
-</ng-container>
+</perfect-scrollbar>
 
-<ng-container *ngIf="data.selectMode === 'multiple'">
+<perfect-scrollbar *ngIf="data.selectMode === 'multiple'">
 	<div class="checkbox-group add-empty-msg">
 		<div class="data-container" *ngFor="let item of pageData; let i = index">
 			<mat-checkbox [(ngModel)]="item.checked">{{ item.data.name }}</mat-checkbox>
 			<img [src]="item.img" (click)="item.checked = !item.checked" />
 		</div>
 	</div>
-</ng-container>
+</perfect-scrollbar>
 
-<ng-container *ngIf="data.selectMode === 'table'">
+<perfect-scrollbar *ngIf="data.selectMode === 'table'">
 	<table mat-table [dataSource]="tableData">
 		<ng-container matColumnDef="select">
 			<th mat-header-cell *matHeaderCellDef></th>
@@ -65,7 +65,7 @@
 		<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 		<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 	</table>
-</ng-container>
+</perfect-scrollbar>
 
 <mat-paginator
 	#paginator

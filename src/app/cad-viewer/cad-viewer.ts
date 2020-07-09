@@ -47,6 +47,8 @@ export interface CadViewerConfig {
 	reverseSimilarColor?: boolean;
 	validateLines?: boolean;
 	antialias?: boolean;
+	dashSize?: number;
+	gapSize?: number;
 }
 
 export class CadViewer {
@@ -67,7 +69,9 @@ export class CadViewer {
 		showStats: false,
 		reverseSimilarColor: true,
 		validateLines: false,
-		antialias: true
+		antialias: true,
+		dashSize: 1,
+		gapSize: 1
 	};
 	dom: HTMLDivElement;
 	scene: Scene;
@@ -97,6 +101,9 @@ export class CadViewer {
 		const fov = MathUtils.degToRad(camera.fov);
 		const z = this.height / value / 2 / Math.tan(fov / 2);
 		camera.position.setZ(z);
+	}
+	get scale2() {
+		return 50 / this.camera.position.z;
 	}
 	get selectedEntities() {
 		const result = this.data.getAllEntities().filter((e) => e.selected);
@@ -193,7 +200,7 @@ export class CadViewer {
 			console.warn("This instance has already been destroyed.");
 			return this;
 		}
-		const now = new Date().getTime();
+		const now = performance.now();
 		const then = _renderTimer.time + (1 / config.fps) * 1000;
 		if (now < then) {
 			window.clearTimeout(_renderTimer.id);
@@ -304,10 +311,12 @@ export class CadViewer {
 		const positions = Array<number>();
 		points.forEach((p) => positions.push(p.x, p.y, 0));
 		geometry.setPositions(positions);
+		// const length = entity.
+		const {config, scale2} = this;
 		if (entity.selected) {
 			material.dashed = true;
-			material.gapSize = 1;
-			material.dashScale = 0.5;
+			material.gapSize = config.gapSize / scale2;
+			material.dashSize = config.dashSize / scale2;
 			material.defines.USE_DASH = "";
 		} else {
 			material.dashed = false;
@@ -471,7 +480,7 @@ export class CadViewer {
 		const [p1, p2, p3, p4] = this.data.getDimensionPoints(entity);
 		const arrow1: Vector2[] = [];
 		const arrow2: Vector2[] = [];
-		const arrowSize = 1;
+		const arrowSize = 0.5 / this.scale2;
 		const arrowLength = arrowSize * Math.sqrt(3);
 		if (axis === "x") {
 			arrow1[0] = p3.clone();

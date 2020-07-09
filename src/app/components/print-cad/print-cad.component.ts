@@ -8,7 +8,6 @@ import {timeout, session} from "@src/app/app.common";
 })
 export class PrintCadComponent implements OnInit, AfterViewInit {
 	src = "";
-	scale = 16;
 
 	constructor() {}
 

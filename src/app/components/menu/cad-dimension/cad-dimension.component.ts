@@ -16,9 +16,12 @@ import {MenuComponent} from "../menu.component";
 export class CadDimensionComponent extends MenuComponent implements OnInit, OnDestroy {
 	dimNameFocus = -1;
 	dimLineSelecting: number = null;
-	get data() {
+	get dimensions() {
 		return this.cad.data.getAllEntities().dimension;
 	}
+	// get selectedDimensions() {
+	// 	return this.dimensions.filter((e) => e.selected);
+	// }
 
 	constructor(injector: Injector) {
 		super(injector);
@@ -36,7 +39,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 		cad.controls.on("entityselect", async (event, entity) => {
 			const data = cad.data.components.data;
 			const {name, index} = await this.cadStatus.pipe(take(1)).toPromise();
-			const dimensions = this.data;
+			const dimensions = this.dimensions;
 			if (name === "edit dimension" && entity instanceof CadLine) {
 				let thatData: CadData;
 				let thatIndex: number;
@@ -100,7 +103,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	}
 
 	editDimension(i: number) {
-		const {cad, data} = this;
+		const {cad, dimensions: data} = this;
 		const ref: MatDialogRef<CadDimensionFormComponent, CadDimension> = this.dialog.open(CadDimensionFormComponent, {
 			data: {data: data[i]},
 			disableClose: true
@@ -132,7 +135,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	}
 
 	async selectDimLine(index: number) {
-		const {cad, data} = this;
+		const {cad, dimensions: data} = this;
 		const cadStatus = await this.cadStatus.pipe(take(1)).toPromise();
 		if (cadStatus.name === "edit dimension" && cadStatus.index === index) {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
@@ -161,6 +164,6 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	}
 
 	removeDimension(index: number) {
-		this.cad.removeEntity(this.data[index]);
+		this.cad.removeEntity(this.dimensions[index]);
 	}
 }

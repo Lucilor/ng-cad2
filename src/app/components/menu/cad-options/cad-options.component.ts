@@ -60,7 +60,6 @@ export class CadOptionsComponent implements AfterViewInit {
 		data.data.forEach((v) => {
 			this.pageData.push({value: v.name, img: v.img, checked: this.data.checkedItems.includes(v.name)});
 		});
-		console.log(data);
 		return data;
 	}
 }

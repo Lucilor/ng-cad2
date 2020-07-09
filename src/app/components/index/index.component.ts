@@ -47,7 +47,8 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			padding: [50, 300, 30, 250],
 			showLineLength: 8,
 			showGongshi: 8,
-			validateLines: true
+			validateLines: true,
+			fps: 10
 		});
 		this.cad.setControls({selectMode: "multiple"});
 		if (this.cad.stats) {
@@ -109,13 +110,14 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	refresh() {
 		this.refreshCurrCads();
 		this.afterOpenCad();
-		// this.cad.reset();
 	}
 
 	async afterOpenCad() {
 		document.title = this.cad.data.components.data.map((v) => v.name).join(", ");
 		if (this.subCads) {
-			this.subCads.updateList();
+			await this.subCads.updateList();
+			// await timeout(100);
+			this.cad.render(true);
 		} else {
 			await timeout(0);
 			this.refresh();

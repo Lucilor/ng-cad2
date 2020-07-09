@@ -69,6 +69,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				dataService.encode = params.encode ? encodeURIComponent(params.encode) : "";
 				dataService.data = params.data ? encodeURIComponent(params.data) : "";
 				const data = await dataService.getCadData(dataService.data);
+				if (typeof params.collection === "string") {
+					this.collection = params.collection as Collection;
+				}
 				this.afterOpen(data);
 			});
 		} else if (ids.length) {
@@ -115,6 +118,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		cad.reset(null, true);
 		this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
+		// this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		this.afterOpenCad.emit();
 	}
 
@@ -124,13 +128,17 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		let result: CadData[] = [];
 		const data = cad.data.components.data;
 		if (this.collection === "p_yuanshicadwenjian") {
-			const {name, extra} = await this.getCadStatus();
-			if (name === "split") {
-				result = await dataService.postCadData(data[extra.index].components.data, RSAEncrypt({collection: "cad"}));
-				data[extra.index].components.data = result;
-				this.afterOpen();
+			const {extra} = await this.getCadStatus();
+			let indices: number[];
+			if (typeof extra?.index === "number") {
+				indices = [extra.index];
 			} else {
-				this.dialog.open(MessageComponent, {data: {type: "alert", content: "无法保存CAD原始文件"}});
+				indices = [...Array(data.length).keys()];
+			}
+			for (const i of indices) {
+				result = await dataService.postCadData(data[i].components.data, RSAEncrypt({collection: "cad"}));
+				data[extra.index].components.data = [];
+				this.afterOpen();
 			}
 		} else {
 			data.forEach((v) => removeCadGongshi(v));
@@ -353,11 +361,19 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.render();
 	}
 
-	async printCad(scale = 16) {
+	async printCad(scale = 20) {
 		const data = this.cad.data.clone();
 		const width = 210 * scale;
 		const height = 297 * scale;
-		data.entities.dimension.forEach((e) => (e.selected = true));
+		data.getAllEntities().dimension.forEach((e) => {
+			e.selected = true;
+			e.linewidth *= 4;
+			e.color.set(0);
+		});
+		data.getAllEntities().line.forEach((e) => {
+			e.linewidth *= 4;
+			e.color.set(0);
+		});
 		const cad = new CadViewer(data, {
 			...this.cad.config,
 			width,
@@ -386,7 +402,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	loadStatus() {
 		const data = session.load("toolbar");
-		this.collection = data.collection;
-		this.ids = data.ids || [];
+		this.collection = data?.collection;
+		this.ids = data?.ids || [];
 	}
 }

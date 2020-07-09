@@ -54,6 +54,7 @@ export class CadViewerControls extends EventEmitter {
 		pTime: -Infinity
 	};
 	private _multiSelector: HTMLDivElement;
+	private _renderTimer = -1;
 	constructor(cad: CadViewer, config?: CadViewerControlsConfig) {
 		super();
 		this.cad = cad;
@@ -276,6 +277,7 @@ export class CadViewerControls extends EventEmitter {
 			}
 		}
 		this.emit("wheel", event);
+		this.cad.render();
 	}
 
 	private _keyDown(event: KeyboardEvent) {
