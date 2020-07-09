@@ -1,8 +1,8 @@
-import {Point} from "./point";
-import {Line} from "./line";
-import {Rectangle} from "./rectangle";
-import {Arc} from "./arc";
-import {Angle} from "./angle";
+import {Point} from "./geometry/point";
+import {Line} from "./geometry/line";
+import {Rectangle} from "./geometry/rectangle";
+import {Arc} from "./geometry/arc";
+import {Angle} from "./geometry/angle";
 import {RGB2Index, index2RGB, getColorLightness} from "./color";
 import {dataURLtoBlob, RSAEncrypt} from "./misc";
 import {SessionStorage, LocalStorage} from "./storage";

@@ -29,7 +29,7 @@ export class Line {
 	get middle() {
 		const {x: x1, y: y1} = this.start;
 		const {x: x2, y: y2} = this.end;
-		return new Point(x1 + x2, y1 + y2).multiply(0.5);
+		return new Point(x1 + x2, y1 + y2).multiplyScalar(0.5);
 	}
 
 	get slope() {
@@ -129,6 +129,6 @@ function solveLinearEqXY(a1: number, b1: number, c1: number, a2: number, b2: num
 	if (k === 0) {
 		return null;
 	} else {
-		return new Point(b2 * c1 - b1 * c2, a1 * c2 - a2 * c1).divide(k);
+		return new Point(b2 * c1 - b1 * c2, a1 * c2 - a2 * c1).divideScalar(k);
 	}
 }

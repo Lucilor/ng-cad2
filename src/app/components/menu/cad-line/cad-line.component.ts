@@ -5,10 +5,9 @@ import {Vector2, Color} from "three";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {findAllAdjacentLines, generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {getColorLightness} from "@app/utils";
+import {getColorLightness} from "@lucilor/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 
 @Component({
 	selector: "app-cad-line",

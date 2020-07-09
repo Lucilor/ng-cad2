@@ -6,7 +6,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 import {timeout, Collection, session, copyToClipboard} from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
-import {RSAEncrypt} from "@app/utils";
+import {RSAEncrypt} from "@lucilor/utils";
 import {State} from "@src/app/store/state";
 import {MenuComponent} from "../menu.component";
 import {CadListComponent} from "../../cad-list/cad-list.component";
@@ -16,8 +16,6 @@ import {Vector2} from "three";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {getCurrCadsData} from "@src/app/store/selectors";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MessageComponent} from "../../message/message.component";
-import {async} from "rxjs";
 
 type SubCadsField = "cads" | "partners" | "components";
 

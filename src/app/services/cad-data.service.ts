@@ -9,7 +9,7 @@ import {LoadingAction} from "../store/actions";
 import {Response, session, Collection} from "../app.common";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
 import {CadViewer} from "../cad-viewer/cad-viewer";
-import {RSAEncrypt} from "@app/utils";
+import {RSAEncrypt} from "@lucilor/utils";
 import {Expressions} from "../cad-viewer/cad-data/utils";
 
 export interface Order {
