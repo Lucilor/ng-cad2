@@ -49,7 +49,7 @@
 			<mat-expansion-panel-header>
 				<mat-panel-title>装配CAD</mat-panel-title>
 			</mat-expansion-panel-header>
-			<app-cad-assemble [cad]="cad"></app-cad-assemble>
+			<app-cad-assemble [cad]="cad" (selectComponent)="selectComponent($event)"></app-cad-assemble>
 		</mat-expansion-panel>
 	</mat-accordion>
 </perfect-scrollbar>

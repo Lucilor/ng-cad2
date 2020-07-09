@@ -79,7 +79,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		window.addEventListener("keydown", async ({key}) => {
 			const {name} = await this.cadStatus.pipe(take(1)).toPromise();
 			if (key === "Escape") {
-				if (name !== "normal") {
+				if (name !== "normal" && this.cad.selectedEntities.length === 0) {
 					this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal", index: -1});
 				}
 			}
@@ -125,5 +125,10 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	refreshCurrCads() {
 		this.store.dispatch<CurrCadsAction>({type: "refresh curr cads"});
+	}
+
+	selectComponent(id: string) {
+		const index = this.subCads.components.findIndex((v) => v.data.id === id);
+		this.subCads.clickCad("components", index);
 	}
 }

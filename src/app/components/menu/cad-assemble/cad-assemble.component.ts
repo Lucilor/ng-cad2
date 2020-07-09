@@ -1,9 +1,7 @@
-import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
+import {Component, OnInit, OnDestroy, Injector, Output, EventEmitter} from "@angular/core";
 import {MenuComponent} from "../menu.component";
-import {getCadStatus} from "@src/app/store/selectors";
 import {CadConnection, CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadEntity} from "@src/app/cad-viewer/cad-data/cad-entity/cad-entity";
-import {Object3D} from "three";
 import {MessageComponent} from "../../message/message.component";
 import {takeUntil} from "rxjs/operators";
 
@@ -13,6 +11,7 @@ import {takeUntil} from "rxjs/operators";
 	styleUrls: ["./cad-assemble.component.scss"]
 })
 export class CadAssembleComponent extends MenuComponent implements OnInit, OnDestroy {
+	@Output() selectComponent = new EventEmitter<string>();
 	options = {space: "0", position: "absolute"};
 	ids: string[] = [];
 	names: string[] = [];
@@ -29,6 +28,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 	ngOnInit() {
 		super.ngOnInit();
 		this.cad.controls.on("entityclick", this.onEntityClick.bind(this));
+		this.cad.controls.on("entitiesselect", this.onEntitiesSelect.bind(this));
 		this.currCads.pipe(takeUntil(this.destroyed)).subscribe(({cads}) => {
 			this.data = this.cad.data.findChild(cads[0]);
 		});
@@ -36,7 +36,8 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 
 	ngOnDestroy() {
 		super.ngOnInit();
-		this.cad.controls.off("entityclick", this.onEntityClick);
+		this.cad.controls.off("entityclick", this.onEntityClick.bind(this));
+		this.cad.controls.off("entitiesselect", this.onEntitiesSelect.bind(this));
 	}
 
 	async onEntityClick(_event: PointerEvent, entity: CadEntity) {
@@ -116,6 +117,25 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 				break;
 			}
 		}
+	}
+
+	async onEntitiesSelect() {
+		const {name, index} = await this.getCadStatus();
+		if (name !== "assemble") {
+			return;
+		}
+		const cad = this.cad;
+		const data = cad.data.components.data[index];
+		const selected = cad.selectedEntities.toArray().map((e) => e.id);
+		data.components.data.forEach((v) => {
+			const entities = v.getAllEntities().toArray();
+			for (const e of entities) {
+				if (selected.includes(e.id)) {
+					this.selectComponent.emit(v.id);
+					break;
+				}
+			}
+		});
 	}
 
 	clearConnections() {
