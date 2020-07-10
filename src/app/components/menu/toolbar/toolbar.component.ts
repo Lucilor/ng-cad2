@@ -12,6 +12,7 @@ import {Collection, removeCadGongshi, addCadGongshi, timeout, session} from "@sr
 import {ActivatedRoute, Router} from "@angular/router";
 import {takeUntil} from "rxjs/operators";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 
 @Component({
 	selector: "app-toolbar",
@@ -365,14 +366,12 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		const data = this.cad.data.clone();
 		const width = 210 * scale;
 		const height = 297 * scale;
-		data.getAllEntities().dimension.forEach((e) => {
-			e.selected = true;
+		data.getAllEntities().forEach((e) => {
 			e.linewidth *= 4;
 			e.color.set(0);
-		});
-		data.getAllEntities().line.forEach((e) => {
-			e.linewidth *= 4;
-			e.color.set(0);
+			if (e instanceof CadDimension) {
+				e.selected = true;
+			}
 		});
 		const cad = new CadViewer(data, {
 			...this.cad.config,

@@ -1,6 +1,11 @@
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 
 import {CadDimensionFormComponent} from "./cad-dimension-form.component";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatInputModule} from "@angular/material/input";
+import {MatSelectModule} from "@angular/material/select";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 describe("CadDimensionFormComponent", () => {
 	let component: CadDimensionFormComponent;
@@ -8,7 +13,12 @@ describe("CadDimensionFormComponent", () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [CadDimensionFormComponent]
+			declarations: [CadDimensionFormComponent],
+			imports: [FormsModule, ReactiveFormsModule, MatInputModule, MatSelectModule, BrowserAnimationsModule],
+			providers: [
+				{provide: MatDialogRef, useValue: {}},
+				{provide: MAT_DIALOG_DATA, useValue: {}}
+			]
 		}).compileComponents();
 	}));
 

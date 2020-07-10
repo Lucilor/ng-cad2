@@ -35,6 +35,12 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			this.cadsData = getCurrCadsData(this.cad.data, currCads);
 			this.updateLengths(this.cadsData);
 		});
+		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name}) => {
+			if (name === "normal") {
+				this.baseLineIndex = -1;
+				this.jointPointIndex = -1;
+			}
+		});
 		this.cad.controls.on("entityclick", async (event, entity) => {
 			const {name, index} = await this.getCadStatus();
 			const data = (await this.getCurrCadsData())[0];

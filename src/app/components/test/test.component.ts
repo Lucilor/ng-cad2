@@ -15,6 +15,9 @@ export class TestComponent implements AfterViewInit {
 	async ngAfterViewInit() {
 		const data = (await this.dataService.getCadData({ids: ["5eec284ffe8ba52ec40049d2", "5eec295cfe8ba510500029e5"]}))[0];
 		console.log(data);
+		if (!data) {
+			return;
+		}
 		const draw = SVG().addTo(this.cadContainer.nativeElement).size(innerWidth, innerHeight);
 		const entities = data.getAllEntities();
 		const {x, y, width, height} = data.getBounds();

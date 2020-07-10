@@ -25,6 +25,9 @@ export class OrderListComponent implements OnInit {
 
 	async ngOnInit() {
 		await timeout(0);
+		if (!this.data.cad) {
+			this.data.cad = new CadData();
+		}
 		this.tableData = await this.dataService.getOrders(this.data.cad);
 	}
 

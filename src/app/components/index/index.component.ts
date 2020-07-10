@@ -12,6 +12,7 @@ import {takeUntil, take} from "rxjs/operators";
 import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {timeout} from "@src/app/app.common";
+import {async} from "rxjs";
 
 @Component({
 	selector: "app-index",
@@ -72,18 +73,31 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
+		let escapeDisabled = false;
 		this.cad.controls.on("entitiesdelete", () => this.refreshCurrCads());
-
-		Object.assign(window, {app: this});
-		window.addEventListener("resize", () => this.cad.resize(innerWidth, innerHeight));
-		window.addEventListener("keydown", async ({key}) => {
-			const {name} = await this.cadStatus.pipe(take(1)).toPromise();
+		this.cad.controls.on("entitiesunselect", ({key}: KeyboardEvent) => {
 			if (key === "Escape") {
-				if (name !== "normal" && this.cad.selectedEntities.length === 0) {
+				escapeDisabled = true;
+			}
+		});
+		this.cad.dom.addEventListener("keydown", async ({key}) => {
+			if (key === "Escape") {
+				if (escapeDisabled) {
+					escapeDisabled = false;
+					return;
+				}
+				const {name} = await this.cadStatus.pipe(take(1)).toPromise();
+				if (name === "assemble" || name === "split") {
+					return;
+				}
+				if (name !== "normal") {
 					this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal", index: -1});
 				}
 			}
 		});
+
+		Object.assign(window, {app: this});
+		window.addEventListener("resize", () => this.cad.resize(innerWidth, innerHeight));
 		window.addEventListener("contextmenu", (event) => {
 			event.preventDefault();
 		});

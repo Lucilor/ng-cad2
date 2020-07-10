@@ -16,7 +16,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 	ids: string[] = [];
 	names: string[] = [];
 	lines: string[] = [];
-	data: CadData;
+	data = new CadData();
 	get connections() {
 		return this.data.components.connections;
 	}
@@ -30,7 +30,10 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 		this.cad.controls.on("entityclick", this.onEntityClick.bind(this));
 		this.cad.controls.on("entitiesselect", this.onEntitiesSelect.bind(this));
 		this.currCads.pipe(takeUntil(this.destroyed)).subscribe(({cads}) => {
-			this.data = this.cad.data.findChild(cads[0]);
+			const data = this.cad.data.findChild(cads[0]);
+			if (data) {
+				this.data = data;
+			}
 		});
 	}
 
