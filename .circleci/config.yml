@@ -14,4 +14,4 @@ jobs:
           paths:
             - "node_modules"
       - run: yarn test -- --no-watch --no-progress --browsers=ChromeHeadless
-      - run: yarn e2e -- --protractor-config=e2e/protractor-ci.conf.js
+      - run: yarn e2e -- --protractor-config=e2e/protractor.conf.js
