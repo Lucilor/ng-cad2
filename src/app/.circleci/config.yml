@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/ng-cad2
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run: yarn install
+      - save_cache:
+          key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - "node_modules"
+      - run: yarn test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+      - run: yarn e2e -- --protractor-config=e2e/protractor-ci.conf.js
