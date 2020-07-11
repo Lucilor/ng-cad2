@@ -46,6 +46,18 @@ export class CadDataService {
 		const {baseURL, encode, data} = this;
 		this.store.dispatch<LoadingAction>({type: "add loading", name});
 		url = `${baseURL}/${url}/${encode}`;
+		let files: File[];
+		for (const key in postData) {
+			const value = postData[key];
+			if (value instanceof FileList) {
+				files = Array.from(value);
+				delete postData[key];
+			}
+			if (value instanceof File) {
+				files = [value];
+				delete postData[key];
+			}
+		}
 		if (postData && typeof postData !== "string") {
 			if (encrypt) {
 				postData = RSAEncrypt(postData);
@@ -68,7 +80,13 @@ export class CadDataService {
 						formData.append("key", postData[key]);
 					}
 				}
+				if (files) {
+					files.forEach((v, i) => formData.append("file" + i, v));
+				}
 				response = await this.http.post<Response>(url, formData).toPromise();
+			}
+			if (!response) {
+				throw new Error("服务器无响应");
 			}
 			if (response.code === 0) {
 				return response;
@@ -297,5 +315,13 @@ export class CadDataService {
 	async saveAsDxf(data: CadData, path: string) {
 		const response = await this._request("peijian/cad/saveAsDxf", "saveAsDxf", "POST", {cadData: data.export(), path});
 		return response ? response.data : null;
+	}
+
+	async uploadDxf(dxf: File) {
+		const response = await this._request("peijian/cad/uploadDxf", "uploadDxf", "POST", {dxf, a: 1});
+		if (response) {
+			return new CadData(response.data);
+		}
+		return null;
 	}
 }

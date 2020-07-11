@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild, OnDestroy, Injector} from "@angular/core";
+import {Component, OnInit, ViewChild, OnDestroy, Injector, ElementRef} from "@angular/core";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatMenuTrigger} from "@angular/material/menu";
@@ -16,6 +16,7 @@ import {Vector2} from "three";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {getCurrCadsData} from "@src/app/store/selectors";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {MessageComponent} from "../../message/message.component";
 
 type SubCadsField = "cads" | "partners" | "components";
 
@@ -45,6 +46,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	componentsDisabled = false;
 	needsReload: State["cadStatus"]["name"];
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
+	@ViewChild("dxfInut", {read: ElementRef}) dxfInut: ElementRef<HTMLElement>;
 	contextMenuCad: {field: SubCadsField; data: CadData};
 	private _prevId = "";
 	get selected() {
@@ -432,6 +434,30 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		const data = this.contextMenuCad.data.clone();
 		removeCadGongshi(data);
 		this.dataService.downloadDxf(data);
+	}
+
+	uploadDxf() {
+		this.dxfInut.nativeElement.click();
+	}
+
+	async onDxfInutChange(event: InputEvent) {
+		const input = event.target as HTMLInputElement;
+		const file = input.files[0];
+		const data = this.contextMenuCad.data;
+		const content = `确定要上传<span style="color:red">${file.name}</span>并替换<span style="color:red">${data.name}</span>的数据吗？`;
+		const ref = this.dialog.open(MessageComponent, {data: {type: "confirm", content}});
+		const yes = await ref.afterClosed().toPromise();
+		if (yes) {
+			const resData = await this.dataService.uploadDxf(file);
+			if (resData) {
+				data.entities = resData.entities;
+				data.partners = resData.partners;
+				data.components = resData.components;
+				this.updateList();
+				this.cad.reset(null, true);
+			}
+		}
+		input.value = "";
 	}
 
 	getJson() {
