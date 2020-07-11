@@ -3,7 +3,7 @@ import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatDialogRef} from "@angular/material/dialog";
-import {timeout, Collection, session, copyToClipboard} from "@src/app/app.common";
+import {timeout, Collection, session, copyToClipboard, removeCadGongshi, getCollection} from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
 import {RSAEncrypt} from "@lucilor/utils";
@@ -149,8 +149,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 				cad.removeEntities(entities);
 				this.blur(split.entities);
-				cad.render();
 			}
+			cad.unselectAll();
 		}
 	}
 
@@ -184,6 +184,12 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				});
 			}
 			if (this.needsReload === "split") {
+				if (getCollection() === "p_yuanshicadwenjian") {
+					const data = cad.data.findChild(this._prevId);
+					data.components.data = [];
+					cad.reset();
+				}
+				this._prevId = null;
 				await this.updateList();
 			}
 			this.loadStatus();
@@ -257,20 +263,25 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				this.saveStatus();
 				this.disabled = ["components", "partners"];
 				this.needsReload = "split";
-				this.updateList([]);
-				const data = cad.data.findChild(cads[0]);
-				for (const v of data.components.data) {
-					const node = await this._getCadNode(v.clone(true));
-					this.cads.push(node);
-					this.blur(v.getAllEntities());
-				}
+				this.updateList();
 				this._prevId = cads[0];
 			}
 		}
 		cad.render();
 	}
 
-	async updateList(list = this.cad.data.components.data, sync = true) {
+	async updateList(list = this.cad.data.components.data, sync = true, split = false) {
+		const {name} = await this.getCadStatus();
+		if (!split && name === "split") {
+			await this.updateList([], sync, true);
+			const data = this.cad.data.findChild(this._prevId);
+			for (const v of data.components.data) {
+				const node = await this._getCadNode(v.clone(true));
+				this.cads.push(node);
+				this.blur(v.getAllEntities());
+			}
+			return;
+		}
 		this.cads = [];
 		this.partners = [];
 		this.components = [];
@@ -398,8 +409,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		if (type === "components") {
 			checkedItems = [...data.components.data];
 		}
-		// TODO: get collection
-		const qiliao = type === "components" && window["app"].toolbar.collection === "qiliaozuhe";
+		const qiliao = type === "components" && getCollection() === "qiliaozuhe";
 		const ref: MatDialogRef<CadListComponent, CadData[]> = this.dialog.open(CadListComponent, {
 			data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
 		});
@@ -419,6 +429,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	downloadDxf() {
+		removeCadGongshi(this.contextMenuCad.data.clone());
 		this.dataService.downloadDxf(this.contextMenuCad.data);
 	}
 

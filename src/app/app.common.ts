@@ -85,3 +85,9 @@ export function copyToClipboard(str: string) {
 	document.execCommand("copy");
 	document.body.removeChild(el);
 }
+
+// TODO: get collection
+export function getCollection() {
+	// tslint:disable-next-line: no-string-literal
+	return window["app"].toolbar.collection as Collection;
+}

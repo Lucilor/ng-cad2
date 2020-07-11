@@ -118,6 +118,10 @@ export class CadData {
 		};
 	}
 
+	export2(i = 0) {
+		return this.components.data[i].export();
+	}
+
 	extractExpressions() {
 		const exps: Expressions = {};
 		this.getAllEntities().line.forEach((e) => {

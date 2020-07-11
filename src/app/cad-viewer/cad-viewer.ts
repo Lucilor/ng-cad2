@@ -311,12 +311,18 @@ export class CadViewer {
 		const positions = Array<number>();
 		points.forEach((p) => positions.push(p.x, p.y, 0));
 		geometry.setPositions(positions);
-		// const length = entity.
 		const {config, scale2} = this;
+		let gapSize = config.gapSize / scale2;
+		let dashSize = config.dashSize / scale2;
+		if (entity instanceof CadLine || entity instanceof CadCircle || entity instanceof CadArc) {
+			const ratio = gapSize / dashSize;
+			dashSize = Math.min(entity.length / 10, dashSize);
+			gapSize = dashSize * ratio;
+		}
 		if (entity.selected) {
 			material.dashed = true;
-			material.gapSize = config.gapSize / scale2;
-			material.dashSize = config.dashSize / scale2;
+			material.gapSize = gapSize;
+			material.dashSize = dashSize;
 			material.defines.USE_DASH = "";
 		} else {
 			material.dashed = false;

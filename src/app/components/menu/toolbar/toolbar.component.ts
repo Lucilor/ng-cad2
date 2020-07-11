@@ -13,6 +13,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {takeUntil} from "rxjs/operators";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
+import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 
 @Component({
 	selector: "app-toolbar",
@@ -116,6 +117,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				this.setCadData(v);
 				addCadGongshi(v);
 			});
+			if (this.collection === "cad") {
+				data.forEach((v) => validateLines(v));
+			}
 		}
 		cad.reset(null, true);
 		this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
@@ -129,7 +133,11 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		let result: CadData[] = [];
 		const data = cad.data.components.data;
 		if (this.collection === "p_yuanshicadwenjian") {
-			const {extra} = await this.getCadStatus();
+			const {name, extra} = await this.getCadStatus();
+			if (name !== "split") {
+				this.dialog.open(MessageComponent, {data: {type: "alert", content: "原始CAD文件只能在选取时保存"}});
+				return;
+			}
 			let indices: number[];
 			if (typeof extra?.index === "number") {
 				indices = [extra.index];
@@ -138,11 +146,27 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 			for (const i of indices) {
 				result = await dataService.postCadData(data[i].components.data, RSAEncrypt({collection: "cad"}));
-				data[extra.index].components.data = [];
-				this.afterOpen();
+				if (result) {
+					data[extra.index].components.data = result;
+					this.afterOpen();
+				}
 			}
 		} else {
-			data.forEach((v) => removeCadGongshi(v));
+			const validateResult = [];
+			data.forEach((v) => {
+				removeCadGongshi(v);
+				if (this.collection === "cad") {
+					validateResult.push(validateLines(v));
+				}
+			});
+			cad.render();
+			if (validateResult.some((v) => !v.valid)) {
+				const ref = this.dialog.open(MessageComponent, {data: {type: "confirm", content: "当前打开的CAD存在错误，是否继续保存？"}});
+				const yes = await ref.afterClosed().toPromise();
+				if (!yes) {
+					return;
+				}
+			}
 			const postData: any = {};
 			if (this.collection) {
 				postData.collection = this.collection;

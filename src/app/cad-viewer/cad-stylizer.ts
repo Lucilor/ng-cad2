@@ -57,9 +57,11 @@ export class CadStylizer {
 			result.opacity = params.opacity;
 		}
 
-		if (cad.config.validateLines && entity instanceof CadLine && !entity.valid) {
-			result.linewidth *= 10;
-			result.color.set(0xff0000);
+		if (cad.config.validateLines && entity instanceof CadLine) {
+			if (!entity.valid || entity.info.error) {
+				result.linewidth *= 10;
+				result.color.set(0xff0000);
+			}
 		}
 
 		return result;

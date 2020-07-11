@@ -4,7 +4,7 @@ import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {Vector2, Color} from "three";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {findAllAdjacentLines, generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {findAllAdjacentLines, generatePointsMap, validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getColorLightness} from "@lucilor/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
@@ -49,7 +49,7 @@ export class CadLineComponent implements OnInit {
 
 	setLineLength(event: InputEvent) {
 		const {selectedLines, cad} = this;
-		const pointsMap = generatePointsMap(cad.data.getAllEntities(), cad);
+		const pointsMap = generatePointsMap(cad.data.getAllEntities());
 		selectedLines.forEach((line) => {
 			if (line instanceof CadLine) {
 				const {entities, closed} = findAllAdjacentLines(pointsMap, line, line.end);
@@ -60,6 +60,7 @@ export class CadLineComponent implements OnInit {
 			}
 		});
 		cad.data.updatePartners().updateComponents();
+		cad.data.components.data.forEach((v) => validateLines(v));
 		cad.render();
 	}
 

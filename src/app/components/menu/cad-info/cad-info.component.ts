@@ -208,7 +208,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		const {cad, store} = this;
 		if (this.getItemColor(index, "jointPoint") === "primary") {
 			this.jointPointIndex = index;
-			const map = generatePointsMap(this.cadsData[0].getAllEntities(), this.cad);
+			const map = generatePointsMap(this.cadsData[0].getAllEntities());
 			const points: State["cadPoints"] = map.map((v) => {
 				const {x, y} = cad.getScreenPoint(v.point);
 				return {x, y, active: false};

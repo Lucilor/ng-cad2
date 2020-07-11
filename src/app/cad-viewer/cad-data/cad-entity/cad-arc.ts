@@ -13,6 +13,12 @@ export class CadArc extends CadCircle {
 		const {center, radius, start_angle, end_angle, clockwise} = this;
 		return new ArcCurve(center.x, center.y, radius, MathUtils.degToRad(start_angle), MathUtils.degToRad(end_angle), clockwise);
 	}
+	get start() {
+		return this.curve.getPoint(0);
+	}
+	get end() {
+		return this.curve.getPoint(1);
+	}
 
 	constructor(data: any = {type: CAD_TYPES.arc}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
