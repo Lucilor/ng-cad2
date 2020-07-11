@@ -429,8 +429,9 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	downloadDxf() {
-		removeCadGongshi(this.contextMenuCad.data.clone());
-		this.dataService.downloadDxf(this.contextMenuCad.data);
+		const data = this.contextMenuCad.data.clone();
+		removeCadGongshi(data);
+		this.dataService.downloadDxf(data);
 	}
 
 	getJson() {

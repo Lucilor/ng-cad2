@@ -13,5 +13,5 @@ jobs:
           key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - "node_modules"
-      - run: yarn test -- --no-watch --no-progress --browsers=ChromeHeadless
-      - run: yarn e2e -- --protractor-config=e2e/protractor.conf.js
+      - run: yarn test --no-watch --no-progress --browsers=ChromeHeadless
+      - run: yarn e2e --protractor-config=e2e/protractor.conf.js
