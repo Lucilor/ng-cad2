@@ -4,11 +4,12 @@ import {MathUtils, Color, Object3D} from "three";
 import {index2RGB, RGB2Index} from "@lucilor/utils";
 import {CadTransformation} from "../cad-transformation";
 import {lineweight2linewidth, linewidth2lineweight} from "../utils";
+import {CadTypes} from "@src/app/cad-viewer/cad-data/cad-types";
 
 export abstract class CadEntity {
 	id: string;
 	originalId: string;
-	type: string;
+	type: keyof CadTypes;
 	layer: string;
 	color: Color;
 	linewidth: number;

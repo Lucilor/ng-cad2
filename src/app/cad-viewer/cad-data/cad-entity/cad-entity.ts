@@ -1,5 +1,5 @@
 import {CadLayer} from "../cad-layer";
-import {CAD_TYPES} from "../cad-types";
+import {CAD_TYPES, CadTypes} from "../cad-types";
 import {MathUtils, Color, Object3D} from "three";
 import {index2RGB, RGB2Index} from "@lucilor/utils";
 import {CadTransformation} from "../cad-transformation";
@@ -8,7 +8,7 @@ import {lineweight2linewidth, linewidth2lineweight} from "../utils";
 export abstract class CadEntity {
 	id: string;
 	originalId: string;
-	type: string;
+	type: keyof CadTypes;
 	layer: string;
 	color: Color;
 	linewidth: number;

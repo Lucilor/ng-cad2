@@ -8,6 +8,9 @@ import {provideMockStore} from "@ngrx/store/testing";
 import {initialState} from "@src/app/store/state";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
+import {MatButtonModule} from "@angular/material/button";
 
 describe("CadDimensionComponent", () => {
 	let component: CadDimensionComponent;
@@ -16,7 +19,7 @@ describe("CadDimensionComponent", () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [CadDimensionComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule],
+			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, MatFormFieldModule, MatInputModule, MatButtonModule],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();
 	}));

@@ -9,6 +9,11 @@ import {initialState} from "@src/app/store/state";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatMenuModule} from "@angular/material/menu";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {MatExpansionModule} from "@angular/material/expansion";
+import {MatButtonModule} from "@angular/material/button";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 describe("SubCadsComponent", () => {
 	let component: SubCadsComponent;
@@ -17,7 +22,17 @@ describe("SubCadsComponent", () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [SubCadsComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, MatMenuModule],
+			imports: [
+				HttpClientTestingModule,
+				MatDialogModule,
+				MatSnackBarModule,
+				MatMenuModule,
+				MatSlideToggleModule,
+				PerfectScrollbarModule,
+				MatExpansionModule,
+				MatButtonModule,
+				BrowserAnimationsModule
+			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();
 	}));

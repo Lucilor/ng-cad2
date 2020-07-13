@@ -9,6 +9,9 @@ import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {StoreModule} from "@ngrx/store";
 import {initialState} from "@src/app/store/state";
+import {CadPointsComponent} from "../cad-points/cad-points.component";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
 
 describe("CadInfoComponent", () => {
 	let component: CadInfoComponent;
@@ -16,8 +19,15 @@ describe("CadInfoComponent", () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [CadInfoComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, StoreModule.forRoot({})],
+			declarations: [CadInfoComponent, CadPointsComponent],
+			imports: [
+				HttpClientTestingModule,
+				MatDialogModule,
+				MatSnackBarModule,
+				StoreModule.forRoot({}),
+				MatFormFieldModule,
+				MatInputModule
+			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();
 	}));

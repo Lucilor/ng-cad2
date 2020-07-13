@@ -60,6 +60,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				let dimension = dimensions[index];
 				if (!dimension) {
 					dimension = new CadDimension();
+					dimension.color.set(0x00ff00);
 					let newIndex = 0;
 					for (let i = 0; i < thatIndex; i++) {
 						newIndex += data[i].entities.dimension.length;

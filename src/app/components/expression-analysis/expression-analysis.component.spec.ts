@@ -7,6 +7,7 @@ import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {provideMockStore} from "@ngrx/store/testing";
 import {initialState} from "@src/app/store/state";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {MatButtonModule} from "@angular/material/button";
 
 describe("ExpressionAnalysisComponent", () => {
 	let component: ExpressionAnalysisComponent;
@@ -15,7 +16,7 @@ describe("ExpressionAnalysisComponent", () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [ExpressionAnalysisComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule],
+			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, MatButtonModule],
 			providers: [provideMockStore({initialState}), {provide: MatDialogRef, useValue: {}}, {provide: MAT_DIALOG_DATA, useValue: {}}]
 		}).compileComponents();
 	}));

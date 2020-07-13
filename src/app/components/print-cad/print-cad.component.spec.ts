@@ -1,6 +1,7 @@
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 
 import {PrintCadComponent} from "./print-cad.component";
+import {ImageComponent} from "../image/image.component";
 
 describe("PrintCadComponent", () => {
 	let component: PrintCadComponent;
@@ -8,7 +9,7 @@ describe("PrintCadComponent", () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [PrintCadComponent]
+			declarations: [PrintCadComponent, ImageComponent]
 		}).compileComponents();
 	}));
 

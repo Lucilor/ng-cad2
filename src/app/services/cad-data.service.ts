@@ -318,7 +318,7 @@ export class CadDataService {
 	}
 
 	async uploadDxf(dxf: File) {
-		const response = await this._request("peijian/cad/uploadDxf", "uploadDxf", "POST", {dxf, a: 1});
+		const response = await this._request("peijian/cad/uploadDxf", "uploadDxf", "POST", {dxf});
 		if (response) {
 			return new CadData(response.data);
 		}

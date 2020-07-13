@@ -6,6 +6,16 @@ import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {MatDialogModule, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {initialState} from "@src/app/store/state";
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {ImageComponent} from "../../image/image.component";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
+import {MatButtonModule} from "@angular/material/button";
+import {FormsModule} from "@angular/forms";
+import {MatSelectModule} from "@angular/material/select";
+import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 
 describe("CadOptionsComponent", () => {
 	let component: CadOptionsComponent;
@@ -13,8 +23,21 @@ describe("CadOptionsComponent", () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [CadOptionsComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule],
+			declarations: [CadOptionsComponent, ImageComponent],
+			imports: [
+				HttpClientTestingModule,
+				MatDialogModule,
+				MatSnackBarModule,
+				MatPaginatorModule,
+				BrowserAnimationsModule,
+				PerfectScrollbarModule,
+				MatFormFieldModule,
+				MatInputModule,
+				MatButtonModule,
+				MatPaginatorModule,
+				MatInputModule,
+				FormsModule
+			],
 			providers: [provideMockStore({initialState}), {provide: MatDialogRef, useValue: {}}, {provide: MAT_DIALOG_DATA, useValue: {}}]
 		}).compileComponents();
 	}));
@@ -22,6 +45,7 @@ describe("CadOptionsComponent", () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(CadOptionsComponent);
 		component = fixture.componentInstance;
+		component.data.data = new CadData();
 		fixture.detectChanges();
 	});
 

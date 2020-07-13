@@ -486,7 +486,7 @@ export class CadViewer {
 		const [p1, p2, p3, p4] = this.data.getDimensionPoints(entity);
 		const arrow1: Vector2[] = [];
 		const arrow2: Vector2[] = [];
-		const arrowSize = 0.5 / this.scale2;
+		const arrowSize = MathUtils.clamp(0.5 / this.scale2, 0.25, 10);
 		const arrowLength = arrowSize * Math.sqrt(3);
 		if (axis === "x") {
 			arrow1[0] = p3.clone();

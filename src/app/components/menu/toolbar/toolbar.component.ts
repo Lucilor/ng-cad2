@@ -327,6 +327,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		if (data.jointPoints.length < 1) {
 			data.jointPoints.push(new CadJointPoint());
 		}
+		data.entities.dimension.forEach((e) => e.color.set(0x00ff00));
 		data.partners.forEach((v) => this.setCadData(v));
 		data.components.data.forEach((v) => this.setCadData(v));
 	}
@@ -386,7 +387,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.render();
 	}
 
-	async printCad(scale = 20) {
+	async printCad(scale = 16) {
 		const data = this.cad.data.clone();
 		const width = 210 * scale;
 		const height = 297 * scale;
