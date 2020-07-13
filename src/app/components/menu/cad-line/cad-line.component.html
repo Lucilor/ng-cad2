@@ -97,4 +97,18 @@
 			/>
 		</mat-form-field>
 	</div>
+	<div class="form-item kongwei">
+		<mat-form-field>
+			<mat-label>孔位</mat-label>
+			<input
+				matInput
+				type="text"
+				[ngModel]="getLineText('kongwei')"
+				(change)="setLineText($event, 'kongwei')"
+				(focus)="focusedField = 'kongwei'"
+				(blur)="focusedField = ''"
+				name="kongwei"
+			/>
+		</mat-form-field>
+	</div>
 </form>

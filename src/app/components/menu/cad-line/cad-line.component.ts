@@ -88,7 +88,7 @@ export class CadLineComponent implements OnInit {
 		this.cad.render();
 	}
 
-	getLineText(field: "mingzi" | "qujian" | "gongshi" | "guanlianbianhuagongshi") {
+	getLineText(field: string) {
 		const lines = this.selectedLines;
 		if (lines.length === 1) {
 			return lines[0][field];

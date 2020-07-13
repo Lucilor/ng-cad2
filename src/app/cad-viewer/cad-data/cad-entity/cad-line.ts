@@ -13,6 +13,7 @@ export class CadLine extends CadEntity {
 	qujian: string;
 	gongshi: string;
 	guanlianbianhuagongshi: string;
+	kongwei: string;
 	object?: Line2;
 
 	get valid() {
@@ -45,6 +46,7 @@ export class CadLine extends CadEntity {
 		this.qujian = data.qujian ?? "";
 		this.gongshi = data.gongshi ?? "";
 		this.guanlianbianhuagongshi = data.guanlianbianhuagongshi ?? "";
+		this.kongwei = data.kongwei ?? "";
 	}
 
 	transform({matrix}: CadTransformation) {
@@ -62,6 +64,7 @@ export class CadLine extends CadEntity {
 			qujian: this.qujian,
 			gongshi: this.gongshi,
 			guanlianbianhuagongshi: this.guanlianbianhuagongshi,
+			kongwei: this.kongwei
 		};
 	}
 
