@@ -1,19 +1,20 @@
 import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatDialogRef} from "@angular/material/dialog";
-import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
-import {RSAEncrypt} from "@lucilor/utils";
+import {CurrCadsAction, CadStatusAction, LoadingAction} from "@src/app/store/actions";
+import {RSAEncrypt, dataURLtoBlob} from "@lucilor/utils";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {MenuComponent} from "../menu.component";
 import {MessageComponent} from "../../message/message.component";
 import {CadListComponent} from "../../cad-list/cad-list.component";
 import {getCurrCadsData} from "@src/app/store/selectors";
-import {Collection, removeCadGongshi, addCadGongshi, timeout, session} from "@src/app/app.common";
+import {Collection, removeCadGongshi, addCadGongshi, timeout, session, getDPI} from "@src/app/app.common";
 import {ActivatedRoute, Router} from "@angular/router";
 import {takeUntil} from "rxjs/operators";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {createPdf} from "pdfmake/build/pdfmake";
 
 @Component({
 	selector: "app-toolbar",
@@ -387,12 +388,24 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.render();
 	}
 
-	async printCad(scale = 16) {
+	/**
+	 * A4: (210 × 297)mm²
+	 *    =(8.26 × 11.69)in² (1in = 25.4mm)
+	 * 	  =(794 × 1123)px² (96dpi)
+	 */
+	async printCad() {
 		const data = this.cad.data.clone();
-		const width = 210 * scale;
-		const height = 297 * scale;
+		removeCadGongshi(data);
+		let [dpiX, dpiY] = getDPI();
+		if (!(dpiX > 0) || !(dpiY > 0)) {
+			console.warn("Unable to get screen dpi.Assuming dpi = 96.");
+			dpiX = dpiY = 96;
+		}
+		const width = (210 / 25.4) * dpiX * 0.75;
+		const height = (297 / 25.4) * dpiY * 0.75;
+		const scaleX = 300 / dpiX / 0.75;
+		const scaleY = 300 / dpiY / 0.75;
 		data.getAllEntities().forEach((e) => {
-			e.linewidth *= 4;
 			e.color.set(0);
 			if (e instanceof CadDimension) {
 				e.selected = true;
@@ -400,8 +413,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		});
 		const cad = new CadViewer(data, {
 			...this.cad.config,
-			width,
-			height,
+			width: width * scaleX,
+			height: height * scaleY,
 			backgroundColor: 0xffffff,
 			padding: 18,
 			showStats: false,
@@ -412,8 +425,15 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		await timeout(100);
 		const src = cad.exportImage().src;
 		cad.destroy();
-		session.save("printCadImg", src);
-		open("print-cad");
+		// const url = URL.createObjectURL(dataURLtoBlob(src));
+		// window.open(url);
+		// URL.revokeObjectURL(url);
+		this.store.dispatch<LoadingAction>({type: "add loading", name: "printCad"});
+		createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0}).download(() => {
+			this.store.dispatch<LoadingAction>({type: "remove loading", name: "printCad"});
+		});
+		// session.save("printCadImg", src);
+		// open("print-cad");
 	}
 
 	saveStatus() {

@@ -34,9 +34,9 @@ export class CadData {
 		if (typeof data !== "object") {
 			throw new Error("Invalid data.");
 		}
-		this.id = typeof data.id === "string" ? data.id : MathUtils.generateUUID();
-		this.name = typeof data.name === "string" ? data.name : "";
-		this.type = typeof data.type === "string" ? data.type : "";
+		this.id = data.id || MathUtils.generateUUID();
+		this.name = data.name ?? "";
+		this.type = data.type ?? "";
 		this.layers = [];
 		if (typeof data.layers === "object") {
 			for (const id in data.layers) {
@@ -63,23 +63,23 @@ export class CadData {
 				this.jointPoints.push(new CadJointPoint(v));
 			});
 		}
-		this.parent = data.parent || "";
+		this.parent = data.parent ?? "";
 		this.partners = [];
 		this.components = new CadComponents();
 		if (Array.isArray(data.partners)) {
 			(data.partners as []).forEach((v) => this.partners.push(new CadData(v)));
 		}
 		this.updatePartners();
-		this.components = new CadComponents(data.components || {});
+		this.components = new CadComponents(data.components ?? {});
 		this.updateComponents();
 		this.visible = data.visible === false ? false : true;
-		this.zhankaikuan = data.zhankaikuan || "ceil(总长)+0";
-		this.zhankaigao = data.zhankaigao || "";
-		this.shuliang = data.shuliang || "1";
-		this.shuliangbeishu = data.shuliangbeishu || "1";
-		this.huajian = data.huajian || "";
-		this.needZhankai = data.needZhankai === false ? false : true;
-		this.mubanfangda = data.mubanfangda === false ? false : true;
+		this.zhankaikuan = data.zhankaikuan ?? "ceil(总长)+0";
+		this.zhankaigao = data.zhankaigao ?? "";
+		this.shuliang = data.shuliang ?? "1";
+		this.shuliangbeishu = data.shuliangbeishu ?? "1";
+		this.huajian = data.huajian ?? "";
+		this.needZhankai = data.needZhankai ?? true;
+		this.mubanfangda = data.mubanfangda ?? true;
 		this.updateDimensions();
 	}
 

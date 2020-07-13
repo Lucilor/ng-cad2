@@ -22,9 +22,9 @@ export class CadArc extends CadCircle {
 
 	constructor(data: any = {type: CAD_TYPES.arc}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
-		this.start_angle = data.start_angle || 0;
-		this.end_angle = data.end_angle || 0;
-		this.clockwise = data.clockwise || false;
+		this.start_angle = data.start_angle ?? 0;
+		this.end_angle = data.end_angle ?? 0;
+		this.clockwise = data.clockwise ?? false;
 	}
 
 	transform({matrix, flip}: CadTransformation) {

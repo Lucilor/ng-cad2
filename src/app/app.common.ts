@@ -3,6 +3,7 @@ import {SessionStorage, LocalStorage} from "@lucilor/utils";
 import {CadData} from "./cad-viewer/cad-data/cad-data";
 import {CadMtext} from "./cad-viewer/cad-data/cad-entity/cad-mtext";
 import {Vector2} from "three";
+import {functionsIn} from "lodash";
 
 const host = environment.host;
 // export const apiBasePath = host + "/n/zy/index";
@@ -84,6 +85,17 @@ export function copyToClipboard(str: string) {
 	el.select();
 	document.execCommand("copy");
 	document.body.removeChild(el);
+}
+
+export function getDPI() {
+	const result = Array<number>();
+	const tmpNode = document.createElement("div");
+	tmpNode.style.cssText = "width:1in;height:1in;position:absolute;left:0px;top:0px;z-index:99;visibility:hidden";
+	document.body.appendChild(tmpNode);
+	result[0] = tmpNode.offsetWidth;
+	result[1] = tmpNode.offsetHeight;
+	tmpNode.parentNode.removeChild(tmpNode);
+	return result;
 }
 
 // TODO: get collection

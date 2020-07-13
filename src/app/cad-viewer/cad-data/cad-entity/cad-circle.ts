@@ -22,7 +22,7 @@ export class CadCircle extends CadEntity {
 	constructor(data: any = {type: CAD_TYPES.circle}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
 		this.center = getVectorFromArray(data.center);
-		this.radius = data.radius || 0;
+		this.radius = data.radius ?? 0;
 	}
 
 	transform({matrix}: CadTransformation) {

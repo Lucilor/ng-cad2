@@ -41,10 +41,10 @@ export class CadLine extends CadEntity {
 		super(data, layers, resetId);
 		this.start = getVectorFromArray(data.start);
 		this.end = getVectorFromArray(data.end);
-		this.mingzi = data.mingzi || "";
-		this.qujian = data.qujian || "";
-		this.gongshi = data.gongshi || "";
-		this.guanlianbianhuagongshi = data.guanlianbianhuagongshi || "";
+		this.mingzi = data.mingzi ?? "";
+		this.qujian = data.qujian ?? "";
+		this.gongshi = data.gongshi ?? "";
+		this.guanlianbianhuagongshi = data.guanlianbianhuagongshi ?? "";
 	}
 
 	transform({matrix}: CadTransformation) {
@@ -61,7 +61,7 @@ export class CadLine extends CadEntity {
 			mingzi: this.mingzi,
 			qujian: this.qujian,
 			gongshi: this.gongshi,
-			guanlianbianhuagongshi: this.guanlianbianhuagongshi
+			guanlianbianhuagongshi: this.guanlianbianhuagongshi,
 		};
 	}
 
