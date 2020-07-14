@@ -2,7 +2,7 @@ import {Component, OnInit, OnDestroy, Injector, Output, EventEmitter} from "@ang
 import {MenuComponent} from "../menu.component";
 import {CadConnection, CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadEntity} from "@src/app/cad-viewer/cad-data/cad-entity/cad-entity";
-import {MessageComponent} from "../../message/message.component";
+import {openMessageDialog} from "../../message/message.component";
 import {takeUntil} from "rxjs/operators";
 
 @Component({
@@ -91,7 +91,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 						try {
 							data.assembleComponents(new CadConnection({ids, names, lines, space, position}));
 						} catch (error) {
-							this.dialog.open(MessageComponent, {data: {type: "alert", content: error.message}});
+							openMessageDialog(this.dialog, {data: {type: "alert", content: error.message}});
 						} finally {
 							ids.length = 0;
 							names.length = 0;
@@ -155,7 +155,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 			try {
 				data.directAssemble(v);
 			} catch (error) {
-				this.dialog.open(MessageComponent, {data: {type: "alert", content: error}});
+				openMessageDialog(this.dialog, {data: {type: "alert", content: error}});
 			}
 		});
 		this.cad.render();

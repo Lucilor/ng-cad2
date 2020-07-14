@@ -1,6 +1,6 @@
 import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
 import {PageEvent, MatPaginator} from "@angular/material/paginator";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {CadData, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadDataService} from "@services/cad-data.service";
@@ -75,12 +75,15 @@ export class CadListComponent implements AfterViewInit {
 			const data = await this.dataService.getCadDataPage(collection, page, limit, search, options, matchType, qiliao);
 			this.length = data.count;
 			this.pageData.length = 0;
-			for (const d of data.data) {
+			data.data.forEach(async (d, i) => {
 				try {
 					d.entities.dimension.forEach((v) => (v.visible = false));
 					d.entities.mtext.forEach((v) => (v.visible = false));
 					const cad = new CadViewer(d, {width: this.width, height: this.height, padding: 10});
 					const checked = this.checkedItems.find((v) => v.id === d.id) ? true : false;
+					if (checked) {
+						this.checkedIndex = i;
+					}
 					const img = cad.exportImage().src;
 					this.pageData.push({data: cad.data, img, checked});
 					cad.destroy();
@@ -94,7 +97,7 @@ export class CadListComponent implements AfterViewInit {
 						checked: false
 					});
 				}
-			}
+			});
 			this.syncCheckedItems();
 			return data;
 		}
@@ -171,4 +174,8 @@ export class CadListComponent implements AfterViewInit {
 		const ckeckedNum = this.pageData.filter((v) => v.checked).length;
 		return ckeckedNum > 0 && ckeckedNum < this.pageData.length;
 	}
+}
+
+export function openCadListDialog(dialog: MatDialog, config: MatDialogConfig<CadListData>) {
+	return dialog.open<CadListComponent, CadListData, CadData[]>(CadListComponent, config);
 }

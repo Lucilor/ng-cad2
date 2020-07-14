@@ -2,21 +2,20 @@ import {Component, OnInit, ViewChild, OnDestroy, Injector, ElementRef} from "@an
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {MatDialogRef} from "@angular/material/dialog";
 import {timeout, Collection, session, copyToClipboard, removeCadGongshi, getCollection} from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
 import {RSAEncrypt} from "@lucilor/utils";
 import {State} from "@src/app/store/state";
 import {MenuComponent} from "../menu.component";
-import {CadListComponent} from "../../cad-list/cad-list.component";
+import {openCadListDialog} from "../../cad-list/cad-list.component";
 import {takeUntil} from "rxjs/operators";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {Vector2} from "three";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {getCurrCadsData} from "@src/app/store/selectors";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MessageComponent} from "../../message/message.component";
+import {openMessageDialog} from "../../message/message.component";
 
 type SubCadsField = "cads" | "partners" | "components";
 
@@ -412,7 +411,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			checkedItems = [...data.components.data];
 		}
 		const qiliao = type === "components" && getCollection() === "qiliaozuhe";
-		const ref: MatDialogRef<CadListComponent, CadData[]> = this.dialog.open(CadListComponent, {
+		const ref = openCadListDialog(this.dialog, {
 			data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
 		});
 		ref.afterClosed().subscribe(async (cads) => {
@@ -445,7 +444,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		const file = input.files[0];
 		const data = this.contextMenuCad.data;
 		const content = `确定要上传<span style="color:red">${file.name}</span>并替换<span style="color:red">${data.name}</span>的数据吗？`;
-		const ref = this.dialog.open(MessageComponent, {data: {type: "confirm", content}});
+		const ref = openMessageDialog(this.dialog, {data: {type: "confirm", content}});
 		const yes = await ref.afterClosed().toPromise();
 		if (yes) {
 			const resData = await this.dataService.uploadDxf(file);
@@ -461,7 +460,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	getJson() {
-		const data = this.contextMenuCad.data;
+		const data = this.contextMenuCad.data.clone();
+		removeCadGongshi(data);
 		copyToClipboard(JSON.stringify(data.export()));
 		this.snackBar.open("内容已复制");
 		console.log(data);
@@ -531,10 +531,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 
 	async replaceData() {
 		const data = this.contextMenuCad.data;
-		const ref = this.dialog.open(CadListComponent, {
-			data: {selectMode: "single", options: data.options, collection: "cad"},
-			width: "80vw"
-		});
+		const ref = openCadListDialog(this.dialog, {data: {selectMode: "single", options: data.options, collection: "cad"}});
 		ref.afterClosed().subscribe((cads: CadData[]) => {
 			if (cads && cads[0]) {
 				this.dataService.replaceData(data, cads[0].id);

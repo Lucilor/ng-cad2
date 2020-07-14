@@ -2,16 +2,16 @@ import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {MenuComponent} from "../menu.component";
 import {State} from "@src/app/store/state";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {MatDialogRef} from "@angular/material/dialog";
-import {CadOptionsComponent} from "../../menu/cad-options/cad-options.component";
+import {openCadOptionsDialog} from "../../menu/cad-options/cad-options.component";
 import {getCurrCadsData} from "@src/app/store/selectors";
-import {MessageComponent} from "../../message/message.component";
+import {openMessageDialog} from "../../message/message.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {takeUntil} from "rxjs/operators";
 import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getCadGongshiText} from "@src/app/app.common";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {openCadListDialog} from "../../cad-list/cad-list.component";
 
 @Component({
 	selector: "app-cad-info",
@@ -83,9 +83,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		const data = (await this.getCurrCadsData())[0];
 		if (option instanceof CadOption) {
 			const checkedItems = option.value.split(",");
-			const ref: MatDialogRef<CadOptionsComponent, string[]> = this.dialog.open(CadOptionsComponent, {
-				data: {data, name: option.name, checkedItems}
-			});
+			const ref = openCadOptionsDialog(this.dialog, {data: {data, name: option.name, checkedItems}});
 			ref.afterClosed().subscribe((v) => {
 				if (Array.isArray(v)) {
 					option.value = v.join(",");
@@ -93,9 +91,8 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			});
 		} else if (option === "huajian") {
 			const checkedItems = data.huajian.split(",");
-			const ref: MatDialogRef<CadOptionsComponent, string[]> = this.dialog.open(CadOptionsComponent, {
-				data: {data, name: "花件", checkedItems}
-			});
+			openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems}});
+			const ref = openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems}});
 			ref.afterClosed().subscribe((v) => {
 				if (Array.isArray(v)) {
 					data.huajian = v.join(",");
@@ -105,7 +102,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async confirmRemove() {
-		const ref = this.dialog.open(MessageComponent, {data: {content: "是否确定删除？", type: "confirm"}});
+		const ref = openMessageDialog(this.dialog, {data: {type: "confirm", content: "是否确定删除？"}});
 		return ref.afterClosed().toPromise();
 	}
 
@@ -236,6 +233,15 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		const mtext = data.entities.mtext.find((e) => (e.info.isCadGongshi = true));
 		mtext.text = getCadGongshiText(data);
 		this.cad.render(false, new CadEntities().add(mtext));
+	}
+
+	async selectKailiaomuban(data: CadData) {
+		const checkedItems = [new CadData({id: data.kailiaomuban})];
+		const ref = openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
+		const resData = await ref.afterClosed().toPromise();
+		if (resData?.length) {
+			data.kailiaomuban = resData[0].id;
+		}
 	}
 
 	saveStatus() {}

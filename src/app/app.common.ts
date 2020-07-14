@@ -46,7 +46,7 @@ export async function timeout(time = 0) {
 	return new Promise((r) => setTimeout(() => r(), time));
 }
 
-export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order";
+export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";
 
 export function addCadGongshi(data: CadData) {
 	const mtext = new CadMtext();

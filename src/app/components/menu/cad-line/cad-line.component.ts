@@ -115,12 +115,12 @@ export class CadLineComponent implements OnInit {
 	getLinewidth() {
 		const lines = this.selectedLines;
 		if (lines.length === 1) {
-			return (linewidth2lineweight(lines[0].linewidth) / 100).toString();
+			return linewidth2lineweight(lines[0].linewidth).toString();
 		}
 		if (lines.length) {
 			const texts = Array.from(new Set(lines.map((l) => l.linewidth)));
 			if (texts.length === 1) {
-				return (linewidth2lineweight(texts[0]) / 100).toString();
+				return linewidth2lineweight(texts[0]).toString();
 			}
 			return "多个值";
 		}
@@ -129,7 +129,7 @@ export class CadLineComponent implements OnInit {
 
 	setLinewidth(event: InputEvent) {
 		this.selectedLines.forEach((entity) => {
-			const width = Number((event.target as HTMLInputElement).value) * 100;
+			const width = Number((event.target as HTMLInputElement).value);
 			entity.linewidth = lineweight2linewidth(width);
 		});
 		this.cad.render();

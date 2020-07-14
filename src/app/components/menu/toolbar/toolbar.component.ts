@@ -1,15 +1,14 @@
 import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {MatDialogRef} from "@angular/material/dialog";
 import {CurrCadsAction, CadStatusAction, LoadingAction} from "@src/app/store/actions";
-import {RSAEncrypt, dataURLtoBlob} from "@lucilor/utils";
+import {RSAEncrypt} from "@lucilor/utils";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {MenuComponent} from "../menu.component";
-import {MessageComponent} from "../../message/message.component";
-import {CadListComponent} from "../../cad-list/cad-list.component";
+import {openMessageDialog} from "../../message/message.component";
+import {openCadListDialog} from "../../cad-list/cad-list.component";
 import {getCurrCadsData} from "@src/app/store/selectors";
 import {Collection, removeCadGongshi, addCadGongshi, timeout, session, getDPI} from "@src/app/app.common";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute} from "@angular/router";
 import {takeUntil} from "rxjs/operators";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
@@ -42,7 +41,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	showDimensions = true;
 	showCadGongshis = true;
 
-	constructor(injector: Injector, private route: ActivatedRoute, private router: Router) {
+	constructor(injector: Injector, private route: ActivatedRoute) {
 		super(injector);
 	}
 
@@ -97,11 +96,10 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			return;
 		}
 		const selectMode = collection === "p_yuanshicadwenjian" ? "table" : "multiple";
-		const ref: MatDialogRef<CadListComponent, CadData[]> = this.dialog.open(CadListComponent, {
-			data: {collection, selectMode, checkedItems: this.cad.data.components.data}
-		});
+		const checkedItems = this.cad.data.components.data;
+		const ref = openCadListDialog(this.dialog, {data: {collection, selectMode, checkedItems}});
 		this.openLock = true;
-		ref.afterClosed().subscribe((data) => {
+		ref.afterClosed().subscribe((data: CadData[]) => {
 			if (data) {
 				this.collection = collection;
 				this.afterOpen(data);
@@ -136,7 +134,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		if (this.collection === "p_yuanshicadwenjian") {
 			const {name, extra} = await this.getCadStatus();
 			if (name !== "split") {
-				this.dialog.open(MessageComponent, {data: {type: "alert", content: "原始CAD文件只能在选取时保存"}});
+				openMessageDialog(this.dialog, {data: {type: "alert", content: "原始CAD文件只能在选取时保存"}});
 				return;
 			}
 			let indices: number[];
@@ -162,7 +160,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			});
 			cad.render();
 			if (validateResult.some((v) => !v.valid)) {
-				const ref = this.dialog.open(MessageComponent, {data: {type: "confirm", content: "当前打开的CAD存在错误，是否继续保存？"}});
+				const ref = openMessageDialog(this.dialog, {data: {type: "confirm", content: "当前打开的CAD存在错误，是否继续保存？"}});
 				const yes = await ref.afterClosed().toPromise();
 				if (!yes) {
 					return;
@@ -191,7 +189,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		event.stopPropagation();
 		let angle = 0;
 		if (clockwise === undefined) {
-			const ref = this.dialog.open(MessageComponent, {data: {type: "prompt", title: "输入角度", promptData: {type: "number"}}});
+			const ref = openMessageDialog(this.dialog, {data: {type: "prompt", title: "输入角度", promptData: {type: "number"}}});
 			const input = await ref.afterClosed().toPromise();
 			if (input === false) {
 				return;
@@ -244,7 +242,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	showHelpInfo() {
-		this.dialog.open(MessageComponent, {
+		openMessageDialog(this.dialog, {
 			data: {
 				type: "alert",
 				title: "帮助信息",
@@ -298,10 +296,10 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		});
 		if (selected.indices.length < 1) {
-			this.dialog.open(MessageComponent, {data: {type: "alert", content: "请先选择一个主CAD"}});
+			openMessageDialog(this.dialog, {data: {type: "alert", content: "请先选择一个主CAD"}});
 			return null;
 		} else if (selected.indices.length > 1) {
-			const ref = this.dialog.open(MessageComponent, {
+			const ref = openMessageDialog(this.dialog, {
 				data: {
 					type: "confirm",
 					content: `你选择了多个主CAD。进入${desc}将自动选择<span style="color:red">${selected.names[0]}</span>，是否继续？`
@@ -362,11 +360,11 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	async setShowLineLength() {
 		this.lastCommand = {name: this.setShowLineLength.name, arguments};
-		const ref = this.dialog.open(MessageComponent, {
+		const ref = openMessageDialog(this.dialog, {
 			data: {
 				type: "prompt",
 				title: "线长字体大小",
-				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.showLineLength}
+				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.showLineLength.toString()}
 			}
 		});
 		const num = Number(await ref.afterClosed().toPromise());
@@ -376,11 +374,11 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	async setShowGongshi() {
 		this.lastCommand = {name: this.setShowGongshi.name, arguments};
-		const ref = this.dialog.open(MessageComponent, {
+		const ref = openMessageDialog(this.dialog, {
 			data: {
 				type: "prompt",
 				title: "公式字体大小",
-				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.showGongshi}
+				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.showGongshi.toString()}
 			}
 		});
 		const num = Number(await ref.afterClosed().toPromise());
@@ -405,7 +403,11 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		const height = (297 / 25.4) * dpiY * 0.75;
 		const scaleX = 300 / dpiX / 0.75;
 		const scaleY = 300 / dpiY / 0.75;
+		const scale = Math.sqrt(scaleX * scaleY);
 		data.getAllEntities().forEach((e) => {
+			if (e.linewidth >= 0.3) {
+				e.linewidth *= 2;
+			}
 			e.color.set(0);
 			if (e instanceof CadDimension) {
 				e.selected = true;
@@ -416,24 +418,24 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			width: width * scaleX,
 			height: height * scaleY,
 			backgroundColor: 0xffffff,
-			padding: 18,
+			padding: 18 * scale,
 			showStats: false,
-			showLineLength: 0
+			showLineLength: 0,
+			showGongshi: 0
 		});
 		document.body.appendChild(cad.dom);
 		cad.render();
 		await timeout(100);
 		const src = cad.exportImage().src;
 		cad.destroy();
-		// const url = URL.createObjectURL(dataURLtoBlob(src));
-		// window.open(url);
-		// URL.revokeObjectURL(url);
 		this.store.dispatch<LoadingAction>({type: "add loading", name: "printCad"});
-		createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0}).download(() => {
+		const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
+		pdf.getBlob((blob) => {
 			this.store.dispatch<LoadingAction>({type: "remove loading", name: "printCad"});
+			const url = URL.createObjectURL(blob);
+			open(url);
+			URL.revokeObjectURL(url);
 		});
-		// session.save("printCadImg", src);
-		// open("print-cad");
 	}
 
 	saveStatus() {

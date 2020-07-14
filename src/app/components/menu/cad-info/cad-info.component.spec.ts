@@ -12,6 +12,7 @@ import {initialState} from "@src/app/store/state";
 import {CadPointsComponent} from "../cad-points/cad-points.component";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
+import {CadListComponent} from "../../cad-list/cad-list.component";
 
 describe("CadInfoComponent", () => {
 	let component: CadInfoComponent;
@@ -19,7 +20,7 @@ describe("CadInfoComponent", () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [CadInfoComponent, CadPointsComponent],
+			declarations: [CadInfoComponent, CadPointsComponent, CadListComponent],
 			imports: [
 				HttpClientTestingModule,
 				MatDialogModule,

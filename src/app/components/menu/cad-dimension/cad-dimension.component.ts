@@ -1,6 +1,5 @@
 import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
-import {MatDialogRef} from "@angular/material/dialog";
-import {CadDimensionFormComponent} from "../cad-dimension-form/cad-dimension-form.component";
+import {openCadDimensionDialog} from "../cad-dimension-form/cad-dimension-form.component";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
@@ -105,10 +104,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 
 	editDimension(i: number) {
 		const {cad, dimensions: data} = this;
-		const ref: MatDialogRef<CadDimensionFormComponent, CadDimension> = this.dialog.open(CadDimensionFormComponent, {
-			data: {data: data[i]},
-			disableClose: true
-		});
+		const ref = openCadDimensionDialog(this.dialog, {data: {data: data[i]}, disableClose: true});
 		ref.afterClosed().subscribe((dimension) => {
 			if (dimension) {
 				cad.render();

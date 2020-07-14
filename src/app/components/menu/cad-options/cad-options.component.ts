@@ -1,8 +1,14 @@
 import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
 import {CadDataService} from "@src/app/services/cad-data.service";
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+
+interface CadOptionsData {
+	data: CadData;
+	name: string;
+	checkedItems: string[];
+}
 
 @Component({
 	selector: "app-cad-options",
@@ -21,7 +27,7 @@ export class CadOptionsComponent implements AfterViewInit {
 	constructor(
 		private dataService: CadDataService,
 		public dialogRef: MatDialogRef<CadOptionsComponent, string[]>,
-		@Inject(MAT_DIALOG_DATA) public data: {data: CadData; name: string; checkedItems: string[]}
+		@Inject(MAT_DIALOG_DATA) public data: CadOptionsData
 	) {}
 
 	async ngAfterViewInit() {
@@ -62,4 +68,8 @@ export class CadOptionsComponent implements AfterViewInit {
 		});
 		return data;
 	}
+}
+
+export function openCadOptionsDialog(dialog: MatDialog, config: MatDialogConfig<CadOptionsData>) {
+	return dialog.open<CadOptionsComponent, CadOptionsData, string[]>(CadOptionsComponent, config);
 }

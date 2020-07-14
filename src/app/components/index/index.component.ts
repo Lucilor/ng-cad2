@@ -48,7 +48,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			padding: [50, 300, 30, 250],
 			showLineLength: 8,
 			showGongshi: 8,
-			validateLines: true
+			validateLines: false
 		});
 		this.cad.setControls({selectMode: "multiple"});
 		if (this.cad.stats) {

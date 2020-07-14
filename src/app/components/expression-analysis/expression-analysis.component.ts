@@ -3,7 +3,7 @@ import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog
 import {CadDataService, Order} from "@src/app/services/cad-data.service";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {ExpressionsParser} from "@src/app/cad-viewer/cad-data/utils";
-import {OrderListComponent} from "../order-list/order-list.component";
+import {openOrderListDialog} from "../order-list/order-list.component";
 
 @Component({
 	selector: "app-expression-analysis",
@@ -31,7 +31,7 @@ export class ExpressionAnalysisComponent implements OnInit {
 	}
 
 	async getOrder() {
-		const ref = this.dialog.open(OrderListComponent, {data: {cad: this.data.cad}});
+		const ref = openOrderListDialog(this.dialog, {data: {cad: this.data.cad}});
 		const order = await ref.afterClosed().toPromise();
 		if (order) {
 			this.getExpressions(order);

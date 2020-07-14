@@ -1,9 +1,13 @@
 import {Component, OnInit, Inject} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadDataService, Order} from "@src/app/services/cad-data.service";
 import {timeout} from "@src/app/app.common";
 import {MatSnackBar} from "@angular/material/snack-bar";
+
+interface OrderListData {
+	cad: CadData;
+}
 
 @Component({
 	selector: "app-order-list",
@@ -17,8 +21,7 @@ export class OrderListComponent implements OnInit {
 
 	constructor(
 		public dialogRef: MatDialogRef<OrderListComponent, Order>,
-		@Inject(MAT_DIALOG_DATA)
-		public data: {cad: CadData},
+		@Inject(MAT_DIALOG_DATA) public data: OrderListData,
 		private dataService: CadDataService,
 		private snackBar: MatSnackBar
 	) {}
@@ -42,4 +45,8 @@ export class OrderListComponent implements OnInit {
 	cancle() {
 		this.dialogRef.close();
 	}
+}
+
+export function openOrderListDialog(dialog: MatDialog, config: MatDialogConfig<OrderListData>) {
+	return dialog.open<OrderListComponent, OrderListData, Order>(OrderListComponent, config);
 }

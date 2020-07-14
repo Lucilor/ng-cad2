@@ -4,7 +4,7 @@ import {State} from "../store/state";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MessageComponent} from "../components/message/message.component";
+import {openMessageDialog} from "../components/message/message.component";
 import {LoadingAction} from "../store/actions";
 import {Response, session, Collection} from "../app.common";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
@@ -35,7 +35,7 @@ export class CadDataService {
 
 	private alert(content: any) {
 		if (!this.silent) {
-			this.dialog.open(MessageComponent, {data: {type: "alert", content}});
+			openMessageDialog(this.dialog, {data: {type: "alert", content}});
 		}
 	}
 

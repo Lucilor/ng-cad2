@@ -1,7 +1,11 @@
 import {Component, OnInit, Inject} from "@angular/core";
 import {FormGroup, FormBuilder, FormControl, ValidatorFn, AbstractControl} from "@angular/forms";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
+
+interface CadDimensionData {
+	data: CadDimension;
+}
 
 @Component({
 	selector: "app-cad-dimension-form",
@@ -13,8 +17,8 @@ export class CadDimensionFormComponent implements OnInit {
 	dimension: CadDimension;
 	constructor(
 		private fb: FormBuilder,
-		public dialogRef: MatDialogRef<CadDimensionFormComponent>,
-		@Inject(MAT_DIALOG_DATA) public data: {data: CadDimension}
+		public dialogRef: MatDialogRef<CadDimensionFormComponent, CadDimension>,
+		@Inject(MAT_DIALOG_DATA) public data: CadDimensionData
 	) {}
 
 	ngOnInit() {
@@ -88,4 +92,8 @@ export class CadDimensionFormComponent implements OnInit {
 	checkQujian() {
 		return this.form.controls.qujian.errors?.qujian;
 	}
+}
+
+export function openCadDimensionDialog(dialog: MatDialog, config: MatDialogConfig<CadDimensionData>) {
+	return dialog.open<CadDimensionFormComponent, CadDimensionData, CadDimension>(CadDimensionFormComponent, config);
 }

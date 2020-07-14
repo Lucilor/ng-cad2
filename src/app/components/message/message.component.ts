@@ -1,11 +1,11 @@
 import {Component, OnInit, Inject} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
 
-export interface MessageData {
+interface MessageData {
+	type: "alert" | "confirm" | "prompt";
 	title?: string;
 	content?: any;
-	type?: "alert" | "confirm" | "prompt";
 	promptData?: {
 		type?: string;
 		hint?: string;
@@ -80,4 +80,8 @@ export class MessageComponent implements OnInit {
 	cancle() {
 		this.dialogRef.close(false);
 	}
+}
+
+export function openMessageDialog(dialog: MatDialog, config: MatDialogConfig<MessageData>) {
+	return dialog.open<MessageComponent, MessageData, boolean | string>(MessageComponent, config);
 }

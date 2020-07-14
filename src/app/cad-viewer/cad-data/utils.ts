@@ -109,9 +109,9 @@ export function lineweight2linewidth(value: number) {
 
 export function linewidth2lineweight(value: number) {
 	if (value >= 2) {
-		return 30;
+		return 0.3;
 	} else {
-		return 25;
+		return 0.25;
 	}
 	// return value * 100 * 0.25;
 }
