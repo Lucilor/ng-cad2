@@ -1317,14 +1317,14 @@
     rxjs-compat "^6.5.4"
     zone.js "^0.10.2"
 
-"@syncfusion/ej2-angular-inputs@^18.2.44":
-  version "18.2.44"
-  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-inputs/-/ej2-angular-inputs-18.2.44.tgz#56ed7a2e7561e73c9a02c842710ee85aeda35e29"
-  integrity sha512-xSdaMSRlj6dYQfqltQ+LUB40AeAboTgZEVq3FIcGO1VbSL6zxvBjhDpBC5Bj/YZ1XITjI4tPwlRaeuv/+5bHYA==
+"@syncfusion/ej2-angular-inputs@^18.2.45":
+  version "18.2.45"
+  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-inputs/-/ej2-angular-inputs-18.2.45.tgz#029b5b9a55e8af6754df6e82395b5ef5a6c5d7cf"
+  integrity sha512-SgAQsU53iEgZPm8/bFyRX0157ssku45uIS1SAfH5UVLUwgr4+4b04Tc5ytJuwMfKLCZHt8KiiSSsCurADzPNAQ==
   dependencies:
     "@syncfusion/ej2-angular-base" "~18.2.44"
     "@syncfusion/ej2-base" "~18.2.44"
-    "@syncfusion/ej2-inputs" "18.2.44"
+    "@syncfusion/ej2-inputs" "18.2.45"
 
 "@syncfusion/ej2-base@~18.2.44":
   version "18.2.44"
@@ -1345,10 +1345,10 @@
   resolved "https://registry.yarnpkg.com/@syncfusion/ej2-icons/-/ej2-icons-18.2.44.tgz#edea5d94567485117dbf9cbe13417ec43d955d08"
   integrity sha512-4jOb0RtpTU+s+IXbaQxxcWhFpXXn9aYyakGmrF7A6smbpndM7do28mDybJMFIns/IoRsQokOnrDhqqAIaoDRVQ==
 
-"@syncfusion/ej2-inputs@18.2.44":
-  version "18.2.44"
-  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-inputs/-/ej2-inputs-18.2.44.tgz#fa2b448ada8058dfada20a0c2c4c95554bd38ecc"
-  integrity sha512-sylksyspsPe8Q6+70Gr3AvXrwy9Pyz9lB9Uk3jBo9LgnpgieVrFWbGQZ8gEIZhPYVkInyRQkFCPQRD3xaZ+HGQ==
+"@syncfusion/ej2-inputs@18.2.45":
+  version "18.2.45"
+  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-inputs/-/ej2-inputs-18.2.45.tgz#6aaec5318a3b7774d924ae916ec85502d0cf5b18"
+  integrity sha512-1lyunOQFT77PXB2gZuJjmgRfyQqFcsTBmj9fGA5PIm5dwipsq4fy6IKOhTMcGCO64q7NZieNXcWOWdSws0lqAQ==
   dependencies:
     "@syncfusion/ej2-base" "~18.2.44"
     "@syncfusion/ej2-buttons" "~18.2.44"
@@ -1416,15 +1416,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/node@*":
-  version "14.0.13"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.13.tgz#ee1128e881b874c371374c1f72201893616417c9"
-  integrity sha512-rouEWBImiRaSJsVA+ITTFM6ZxibuAlTuNOCyxVbwreu6k6+ujs7DfnU9o+PShFhET78pMBl3eH+AGSI5eOTkPA==
-
-"@types/node@^14.0.22":
-  version "14.0.22"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.22.tgz#23ea4d88189cec7d58f9e6b66f786b215eb61bdc"
-  integrity sha512-emeGcJvdiZ4Z3ohbmw93E/64jRzUHAItSHt8nF7M4TGgQTiWqFVGB8KNpLGFmUHmHLvjvBgFwVlqNcq+VuGv9g==
+"@types/node@*", "@types/node@^14.0.23":
+  version "14.0.23"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.23.tgz#676fa0883450ed9da0bb24156213636290892806"
+  integrity sha512-Z4U8yDAl5TFkmYsZdFPdjeMa57NOvnaf1tljHzhouaPEp7LCj2JKkejpI1ODviIAQuW4CcQmxkQ77rnLsOOoKw==
 
 "@types/pdfkit@*":
   version "0.10.6"
