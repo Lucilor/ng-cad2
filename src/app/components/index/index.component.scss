@@ -56,3 +56,23 @@
 ::ng-deep .mat-tab-body-content {
 	padding: 10px 0;
 }
+
+.menu-icon {
+	background-color: white;
+	transition: 0.3s;
+	&.left {
+		float: right;
+		&.closed {
+			transform: translateX(45px);
+		}
+	}
+	&.right {
+		&.closed {
+			transform: translateX(-45px);
+		}
+	}
+}
+
+perfect-scrollbar {
+	max-height: calc(100% - 40px);
+}

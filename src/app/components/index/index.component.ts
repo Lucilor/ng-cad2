@@ -12,18 +12,46 @@ import {takeUntil, take} from "rxjs/operators";
 import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {timeout} from "@src/app/app.common";
-import {async} from "rxjs";
+import {trigger, state, style, transition, animate} from "@angular/animations";
 
 @Component({
 	selector: "app-index",
 	templateUrl: "./index.component.html",
-	styleUrls: ["./index.component.scss"]
+	styleUrls: ["./index.component.scss"],
+	animations: [
+		trigger("closeTop", [
+			state("open", style({transform: "translateY(0)"})),
+			state("closed", style({transform: "translateY(-100%)"})),
+			transition("open <=> closed", [animate("0.3s")])
+		]),
+		trigger("closeRight", [
+			state("open", style({transform: "translateX(0)"})),
+			state("closed", style({transform: "translateX(100%)"})),
+			transition("open <=> closed", [animate("0.3s")])
+		]),
+		trigger("closeBottom", [
+			state("open", style({transform: "translateY(0)"})),
+			state("closed", style({transform: "translateY(100%)"})),
+			transition("open <=> closed", [animate("0.3s")])
+		]),
+		trigger("closeLeft", [
+			state("open", style({transform: "translateX(0)"})),
+			state("closed", style({transform: "translateX(-100%)"})),
+			transition("open <=> closed", [animate("0.3s")])
+		])
+	]
 })
 export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, AfterViewInit {
 	collection = "";
 	cadStatusStr: string;
 	formulas: string[] = [];
 	shownMenus: ("cadInfo" | "entityInfo" | "cadAssemble")[] = ["cadInfo", "entityInfo"];
+	showTopMenu = true;
+	showRightMenu = true;
+	showBottomMenu = true;
+	showLeftMenu = true;
+	showAllMenu = true;
+	menuPadding = [40, 250, 20, 200];
 	@ViewChild("cadContainer", {read: ElementRef}) cadContainer: ElementRef<HTMLElement>;
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
@@ -45,7 +73,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			width: innerWidth,
 			height: innerHeight,
 			showStats: !environment.production,
-			padding: [50, 300, 30, 250],
+			padding: Array(4).map((_v, i) => 10 + this.menuPadding[i]),
 			showLineLength: 8,
 			showGongshi: 8,
 			validateLines: false
@@ -144,5 +172,41 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	selectComponent(id: string) {
 		const index = this.subCads.components.findIndex((v) => v.data.id === id);
 		this.subCads.clickCad("components", index);
+	}
+
+	private _setCadPadding(show: boolean, i: number) {
+		if (show) {
+			this.cad.config.padding[i] += this.menuPadding[i];
+		} else {
+			this.cad.config.padding[i] -= this.menuPadding[i];
+		}
+	}
+
+	toggleTopMenu(show?: boolean) {
+		this.showTopMenu = show ?? !this.showTopMenu;
+		this._setCadPadding(this.showTopMenu, 0);
+	}
+
+	toggleRightMenu(show?: boolean) {
+		this.showRightMenu = show ?? !this.showRightMenu;
+		this._setCadPadding(this.showRightMenu, 1);
+	}
+
+	toggleBottomMenu(show?: boolean) {
+		this.showBottomMenu = show ?? !this.showBottomMenu;
+		this._setCadPadding(this.showBottomMenu, 2);
+	}
+
+	toggleLeftMenu(show?: boolean) {
+		this.showLeftMenu = show ?? !this.showLeftMenu;
+		this._setCadPadding(this.showLeftMenu, 3);
+	}
+
+	toggleAllMenu(show?: boolean) {
+		this.showAllMenu = show ?? !this.showAllMenu;
+		this.toggleTopMenu(this.showAllMenu);
+		this.toggleRightMenu(this.showAllMenu);
+		this.toggleBottomMenu(this.showAllMenu);
+		this.toggleLeftMenu(this.showAllMenu);
 	}
 }

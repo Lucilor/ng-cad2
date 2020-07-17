@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "D:/wwwroot/www.n.com/n/ng-cad2",
+            "outputPath": "C:/Softwares/XAMPP/htdocs/n/ng-cad2",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",

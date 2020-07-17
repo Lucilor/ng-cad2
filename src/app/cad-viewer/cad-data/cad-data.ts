@@ -713,11 +713,17 @@ export class CadData {
 				box.expandByPoint(e.start);
 				box.expandByPoint(e.end);
 			}
-			if (e instanceof CadCircle || e instanceof CadArc) {
+			if (e instanceof CadCircle) {
 				const curve = e.curve;
-				box.expandByPoint(curve.getPoint(0));
-				box.expandByPoint(curve.getPoint(0.5));
-				box.expandByPoint(curve.getPoint(1));
+				if (e instanceof CadArc) {
+					box.expandByPoint(curve.getPoint(0));
+					box.expandByPoint(curve.getPoint(0.5));
+					box.expandByPoint(curve.getPoint(1));
+				} else {
+					const {center, radius} = e;
+					box.expandByPoint(center.clone().addScalar(radius));
+					box.expandByPoint(center.clone().subScalar(radius));
+				}
 			}
 			if (e instanceof CadDimension) {
 				this.getDimensionPoints(e).forEach((p) => box.expandByPoint(p));
