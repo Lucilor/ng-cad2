@@ -24,6 +24,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	lengths: string[] = [];
 	baseLineIndex = -1;
 	jointPointIndex = -1;
+	editDisabled = true;
 
 	constructor(injector: Injector) {
 		super(injector);
@@ -33,6 +34,12 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		super.ngOnInit();
 		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
 			this.cadsData = getCurrCadsData(this.cad.data, currCads);
+			if (this.cadsData.length === 1) {
+				this.editDisabled = false;
+			} else {
+				this.editDisabled = true;
+				this.cadsData = [new CadData()];
+			}
 			this.updateLengths(this.cadsData);
 		});
 		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name}) => {

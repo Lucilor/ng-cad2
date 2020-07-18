@@ -121,37 +121,38 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		return node;
 	}
 
-	private async splitCad({key}: KeyboardEvent) {
+	private async splitCad({key}: KeyboardEvent, id = this._prevId) {
 		if (key !== "Enter") {
+			return;
+		}
+		const {name, extra} = await this.getCadStatus();
+		if (name !== "split") {
 			return;
 		}
 		const cad = this.cad;
 		const data = cad.data.findChild(this._prevId);
-		const {name, extra} = await this.getCadStatus();
-		if (name === "split") {
-			const collection = extra.collection as Collection;
-			const split = new CadData();
-			const entities = cad.selectedEntities;
-			split.entities = entities.clone(true);
-			const node = await this._getCadNode(split);
-			this.cads.push(node);
-			if (collection === "p_yuanshicadwenjian") {
-				data.addComponent(split);
-			} else {
-				data.separate(split);
-				data.addComponent(split);
-				split.conditions = data.conditions;
-				split.options = data.options;
-				split.type = data.type;
-				try {
-					data.directAssemble(split);
-				} catch (error) {
-					this.snackBar.open("快速装配失败: " + (error as Error).message);
-				}
-				cad.removeEntities(entities);
-				this.blur(split.entities);
+		const cloneData = data.clone(true);
+		const collection = extra.collection as Collection;
+		const split = new CadData();
+		const entities = cad.selectedEntities;
+		split.entities = entities.clone(true);
+		const node = await this._getCadNode(split);
+		this.cads.push(node);
+		if (collection === "p_yuanshicadwenjian") {
+			data.addComponent(split);
+		} else {
+			// data.separate(split);
+			data.addComponent(split);
+			this.blur(split.entities);
+			cad.removeEntities(entities);
+			split.conditions = cloneData.conditions;
+			split.options = cloneData.options;
+			split.type = cloneData.type;
+			try {
+				data.directAssemble(split);
+			} catch (error) {
+				this.snackBar.open("快速装配失败: " + (error as Error).message);
 			}
-			cad.unselectAll();
 		}
 	}
 
@@ -277,9 +278,10 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			await this.updateList([], sync, true);
 			const data = this.cad.data.findChild(this._prevId);
 			for (const v of data.components.data) {
-				const node = await this._getCadNode(v.clone(true));
+				const node = await this._getCadNode(v);
 				this.cads.push(node);
 				this.blur(v.getAllEntities());
+				this.cad.render();
 			}
 			return;
 		}

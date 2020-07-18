@@ -48,8 +48,12 @@ export class CadData {
 		this.conditions = Array.isArray(data.conditions) ? data.conditions : [];
 		this.options = [];
 		if (typeof data.options === "object") {
-			for (const key in data.options) {
-				this.options.push(new CadOption(key, data.options[key]));
+			if (Array.isArray(data.options)) {
+				data.options.forEach((v: CadOption) => this.options.push(new CadOption(v)));
+			} else {
+				for (const key in data.options) {
+					this.options.push(new CadOption(key, data.options[key]));
+				}
 			}
 		}
 		this.baseLines = [];
@@ -352,7 +356,8 @@ export class CadData {
 			try {
 				this.assembleComponents(c);
 			} catch (error) {
-				console.warn(error);
+				// TODO: warn error
+				// console.warn(error);
 			}
 		});
 		this.partners.forEach((v) => v.updateComponents());
@@ -779,9 +784,14 @@ export class CadJointPoint {
 export class CadOption {
 	name: string;
 	value: string;
-	constructor(name = "", value = "") {
-		this.name = name;
-		this.value = value;
+	constructor(name: string | CadOption = "", value = "") {
+		if (name instanceof CadOption) {
+			this.name = name.name;
+			this.value = name.value;
+		} else {
+			this.name = name;
+			this.value = value;
+		}
 	}
 }
 

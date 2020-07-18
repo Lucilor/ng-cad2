@@ -1,15 +1,9 @@
-<form *ngIf="selectedLines.length">
+<form [class.not-allowed]="selected.length < 1">
 	<button hidden></button>
 	<div class="form-item length">
 		<mat-form-field>
 			<mat-label>长度</mat-label>
-			<input
-				matInput
-				type="number"
-				[ngModel]="getLineLength()"
-				(change)="setLineLength($event)"
-				name="lineLength"
-			/>
+			<input matInput type="number" [ngModel]="getLineLength()" (change)="setLineLength($event)" name="lineLength" />
 		</mat-form-field>
 	</div>
 	<div class="form-item color">
@@ -21,8 +15,8 @@
 				type="color"
 				[showButtons]="false"
 				[mode]="'Palette'"
-                [modeSwitcher]="false"
-                [presetColors]="selectableColors"
+				[modeSwitcher]="false"
+				[presetColors]="selectableColors"
 				[enableOpacity]="false"
 				[value]="getCssColor()"
 				(change)="setLineColor($event)"
@@ -32,13 +26,7 @@
 	<div class="form-item linewidth">
 		<mat-form-field>
 			<mat-label>线宽</mat-label>
-			<input
-				matInput
-				type="text"
-				[ngModel]="getLinewidth()"
-				(change)="setLinewidth($event)"
-				name="linewidth"
-			/>
+			<input matInput type="text" [ngModel]="getLinewidth()" (change)="setLinewidth($event)" name="linewidth" />
 		</mat-form-field>
 	</div>
 	<div class="form-item mingzi">

@@ -57,16 +57,14 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 
 	getColor() {
 		const selected = this.selected;
-		let color: Color;
+		const color = new Color();
 		if (selected.length === 1) {
-			color = selected[0].color;
+			color.set(selected[0].color);
 		}
 		if (selected.length) {
 			const texts = Array.from(new Set(selected.map((v) => v.color.getHex())));
 			if (texts.length === 1) {
-				color = selected[0].color;
-			} else {
-				color = new Color();
+				color.set(selected[0].color);
 			}
 		}
 		return "#" + color.getHexString();

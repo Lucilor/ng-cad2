@@ -16,7 +16,7 @@ import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/ca
 })
 export class CadLineComponent implements OnInit {
 	@Input() cad: CadViewer;
-	get selectedLines() {
+	get selected() {
 		const {line, arc} = this.cad.selectedEntities;
 		return [...line, ...arc];
 	}
@@ -35,7 +35,7 @@ export class CadLineComponent implements OnInit {
 	}
 
 	getLineLength() {
-		const lines = this.selectedLines;
+		const lines = this.selected;
 		if (lines.length === 1) {
 			const line = lines[0];
 			if (line instanceof CadLine) {
@@ -48,7 +48,7 @@ export class CadLineComponent implements OnInit {
 	}
 
 	setLineLength(event: InputEvent) {
-		const {selectedLines, cad} = this;
+		const {selected: selectedLines, cad} = this;
 		const pointsMap = generatePointsMap(cad.data.getAllEntities());
 		selectedLines.forEach((line) => {
 			if (line instanceof CadLine) {
@@ -65,7 +65,7 @@ export class CadLineComponent implements OnInit {
 	}
 
 	getCssColor(colorStr?: string) {
-		const lines = this.selectedLines;
+		const lines = this.selected;
 		if (colorStr) {
 			const color = new Color(colorStr);
 			return getColorLightness(color.getHex()) < 0.5 ? "black" : "white";
@@ -84,12 +84,12 @@ export class CadLineComponent implements OnInit {
 
 	setLineColor(event: MatSelectChange) {
 		const color = parseInt(event.value.slice(1, 7), 16);
-		this.selectedLines.forEach((e) => e.color.set(color));
+		this.selected.forEach((e) => e.color.set(color));
 		this.cad.render();
 	}
 
 	getLineText(field: string) {
-		const lines = this.selectedLines;
+		const lines = this.selected;
 		if (lines.length === 1) {
 			return lines[0][field];
 		}
@@ -105,7 +105,7 @@ export class CadLineComponent implements OnInit {
 
 	setLineText(event: InputEvent, field: string) {
 		const value = (event.target as HTMLInputElement).value;
-		this.selectedLines.forEach((e) => {
+		this.selected.forEach((e) => {
 			if (e instanceof CadLine) {
 				e[field] = value;
 			}
@@ -113,7 +113,7 @@ export class CadLineComponent implements OnInit {
 	}
 
 	getLinewidth() {
-		const lines = this.selectedLines;
+		const lines = this.selected;
 		if (lines.length === 1) {
 			return linewidth2lineweight(lines[0].linewidth).toString();
 		}
@@ -128,7 +128,7 @@ export class CadLineComponent implements OnInit {
 	}
 
 	setLinewidth(event: InputEvent) {
-		this.selectedLines.forEach((entity) => {
+		this.selected.forEach((entity) => {
 			const width = Number((event.target as HTMLInputElement).value);
 			entity.linewidth = lineweight2linewidth(width);
 		});
