@@ -21,6 +21,13 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatTabsModule} from "@angular/material/tabs";
 import {CadPointsComponent} from "../menu/cad-points/cad-points.component";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatIconModule} from "@angular/material/icon";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
+import {MatSelectModule} from "@angular/material/select";
+import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
 
 describe("IndexComponent", () => {
 	let component: IndexComponent;
@@ -49,7 +56,15 @@ describe("IndexComponent", () => {
 				RouterModule.forRoot([]),
 				MatButtonModule,
 				MatSlideToggleModule,
-				MatTabsModule
+				MatTabsModule,
+				MatAutocompleteModule,
+				MatIconModule,
+				FormsModule,
+				ReactiveFormsModule,
+				MatFormFieldModule,
+				MatInputModule,
+				MatSelectModule,
+				ColorPickerModule
 			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();

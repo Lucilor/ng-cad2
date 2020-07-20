@@ -11,6 +11,9 @@ import {initialState} from "@src/app/store/state";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from "@angular/material/button";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
+import {FormsModule} from "@angular/forms";
 
 describe("CadMtextComponent", () => {
 	let component: CadMtextComponent;
@@ -19,7 +22,17 @@ describe("CadMtextComponent", () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [CadMtextComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+			imports: [
+				HttpClientTestingModule,
+				MatDialogModule,
+				MatSnackBarModule,
+				MatFormFieldModule,
+				MatInputModule,
+				MatButtonModule,
+				BrowserAnimationsModule,
+				ColorPickerModule,
+				FormsModule
+			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();
 	}));

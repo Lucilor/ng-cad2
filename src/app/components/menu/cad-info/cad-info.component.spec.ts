@@ -12,7 +12,11 @@ import {initialState} from "@src/app/store/state";
 import {CadPointsComponent} from "../cad-points/cad-points.component";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {CadListComponent} from "../../cad-list/cad-list.component";
+import {MatSelectModule} from "@angular/material/select";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 describe("CadInfoComponent", () => {
 	let component: CadInfoComponent;
@@ -27,7 +31,12 @@ describe("CadInfoComponent", () => {
 				MatSnackBarModule,
 				StoreModule.forRoot({}),
 				MatFormFieldModule,
-				MatInputModule
+				MatInputModule,
+				MatAutocompleteModule,
+				MatSelectModule,
+				BrowserAnimationsModule,
+				FormsModule,
+				ReactiveFormsModule
 			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();
