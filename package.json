@@ -24,7 +24,6 @@
     "@lucilor/utils": "^1.0.22",
     "@ngrx/store": "^9.2.0",
     "@seregpie/three.text-sprite": "^2.0.0",
-    "@svgdotjs/svg.js": "^3.0.16",
     "@syncfusion/ej2-angular-inputs": "^18.2.45",
     "lodash": "^4.17.19",
     "ngx-perfect-scrollbar": "^9.0.0",

@@ -1299,11 +1299,6 @@
   resolved "https://registry.yarnpkg.com/@seregpie/three.text-texture/-/three.text-texture-2.0.1.tgz#2f0b1aaa429bfc84c8c5e3f7b0503d9faa2079ea"
   integrity sha512-9uO/mP5PyGyl1LqrkObe9OOAwL/jp9rKjdphWf5gUH8LHDJuNy5GQCjr+nKqJG2lGID8gMNNnub1CSALl4BZHw==
 
-"@svgdotjs/svg.js@^3.0.16":
-  version "3.0.16"
-  resolved "https://registry.yarnpkg.com/@svgdotjs/svg.js/-/svg.js-3.0.16.tgz#7044754e45daf62c8e2b115c45ca33ca5b967aff"
-  integrity sha512-yZ4jfP/SeLHEnCi9PIrzienKCrA4vW9+jm5uUV3N5DG2e9zgXLY5FgywK2u8/gMFIeKO0HuqTLFFfWJj+MfMLA==
-
 "@syncfusion/ej2-angular-base@~18.2.44":
   version "18.2.44"
   resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-base/-/ej2-angular-base-18.2.44.tgz#efe81cee1793b5fe45be91b8f04b22f03dd01b02"
