@@ -632,13 +632,10 @@ export class CadData {
 				if (l.length <= accuracy) {
 					continue;
 				}
-				if (l.isHorizonal(accuracy)) {
+				if (l.isHorizonal(accuracy) && (!hLine || hLine.start.y > l.start.y)) {
 					hLine = l;
-				} else if (l.isVertical(accuracy)) {
+				} else if (l.isVertical(accuracy) && (!vLine || vLine.start.x > l.start.x)) {
 					vLine = l;
-				}
-				if (hLine && vLine) {
-					break;
 				}
 			}
 			if (!hLine || !vLine) {
