@@ -1,24 +1,36 @@
-@import '~@angular/material/theming';
-// Plus imports for other components in your app.
+@import "~@angular/material/theming";
 
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
-@include mat-core();
+$app-typography: mat-typography-config(
+	$font-family: "Noto Sans SC",
+	$display-4: mat-typography-level(112px, 112px, 300),
+	$display-3: mat-typography-level(56px, 56px, 400),
+	$display-2: mat-typography-level(45px, 48px, 400),
+	$display-1: mat-typography-level(34px, 40px, 400),
+	$headline: mat-typography-level(24px, 32px, 400),
+	$title: mat-typography-level(20px, 32px, 500),
+	$subheading-2: mat-typography-level(16px, 28px, 400),
+	$subheading-1: mat-typography-level(15px, 24px, 400),
+	$body-2: mat-typography-level(14px, 24px, 500),
+	$body-1: mat-typography-level(14px, 20px, 400),
+	$caption: mat-typography-level(12px, 20px, 400),
+	$button: mat-typography-level(14px, 14px, 400),
+	// Line-height must be unit-less fraction of the font-size.
+		$input: mat-typography-level(16px, 1.25, 400)
+);
 
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue. Available color palettes: https://material.io/design/color/
-$primary: mat-palette($mat-blue);
-$accent:  mat-palette($mat-pink, A200, A100, A400);
+@include mat-core($app-typography);
 
-// The warn palette is optional (defaults to red).
-$warn:    mat-palette($mat-red);
-
-// Create the theme object (a Sass map containing all of the palettes).
+$primary: mat-palette($mat-blue); // $deeppurple form color_palette
+$accent: mat-palette($mat-pink, A200, A100, A400); // $blue form color_palette
+$warn: mat-palette($mat-red); // $red form color_palette
 $app-theme: mat-light-theme($primary, $accent, $warn);
-
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
 @include angular-material-theme($app-theme);
+
+body,
+html {
+	margin: 0;
+	height: 100%;
+	font-size: mat-font-size($app-typography, body-1);
+	font-family: mat-font-family($app-typography);
+	line-height: mat-line-height($app-typography, body-1);
+}

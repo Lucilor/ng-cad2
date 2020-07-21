@@ -4,13 +4,14 @@
 @import "~@syncfusion/ej2-splitbuttons/styles/material.css";
 @import "~@syncfusion/ej2-inputs/styles/material.css";
 @import "~jsoneditor/dist/jsoneditor.min.css";
+@import "./noto-sans-sc.scss";
 
 body {
 	width: 100vw;
 	height: 100vh;
 	margin: 0;
 	overflow: hidden;
-	font-family: Roboto, "Helvetica Neue", sans-serif;
+	// font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 .btn-group {
@@ -59,7 +60,7 @@ form {
 }
 
 .not-allowed::after {
-	content: 'DISABLED';
+	content: "DISABLED";
 	cursor: not-allowed;
 	position: absolute;
 	top: 0;

@@ -10,8 +10,8 @@ export class ImageComponent {
 	@Input() height: string;
 	@Input() src: string;
 	loading = true;
-	loadingSrc = "assets/loading.gif";
-	emptySrc = "assets/empty.jpg";
+	loadingSrc = "assets/images/loading.gif";
+	emptySrc = "assets/images/empty.jpg";
 
 	constructor() {}
 

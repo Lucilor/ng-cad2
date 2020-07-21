@@ -28,6 +28,7 @@
     "ang-jsoneditor": "^1.9.4",
     "jsoneditor": "^9.0.3",
     "lodash": "^4.17.19",
+    "material-design-icons": "^3.0.1",
     "ngx-perfect-scrollbar": "^9.0.0",
     "pdfmake": "^0.1.66",
     "rxjs": "~6.6.0",

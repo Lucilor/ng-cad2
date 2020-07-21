@@ -30,6 +30,7 @@ export class CadData {
 	needZhankai: boolean;
 	mubanfangda: boolean;
 	kailiaomuban: string;
+	kailiaoshibaokeng: boolean;
 	readonly visible: boolean;
 	constructor(data: any = {}) {
 		if (typeof data !== "object") {
@@ -86,6 +87,7 @@ export class CadData {
 		this.needZhankai = data.needZhankai ?? true;
 		this.mubanfangda = data.mubanfangda ?? true;
 		this.kailiaomuban = data.kailiaomuban ?? "";
+		this.kailiaoshibaokeng = data.kailiaoshibaokeng ?? false;
 		this.updateDimensions();
 	}
 
@@ -121,7 +123,8 @@ export class CadData {
 			huajian: this.huajian,
 			needZhankai: this.needZhankai,
 			mubanfangda: this.mubanfangda,
-			kailiaomuban: this.kailiaomuban
+			kailiaomuban: this.kailiaomuban,
+			kailiaoshibaokeng: this.kailiaoshibaokeng
 		};
 	}
 
