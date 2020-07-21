@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild, OnDestroy, Injector, ElementRef} from "@an
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {timeout, Collection, session, copyToClipboard, removeCadGongshi, getCollection} from "@src/app/app.common";
+import {timeout, Collection, session, copyToClipboard, removeCadGongshi, getCollection, addCadGongshi} from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
 import {RSAEncrypt} from "@lucilor/utils";
@@ -16,6 +16,7 @@ import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation
 import {getCurrCadsData} from "@src/app/store/selectors";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {openMessageDialog} from "../../message/message.component";
+import {openJsonEditorDialog} from "../../json-editor/json-editor.component";
 
 type SubCadsField = "cads" | "partners" | "components";
 
@@ -420,13 +421,16 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			if (Array.isArray(cads)) {
 				cads = cads.map((v) => v.clone(true));
 				if (type === "partners") {
+					data.partners = cads;
 					cads.forEach((v) => data.addPartner(v));
 				}
 				if (type === "components") {
+					data.components.data = cads;
 					cads.forEach((v) => data.addComponent(v));
 				}
 				this.cad.data.updatePartners().updateComponents();
-				this.updateList();
+				await this.updateList();
+				this.cad.reset();
 			}
 		});
 	}
@@ -467,6 +471,20 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		copyToClipboard(JSON.stringify(data.export()));
 		this.snackBar.open("内容已复制");
 		console.log(data);
+	}
+
+	async setJson() {
+		let data = this.contextMenuCad.data.clone();
+		removeCadGongshi(data);
+		const ref = openJsonEditorDialog(this.dialog, {data: {json: data.export()}});
+		const result = await ref.afterClosed().toPromise();
+		if (result) {
+			data = new CadData(result);
+			addCadGongshi(data);
+			this.contextMenuCad.data.copy(data);
+			this.cad.reset();
+			this.updateList();
+		}
 	}
 
 	async deleteSelected() {

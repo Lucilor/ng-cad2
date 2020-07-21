@@ -25,6 +25,8 @@
     "@ngrx/store": "^9.2.0",
     "@seregpie/three.text-sprite": "^2.0.0",
     "@syncfusion/ej2-angular-inputs": "^18.2.45",
+    "ang-jsoneditor": "^1.9.4",
+    "jsoneditor": "^9.0.3",
     "lodash": "^4.17.19",
     "ngx-perfect-scrollbar": "^9.0.0",
     "pdfmake": "^0.1.66",

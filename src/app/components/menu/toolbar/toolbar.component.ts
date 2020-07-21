@@ -40,6 +40,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	lastCommand: {name: string; arguments: IArguments};
 	showDimensions = true;
 	showCadGongshis = true;
+	lastUrl: string = null;
 
 	constructor(injector: Injector, private route: ActivatedRoute) {
 		super(injector);
@@ -434,7 +435,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			this.store.dispatch<LoadingAction>({type: "remove loading", name: "printCad"});
 			const url = URL.createObjectURL(blob);
 			open(url);
-			URL.revokeObjectURL(url);
+			URL.revokeObjectURL(this.lastUrl);
+			this.lastUrl = url;
 		});
 	}
 

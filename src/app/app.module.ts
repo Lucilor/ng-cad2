@@ -24,6 +24,7 @@ import {MatSelectModule} from "@angular/material/select";
 
 import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
+import {NgJsonEditorModule} from "ang-jsoneditor";
 
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
@@ -48,6 +49,7 @@ import {OrderListComponent} from "./components/order-list/order-list.component";
 import {CadPointsComponent} from "./components/menu/cad-points/cad-points.component";
 import {CadAssembleComponent} from "./components/menu/cad-assemble/cad-assemble.component";
 import {TestComponent} from "./components/test/test.component";
+import {JsonEditorComponent} from "./components/json-editor/json-editor.component";
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -91,7 +93,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		OrderListComponent,
 		CadPointsComponent,
 		CadAssembleComponent,
-		TestComponent
+		TestComponent,
+		JsonEditorComponent
 	],
 	imports: [
 		BrowserModule,
@@ -123,7 +126,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		MatTabsModule,
 		MatSelectModule,
 		PerfectScrollbarModule,
-		ColorPickerModule
+		ColorPickerModule,
+		NgJsonEditorModule
 	],
 	providers: [
 		{provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 3000, verticalPosition: "top"}},

@@ -207,6 +207,10 @@ export class CadData {
 		return data;
 	}
 
+	copy(data: CadData) {
+		this.separate(this).merge(data.clone());
+	}
+
 	merge(data: CadData) {
 		this.layers = this.layers.concat(data.layers);
 		this.entities.merge(data.entities);

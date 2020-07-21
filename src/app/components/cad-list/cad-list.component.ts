@@ -81,7 +81,7 @@ export class CadListComponent implements AfterViewInit {
 					d.entities.mtext.forEach((v) => (v.visible = false));
 					const cad = new CadViewer(d, {width: this.width, height: this.height, padding: 10});
 					const checked = this.checkedItems.find((v) => v.id === d.id) ? true : false;
-					if (checked) {
+					if (checked && this.data.selectMode === "single") {
 						this.checkedIndex = i;
 					}
 					const img = cad.exportImage().src;
@@ -130,7 +130,7 @@ export class CadListComponent implements AfterViewInit {
 	}
 
 	syncCheckedItems() {
-		if (this.checkedIndex === -1) {
+		if (this.data.selectMode === "multiple") {
 			const toRemove = [];
 			let checkedNum = 0;
 			this.pageData.forEach((v) => {
@@ -148,7 +148,7 @@ export class CadListComponent implements AfterViewInit {
 			});
 			this.checkedItems = this.checkedItems.filter((v) => !toRemove.includes(v.id));
 			this.checkedInOtherPages = checkedNum < this.checkedItems.length;
-		} else {
+		} else if (this.data.selectMode === "single") {
 			this.checkedItems = [this.pageData[this.checkedIndex].data];
 		}
 	}

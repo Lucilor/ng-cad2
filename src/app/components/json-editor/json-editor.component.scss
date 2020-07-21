@@ -1,0 +1,11 @@
+:host {
+	width: calc(80vw - 48px);
+	display: block;
+}
+
+:host ::ng-deep json-editor,
+:host ::ng-deep json-editor .jsoneditor,
+:host ::ng-deep json-editor > div,
+:host ::ng-deep json-editor jsoneditor-outer {
+	height: 65vh;
+}
