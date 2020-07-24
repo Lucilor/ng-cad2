@@ -103,8 +103,13 @@ export class CadLineComponent implements OnInit {
 		return "";
 	}
 
-	setLineText(event: InputEvent, field: string) {
-		const value = (event.target as HTMLInputElement).value;
+	setLineText(event: InputEvent | MatSelectChange, field: string) {
+		let value: string;
+		if (event instanceof MatSelectChange) {
+			value = event.value;
+		} else {
+			value = (event.target as HTMLInputElement).value;
+		}
 		this.selected.forEach((e) => {
 			if (e instanceof CadLine) {
 				e[field] = value;

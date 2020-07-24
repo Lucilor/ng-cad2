@@ -144,6 +144,15 @@
 				<mat-option [value]="false">否</mat-option>
 			</mat-select>
 		</mat-form-field>
+		<mat-form-field>
+			<mat-label>变形方式</mat-label>
+			<mat-select [(ngModel)]="cad.bianxingfangshi" name="bianxingfangshi">
+				<mat-option [value]="'自由'">自由</mat-option>
+				<mat-option [value]="'高比例变形'">高比例变形</mat-option>
+				<mat-option [value]="'宽比例变形'">宽比例变形</mat-option>
+				<mat-option [value]="'宽高比例变形'">宽高比例变形</mat-option>
+			</mat-select>
+		</mat-form-field>
 	</form>
 </div>
 <app-cad-points></app-cad-points>

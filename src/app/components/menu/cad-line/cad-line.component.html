@@ -99,4 +99,14 @@
 			/>
 		</mat-form-field>
 	</div>
+	<div class="form-item nextZhewan">
+		<mat-form-field>
+			<mat-label>下一个折弯标线</mat-label>
+			<mat-select name="nextZhewan" [ngModel]="getLineText('nextZhewan')" (selectionChange)="setLineText($event, 'nextZhewan')">
+				<mat-option value="自动">自动</mat-option>
+				<mat-option value="无">无</mat-option>
+				<mat-option value="1mm,6mm">1mm,6mm</mat-option>
+			</mat-select>
+		</mat-form-field>
+	</div>
 </form>
