@@ -8,6 +8,7 @@ import {MatInputModule} from "@angular/material/input";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
+import {MatSelectModule} from "@angular/material/select";
 
 describe("CadLineComponent", () => {
 	let component: CadLineComponent;
@@ -23,7 +24,8 @@ describe("CadLineComponent", () => {
 				FormsModule,
 				ReactiveFormsModule,
 				MatFormFieldModule,
-				ColorPickerModule
+				ColorPickerModule,
+				MatSelectModule
 			]
 		}).compileComponents();
 	}));
