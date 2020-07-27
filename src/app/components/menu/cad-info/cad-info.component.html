@@ -153,6 +153,13 @@
 				<mat-option [value]="'宽高比例变形'">宽高比例变形</mat-option>
 			</mat-select>
 		</mat-form-field>
+		<mat-form-field>
+			<mat-label>板材纹理方向</mat-label>
+			<mat-select [(ngModel)]="cad.bancaiwenlifangxiang" name="bancaiwenlifangxiang">
+				<mat-option [value]="'垂直'">垂直</mat-option>
+				<mat-option [value]="'水平'">水平</mat-option>
+			</mat-select>
+		</mat-form-field>
 	</form>
 </div>
 <app-cad-points></app-cad-points>
