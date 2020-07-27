@@ -578,7 +578,7 @@ export class CadData {
 		this.components.data.sort((a, b) => {
 			const rect1 = a.getBounds();
 			const rect2 = b.getBounds();
-			return rect1.x - rect2.x;
+			return rect1.x - rect2.x + rect2.y - rect1.y;
 		});
 	}
 

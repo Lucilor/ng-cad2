@@ -122,7 +122,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		return node;
 	}
 
-	private async splitCad({key}: KeyboardEvent, id = this._prevId) {
+	private async splitCad({key}: KeyboardEvent) {
 		if (key !== "Enter") {
 			return;
 		}
@@ -131,11 +131,14 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			return;
 		}
 		const cad = this.cad;
+		const entities = cad.selectedEntities;
+		if (entities.length < 1) {
+			return;
+		}
 		const data = cad.data.findChild(this._prevId);
 		const cloneData = data.clone(true);
 		const collection = extra.collection as Collection;
 		const split = new CadData();
-		const entities = cad.selectedEntities;
 		split.entities = entities.clone(true);
 		const node = await this._getCadNode(split);
 		this.cads.push(node);
