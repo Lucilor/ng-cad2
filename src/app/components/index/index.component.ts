@@ -60,6 +60,20 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(CadAssembleComponent) cadAssemble: CadAssembleComponent;
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
 
+	// shortcuts for testing
+	get data() {
+		return this.cad.data;
+	}
+	get data0() {
+		return this.cad.data.components.data[0];
+	}
+	get dataEx() {
+		return this.data.export();
+	}
+	get data0Ex() {
+		return this.data0.export();
+	}
+
 	constructor(injector: Injector) {
 		super(injector);
 	}

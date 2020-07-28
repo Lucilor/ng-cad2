@@ -123,7 +123,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		cad.reset(null, true);
 		this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
-		// this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		this.afterOpenCad.emit();
 	}
 

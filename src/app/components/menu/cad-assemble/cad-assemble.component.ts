@@ -58,11 +58,12 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 			const {ids, lines, names} = this;
 			const found = component.findEntity(entity.id);
 			if (found) {
-				const prev = ids.findIndex((id) => id === component.id || id === component.id);
+				const prev = ids.findIndex((id) => id === component.id);
 				const {space, position} = this.options;
 				if (entity.selected) {
 					if (position === "absolute") {
 						if (prev > -1) {
+							cad.data.findEntity(lines[prev]).selected = false;
 							lines[prev] = found.originalId;
 						} else {
 							ids.push(component.id);

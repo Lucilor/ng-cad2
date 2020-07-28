@@ -15,7 +15,7 @@ export class CadLine extends CadEntity {
 	gongshi: string;
 	guanlianbianhuagongshi: string;
 	kongwei: string;
-	nextZhewan: "自动" | "无" | "1mm,6mm";
+	nextZhewan: "自动" | "无" | "1mm" | "6mm";
 
 	get valid() {
 		const {start, end} = this;
