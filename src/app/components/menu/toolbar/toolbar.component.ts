@@ -66,6 +66,10 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		if (cachedData && vid) {
 			this.collection = "order";
+			// const {showLineLength, padding, showAll, suofang} = cachedData;
+			// this.cad.config.showLineLength = showLineLength;
+			// this.cad.config.padding = padding;
+			// console.log(showLineLength);
 			this.afterOpen([new CadData(cachedData)]);
 		} else if (location.search) {
 			this.route.queryParams.pipe(takeUntil(this.destroyed)).subscribe(async (params) => {
@@ -393,6 +397,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	 * 	  =(794 × 1123)px² (96dpi)
 	 */
 	async printCad() {
+		this.store.dispatch<LoadingAction>({type: "add loading", name: "printCad"});
+		await timeout(100);
 		const data = this.cad.data.clone();
 		removeCadGongshi(data);
 		let [dpiX, dpiY] = getDPI();
@@ -407,7 +413,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		const scale = Math.sqrt(scaleX * scaleY);
 		data.getAllEntities().forEach((e) => {
 			if (e.linewidth >= 0.3) {
-				e.linewidth *= 2;
+				e.linewidth *= 3;
 			}
 			e.color.set(0);
 			if (e instanceof CadDimension) {
@@ -426,10 +432,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		});
 		document.body.appendChild(cad.dom);
 		cad.render();
-		await timeout(100);
 		const src = cad.exportImage().src;
 		cad.destroy();
-		this.store.dispatch<LoadingAction>({type: "add loading", name: "printCad"});
 		const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
 		pdf.getBlob((blob) => {
 			this.store.dispatch<LoadingAction>({type: "remove loading", name: "printCad"});

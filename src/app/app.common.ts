@@ -103,3 +103,14 @@ export function getCollection() {
 	// tslint:disable-next-line: no-string-literal
 	return window["app"].toolbar.collection as Collection;
 }
+
+const timeMap = {};
+export function getInterval(field: string) {
+	const now = performance.now();
+	if (timeMap[field] === undefined) {
+		timeMap[field] = now;
+	}
+	const interval = now - timeMap[field];
+	timeMap[field] = now;
+	return interval;
+}

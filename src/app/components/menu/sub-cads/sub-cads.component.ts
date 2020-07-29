@@ -11,7 +11,7 @@ import {MenuComponent} from "../menu.component";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
 import {takeUntil} from "rxjs/operators";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {Vector2} from "three";
+import {Vector2, Vector3} from "three";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {getCurrCadsData} from "@src/app/store/selectors";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -72,15 +72,27 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		let lastPointer: Vector2 = null;
 		const cad = this.cad;
 		const controls = cad.controls;
-		controls.on("dragstart", ({clientX, clientY, shiftKey, button}) => {
+		let entitiesToMove: CadEntities;
+		let entitiesNotToMove: CadEntities;
+		controls.on("dragstart", async ({clientX, clientY, shiftKey, button}) => {
 			if (controls.config.dragAxis === "" && (button === 1 || (shiftKey && button === 0))) {
 				lastPointer = new Vector2(clientX, clientY);
+				entitiesToMove = new CadEntities();
+				entitiesNotToMove = new CadEntities();
+				const currCadsData = await this.getCurrCadsData();
+				currCadsData.forEach((v) => entitiesToMove.merge(v.getAllEntities()));
+				const ids = [];
+				entitiesToMove.forEach((e) => ids.push(e.id));
+				cad.data.getAllEntities().forEach((e) => {
+					if (!ids.includes(e.id)) {
+						entitiesNotToMove.add(e);
+					}
+				});
 			}
 		});
 		controls.on("drag", async ({clientX, clientY}) => {
 			if (lastPointer) {
 				const currCads = await this.getCurrCads();
-				const currCadsData = getCurrCadsData(this.cad.data, currCads);
 				const {name} = await this.getCadStatus();
 				const pointer = new Vector2(clientX, clientY);
 				const translate = lastPointer.sub(pointer).divideScalar(cad.scale);
@@ -94,10 +106,18 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 						const data = cad.data.findChildren(currCads.cads);
 						data.forEach((v) => v.transform(new CadTransformation({translate})));
 					}
+					cad.render();
 				} else {
-					currCadsData.forEach((v) => v.transform(new CadTransformation({translate})));
+					if (entitiesToMove.length < entitiesNotToMove.length) {
+						entitiesToMove.transform(new CadTransformation({translate}));
+						cad.render(null, entitiesToMove);
+					} else {
+						translate.multiplyScalar(-1);
+						cad.position.add(new Vector3(translate.x, translate.y, 0));
+						entitiesNotToMove.transform(new CadTransformation({translate}));
+						cad.render(null, entitiesNotToMove);
+					}
 				}
-				cad.render();
 				lastPointer.copy(pointer);
 			}
 		});
