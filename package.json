@@ -20,7 +20,7 @@
     "@angular/material": "^10.1.1",
     "@angular/platform-browser": "~10.0.5",
     "@angular/platform-browser-dynamic": "~10.0.5",
-    "@angular/router": "~10.0.5",
+    "@angular/router": "~10.0.6",
     "@lucilor/utils": "^1.0.22",
     "@ngrx/store": "^9.2.0",
     "@seregpie/three.text-sprite": "^2.0.0",
