@@ -57,19 +57,19 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		});
 		const {ids, collection, dataService} = this;
 		let cachedData: any = null;
+		let params: any = null;
 		let vid: string = null;
 		try {
 			cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data"));
+			params = JSON.parse(sessionStorage.getItem("params"));
 			vid = sessionStorage.getItem("vid");
 		} catch (error) {
 			console.warn(error);
 		}
 		if (cachedData && vid) {
 			this.collection = "order";
-			// const {showLineLength, padding, showAll, suofang} = cachedData;
-			// this.cad.config.showLineLength = showLineLength;
-			// this.cad.config.padding = padding;
-			// console.log(showLineLength);
+			const {showLineLength} = params;
+			this.cad.config.showLineLength = showLineLength;
 			this.afterOpen([new CadData(cachedData)]);
 		} else if (location.search) {
 			this.route.queryParams.pipe(takeUntil(this.destroyed)).subscribe(async (params) => {
