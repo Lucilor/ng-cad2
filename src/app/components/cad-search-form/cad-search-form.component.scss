@@ -1,0 +1,26 @@
+:host {
+	width: calc(80vw - 48px);
+	height: calc(75vh - 48px);
+	display: block;
+}
+
+.mat-form-field {
+	display: block;
+	width: 100%;
+}
+
+.mat-card {
+	margin: 5px;
+}
+
+.mat-card-title {
+	transform: translateX(-16px);
+}
+
+perfect-scrollbar {
+	height: calc(100% - 46px);
+}
+
+.actions {
+    text-align: center;
+}

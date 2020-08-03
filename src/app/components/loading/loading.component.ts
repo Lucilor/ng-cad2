@@ -17,14 +17,14 @@ export class LoadingComponent implements OnInit {
 	timeout: any;
 	progress: number;
 
-	constructor(private store: Store<State>) {
-		this.store.select(getLoading).subscribe(loading => {
+	constructor(private store: Store<State>) {}
+
+	ngOnInit() {
+		this.store.select(getLoading).subscribe((loading) => {
 			this.visible = loading.list.size > 0;
 			this.progress = loading.progress;
 		});
 	}
-
-	ngOnInit() {}
 
 	getScaleX() {
 		return `scaleX(${this.progress})`;

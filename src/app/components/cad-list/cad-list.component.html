@@ -2,11 +2,14 @@
 	<button hidden></button>
 	<mat-form-field>
 		<mat-label>搜索CAD</mat-label>
-		<input name="search" matInput type="search" (keydown)="searchKeydown($event)" [(ngModel)]="searchInput" />
+		<input name="search" matInput type="search" (keydown)="searchKeydown($event)" [(ngModel)]="searchNameInput" />
 		<mat-icon class="search-button" type="submit" matSuffix (click)="search()">search</mat-icon>
 	</mat-form-field>
-	<button mat-raised-button color="primary" (click)="search(true, 'and')" *ngIf="data.selectMode !== 'table'">父级搜索</button>
-	<button mat-raised-button color="primary" (click)="search(true, 'or')" *ngIf="data.selectMode !== 'table'">父级搜索2</button>
+	<ng-container *ngIf="data.selectMode !== 'table'">
+		<button mat-raised-button color="primary" (click)="search(true, 'and')">父级搜索</button>
+		<button mat-raised-button color="primary" (click)="search(true, 'or')">父级搜索2</button>
+		<button mat-raised-button color="primary" (click)="advancedSearch()">高级搜索</button>
+	</ng-container>
 	<mat-checkbox
 		[checked]="allChecked()"
 		[indeterminate]="partiallyChecked()"

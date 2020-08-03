@@ -1,0 +1,25 @@
+<perfect-scrollbar>
+	<ng-container *ngFor="let group of data">
+		<mat-card>
+			<mat-card-header>
+				<mat-card-title>
+					{{ group.title }}
+				</mat-card-title>
+			</mat-card-header>
+			<mat-card-content>
+				<mat-form-field *ngFor="let item of group.items">
+					<mat-label>{{ item.label }}</mat-label>
+					<mat-select [(ngModel)]="form[item.label]" multiple>
+						<mat-option *ngFor="let option of item.options" [value]="option.label">{{ option.label }}</mat-option>
+					</mat-select>
+				</mat-form-field>
+				<mat-icon *ngIf="group.title === '自由选择'" color="primary" (click)="addOption()">add_circle</mat-icon>
+			</mat-card-content>
+		</mat-card>
+	</ng-container>
+</perfect-scrollbar>
+<div class="btn-group actions">
+	<button mat-raised-button (click)="submit()">提交</button>
+	<button mat-raised-button (click)="cancle()">取消</button>
+	<button mat-raised-button (click)="reset()">重置</button>
+</div>

@@ -18,6 +18,15 @@ export interface Order {
 	s_designPic: string;
 }
 
+export type CadSearchData = {
+	title: string;
+	items: {
+		value: string;
+		label: string;
+		options: {value: string; label: string}[];
+	}[];
+}[];
+
 @Injectable({
 	providedIn: "root"
 })
@@ -185,7 +194,7 @@ export class CadDataService {
 		collection: Collection,
 		page: number,
 		limit: number,
-		search?: string,
+		search?: {[key: string]: string},
 		options?: CadOption[],
 		optionsMatchType: "and" | "or" = "and",
 		qiliao = false
@@ -200,7 +209,7 @@ export class CadDataService {
 		return {data: result, count: response.count};
 	}
 
-	async getCadListPage(collection: Collection, page: number, limit: number, search?: string) {
+	async getCadListPage(collection: Collection, page: number, limit: number, search?: {[key: string]: string}) {
 		const postData = {page, limit, search, collection};
 		const response = await this._request("peijian/cad/getCadList", "getCadDataPage", "POST", postData);
 		if (!response) {
@@ -321,6 +330,22 @@ export class CadDataService {
 		const response = await this._request("peijian/cad/uploadDxf", "uploadDxf", "POST", {dxf});
 		if (response) {
 			return new CadData(response.data);
+		}
+		return null;
+	}
+
+	async getCadSearchForm() {
+		const response = await this._request("peijian/cad/getSearchForm", "getCadSearchForm", "GET");
+		if (response) {
+			return response.data as CadSearchData;
+		}
+		return [];
+	}
+
+	async getCadSearchOptions(table: string) {
+		const response = await this._request("peijian/cad/getSearchOptions", "getCadSearchOptions", "POST", {table});
+		if (response) {
+			return response.data as CadSearchData[0]["items"][0];
 		}
 		return null;
 	}

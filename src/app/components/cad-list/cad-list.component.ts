@@ -5,6 +5,7 @@ import {CadData, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadDataService} from "@services/cad-data.service";
 import {timeout, Collection} from "@src/app/app.common";
+import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 
 interface CadListData {
 	selectMode: "single" | "multiple" | "table";
@@ -28,8 +29,8 @@ export class CadListComponent implements AfterViewInit {
 	displayedColumns = ["select", "mingzi", "wenjian", "create_time", "modify_time"];
 	width = 300;
 	height = 150;
-	searchInput = "";
-	searchValue = "";
+	searchForm: {[key: string]: string} = {名字: ""};
+	searchNameInput = "";
 	checkedIndex = -1;
 	checkedItems: CadData[] = [];
 	checkedColumns: any[] = [];
@@ -38,9 +39,9 @@ export class CadListComponent implements AfterViewInit {
 
 	constructor(
 		public dialogRef: MatDialogRef<CadListComponent, CadData[]>,
-		@Inject(MAT_DIALOG_DATA)
-		public data: CadListData,
-		private dataService: CadDataService
+		@Inject(MAT_DIALOG_DATA) public data: CadListData,
+		private dataService: CadDataService,
+		private dialog: MatDialog
 	) {}
 
 	async ngAfterViewInit() {
@@ -49,6 +50,9 @@ export class CadListComponent implements AfterViewInit {
 			this.checkedItems = this.data.checkedItems;
 		}
 		this.data.qiliao = this.data.qiliao === true;
+		if (!Array.isArray(this.data.options)) {
+			this.data.options = [];
+		}
 		this.getData(1);
 	}
 
@@ -57,20 +61,16 @@ export class CadListComponent implements AfterViewInit {
 		this.getData(event.pageIndex + 1);
 	}
 
-	async getData(page: number, withOption = false, matchType: "and" | "or" = "and") {
-		let options: CadOption[] = [];
-		if (withOption) {
-			options = this.data.options || [];
-		}
+	async getData(page: number, options: CadOption[] = [], matchType: "and" | "or" = "and") {
 		const limit = this.paginator.pageSize;
 		const collection = this.data.collection;
 		if (this.data.selectMode === "table") {
-			const data = await this.dataService.getCadListPage(collection, page, limit, this.searchValue);
+			const data = await this.dataService.getCadListPage(collection, page, limit, this.searchForm);
 			this.length = data.count;
 			this.pageData.length = 0;
 			this.tableData = data.data;
 		} else {
-			const search = this.searchValue;
+			const search = this.searchForm;
 			const qiliao = this.data.qiliao;
 			const data = await this.dataService.getCadDataPage(collection, page, limit, search, options, matchType, qiliao);
 			this.length = data.count;
@@ -87,7 +87,7 @@ export class CadListComponent implements AfterViewInit {
 					const img = cad.exportImage().src;
 					this.pageData.push({data: cad.data, img, checked});
 					cad.destroy();
-					// (trying to) prevent WebGL contexts lost
+					// *(trying to) prevent WebGL contexts lost
 					await timeout(0);
 				} catch (e) {
 					console.warn(e);
@@ -118,9 +118,19 @@ export class CadListComponent implements AfterViewInit {
 	}
 
 	search(withOption = false, matchType: "and" | "or" = "and") {
-		this.searchValue = this.searchInput;
+		this.searchForm.名字 = this.searchNameInput;
 		this.paginator.pageIndex = 0;
-		this.getData(this.paginator.pageIndex + 1, withOption, matchType);
+		const options = withOption ? this.data.options : [];
+		this.getData(this.paginator.pageIndex + 1, options, matchType);
+	}
+
+	async advancedSearch() {
+		const ref = openCadSearchFormDialog(this.dialog, {});
+		const result = await ref.afterClosed().toPromise();
+		if (result) {
+			this.paginator.pageIndex = 0;
+			this.getData(this.paginator.pageIndex + 1, result);
+		}
 	}
 
 	searchKeydown(event: KeyboardEvent) {
