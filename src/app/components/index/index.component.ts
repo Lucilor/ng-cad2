@@ -80,9 +80,9 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	ngOnInit() {
 		super.ngOnInit();
-		this.dataService.getSampleFormulas().then((result) => {
-			this.formulas = result;
-		});
+		// this.dataService.getSampleFormulas().then((result) => {
+		// 	this.formulas = result;
+		// });
 		this.cad = new CadViewer(new CadData(), {
 			width: innerWidth,
 			height: innerHeight,

@@ -127,10 +127,10 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/cdk@^10.1.1":
-  version "10.1.1"
-  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-10.1.1.tgz#aec95fb4d1143d0b82a41c34622453ffbae42872"
-  integrity sha512-Gt9TmqSVxPTmuNkApEuvva25U60WW152r9+vL7ViFgG+297RE7tzUU8ffBwMXZMdtXnrhLKqLv6ZaBhihMM2Kw==
+"@angular/cdk@^10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-10.1.2.tgz#0c16ad767be4daaeb13d16652ba66bcfd79d5e1e"
+  integrity sha512-nK2+UppQvD8wz4Ur0MAa9mVKa1rZsJLYmJtZzQ0tRNFdgdhCQZe/PIYxvrR0uByoe5lYsjtKESjltb9PxZE08g==
   dependencies:
     tslib "^2.0.0"
   optionalDependencies:
@@ -219,10 +219,10 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/material@^10.1.1":
-  version "10.1.1"
-  resolved "https://registry.yarnpkg.com/@angular/material/-/material-10.1.1.tgz#5c98bb727bccb8b8656b08ca0259d8d1115062ce"
-  integrity sha512-D9VXwW2ieDUvkQD1VVEX6bxIdCaK6uA6jHpMU2ZLTIQ/EzNRDRwmJbr4rqPhxtHmLMXF+66EBXEjgyV7l91h5g==
+"@angular/material@^10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@angular/material/-/material-10.1.2.tgz#92efd28099869d7a16acb9d7f49c3a3d396ddba9"
+  integrity sha512-iNSfkPdRfXPW+VJQ66qKQvmR5FCQY/ZP1Vz+bi+fYsdNrT/yYEA8UT9xcAMw5C14i4d86zpIk3hSC0hz+9vQtQ==
   dependencies:
     tslib "^2.0.0"
 
@@ -6346,10 +6346,10 @@ next-tick@~1.0.0:
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.0.0.tgz#ca86d1fe8828169b0120208e3dc8424b9db8342c"
   integrity sha1-yobR/ogoFpsBICCOPchCS524NCw=
 
-ngx-perfect-scrollbar@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/ngx-perfect-scrollbar/-/ngx-perfect-scrollbar-10.0.0.tgz#5ca1a6d366b652960a6935156a2fe4cf8091c9d2"
-  integrity sha512-vd3JDzdB5RWKNfdSCQMHUnTUaJwUFd5Fwf0pFZt2Hnt5yuxZq12iB8eed7FWGl2mOJ2CTqm+4o0es2ndDrQypA==
+ngx-perfect-scrollbar@^10.0.1:
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/ngx-perfect-scrollbar/-/ngx-perfect-scrollbar-10.0.1.tgz#02e4a8b32413f790c7d0b74e80d9c9f2a719fb0c"
+  integrity sha512-01Li+Cx1OwNQ3WPHeavImS+p1ifK2UEdKly6JkdVw/s7rMxbjXkraOcj7FH+I141lpvxCmNlsWS5iiIA5GAnDg==
   dependencies:
     perfect-scrollbar "1.5.0"
     resize-observer-polyfill "^1.5.0"
