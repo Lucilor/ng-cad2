@@ -160,6 +160,14 @@
 				<mat-option [value]="'水平'">水平</mat-option>
 			</mat-select>
 		</mat-form-field>
+		<mat-form-field>
+			<mat-label>开料排版方式</mat-label>
+			<mat-select [(ngModel)]="cad.kailiaopaibanfangshi" name="kailiaopaibanfangshi">
+				<mat-option [value]="'自动排版'">自动排版</mat-option>
+				<mat-option [value]="'不排版'">不排版</mat-option>
+				<mat-option [value]="'必须排版'">必须排版</mat-option>
+			</mat-select>
+		</mat-form-field>
 	</form>
 </div>
 <app-cad-points></app-cad-points>
