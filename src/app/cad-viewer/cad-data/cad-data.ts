@@ -384,6 +384,15 @@ export class CadData {
 			});
 		}
 		this.entities.dimension = uniqWith(this.entities.dimension, (a, b) => a.equals(b));
+		const tmp = this.entities.dimension;
+		this.entities.dimension = [];
+		const rect = this.getBounds();
+		this.entities.dimension.forEach((e) => {
+			if (e.mingzi === "宽度标注") {
+				e.distance2 = rect.y + rect.height / 2 + 40;
+			}
+		});
+		this.entities.dimension = tmp;
 		this.partners.forEach((v) => v.updateDimensions(this.entities.dimension));
 		this.components.data.forEach((v) => v.updateDimensions(this.entities.dimension));
 		return this;
@@ -672,7 +681,7 @@ export class CadData {
 		});
 	}
 
-	getDimensionPoints({entity1, entity2, distance, axis}: CadDimension) {
+	getDimensionPoints({entity1, entity2, distance, axis, distance2}: CadDimension) {
 		const getPoint = ({id, location}: CadDimension["entity1"]) => {
 			const e = this.findEntity(id);
 			if (e instanceof CadLine) {
@@ -712,6 +721,9 @@ export class CadData {
 				[p3, p4] = [p4, p3];
 				[p1, p2] = [p2, p1];
 			}
+		}
+		if (distance2 !== undefined) {
+			[p3, p4].forEach((p) => (p.y = distance2));
 		}
 		return [p1, p2, p3, p4];
 	}

@@ -18,6 +18,8 @@
 	<button mat-menu-item [matMenuTriggerFor]="transform">变形</button>
 	<button mat-menu-item (click)="clickBtn('g')">装配<span class="shortcut">Ctrl + G</span></button>
 	<button mat-menu-item (click)="clickBtn('h')">选取<span class="shortcut">Ctrl + H</span></button>
+	<button mat-menu-item (click)="fillet(0)">连接线段(直角)</button>
+	<button mat-menu-item (click)="fillet()">连接线段(圆角)</button>
 </mat-menu>
 <mat-menu #transform="matMenu">
 	<button mat-menu-item (click)="flip($event, true, false)">垂直翻转</button>

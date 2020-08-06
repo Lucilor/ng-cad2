@@ -1,7 +1,7 @@
 import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CurrCadsAction, CadStatusAction, LoadingAction} from "@src/app/store/actions";
-import {RSAEncrypt} from "@lucilor/utils";
+import {RSAEncrypt, Line, Point} from "@lucilor/utils";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
@@ -14,6 +14,9 @@ import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {createPdf} from "pdfmake/build/pdfmake";
+import {Line3, MathUtils, Vector2} from "three";
+import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
+import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 
 @Component({
 	selector: "app-toolbar",
@@ -442,6 +445,83 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			URL.revokeObjectURL(this.lastUrl);
 			this.lastUrl = url;
 		});
+	}
+
+	async fillet(radius?: number) {
+		const lines = this.cad.selectedEntities.line;
+		if (lines.length !== 2) {
+			openMessageDialog(this.dialog, {data: {type: "alert", content: "请先选择且只选择两条线段"}});
+			return;
+		}
+		const {start: start1, end: end1} = lines[0];
+		const {start: start2, end: end2} = lines[1];
+		const p1 = new Point(start1.x, start1.y);
+		const p2 = new Point(end1.x, end1.y);
+		const p3 = new Point(start2.x, start2.y);
+		const p4 = new Point(end2.x, end2.y);
+		const l1 = new Line(p1.clone(), p2.clone());
+		const l2 = new Line(p3.clone(), p4.clone());
+		const point = l1.intersect(l2, true);
+		if (!point) {
+			openMessageDialog(this.dialog, {data: {type: "alert", content: "两条线平行"}});
+			return;
+		}
+		if (radius === undefined) {
+			const ref = openMessageDialog(this.dialog, {
+				data: {type: "prompt", content: "请输入圆角半径", promptData: {type: "number", value: "10"}}
+			});
+			radius = Number(await ref.afterClosed().toPromise());
+			if (!(radius > 0)) {
+				openMessageDialog(this.dialog, {data: {type: "alert", content: "请输入大于零的数字"}});
+				return;
+			}
+		}
+		l1.start.set(point);
+		l2.start.set(point);
+		if (p1.distance(point) > p2.distance(point)) {
+			l1.end.set(p1);
+		}
+		if (p3.distance(point) > p4.distance(point)) {
+			l2.end.set(p3);
+		}
+		const theta1 = l1.theta;
+		const theta2 = l2.theta;
+		const theta3 = Math.abs(theta2 - theta1) / 2;
+		let theta4 = (theta1 + theta2) / 2;
+		let clockwise = theta1 > theta2;
+		if (theta3 > Math.PI / 2) {
+			theta4 -= Math.PI;
+			clockwise = !clockwise;
+		}
+		const d1 = Math.abs(radius / Math.tan(theta3));
+		const d2 = Math.abs(radius / Math.sin(theta4));
+		console.log(MathUtils.radToDeg(theta1), MathUtils.radToDeg(theta2));
+		const start = new Point(Math.cos(theta1), Math.sin(theta1)).multiply(d1).add(point);
+		const end = new Point(Math.cos(theta2), Math.sin(theta2)).multiply(d1).add(point);
+		if (!l1.containsPoint(start) || !l2.containsPoint(end)) {
+			openMessageDialog(this.dialog, {data: {type: "alert", content: "半径过大"}});
+			return;
+		}
+		const center = new Point(Math.cos(theta4), Math.sin(theta4)).multiply(d2).add(point);
+		if (p1.distance(point) < p2.distance(point)) {
+			lines[0].start.set(start.x, start.y);
+		} else {
+			lines[0].end.set(start.x, start.y);
+		}
+		if (p3.distance(point) < p4.distance(point)) {
+			lines[1].start.set(end.x, end.y);
+		} else {
+			lines[1].end.set(end.x, end.y);
+		}
+		if (radius > 0) {
+			const cadArc = new CadArc({center: center.toArray(), radius, color: lines[0].color});
+			cadArc.start_angle = MathUtils.radToDeg(new Line(start, point).theta);
+			cadArc.end_angle = MathUtils.radToDeg(new Line(end, point).theta);
+			cadArc.clockwise = clockwise;
+			const data = (await this.getCurrCadsData())[0];
+			data.entities.add(cadArc);
+		}
+		this.cad.unselectAll();
 	}
 
 	saveStatus() {

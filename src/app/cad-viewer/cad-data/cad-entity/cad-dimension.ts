@@ -17,13 +17,15 @@ export class CadDimension extends CadEntity {
 		location: "start" | "end" | "center";
 	};
 	distance: number;
+	distance2?: number;
 	cad1: string;
 	cad2: string;
 	mingzi: string;
 	qujian: string;
 	object?: Line2;
 
-	constructor(data: any = {type: CAD_TYPES.dimension}, layers: CadLayer[] = [], resetId = false) {
+	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
+		data.type = CAD_TYPES.dimension;
 		super(data, layers, resetId);
 		this.font_size = data.font_size || 16;
 		if (this.font_size === 2.5) {
