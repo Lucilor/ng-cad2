@@ -422,7 +422,6 @@ export class CadViewerControls extends EventEmitter {
 			const right = Math.max(point1.x, point2.x);
 			const top = Math.max(point1.y, point2.y);
 			const bottom = Math.min(point1.y, point2.y);
-			offset.divideScalar(cad.scale);
 			if (entity.axis === "x") {
 				if (p.x >= left && p.x <= right) {
 					entity.distance += offset.y;
