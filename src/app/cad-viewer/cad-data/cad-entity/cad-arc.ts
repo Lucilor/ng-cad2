@@ -21,8 +21,8 @@ export class CadArc extends CadCircle {
 	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
-		data.type = CAD_TYPES.arc;
 		super(data, layers, resetId);
+		this.type = "ARC";
 		this.start_angle = data.start_angle ?? 0;
 		this.end_angle = data.end_angle ?? 0;
 		this.clockwise = data.clockwise ?? false;

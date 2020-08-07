@@ -8,7 +8,7 @@ import {lineweight2linewidth, linewidth2lineweight} from "../utils";
 export abstract class CadEntity {
 	id: string;
 	originalId: string;
-	type: keyof CadTypes;
+	type: string;
 	layer: string;
 	color: Color;
 	linewidth: number;
