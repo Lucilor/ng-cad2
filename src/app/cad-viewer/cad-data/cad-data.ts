@@ -6,7 +6,7 @@ import {CadTransformation} from "./cad-transformation";
 import {CadLine} from "./cad-entity/cad-line";
 import {getVectorFromArray, isLinesParallel, mergeArray, separateArray, ExpressionsParser, Expressions} from "./utils";
 import {CadCircle} from "./cad-entity/cad-circle";
-import {CadDimension} from "./cad-entity/cad-dimension";
+import {CadDimension, CadDimensionEntity} from "./cad-entity/cad-dimension";
 import {CadArc} from "./cad-entity/cad-arc";
 
 export class CadData {
@@ -682,17 +682,28 @@ export class CadData {
 	}
 
 	getDimensionPoints({entity1, entity2, distance, axis, distance2}: CadDimension) {
-		const getPoint = ({id, location}: CadDimension["entity1"]) => {
+		const getPoint = ({id, location}: CadDimensionEntity) => {
 			const e = this.findEntity(id);
 			if (e instanceof CadLine) {
+				const {start, end, middle} = e.clone();
 				if (location === "start") {
-					return e.start;
-				}
-				if (location === "end") {
-					return e.end;
-				}
-				if (location === "center") {
-					return e.middle;
+					return start;
+				} else if (location === "end") {
+					return end;
+				} else if (location === "center") {
+					return middle;
+				} else if (location === "min") {
+					if (axis === "x") {
+						return start.y < end.y ? start : end;
+					} else if (axis === "y") {
+						return start.x < end.x ? start : end;
+					}
+				} else if (location === "max") {
+					if (axis === "x") {
+						return start.y > end.y ? start : end;
+					} else if (axis === "y") {
+						return start.x > end.x ? start : end;
+					}
 				}
 			}
 			return null;
