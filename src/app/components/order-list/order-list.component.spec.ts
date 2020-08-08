@@ -10,6 +10,7 @@ import {ImageComponent} from "../image/image.component";
 import {MatButtonModule} from "@angular/material/button";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatTableModule} from "@angular/material/table";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("OrderListComponent", () => {
 	let component: OrderListComponent;
@@ -18,7 +19,15 @@ describe("OrderListComponent", () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [OrderListComponent, ImageComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, MatButtonModule, MatPaginatorModule, MatTableModule],
+			imports: [
+				HttpClientTestingModule,
+				MatDialogModule,
+				MatSnackBarModule,
+				MatButtonModule,
+				MatPaginatorModule,
+				MatTableModule,
+				RouterTestingModule
+			],
 			providers: [provideMockStore({initialState}), {provide: MatDialogRef, useValue: {}}, {provide: MAT_DIALOG_DATA, useValue: {}}]
 		}).compileComponents();
 	}));

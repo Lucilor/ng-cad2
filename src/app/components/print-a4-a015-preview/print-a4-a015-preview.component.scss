@@ -1,0 +1,73 @@
+.page {
+	width: 210mm;
+	height: 1120px;
+	padding: 26px 24px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-content: flex-start;
+	font-family: 微软雅黑;
+	box-sizing: border-box;
+	page-break-after: always;
+
+	.card {
+		width: 178px;
+		height: 142px;
+		position: relative;
+		// margin: 5px;
+
+		> * {
+			position: absolute;
+		}
+
+		.title {
+			font-size: 12px;
+			text-align: center;
+			font-weight: 700;
+			width: 100%;
+			top: 9px;
+		}
+
+		.code {
+			top: 1px;
+			left: 8px;
+			font-size: 18px;
+			font-weight: 700;
+		}
+
+		.name {
+			position: absolute;
+			top: 70px;
+			right: 11px;
+			font-size: 12px;
+			width: 60px;
+		}
+
+		.zhankai {
+			bottom: 9px;
+			left: 12px;
+			font-size: 14px;
+			font-weight: 600;
+		}
+
+		.cad-preview {
+			width: 92px;
+			height: 92px;
+			left: 10px;
+			top: 22px;
+		}
+
+		.qrcode {
+			width: 55px;
+			height: 55px;
+			right: 16px;
+			top: 19px;
+		}
+	}
+}
+
+.menu {
+	position: fixed;
+	right: 30px;
+	bottom: 30px;
+}

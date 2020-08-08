@@ -14,6 +14,7 @@ import {MatButtonModule} from "@angular/material/button";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
 import {FormsModule} from "@angular/forms";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("CadMtextComponent", () => {
 	let component: CadMtextComponent;
@@ -31,7 +32,8 @@ describe("CadMtextComponent", () => {
 				MatButtonModule,
 				BrowserAnimationsModule,
 				ColorPickerModule,
-				FormsModule
+				FormsModule,
+				RouterTestingModule
 			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();

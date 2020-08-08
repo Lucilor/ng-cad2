@@ -18,7 +18,8 @@ export const local = new LocalStorage(projectName);
 export const paths = {
 	index: "index",
 	"print-cad": "print-cad",
-	test: "test"
+	test: "test",
+	printA4A015Preview: "printA4A015Preview"
 };
 
 export interface Response {

@@ -6,12 +6,14 @@ import {PathResolveService} from "./services/path-resolve.service";
 import {IndexComponent} from "./components/index/index.component";
 import {PrintCadComponent} from "./components/print-cad/print-cad.component";
 import {TestComponent} from "./components/test/test.component";
+import {PrintA4A015PreviewComponent} from "./components/print-a4-a015-preview/print-a4-a015-preview.component";
 
 const routes: Routes = [
 	{path: "", pathMatch: "full", redirectTo: paths.index},
 	{path: paths.index, component: IndexComponent},
 	{path: paths["print-cad"], component: PrintCadComponent},
 	{path: paths.test, component: TestComponent},
+	{path: paths.printA4A015Preview, component: PrintA4A015PreviewComponent},
 	{path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
 ];
 

@@ -15,6 +15,7 @@ import {MatButtonModule} from "@angular/material/button";
 import {FormsModule} from "@angular/forms";
 import {MatSelectModule} from "@angular/material/select";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("CadAssembleComponent", () => {
 	let component: CadAssembleComponent;
@@ -34,7 +35,8 @@ describe("CadAssembleComponent", () => {
 				MatInputModule,
 				FormsModule,
 				MatSelectModule,
-				BrowserAnimationsModule
+				BrowserAnimationsModule,
+				RouterTestingModule
 			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();

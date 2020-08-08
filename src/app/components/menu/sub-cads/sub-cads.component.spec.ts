@@ -14,6 +14,7 @@ import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatButtonModule} from "@angular/material/button";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("SubCadsComponent", () => {
 	let component: SubCadsComponent;
@@ -31,7 +32,8 @@ describe("SubCadsComponent", () => {
 				PerfectScrollbarModule,
 				MatExpansionModule,
 				MatButtonModule,
-				BrowserAnimationsModule
+				BrowserAnimationsModule,
+				RouterTestingModule
 			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();

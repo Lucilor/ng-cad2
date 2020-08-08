@@ -14,6 +14,7 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSelectModule} from "@angular/material/select";
 import {FormsModule} from "@angular/forms";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("CadSearchFormComponent", () => {
 	let component: CadSearchFormComponent;
@@ -34,7 +35,8 @@ describe("CadSearchFormComponent", () => {
 				MatSelectModule,
 				MatInputModule,
 				FormsModule,
-				BrowserAnimationsModule
+				BrowserAnimationsModule,
+				RouterTestingModule
 			],
 			providers: [provideMockStore({initialState}), {provide: MatDialogRef, useValue: {}}, {provide: MAT_DIALOG_DATA, useValue: {}}]
 		}).compileComponents();

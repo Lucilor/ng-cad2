@@ -8,15 +8,12 @@ import {openMessageDialog} from "../../message/message.component";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
 import {getCurrCadsData} from "@src/app/store/selectors";
 import {Collection, removeCadGongshi, addCadGongshi, timeout, session, getDPI} from "@src/app/app.common";
-import {ActivatedRoute} from "@angular/router";
-import {takeUntil} from "rxjs/operators";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {Line3, MathUtils, Vector2} from "three";
+import {MathUtils} from "three";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
-import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 
 @Component({
 	selector: "app-toolbar",
@@ -45,7 +42,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	showCadGongshis = true;
 	lastUrl: string = null;
 
-	constructor(injector: Injector, private route: ActivatedRoute) {
+	constructor(injector: Injector) {
 		super(injector);
 	}
 
@@ -75,15 +72,11 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			this.cad.config.showLineLength = showLineLength;
 			this.afterOpen([new CadData(cachedData)]);
 		} else if (location.search) {
-			this.route.queryParams.pipe(takeUntil(this.destroyed)).subscribe(async (params) => {
-				dataService.encode = params.encode ? encodeURIComponent(params.encode) : "";
-				dataService.data = params.data ? encodeURIComponent(params.data) : "";
-				const data = await dataService.getCadData(dataService.data);
-				if (typeof params.collection === "string") {
-					this.collection = params.collection as Collection;
-				}
-				this.afterOpen(data);
-			});
+			const data = await dataService.getCadData();
+			if (typeof dataService.queryParams.collection === "string") {
+				this.collection = dataService.queryParams.collection as Collection;
+			}
+			this.afterOpen(data);
 		} else if (ids.length) {
 			const data = await dataService.getCadData({ids, collection});
 			this.afterOpen(data);
@@ -152,7 +145,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				indices = [...Array(data.length).keys()];
 			}
 			for (const i of indices) {
-				result = await dataService.postCadData(data[i].components.data, RSAEncrypt({collection: "cad"}));
+				result = await dataService.postCadData(data[i].components.data, {collection: "cad"});
 				if (result) {
 					data[extra.index].components.data = result;
 					this.afterOpen();

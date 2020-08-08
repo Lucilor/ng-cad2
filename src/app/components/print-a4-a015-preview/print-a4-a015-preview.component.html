@@ -1,0 +1,17 @@
+<div class="page" *ngFor="let page of data; let i = index">
+	<div class="card" *ngFor="let card of page">
+		<ng-container *ngIf="card.type === '说明'">
+			<div class="title">{{ card.title }}</div>
+		</ng-container>
+		<ng-container *ngIf="card.type === 'CAD'">
+			<div class="code">{{ card.code }}</div>
+			<div class="name">{{ card.text }}</div>
+			<div class="zhankai">{{ card.zhankai }}</div>
+			<app-image class="cad-preview" [src]="card.cadImg"></app-image>
+			<app-image class="qrcode" [src]="card.codeText"></app-image>
+		</ng-container>
+	</div>
+</div>
+<div class="btn-group menu" *ngIf="!printing">
+	<button mat-raised-button color="primary" (click)="printPages()">打印预览</button>
+</div>

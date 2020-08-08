@@ -14,8 +14,8 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from "@angular/material/button";
 import {FormsModule} from "@angular/forms";
-import {MatSelectModule} from "@angular/material/select";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("CadOptionsComponent", () => {
 	let component: CadOptionsComponent;
@@ -36,7 +36,8 @@ describe("CadOptionsComponent", () => {
 				MatButtonModule,
 				MatPaginatorModule,
 				MatInputModule,
-				FormsModule
+				FormsModule,
+				RouterTestingModule
 			],
 			providers: [provideMockStore({initialState}), {provide: MatDialogRef, useValue: {}}, {provide: MAT_DIALOG_DATA, useValue: {}}]
 		}).compileComponents();

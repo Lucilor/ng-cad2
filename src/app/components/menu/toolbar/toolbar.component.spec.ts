@@ -6,10 +6,10 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {provideMockStore} from "@ngrx/store/testing";
 import {initialState} from "@src/app/store/state";
-import {RouterModule} from "@angular/router";
 import {MatMenuModule} from "@angular/material/menu";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("ToolbarComponent", () => {
 	let component: ToolbarComponent;
@@ -18,7 +18,7 @@ describe("ToolbarComponent", () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [ToolbarComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, RouterModule.forRoot([]), MatMenuModule],
+			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, RouterTestingModule, MatMenuModule],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();
 	}));

@@ -16,7 +16,6 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {SubCadsComponent} from "../menu/sub-cads/sub-cads.component";
 import {ToolbarComponent} from "../menu/toolbar/toolbar.component";
-import {RouterModule} from "@angular/router";
 import {MatButtonModule} from "@angular/material/button";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatTabsModule} from "@angular/material/tabs";
@@ -28,6 +27,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("IndexComponent", () => {
 	let component: IndexComponent;
@@ -53,7 +53,6 @@ describe("IndexComponent", () => {
 				PerfectScrollbarModule,
 				MatExpansionModule,
 				BrowserAnimationsModule,
-				RouterModule.forRoot([]),
 				MatButtonModule,
 				MatSlideToggleModule,
 				MatTabsModule,
@@ -64,7 +63,8 @@ describe("IndexComponent", () => {
 				MatFormFieldModule,
 				MatInputModule,
 				MatSelectModule,
-				ColorPickerModule
+				ColorPickerModule,
+				RouterTestingModule
 			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();

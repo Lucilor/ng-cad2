@@ -6,13 +6,14 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {provideMockStore} from "@ngrx/store/testing";
 import {initialState} from "../store/state";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("CadDataService", () => {
 	let service: CadDataService;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule],
+			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, RouterTestingModule],
 			providers: [provideMockStore({initialState})]
 		});
 		service = TestBed.inject(CadDataService);

@@ -17,6 +17,7 @@ import {CadListComponent} from "../../cad-list/cad-list.component";
 import {MatSelectModule} from "@angular/material/select";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {RouterTestingModule} from "@angular/router/testing";
 
 describe("CadInfoComponent", () => {
 	let component: CadInfoComponent;
@@ -36,7 +37,8 @@ describe("CadInfoComponent", () => {
 				MatSelectModule,
 				BrowserAnimationsModule,
 				FormsModule,
-				ReactiveFormsModule
+				ReactiveFormsModule,
+				RouterTestingModule
 			],
 			providers: [provideMockStore({initialState})]
 		}).compileComponents();
