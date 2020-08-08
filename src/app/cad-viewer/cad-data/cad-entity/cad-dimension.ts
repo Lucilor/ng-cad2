@@ -31,15 +31,13 @@ export class CadDimension extends CadEntity {
 			this.font_size = 36;
 		}
 		this.dimstyle = data.dimstyle || "";
-		["entity1", "entity2"].forEach((field) => {
+		["entity1", "entity2"].forEach((field: "entity1" | "entity2") => {
 			this[field] = {id: "", location: "center"};
 			if (data[field]) {
 				if (typeof data[field].id === "string") {
 					this[field].id = data[field].id;
 				}
-				if (["start", "end", "center"].includes(data[field].location)) {
-					this[field].location = data[field].location;
-				}
+				this[field].location = data[field].location ?? "center";
 			}
 		});
 		this.axis = data.axis ?? "x";

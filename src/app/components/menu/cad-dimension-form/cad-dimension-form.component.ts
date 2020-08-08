@@ -48,14 +48,14 @@ export class CadDimensionFormComponent implements OnInit {
 			dimension.axis = value.axis;
 			dimension.distance = value.distance;
 			dimension.font_size = value.fontSize;
-			this.close();
+			this.dialogRef.close(dimension);
 		} else {
 			this.form.controls.qujian.updateValueAndValidity();
 		}
 	}
 
-	close() {
-		this.dialogRef.close(this.dimension);
+	cancle() {
+		this.dialogRef.close();
 	}
 
 	mqValidator(): ValidatorFn {
