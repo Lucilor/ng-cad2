@@ -147,8 +147,8 @@ export class CadDataService {
 			name: "postCadData",
 			progress: 0
 		});
-		const data = queryParams.data ?? "";
-		const encode = queryParams.encode ?? "";
+		const data = encodeURIComponent(queryParams.data ?? "");
+		const encode = encodeURIComponent(queryParams.encode ?? "");
 		return new Promise<CadData[]>(async (resolve) => {
 			for (let i = 0; i < cadData.length; i++) {
 				const formData = new FormData();

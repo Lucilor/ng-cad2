@@ -171,7 +171,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			if (this.collection) {
 				postData.collection = this.collection;
 			}
-			result = await dataService.postCadData(data, RSAEncrypt(postData));
+			result = await dataService.postCadData(data, postData);
 			if (result) {
 				this.afterOpen(result);
 			}
