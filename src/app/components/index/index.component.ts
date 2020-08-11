@@ -13,6 +13,8 @@ import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {timeout} from "@src/app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
+import {CadConsoleComponent} from "../cad-console/cad-console.component";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
 	selector: "app-index",
@@ -59,6 +61,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(CadDimensionComponent) cadDimension: CadDimensionComponent;
 	@ViewChild(CadAssembleComponent) cadAssemble: CadAssembleComponent;
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
+	@ViewChild(CadConsoleComponent) console: CadConsoleComponent;
 
 	// shortcuts for testing
 	get data() {
@@ -74,7 +77,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		return this.data0.export();
 	}
 
-	constructor(injector: Injector) {
+	constructor(injector: Injector, private snakeBar: MatSnackBar) {
 		super(injector);
 	}
 

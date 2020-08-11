@@ -1,7 +1,7 @@
 import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CurrCadsAction, CadStatusAction, LoadingAction} from "@src/app/store/actions";
-import {RSAEncrypt, Line, Point} from "@lucilor/utils";
+import {Line, Point} from "@lucilor/utils";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
@@ -242,12 +242,17 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		cad.render();
 	}
 
-	showHelpInfo() {
+	showManual(name = "") {
+		const page1 = `
+		<ul>
+			<li>按下 <span style='color:red'>Ctrl + ~</span> 以显示/隐藏控制台。</li>
+			<li>控制台显示时，按<span style='color:red'>Ctrl + ~</span>可以聚焦至控制台。</li>
+		</ul>`;
 		openMessageDialog(this.dialog, {
 			data: {
-				type: "alert",
-				title: "帮助信息",
-				content: "按下 <span style='color:red'>Ctrl + ~</span> 以重复上一次按下的顶部菜单栏按钮。"
+				type: "book",
+				title: "帮助手册",
+				bookData: {contents: [page1, "???", "GGGG"]}
 			}
 		});
 	}

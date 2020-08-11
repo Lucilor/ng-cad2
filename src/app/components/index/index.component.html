@@ -68,5 +68,6 @@
 	</perfect-scrollbar>
 </div>
 <div class="menu bottom" [class.accent]="(cadStatus | async)?.name !== 'normal'" [@closeBottom]="showBottomMenu ? 'open' : 'closed'">
-	当前状态：{{ cadStatusStr }}
+	<app-cad-console [cad]="cad" (afterOpenCad)="afterOpenCad()"></app-cad-console>
+	<div class="cad-status">当前状态：{{ cadStatusStr }}</div>
 </div>

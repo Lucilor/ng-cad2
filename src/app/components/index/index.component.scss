@@ -19,9 +19,7 @@
 		width: 100vw;
 		bottom: 0;
 		height: 20px;
-		text-align: center;
 		line-height: 22px;
-		user-select: none;
 	}
 
 	&.left {
@@ -75,4 +73,10 @@
 
 perfect-scrollbar {
 	max-height: calc(100% - 40px);
+}
+
+.cad-status {
+	user-select: none;
+	width: 100%;
+	text-align: center;
 }
