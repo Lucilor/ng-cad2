@@ -12,8 +12,9 @@ interface MessageData {
 		value?: string;
 	};
 	bookData?: {
-		contents: string[];
-	};
+		title?: string;
+		content: string;
+	}[];
 }
 
 @Component({
@@ -24,6 +25,7 @@ interface MessageData {
 export class MessageComponent implements OnInit {
 	input = "";
 	titleHTML: SafeHtml;
+	subTitleHTML: SafeHtml;
 	contentHTML: SafeHtml;
 	page = 0;
 
@@ -71,7 +73,7 @@ export class MessageComponent implements OnInit {
 		}
 		if (data.type === "book") {
 			if (!data.bookData) {
-				data.bookData = {contents: []};
+				data.bookData = [];
 			}
 			this.setPage(0);
 		}
@@ -92,8 +94,12 @@ export class MessageComponent implements OnInit {
 	}
 
 	setPage(page: number) {
-		this.page = Math.min(this.data.bookData.contents.length - 1, page);
-		this.contentHTML = this.sanitizer.bypassSecurityTrustHtml(this.data.bookData.contents[this.page]);
+		this.page = Math.min(this.data.bookData.length - 1, page);
+		const data = this.data.bookData[this.page];
+		this.contentHTML = this.sanitizer.bypassSecurityTrustHtml(data.content);
+		if (data.title) {
+			this.subTitleHTML = this.sanitizer.bypassSecurityTrustHtml(data.title);
+		}
 	}
 }
 

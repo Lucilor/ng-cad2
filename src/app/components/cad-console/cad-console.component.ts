@@ -4,28 +4,36 @@ import {timeout, removeCadGongshi, Collection, addCadGongshi} from "@src/app/app
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {openMessageDialog} from "../message/message.component";
+import {openMessageDialog, MessageComponent} from "../message/message.component";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {MenuComponent} from "../menu/menu.component";
 import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
 
 export interface Command {
 	name: string;
-	args: {name: string; defaultValue?: string; value?: string; isBoolean?: boolean}[];
+	args: {name: string; defaultValue?: string; value?: string; isBoolean?: boolean; desc: string}[];
+	desc: string;
 }
 
 export const commands: Command[] = [
-	{name: "fillet", args: [{name: "radius", defaultValue: "0"}]},
-	{name: "man", args: [{name: "name", defaultValue: ""}]},
-	{name: "save", args: []},
+	{name: "fillet", args: [{name: "radius", defaultValue: "0", desc: "圆角半径"}], desc: "根据两条直线生成圆角"},
+	{name: "man", args: [{name: "name", defaultValue: "", desc: "查看特定命令的详细信息"}], desc: "查看控制台帮助手册"},
+	{name: "save", args: [], desc: "保存当前所有CAD"},
 	{
 		name: "test",
 		args: [
-			{name: "qwer", defaultValue: "aaa"},
-			{name: "asdf", isBoolean: true}
-		]
+			{name: "qwer", defaultValue: "aaa", desc: "..."},
+			{name: "asdf", isBoolean: true, desc: "???"}
+		],
+		desc: "测试"
 	}
 ];
+
+export const cmdNames = commands.map((v) => v.name);
+
+const getList = (content: string[]) => {
+	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
+};
 
 @Component({
 	selector: "app-cad-console",
@@ -33,9 +41,8 @@ export const commands: Command[] = [
 	styleUrls: ["./cad-console.component.scss"]
 })
 export class CadConsoleComponent extends MenuComponent implements OnInit {
-	cmdNames = commands.map((v) => v.name);
 	content = {correct: "", wrong: "", hint: "", args: ""};
-	currCmd: Command = {name: "", args: []};
+	currCmd: Command = {name: "", args: [], desc: ""};
 	history: string[] = [];
 	historyOffset = -1;
 	historySize = 100;
@@ -87,7 +94,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 	}
 
 	update() {
-		const {cmdNames, content, currCmd} = this;
+		const {content, currCmd} = this;
 		const el = this.contentEl.nativeElement;
 		const elContent = decodeURI(encodeURI(el.textContent).replace(/%C2%A0/g, "%20"));
 		const elCmd = elContent.match(/([^ ]*[ ]*)[^ ]?/)?.[1] ?? "";
@@ -208,14 +215,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 	execute(cmd: Command) {
 		const {name, args} = cmd;
 		try {
-			switch (name) {
-				// case "fillet":
-				// 	this.fillet(Number(args[0].value));
-				// 	break;
-				case "save":
-					this.save();
-					break;
-			}
+			this[name](...args);
 		} catch (error) {
 			this.snackBar.open("执行命令时出错");
 			console.warn(error);
@@ -259,6 +259,29 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 	}
 
 	/** Console Functions */
+	man(name = "") {
+		let data: MessageComponent["data"]["bookData"];
+		switch (name) {
+			default:
+				data = [
+					{
+						title: "控制台",
+						content: getList([
+							"按下 <span style='color:red'>Ctrl + ~</span> 以显示/隐藏控制台。",
+							"控制台显示时，按<span style='color:red'>~</span>可以聚焦至控制台。"
+						])
+					}
+				];
+		}
+		openMessageDialog(this.dialog, {
+			data: {
+				type: "book",
+				title: "帮助手册",
+				bookData: data
+			}
+		});
+	}
+
 	async save() {
 		const {cad, dataService} = this;
 		let result: CadData[] = [];

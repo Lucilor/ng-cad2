@@ -1,4 +1,5 @@
 <h1 mat-dialog-title [innerHTML]="titleHTML"></h1>
+<h2 mat-dialog-title [innerHTML]="subTitleHTML"></h2>
 <div mat-dialog-content>
 	<div [innerHTML]="contentHTML"></div>
 	<mat-form-field *ngIf="data.type === 'prompt'">
@@ -20,7 +21,7 @@
 	</ng-container>
 	<ng-container *ngIf="data.type === 'book'">
 		<button mat-raised-button (click)="setPage(page - 1)" [disabled]="page <= 0">上一页</button>
-		<button mat-raised-button (click)="setPage(page + 1)" cdkFocusInitial [disabled]="page >= data.bookData.contents.length - 1">
+		<button mat-raised-button (click)="setPage(page + 1)" [disabled]="page >= data.bookData.length - 1">
 			下一页
 		</button>
 		<button mat-raised-button (click)="cancle()">退出</button>
