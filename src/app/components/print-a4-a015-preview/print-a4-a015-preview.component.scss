@@ -1,5 +1,5 @@
 .page {
-	width: 210mm;
+	width: 798px;
 	height: 1120px;
 	padding: 26px 24px;
 	display: flex;
@@ -11,7 +11,8 @@
 	page-break-after: always;
 
 	.card {
-		width: 178px;
+		background-color: aqua;
+		width: 179px;
 		height: 142px;
 		position: relative;
 		// margin: 5px;

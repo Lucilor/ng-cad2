@@ -38,6 +38,18 @@ export class CadLine extends CadEntity {
 	get middle() {
 		return this.start.clone().add(this.end).divideScalar(2);
 	}
+	get maxX() {
+		return Math.max(this.start.x, this.end.x);
+	}
+	get maxY() {
+		return Math.max(this.start.y, this.end.y);
+	}
+	get minX() {
+		return Math.min(this.start.x, this.end.x);
+	}
+	get minY() {
+		return Math.min(this.start.y, this.end.y);
+	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		data.type = CAD_TYPES.line;
