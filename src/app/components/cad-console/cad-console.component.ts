@@ -8,6 +8,7 @@ import {openMessageDialog, MessageComponent} from "../message/message.component"
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {MenuComponent} from "../menu/menu.component";
 import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
+import {MathUtils} from "three";
 
 export interface Command {
 	name: string;
@@ -34,6 +35,8 @@ export const cmdNames = commands.map((v) => v.name);
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 };
+
+const spaceReplacer = MathUtils.generateUUID();
 
 @Component({
 	selector: "app-cad-console",
@@ -96,13 +99,19 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 	update() {
 		const {content, currCmd} = this;
 		const el = this.contentEl.nativeElement;
-		const elContent = decodeURI(encodeURI(el.textContent).replace(/%C2%A0/g, "%20"));
+		let elContent = decodeURI(encodeURI(el.textContent).replace(/%C2%A0/g, "%20"));
+		const matches = elContent.match(/['"]([^'^"]*)['"]/g);
+		matches?.forEach((match) => {
+			const replcer = match.replace(/ /g, spaceReplacer);
+			elContent = elContent.replace(new RegExp(match, "g"), replcer);
+		});
 		const elCmd = elContent.match(/([^ ]*[ ]*)[^ ]?/)?.[1] ?? "";
 		const elCmdTrimed = elCmd.trim();
 		const arr = elContent
 			.slice(elCmd.length)
 			.split(" ")
-			.filter((v) => v !== " ");
+			.filter((v) => v !== " ")
+			.map((v) => v.replace(new RegExp(spaceReplacer, "g"), " "));
 
 		for (const key in content) {
 			content[key] = "";
@@ -139,15 +148,16 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 					if (args.length === 1) {
 						arg = args[0];
 					}
+				} else if (i === 0 && arr[i]) {
+					arg = cmd.args[0];
 				}
 				if (arg) {
 					if (arg.isBoolean) {
-						i++;
 						arg.value = "true";
 					} else if (i < arr.length - 1) {
 						const argVal = arr[i + 1];
 						if (!argVal.startsWith("-")) {
-							arg.value = argVal;
+							arg.value = argVal.replace(/^['"]|['"]$/g, "");
 							i++;
 						}
 					}
@@ -170,7 +180,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 				content.hint = `[ ${hintArgsStr} ]`;
 			}
 		}
-		content.args = elContent.slice(elCmd.length);
+		content.args = elContent.slice(elCmd.length).replace(new RegExp(spaceReplacer, "g"), " ");
 
 		for (const key in content) {
 			content[key] = content[key].replace(/ /g, "&nbsp;");
@@ -178,8 +188,12 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 	}
 
 	beforeExecute() {
-		const {currCmd, history, historySize} = this;
 		const el = this.contentEl.nativeElement;
+		if (!el.textContent) {
+			el.textContent = this.history[0];
+			this.update();
+		}
+		const {currCmd, history, historySize} = this;
 		if (currCmd.name) {
 			this.execute(currCmd);
 		} else {
@@ -214,8 +228,18 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 
 	execute(cmd: Command) {
 		const {name, args} = cmd;
+		const values = {};
+		args.forEach((v) => (values[v.name] = v.value));
+		const args2 = commands.find((v) => v.name === name).args;
+		const argsValue = args2.map((v) => {
+			if (v.isBoolean) {
+				return values[v.name] === "true" ? "true" : "false";
+			} else {
+				return values[v.name] ?? v.defaultValue;
+			}
+		});
 		try {
-			this[name](...args);
+			this[name](...argsValue);
 		} catch (error) {
 			this.snackBar.open("执行命令时出错");
 			console.warn(error);
@@ -259,6 +283,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 	}
 
 	/** Console Functions */
+
 	man(name = "") {
 		let data: MessageComponent["data"]["bookData"];
 		switch (name) {
@@ -270,6 +295,20 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 							"按下 <span style='color:red'>Ctrl + ~</span> 以显示/隐藏控制台。",
 							"控制台显示时，按<span style='color:red'>~</span>可以聚焦至控制台。"
 						])
+					},
+					{
+						title: "输入命令",
+						content: getList([
+							`命令示例：eat --food apple --time "12:00 PM" --number 5 --alone。`,
+							`当参数名字的首字母不重复时，可简写为：eat -f apple -t "12:00 PM" -n 5 -a。`,
+							`参数的值类型分为字符串或布尔值，若字符串中包含空格时双（单）引号不能省略，布尔值指定参数时为真，否则为假。`,
+							`不指定参数时会使用其默认值（布尔值类型为false）`,
+							`若只需要指定第一个参数，可以省略参数名字：eat apple`
+						])
+					},
+					{
+						title: "查询命令",
+						content: getList(["若要查看某个命令的用法，可执行命令：man xxx"])
 					}
 				];
 		}
@@ -331,5 +370,9 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 			}
 		}
 		return result;
+	}
+
+	test(qwer: string, asdf: string) {
+		this.snackBar.open(`qwer=${qwer}, asdf=${asdf}`);
 	}
 }
