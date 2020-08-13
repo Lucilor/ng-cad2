@@ -738,13 +738,13 @@ export class CadData {
 				}
 			}
 		};
-		const p1 = getPoint(line1, entity1.location);
-		const p2 = getPoint(line2, entity2.location);
+		let p1 = getPoint(line1, entity1.location);
+		let p2 = getPoint(line2, entity2.location);
 		if (!p1 || !p2) {
 			return [];
 		}
-		const p3 = p1.clone();
-		const p4 = p2.clone();
+		let p3 = p1.clone();
+		let p4 = p2.clone();
 		let p: Vector2;
 		if (entity.id === entity1.id) {
 			p = getPoint(line1, entity1.location);
@@ -754,10 +754,18 @@ export class CadData {
 		if (axis === "x") {
 			p3.y = p.y + distance;
 			p4.y = p.y + distance;
+			if (p3.x > p4.x) {
+				[p3, p4] = [p4, p3];
+				[p1, p2] = [p2, p1];
+			}
 		}
 		if (axis === "y") {
 			p3.x = p.x + distance;
 			p4.x = p.x + distance;
+			if (p3.y < p4.y) {
+				[p3, p4] = [p4, p3];
+				[p1, p2] = [p2, p1];
+			}
 		}
 		if (distance2 !== undefined) {
 			[p3, p4].forEach((p) => (p.y = distance2));

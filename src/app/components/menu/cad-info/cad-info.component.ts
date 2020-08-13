@@ -34,11 +34,14 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		super.ngOnInit();
 		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
 			this.cadsData = getCurrCadsData(this.cad.data, currCads);
-			if (this.cadsData.length === 1) {
+			const ids = this.cad.data.components.data.map((v) => v.id);
+			if (this.cadsData.length === 1 && ids.includes(this.cadsData[0].id)) {
 				this.editDisabled = false;
 			} else {
 				this.editDisabled = true;
-				this.cadsData = [new CadData()];
+				if (this.cadsData.length < 1) {
+					this.cadsData = [new CadData()];
+				}
 			}
 			this.updateLengths(this.cadsData);
 		});

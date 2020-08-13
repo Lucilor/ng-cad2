@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from "@angular/core";
+import {Component, OnInit, Input, OnDestroy} from "@angular/core";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {Vector2, Color} from "three";
@@ -8,24 +8,48 @@ import {findAllAdjacentLines, generatePointsMap, validateLines} from "@src/app/c
 import {getColorLightness} from "@lucilor/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
+import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 
 @Component({
 	selector: "app-cad-line",
 	templateUrl: "./cad-line.component.html",
 	styleUrls: ["./cad-line.component.scss"]
 })
-export class CadLineComponent implements OnInit {
+export class CadLineComponent implements OnInit, OnDestroy {
 	@Input() cad: CadViewer;
+	focusedField = "";
+	editDiabled = true;
 	get selected() {
 		const {line, arc} = this.cad.selectedEntities;
 		return [...line, ...arc];
 	}
-	focusedField = "";
 	readonly selectableColors = {a: ["#ffffff", "#ff0000", "#00ff00", "#0000ff"]};
 
 	constructor() {}
 
-	ngOnInit() {}
+	ngOnInit() {
+		const controls = this.cad.controls;
+		controls.on("entityselect", this.updateEditDisabled.bind(this));
+		controls.on("entitiesselect", this.updateEditDisabled.bind(this));
+	}
+
+	ngOnDestroy() {
+		const controls = this.cad.controls;
+		controls.off("entityselect", this.updateEditDisabled.bind(this));
+		controls.off("entitiesselect", this.updateEditDisabled.bind(this));
+	}
+
+	updateEditDisabled() {
+		const selected = this.selected;
+		if (selected.length < 1) {
+			this.editDiabled = false;
+			return;
+		}
+		const cads = this.cad.data.components.data;
+		const ids = Array<string>();
+		cads.forEach((v) => v.entities.forEach((vv) => ids.push(vv.id)));
+		this.editDiabled = !selected.every((e) => ids.includes(e.id));
+	}
 
 	expandLine(line: CadLine, d: number) {
 		const theta = line.theta;
