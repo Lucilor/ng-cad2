@@ -1,6 +1,12 @@
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 
 import {CadConsoleComponent} from "./cad-console.component";
+import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {MatDialogModule} from "@angular/material/dialog";
+import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {RouterTestingModule} from "@angular/router/testing";
+import {provideMockStore} from "@ngrx/store/testing";
+import {initialState} from "@app/store/state";
 
 describe("CadConsoleComponent", () => {
 	let component: CadConsoleComponent;
@@ -8,7 +14,9 @@ describe("CadConsoleComponent", () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [CadConsoleComponent]
+			declarations: [CadConsoleComponent],
+			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, RouterTestingModule],
+			providers: [provideMockStore({initialState})]
 		}).compileComponents();
 	}));
 
