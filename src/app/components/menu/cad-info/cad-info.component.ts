@@ -3,7 +3,7 @@ import {MenuComponent} from "../menu.component";
 import {State} from "@src/app/store/state";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {openCadOptionsDialog} from "../../menu/cad-options/cad-options.component";
-import {getCurrCadsData} from "@src/app/store/selectors";
+import {getCurrCadsData, getCadPoints} from "@src/app/store/selectors";
 import {openMessageDialog} from "../../message/message.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
@@ -71,6 +71,21 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 			}
 		});
+		this.store
+			.select(getCadPoints)
+			.pipe(takeUntil(this.destroyed))
+			.subscribe(async (points) => {
+				const point = points.filter((v) => v.active)[0];
+				const status = await this.getCadStatus();
+				if (status.name !== "select jointpoint" || !point) {
+					return;
+				}
+				const jointPoint = this.cadsData[0].jointPoints[this.jointPointIndex];
+				jointPoint.valueX = point.x;
+				jointPoint.valueY = point.y;
+				this.store.dispatch<CadPointsAction>({type: "set cad points", points: []});
+				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+			});
 	}
 
 	ngOnDestroy() {

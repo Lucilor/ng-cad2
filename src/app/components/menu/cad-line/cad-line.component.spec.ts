@@ -34,6 +34,7 @@ describe("CadLineComponent", () => {
 		fixture = TestBed.createComponent(CadLineComponent);
 		component = fixture.componentInstance;
 		component.cad = new CadViewer(new CadData());
+		component.cad.setControls();
 		fixture.detectChanges();
 	});
 
