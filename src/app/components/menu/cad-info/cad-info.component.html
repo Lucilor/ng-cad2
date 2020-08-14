@@ -67,7 +67,7 @@
 				<mat-form-field [color]="getItemColor(i, 'baseLine')">
 					<mat-label>基准</mat-label>
 					<input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
-					<mat-icon matSuffix [color]="getItemColor(i, 'baseLine')" (click)="selectBaseLine(cad, i)">link</mat-icon>
+					<mat-icon matSuffix [color]="getItemColor(i, 'baseLine')" (click)="selectBaseLine(i)">link</mat-icon>
 					<mat-icon matSuffix color="primary" (click)="addBaseLine(cad, i)">add_circle</mat-icon>
 					<mat-icon matSuffix color="primary" (click)="removeBaseLine(cad, i)">remove_circle</mat-icon>
 					<mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>
@@ -75,7 +75,7 @@
 			</div>
 		</div>
 		<div class="form-item-group hint">
-			<div *ngFor="let j of cad.jointPoints">
+			<div *ngFor="let j of cad.jointPoints; let i=index">
 				<mat-form-field [color]="getItemColor(i, 'jointPoint')">
 					<mat-label>连接点</mat-label>
 					<input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />

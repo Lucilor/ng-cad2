@@ -1,4 +1,4 @@
-export type CadStatusName = "normal" | "select baseline" | "select jointpoint" | "edit dimension" | "assemble" | "split";
+export type CadStatusName = "normal" | "select baseline" | "select jointpoint" | "edit dimension" | "assemble" | "split" | "draw line";
 export interface CadStatus {
 	name: CadStatusName;
 	index: number;

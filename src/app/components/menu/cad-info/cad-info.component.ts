@@ -1,6 +1,5 @@
 import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {MenuComponent} from "../menu.component";
-import {State} from "@src/app/store/state";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {openCadOptionsDialog} from "../../menu/cad-options/cad-options.component";
 import {getCurrCadsData, getCadPoints} from "@src/app/store/selectors";
@@ -8,7 +7,7 @@ import {openMessageDialog} from "../../message/message.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {takeUntil} from "rxjs/operators";
-import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {generatePointsMap, getPointsFromMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getCadGongshiText} from "@src/app/app.common";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
@@ -45,10 +44,45 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 			this.updateLengths(this.cadsData);
 		});
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name}) => {
-			if (name === "normal") {
+		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(async ({name, index}) => {
+			const data = (await this.getCurrCadsData())[0];
+			const {store, cad} = this;
+			if (name === "select baseline") {
+				const {idX, idY} = data.baseLines[index];
+				const entityX = cad.data.findEntity(idX);
+				const entityY = cad.data.findEntity(idY);
+				if (entityX) {
+					entityX.selected = true;
+				}
+				if (entityY) {
+					entityY.selected = true;
+				}
+				cad.traverse((e) => {
+					e.opacity = 0.3;
+					e.selectable = false;
+				});
+				this.cadsData.forEach((v) => {
+					cad.traverse((e) => {
+						if (e instanceof CadLine) {
+							if (e.isHorizonal() || e.isVertical()) {
+								e.opacity = 1;
+								e.selectable = true;
+							}
+						}
+					}, v.getAllEntities());
+				});
+				cad.controls.config.selectMode = "single";
+				this.baseLineIndex = index;
+			} else {
 				this.baseLineIndex = -1;
+			}
+			if (name === "select jointpoint") {
+				this.jointPointIndex = index;
+				const points = getPointsFromMap(this.cad, generatePointsMap(this.cadsData[0].getAllEntities()));
+				store.dispatch<CadPointsAction>({type: "set cad points", points});
+			} else if (this.jointPointIndex > -1) {
 				this.jointPointIndex = -1;
+				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 			}
 		});
 		this.cad.controls.on("entityclick", async (event, entity) => {
@@ -83,8 +117,6 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				const jointPoint = this.cadsData[0].jointPoints[this.jointPointIndex];
 				jointPoint.valueX = point.x;
 				jointPoint.valueY = point.y;
-				this.store.dispatch<CadPointsAction>({type: "set cad points", points: []});
-				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 			});
 	}
 
@@ -176,37 +208,11 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 	}
 
-	selectBaseLine(data: CadData, index: number) {
-		const {cad, store} = this;
+	selectBaseLine(index: number) {
+		const {store} = this;
 		if (this.getItemColor(index, "baseLine") === "primary") {
-			const {idX, idY} = data.baseLines[index];
-			const entityX = cad.data.findEntity(idX);
-			const entityY = cad.data.findEntity(idY);
-			if (entityX) {
-				entityX.selected = true;
-			}
-			if (entityY) {
-				entityY.selected = true;
-			}
-			cad.traverse((e) => {
-				e.opacity = 0.3;
-				e.selectable = false;
-			});
-			this.cadsData.forEach((v) => {
-				cad.traverse((e) => {
-					if (e instanceof CadLine) {
-						if (e.isHorizonal() || e.isVertical()) {
-							e.opacity = 1;
-							e.selectable = true;
-						}
-					}
-				}, v.getAllEntities());
-			});
-			cad.controls.config.selectMode = "single";
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "select baseline", index});
-			this.baseLineIndex = index;
 		} else {
-			this.baseLineIndex = -1;
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		}
 	}
@@ -227,19 +233,10 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	selectJointPoint(index: number) {
-		const {cad, store} = this;
+		const {store} = this;
 		if (this.getItemColor(index, "jointPoint") === "primary") {
-			this.jointPointIndex = index;
-			const map = generatePointsMap(this.cadsData[0].getAllEntities());
-			const points: State["cadPoints"] = map.map((v) => {
-				const {x, y} = cad.getScreenPoint(v.point);
-				return {x, y, active: false};
-			});
-			store.dispatch<CadPointsAction>({type: "set cad points", points});
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "select jointpoint", index});
 		} else {
-			this.jointPointIndex = -1;
-			store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		}
 	}

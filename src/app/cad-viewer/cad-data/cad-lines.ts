@@ -3,25 +3,27 @@ import {CadEntities} from "./cad-entities";
 import {CadLine} from "./cad-entity/cad-line";
 import {CadArc} from "./cad-entity/cad-arc";
 import {CadData} from "./cad-data";
+import {CadViewer} from "../cad-viewer";
+import {State} from "@src/app/store/state";
 
-type LineLike = CadLine | CadArc;
+export type LineLike = CadLine | CadArc;
 
-interface LinesAtPoint {
+export type PointsMap = {
 	point: Vector2;
 	lines: LineLike[];
 	selected: boolean;
-}
+}[];
 
 export const DEFAULT_TOLERANCE = 0.01;
 
 export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOLERANCE) {
-	const pointsMap: LinesAtPoint[] = [];
+	const map: PointsMap = [];
 	const addToMap = (point: Vector2, line: CadLine | CadArc) => {
-		const linesAtPoint = pointsMap.find((v) => v.point.distanceTo(point) <= tolerance);
+		const linesAtPoint = map.find((v) => v.point.distanceTo(point) <= tolerance);
 		if (linesAtPoint) {
 			linesAtPoint.lines.push(line);
 		} else {
-			pointsMap.push({point, lines: [line], selected: false});
+			map.push({point, lines: [line], selected: false});
 		}
 	};
 	entities.line.forEach((entity) => {
@@ -38,16 +40,23 @@ export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOL
 			addToMap(curve.getPoint(1), entity);
 		}
 	});
-	return pointsMap;
+	return map;
 }
 
-export function findAdjacentLines(pointsMap: LinesAtPoint[], entity: LineLike, point?: Vector2, tolerance = DEFAULT_TOLERANCE): LineLike[] {
+export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
+	return map.map((v) => {
+		const {x, y} = cad.getScreenPoint(v.point);
+		return {x, y, active: false};
+	});
+}
+
+export function findAdjacentLines(map: PointsMap, entity: LineLike, point?: Vector2, tolerance = DEFAULT_TOLERANCE): LineLike[] {
 	if (!point && entity instanceof CadLine) {
-		const adjStart = findAdjacentLines(pointsMap, entity, entity.start);
-		const adjEnd = findAdjacentLines(pointsMap, entity, entity.end);
+		const adjStart = findAdjacentLines(map, entity, entity.start);
+		const adjEnd = findAdjacentLines(map, entity, entity.end);
 		return [...adjStart, ...adjEnd];
 	}
-	const pal = pointsMap.find((v) => v.point.distanceTo(point) <= tolerance);
+	const pal = map.find((v) => v.point.distanceTo(point) <= tolerance);
 	if (pal) {
 		const lines = pal.lines.filter((v) => v.id !== entity.id);
 		return lines;
@@ -55,12 +64,12 @@ export function findAdjacentLines(pointsMap: LinesAtPoint[], entity: LineLike, p
 	return [];
 }
 
-export function findAllAdjacentLines(pointsMap: LinesAtPoint[], entity: LineLike, point: Vector2, tolerance = DEFAULT_TOLERANCE) {
+export function findAllAdjacentLines(map: PointsMap, entity: LineLike, point: Vector2, tolerance = DEFAULT_TOLERANCE) {
 	const entities: LineLike[] = [];
 	const id = entity.id;
 	let closed = false;
 	while (entity && point) {
-		entity = findAdjacentLines(pointsMap, entity, point, tolerance)[0];
+		entity = findAdjacentLines(map, entity, point, tolerance)[0];
 		if (entity?.id === id) {
 			closed = true;
 			break;
@@ -112,7 +121,7 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 		return result;
 	}
 	let map = generatePointsMap(entities);
-	const arr: LinesAtPoint[] = [];
+	const arr: PointsMap = [];
 	map.forEach((v) => {
 		if (v.lines.length === 1) {
 			arr.push(v);

@@ -58,9 +58,25 @@ export function cadStatusReducer(cadStatus = initialState.cadStatus, action: Cad
 }
 
 export function cadPointsReducer(cadPoints = initialState.cadPoints, action: CadPointsAction) {
-	const {type, points} = action;
+	const {type, points, indices} = action;
 	if (type === "set cad points") {
 		return points;
+	} else if (type === "activate cad points" ) {
+		return cadPoints.map((v, i) => {
+			if (!indices || indices.includes(i)) {
+				return {x: v.x, y: v.y, active: true};
+			} else {
+				return {x: v.x, y: v.y, active: false};
+			}
+		});
+	} else if (type === "unactivate cad points" ) {
+		return cadPoints.map((v, i) => {
+			if (!indices || indices.includes(i)) {
+				return {x: v.x, y: v.y, active: false};
+			} else {
+				return {x: v.x, y: v.y, active: true};
+			}
+		});
 	}
 	return cadPoints;
 }

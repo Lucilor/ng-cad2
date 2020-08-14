@@ -112,6 +112,8 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 				this.shownMenus = ["cadAssemble"];
 			} else if (cadStatus.name === "split") {
 				this.cadStatusStr = "选取";
+			} else if (cadStatus.name === "draw line") {
+				this.cadStatusStr = "画线";
 			}
 		});
 

@@ -1,5 +1,5 @@
 <div
-	*ngFor="let p of points; let i = index"
+	*ngFor="let p of points | async; let i = index"
 	class="point"
 	[class.active]="p.active"
 	[style.left.px]="p.x"
