@@ -115,3 +115,9 @@ export function getInterval(field: string) {
 	timeMap[field] = now;
 	return interval;
 }
+
+export interface Command {
+	name: string;
+	desc?: string;
+	args: {name: string; defaultValue?: string; value?: string; isBoolean?: boolean; desc?: string}[];
+}

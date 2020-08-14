@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild, ElementRef, Input, Injector, Output, EventEmitter} from "@angular/core";
 import {differenceWith} from "lodash";
-import {timeout, removeCadGongshi, Collection, addCadGongshi} from "@src/app/app.common";
+import {timeout, removeCadGongshi, Collection, addCadGongshi, Command} from "@src/app/app.common";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
@@ -9,32 +9,48 @@ import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {MenuComponent} from "../menu/menu.component";
 import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
 import {MathUtils} from "three";
-
-export interface Command {
-	name: string;
-	args: {name: string; defaultValue?: string; value?: string; isBoolean?: boolean; desc: string}[];
-	desc: string;
-}
-
-export const commands: Command[] = [
-	{name: "fillet", args: [{name: "radius", defaultValue: "0", desc: "圆角半径"}], desc: "根据两条直线生成圆角"},
-	{name: "man", args: [{name: "name", defaultValue: "", desc: "查看特定命令的详细信息"}], desc: "查看控制台帮助手册"},
-	{name: "save", args: [], desc: "保存当前所有CAD"},
-	{
-		name: "test",
-		args: [
-			{name: "qwer", defaultValue: "aaa", desc: "..."},
-			{name: "asdf", isBoolean: true, desc: "???"}
-		],
-		desc: "测试"
-	}
-];
-
-export const cmdNames = commands.map((v) => v.name);
+import {openCadListDialog} from "../cad-list/cad-list.component";
+import {getCommand} from "@src/app/store/selectors";
+import {takeUntil} from "rxjs/operators";
+import {highlight} from "highlight.js";
 
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 };
+
+export const commands: Command[] = [
+	{name: "fillet", desc: "根据两条直线生成圆角。", args: [{name: "radius", defaultValue: "0", desc: "圆角半径"}]},
+	{
+		name: "man",
+		desc: "查看控制台帮助手册。",
+		args: [
+			{name: "name", defaultValue: "", desc: "要查询的命令"},
+			{name: "list", isBoolean: true, desc: "查看所有可用命令"}
+		]
+	},
+	{
+		name: "open",
+		desc: "打开一个或多个CAD。",
+		args: [
+			{
+				name: "collection",
+				defaultValue: "2",
+				desc: "CAD集合名字<br>" + getList(["1: p_yuanshicadwenjian", "2: cad", "3: CADmuban", "4: qiliaozuhe", "5: qieliaocad"])
+			}
+		]
+	},
+	{name: "save", desc: "保存当前所有CAD。", args: []},
+	{
+		name: "test",
+		desc: "测试。",
+		args: [
+			{name: "qwer", defaultValue: "aaa", desc: "..."},
+			{name: "asdf", isBoolean: true, desc: "???"}
+		]
+	}
+];
+
+export const cmdNames = commands.map((v) => v.name);
 
 const spaceReplacer = MathUtils.generateUUID();
 
@@ -50,6 +66,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 	historyOffset = -1;
 	historySize = 100;
 	collection: Collection;
+	openLock = false;
 	@ViewChild("consoleOuter", {read: ElementRef}) consoleOuter: ElementRef<HTMLDivElement>;
 	@ViewChild("consoleInner", {read: ElementRef}) consoleInner: ElementRef<HTMLDivElement>;
 	@ViewChild("contentEl", {read: ElementRef}) contentEl: ElementRef<HTMLDivElement>;
@@ -65,7 +82,17 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 		super(injector);
 	}
 
-	ngOnInit() {}
+	ngOnInit() {
+		super.ngOnInit();
+		this.store
+			.select(getCommand)
+			.pipe(takeUntil(this.destroyed))
+			.subscribe((command) => {
+				if (command) {
+					this.execute(command);
+				}
+			});
+	}
 
 	onKeyDown(event: KeyboardEvent) {
 		const currCmdName = this.content;
@@ -78,10 +105,12 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 			// this.update();
 		} else if (key === "Tab") {
 			event.preventDefault();
-			el.innerHTML = currCmdName.correct + currCmdName.wrong + currCmdName.hint + "&nbsp;";
-			const selection = getSelection();
-			selection.setPosition(selection.focusNode, el.textContent.length);
-			this.update();
+			if (!currCmdName.correct) {
+				el.innerHTML = currCmdName.wrong + currCmdName.hint + "&nbsp;";
+				const selection = getSelection();
+				selection.setPosition(selection.focusNode, el.textContent.length);
+				this.update();
+			}
 		} else if (key === "ArrowUp") {
 			this.backward(1);
 		} else if (key === "ArrowDown") {
@@ -139,6 +168,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 		if (cmd) {
 			for (let i = 0; i < arr.length; i++) {
 				let arg: Command["args"][0];
+				let directFirst = false;
 				if (arr[i].startsWith("--")) {
 					const name = arr[i].slice(2);
 					arg = cmd.args.find((v) => v.name === name);
@@ -150,9 +180,12 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 					}
 				} else if (i === 0 && arr[i]) {
 					arg = cmd.args[0];
+					directFirst = true;
 				}
 				if (arg) {
-					if (arg.isBoolean) {
+					if (directFirst) {
+						arg.value = arr[i];
+					} else if (arg.isBoolean) {
 						arg.value = "true";
 					} else if (i < arr.length - 1) {
 						const argVal = arr[i + 1];
@@ -282,42 +315,115 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 		this.afterOpenCad.emit();
 	}
 
+	getBashStyle(str: string) {
+		return `<code class="bash hljs">${highlight("bash", str).value}</code>`;
+	}
+
 	/** Console Functions */
 
-	man(name = "") {
+	man(name: string, list: string) {
 		let data: MessageComponent["data"]["bookData"];
-		switch (name) {
-			default:
-				data = [
-					{
-						title: "控制台",
-						content: getList([
-							"按下 <span style='color:red'>Ctrl + ~</span> 以显示/隐藏控制台。",
-							"控制台显示时，按<span style='color:red'>~</span>可以聚焦至控制台。"
-						])
-					},
-					{
-						title: "输入命令",
-						content: getList([
-							`命令示例：eat --food apple --time "12:00 PM" --number 5 --alone。`,
-							`当参数名字的首字母不重复时，可简写为：eat -f apple -t "12:00 PM" -n 5 -a。`,
-							`参数的值类型分为字符串或布尔值，若字符串中包含空格时双（单）引号不能省略，布尔值指定参数时为真，否则为假。`,
-							`不指定参数时会使用其默认值（布尔值类型为false）`,
-							`若只需要指定第一个参数，可以省略参数名字：eat apple`
-						])
-					},
-					{
-						title: "查询命令",
-						content: getList(["若要查看某个命令的用法，可执行命令：man xxx"])
+		if (list === "true") {
+			const cmdList = {};
+			cmdNames.forEach((v) => {
+				if (cmdList[v[0]]) {
+					cmdList[v[0]].push(v);
+				} else {
+					cmdList[v[0]] = [v];
+				}
+			});
+			const cmdListArr = [];
+			for (const key in cmdList) {
+				cmdListArr.push(`<span style="color:orchid">${key}</span><br>${cmdList[key].join(", ")}`);
+			}
+			data = [{title: "命令列表", content: getList(cmdListArr)}];
+		} else {
+			for (const cmd of commands) {
+				if (name === cmd.name) {
+					const argsDesc = cmd.args.map((v) => `[${v.name}=${v.defaultValue}]: ${v.desc}`);
+					if (argsDesc.length) {
+						data = [{title: name, content: `${cmd.desc}以下为参数说明。<br>${getList(argsDesc)}`}];
+					} else {
+						data = [{title: name, content: cmd.desc}];
 					}
-				];
+					break;
+				}
+			}
+		}
+		if (!data) {
+			data = [
+				{
+					title: "控制台",
+					content: getList([
+						"按下 <span style='color:red'>Ctrl + ~</span> 以显示/隐藏控制台。",
+						"控制台显示时，按<span style='color:red'>~</span>可以聚焦至控制台。"
+					])
+				},
+				{
+					title: "输入命令",
+					content: getList([
+						`命令示例：${this.getBashStyle(`eat --food apple --time "12:00 PM" --number 5 --alone`)}`,
+						`当参数名字的首字母不重复时，可简写为：${this.getBashStyle(`eat -f apple -t "12:00 PM" -n 5 -a`)}`,
+						`参数的值类型分为字符串或布尔值，若字符串中包含空格时双（单）引号不能省略，布尔值指定参数时为真，否则为假。`,
+						`不指定参数时会使用其默认值（布尔值类型为false）`,
+						`若只需要指定第一个参数，可以省略参数名字：${this.getBashStyle(`eat apple`)}`
+					])
+				},
+				{
+					title: "查询命令",
+					content: getList([
+						`若要查看所有可用，可执行命令：${this.getBashStyle(`man -l`)}`,
+						`若要查看某个命令的用法，可执行命令：${this.getBashStyle(`man xxx`)}`
+					])
+				}
+			];
 		}
 		openMessageDialog(this.dialog, {
 			data: {
 				type: "book",
 				title: "帮助手册",
 				bookData: data
+			},
+			width: "80vw",
+			height: "65vh"
+		});
+	}
+
+	open(collectionArg: string) {
+		if (this.openLock) {
+			return;
+		}
+		let collection: Collection;
+		switch (collectionArg) {
+			case "1":
+				collection = "p_yuanshicadwenjian";
+				break;
+			case "2":
+				collection = "cad";
+				break;
+			case "3":
+				collection = "CADmuban";
+				break;
+			case "4":
+				collection = "qiliaozuhe";
+				break;
+			case "5":
+				collection = "qieliaocad";
+				break;
+			default:
+				collection = "cad";
+				break;
+		}
+		const selectMode = collection === "p_yuanshicadwenjian" ? "table" : "multiple";
+		const checkedItems = this.cad.data.components.data;
+		const ref = openCadListDialog(this.dialog, {data: {collection, selectMode, checkedItems}});
+		this.openLock = true;
+		ref.afterClosed().subscribe((data: CadData[]) => {
+			if (data) {
+				this.collection = collection;
+				this.afterOpen(data);
 			}
+			this.openLock = false;
 		});
 	}
 

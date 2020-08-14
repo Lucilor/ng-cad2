@@ -1,4 +1,4 @@
-import {LoadingAction, CurrCadsAction, CadStatusAction, CadPointsAction} from "./actions";
+import {LoadingAction, CurrCadsAction, CadStatusAction, CadPointsAction, CommandAction} from "./actions";
 import {State, initialState} from "./state";
 import {ActionReducerMap, MetaReducer} from "@ngrx/store";
 import {environment} from "src/environments/environment";
@@ -65,11 +65,20 @@ export function cadPointsReducer(cadPoints = initialState.cadPoints, action: Cad
 	return cadPoints;
 }
 
+export function commandReducer(command = initialState.command, action: CommandAction) {
+	const {type} = action;
+	if (type === "execute") {
+		return action.command;
+	}
+	return command;
+}
+
 export const reducers: ActionReducerMap<State> = {
 	loading: loadingReducer,
 	currCads: currCadsReducer,
 	cadStatus: cadStatusReducer,
-	cadPoints: cadPointsReducer
+	cadPoints: cadPointsReducer,
+	command: commandReducer
 };
 
 export const metaReducers: MetaReducer<State>[] = !environment.production ? [] : [];

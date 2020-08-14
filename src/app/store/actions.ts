@@ -1,5 +1,6 @@
 import {Action} from "@ngrx/store";
 import {State} from "./state";
+import {Command} from "@app/app.common";
 
 export type LoadingActionType = "add loading" | "remove loading" | "set loading progress";
 export interface LoadingAction extends Action {
@@ -26,4 +27,10 @@ export type CadPointsActionType = "set cad points";
 export interface CadPointsAction extends Action {
 	readonly type: CadPointsActionType;
 	points: State["cadPoints"];
+}
+
+export type CommandActionType = "execute";
+export interface CommandAction extends Action {
+	readonly type: CommandActionType;
+	command: Command;
 }

@@ -1,6 +1,6 @@
 import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CurrCadsAction, CadStatusAction, LoadingAction} from "@src/app/store/actions";
+import {CurrCadsAction, CadStatusAction, LoadingAction, CommandAction} from "@src/app/store/actions";
 import {Line, Point} from "@lucilor/utils";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {MenuComponent} from "../menu.component";
@@ -243,18 +243,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	showManual(name = "") {
-		// const page1 = `
-		// <ul>
-		// 	<li>按下 <span style='color:red'>Ctrl + ~</span> 以显示/隐藏控制台。</li>
-		// 	<li>控制台显示时，按<span style='color:red'>Ctrl + ~</span>可以聚焦至控制台。</li>
-		// </ul>`;
-		// openMessageDialog(this.dialog, {
-		// 	data: {
-		// 		type: "book",
-		// 		title: "帮助手册",
-		// 		bookData: {contents: [page1, "???", "GGGG"]}
-		// 	}
-		// });
+		this.store.dispatch<CommandAction>({type: "execute", command: {name: "man", args: []}});
 	}
 
 	async assembleCads() {
