@@ -2,11 +2,11 @@ import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {MenuComponent} from "../menu.component";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {openCadOptionsDialog} from "../../menu/cad-options/cad-options.component";
-import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
+import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {openMessageDialog} from "../../message/message.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {generatePointsMap, getPointsFromMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getCadGongshiText} from "@src/app/app.common";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
@@ -30,6 +30,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 
 	ngOnInit() {
 		super.ngOnInit();
+		const store = this.store;
 		this.getObservable(getCurrCads).subscribe((currCads) => {
 			this.cadsData = getCurrCadsData(this.cad.data, currCads);
 			const ids = this.cad.data.components.data.map((v) => v.id);
@@ -43,7 +44,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 			this.updateLengths(this.cadsData);
 		});
-		this.getObservable(getCadStatus).subscribe(({name}) => {
+		this.getObservable(getCadStatus).subscribe(({name, index}) => {
 			if (name === "normal") {
 				this.baseLineIndex = -1;
 			}
@@ -76,19 +77,16 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 			}
 		});
-		this.store
-			.select(getCadPoints)
-			.pipe(takeUntil(this.destroyed))
-			.subscribe(async (points) => {
-				const point = points.filter((v) => v.active)[0];
-				const status = await this.getCadStatus();
-				if (status.name !== "select jointpoint" || !point) {
-					return;
-				}
-				const jointPoint = this.cadsData[0].jointPoints[this.jointPointIndex];
-				jointPoint.valueX = point.x;
-				jointPoint.valueY = point.y;
-			});
+		this.getObservable(getCadPoints).subscribe(async (points) => {
+			const point = points.filter((v) => v.active)[0];
+			const {name} = await this.getObservableOnce(getCadStatus);
+			if (name !== "select jointpoint" || !point) {
+				return;
+			}
+			const jointPoint = this.cadsData[0].jointPoints[this.jointPointIndex];
+			jointPoint.valueX = point.x;
+			jointPoint.valueY = point.y;
+		});
 	}
 
 	ngOnDestroy() {

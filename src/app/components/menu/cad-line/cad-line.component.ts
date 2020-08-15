@@ -10,12 +10,12 @@ import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
 import {MenuComponent} from "../menu.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
-import {getCadPoints, getCurrCadsData} from "@src/app/store/selectors";
+import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {takeUntil} from "rxjs/operators";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {State} from "@src/app/store/state";
 import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {State} from "@src/app/store/state";
 
 @Component({
 	selector: "app-cad-line",
@@ -28,6 +28,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	editDiabled = true;
 	lineDrawing: {start: Vector2; end: Vector2; entity?: CadLine};
 	data: CadData;
+	cadStatusName: State["cadStatus"]["name"];
 
 	get selected() {
 		const {line, arc} = this.cad.selectedEntities;
@@ -46,7 +47,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		controls.on("entityselect", this.updateEditDisabled.bind(this));
 		controls.on("entitiesselect", this.updateEditDisabled.bind(this));
 
-		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
+		this.getObservable(getCurrCads).subscribe((currCads) => {
 			const cads = getCurrCadsData(this.cad.data, currCads);
 			if (cads.length === 1) {
 				this.data = cads[0];
@@ -56,8 +57,9 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		});
 
 		let prevSelectMode: CadViewerControlsConfig["selectMode"];
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name}) => {
+		this.getObservable(getCadStatus).subscribe(({name}) => {
 			const {cad, store, data} = this;
+			this.cadStatusName = name;
 			if (name === "draw line") {
 				const points = getPointsFromMap(cad, generatePointsMap(data.getAllEntities()));
 				store.dispatch<CadPointsAction>({type: "set cad points", points});
@@ -67,9 +69,9 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 				});
 				prevSelectMode = cad.controls.config.selectMode;
 				cad.controls.config.selectMode = "none";
-			} else if (this.lineDrawing) {
+			} else {
 				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
-				cad.removeEntity(this.lineDrawing.entity);
+				cad.removeEntity(this.lineDrawing?.entity);
 				cad.traverse((e) => {
 					e.selectable = e.info.prevSelectable ?? true;
 					delete e.info.prevSelectable;
@@ -82,7 +84,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		cadPoints.pipe(takeUntil(this.destroyed)).subscribe(async (points) => {
 			const index = points.findIndex((v) => v.active);
 			const point = points[index];
-			const {name} = await this.getCadStatus();
+			const {name} = await this.getObservableOnce(getCadStatus);
 			if (!point || name !== "draw line") {
 				return;
 			}
@@ -231,7 +233,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async drawLine() {
-		const {name} = await this.getCadStatus();
+		const {name} = await this.getObservableOnce(getCadStatus);
 		if (name === "draw line") {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		} else {
