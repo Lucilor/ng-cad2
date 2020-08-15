@@ -117,11 +117,18 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			});
 		} else if (option === "huajian") {
 			const checkedItems = data.huajian.split(",");
-			openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems}});
 			const ref = openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems}});
 			ref.afterClosed().subscribe((v) => {
 				if (Array.isArray(v)) {
 					data.huajian = v.join(",");
+				}
+			});
+		} else if (option === "bancai") {
+			const checkedItems = data.morenkailiaobancai.split(",");
+			const ref = openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems}});
+			ref.afterClosed().subscribe((v) => {
+				if (Array.isArray(v)) {
+					data.morenkailiaobancai = v.join(",");
 				}
 			});
 		}
