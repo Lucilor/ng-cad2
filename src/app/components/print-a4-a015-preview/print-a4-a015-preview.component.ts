@@ -78,4 +78,29 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 		print();
 		this.printing = false;
 	}
+
+	getTop(i: number) {
+		switch (Math.floor(i / 4)) {
+			case 0:
+				return "10px";
+			case 1:
+				return "9px";
+			case 2:
+				return "10px";
+			case 3:
+				return "11px";
+			case 4:
+				return "11px";
+			case 5:
+				return "11px";
+			case 6:
+				return "11px";
+			default:
+				return "0px";
+		}
+	}
+
+	getLeft(i: number) {
+		return (i % 4 ? 10 : 0) + "px";
+	}
 }

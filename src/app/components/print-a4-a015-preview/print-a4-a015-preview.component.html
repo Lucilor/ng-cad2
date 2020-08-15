@@ -1,5 +1,5 @@
 <div class="page" *ngFor="let page of data; let i = index">
-	<div class="card" *ngFor="let card of page">
+	<div class="card" [style.margin-top]="getTop(j)" [style.margin-left]="getLeft(j)" *ngFor="let card of page; let j = index">
 		<ng-container *ngIf="card.type === '说明'">
 			<div class="title">{{ card.title }}</div>
 		</ng-container>

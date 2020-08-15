@@ -21,6 +21,7 @@ export class CadDimension extends CadEntity {
 	cad2: string;
 	mingzi: string;
 	qujian: string;
+	ref: "entity1" | "entity2" | "minX" | "maxX" | "minY" | "maxY" | "minLength" | "maxLength";
 	object?: Line2;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
@@ -46,6 +47,14 @@ export class CadDimension extends CadEntity {
 		this.cad2 = data.cad2 ?? "";
 		this.mingzi = data.mingzi ?? "";
 		this.qujian = data.qujian ?? "";
+		this.ref = data.ref;
+		if (!this.ref) {
+			if (this.axis === "x") {
+				this.ref = "maxY";
+			} else if (this.axis === "y") {
+				this.ref = "maxX";
+			}
+		}
 	}
 
 	transform() {
@@ -64,7 +73,8 @@ export class CadDimension extends CadEntity {
 			cad1: this.cad1,
 			cad2: this.cad2,
 			mingzi: this.mingzi,
-			qujian: this.qujian
+			qujian: this.qujian,
+			ref: this.ref
 		};
 	}
 

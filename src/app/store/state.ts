@@ -1,6 +1,6 @@
 import {Command} from "../app.common";
+export type CadStatusName = "normal" | "select baseline" | "select jointpoint" | "edit dimension" | "assemble" | "split" | "draw line";
 
-export type CadStatusName = "normal" | "select baseline" | "select jointpoint" | "edit dimension" | "assemble" | "split";
 export interface CadStatus {
 	name: CadStatusName;
 	index: number;

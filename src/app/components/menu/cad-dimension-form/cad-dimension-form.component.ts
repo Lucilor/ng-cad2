@@ -30,6 +30,7 @@ export class CadDimensionFormComponent implements OnInit {
 			e1Location: dimension.entity1?.location,
 			e2Location: dimension.entity2?.location,
 			axis: dimension.axis,
+			ref: dimension.ref,
 			distance: dimension.distance,
 			fontSize: dimension.font_size,
 			cad1: new FormControl({value: dimension.cad1 || " ", disabled: true}),
@@ -48,6 +49,7 @@ export class CadDimensionFormComponent implements OnInit {
 			dimension.axis = value.axis;
 			dimension.distance = value.distance;
 			dimension.font_size = value.fontSize;
+			dimension.ref = value.ref;
 			this.dialogRef.close(dimension);
 		} else {
 			this.form.controls.qujian.updateValueAndValidity();

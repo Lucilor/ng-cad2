@@ -681,53 +681,87 @@ export class CadData {
 		});
 	}
 
-	getDimensionPoints({entity1, entity2, distance, axis, distance2}: CadDimension) {
-		const getPoint = ({id, location}: CadDimensionEntity) => {
-			const e = this.findEntity(id);
-			if (e instanceof CadLine) {
-				const {start, end, middle} = e.clone();
-				if (location === "start") {
-					return start;
-				} else if (location === "end") {
-					return end;
-				} else if (location === "center") {
-					return middle;
-				} else if (location === "min") {
-					if (axis === "x") {
-						return start.y < end.y ? start : end;
-					} else if (axis === "y") {
-						return start.x < end.x ? start : end;
-					}
-				} else if (location === "max") {
-					if (axis === "x") {
-						return start.y > end.y ? start : end;
-					} else if (axis === "y") {
-						return start.x > end.x ? start : end;
-					}
+	getDimensionPoints({entity1, entity2, distance, axis, distance2, ref}: CadDimension) {
+		let entity: CadDimensionEntity;
+		const line1 = this.findEntity(entity1.id) as CadLine;
+		const line2 = this.findEntity(entity2.id) as CadLine;
+		if (!(line1 instanceof CadLine) || !(line2 instanceof CadLine)) {
+			return [];
+		}
+		switch (ref) {
+			case "entity1":
+				entity = entity1;
+				break;
+			case "entity2":
+				entity = entity2;
+				break;
+			case "maxLength":
+				entity = line2.length > line1.length ? entity2 : entity1;
+				break;
+			case "minLength":
+				entity = line2.length > line1.length ? entity1 : entity2;
+				break;
+			case "maxX":
+				entity = line2.maxX > line1.maxX ? entity2 : entity1;
+				break;
+			case "maxY":
+				entity = line2.maxY > line1.maxY ? entity2 : entity1;
+				break;
+			case "minX":
+				entity = line2.minX < line1.minX ? entity2 : entity1;
+				break;
+			case "minY":
+				entity = line2.minY < line1.minY ? entity2 : entity1;
+				break;
+			default:
+				break;
+		}
+		const getPoint = (e: CadLine, location: CadDimensionEntity["location"]) => {
+			const {start, end, middle} = e.clone();
+			if (location === "start") {
+				return start;
+			} else if (location === "end") {
+				return end;
+			} else if (location === "center") {
+				return middle;
+			} else if (location === "min") {
+				if (axis === "x") {
+					return start.y < end.y ? start : end;
+				} else if (axis === "y") {
+					return start.x < end.x ? start : end;
+				}
+			} else if (location === "max") {
+				if (axis === "x") {
+					return start.y > end.y ? start : end;
+				} else if (axis === "y") {
+					return start.x > end.x ? start : end;
 				}
 			}
-			return null;
 		};
-		let p1 = getPoint(entity1);
-		let p2 = getPoint(entity2);
+		let p1 = getPoint(line1, entity1.location);
+		let p2 = getPoint(line2, entity2.location);
 		if (!p1 || !p2) {
 			return [];
 		}
 		let p3 = p1.clone();
 		let p4 = p2.clone();
+		let p: Vector2;
+		if (entity.id === entity1.id) {
+			p = getPoint(line1, entity1.location);
+		} else {
+			p = getPoint(line2, entity2.location);
+		}
 		if (axis === "x") {
-			const y = Math.max(p3.y, p4.y);
-			p3.y = y + distance;
-			p4.y = y + distance;
+			p3.y = p.y + distance;
+			p4.y = p.y + distance;
 			if (p3.x > p4.x) {
 				[p3, p4] = [p4, p3];
 				[p1, p2] = [p2, p1];
 			}
 		}
 		if (axis === "y") {
-			const x = Math.max(p3.x, p4.x);
-			p3.x = x + distance;
-			p4.x = x + distance;
+			p3.x = p.x + distance;
+			p4.x = p.x + distance;
 			if (p3.y < p4.y) {
 				[p3, p4] = [p4, p3];
 				[p1, p2] = [p2, p1];

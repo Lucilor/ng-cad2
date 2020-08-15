@@ -323,7 +323,7 @@ export class CadDataService {
 
 	async downloadDxf(data: CadData) {
 		const result = await this.request("peijian/cad/downloadDxf", "downloadDxf", "POST", {cadData: data.export()});
-		const host = this.baseURL === "/api" ? "http://www.n.com:12305/" : origin;
+		const host = this.baseURL === "/api" ? "localhost" : origin;
 		if (result) {
 			open(host + "/" + result.data.path);
 		}

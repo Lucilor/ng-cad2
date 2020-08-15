@@ -1,4 +1,12 @@
-<form [class.not-allowed]="selected.length < 1">
+<button
+	mat-raised-button
+	[style.z-index]="data ? '1' : '0'"
+	[color]="(cadStatus | async).name === 'draw line' ? 'accent' : 'primary'"
+	(click)="drawLine()"
+>
+	画线
+</button>
+<form [class.not-allowed]="editDiabled">
 	<button hidden></button>
 	<div class="form-item length">
 		<mat-form-field>

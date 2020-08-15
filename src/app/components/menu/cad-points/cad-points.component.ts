@@ -3,6 +3,7 @@ import {Observable, Subject} from "rxjs";
 import {State} from "@src/app/store/state";
 import {Store} from "@ngrx/store";
 import {getCadPoints} from "@src/app/store/selectors";
+import {CadPointsAction} from "@src/app/store/actions";
 
 @Component({
 	selector: "app-cad-points",
@@ -23,5 +24,7 @@ export class CadPointsComponent implements OnInit, OnDestroy {
 		this.destroyed.next();
 	}
 
-	onPointClick() {}
+	onPointClick(index: number) {
+		this.store.dispatch<CadPointsAction>({type: "activate cad points" , indices: [index]});
+	}
 }

@@ -1,6 +1,5 @@
 import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {MenuComponent} from "../menu.component";
-import {State} from "@src/app/store/state";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {openCadOptionsDialog} from "../../menu/cad-options/cad-options.component";
 import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
@@ -33,18 +32,28 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		super.ngOnInit();
 		this.getObservable(getCurrCads).subscribe((currCads) => {
 			this.cadsData = getCurrCadsData(this.cad.data, currCads);
-			if (this.cadsData.length === 1) {
+			const ids = this.cad.data.components.data.map((v) => v.id);
+			if (this.cadsData.length === 1 && ids.includes(this.cadsData[0].id)) {
 				this.editDisabled = false;
 			} else {
 				this.editDisabled = true;
-				this.cadsData = [new CadData()];
+				if (this.cadsData.length < 1) {
+					this.cadsData = [new CadData()];
+				}
 			}
 			this.updateLengths(this.cadsData);
 		});
 		this.getObservable(getCadStatus).subscribe(({name}) => {
 			if (name === "normal") {
 				this.baseLineIndex = -1;
+			}
+			if (name === "select jointpoint") {
+				this.jointPointIndex = index;
+				const points = getPointsFromMap(this.cad, generatePointsMap(this.cadsData[0].getAllEntities()));
+				store.dispatch<CadPointsAction>({type: "set cad points", points});
+			} else if (this.jointPointIndex > -1) {
 				this.jointPointIndex = -1;
+				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 			}
 		});
 		this.cad.controls.on("entityclick", async (event, entity) => {
@@ -67,6 +76,19 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 			}
 		});
+		this.store
+			.select(getCadPoints)
+			.pipe(takeUntil(this.destroyed))
+			.subscribe(async (points) => {
+				const point = points.filter((v) => v.active)[0];
+				const status = await this.getCadStatus();
+				if (status.name !== "select jointpoint" || !point) {
+					return;
+				}
+				const jointPoint = this.cadsData[0].jointPoints[this.jointPointIndex];
+				jointPoint.valueX = point.x;
+				jointPoint.valueY = point.y;
+			});
 	}
 
 	ngOnDestroy() {
@@ -157,37 +179,11 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 	}
 
-	selectBaseLine(data: CadData, index: number) {
-		const {cad, store} = this;
+	selectBaseLine(index: number) {
+		const {store} = this;
 		if (this.getItemColor(index, "baseLine") === "primary") {
-			const {idX, idY} = data.baseLines[index];
-			const entityX = cad.data.findEntity(idX);
-			const entityY = cad.data.findEntity(idY);
-			if (entityX) {
-				entityX.selected = true;
-			}
-			if (entityY) {
-				entityY.selected = true;
-			}
-			cad.traverse((e) => {
-				e.opacity = 0.3;
-				e.selectable = false;
-			});
-			this.cadsData.forEach((v) => {
-				cad.traverse((e) => {
-					if (e instanceof CadLine) {
-						if (e.isHorizonal() || e.isVertical()) {
-							e.opacity = 1;
-							e.selectable = true;
-						}
-					}
-				}, v.getAllEntities());
-			});
-			cad.controls.config.selectMode = "single";
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "select baseline", index});
-			this.baseLineIndex = index;
 		} else {
-			this.baseLineIndex = -1;
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		}
 	}
@@ -208,19 +204,10 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	selectJointPoint(index: number) {
-		const {cad, store} = this;
+		const {store} = this;
 		if (this.getItemColor(index, "jointPoint") === "primary") {
-			this.jointPointIndex = index;
-			const map = generatePointsMap(this.cadsData[0].getAllEntities());
-			const points: State["cadPoints"] = map.map((v) => {
-				const {x, y} = cad.getScreenPoint(v.point);
-				return {x, y, active: false};
-			});
-			store.dispatch<CadPointsAction>({type: "set cad points", points});
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "select jointpoint", index});
 		} else {
-			this.jointPointIndex = -1;
-			store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		}
 	}

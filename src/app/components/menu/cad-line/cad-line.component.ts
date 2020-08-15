@@ -1,31 +1,121 @@
-import {Component, OnInit, Input} from "@angular/core";
+import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {Vector2, Color} from "three";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {findAllAdjacentLines, generatePointsMap, validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {findAllAdjacentLines, generatePointsMap, validateLines, getPointsFromMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getColorLightness} from "@lucilor/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
+import {MenuComponent} from "../menu.component";
+import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
+import {getCadPoints, getCurrCadsData} from "@src/app/store/selectors";
+import {takeUntil} from "rxjs/operators";
+import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {State} from "@src/app/store/state";
+import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls";
+import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 
 @Component({
 	selector: "app-cad-line",
 	templateUrl: "./cad-line.component.html",
 	styleUrls: ["./cad-line.component.scss"]
 })
-export class CadLineComponent implements OnInit {
+export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy {
 	@Input() cad: CadViewer;
+	focusedField = "";
+	editDiabled = true;
+	lineDrawing: {start: Vector2; end: Vector2; entity?: CadLine};
+	data: CadData;
+
 	get selected() {
 		const {line, arc} = this.cad.selectedEntities;
 		return [...line, ...arc];
 	}
-	focusedField = "";
 	readonly selectableColors = {a: ["#ffffff", "#ff0000", "#00ff00", "#0000ff"]};
 
-	constructor() {}
+	constructor(injector: Injector) {
+		super(injector);
+	}
 
-	ngOnInit() {}
+	ngOnInit() {
+		super.ngOnInit();
+		const cad = this.cad;
+		const controls = cad.controls;
+		controls.on("entityselect", this.updateEditDisabled.bind(this));
+		controls.on("entitiesselect", this.updateEditDisabled.bind(this));
+
+		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
+			const cads = getCurrCadsData(this.cad.data, currCads);
+			if (cads.length === 1) {
+				this.data = cads[0];
+			} else {
+				this.data = null;
+			}
+		});
+
+		let prevSelectMode: CadViewerControlsConfig["selectMode"];
+		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name}) => {
+			const {cad, store, data} = this;
+			if (name === "draw line") {
+				const points = getPointsFromMap(cad, generatePointsMap(data.getAllEntities()));
+				store.dispatch<CadPointsAction>({type: "set cad points", points});
+				cad.traverse((e) => {
+					e.info.prevSelectable = e.selectable;
+					e.selectable = false;
+				});
+				prevSelectMode = cad.controls.config.selectMode;
+				cad.controls.config.selectMode = "none";
+			} else if (this.lineDrawing) {
+				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
+				cad.removeEntity(this.lineDrawing.entity);
+				cad.traverse((e) => {
+					e.selectable = e.info.prevSelectable ?? true;
+					delete e.info.prevSelectable;
+				});
+				cad.controls.config.selectMode = prevSelectMode;
+				this.lineDrawing = null;
+			}
+		});
+		const cadPoints = this.store.select(getCadPoints);
+		cadPoints.pipe(takeUntil(this.destroyed)).subscribe(async (points) => {
+			const index = points.findIndex((v) => v.active);
+			const point = points[index];
+			const {name} = await this.getCadStatus();
+			if (!point || name !== "draw line") {
+				return;
+			}
+			const start = cad.getWorldPoint(new Vector2(point.x, point.y));
+			this.lineDrawing = {start, end: null};
+			this.store.dispatch<CadPointsAction>({type: "set cad points", points: []});
+		});
+
+		cad.dom.addEventListener("mousemove", this.onMouseMove.bind(this));
+		cad.dom.addEventListener("click", this.onClick.bind(this));
+	}
+
+	ngOnDestroy() {
+		super.ngOnDestroy();
+		const cad = this.cad;
+		const controls = cad.controls;
+		controls.off("entityselect", this.updateEditDisabled.bind(this));
+		controls.off("entitiesselect", this.updateEditDisabled.bind(this));
+		cad.dom.removeEventListener("mousemove", this.onMouseMove.bind(this));
+		cad.dom.removeEventListener("click", this.onClick.bind(this));
+	}
+
+	updateEditDisabled() {
+		const selected = this.selected;
+		if (selected.length < 1) {
+			this.editDiabled = false;
+			return;
+		}
+		const cads = this.cad.data.components.data;
+		const ids = Array<string>();
+		cads.forEach((v) => v.entities.forEach((vv) => ids.push(vv.id)));
+		this.editDiabled = !selected.every((e) => ids.includes(e.id));
+	}
 
 	expandLine(line: CadLine, d: number) {
 		const theta = line.theta;
@@ -138,5 +228,57 @@ export class CadLineComponent implements OnInit {
 			entity.linewidth = lineweight2linewidth(width);
 		});
 		this.cad.render();
+	}
+
+	async drawLine() {
+		const {name} = await this.getCadStatus();
+		if (name === "draw line") {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+		} else {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "draw line"});
+		}
+	}
+
+	async onMouseMove({clientX, clientY, shiftKey}: MouseEvent) {
+		const {cad, lineDrawing} = this;
+		if (!lineDrawing?.start) {
+			return;
+		}
+		lineDrawing.end = cad.getWorldPoint(new Vector2(clientX, clientY));
+		if (shiftKey) {
+			const dx = Math.abs(lineDrawing.start.x - lineDrawing.end.x);
+			const dy = Math.abs(lineDrawing.start.y - lineDrawing.end.y);
+			if (dx < dy) {
+				lineDrawing.end.x = lineDrawing.start.x;
+			} else {
+				lineDrawing.end.y = lineDrawing.start.y;
+			}
+		}
+		let entity = lineDrawing.entity;
+		if (entity) {
+			entity.end = lineDrawing.end;
+		} else {
+			entity = new CadLine({...lineDrawing});
+			entity.opacity = 0.7;
+			entity.selectable = false;
+			lineDrawing.entity = entity;
+			this.data.entities.add(entity);
+		}
+		cad.render(false, new CadEntities().add(entity));
+	}
+
+	onClick() {
+		const {store, lineDrawing, cad} = this;
+		const entity = lineDrawing?.entity;
+		if (!entity) {
+			return;
+		}
+		entity.opacity = 1;
+		entity.selectable = true;
+		cad.render(false, new CadEntities().add(entity));
+		// this.lineDrawing.entity=null
+		this.lineDrawing = null;
+		const points = getPointsFromMap(cad, generatePointsMap(this.data.getAllEntities()));
+		store.dispatch<CadPointsAction>({type: "set cad points", points});
 	}
 }
