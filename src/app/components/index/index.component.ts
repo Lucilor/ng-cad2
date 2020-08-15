@@ -8,7 +8,6 @@ import {CadAssembleComponent} from "../menu/cad-assemble/cad-assemble.component"
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {environment} from "@src/environments/environment";
-import {takeUntil, take} from "rxjs/operators";
 import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {timeout} from "@src/app/app.common";

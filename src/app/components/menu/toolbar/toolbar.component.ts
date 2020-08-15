@@ -1,19 +1,11 @@
 import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CurrCadsAction, CadStatusAction, LoadingAction, CommandAction} from "@src/app/store/actions";
-import {Line, Point} from "@lucilor/utils";
-import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
+import {CurrCadsAction, CadStatusAction, CommandAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
-import {openCadListDialog} from "../../cad-list/cad-list.component";
-import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
-import {Collection, removeCadGongshi, addCadGongshi, timeout, session, getDPI} from "@src/app/app.common";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
-import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
+import {getCadStatus} from "@src/app/store/selectors";
+import {Collection, addCadGongshi, session} from "@src/app/app.common";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {createPdf} from "pdfmake/build/pdfmake";
-import {MathUtils} from "three";
-import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 
 @Component({
 	selector: "app-toolbar",
@@ -34,7 +26,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		5: () => this.open("qieliaocad"),
 		g: () => this.assembleCads(),
 		h: () => this.splitCad(),
-		"`": () => this.repeatLastCommand(),
 		p: () => this.printCad()
 	};
 	lastCommand: {name: string; arguments: IArguments};
@@ -92,21 +83,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	open(collection: Collection) {
-		this.lastCommand = {name: this.open.name, arguments};
-		if (this.openLock) {
-			return;
-		}
-		const selectMode = collection === "p_yuanshicadwenjian" ? "table" : "multiple";
-		const checkedItems = this.cad.data.components.data;
-		const ref = openCadListDialog(this.dialog, {data: {collection, selectMode, checkedItems}});
-		this.openLock = true;
-		ref.afterClosed().subscribe((data: CadData[]) => {
-			if (data) {
-				this.collection = collection;
-				this.afterOpen(data);
-			}
-			this.openLock = false;
-		});
+		this.store.dispatch<CommandAction>({type: "execute", command: {name: "open", args: [{name: "collection", value: collection}]}});
 	}
 
 	afterOpen(data?: CadData[]) {
@@ -131,15 +108,20 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.store.dispatch<CommandAction>({type: "execute", command: {name: "save", args: []}});
 	}
 
-	flip(event: PointerEvent, vertical: boolean, horizontal: boolean) {
-		this.lastCommand = {name: this.flip.name, arguments};
-		event.stopPropagation();
-		this.transform(new CadTransformation({flip: {vertical, horizontal}}));
+	flip(vertical: boolean, horizontal: boolean) {
+		this.store.dispatch<CommandAction>({
+			type: "execute",
+			command: {
+				name: "flip",
+				args: [
+					{name: "horizontal", value: horizontal ? "true" : "false"},
+					{name: "vertical", value: vertical ? "true" : "false"}
+				]
+			}
+		});
 	}
 
-	async rotate(event: PointerEvent, clockwise?: boolean) {
-		this.lastCommand = {name: this.rotate.name, arguments};
-		event.stopPropagation();
+	async rotate(clockwise?: boolean) {
 		let angle = 0;
 		if (clockwise === undefined) {
 			const ref = openMessageDialog(this.dialog, {data: {type: "prompt", title: "输入角度", promptData: {type: "number"}}});
@@ -150,114 +132,27 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			angle = Number(input);
 		} else {
 			if (clockwise === true) {
-				angle = Math.PI / 2;
+				angle = 90;
 			} else if (clockwise === false) {
-				angle = -Math.PI / 2;
+				angle = -90;
 			}
 		}
-		this.transform(new CadTransformation({rotate: {angle}}), typeof clockwise === "boolean");
+		this.store.dispatch<CommandAction>({
+			type: "execute",
+			command: {name: "rotate", args: [{name: "degrees", value: angle.toString()}]}
+		});
 	}
 
-	async transform(trans: CadTransformation, rotateDimension = false) {
-		const {cad} = this;
-		const seleted = cad.selectedEntities;
-		if (seleted.length) {
-			const {x, y} = cad.getBounds(seleted);
-			trans.anchor.set(x, y);
-			seleted.transform(trans);
-		} else {
-			const t = (data: CadData) => {
-				const {x, y} = data.getBounds();
-				trans.anchor.set(x, y);
-				data.transform(trans);
-				if (rotateDimension) {
-					data.getAllEntities().dimension.forEach((d) => {
-						if (d.axis === "x") {
-							d.axis = "y";
-						} else {
-							d.axis = "x";
-						}
-					});
-				}
-				removeCadGongshi(data);
-				addCadGongshi(data);
-			};
-			const currCads = await this.getObservableOnce(getCurrCads);
-			const currCadsData = getCurrCadsData(this.cad.data, currCads);
-			if (currCadsData.length) {
-				currCadsData.forEach((data) => t(data));
-			} else {
-				this.cad.data.components.data.forEach((data) => t(data));
-			}
-		}
-		cad.data.updatePartners().updateComponents();
-		cad.render();
-	}
-
-	showManual(name = "") {
+	showManual() {
 		this.store.dispatch<CommandAction>({type: "execute", command: {name: "man", args: []}});
 	}
 
 	async assembleCads() {
-		this.lastCommand = {name: this.assembleCads.name, arguments};
-		const {name} = await this.getObservableOnce(getCadStatus);
-		if (name === "assemble") {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
-		} else {
-			const index = await this.takeOneMajorCad("装配");
-			if (index !== null) {
-				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "assemble", index});
-			}
-		}
+		this.store.dispatch<CommandAction>({type: "execute", command: {name: "assemble", args: []}});
 	}
 
 	async splitCad() {
-		this.lastCommand = {name: this.splitCad.name, arguments};
-		const {name} = await this.getObservableOnce(getCadStatus);
-		if (name === "split") {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
-		} else {
-			const index = await this.takeOneMajorCad("选取");
-			if (index !== null) {
-				const collection = this.collection;
-				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "split", index, extra: {collection, index}});
-			}
-		}
-	}
-
-	repeatLastCommand() {
-		if (this.lastCommand) {
-			const {name, arguments: args} = this.lastCommand;
-			this[name](...args);
-		}
-	}
-
-	async takeOneMajorCad(desc: string) {
-		const currCadsData = await this.getCurrCadsData();
-		const ids = currCadsData.map((v) => v.id);
-		const selected: {names: string[]; indices: number[]} = {names: [], indices: []};
-		this.cad.data.components.data.forEach((v, i) => {
-			if (ids.includes(v.id)) {
-				selected.names.push(v.name);
-				selected.indices.push(i);
-			}
-		});
-		if (selected.indices.length < 1) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "请先选择一个主CAD"}});
-			return null;
-		} else if (selected.indices.length > 1) {
-			const ref = openMessageDialog(this.dialog, {
-				data: {
-					type: "confirm",
-					content: `你选择了多个主CAD。进入${desc}将自动选择<span style="color:red">${selected.names[0]}</span>，是否继续？`
-				}
-			});
-			const yes = await ref.afterClosed().toPromise();
-			if (!yes) {
-				return;
-			}
-		}
-		return selected.indices[0];
+		this.store.dispatch<CommandAction>({type: "execute", command: {name: "split", args: []}});
 	}
 
 	setCadData(data: CadData) {
@@ -333,134 +228,15 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.render();
 	}
 
-	/**
-	 * A4: (210 × 297)mm²
-	 *    =(8.26 × 11.69)in² (1in = 25.4mm)
-	 * 	  =(794 × 1123)px² (96dpi)
-	 */
-	async printCad() {
-		this.store.dispatch<LoadingAction>({type: "add loading", name: "printCad"});
-		await timeout(100);
-		const data = this.cad.data.clone();
-		removeCadGongshi(data);
-		let [dpiX, dpiY] = getDPI();
-		if (!(dpiX > 0) || !(dpiY > 0)) {
-			console.warn("Unable to get screen dpi.Assuming dpi = 96.");
-			dpiX = dpiY = 96;
-		}
-		const width = (210 / 25.4) * dpiX * 0.75;
-		const height = (297 / 25.4) * dpiY * 0.75;
-		const scaleX = 300 / dpiX / 0.75;
-		const scaleY = 300 / dpiY / 0.75;
-		const scale = Math.sqrt(scaleX * scaleY);
-		data.getAllEntities().forEach((e) => {
-			if (e.linewidth >= 0.3) {
-				e.linewidth *= 3;
-			}
-			e.color.set(0);
-			if (e instanceof CadDimension) {
-				e.selected = true;
-			}
-		});
-		const cad = new CadViewer(data, {
-			...this.cad.config,
-			width: width * scaleX,
-			height: height * scaleY,
-			backgroundColor: 0xffffff,
-			padding: 18 * scale,
-			showStats: false,
-			showLineLength: 0,
-			showGongshi: 0
-		});
-		document.body.appendChild(cad.dom);
-		cad.render();
-		const src = cad.exportImage().src;
-		cad.destroy();
-		const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
-		pdf.getBlob((blob) => {
-			this.store.dispatch<LoadingAction>({type: "remove loading", name: "printCad"});
-			const url = URL.createObjectURL(blob);
-			open(url);
-			URL.revokeObjectURL(this.lastUrl);
-			this.lastUrl = url;
-		});
+	printCad() {
+		this.store.dispatch<CommandAction>({type: "execute", command: {name: "print", args: []}});
 	}
 
-	async fillet(radius?: number) {
-		const lines = this.cad.selectedEntities.line;
-		if (lines.length !== 2) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "请先选择且只选择两条线段"}});
-			return;
-		}
-		const {start: start1, end: end1} = lines[0];
-		const {start: start2, end: end2} = lines[1];
-		const p1 = new Point(start1.x, start1.y);
-		const p2 = new Point(end1.x, end1.y);
-		const p3 = new Point(start2.x, start2.y);
-		const p4 = new Point(end2.x, end2.y);
-		const l1 = new Line(p1.clone(), p2.clone());
-		const l2 = new Line(p3.clone(), p4.clone());
-		const point = l1.intersect(l2, true);
-		if (!point) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "两条线平行"}});
-			return;
-		}
-		if (radius === undefined) {
-			const ref = openMessageDialog(this.dialog, {
-				data: {type: "prompt", content: "请输入圆角半径", promptData: {type: "number", value: "10"}}
-			});
-			radius = Number(await ref.afterClosed().toPromise());
-			if (!(radius > 0)) {
-				openMessageDialog(this.dialog, {data: {type: "alert", content: "请输入大于零的数字"}});
-				return;
-			}
-		}
-		l1.start.set(point);
-		l2.start.set(point);
-		if (p1.distance(point) > p2.distance(point)) {
-			l1.end.set(p1);
-		}
-		if (p3.distance(point) > p4.distance(point)) {
-			l2.end.set(p3);
-		}
-		const theta1 = l1.theta;
-		const theta2 = l2.theta;
-		const theta3 = Math.abs(theta2 - theta1) / 2;
-		let theta4 = (theta1 + theta2) / 2;
-		let clockwise = theta1 > theta2;
-		if (theta3 > Math.PI / 2) {
-			theta4 -= Math.PI;
-			clockwise = !clockwise;
-		}
-		const d1 = Math.abs(radius / Math.tan(theta3));
-		const d2 = Math.abs(radius / Math.sin(theta4));
-		console.log(MathUtils.radToDeg(theta1), MathUtils.radToDeg(theta2));
-		const start = new Point(Math.cos(theta1), Math.sin(theta1)).multiply(d1).add(point);
-		const end = new Point(Math.cos(theta2), Math.sin(theta2)).multiply(d1).add(point);
-		if (!l1.containsPoint(start) || !l2.containsPoint(end)) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "半径过大"}});
-			return;
-		}
-		const center = new Point(Math.cos(theta4), Math.sin(theta4)).multiply(d2).add(point);
-		if (p1.distance(point) < p2.distance(point)) {
-			lines[0].start.set(start.x, start.y);
-		} else {
-			lines[0].end.set(start.x, start.y);
-		}
-		if (p3.distance(point) < p4.distance(point)) {
-			lines[1].start.set(end.x, end.y);
-		} else {
-			lines[1].end.set(end.x, end.y);
-		}
-		if (radius > 0) {
-			const cadArc = new CadArc({center: center.toArray(), radius, color: lines[0].color});
-			cadArc.start_angle = MathUtils.radToDeg(new Line(start, point).theta);
-			cadArc.end_angle = MathUtils.radToDeg(new Line(end, point).theta);
-			cadArc.clockwise = clockwise;
-			const data = (await this.getCurrCadsData())[0];
-			data.entities.add(cadArc);
-		}
-		this.cad.unselectAll();
+	fillet(radius?: number) {
+		this.store.dispatch<CommandAction>({
+			type: "execute",
+			command: {name: "fillet", args: [{name: "radius", value: radius ? radius.toString() : "0"}]}
+		});
 	}
 
 	saveStatus() {
