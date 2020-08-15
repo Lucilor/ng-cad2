@@ -7,6 +7,15 @@
 @import "~highlight.js/styles/nord.css";
 // @import "./noto-sans-sc.scss";
 
+@font-face {
+	font-family: "Fira Code Retina";
+	src: url("assets/fonts/FIRACODE-RETINA_0.TTF");
+}
+
+code {
+	font-family: "Fira Code Retina";
+}
+
 body {
 	width: 100vw;
 	height: 100vh;

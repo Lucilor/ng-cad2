@@ -1,4 +1,4 @@
-<div #consoleOuter class="console-outter">
+<div #consoleOuter class="console-outter" @console *ngIf="visible">
 	<div #consoleInner class="console-inner" (click)="focuscontentEl()">
 		<div #contentEl contenteditable spellcheck="false" class="content hide-text" (input)="update()" (keydown)="onKeyDown($event)"></div>
 		<div #contentEl2 class="content" style="transform: translateY(-100%);">

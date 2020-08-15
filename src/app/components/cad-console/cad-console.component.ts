@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild, ElementRef, Input, Injector, Output, EventEmitter} from "@angular/core";
+import {Component, OnInit, ViewChild, ElementRef, Input, Injector, Output, EventEmitter, OnDestroy} from "@angular/core";
 import {differenceWith} from "lodash";
 import {timeout, removeCadGongshi, Collection, addCadGongshi, Command, getDPI} from "@src/app/app.common";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -17,6 +17,7 @@ import {createPdf} from "pdfmake/build/pdfmake";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {Line, Point} from "@lucilor/utils";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
+import {animate, style, transition, trigger} from "@angular/animations";
 
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
@@ -73,9 +74,18 @@ const spaceReplacer = MathUtils.generateUUID();
 @Component({
 	selector: "app-cad-console",
 	templateUrl: "./cad-console.component.html",
-	styleUrls: ["./cad-console.component.scss"]
+	styleUrls: ["./cad-console.component.scss"],
+	animations: [
+		trigger("console", [
+			transition(":enter", [
+				style({transform: "translateY(20px)", opacity: 0}),
+				animate("0.3s", style({transform: "translateY(0)", opacity: 1}))
+			]),
+			transition(":leave", [style({filter: "blur(0)"}), animate("0.3s", style({filter: "blur(20px)"}))])
+		])
+	]
 })
-export class CadConsoleComponent extends MenuComponent implements OnInit {
+export class CadConsoleComponent extends MenuComponent implements OnInit, OnDestroy {
 	content = {correct: "", wrong: "", hint: "", args: ""};
 	currCmd: Command = {name: "", args: [], desc: ""};
 	history: string[] = [];
@@ -84,6 +94,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 	collection: Collection;
 	openLock = false;
 	lastUrl: string;
+	visible = false;
 	@ViewChild("consoleOuter", {read: ElementRef}) consoleOuter: ElementRef<HTMLDivElement>;
 	@ViewChild("consoleInner", {read: ElementRef}) consoleInner: ElementRef<HTMLDivElement>;
 	@ViewChild("contentEl", {read: ElementRef}) contentEl: ElementRef<HTMLDivElement>;
@@ -106,6 +117,28 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 				this.execute(command);
 			}
 		});
+		window.addEventListener("keydown", this.onKeyDownWin.bind(this));
+	}
+
+	ngOnDestroy() {
+		super.ngOnDestroy();
+		window.removeEventListener("keydown", this.onKeyDownWin.bind(this));
+	}
+
+	onKeyDownWin({ctrlKey, key}: KeyboardEvent) {
+		if (ctrlKey) {
+			if (key === "`") {
+				this.visible = !this.visible;
+			}
+		} else {
+			const el = this.contentEl?.nativeElement;
+			const activeEl = document.activeElement;
+			if (key.match(/[a-z]/) && el && el !== activeEl && !(activeEl instanceof HTMLInputElement)) {
+				el.focus();
+				const selection = getSelection();
+				selection.setPosition(selection.focusNode, el.textContent.length);
+			}
+		}
 	}
 
 	onKeyDown(event: KeyboardEvent) {
@@ -115,8 +148,6 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 		if (key === "Enter") {
 			event.preventDefault();
 			this.beforeExecute();
-		} else if (key === "Backspace") {
-			// this.update();
 		} else if (key === "Tab") {
 			event.preventDefault();
 			if (!currCmdName.correct) {
@@ -534,8 +565,9 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 				{
 					title: "控制台",
 					content: getList([
-						"按下 <span style='color:red'>Ctrl + ~</span> 以显示/隐藏控制台。",
-						"控制台显示时，按<span style='color:red'>~</span>可以聚焦至控制台。"
+						"按下 <span style='color:deeppink'>Ctrl + ~</span> 以显示/隐藏控制台。",
+						"控制台显示时，按下任意字母可以聚焦至控制台。",
+						"输入命令时，按 <span style='color:deeppink'>Tab</span> 可以自动补全命令。"
 					])
 				},
 				{
@@ -551,7 +583,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 				{
 					title: "查询命令",
 					content: getList([
-						`若要查看所有可用，可执行命令：${this.getBashStyle(`man -l`)}`,
+						`若要查看所有可用命令，可执行命令：${this.getBashStyle(`man -l`)}`,
 						`若要查看某个命令的用法，可执行命令：${this.getBashStyle(`man xxx`)}`
 					])
 				}
@@ -562,7 +594,8 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 				type: "book",
 				title: "帮助手册",
 				bookData: data
-			}
+			},
+			width: "80vw"
 		});
 	}
 
