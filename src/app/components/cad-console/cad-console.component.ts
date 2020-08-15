@@ -10,8 +10,7 @@ import {MenuComponent} from "../menu/menu.component";
 import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
 import {MathUtils} from "three";
 import {openCadListDialog} from "../cad-list/cad-list.component";
-import {getCommand} from "@src/app/store/selectors";
-import {takeUntil} from "rxjs/operators";
+import {getCadStatus, getCommand} from "@src/app/store/selectors";
 import {highlight} from "highlight.js";
 
 const getList = (content: string[]) => {
@@ -84,14 +83,11 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 
 	ngOnInit() {
 		super.ngOnInit();
-		this.store
-			.select(getCommand)
-			.pipe(takeUntil(this.destroyed))
-			.subscribe((command) => {
-				if (command) {
-					this.execute(command);
-				}
-			});
+		this.getObservable(getCommand).subscribe((command) => {
+			if (command) {
+				this.execute(command);
+			}
+		});
 	}
 
 	onKeyDown(event: KeyboardEvent) {
@@ -432,7 +428,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit {
 		let result: CadData[] = [];
 		const data = cad.data.components.data;
 		if (this.collection === "p_yuanshicadwenjian") {
-			const {name, extra} = await this.getCadStatus();
+			const {name, extra} = await this.getObservableOnce(getCadStatus);
 			if (name !== "split") {
 				openMessageDialog(this.dialog, {data: {type: "alert", content: "原始CAD文件只能在选取时保存"}});
 				return;

@@ -3,11 +3,10 @@ import {MenuComponent} from "../menu.component";
 import {State} from "@src/app/store/state";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {openCadOptionsDialog} from "../../menu/cad-options/cad-options.component";
-import {getCurrCadsData} from "@src/app/store/selectors";
+import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {openMessageDialog} from "../../message/message.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {takeUntil} from "rxjs/operators";
 import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getCadGongshiText} from "@src/app/app.common";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
@@ -32,7 +31,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 
 	ngOnInit() {
 		super.ngOnInit();
-		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
+		this.getObservable(getCurrCads).subscribe((currCads) => {
 			this.cadsData = getCurrCadsData(this.cad.data, currCads);
 			if (this.cadsData.length === 1) {
 				this.editDisabled = false;
@@ -42,14 +41,14 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 			this.updateLengths(this.cadsData);
 		});
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name}) => {
+		this.getObservable(getCadStatus).subscribe(({name}) => {
 			if (name === "normal") {
 				this.baseLineIndex = -1;
 				this.jointPointIndex = -1;
 			}
 		});
 		this.cad.controls.on("entityclick", async (event, entity) => {
-			const {name, index} = await this.getCadStatus();
+			const {name, index} = await this.getObservableOnce(getCadStatus);
 			const data = (await this.getCurrCadsData())[0];
 			if (name === "select baseline") {
 				if (entity instanceof CadLine) {

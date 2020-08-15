@@ -13,7 +13,7 @@ import {takeUntil} from "rxjs/operators";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {Vector2, Vector3} from "three";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {getCurrCadsData} from "@src/app/store/selectors";
+import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {openMessageDialog} from "../../message/message.component";
 import {openJsonEditorDialog} from "../../json-editor/json-editor.component";
@@ -62,10 +62,10 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 
 	ngOnInit() {
 		super.ngOnInit();
-		this.currCads.pipe(takeUntil(this.destroyed)).subscribe(() => {
+		this.getObservable(getCurrCads).subscribe(() => {
 			this.updateCad();
 		});
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(() => {
+		this.getObservable(getCadStatus).subscribe(() => {
 			this.updateCad();
 		});
 
@@ -92,8 +92,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		});
 		controls.on("drag", async ({clientX, clientY}) => {
 			if (lastPointer) {
-				const currCads = await this.getCurrCads();
-				const {name} = await this.getCadStatus();
+				const currCads = await this.getObservableOnce(getCurrCads);
+				const {name} = await this.getObservableOnce(getCadStatus);
 				const pointer = new Vector2(clientX, clientY);
 				const translate = lastPointer.sub(pointer).divideScalar(cad.scale);
 				translate.x = -translate.x;
@@ -146,7 +146,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		if (key !== "Enter") {
 			return;
 		}
-		const {name, extra} = await this.getCadStatus();
+		const {name, extra} = await this.getObservableOnce(getCadStatus);
 		if (name !== "split") {
 			return;
 		}
@@ -197,8 +197,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async updateCad() {
-		const {name, index} = await this.getCadStatus();
-		const {cads, partners, components} = await this.getCurrCads();
+		const {name, index} = await this.getObservableOnce(getCadStatus);
+		const {cads, partners, components} = await this.getObservableOnce(getCurrCads);
 		const {cad} = this;
 		const count = cads.length + partners.length + components.length;
 		if (this.needsReload && this.needsReload !== name) {
@@ -297,7 +297,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async updateList(list = this.cad.data.components.data, sync = true, split = false) {
-		const {name} = await this.getCadStatus();
+		const {name} = await this.getObservableOnce(getCadStatus);
 		if (!split && name === "split") {
 			await this.updateList([], sync, true);
 			const data = this.cad.data.findChild(this._prevId);
@@ -513,7 +513,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	async deleteSelected() {
 		const checkedCads = this.cads.filter((v) => v.checked).map((v) => v.data);
 		const checkedIds = checkedCads.map((v) => v.id);
-		const {name, extra} = await this.getCadStatus();
+		const {name, extra} = await this.getObservableOnce(getCadStatus);
 		if (name === "split") {
 			const collection = extra.collection as Collection;
 			if (collection !== "p_yuanshicadwenjian") {

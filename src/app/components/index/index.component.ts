@@ -15,6 +15,7 @@ import {timeout} from "@src/app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {getCadStatus} from "@src/app/store/selectors";
 
 @Component({
 	selector: "app-index",
@@ -100,7 +101,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			this.cad.stats.dom.style.right = "0";
 			this.cad.stats.dom.style.left = "";
 		}
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe((cadStatus) => {
+		this.getObservable(getCadStatus).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
 				this.shownMenus = ["cadInfo", "entityInfo"];
@@ -131,7 +132,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 					escapeDisabled = false;
 					return;
 				}
-				const {name} = await this.cadStatus.pipe(take(1)).toPromise();
+				const {name} = await this.getObservableOnce(getCadStatus);
 				if (name === "assemble" || name === "split") {
 					return;
 				}

@@ -6,7 +6,7 @@ import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
-import {getCurrCadsData} from "@src/app/store/selectors";
+import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {Collection, removeCadGongshi, addCadGongshi, timeout, session, getDPI} from "@src/app/app.common";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
@@ -128,55 +128,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async save() {
-		this.lastCommand = {name: this.save.name, arguments};
-		const {cad, dataService} = this;
-		let result: CadData[] = [];
-		const data = cad.data.components.data;
-		if (this.collection === "p_yuanshicadwenjian") {
-			const {name, extra} = await this.getCadStatus();
-			if (name !== "split") {
-				openMessageDialog(this.dialog, {data: {type: "alert", content: "原始CAD文件只能在选取时保存"}});
-				return;
-			}
-			let indices: number[];
-			if (typeof extra?.index === "number") {
-				indices = [extra.index];
-			} else {
-				indices = [...Array(data.length).keys()];
-			}
-			for (const i of indices) {
-				result = await dataService.postCadData(data[i].components.data, {collection: "cad"});
-				if (result) {
-					data[extra.index].components.data = result;
-					this.afterOpen();
-				}
-			}
-		} else {
-			const validateResult = [];
-			data.forEach((v) => {
-				removeCadGongshi(v);
-				if (this.collection === "cad") {
-					validateResult.push(validateLines(v));
-				}
-			});
-			cad.render();
-			if (validateResult.some((v) => !v.valid)) {
-				const ref = openMessageDialog(this.dialog, {data: {type: "confirm", content: "当前打开的CAD存在错误，是否继续保存？"}});
-				const yes = await ref.afterClosed().toPromise();
-				if (!yes) {
-					return;
-				}
-			}
-			const postData: any = {};
-			if (this.collection) {
-				postData.collection = this.collection;
-			}
-			result = await dataService.postCadData(data, postData);
-			if (result) {
-				this.afterOpen(result);
-			}
-		}
-		return result;
+		this.store.dispatch<CommandAction>({type: "execute", command: {name: "save", args: []}});
 	}
 
 	flip(event: PointerEvent, vertical: boolean, horizontal: boolean) {
@@ -230,7 +182,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				removeCadGongshi(data);
 				addCadGongshi(data);
 			};
-			const currCads = await this.getCurrCads();
+			const currCads = await this.getObservableOnce(getCurrCads);
 			const currCadsData = getCurrCadsData(this.cad.data, currCads);
 			if (currCadsData.length) {
 				currCadsData.forEach((data) => t(data));
@@ -248,7 +200,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	async assembleCads() {
 		this.lastCommand = {name: this.assembleCads.name, arguments};
-		const {name} = await this.getCadStatus();
+		const {name} = await this.getObservableOnce(getCadStatus);
 		if (name === "assemble") {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		} else {
@@ -261,7 +213,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	async splitCad() {
 		this.lastCommand = {name: this.splitCad.name, arguments};
-		const {name} = await this.getCadStatus();
+		const {name} = await this.getObservableOnce(getCadStatus);
 		if (name === "split") {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		} else {
