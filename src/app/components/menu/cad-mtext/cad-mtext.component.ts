@@ -5,8 +5,7 @@ import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity/cad-mtext";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {MenuComponent} from "../menu.component";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {takeUntil} from "rxjs/operators";
-import {getCurrCadsData} from "@src/app/store/selectors";
+import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 
 @Component({
 	selector: "app-cad-mtext",
@@ -25,7 +24,7 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 
 	ngOnInit() {
 		super.ngOnInit();
-		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
+		this.getObservable(getCurrCads).subscribe((currCads) => {
 			this.data = getCurrCadsData(this.cad.data, currCads)[0];
 		});
 	}

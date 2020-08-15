@@ -2,12 +2,11 @@ import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {MenuComponent} from "../menu.component";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {openCadOptionsDialog} from "../../menu/cad-options/cad-options.component";
-import {getCurrCadsData, getCadPoints} from "@src/app/store/selectors";
+import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {openMessageDialog} from "../../message/message.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {takeUntil} from "rxjs/operators";
-import {generatePointsMap, getPointsFromMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getCadGongshiText} from "@src/app/app.common";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
@@ -31,7 +30,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 
 	ngOnInit() {
 		super.ngOnInit();
-		this.currCads.pipe(takeUntil(this.destroyed)).subscribe((currCads) => {
+		this.getObservable(getCurrCads).subscribe((currCads) => {
 			this.cadsData = getCurrCadsData(this.cad.data, currCads);
 			const ids = this.cad.data.components.data.map((v) => v.id);
 			if (this.cadsData.length === 1 && ids.includes(this.cadsData[0].id)) {
@@ -44,36 +43,8 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 			this.updateLengths(this.cadsData);
 		});
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(async ({name, index}) => {
-			const data = (await this.getCurrCadsData())[0];
-			const {store, cad} = this;
-			if (name === "select baseline") {
-				const {idX, idY} = data.baseLines[index];
-				const entityX = cad.data.findEntity(idX);
-				const entityY = cad.data.findEntity(idY);
-				if (entityX) {
-					entityX.selected = true;
-				}
-				if (entityY) {
-					entityY.selected = true;
-				}
-				cad.traverse((e) => {
-					e.opacity = 0.3;
-					e.selectable = false;
-				});
-				this.cadsData.forEach((v) => {
-					cad.traverse((e) => {
-						if (e instanceof CadLine) {
-							if (e.isHorizonal() || e.isVertical()) {
-								e.opacity = 1;
-								e.selectable = true;
-							}
-						}
-					}, v.getAllEntities());
-				});
-				cad.controls.config.selectMode = "single";
-				this.baseLineIndex = index;
-			} else {
+		this.getObservable(getCadStatus).subscribe(({name}) => {
+			if (name === "normal") {
 				this.baseLineIndex = -1;
 			}
 			if (name === "select jointpoint") {
@@ -86,7 +57,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		});
 		this.cad.controls.on("entityclick", async (event, entity) => {
-			const {name, index} = await this.getCadStatus();
+			const {name, index} = await this.getObservableOnce(getCadStatus);
 			const data = (await this.getCurrCadsData())[0];
 			if (name === "select baseline") {
 				if (entity instanceof CadLine) {

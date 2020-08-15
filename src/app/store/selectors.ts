@@ -21,3 +21,5 @@ export function getCurrCadsData(data: CadData, currCads: State["currCads"]) {
 export const getCadStatus = ({cadStatus}: State) => cadStatus;
 
 export const getCadPoints = ({cadPoints}: State) => cadPoints;
+
+export const getCommand = ({command}: State) => command;

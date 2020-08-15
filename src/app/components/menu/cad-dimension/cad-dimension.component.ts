@@ -4,9 +4,9 @@ import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {CadStatusAction} from "@src/app/store/actions";
-import {take, takeUntil} from "rxjs/operators";
 import {MenuComponent} from "../menu.component";
 import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls";
+import {getCadStatus} from "@src/app/store/selectors";
 
 @Component({
 	selector: "app-cad-dimension",
@@ -31,14 +31,14 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	ngOnInit() {
 		super.ngOnInit();
 		const {cad} = this;
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe(({name, index}) => {
+		this.getObservable(getCadStatus).subscribe(({name, index}) => {
 			if (name !== "edit dimension") {
 				this.dimLineSelecting = -1;
 			}
 		});
 		cad.controls.on("entityselect", async (event, entity) => {
 			const data = cad.data.components.data;
-			const {name, index} = await this.cadStatus.pipe(take(1)).toPromise();
+			const {name, index} = await this.getObservableOnce(getCadStatus);
 			const dimensions = this.dimensions;
 			if (name === "edit dimension" && entity instanceof CadLine) {
 				let thatData: CadData;
@@ -126,14 +126,14 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 		this.cad.render();
 	}
 
-	async isSelectingDimLine(index: number) {
-		const cadStatus = await this.cadStatus.pipe(take(1)).toPromise();
-		return cadStatus.name === "edit dimension" && cadStatus.index === index;
+	async isSelectingDimLine(i: number) {
+		const {name, index} = await this.getObservableOnce(getCadStatus);
+		return name === "edit dimension" && index === i;
 	}
 
 	async selectDimLine(index: number) {
 		const {cad, dimensions: data} = this;
-		const cadStatus = await this.cadStatus.pipe(take(1)).toPromise();
+		const cadStatus = await this.getObservableOnce(getCadStatus);
 		if (cadStatus.name === "edit dimension" && cadStatus.index === index) {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 			this.dimLineSelecting = null;

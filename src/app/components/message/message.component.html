@@ -1,9 +1,10 @@
 <h1 mat-dialog-title [innerHTML]="titleHTML"></h1>
+<h2 mat-dialog-title [innerHTML]="subTitleHTML"></h2>
 <div mat-dialog-content>
 	<div [innerHTML]="contentHTML"></div>
 	<mat-form-field *ngIf="data.type === 'prompt'">
 		<input matInput [type]="data.promptData.type" [(ngModel)]="input" />
-		<mat-hint>{{data.promptData.hint}}</mat-hint>
+		<mat-hint>{{ data.promptData.hint }}</mat-hint>
 	</mat-form-field>
 </div>
 <div mat-dialog-actions style="justify-content: center;">
@@ -17,5 +18,12 @@
 	<ng-container *ngIf="data.type === 'prompt'">
 		<button mat-raised-button (click)="submit()" cdkFocusInitial>确定</button>
 		<button mat-raised-button (click)="cancle()">取消</button>
+	</ng-container>
+	<ng-container *ngIf="data.type === 'book'">
+		<button mat-raised-button (click)="setPage(page - 1)" [disabled]="page <= 0">上一页</button>
+		<button mat-raised-button (click)="setPage(page + 1)" [disabled]="page >= data.bookData.length - 1">
+			下一页
+		</button>
+		<button mat-raised-button (click)="cancle()">退出</button>
 	</ng-container>
 </div>

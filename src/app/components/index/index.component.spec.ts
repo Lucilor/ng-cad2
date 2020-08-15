@@ -28,6 +28,7 @@ import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
 import {RouterTestingModule} from "@angular/router/testing";
+import {CadConsoleComponent} from "../cad-console/cad-console.component";
 
 describe("IndexComponent", () => {
 	let component: IndexComponent;
@@ -43,7 +44,8 @@ describe("IndexComponent", () => {
 				CadDimensionComponent,
 				SubCadsComponent,
 				ToolbarComponent,
-				CadPointsComponent
+				CadPointsComponent,
+				CadConsoleComponent
 			],
 			imports: [
 				HttpClientTestingModule,

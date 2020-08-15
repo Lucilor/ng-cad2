@@ -4,9 +4,9 @@ import {Store} from "@ngrx/store";
 import {State} from "@src/app/store/state";
 import {MatDialog} from "@angular/material/dialog";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
-import {Subject, Observable} from "rxjs";
-import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
-import {take} from "rxjs/operators";
+import {Subject} from "rxjs";
+import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
+import {take, takeUntil} from "rxjs/operators";
 
 @Component({
 	selector: "app-menu",
@@ -18,8 +18,6 @@ export class MenuComponent implements OnInit, OnDestroy {
 	protected store: Store<State>;
 	protected dialog: MatDialog;
 	@Input() cad: CadViewer;
-	cadStatus: Observable<State["cadStatus"]>;
-	currCads: Observable<State["currCads"]>;
 	destroyed = new Subject();
 	contextMenuPosition = {x: "0px", y: "0px"};
 
@@ -27,8 +25,6 @@ export class MenuComponent implements OnInit, OnDestroy {
 		this.dataService = injector.get(CadDataService);
 		this.store = injector.get(Store);
 		this.dialog = injector.get(MatDialog);
-		this.cadStatus = this.store.select(getCadStatus);
-		this.currCads = this.store.select(getCurrCads);
 	}
 
 	ngOnInit() {
@@ -51,15 +47,15 @@ export class MenuComponent implements OnInit, OnDestroy {
 		this.contextMenuPosition.y = event.clientY + "px";
 	}
 
-	async getCadStatus() {
-		return await this.cadStatus.pipe(take(1)).toPromise();
-	}
-
-	async getCurrCads() {
-		return await this.currCads.pipe(take(1)).toPromise();
-	}
-
 	async getCurrCadsData() {
-		return getCurrCadsData(this.cad.data, await this.getCurrCads());
+		return getCurrCadsData(this.cad.data, await this.getObservableOnce(getCurrCads));
+	}
+
+	getObservable<T>(selector: (state: State) => T) {
+		return this.store.select(selector).pipe(takeUntil(this.destroyed));
+	}
+
+	getObservableOnce<T>(selector: (state: State) => T) {
+		return this.store.select(selector).pipe(take(1)).toPromise();
 	}
 }

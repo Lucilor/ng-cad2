@@ -53,6 +53,7 @@ import {TestComponent} from "./components/test/test.component";
 import {JsonEditorComponent} from "./components/json-editor/json-editor.component";
 import {CadSearchFormComponent} from "./components/cad-search-form/cad-search-form.component";
 import {PrintA4A015PreviewComponent} from "./components/print-a4-a015-preview/print-a4-a015-preview.component";
+import {CadConsoleComponent} from "./components/cad-console/cad-console.component";
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -99,7 +100,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		TestComponent,
 		JsonEditorComponent,
 		CadSearchFormComponent,
-		PrintA4A015PreviewComponent
+		PrintA4A015PreviewComponent,
+		CadConsoleComponent
 	],
 	imports: [
 		BrowserModule,

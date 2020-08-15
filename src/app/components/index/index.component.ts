@@ -8,11 +8,13 @@ import {CadAssembleComponent} from "../menu/cad-assemble/cad-assemble.component"
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {environment} from "@src/environments/environment";
-import {takeUntil, take} from "rxjs/operators";
 import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {timeout} from "@src/app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
+import {CadConsoleComponent} from "../cad-console/cad-console.component";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {getCadStatus} from "@src/app/store/selectors";
 
 @Component({
 	selector: "app-index",
@@ -59,6 +61,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(CadDimensionComponent) cadDimension: CadDimensionComponent;
 	@ViewChild(CadAssembleComponent) cadAssemble: CadAssembleComponent;
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
+	@ViewChild(CadConsoleComponent) console: CadConsoleComponent;
 
 	// shortcuts for testing
 	get data() {
@@ -74,7 +77,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		return this.data0.export();
 	}
 
-	constructor(injector: Injector) {
+	constructor(injector: Injector, private snakeBar: MatSnackBar) {
 		super(injector);
 	}
 
@@ -97,7 +100,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			this.cad.stats.dom.style.right = "0";
 			this.cad.stats.dom.style.left = "";
 		}
-		this.cadStatus.pipe(takeUntil(this.destroyed)).subscribe((cadStatus) => {
+		this.getObservable(getCadStatus).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
 				this.shownMenus = ["cadInfo", "entityInfo"];
@@ -130,7 +133,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 					escapeDisabled = false;
 					return;
 				}
-				const {name} = await this.cadStatus.pipe(take(1)).toPromise();
+				const {name} = await this.getObservableOnce(getCadStatus);
 				if (name === "assemble" || name === "split") {
 					return;
 				}

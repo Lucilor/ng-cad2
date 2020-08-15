@@ -3,7 +3,7 @@ import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angula
 import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
 
 interface MessageData {
-	type: "alert" | "confirm" | "prompt";
+	type: "alert" | "confirm" | "prompt" | "book";
 	title?: string;
 	content?: any;
 	promptData?: {
@@ -11,6 +11,10 @@ interface MessageData {
 		hint?: string;
 		value?: string;
 	};
+	bookData?: {
+		title?: string;
+		content: string;
+	}[];
 }
 
 @Component({
@@ -21,7 +25,9 @@ interface MessageData {
 export class MessageComponent implements OnInit {
 	input = "";
 	titleHTML: SafeHtml;
+	subTitleHTML: SafeHtml;
 	contentHTML: SafeHtml;
+	page = 0;
 
 	constructor(
 		public dialogRef: MatDialogRef<MessageComponent, boolean | string>,
@@ -50,7 +56,7 @@ export class MessageComponent implements OnInit {
 		}
 		this.contentHTML = this.sanitizer.bypassSecurityTrustHtml(data.content);
 
-		if (this.data.type === "prompt") {
+		if (data.type === "prompt") {
 			if (!data.promptData) {
 				data.promptData = {};
 			}
@@ -64,6 +70,12 @@ export class MessageComponent implements OnInit {
 			if (promptData.value) {
 				this.input = promptData.value;
 			}
+		}
+		if (data.type === "book") {
+			if (!data.bookData) {
+				data.bookData = [];
+			}
+			this.setPage(0);
 		}
 	}
 
@@ -79,6 +91,15 @@ export class MessageComponent implements OnInit {
 
 	cancle() {
 		this.dialogRef.close(false);
+	}
+
+	setPage(page: number) {
+		this.page = Math.min(this.data.bookData.length - 1, page);
+		const data = this.data.bookData[this.page];
+		this.contentHTML = this.sanitizer.bypassSecurityTrustHtml(data.content);
+		if (data.title) {
+			this.subTitleHTML = this.sanitizer.bypassSecurityTrustHtml(data.title);
+		}
 	}
 }
 

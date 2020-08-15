@@ -3,7 +3,7 @@ import {MenuComponent} from "../menu.component";
 import {CadConnection, CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadEntity} from "@src/app/cad-viewer/cad-data/cad-entity/cad-entity";
 import {openMessageDialog} from "../../message/message.component";
-import {takeUntil} from "rxjs/operators";
+import {getCadStatus, getCurrCads} from "@src/app/store/selectors";
 
 @Component({
 	selector: "app-cad-assemble",
@@ -29,7 +29,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 		super.ngOnInit();
 		this.cad.controls.on("entityclick", this.onEntityClick.bind(this));
 		this.cad.controls.on("entitiesselect", this.onEntitiesSelect.bind(this));
-		this.currCads.pipe(takeUntil(this.destroyed)).subscribe(({cads}) => {
+		this.getObservable(getCurrCads).subscribe(({cads}) => {
 			const data = this.cad.data.findChild(cads[0]);
 			if (data) {
 				this.data = data;
@@ -44,7 +44,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 	}
 
 	async onEntityClick(_event: PointerEvent, entity: CadEntity) {
-		const {name} = await this.getCadStatus();
+		const {name} = await this.getObservableOnce(getCadStatus);
 		if (name !== "assemble") {
 			return;
 		}
@@ -124,7 +124,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 	}
 
 	async onEntitiesSelect() {
-		const {name, index} = await this.getCadStatus();
+		const {name, index} = await this.getObservableOnce(getCadStatus);
 		if (name !== "assemble") {
 			return;
 		}
