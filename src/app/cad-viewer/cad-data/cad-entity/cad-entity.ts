@@ -1,5 +1,5 @@
 import {CadLayer} from "../cad-layer";
-import {CAD_TYPES, CadTypes} from "../cad-types";
+import {CAD_TYPES} from "../cad-types";
 import {MathUtils, Color, Object3D} from "three";
 import {index2RGB, RGB2Index} from "@lucilor/utils";
 import {CadTransformation} from "../cad-transformation";
@@ -21,6 +21,8 @@ export abstract class CadEntity {
 	info?: {[key: string]: any};
 	_indexColor: number;
 	_lineweight: number;
+	parent: CadEntity = null;
+	children: CadEntity[] = [];
 
 	constructor(data: any = {}, layers: CadLayer[], resetId: boolean) {
 		if (typeof data !== "object") {
@@ -76,7 +78,10 @@ export abstract class CadEntity {
 		this.info = data.info ?? {};
 	}
 
-	abstract transform(trans: CadTransformation): this;
+	transform(trans: CadTransformation) {
+		this.children.forEach((e) => e.transform(trans));
+		return this;
+	}
 
 	export() {
 		this._indexColor = RGB2Index(this.color.getHex());
@@ -88,6 +93,26 @@ export abstract class CadEntity {
 			color: this._indexColor,
 			lineweight: linewidth2lineweight(this.linewidth)
 		};
+	}
+
+	add(...children: CadEntity[]) {
+		this.remove(...children);
+		children.forEach((e) => {
+			e.parent = this;
+			this.children.push(e);
+		});
+		return this;
+	}
+
+	remove(...children: CadEntity[]) {
+		children.forEach((e) => {
+			const index = this.children.findIndex((ee) => ee.id === e.id);
+			if (index > -1) {
+				e.parent = null;
+				this.children.splice(index, 1);
+			}
+		});
+		return this;
 	}
 
 	abstract clone(resetId?: boolean): CadEntity;

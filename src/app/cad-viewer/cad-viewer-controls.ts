@@ -134,7 +134,7 @@ export class CadViewerControls extends EventEmitter {
 	private _getInterSection(pointer: Vector2) {
 		const {raycaster, camera, data} = this.cad;
 		const objects: Object3D[] = [];
-		data.getAllEntities().forEach((e) => {
+		data.getAllEntities(true).forEach((e) => {
 			if (e.object && e.visible && e.selectable) {
 				objects.push(e.object);
 			}

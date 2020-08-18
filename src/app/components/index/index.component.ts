@@ -15,6 +15,7 @@ import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {getCadStatus} from "@src/app/store/selectors";
+import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity/cad-mtext";
 
 @Component({
 	selector: "app-index",
@@ -177,6 +178,15 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		if (this.subCads) {
 			await this.subCads.updateList();
 			// await timeout(100);
+			const text = new CadMtext();
+			const line = this.cad.data.getAllEntities().line[0];
+			text.insert.copy(line.middle);
+			text.text = "WRgwerg";
+			line.color.set(0xff00ff);
+			// line.add(text);
+			line.children.push(text);
+			text.parent = line;
+			console.log(line);
 			this.cad.render(true);
 		} else {
 			await timeout(0);

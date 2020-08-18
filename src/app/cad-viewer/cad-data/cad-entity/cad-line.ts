@@ -64,7 +64,9 @@ export class CadLine extends CadEntity {
 		this.nextZhewan = data.nextZhewan ?? "自动";
 	}
 
-	transform({matrix}: CadTransformation) {
+	transform(trans: CadTransformation) {
+		super.transform(trans);
+		const {matrix} = trans;
 		this.start.applyMatrix3(matrix);
 		this.end.applyMatrix3(matrix);
 		return this;

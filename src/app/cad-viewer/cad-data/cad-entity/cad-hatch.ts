@@ -54,7 +54,9 @@ export class CadHatch extends CadEntity {
 		return {...super.export(), paths};
 	}
 
-	transform({matrix}: CadTransformation) {
+	transform(trans: CadTransformation) {
+		super.transform(trans);
+		const {matrix} = trans;
 		this.paths.forEach((path) => {
 			path.edges.forEach((edge) => {
 				edge.start.applyMatrix3(matrix);

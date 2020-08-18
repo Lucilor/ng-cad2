@@ -1,23 +1,27 @@
-import {CadCircle} from "./cad-circle";
-import {ArcCurve, MathUtils} from "three";
-import {CAD_TYPES} from "../cad-types";
+import {ArcCurve, MathUtils, Vector2} from "three";
 import {CadLayer} from "../cad-layer";
 import {CadTransformation} from "../cad-transformation";
 import {clampAngle} from "../utils";
+import {CadEntity} from "./cad-entity";
 
-export class CadArc extends CadCircle {
+export class CadArc extends CadEntity {
+	center: Vector2;
+	radius: number;
 	start_angle: number;
 	end_angle: number;
 	clockwise: boolean;
-	get curve() {
-		const {center, radius, start_angle, end_angle, clockwise} = this;
-		return new ArcCurve(center.x, center.y, radius, MathUtils.degToRad(start_angle), MathUtils.degToRad(end_angle), clockwise);
-	}
 	get start() {
 		return this.curve.getPoint(0);
 	}
 	get end() {
 		return this.curve.getPoint(1);
+	}
+	get curve() {
+		const {center, radius, start_angle, end_angle, clockwise} = this;
+		return new ArcCurve(center.x, center.y, radius, MathUtils.degToRad(start_angle), MathUtils.degToRad(end_angle), clockwise);
+	}
+	get length() {
+		return this.curve.getLength();
 	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
@@ -28,8 +32,10 @@ export class CadArc extends CadCircle {
 		this.clockwise = data.clockwise ?? false;
 	}
 
-	transform({matrix, flip}: CadTransformation) {
+	transform(trans: CadTransformation) {
+		super.transform(trans);
 		const {center, curve} = this;
+		const {matrix, flip} = trans;
 		center.applyMatrix3(matrix);
 		const start = curve.getPoint(0).applyMatrix3(matrix);
 		const end = curve.getPoint(1).applyMatrix3(matrix);
@@ -61,6 +67,12 @@ export class CadArc extends CadCircle {
 		const endAngle1 = clampAngle(this.end_angle);
 		const startAngle2 = clampAngle(entity.start_angle);
 		const endAngle2 = clampAngle(entity.end_angle);
-		return super.equals(entity) && startAngle1 === startAngle2 && endAngle1 === endAngle2 && this.clockwise === entity.clockwise;
+		return (
+			this.radius === entity.radius &&
+			this.center.equals(entity.center) &&
+			startAngle1 === startAngle2 &&
+			endAngle1 === endAngle2 &&
+			this.clockwise === entity.clockwise
+		);
 	}
 }

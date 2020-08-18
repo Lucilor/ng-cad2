@@ -32,7 +32,9 @@ export class CadMtext extends CadEntity {
 		};
 	}
 
-	transform({matrix}: CadTransformation) {
+	transform(trans: CadTransformation) {
+		super.transform(trans);
+		const {matrix} = trans;
 		this.insert.applyMatrix3(matrix);
 		return this;
 	}

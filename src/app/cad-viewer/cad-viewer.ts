@@ -106,7 +106,7 @@ export class CadViewer {
 		return 50 / this.camera.position.z;
 	}
 	get selectedEntities() {
-		const result = this.data.getAllEntities().filter((e) => e.selected);
+		const result = this.data.getAllEntities(true).filter((e) => e.selected);
 		return result;
 	}
 	get notSelectedEntities() {
@@ -203,22 +203,22 @@ export class CadViewer {
 			console.warn("This instance has already been destroyed.");
 			return this;
 		}
-		const fn = () => {
-			if (!entities) {
-				entities = this.data.getAllEntities();
-			}
-			if (center) {
-				this.center();
-			}
-			entities.line.forEach((e) => this._drawLine(e, style));
-			entities.arc.forEach((e) => this._drawArc(e, style));
-			entities.circle.forEach((e) => this._drawCircle(e, style));
-			entities.mtext.forEach((e) => this._drawMtext(e, style));
-			entities.dimension.forEach((e) => this._drawDimension(e, style));
-			entities.hatch.forEach((e) => this._drawHatch(e, style));
+		if (!entities) {
+			entities = this.data.getAllEntities();
+		}
+		if (center) {
+			this.center();
+		}
+		const draw = (es: CadEntities) => {
+			es.line.forEach((e) => this._drawLine(e, style));
+			es.arc.forEach((e) => this._drawArc(e, style));
+			es.circle.forEach((e) => this._drawCircle(e, style));
+			es.mtext.forEach((e) => this._drawMtext(e, style));
+			es.dimension.forEach((e) => this._drawDimension(e, style));
+			es.hatch.forEach((e) => this._drawHatch(e, style));
 		};
-		// this.checkFps(fn);
-		fn();
+		draw(entities);
+		draw(entities.children);
 		return this;
 	}
 
@@ -639,7 +639,7 @@ export class CadViewer {
 	}
 
 	reset(data?: CadData, center = false) {
-		this.data.getAllEntities().forEach((e) => (e.object = null));
+		this.data.getAllEntities(true).forEach((e) => (e.object = null));
 		this.scene.remove(...this.scene.children);
 		if (data instanceof CadData) {
 			this.data = data;
@@ -685,14 +685,11 @@ export class CadViewer {
 	}
 
 	removeEntities(entities: CadEntities) {
-		entities.forEach((e) => {
-			this.scene.remove(e.object);
-			e.object = null;
-		});
 		const data = new CadData();
 		data.entities = entities;
+		entities.forEach((e) => e.parent?.remove(e));
 		this.data.separate(data);
-		return this.render();
+		return this.reset();
 	}
 
 	invoke(fn: (...args: any) => void) {

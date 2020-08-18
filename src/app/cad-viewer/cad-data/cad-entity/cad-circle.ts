@@ -26,8 +26,9 @@ export class CadCircle extends CadEntity {
 		this.radius = data.radius ?? 0;
 	}
 
-	transform({matrix}: CadTransformation) {
-		this.center.applyMatrix3(matrix);
+	transform(trans: CadTransformation) {
+		super.transform(trans);
+		this.center.applyMatrix3(trans.matrix);
 		return this;
 	}
 

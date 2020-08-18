@@ -155,20 +155,23 @@ export class CadData {
 	 * 010: this.partners entities
 	 * 001: components.partners entities
 	 */
-	getAllEntities(mode = 0b111) {
+	getAllEntities(flat = false, mode = 0b111) {
 		const result = new CadEntities();
 		if (mode & 0b100) {
 			result.merge(this.entities);
 		}
 		if (mode & 0b010) {
 			this.partners.forEach((p) => {
-				result.merge(p.getAllEntities(mode));
+				result.merge(p.getAllEntities(flat, mode));
 			});
 		}
 		if (mode & 0b001) {
 			this.components.data.forEach((c) => {
-				result.merge(c.getAllEntities(mode));
+				result.merge(c.getAllEntities(flat, mode));
 			});
+		}
+		if (flat) {
+			result.merge(result.children);
 		}
 		return result;
 	}

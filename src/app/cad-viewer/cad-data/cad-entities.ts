@@ -24,15 +24,15 @@ export class CadEntities {
 		this.forEachType((array) => (result += array.length));
 		return result;
 	}
-
-	get objects() {
-		const result: Object3D[] = [];
+	get children() {
+		const children = new CadEntities();
 		this.forEach((e) => {
-			if (e.object) {
-				result.push(e.object);
-			}
+			e.children.forEach((c) => {
+				children.add(c);
+				children.merge(new CadEntities().add(c).children);
+			});
 		});
-		return result;
+		return children;
 	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetIds = false) {
@@ -65,19 +65,27 @@ export class CadEntities {
 		Object.keys(CAD_TYPES).forEach((type) => {
 			this[type] = mergeArray(this[type], entities[type], "id");
 		});
+		return this;
 	}
 
 	separate(entities: CadEntities) {
 		Object.keys(CAD_TYPES).forEach((type) => {
 			this[type] = separateArray(this[type], entities[type], "id");
 		});
+		return this;
 	}
 
 	find(id: string) {
 		for (const type in CAD_TYPES) {
-			const result = (this[type] as CadEntity[]).find((e) => e.id === id || e.originalId === id);
-			if (result) {
-				return result;
+			for (const entity of this[type] as CadEntity[]) {
+				if (entity.id === id || entity.originalId === id) {
+					return entity;
+				}
+				for (const child of entity.children) {
+					if (child.id === id || child.originalId === id) {
+						return child;
+					}
+				}
 			}
 		}
 		return null;

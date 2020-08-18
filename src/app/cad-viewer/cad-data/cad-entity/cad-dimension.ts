@@ -3,6 +3,7 @@ import {CAD_TYPES} from "../cad-types";
 import {CadLayer} from "../cad-layer";
 import {intersection} from "lodash";
 import {Line2} from "three/examples/jsm/lines/Line2";
+import {CadTransformation} from "../cad-transformation";
 
 export interface CadDimensionEntity {
 	id: string;
@@ -57,7 +58,8 @@ export class CadDimension extends CadEntity {
 		}
 	}
 
-	transform() {
+	transform(trans: CadTransformation) {
+		super.transform(trans);
 		return this;
 	}
 
