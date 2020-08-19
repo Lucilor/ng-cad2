@@ -24,7 +24,7 @@
     "@lucilor/utils": "^1.0.22",
     "@ngrx/store": "^10.0.0",
     "@seregpie/three.text-sprite": "^2.0.0",
-    "@syncfusion/ej2-angular-inputs": "^18.2.48",
+    "@syncfusion/ej2-angular-inputs": "^18.2.54",
     "highlight.js": "^10.1.2",
     "ang-jsoneditor": "^1.10.0",
     "jsoneditor": "^9.0.4",
