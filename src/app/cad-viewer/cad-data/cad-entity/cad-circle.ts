@@ -1,15 +1,14 @@
 import {CadEntity} from "./cad-entity";
 import {Vector2, ArcCurve} from "three";
-import {CAD_TYPES} from "../cad-types";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
 import {CadTransformation} from "../cad-transformation";
 import {Line2} from "three/examples/jsm/lines/Line2";
 
 export class CadCircle extends CadEntity {
+	object?: Line2;
 	center: Vector2;
 	radius: number;
-	object?: Line2;
 
 	get curve() {
 		const {center, radius} = this;
@@ -20,8 +19,8 @@ export class CadCircle extends CadEntity {
 	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
-		data.type = CAD_TYPES.circle;
 		super(data, layers, resetId);
+		this.type = "CIRCLE";
 		this.center = getVectorFromArray(data.center);
 		this.radius = data.radius ?? 0;
 	}

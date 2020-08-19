@@ -1,5 +1,5 @@
 import {CadLayer} from "../cad-layer";
-import {CAD_TYPES} from "../cad-types";
+import {CadType, cadTypes} from "../cad-types";
 import {MathUtils, Color, Object3D} from "three";
 import {index2RGB, RGB2Index} from "@lucilor/utils";
 import {CadTransformation} from "../cad-transformation";
@@ -8,7 +8,7 @@ import {lineweight2linewidth, linewidth2lineweight} from "../utils";
 export abstract class CadEntity {
 	id: string;
 	originalId: string;
-	type: string;
+	type: CadType = null;
 	layer: string;
 	color: Color;
 	linewidth: number;
@@ -18,7 +18,7 @@ export abstract class CadEntity {
 	selected: boolean;
 	hover: boolean;
 	object?: Object3D = null;
-	info?: {[key: string]: any};
+	info: {[key: string]: any};
 	_indexColor: number;
 	_lineweight: number;
 	parent: CadEntity = null;
@@ -28,10 +28,8 @@ export abstract class CadEntity {
 		if (typeof data !== "object") {
 			throw new Error("Invalid data.");
 		}
-		if (Object.values(CAD_TYPES).includes(data.type)) {
+		if (cadTypes.includes(data.type)) {
 			this.type = data.type;
-		} else {
-			throw new Error(`Unrecognized cad entity type: ${data.type}`);
 		}
 		if (typeof data.id === "string" && !resetId) {
 			this.id = data.id;
@@ -75,7 +73,14 @@ export abstract class CadEntity {
 		this.selectable = data.selectable ?? true;
 		this.selected = data.selected ?? false;
 		this.hover = data.hover ?? false;
-		this.info = data.info ?? {};
+		if (typeof data.info === "object" && !Array.isArray(data.info)) {
+			this.info = data.info;
+		} else {
+			this.info = {};
+		}
+		// if (Array.isArray(data.children)) {
+		// 	data.children.forEach((c) => this.children.push());
+		// }
 	}
 
 	transform(trans: CadTransformation) {
@@ -91,7 +96,9 @@ export abstract class CadEntity {
 			layer: this.layer,
 			type: this.type,
 			color: this._indexColor,
-			lineweight: linewidth2lineweight(this.linewidth)
+			lineweight: linewidth2lineweight(this.linewidth),
+			children: this.children.map((c) => c.export()),
+			info: this.info
 		};
 	}
 

@@ -1,6 +1,5 @@
 import {CadEntity} from "./cad-entity";
 import {Vector2} from "three";
-import {CAD_TYPES} from "../cad-types";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray, isBetween} from "../utils";
 import {CadTransformation} from "../cad-transformation";
@@ -33,7 +32,7 @@ export class CadLine extends CadEntity {
 	}
 	get theta() {
 		const {start, end} = this;
-		return Math.atan2(start.y - end.y, start.x - end.x);
+		return Math.atan2(end.y - start.y, end.x - start.x);
 	}
 	get middle() {
 		return this.start.clone().add(this.end).divideScalar(2);
@@ -52,8 +51,8 @@ export class CadLine extends CadEntity {
 	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
-		data.type = CAD_TYPES.line;
 		super(data, layers, resetId);
+		this.type = "LINE";
 		this.start = getVectorFromArray(data.start);
 		this.end = getVectorFromArray(data.end);
 		this.mingzi = data.mingzi ?? "";

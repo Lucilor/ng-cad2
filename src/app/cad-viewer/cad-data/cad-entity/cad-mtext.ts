@@ -1,6 +1,5 @@
 import {CadEntity} from "./cad-entity";
 import {Vector2} from "three";
-import {CAD_TYPES} from "../cad-types";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
 import {CadTransformation} from "../cad-transformation";
@@ -14,8 +13,8 @@ export class CadMtext extends CadEntity {
 	object?: TextSprite;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
-		data.type = CAD_TYPES.mtext;
 		super(data, layers, resetId);
+		this.type = "MTEXT";
 		this.insert = getVectorFromArray(data.insert);
 		this.font_size = data.font_size ?? 16;
 		this.text = data.text ?? "";

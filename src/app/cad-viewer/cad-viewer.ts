@@ -27,10 +27,11 @@ import {CadCircle} from "./cad-data/cad-entity/cad-circle";
 import {CadArc} from "./cad-data/cad-entity/cad-arc";
 import {CadHatch} from "./cad-data/cad-entity/cad-hatch";
 import {CadStyle, CadStylizer} from "./cad-stylizer";
-import {CadTypes} from "./cad-data/cad-types";
+import {CadTypeKey} from "./cad-data/cad-types";
 import {Line2} from "three/examples/jsm/lines/Line2";
 import {LineGeometry} from "three/examples/jsm/lines/LineGeometry";
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
+import {generateLineTexts} from "./cad-data/cad-lines";
 
 export interface CadViewerConfig {
 	width?: number;
@@ -209,6 +210,7 @@ export class CadViewer {
 		if (center) {
 			this.center();
 		}
+		generateLineTexts(this.data, this.config.showLineLength);
 		const draw = (es: CadEntities) => {
 			es.line.forEach((e) => this._drawLine(e, style));
 			es.arc.forEach((e) => this._drawArc(e, style));
@@ -261,8 +263,9 @@ export class CadViewer {
 
 	private _setAnchor(sprite: TextSprite, position: Vector2, anchor: Vector2) {
 		sprite.position.copy(new Vector3(position.x, position.y));
-		const offset = anchor.clone().subScalar(0.5).multiply(new Vector2(-sprite.width, sprite.height));
-		sprite.position.add(new Vector3(offset.x, offset.y));
+		// const offset = anchor.clone().subScalar(0.5).multiply(new Vector2(-sprite.width, sprite.height));
+		// sprite.position.add(new Vector3(offset.x, offset.y));
+		sprite.center.copy(anchor);
 	}
 
 	private _checkEntity(entity: CadEntity) {
@@ -339,9 +342,8 @@ export class CadViewer {
 		}
 		const {scene, config, stylizer} = this;
 		const {showLineLength, showGongshi} = config;
-		const {start, end, length, theta} = entity;
+		const {start, end, length, theta, middle} = entity;
 		let object = entity.object;
-		const middle = start.clone().add(end).divideScalar(2);
 		const {linewidth, color, opacity, fontStyle} = stylizer.get(entity, style);
 		const dx = Math.cos(Math.PI / 2 - theta) * linewidth;
 		const dy = Math.sin(Math.PI / 2 - theta) * linewidth;
@@ -352,7 +354,6 @@ export class CadViewer {
 		shape.lineTo(start.x - dx, start.y + dy);
 		shape.closePath();
 
-		const colorStr = stylizer.getColorStyle(color, opacity);
 		if (object) {
 			this._updateLineObject(entity, [start, end], color, linewidth, opacity);
 		} else {
@@ -362,51 +363,51 @@ export class CadViewer {
 			entity.object = object;
 		}
 
-		const anchor = new Vector2(0.5, 1);
-		let gongshi = "";
-		if (entity.mingzi) {
-			gongshi += entity.mingzi;
-		}
-		if (entity.gongshi) {
-			gongshi += "=" + entity.gongshi;
-		}
-		if (entity.isVertical(1)) {
-			anchor.set(1, 0.5);
-			gongshi = gongshi.split("").join("\n");
-		}
-		const anchor2 = new Vector2(1 - anchor.x, 1 - anchor.y);
-		let lengthText = object.children.find((o) => o.name === entity.id + "-length") as TextSprite;
-		let gongshiText = object.children.find((o) => o.name === entity.id + "-gongshi") as TextSprite;
-		if (showLineLength > 0) {
-			if (lengthText) {
-				lengthText.text = Math.round(length).toString();
-			} else {
-				lengthText = new TextSprite({text: Math.round(length).toString()});
-				lengthText.name = entity.id + "-length";
-				object.add(lengthText);
-			}
-			lengthText.fontSize = showLineLength;
-			lengthText.fillStyle = colorStr;
-			lengthText.fontStyle = fontStyle;
-			this._setAnchor(lengthText, middle, anchor);
-		} else {
-			object.remove(lengthText);
-		}
-		if (showGongshi > 0) {
-			if (gongshiText) {
-				gongshiText.text = gongshi;
-			} else {
-				gongshiText = new TextSprite({text: gongshi});
-				gongshiText.name = entity.id + "-gongshi";
-				object.add(gongshiText);
-			}
-			gongshiText.fontSize = showGongshi;
-			gongshiText.fillStyle = colorStr;
-			gongshiText.fontStyle = fontStyle;
-			this._setAnchor(gongshiText, middle, anchor2);
-		} else {
-			object.remove(gongshiText);
-		}
+		// const anchor = new Vector2(0.5, 1);
+		// let gongshi = "";
+		// if (entity.mingzi) {
+		// 	gongshi += entity.mingzi;
+		// }
+		// if (entity.gongshi) {
+		// 	gongshi += "=" + entity.gongshi;
+		// }
+		// if (entity.isVertical(1)) {
+		// 	anchor.set(1, 0.5);
+		// 	gongshi = gongshi.split("").join("\n");
+		// }
+		// const anchor2 = new Vector2(1 - anchor.x, 1 - anchor.y);
+		// let lengthText = object.children.find((o) => o.name === entity.id + "-length") as TextSprite;
+		// let gongshiText = object.children.find((o) => o.name === entity.id + "-gongshi") as TextSprite;
+		// if (showLineLength > 0) {
+		// 	if (lengthText) {
+		// 		lengthText.text = Math.round(length).toString();
+		// 	} else {
+		// 		lengthText = new TextSprite({text: Math.round(length).toString()});
+		// 		lengthText.name = entity.id + "-length";
+		// 		object.add(lengthText);
+		// 	}
+		// 	lengthText.fontSize = showLineLength;
+		// 	lengthText.fillStyle = colorStr;
+		// 	lengthText.fontStyle = fontStyle;
+		// 	this._setAnchor(lengthText, middle, anchor);
+		// } else {
+		// 	object.remove(lengthText);
+		// }
+		// if (showGongshi > 0) {
+		// 	if (gongshiText) {
+		// 		gongshiText.text = gongshi;
+		// 	} else {
+		// 		gongshiText = new TextSprite({text: gongshi});
+		// 		gongshiText.name = entity.id + "-gongshi";
+		// 		object.add(gongshiText);
+		// 	}
+		// 	gongshiText.fontSize = showGongshi;
+		// 	gongshiText.fillStyle = colorStr;
+		// 	gongshiText.fontStyle = fontStyle;
+		// 	this._setAnchor(gongshiText, middle, anchor2);
+		// } else {
+		// 	object.remove(gongshiText);
+		// }
 	}
 
 	private _drawCircle(entity: CadCircle, style: CadStyle) {
@@ -466,6 +467,7 @@ export class CadViewer {
 			object.padding = 0.1;
 			object.align = "left";
 			object.name = entity.id;
+			object.fontFamily = "Roboto, 微软雅黑, sans-serif";
 			scene.add(object);
 			entity.object = object;
 		}
@@ -594,12 +596,12 @@ export class CadViewer {
 	}
 
 	selectAll() {
-		this.data.getAllEntities().forEach((e) => (e.selected = e.selectable));
+		this.data.getAllEntities(true).forEach((e) => (e.selected = e.selectable));
 		return this.render();
 	}
 
 	unselectAll() {
-		this.data.getAllEntities().forEach((e) => (e.selected = false));
+		this.data.getAllEntities(true).forEach((e) => (e.selected = false));
 		return this.render();
 	}
 
@@ -665,7 +667,7 @@ export class CadViewer {
 		return result;
 	}
 
-	traverse(callback: (e: CadEntity) => void, entities = this.data.getAllEntities(), include?: (keyof CadTypes)[]) {
+	traverse(callback: (e: CadEntity) => void, entities = this.data.getAllEntities(), include?: CadTypeKey[]) {
 		entities.forEach((e) => callback(e), include);
 		return this;
 	}

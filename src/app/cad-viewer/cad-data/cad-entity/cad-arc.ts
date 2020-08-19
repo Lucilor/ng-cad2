@@ -1,7 +1,7 @@
 import {ArcCurve, MathUtils, Vector2} from "three";
 import {CadLayer} from "../cad-layer";
 import {CadTransformation} from "../cad-transformation";
-import {clampAngle} from "../utils";
+import {clampAngle, getVectorFromArray} from "../utils";
 import {CadEntity} from "./cad-entity";
 
 export class CadArc extends CadEntity {
@@ -10,11 +10,15 @@ export class CadArc extends CadEntity {
 	start_angle: number;
 	end_angle: number;
 	clockwise: boolean;
+
 	get start() {
 		return this.curve.getPoint(0);
 	}
 	get end() {
 		return this.curve.getPoint(1);
+	}
+	get middle() {
+		return this.curve.getPoint(0.5);
 	}
 	get curve() {
 		const {center, radius, start_angle, end_angle, clockwise} = this;
@@ -27,6 +31,8 @@ export class CadArc extends CadEntity {
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
 		this.type = "ARC";
+		this.center = getVectorFromArray(data.center);
+		this.radius = data.radius ?? 0;
 		this.start_angle = data.start_angle ?? 0;
 		this.end_angle = data.end_angle ?? 0;
 		this.clockwise = data.clockwise ?? false;

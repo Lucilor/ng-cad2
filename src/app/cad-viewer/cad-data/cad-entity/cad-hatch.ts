@@ -1,6 +1,5 @@
 import {CadEntity} from "./cad-entity";
-import {Vector2, Line, Mesh} from "three";
-import {CAD_TYPES} from "../cad-types";
+import {Vector2, Mesh} from "three";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
 import {CadTransformation} from "../cad-transformation";
@@ -17,8 +16,8 @@ export class CadHatch extends CadEntity {
 	object?: Mesh;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
-		data.type = CAD_TYPES.hatch;
 		super(data, layers, resetId);
+		this.type = "HATCH";
 		this.bgcolor = Array.isArray(data.bgcolor) ? data.bgcolor : [0, 0, 0];
 		this.paths = [];
 		if (Array.isArray(data.paths)) {

@@ -5,6 +5,8 @@ import {CadArc} from "./cad-entity/cad-arc";
 import {CadData} from "./cad-data";
 import {CadViewer} from "../cad-viewer";
 import {State} from "@src/app/store/state";
+import {CadMtext} from "./cad-entity/cad-mtext";
+import {CadTransformation} from "./cad-transformation";
 
 export type LineLike = CadLine | CadArc;
 
@@ -177,6 +179,13 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 				curr.start.set(0, 0);
 				curr.end.set(0, 0);
 			}
+			if (prev.end.distanceTo(curr.start) > tolerance) {
+				if (curr instanceof CadLine) {
+					[curr.start, curr.end] = [curr.end, curr.start];
+				} else {
+					[curr.start_angle, curr.end_angle] = [curr.end_angle, curr.start_angle];
+				}
+			}
 		}
 		result[j] = group.filter((e) => e.length > 0);
 	}
@@ -211,4 +220,77 @@ export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 		});
 	}
 	return result;
+}
+
+export function generateLineTexts(data: CadData, fontSize: number, tolerance = DEFAULT_TOLERANCE) {
+	const lines = sortLines(data, tolerance);
+	lines.forEach((group) => {
+		let cp = 0;
+		const length = group.length;
+		if (length < 1) {
+			return;
+		} else if (length === 1) {
+			cp = 1;
+		} else {
+			const middle = group[Math.floor(length / 2)].middle;
+			const start = group[0].start;
+			const end = group[length - 1].end;
+			const v1 = middle.clone().sub(start);
+			const v2 = middle.clone().sub(end);
+			cp = v1.x * v2.y - v1.y * v2.x;
+			// ? 差积等于0时视为1
+			if (cp === 0) {
+				cp = 1;
+			}
+		}
+		group.forEach((line) => {
+			let theta: number;
+			if (line instanceof CadLine) {
+				theta = line.theta;
+			} else {
+				theta = new CadLine({start: line.start, end: line.end}).theta;
+			}
+			if (cp > 0) {
+				theta += Math.PI / 2;
+			} else {
+				theta -= Math.PI / 2;
+			}
+			const offset = new Vector2(Math.cos(theta), Math.sin(theta));
+			const outer = line.middle.clone().add(offset);
+			const inner = line.middle.clone().sub(offset);
+			const anchor = new Vector2(0.5, 0.5);
+			let {x, y} = offset;
+			if (Math.abs(x) > Math.abs(y)) {
+				y = 0;
+			} else {
+				x = 0;
+			}
+			if (Math.abs(x) > tolerance) {
+				if (x > 0) {
+					anchor.x = 0;
+				} else {
+					anchor.x = 1;
+				}
+			}
+			if (Math.abs(y) > tolerance) {
+				if (y > 0) {
+					anchor.y = 0;
+				} else {
+					anchor.y = 1;
+				}
+			}
+			const line2 = line.clone(true);
+			line2.transform(new CadTransformation({translate: offset}));
+			let mtext = line.children.find((c) => c.info.isLineText) as CadMtext;
+			if (!mtext) {
+				mtext = new CadMtext();
+				mtext.info.isLineText = true;
+				line.add(mtext);
+				mtext.insert = outer;
+			}
+			mtext.text = Math.round(line.length).toString();
+			mtext.font_size = fontSize;
+			mtext.anchor.copy(anchor);
+		});
+	});
 }

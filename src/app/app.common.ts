@@ -55,6 +55,7 @@ export function addCadGongshi(data: CadData) {
 	mtext.text = getCadGongshiText(data);
 	mtext.insert = new Vector2(x - width / 2, y - height / 2 - 10);
 	mtext.selectable = false;
+	mtext.anchor.set(0, 1);
 	mtext.info.isCadGongshi = true;
 	data.entities.add(mtext);
 	data.partners.forEach((d) => addCadGongshi(d));

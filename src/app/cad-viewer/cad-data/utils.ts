@@ -3,7 +3,7 @@ import {CadLine} from "./cad-entity/cad-line";
 
 export function getVectorFromArray(data: number[] | Vector2) {
 	if (data instanceof Vector2) {
-		return data;
+		return data.clone();
 	}
 	if (!Array.isArray(data)) {
 		return new Vector2();

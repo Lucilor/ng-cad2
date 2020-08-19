@@ -1,5 +1,4 @@
 import {CadEntity} from "./cad-entity";
-import {CAD_TYPES} from "../cad-types";
 import {CadLayer} from "../cad-layer";
 import {intersection} from "lodash";
 import {Line2} from "three/examples/jsm/lines/Line2";
@@ -26,8 +25,8 @@ export class CadDimension extends CadEntity {
 	object?: Line2;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
-		data.type = CAD_TYPES.dimension;
 		super(data, layers, resetId);
+		this.type = "DIMENSION";
 		this.font_size = data.font_size || 16;
 		if (this.font_size === 2.5) {
 			this.font_size = 36;
