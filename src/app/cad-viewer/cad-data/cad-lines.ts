@@ -106,6 +106,23 @@ export function findAllAdjacentLines(map: PointsMap, entity: LineLike, point: Ve
 	return {entities, closed};
 }
 
+export function setLinesLength(cad: CadViewer, lines: CadLine[], length: number) {
+	const pointsMap = generatePointsMap(cad.data.getAllEntities());
+	lines.forEach((line) => {
+		if (line instanceof CadLine) {
+			const {entities} = findAllAdjacentLines(pointsMap, line, line.end);
+			const d = line.length - length;
+			const theta = line.theta;
+			const translate = new Vector2(Math.cos(theta), Math.sin(theta)).multiplyScalar(d);
+			line.end.add(translate);
+			entities.forEach((e) => e.transform(new CadTransformation({translate})));
+		}
+	});
+	cad.data.updatePartners().updateComponents();
+	cad.data.components.data.forEach((v) => validateLines(v));
+	cad.render();
+}
+
 export function swapStartEnd(entity: LineLike) {
 	if (entity instanceof CadLine) {
 		[entity.start, entity.end] = [entity.end, entity.start];

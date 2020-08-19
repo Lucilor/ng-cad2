@@ -4,7 +4,13 @@ import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {Vector2, Color} from "three";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {findAllAdjacentLines, generatePointsMap, validateLines, getPointsFromMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {
+	findAllAdjacentLines,
+	generatePointsMap,
+	validateLines,
+	getPointsFromMap,
+	setLinesLength
+} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getColorLightness} from "@lucilor/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
@@ -119,13 +125,6 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		this.editDiabled = !selected.every((e) => ids.includes(e.id));
 	}
 
-	expandLine(line: CadLine, d: number) {
-		const theta = line.theta;
-		const translate = new Vector2(Math.cos(theta), Math.sin(theta)).multiplyScalar(d);
-		line.end.add(translate);
-		return translate;
-	}
-
 	getLineLength() {
 		const lines = this.selected;
 		if (lines.length === 1) {
@@ -140,20 +139,9 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	setLineLength(event: InputEvent) {
-		const {selected: selectedLines, cad} = this;
-		const pointsMap = generatePointsMap(cad.data.getAllEntities());
-		selectedLines.forEach((line) => {
-			if (line instanceof CadLine) {
-				const {entities, closed} = findAllAdjacentLines(pointsMap, line, line.end);
-				const length = Number((event.target as HTMLInputElement).value);
-				const d = line.length - length;
-				const translate = this.expandLine(line, d);
-				entities.forEach((e) => e.transform(new CadTransformation({translate})));
-			}
-		});
-		cad.data.updatePartners().updateComponents();
-		cad.data.components.data.forEach((v) => validateLines(v));
-		cad.render();
+		const {selected, cad} = this;
+		const lines = selected.filter((v) => v instanceof CadLine) as CadLine[];
+		setLinesLength(cad, lines, Number((event.target as HTMLInputElement).value));
 	}
 
 	getCssColor(colorStr?: string) {
@@ -277,6 +265,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		entity.opacity = 1;
 		entity.selectable = true;
+		setLinesLength(this.cad, [entity], Math.round(entity.length));
 		cad.render(false, new CadEntities().add(entity));
 		// this.lineDrawing.entity=null
 		this.lineDrawing = null;
