@@ -22,6 +22,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatSelectModule} from "@angular/material/select";
 import {MatCardModule} from "@angular/material/card";
+import {MatListModule} from "@angular/material/list";
 
 import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
@@ -133,6 +134,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		MatTabsModule,
 		MatSelectModule,
 		MatCardModule,
+		MatListModule,
 		PerfectScrollbarModule,
 		ColorPickerModule,
 		NgJsonEditorModule

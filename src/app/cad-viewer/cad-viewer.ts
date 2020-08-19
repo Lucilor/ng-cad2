@@ -210,7 +210,7 @@ export class CadViewer {
 		if (center) {
 			this.center();
 		}
-		generateLineTexts(this.data, this.config.showLineLength);
+		// generateLineTexts(this.data, this.config.showLineLength);
 		const draw = (es: CadEntities) => {
 			es.line.forEach((e) => this._drawLine(e, style));
 			es.arc.forEach((e) => this._drawArc(e, style));
@@ -363,51 +363,52 @@ export class CadViewer {
 			entity.object = object;
 		}
 
-		// const anchor = new Vector2(0.5, 1);
-		// let gongshi = "";
-		// if (entity.mingzi) {
-		// 	gongshi += entity.mingzi;
-		// }
-		// if (entity.gongshi) {
-		// 	gongshi += "=" + entity.gongshi;
-		// }
-		// if (entity.isVertical(1)) {
-		// 	anchor.set(1, 0.5);
-		// 	gongshi = gongshi.split("").join("\n");
-		// }
-		// const anchor2 = new Vector2(1 - anchor.x, 1 - anchor.y);
-		// let lengthText = object.children.find((o) => o.name === entity.id + "-length") as TextSprite;
-		// let gongshiText = object.children.find((o) => o.name === entity.id + "-gongshi") as TextSprite;
-		// if (showLineLength > 0) {
-		// 	if (lengthText) {
-		// 		lengthText.text = Math.round(length).toString();
-		// 	} else {
-		// 		lengthText = new TextSprite({text: Math.round(length).toString()});
-		// 		lengthText.name = entity.id + "-length";
-		// 		object.add(lengthText);
-		// 	}
-		// 	lengthText.fontSize = showLineLength;
-		// 	lengthText.fillStyle = colorStr;
-		// 	lengthText.fontStyle = fontStyle;
-		// 	this._setAnchor(lengthText, middle, anchor);
-		// } else {
-		// 	object.remove(lengthText);
-		// }
-		// if (showGongshi > 0) {
-		// 	if (gongshiText) {
-		// 		gongshiText.text = gongshi;
-		// 	} else {
-		// 		gongshiText = new TextSprite({text: gongshi});
-		// 		gongshiText.name = entity.id + "-gongshi";
-		// 		object.add(gongshiText);
-		// 	}
-		// 	gongshiText.fontSize = showGongshi;
-		// 	gongshiText.fillStyle = colorStr;
-		// 	gongshiText.fontStyle = fontStyle;
-		// 	this._setAnchor(gongshiText, middle, anchor2);
-		// } else {
-		// 	object.remove(gongshiText);
-		// }
+		const colorStr = stylizer.getColorStyle(color, opacity);
+		const anchor = new Vector2(0.5, 1);
+		let gongshi = "";
+		if (entity.mingzi) {
+			gongshi += entity.mingzi;
+		}
+		if (entity.gongshi) {
+			gongshi += "=" + entity.gongshi;
+		}
+		if (entity.isVertical(1)) {
+			anchor.set(1, 0.5);
+			gongshi = gongshi.split("").join("\n");
+		}
+		const anchor2 = new Vector2(1 - anchor.x, 1 - anchor.y);
+		let lengthText = object.children.find((o) => o.name === entity.id + "-length") as TextSprite;
+		let gongshiText = object.children.find((o) => o.name === entity.id + "-gongshi") as TextSprite;
+		if (showLineLength > 0) {
+			if (lengthText) {
+				lengthText.text = Math.round(length).toString();
+			} else {
+				lengthText = new TextSprite({text: Math.round(length).toString()});
+				lengthText.name = entity.id + "-length";
+				object.add(lengthText);
+			}
+			lengthText.fontSize = showLineLength;
+			lengthText.fillStyle = colorStr;
+			lengthText.fontStyle = fontStyle;
+			this._setAnchor(lengthText, middle, anchor);
+		} else {
+			object.remove(lengthText);
+		}
+		if (showGongshi > 0) {
+			if (gongshiText) {
+				gongshiText.text = gongshi;
+			} else {
+				gongshiText = new TextSprite({text: gongshi});
+				gongshiText.name = entity.id + "-gongshi";
+				object.add(gongshiText);
+			}
+			gongshiText.fontSize = showGongshi;
+			gongshiText.fillStyle = colorStr;
+			gongshiText.fontStyle = fontStyle;
+			this._setAnchor(gongshiText, middle, anchor2);
+		} else {
+			object.remove(gongshiText);
+		}
 	}
 
 	private _drawCircle(entity: CadCircle, style: CadStyle) {

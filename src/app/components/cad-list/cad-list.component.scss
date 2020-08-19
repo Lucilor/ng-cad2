@@ -2,6 +2,7 @@
 
 :host {
 	width: calc(80vw - 48px);
+	height: calc(70vh - 24px);
 	display: block;
 }
 
@@ -20,7 +21,6 @@ mat-radio-group,
 .data-container {
 	display: flex;
 	flex-direction: column;
-	text-align: center;
 	padding: 12px;
 	width: 20%;
 	box-sizing: border-box;
@@ -30,10 +30,42 @@ mat-radio-group,
 		cursor: pointer;
 		width: 100%;
 	}
+
+	.details {
+		.mat-subheader {
+			padding: 0;
+			height: auto;
+		}
+
+		.mat-list-item {
+			font-size: 0.9rem;
+			line-height: 1.15rem;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			height: auto;
+
+			.mat-list-item-content {
+				padding: 0;
+			}
+		}
+
+		.mat-divider {
+			margin: 5px 0;
+		}
+	}
 }
 
 .mat-dialog-actions {
 	justify-content: center !important;
+}
+
+.search-input {
+	display: flex;
+
+	> * {
+		margin: 0 5px -20px 5px;
+	}
 }
 
 .search-button {
@@ -48,8 +80,6 @@ table {
 	width: 100%;
 }
 
-.toolbar {
-	> *:not(:last-child) {
-		margin-right: 10px;
-	}
+perfect-scrollbar {
+	height: calc(100% - 248px);
 }

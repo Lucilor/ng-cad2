@@ -29,7 +29,8 @@ export class CadListComponent implements AfterViewInit {
 	displayedColumns = ["select", "mingzi", "wenjian", "create_time", "modify_time"];
 	width = 300;
 	height = 150;
-	searchForm: {[key: string]: string} = {名字: ""};
+	searchField = "名字";
+	searchForm: {[key: string]: string} = {};
 	searchNameInput = "";
 	checkedIndex = -1;
 	checkedItems: CadData[] = [];
@@ -118,7 +119,8 @@ export class CadListComponent implements AfterViewInit {
 	}
 
 	search(withOption = false, matchType: "and" | "or" = "and") {
-		this.searchForm.名字 = this.searchNameInput;
+		this.searchForm = {};
+		this.searchForm[this.searchField] = this.searchNameInput;
 		this.paginator.pageIndex = 0;
 		const options = withOption ? this.data.options : [];
 		this.getData(this.paginator.pageIndex + 1, options, matchType);
