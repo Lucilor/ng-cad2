@@ -9,6 +9,7 @@ import {CadTypeKey, cadTypesKey} from "./cad-types";
 import {CadEntity} from "./cad-entity/cad-entity";
 import {CadTransformation} from "./cad-transformation";
 import {mergeArray, separateArray} from "./utils";
+import {getCadEntity} from "./cad-entity/get-cad-entity";
 
 export class CadEntities {
 	line: CadLine[] = [];
@@ -43,19 +44,7 @@ export class CadEntities {
 			if (Array.isArray(group)) {
 				group.forEach((v) => this[key].push(v.clone(resetIds)));
 			} else if (typeof group === "object") {
-				if (key === "arc") {
-					Object.values(group).forEach((v) => this[key].push(new CadArc(v, layers, resetIds)));
-				} else if (key === "circle") {
-					Object.values(group).forEach((v) => this[key].push(new CadCircle(v, layers, resetIds)));
-				} else if (key === "dimension") {
-					Object.values(group).forEach((v) => this[key].push(new CadDimension(v, layers, resetIds)));
-				} else if (key === "hatch") {
-					Object.values(group).forEach((v) => this[key].push(new CadHatch(v, layers, resetIds)));
-				} else if (key === "line") {
-					Object.values(group).forEach((v) => this[key].push(new CadLine(v, layers, resetIds)));
-				} else if (key === "mtext") {
-					Object.values(group).forEach((v) => this[key].push(new CadMtext(v, layers, resetIds)));
-				}
+				Object.values(group).forEach((v) => this[key].push(getCadEntity(v, layers, resetIds)));
 			}
 		});
 	}

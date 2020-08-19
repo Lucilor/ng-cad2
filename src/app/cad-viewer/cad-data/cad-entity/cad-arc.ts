@@ -10,6 +10,7 @@ export class CadArc extends CadEntity {
 	start_angle: number;
 	end_angle: number;
 	clockwise: boolean;
+	gongshi = "";
 
 	get start() {
 		return this.curve.getPoint(0);
@@ -58,6 +59,8 @@ export class CadArc extends CadEntity {
 	export() {
 		return {
 			...super.export(),
+			center: this.center.toArray(),
+			radius: this.radius,
 			start_angle: this.start_angle,
 			end_angle: this.end_angle,
 			clockwise: this.clockwise

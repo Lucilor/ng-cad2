@@ -7,6 +7,7 @@ import {CadViewer} from "../cad-viewer";
 import {State} from "@src/app/store/state";
 import {CadMtext} from "./cad-entity/cad-mtext";
 import {CadTransformation} from "./cad-transformation";
+import {CadEntity} from "./cad-entity/cad-entity";
 
 export type LineLike = CadLine | CadArc;
 
@@ -70,7 +71,9 @@ export function findAllAdjacentLines(map: PointsMap, entity: LineLike, point: Ve
 	const entities: LineLike[] = [];
 	const id = entity.id;
 	let closed = false;
-	while (entity && point) {
+	const maxStack = 1000;
+	let stack = 0;
+	while (entity && point && stack++ < maxStack) {
 		entity = findAdjacentLines(map, entity, point, tolerance)[0];
 		if (entity?.id === id) {
 			closed = true;
@@ -140,12 +143,16 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 		return result;
 	}
 	let map = generatePointsMap(entities);
-	const arr: PointsMap = [];
+	let arr: PointsMap = [];
 	map.forEach((v) => {
 		if (v.lines.length === 1) {
 			arr.push(v);
 		}
 	});
+	if (arr.length < 1) {
+		// * 每个点都有不止条线, 说明图形闭合
+		arr = map;
+	}
 	arr.sort((a, b) => {
 		const l1 = a.lines[0];
 		const l2 = b.lines[0];
@@ -239,8 +246,9 @@ export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	return result;
 }
 
-export function generateLineTexts(data: CadData, fontSize: number, tolerance = DEFAULT_TOLERANCE) {
+export function generateLineTexts(data: CadData, fontSizes: {length: number; gongshi: number}, tolerance = DEFAULT_TOLERANCE) {
 	const lines = sortLines(data, tolerance);
+	const removed: CadEntity[] = [];
 	lines.forEach((group) => {
 		let cp = 0;
 		const length = group.length;
@@ -265,7 +273,9 @@ export function generateLineTexts(data: CadData, fontSize: number, tolerance = D
 			if (line instanceof CadLine) {
 				theta = line.theta;
 			} else {
-				theta = new CadLine({start: line.start, end: line.end}).theta;
+				// TODO: 处理弧线
+				return;
+				// theta = new CadLine({start: line.start, end: line.end}).theta;
 			}
 			if (cp > 0) {
 				theta += Math.PI / 2;
@@ -296,18 +306,39 @@ export function generateLineTexts(data: CadData, fontSize: number, tolerance = D
 					anchor.y = 1;
 				}
 			}
-			const line2 = line.clone(true);
-			line2.transform(new CadTransformation({translate: offset}));
-			let mtext = line.children.find((c) => c.info.isLineText) as CadMtext;
-			if (!mtext) {
-				mtext = new CadMtext();
-				mtext.info.isLineText = true;
-				line.add(mtext);
-				mtext.insert = outer;
+
+			let lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
+			if (fontSizes.length > 0) {
+				if (!(lengthText instanceof CadMtext)) {
+					lengthText = new CadMtext();
+					lengthText.info.isLengthText = true;
+					line.add(lengthText);
+					lengthText.insert.copy(outer);
+				}
+				lengthText.text = Math.round(line.length).toString();
+				lengthText.font_size = fontSizes.length;
+				lengthText.anchor.copy(anchor);
+			} else {
+				line.remove(lengthText);
+				removed.push(lengthText);
 			}
-			mtext.text = Math.round(line.length).toString();
-			mtext.font_size = fontSize;
-			mtext.anchor.copy(anchor);
+
+			let gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
+			if (fontSizes.gongshi > 0) {
+				if (!(gongshiText instanceof CadMtext)) {
+					gongshiText = new CadMtext();
+					gongshiText.info.isGongshiText = true;
+					line.add(gongshiText);
+					gongshiText.insert.copy(inner);
+				}
+				gongshiText.text = line.gongshi;
+				gongshiText.font_size = fontSizes.gongshi;
+				gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
+			} else {
+				line.remove(gongshiText);
+				removed.push(gongshiText);
+			}
 		});
 	});
+	return removed;
 }

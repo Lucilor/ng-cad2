@@ -103,7 +103,7 @@ export function getDPI() {
 // TODO: get collection
 export function getCollection() {
 	// tslint:disable-next-line: no-string-literal
-	return window["app"].toolbar.collection as Collection;
+	return window["app"]?.console?.collection as Collection;
 }
 
 const timeMap = {};

@@ -3,14 +3,12 @@ import {Vector2} from "three";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
 import {CadTransformation} from "../cad-transformation";
-import TextSprite from "@seregpie/three.text-sprite";
 
 export class CadMtext extends CadEntity {
 	insert: Vector2;
 	font_size: number;
 	text: string;
 	anchor: Vector2;
-	object?: TextSprite;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);

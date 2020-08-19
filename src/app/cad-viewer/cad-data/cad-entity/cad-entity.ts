@@ -24,7 +24,7 @@ export abstract class CadEntity {
 	parent: CadEntity = null;
 	children: CadEntity[] = [];
 
-	constructor(data: any = {}, layers: CadLayer[], resetId: boolean) {
+	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		if (typeof data !== "object") {
 			throw new Error("Invalid data.");
 		}
@@ -105,18 +105,22 @@ export abstract class CadEntity {
 	add(...children: CadEntity[]) {
 		this.remove(...children);
 		children.forEach((e) => {
-			e.parent = this;
-			this.children.push(e);
+			if (e instanceof CadEntity) {
+				e.parent = this;
+				this.children.push(e);
+			}
 		});
 		return this;
 	}
 
 	remove(...children: CadEntity[]) {
 		children.forEach((e) => {
-			const index = this.children.findIndex((ee) => ee.id === e.id);
-			if (index > -1) {
-				e.parent = null;
-				this.children.splice(index, 1);
+			if (e instanceof CadEntity) {
+				const index = this.children.findIndex((ee) => ee.id === e.id);
+				if (index > -1) {
+					e.parent = null;
+					this.children.splice(index, 1);
+				}
 			}
 		});
 		return this;

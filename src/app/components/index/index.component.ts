@@ -10,11 +10,12 @@ import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {environment} from "@src/environments/environment";
 import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {timeout} from "@src/app/app.common";
+import {getCollection, timeout} from "@src/app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {getCadStatus} from "@src/app/store/selectors";
+import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
 
 @Component({
 	selector: "app-index",
@@ -148,6 +149,21 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		window.addEventListener("contextmenu", (event) => {
 			event.preventDefault();
 		});
+
+		this.cad.beforeRender = () => {
+			const collection = getCollection();
+			const {showLineLength, showGongshi} = this.cad.config;
+			const data = new CadData();
+			if (collection === "CADmuban") {
+				this.data.components.data.forEach((v) => {
+					v.components.data.forEach((vv) => data.merge(vv));
+				});
+			} else {
+				data.merge(this.data);
+			}
+			const toRemove = generateLineTexts(data, {length: showLineLength, gongshi: showGongshi});
+			toRemove.forEach((e) => this.cad.scene.remove(e?.object));
+		};
 	}
 
 	ngAfterViewInit() {
