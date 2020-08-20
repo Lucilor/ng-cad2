@@ -138,7 +138,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 			this.dimLineSelecting = null;
 			cad.controls.config.selectMode = this.prevSelectMode;
-		} else {
+		} else if (this.dimLineSelecting === null) {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "edit dimension", index});
 			this.updateDimLines(data[index]);
 			this.dimLineSelecting = index;

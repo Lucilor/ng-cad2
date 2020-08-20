@@ -223,7 +223,6 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			this.disabled = [];
 		}
 		if (name === "normal") {
-			cad.controls.config.selectMode = "multiple";
 			if (count === 0) {
 				this.focus();
 				cad.controls.config.dragAxis = "xy";
