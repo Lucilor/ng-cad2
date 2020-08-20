@@ -20,9 +20,6 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	get dimensions() {
 		return this.cad.data.getAllEntities().dimension;
 	}
-	// get selectedDimensions() {
-	// 	return this.dimensions.filter((e) => e.selected);
-	// }
 
 	constructor(injector: Injector) {
 		super(injector);
@@ -30,10 +27,16 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 
 	ngOnInit() {
 		super.ngOnInit();
-		const {cad} = this;
+		const {cad, dimensions} = this;
 		this.getObservable(getCadStatus).subscribe(({name, index}) => {
-			if (name !== "edit dimension") {
-				this.dimLineSelecting = -1;
+			if (name === "edit dimension") {
+				this.updateDimLines(dimensions[index]);
+				this.dimLineSelecting = index;
+				this.prevSelectMode = cad.controls.config.selectMode;
+				cad.controls.config.selectMode = "single";
+			} else if (this.dimLineSelecting !== null) {
+				this.dimLineSelecting = null;
+				cad.controls.config.selectMode = this.prevSelectMode;
 			}
 		});
 		cad.controls.on("entityselect", async (event, entity) => {
@@ -132,18 +135,11 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	}
 
 	async selectDimLine(index: number) {
-		const {cad, dimensions: data} = this;
 		const cadStatus = await this.getObservableOnce(getCadStatus);
 		if (cadStatus.name === "edit dimension" && cadStatus.index === index) {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
-			this.dimLineSelecting = null;
-			cad.controls.config.selectMode = this.prevSelectMode;
 		} else if (this.dimLineSelecting === null) {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "edit dimension", index});
-			this.updateDimLines(data[index]);
-			this.dimLineSelecting = index;
-			this.prevSelectMode = cad.controls.config.selectMode;
-			cad.controls.config.selectMode = "single";
 		}
 	}
 

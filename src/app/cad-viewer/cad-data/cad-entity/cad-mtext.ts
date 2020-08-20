@@ -23,12 +23,14 @@ export class CadMtext extends CadEntity {
 	}
 
 	export() {
+		const anchor = this.anchor.toArray();
+		anchor[1] = 1 - anchor[1];
 		return {
 			...super.export(),
 			insert: this.insert.toArray(),
 			font_size: this.font_size,
 			text: this.text,
-			anchor: this.anchor.toArray()
+			anchor
 		};
 	}
 

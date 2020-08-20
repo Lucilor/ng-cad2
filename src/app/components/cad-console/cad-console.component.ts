@@ -18,6 +18,7 @@ import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation
 import {Line, Point} from "@lucilor/utils";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {animate, style, transition, trigger} from "@angular/animations";
+import {ActivatedRoute} from "@angular/router";
 
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
@@ -106,7 +107,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		return el.offsetWidth + getSelection().focusOffset + "px";
 	}
 
-	constructor(injector: Injector, private snackBar: MatSnackBar) {
+	constructor(injector: Injector, private snackBar: MatSnackBar, private route: ActivatedRoute) {
 		super(injector);
 	}
 
@@ -118,6 +119,11 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			}
 		});
 		window.addEventListener("keydown", this.onKeyDownWin.bind(this));
+		this.route.queryParams.subscribe((queryParams) => {
+			if (typeof queryParams.collection === "string") {
+				this.collection = queryParams.collection as Collection;
+			}
+		});
 	}
 
 	ngOnDestroy() {

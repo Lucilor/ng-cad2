@@ -271,10 +271,9 @@ export function generateLineTexts(data: CadData, fontSizes: {length: number; gon
 			let theta: number;
 			if (line instanceof CadLine) {
 				theta = line.theta;
+				// return;
 			} else {
-				// TODO: 处理弧线
-				return;
-				// theta = new CadLine({start: line.start, end: line.end}).theta;
+				theta = new CadLine({start: line.start, end: line.end}).theta;
 			}
 			if (cp > 0) {
 				theta += Math.PI / 2;
