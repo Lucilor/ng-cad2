@@ -8,6 +8,7 @@ import {State} from "@src/app/store/state";
 import {CadMtext} from "./cad-entity/cad-mtext";
 import {CadTransformation} from "./cad-transformation";
 import {CadEntity} from "./cad-entity/cad-entity";
+import {getVectorFromArray} from "./utils";
 
 export type LineLike = CadLine | CadArc;
 
@@ -313,8 +314,9 @@ export function generateLineTexts(data: CadData, fontSizes: {length: number; gon
 					lengthText = new CadMtext();
 					lengthText.info.isLengthText = true;
 					line.add(lengthText);
-					lengthText.insert.copy(outer);
 				}
+				const offset = getVectorFromArray(lengthText.info.offset);
+				lengthText.insert.copy(offset.add(outer));
 				lengthText.text = Math.round(line.length).toString();
 				lengthText.font_size = fontSizes.length;
 				lengthText.anchor.copy(anchor);

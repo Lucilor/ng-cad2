@@ -33,6 +33,13 @@ export class CadMtext extends CadEntity {
 		super.transform(trans);
 		const {matrix} = trans;
 		this.insert.applyMatrix3(matrix);
+		if (this.info.isLengthText) {
+			if (!Array.isArray(this.info.offset)) {
+				this.info.offset = [0, 0];
+			}
+			this.info.offset[0] += trans.translate.x;
+			this.info.offset[1] += trans.translate.y;
+		}
 		return this;
 	}
 
