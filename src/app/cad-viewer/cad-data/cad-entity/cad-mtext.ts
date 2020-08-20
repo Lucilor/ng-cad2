@@ -16,7 +16,10 @@ export class CadMtext extends CadEntity {
 		this.insert = getVectorFromArray(data.insert);
 		this.font_size = data.font_size ?? 16;
 		this.text = data.text ?? "";
-		this.anchor = getVectorFromArray(data.anchor);
+		if (typeof data.anchor?.[1] === "number") {
+			data.anchor[1] = 1 - data.anchor[1];
+		}
+		this.anchor = getVectorFromArray(data.anchor, new Vector2(0, 1));
 	}
 
 	export() {

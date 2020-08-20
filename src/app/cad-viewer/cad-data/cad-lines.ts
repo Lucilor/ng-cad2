@@ -8,7 +8,7 @@ import {State} from "@src/app/store/state";
 import {CadMtext} from "./cad-entity/cad-mtext";
 import {CadTransformation} from "./cad-transformation";
 import {CadEntity} from "./cad-entity/cad-entity";
-import {getVectorFromArray} from "./utils";
+import {getVectorFromArray, isBetween} from "./utils";
 
 export type LineLike = CadLine | CadArc;
 
@@ -122,9 +122,6 @@ export function setLinesLength(cad: CadViewer, lines: CadLine[], length: number)
 			entities.forEach((e) => e.transform(new CadTransformation({translate})));
 		}
 	});
-	cad.data.updatePartners().updateComponents();
-	cad.data.components.data.forEach((v) => validateLines(v));
-	cad.render();
 }
 
 export function swapStartEnd(entity: LineLike) {
@@ -220,6 +217,7 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	const lines = sortLines(data, tolerance);
 	const result = {valid: true, errMsg: "", lines};
+	lines.forEach((v) => v.forEach((vv) => (vv.info.error = false)));
 	if (lines.length < 1) {
 		result.valid = false;
 		result.errMsg = "没有线";
@@ -343,4 +341,22 @@ export function generateLineTexts(data: CadData, fontSizes: {length: number; gon
 		});
 	});
 	return removed;
+}
+
+export function autoFixLine(cad: CadViewer, line: CadLine, tolerance = DEFAULT_TOLERANCE) {
+	const {start, end} = line;
+	const dx = start.x - end.x;
+	const dy = start.y - end.y;
+	const translate = new Vector2();
+	if (isBetween(Math.abs(dx))) {
+		translate.x = dx;
+	}
+	if (isBetween(Math.abs(dy))) {
+		translate.y = dy;
+	}
+	const map = generatePointsMap(cad.data.getAllEntities(), tolerance);
+	const {entities} = findAllAdjacentLines(map, line, line.end, tolerance);
+	const trans = new CadTransformation({translate});
+	entities.forEach((e) => e.transform(trans));
+	line.end.add(translate);
 }

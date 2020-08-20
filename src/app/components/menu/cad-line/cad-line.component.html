@@ -1,11 +1,14 @@
-<button
-	mat-raised-button
-	[style.z-index]="data ? '1' : '0'"
-	[color]="cadStatusName === 'draw line' ? 'accent' : 'primary'"
-	(click)="drawLine()"
->
-	画线
-</button>
+<div class="btn-group">
+	<button
+		mat-raised-button
+		[style.z-index]="data ? '1' : '0'"
+		[color]="cadStatusName === 'draw line' ? 'accent' : 'primary'"
+		(click)="drawLine()"
+	>
+		画线
+	</button>
+	<button mat-raised-button color="primary" (click)="autoFix()">修正</button>
+</div>
 <form [class.not-allowed]="editDiabled">
 	<button hidden></button>
 	<div class="form-item length">

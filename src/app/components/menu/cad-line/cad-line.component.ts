@@ -9,7 +9,8 @@ import {
 	generatePointsMap,
 	validateLines,
 	getPointsFromMap,
-	setLinesLength
+	setLinesLength,
+	autoFixLine
 } from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getColorLightness} from "@lucilor/utils";
 import {MatSelectChange} from "@angular/material/select";
@@ -143,6 +144,10 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		const {selected, cad} = this;
 		const lines = selected.filter((v) => v instanceof CadLine) as CadLine[];
 		setLinesLength(cad, lines, Number((event.target as HTMLInputElement).value));
+		if (cad.config.validateLines) {
+			validateLines(cad.data);
+		}
+		cad.render();
 	}
 
 	getCssColor(colorStr?: string) {
@@ -272,5 +277,18 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		this.lineDrawing = {start: null, end: null};
 		const points = getPointsFromMap(cad, generatePointsMap(this.data.getAllEntities()));
 		store.dispatch<CadPointsAction>({type: "set cad points", points});
+	}
+
+	autoFix() {
+		const {selected, cad} = this;
+		selected.forEach((e) => {
+			if (e instanceof CadLine) {
+				autoFixLine(this.cad, e);
+			}
+		});
+		if (cad.config.validateLines) {
+			validateLines(cad.data);
+		}
+		cad.render();
 	}
 }

@@ -494,7 +494,6 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		}
 		const d1 = Math.abs(radius / Math.tan(theta3));
 		const d2 = Math.abs(radius / Math.sin(theta4));
-		console.log(MathUtils.radToDeg(theta1), MathUtils.radToDeg(theta2));
 		const start = new Point(Math.cos(theta1), Math.sin(theta1)).multiply(d1).add(point);
 		const end = new Point(Math.cos(theta2), Math.sin(theta2)).multiply(d1).add(point);
 		if (!l1.containsPoint(start) || !l2.containsPoint(end)) {
@@ -519,6 +518,9 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			cadArc.clockwise = clockwise;
 			const data = (await this.getCurrCadsData())[0];
 			data.entities.add(cadArc);
+		}
+		if (this.cad.config.validateLines) {
+			validateLines(this.cad.data);
 		}
 		this.cad.unselectAll();
 	}

@@ -1,12 +1,12 @@
 import {Vector2, MathUtils} from "three";
 import {CadLine} from "./cad-entity/cad-line";
 
-export function getVectorFromArray(data: number[] | Vector2) {
+export function getVectorFromArray(data: number[] | Vector2, defaultVal = new Vector2()) {
 	if (data instanceof Vector2) {
 		return data.clone();
 	}
 	if (!Array.isArray(data)) {
-		return new Vector2();
+		return defaultVal.clone();
 	}
 	data = data.filter((v) => !isNaN(v));
 	return new Vector2(...data);
