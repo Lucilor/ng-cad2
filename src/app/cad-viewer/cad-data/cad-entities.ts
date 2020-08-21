@@ -108,9 +108,13 @@ export class CadEntities {
 	}
 
 	transform(trans: CadTransformation) {
-		for (const key of cadTypesKey) {
-			(this[key] as CadEntity[]).forEach((e) => e.transform(trans));
-		}
+		let childrenIds = [];
+		this.forEach((e) => (childrenIds = childrenIds.concat(e.children.map((c) => c.id))));
+		this.forEach((e) => {
+			if (!childrenIds.includes(e.id)) {
+				e.transform(trans);
+			}
+		});
 	}
 
 	forEachType(callback: (array: CadEntity[], type: CadTypeKey, TYPE: string) => void, include?: CadTypeKey[]) {
