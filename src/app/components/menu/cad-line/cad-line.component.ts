@@ -10,7 +10,9 @@ import {
 	validateLines,
 	getPointsFromMap,
 	setLinesLength,
-	autoFixLine
+	autoFixLine,
+	generateLineTexts,
+	updateLineTexts
 } from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getColorLightness} from "@lucilor/utils";
 import {MatSelectChange} from "@angular/material/select";
@@ -147,6 +149,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		if (cad.config.validateLines) {
 			validateLines(cad.data);
 		}
+		updateLineTexts(this.cad);
 		cad.render();
 	}
 
@@ -201,6 +204,10 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 				e[field] = value;
 			}
 		});
+		if (field === "gongshi") {
+			updateLineTexts(this.cad);
+			this.cad.render();
+		}
 	}
 
 	getLinewidth() {

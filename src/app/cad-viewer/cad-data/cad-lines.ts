@@ -115,7 +115,7 @@ export function setLinesLength(cad: CadViewer, lines: CadLine[], length: number)
 	lines.forEach((line) => {
 		if (line instanceof CadLine) {
 			const {entities} = findAllAdjacentLines(pointsMap, line, line.end);
-			const d = line.length - length;
+			const d = length - line.length;
 			const theta = line.theta;
 			const translate = new Vector2(Math.cos(theta), Math.sin(theta)).multiplyScalar(d);
 			line.end.add(translate);
@@ -245,9 +245,8 @@ export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	return result;
 }
 
-export function generateLineTexts(data: CadData, fontSizes: {length: number; gongshi: number}, tolerance = DEFAULT_TOLERANCE) {
-	const lines = sortLines(data, tolerance);
-	const removed: CadEntity[] = [];
+export function generateLineTexts(cad: CadViewer, tolerance = DEFAULT_TOLERANCE) {
+	const lines = sortLines(cad.data, tolerance);
 	lines.forEach((group) => {
 		let cp = 0;
 		const length = group.length;
@@ -305,41 +304,67 @@ export function generateLineTexts(data: CadData, fontSizes: {length: number; gon
 				}
 			}
 
+			const {showLineLength, showGongshi} = cad.config;
 			let lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
-			if (fontSizes.length > 0) {
+			if (showLineLength > 0) {
 				if (!(lengthText instanceof CadMtext)) {
 					lengthText = new CadMtext();
 					lengthText.info.isLengthText = true;
+					lengthText.info.offset = [0, 0];
 					line.add(lengthText);
 				}
 				const offset = getVectorFromArray(lengthText.info.offset);
 				lengthText.insert.copy(offset.add(outer));
 				lengthText.text = Math.round(line.length).toString();
-				lengthText.font_size = fontSizes.length;
+				lengthText.font_size = showLineLength;
 				lengthText.anchor.copy(anchor);
 			} else {
 				line.remove(lengthText);
-				removed.push(lengthText);
+				cad.scene.remove(line.object);
 			}
 
 			let gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
-			if (fontSizes.gongshi > 0) {
+			if (showGongshi) {
 				if (!(gongshiText instanceof CadMtext)) {
 					gongshiText = new CadMtext();
 					gongshiText.info.isGongshiText = true;
+					gongshiText.info.offset = [0, 0];
 					line.add(gongshiText);
 					gongshiText.insert.copy(inner);
 				}
 				gongshiText.text = line.gongshi;
-				gongshiText.font_size = fontSizes.gongshi;
+				gongshiText.font_size = showGongshi;
 				gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
 			} else {
 				line.remove(gongshiText);
-				removed.push(gongshiText);
+				cad.scene.remove(line.object);
 			}
 		});
 	});
-	return removed;
+}
+
+export function updateLineText(line: LineLike) {
+	const middle = line.middle;
+	const lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
+	if (lengthText) {
+		const offset = getVectorFromArray(lengthText.info.offset);
+		lengthText.text = Math.round(line.length).toString();
+		lengthText.insert.copy(offset.add(middle));
+	}
+	const gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
+	if (gongshiText) {
+		const offset = getVectorFromArray(gongshiText.info.offset);
+		gongshiText.text = line.gongshi;
+		gongshiText.insert.copy(offset.add(middle));
+	}
+	return line;
+}
+
+export function updateLineTexts(cad: CadViewer) {
+	const {line, arc} = cad.data.getAllEntities();
+	[...line, ...arc].forEach((line) => {
+		updateLineText(line);
+	});
 }
 
 export function autoFixLine(cad: CadViewer, line: CadLine, tolerance = DEFAULT_TOLERANCE) {

@@ -194,9 +194,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		if (this.subCads) {
 			await this.subCads.updateList();
 			// await timeout(100);
-			const {showLineLength, showGongshi} = this.cad.config;
-			const toRemove = generateLineTexts(this.cad.data, {length: showLineLength, gongshi: showGongshi});
-			toRemove.forEach((e) => this.cad.scene.remove(e?.object));
+			generateLineTexts(this.cad);
 			this.cad.render(true);
 		} else {
 			await timeout(0);

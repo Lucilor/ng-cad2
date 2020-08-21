@@ -83,8 +83,8 @@ export abstract class CadEntity {
 		// }
 	}
 
-	transform(trans: CadTransformation) {
-		this.children.forEach((e) => e.transform(trans));
+	transform(trans: CadTransformation, _parent?: CadEntity) {
+		this.children.forEach((e) => e.transform(trans, this));
 		return this;
 	}
 
