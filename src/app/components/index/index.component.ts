@@ -152,18 +152,18 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		});
 
 		// this.cad.beforeRender = throttle(() => {
-			// const collection = getCollection();
-			// const {showLineLength, showGongshi} = this.cad.config;
-			// const data = new CadData();
-			// if (collection === "CADmuban") {
-			// 	this.data.components.data.forEach((v) => {
-			// 		v.components.data.forEach((vv) => data.merge(vv));
-			// 	});
-			// } else {
-			// 	data.merge(this.data);
-			// }
-			// const toRemove = generateLineTexts(data, {length: showLineLength, gongshi: showGongshi});
-			// toRemove.forEach((e) => this.cad.scene.remove(e?.object));
+		// const collection = getCollection();
+		// const {showLineLength, showGongshi} = this.cad.config;
+		// const data = new CadData();
+		// if (collection === "CADmuban") {
+		// 	this.data.components.data.forEach((v) => {
+		// 		v.components.data.forEach((vv) => data.merge(vv));
+		// 	});
+		// } else {
+		// 	data.merge(this.data);
+		// }
+		// const toRemove = generateLineTexts(data, {length: showLineLength, gongshi: showGongshi});
+		// toRemove.forEach((e) => this.cad.scene.remove(e?.object));
 		// });
 	}
 
@@ -194,7 +194,16 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		if (this.subCads) {
 			await this.subCads.updateList();
 			// await timeout(100);
-			generateLineTexts(this.cad);
+			const collection = getCollection();
+			if (collection === "CADmuban") {
+				this.cad.data.components.data.forEach((v) => {
+					v.components.data.forEach((vv) => generateLineTexts(this.cad, vv));
+				});
+			} else {
+				this.cad.data.components.data.forEach((v) => {
+					generateLineTexts(this.cad, v);
+				});
+			}
 			this.cad.render(true);
 		} else {
 			await timeout(0);

@@ -292,6 +292,11 @@ export class CadViewer {
 				canDraw = false;
 			}
 		}
+		if (entity instanceof CadMtext) {
+			if (entity.text.length <= 0) {
+				canDraw = false;
+			}
+		}
 		if (!canDraw) {
 			if (entity.object instanceof HTMLElement) {
 				entity.object.remove();
@@ -566,7 +571,6 @@ export class CadViewer {
 	}
 
 	private _drawHatch(entity: CadHatch, style: CadStyle) {
-		return;
 		if (!this._checkEntity(entity)) {
 			return;
 		}

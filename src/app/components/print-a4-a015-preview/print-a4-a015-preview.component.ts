@@ -1,12 +1,12 @@
-import {Component, OnInit, ViewChild, ChangeDetectorRef, OnDestroy} from "@angular/core";
+import {Component, OnInit, ChangeDetectorRef, OnDestroy} from "@angular/core";
 import {CadDataService} from "@src/app/services/cad-data.service";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {timeout} from "@src/app/app.common";
-import {PerfectScrollbarComponent} from "ngx-perfect-scrollbar";
 import {Store} from "@ngrx/store";
 import {State} from "@src/app/store/state";
 import {LoadingAction} from "@src/app/store/actions";
+import {updateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
 
 export type PreviewData = {
 	CAD?: any;
@@ -51,6 +51,7 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 						height: 92,
 						backgroundColor: 0xffffff
 					});
+					updateLineTexts(cad);
 					document.body.appendChild(cad.dom);
 					if (card.text.every((v) => !v.includes("花件"))) {
 						cad.config.showLineLength = 10 / cad.scale;

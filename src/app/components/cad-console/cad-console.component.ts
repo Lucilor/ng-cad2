@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild, ElementRef, Input, Injector, Output, EventEmitter, OnDestroy} from "@angular/core";
 import {differenceWith} from "lodash";
-import {timeout, removeCadGongshi, Collection, addCadGongshi, Command, getDPI} from "@src/app/app.common";
+import {timeout, removeCadGongshi, Collection, addCadGongshi, Command, getDPI, session} from "@src/app/app.common";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
@@ -93,6 +93,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	historyOffset = -1;
 	historySize = 100;
 	collection: Collection;
+	ids: string[];
 	openLock = false;
 	lastUrl: string;
 	visible = false;
@@ -111,7 +112,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		super(injector);
 	}
 
-	ngOnInit() {
+	async ngOnInit() {
 		super.ngOnInit();
 		this.getObservable(getCommand).subscribe((command) => {
 			if (command) {
@@ -124,6 +125,33 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				this.collection = queryParams.collection as Collection;
 			}
 		});
+
+		const {ids, collection, dataService} = this;
+		let cachedData: any = null;
+		let params: any = null;
+		let vid: string = null;
+		try {
+			cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data"));
+			params = JSON.parse(sessionStorage.getItem("params"));
+			vid = sessionStorage.getItem("vid");
+		} catch (error) {
+			console.warn(error);
+		}
+		if (cachedData && vid) {
+			this.collection = params.collection ?? "cad";
+			const {showLineLength} = params;
+			this.cad.config.showLineLength = showLineLength;
+			this.afterOpen([new CadData(cachedData)]);
+		} else if (location.search) {
+			const data = await dataService.getCadData();
+			if (typeof dataService.queryParams.collection === "string") {
+				this.collection = dataService.queryParams.collection as Collection;
+			}
+			this.afterOpen(data);
+		} else if (ids.length) {
+			const data = await dataService.getCadData({ids, collection});
+			this.afterOpen(data);
+		}
 	}
 
 	ngOnDestroy() {
@@ -774,4 +802,18 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	}
 
 	// * Console Functions end
+
+	saveStatus() {
+		const data = {
+			collection: this.collection,
+			ids: this.cad.data.components.data.map((v) => v.id)
+		};
+		session.save("console", data);
+	}
+
+	loadStatus() {
+		const data = session.load("console");
+		this.collection = data?.collection;
+		this.ids = data?.ids || [];
+	}
 }

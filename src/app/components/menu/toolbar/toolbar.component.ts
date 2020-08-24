@@ -1,11 +1,9 @@
 import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CurrCadsAction, CadStatusAction, CommandAction} from "@src/app/store/actions";
+import {CommandAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
-import {getCadStatus} from "@src/app/store/selectors";
-import {Collection, addCadGongshi, session} from "@src/app/app.common";
-import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {Collection} from "@src/app/app.common";
 
 @Component({
 	selector: "app-toolbar",
@@ -14,8 +12,6 @@ import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 })
 export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy {
 	@Output() afterOpenCad = new EventEmitter<void>();
-	collection: Collection;
-	ids: string[];
 	openLock = false;
 	keyMap: {[key: string]: () => void} = {
 		s: () => this.save(),
@@ -46,32 +42,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				this.clickBtn(key);
 			}
 		});
-		const {ids, collection, dataService} = this;
-		let cachedData: any = null;
-		let params: any = null;
-		let vid: string = null;
-		try {
-			cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data"));
-			params = JSON.parse(sessionStorage.getItem("params"));
-			vid = sessionStorage.getItem("vid");
-		} catch (error) {
-			console.warn(error);
-		}
-		if (cachedData && vid) {
-			this.collection = "order";
-			const {showLineLength} = params;
-			this.cad.config.showLineLength = showLineLength;
-			this.afterOpen([new CadData(cachedData)]);
-		} else if (location.search) {
-			const data = await dataService.getCadData();
-			if (typeof dataService.queryParams.collection === "string") {
-				this.collection = dataService.queryParams.collection as Collection;
-			}
-			this.afterOpen(data);
-		} else if (ids.length) {
-			const data = await dataService.getCadData({ids, collection});
-			this.afterOpen(data);
-		}
 	}
 
 	ngOnDestroy() {
@@ -84,24 +54,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	open(collection: Collection) {
 		this.store.dispatch<CommandAction>({type: "execute", command: {name: "open", args: [{name: "collection", value: collection}]}});
-	}
-
-	afterOpen(data?: CadData[]) {
-		const cad = this.cad;
-		if (data) {
-			cad.data.components.data = data;
-			data.forEach((v) => {
-				this.setCadData(v);
-				addCadGongshi(v);
-			});
-			if (this.collection === "cad") {
-				data.forEach((v) => validateLines(v));
-			}
-		}
-		cad.reset(null, true);
-		this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
-		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
-		this.afterOpenCad.emit();
 	}
 
 	async save() {
@@ -237,19 +189,5 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			type: "execute",
 			command: {name: "fillet", args: [{name: "radius", value: radius ? radius.toString() : "0"}]}
 		});
-	}
-
-	saveStatus() {
-		const data = {
-			collection: this.collection,
-			ids: this.cad.data.components.data.map((v) => v.id)
-		};
-		session.save("toolbar", data);
-	}
-
-	loadStatus() {
-		const data = session.load("toolbar");
-		this.collection = data?.collection;
-		this.ids = data?.ids || [];
 	}
 }
