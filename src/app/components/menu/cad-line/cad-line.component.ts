@@ -14,7 +14,7 @@ import {
 	generateLineTexts,
 	updateLineTexts
 } from "@src/app/cad-viewer/cad-data/cad-lines";
-import {getColorLightness} from "@lucilor/utils";
+import {getColorLightness} from "@app/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
 import {MenuComponent} from "../menu.component";

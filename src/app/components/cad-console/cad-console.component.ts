@@ -15,7 +15,7 @@ import {highlight} from "highlight.js";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {Line, Point} from "@lucilor/utils";
+import {Line, Point} from "@app/utils";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ActivatedRoute} from "@angular/router";

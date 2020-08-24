@@ -1,4 +1,4 @@
-import {index2RGB, RGB2Index} from "@lucilor/utils";
+import {index2RGB, RGB2Index} from "@app/utils";
 import {MathUtils, Color} from "three";
 import {lineweight2linewidth, linewidth2lineweight} from "./utils";
 

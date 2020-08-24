@@ -37,7 +37,7 @@ export class Arc {
 
 	set startAngle(angle: Angle) {
 		this._startAngle = angle;
-		const d = new Point(Math.cos(this._startAngle.rad), Math.sin(this._startAngle.rad)).multiplyScalar(this.radius);
+		const d = new Point(Math.cos(this._startAngle.rad), Math.sin(this._startAngle.rad)).multiply(this.radius);
 		this._startPoint = this.center.clone().add(d);
 	}
 
@@ -47,7 +47,7 @@ export class Arc {
 
 	set endAngle(angle: Angle) {
 		this._endAngle = angle;
-		const d = new Point(Math.cos(this._endAngle.rad), Math.sin(this._endAngle.rad)).multiplyScalar(this.radius);
+		const d = new Point(Math.cos(this._endAngle.rad), Math.sin(this._endAngle.rad)).multiply(this.radius);
 		this._endPoint = this.center.clone().add(d);
 	}
 
@@ -76,7 +76,7 @@ export class Arc {
 
 	get middle() {
 		const angle = (this._startAngle.rad + this._endAngle.rad) / 2;
-		const d = new Point(Math.cos(angle), Math.sin(angle)).multiplyScalar(this.radius);
+		const d = new Point(Math.cos(angle), Math.sin(angle)).multiply(this.radius);
 		return this.center.clone().add(d);
 	}
 

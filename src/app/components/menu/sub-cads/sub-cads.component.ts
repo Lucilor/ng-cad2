@@ -5,7 +5,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {timeout, Collection, session, copyToClipboard, removeCadGongshi, getCollection, addCadGongshi} from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
-import {RSAEncrypt} from "@lucilor/utils";
+import {RSAEncrypt} from "@app/utils";
 import {State} from "@src/app/store/state";
 import {MenuComponent} from "../menu.component";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
