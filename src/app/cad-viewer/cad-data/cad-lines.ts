@@ -197,15 +197,15 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 			const prev = group[i - 1];
 			const curr = group[i];
 			if (prev instanceof CadLine && curr instanceof CadLine && prev.slope === curr.slope) {
-				prev.end = curr.end;
-				curr.start.set(0, 0);
-				curr.end.set(0, 0);
+				prev.end.copy(curr.end);
+				curr.start.copy(curr.end);
 			}
 			if (prev.end.distanceTo(curr.start) > tolerance) {
 				if (curr instanceof CadLine) {
 					[curr.start, curr.end] = [curr.end, curr.start];
 				} else {
 					[curr.start_angle, curr.end_angle] = [curr.end_angle, curr.start_angle];
+					curr.clockwise = !curr.clockwise;
 				}
 			}
 		}

@@ -566,6 +566,7 @@ export class CadViewer {
 	}
 
 	private _drawHatch(entity: CadHatch, style: CadStyle) {
+		return;
 		if (!this._checkEntity(entity)) {
 			return;
 		}
