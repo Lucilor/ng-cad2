@@ -1,4 +1,4 @@
-import {CadViewer} from "./cad-viewer";
+import {CadViewer} from "./cad-viewer-legacy";
 import {CadEntity} from "./cad-data/cad-entity/cad-entity";
 import {CadMtext} from "./cad-data/cad-entity/cad-mtext";
 import {CadDimension} from "./cad-data/cad-entity/cad-dimension";

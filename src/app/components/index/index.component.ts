@@ -5,6 +5,7 @@ import {SubCadsComponent} from "../menu/sub-cads/sub-cads.component";
 import {CadInfoComponent} from "../menu/cad-info/cad-info.component";
 import {CadDimensionComponent} from "../menu/cad-dimension/cad-dimension.component";
 import {CadAssembleComponent} from "../menu/cad-assemble/cad-assemble.component";
+import {CadViewer as CadViewer2} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {environment} from "@src/environments/environment";
@@ -55,7 +56,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	showBottomMenu = true;
 	showLeftMenu = true;
 	showAllMenu = true;
-	menuPadding = [40, 250, 20, 200];
+	menuPadding = [40, 270, 20, 220];
 	@ViewChild("cadContainer", {read: ElementRef}) cadContainer: ElementRef<HTMLElement>;
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
@@ -88,7 +89,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		// this.dataService.getSampleFormulas().then((result) => {
 		// 	this.formulas = result;
 		// });
-		this.cad = new CadViewer(new CadData(), {
+		this.cad = new CadViewer2(new CadData(), {
 			width: innerWidth,
 			height: innerHeight,
 			showStats: !environment.production,
@@ -205,6 +206,10 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 				});
 			}
 			this.cad.render(true);
+			this.cad.dom.style.display = "none";
+			const cad = new CadViewer(this.cad.data.clone(), {width: innerWidth, height: innerHeight, padding: this.cad.config.padding});
+			this.cadContainer.nativeElement.appendChild(cad.dom);
+			console.log(cad);
 		} else {
 			await timeout(0);
 			this.refresh();

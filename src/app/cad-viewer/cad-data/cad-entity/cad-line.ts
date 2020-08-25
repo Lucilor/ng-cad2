@@ -4,9 +4,11 @@ import {CadLayer} from "../cad-layer";
 import {getVectorFromArray, isBetween} from "../utils";
 import {CadTransformation} from "../cad-transformation";
 import {Line2} from "three/examples/jsm/lines/Line2";
+import {Line} from "@svgdotjs/svg.js";
 
 export class CadLine extends CadEntity {
 	object?: Line2;
+	shape?: Line;
 	start: Vector2;
 	end: Vector2;
 	mingzi: string;

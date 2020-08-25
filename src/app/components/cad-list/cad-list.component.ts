@@ -2,7 +2,7 @@ import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
 import {PageEvent, MatPaginator} from "@angular/material/paginator";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {CadData, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadViewer} from "@app/cad-viewer/cad-viewer";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadDataService} from "@services/cad-data.service";
 import {timeout, Collection} from "@src/app/app.common";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";

@@ -1342,11 +1342,16 @@
   resolved "https://registry.yarnpkg.com/@sphinxxxx/color-conversion/-/color-conversion-2.2.2.tgz#03ecc29279e3c0c832f6185a5bfa3497858ac8ca"
   integrity sha512-XExJS3cLqgrmNBIP3bBw6+1oQ1ksGjFh0+oClDKFYpCCqx/hlqwWO5KO/S63fzUo67SxI9dMrF0y5T/Ey7h8Zw==
 
+"@svgdotjs/svg.js@^3.0.16":
+  version "3.0.16"
+  resolved "https://registry.yarnpkg.com/@svgdotjs/svg.js/-/svg.js-3.0.16.tgz#7044754e45daf62c8e2b115c45ca33ca5b967aff"
+  integrity sha512-yZ4jfP/SeLHEnCi9PIrzienKCrA4vW9+jm5uUV3N5DG2e9zgXLY5FgywK2u8/gMFIeKO0HuqTLFFfWJj+MfMLA==
+
 "@syncfusion/ej2-angular-base@~18.2.56":
   version "18.2.56"
   resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-base/-/ej2-angular-base-18.2.56.tgz#2cade10dc781a360c51b7e68739f566823c57e12"
   integrity sha512-WKPkxaykjKve3yTSQwJXDOWCc/2Ae4G43PB53TZzlPNszORXLTZAa+RG3kU03EM+nLf4hnCIgpm8SUqNn/pf5A==
-  dependencies:
+dependencies:
     "@syncfusion/ej2-base" "~18.2.55"
     "@syncfusion/ej2-icons" "~18.2.54"
     core-js "^3.4.8"
