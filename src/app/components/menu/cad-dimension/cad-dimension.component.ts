@@ -5,7 +5,7 @@ import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimensio
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {CadStatusAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
-import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls";
+import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls-legacy";
 import {getCadStatus} from "@src/app/store/selectors";
 
 @Component({

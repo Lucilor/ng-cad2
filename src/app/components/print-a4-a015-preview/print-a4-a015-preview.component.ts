@@ -1,6 +1,6 @@
 import {Component, OnInit, ChangeDetectorRef, OnDestroy} from "@angular/core";
 import {CadDataService} from "@src/app/services/cad-data.service";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {timeout} from "@src/app/app.common";
 import {Store} from "@ngrx/store";
