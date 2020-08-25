@@ -1,5 +1,5 @@
 import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {Vector2, Color} from "three";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
@@ -22,7 +22,7 @@ import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {takeUntil} from "rxjs/operators";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls";
+import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls-legacy";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {State} from "@src/app/store/state";
 

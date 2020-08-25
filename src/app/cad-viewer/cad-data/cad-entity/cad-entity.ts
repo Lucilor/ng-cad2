@@ -4,6 +4,7 @@ import {MathUtils, Color, Object3D} from "three";
 import {index2RGB, RGB2Index} from "@app/utils";
 import {CadTransformation} from "../cad-transformation";
 import {lineweight2linewidth, linewidth2lineweight} from "../utils";
+import {Shape} from "@svgdotjs/svg.js";
 
 export abstract class CadEntity {
 	id: string;
@@ -18,6 +19,7 @@ export abstract class CadEntity {
 	selected: boolean;
 	hover: boolean;
 	object?: Object3D = null;
+	shape?: Shape = null;
 	info: {[key: string]: any};
 	_indexColor: number;
 	_lineweight: number;

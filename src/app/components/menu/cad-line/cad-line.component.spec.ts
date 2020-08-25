@@ -1,7 +1,7 @@
 import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 
 import {CadLineComponent} from "./cad-line.component";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";

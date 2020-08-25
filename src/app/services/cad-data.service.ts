@@ -8,7 +8,7 @@ import {openMessageDialog} from "../components/message/message.component";
 import {LoadingAction} from "../store/actions";
 import {Response, session, Collection} from "../app.common";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
-import {CadViewer} from "../cad-viewer/cad-viewer";
+import {CadViewer} from "../cad-viewer/cad-viewer-legacy";
 import {RSAEncrypt} from "@app/utils";
 import {Expressions} from "../cad-viewer/cad-data/utils";
 import {ActivatedRoute, Params} from "@angular/router";

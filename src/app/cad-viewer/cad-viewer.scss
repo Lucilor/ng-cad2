@@ -1,0 +1,15 @@
+.cad-viewer {
+	svg {
+		box-sizing: border-box;
+
+		* {
+			cursor: pointer;
+			&:hover {
+				stroke: cyan;
+			}
+			&.selected {
+				stroke-dasharray: 2, 1;
+			}
+		}
+	}
+}

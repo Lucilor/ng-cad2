@@ -3,7 +3,7 @@ import {CadEntities} from "./cad-entities";
 import {CadLine} from "./cad-entity/cad-line";
 import {CadArc} from "./cad-entity/cad-arc";
 import {CadData} from "./cad-data";
-import {CadViewer} from "../cad-viewer";
+import {CadViewer} from "../cad-viewer-legacy";
 import {State} from "@src/app/store/state";
 import {CadMtext} from "./cad-entity/cad-mtext";
 import {CadTransformation} from "./cad-transformation";

@@ -23,6 +23,7 @@
     "@angular/router": "~10.0.14",
     "@ngrx/store": "^10.0.0",
     "@seregpie/three.text-sprite": "^2.0.0",
+    "@svgdotjs/svg.js": "^3.0.16",
     "@syncfusion/ej2-angular-inputs": "^18.2.54",
     "ang-jsoneditor": "^1.10.0",
     "highlight.js": "^10.1.2",

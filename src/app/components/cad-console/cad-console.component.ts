@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild, ElementRef, Input, Injector, Output, Event
 import {differenceWith} from "lodash";
 import {timeout, removeCadGongshi, Collection, addCadGongshi, Command, getDPI, session} from "@src/app/app.common";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {openMessageDialog, MessageComponent} from "../message/message.component";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";

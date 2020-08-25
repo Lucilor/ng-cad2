@@ -6,7 +6,7 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {provideMockStore} from "@ngrx/store/testing";
 import {initialState} from "@src/app/store/state";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";

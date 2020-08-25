@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild, OnDestroy, Injector, ElementRef} from "@angular/core";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {timeout, Collection, session, copyToClipboard, removeCadGongshi, getCollection, addCadGongshi} from "@src/app/app.common";

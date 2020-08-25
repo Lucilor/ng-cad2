@@ -1347,6 +1347,11 @@
   resolved "https://registry.yarnpkg.com/@sphinxxxx/color-conversion/-/color-conversion-2.2.2.tgz#03ecc29279e3c0c832f6185a5bfa3497858ac8ca"
   integrity sha512-XExJS3cLqgrmNBIP3bBw6+1oQ1ksGjFh0+oClDKFYpCCqx/hlqwWO5KO/S63fzUo67SxI9dMrF0y5T/Ey7h8Zw==
 
+"@svgdotjs/svg.js@^3.0.16":
+  version "3.0.16"
+  resolved "https://registry.yarnpkg.com/@svgdotjs/svg.js/-/svg.js-3.0.16.tgz#7044754e45daf62c8e2b115c45ca33ca5b967aff"
+  integrity sha512-yZ4jfP/SeLHEnCi9PIrzienKCrA4vW9+jm5uUV3N5DG2e9zgXLY5FgywK2u8/gMFIeKO0HuqTLFFfWJj+MfMLA==
+
 "@syncfusion/ej2-angular-base@~18.2.54":
   version "18.2.54"
   resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-base/-/ej2-angular-base-18.2.54.tgz#abf1dc208e792dc6c2113c9a8b3f2e1ac4b512d9"
