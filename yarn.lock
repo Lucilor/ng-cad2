@@ -1347,12 +1347,21 @@
   resolved "https://registry.yarnpkg.com/@svgdotjs/svg.js/-/svg.js-3.0.16.tgz#7044754e45daf62c8e2b115c45ca33ca5b967aff"
   integrity sha512-yZ4jfP/SeLHEnCi9PIrzienKCrA4vW9+jm5uUV3N5DG2e9zgXLY5FgywK2u8/gMFIeKO0HuqTLFFfWJj+MfMLA==
 
+<<<<<<< HEAD
 "@syncfusion/ej2-angular-base@~18.2.56":
   version "18.2.56"
   resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-base/-/ej2-angular-base-18.2.56.tgz#2cade10dc781a360c51b7e68739f566823c57e12"
   integrity sha512-WKPkxaykjKve3yTSQwJXDOWCc/2Ae4G43PB53TZzlPNszORXLTZAa+RG3kU03EM+nLf4hnCIgpm8SUqNn/pf5A==
 dependencies:
     "@syncfusion/ej2-base" "~18.2.55"
+=======
+"@syncfusion/ej2-angular-base@~18.2.54":
+  version "18.2.54"
+  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-base/-/ej2-angular-base-18.2.54.tgz#abf1dc208e792dc6c2113c9a8b3f2e1ac4b512d9"
+  integrity sha512-Y7EEDoQBGpTDW/GhOvVMLM/v4tozvSoUCuedUC3o5NBW+/a5eMbS954NCJrJcTAIBUYGmYTTHzehVH3Ob/5mzQ==
+  dependencies:
+    "@syncfusion/ej2-base" "~18.2.54"
+>>>>>>> 8a7cd9a... ✨feat(CadViewer): render cad in svg(WIP)
     "@syncfusion/ej2-icons" "~18.2.54"
     core-js "^3.4.8"
     reflect-metadata "^0.1.9"
