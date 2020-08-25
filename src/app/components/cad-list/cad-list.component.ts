@@ -29,7 +29,7 @@ export class CadListComponent implements AfterViewInit {
 	displayedColumns = ["select", "mingzi", "wenjian", "create_time", "modify_time"];
 	width = 300;
 	height = 150;
-	searchField = "名字";
+	searchField = "选项";
 	searchForm: {[key: string]: string} = {};
 	searchNameInput = "";
 	checkedIndex = -1;
