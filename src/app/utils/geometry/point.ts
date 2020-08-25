@@ -1,3 +1,6 @@
+import {Line} from "..";
+import {DEFAULT_TOLERANCE} from "./constants";
+
 export class Point {
 	x: number;
 	y: number;
@@ -27,12 +30,9 @@ export class Point {
 		return this;
 	}
 
-	equals(v: Point) {
-		return v.x === this.x && v.y === this.y;
-	}
-
-	equalsAppr(v: Point, accuracy: number) {
-		return Math.abs(v.x - this.x) <= accuracy && Math.abs(v.y - this.y) <= accuracy;
+	equals(point: Point, tolerance = DEFAULT_TOLERANCE) {
+		const {x, y} = point;
+		return Math.abs(x - this.x) <= tolerance && Math.abs(y - this.y) <= tolerance;
 	}
 
 	add(point?: Point): Point;
@@ -83,6 +83,11 @@ export class Point {
 		return new Point(this.x, this.y);
 	}
 
+	copy({x, y}: Point) {
+		this.x = x;
+		this.y = y;
+	}
+
 	flip(vertical = false, horizontal = false, anchor = new Point(0)) {
 		const dx = anchor.x - this.x;
 		const dy = anchor.y - this.y;
@@ -108,10 +113,16 @@ export class Point {
 		return [this.x, this.y];
 	}
 
-	distance(to: Point) {
+	distanceTo(point: Point | Line) {
 		const {x, y} = this;
-		if (to instanceof Point) {
-			return Math.sqrt((x - to.x) ** 2 + (y - to.y) ** 2);
+		if (point instanceof Point) {
+			return Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2);
+		} else {
+			return point.distanceTo(this);
 		}
+	}
+
+	crossProduct(point: Point) {
+		return this.x * point.y - this.y * point.x;
 	}
 }

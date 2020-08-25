@@ -1,3 +1,5 @@
+import {DEFAULT_TOLERANCE} from "./constants";
+
 export class Angle {
 	private _value: number;
 	unit: "rad" | "deg";
@@ -38,9 +40,58 @@ export class Angle {
 		return this;
 	}
 
-	set(value = 0, unit: "rad" | "deg" = "rad") {
+	set(value = 0, unit = this.unit) {
 		this._value = value;
 		this.unit = unit;
 		return this;
+	}
+
+	clone() {
+		return new Angle(this._value, this.unit);
+	}
+
+	copy(angle: Angle) {
+		this._value = angle._value;
+		this.unit = angle.unit;
+	}
+
+	add(angle: Angle) {
+		if (this.unit === "deg") {
+			this._value += angle.deg;
+		} else if (this.unit === "rad") {
+			this._value += angle.rad;
+		}
+		return this;
+	}
+
+	sub(angle: Angle) {
+		if (this.unit === "deg") {
+			this._value -= angle.deg;
+		} else if (this.unit === "rad") {
+			this._value -= angle.rad;
+		}
+		return this;
+	}
+
+	multiply(angle: Angle) {
+		if (this.unit === "deg") {
+			this._value *= angle.deg;
+		} else if (this.unit === "rad") {
+			this._value *= angle.rad;
+		}
+		return this;
+	}
+
+	divide(angle: Angle) {
+		if (this.unit === "deg") {
+			this._value /= angle.deg;
+		} else if (this.unit === "rad") {
+			this._value /= angle.rad;
+		}
+		return this;
+	}
+
+	equals(angle: Angle, tolerance = DEFAULT_TOLERANCE) {
+		return Math.abs(this.rad - angle.rad) <= tolerance;
 	}
 }

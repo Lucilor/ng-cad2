@@ -7,8 +7,8 @@ import {CadViewer} from "../cad-viewer";
 import {State} from "@src/app/store/state";
 import {CadMtext} from "./cad-entity/cad-mtext";
 import {CadTransformation} from "./cad-transformation";
-import {CadEntity} from "./cad-entity/cad-entity";
 import {getVectorFromArray, isBetween} from "./utils";
+import {DEFAULT_TOLERANCE} from "@app/utils";
 
 export type LineLike = CadLine | CadArc;
 
@@ -17,8 +17,6 @@ export type PointsMap = {
 	lines: LineLike[];
 	selected: boolean;
 }[];
-
-export const DEFAULT_TOLERANCE = 0.01;
 
 export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOLERANCE) {
 	const map: PointsMap = [];

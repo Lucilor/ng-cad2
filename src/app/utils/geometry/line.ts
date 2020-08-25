@@ -1,4 +1,6 @@
 import {Point} from "./point";
+import {DEFAULT_TOLERANCE} from "./constants";
+import {Angle} from "./angle";
 
 export class Line {
 	start: Point;
@@ -11,6 +13,16 @@ export class Line {
 
 	clone() {
 		return new Line(this.start.clone(), this.end.clone());
+	}
+
+	copy({start, end}: Line) {
+		this.start.copy(start);
+		this.end.copy(end);
+	}
+
+	reverse() {
+		[this.start, this.end] = [this.end, this.start];
+		return this;
 	}
 
 	containsPoint(point: Point, extend = false) {
@@ -49,7 +61,7 @@ export class Line {
 	get theta() {
 		const {x: x1, y: y1} = this.start;
 		const {x: x2, y: y2} = this.end;
-		return Math.atan2(y2 - y1, x2 - x1);
+		return new Angle(Math.atan2(y2 - y1, x2 - x1), "rad");
 	}
 
 	get expression() {
@@ -80,8 +92,17 @@ export class Line {
 		return result;
 	}
 
-	equals(line: Line) {
-		return this.start.equals(line.start) && this.end.equals(line.end);
+	equals(line: Line, tolerance = DEFAULT_TOLERANCE) {
+		return this.start.equals(line.start, tolerance) && this.end.equals(line.end, tolerance);
+	}
+
+	isParallelWith(line: Line, tolerance = DEFAULT_TOLERANCE) {
+		const slope1 = line.slope;
+		const slope2 = this.slope;
+		if (!isFinite(slope1) && !isFinite(slope2)) {
+			return true;
+		}
+		return Math.abs(this.slope - line.slope) <= tolerance;
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point(0)) {
@@ -96,25 +117,23 @@ export class Line {
 		return this;
 	}
 
-	distance(to: Line | Point) {
-		if (to instanceof Line) {
-			if (this.slope !== to.slope) {
+	distanceTo(line: Line | Point, tolerance = DEFAULT_TOLERANCE) {
+		if (line instanceof Line) {
+			if (!this.isParallelWith(line, tolerance)) {
 				return NaN;
 			}
 			const exp1 = this.expression;
-			const exp2 = to.expression;
+			const exp2 = line.expression;
 			return Math.abs(exp1.c - exp2.c) / Math.sqrt(exp1.a ** 2 + exp1.b ** 2);
 		} else {
 			const {a, b, c} = this.expression;
-			return Math.abs((a * to.x + b * to.y + c) / Math.sqrt(a ** 2 + b ** 2));
+			return Math.abs((a * line.x + b * line.y + c) / Math.sqrt(a ** 2 + b ** 2));
 		}
 	}
 
-	intersect(line: Line, extend = false) {
-		const slope1 = this.slope;
-		const slope2 = line.slope;
+	intersects(line: Line, extend = false, tolerance = DEFAULT_TOLERANCE) {
 		let intersection: Point = null;
-		if (slope1 === slope2 || (!isFinite(slope1) && !isFinite(slope2))) {
+		if (this.isParallelWith(line, tolerance)) {
 			return intersection;
 		}
 		const exp1 = this.expression;
@@ -126,6 +145,12 @@ export class Line {
 			intersection = null;
 		}
 		return intersection;
+	}
+
+	crossProduct(line: Line) {
+		const p1 = this.end.clone().sub(this.start);
+		const p2 = line.end.clone().sub(line.start);
+		return p1.crossProduct(p2);
 	}
 }
 

@@ -6,6 +6,7 @@ import {Angle} from "./geometry/angle";
 import {RGB2Index, index2RGB, getColorLightness} from "./color";
 import {dataURLtoBlob, RSAEncrypt} from "./misc";
 import {SessionStorage, LocalStorage} from "./storage";
+import {DEFAULT_TOLERANCE} from "./geometry/constants";
 
 export {
 	Point,
@@ -13,6 +14,7 @@ export {
 	Rectangle,
 	Angle,
 	Arc,
+	DEFAULT_TOLERANCE,
 	dataURLtoBlob,
 	RSAEncrypt,
 	RGB2Index,

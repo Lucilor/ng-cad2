@@ -135,27 +135,32 @@ export class CadEntities {
 		return result;
 	}
 
-	add(entity: CadEntity) {
-		if (entity instanceof CadEntity) {
-			this.forEachType((array, type, TYPE) => {
-				if (TYPE === entity.type) {
-					array.push(entity);
-				}
-			});
-		}
+	add(...entities: CadEntity[]) {
+		entities.forEach((entity) => {
+			if (entity instanceof CadEntity) {
+				this.forEachType((array, type, TYPE) => {
+					if (TYPE === entity.type) {
+						array.push(entity);
+					}
+				});
+			}
+		});
 		return this;
 	}
 
-	remove(entity: CadEntity) {
-		if (entity instanceof CadEntity) {
-			const id = entity.id;
-			this.forEachType((array) => {
-				const index = array.findIndex((e) => e.id === id);
-				if (index > -1) {
-					array.splice(index, 1);
-				}
-			});
-		}
+	remove(...entities: CadEntity[]) {
+		entities.forEach((entity) => {
+			if (entity instanceof CadEntity) {
+				const id = entity.id;
+				this.forEachType((array) => {
+					const index = array.findIndex((e) => e.id === id);
+					if (index > -1) {
+						array.splice(index, 1);
+					}
+				});
+			}
+		});
+
 		return this;
 	}
 }

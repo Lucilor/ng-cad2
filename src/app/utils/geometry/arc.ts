@@ -6,10 +6,8 @@ export class Arc {
 	center: Point;
 	radius: number;
 	clockwise: boolean;
-	private _startAngle: Angle;
-	private _endAngle: Angle;
-	private _startPoint: Point;
-	private _endPoint: Point;
+	startAngle: Angle;
+	endAngle: Angle;
 
 	constructor(center = new Point(), radius?: number, start?: Angle | Point, end?: Angle | Point, clockwise = true) {
 		this.center = center;
@@ -31,51 +29,31 @@ export class Arc {
 		}
 	}
 
-	get startAngle() {
-		return this._startAngle;
-	}
-
-	set startAngle(angle: Angle) {
-		this._startAngle = angle;
-		const d = new Point(Math.cos(this._startAngle.rad), Math.sin(this._startAngle.rad)).multiply(this.radius);
-		this._startPoint = this.center.clone().add(d);
-	}
-
-	get endAngle() {
-		return this._endAngle;
-	}
-
-	set endAngle(angle: Angle) {
-		this._endAngle = angle;
-		const d = new Point(Math.cos(this._endAngle.rad), Math.sin(this._endAngle.rad)).multiply(this.radius);
-		this._endPoint = this.center.clone().add(d);
-	}
-
 	get startPoint() {
-		return this._startPoint;
+		const d = new Point(Math.cos(this.startAngle.rad), Math.sin(this.startAngle.rad)).multiply(this.radius);
+		return this.center.clone().add(d);
 	}
 
 	set startPoint(value: Point) {
-		this._startPoint = value;
-		this._startAngle.set(new Line(this.center, this._startPoint).theta, "rad");
+		this.startAngle = new Line(this.center, value).theta;
 	}
 
 	get endPoint() {
-		return this._endPoint;
+		const d = new Point(Math.cos(this.endAngle.rad), Math.sin(this.endAngle.rad)).multiply(this.radius);
+		return this.center.clone().add(d);
 	}
 
 	set endPoint(value: Point) {
-		this._endPoint = value;
-		this._endAngle.set(new Line(this.center, this._endPoint).theta, "rad");
+		this.endAngle = new Line(this.center, value).theta;
 	}
 
 	get length() {
-		const {radius, _startAngle: startAngle, _endAngle: endAngle} = this;
+		const {radius, startAngle, endAngle} = this;
 		return radius * Math.abs(startAngle.rad - endAngle.rad);
 	}
 
 	get middle() {
-		const angle = (this._startAngle.rad + this._endAngle.rad) / 2;
+		const angle = (this.startAngle.rad + this.endAngle.rad) / 2;
 		const d = new Point(Math.cos(angle), Math.sin(angle)).multiply(this.radius);
 		return this.center.clone().add(d);
 	}

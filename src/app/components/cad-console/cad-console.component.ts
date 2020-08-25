@@ -15,10 +15,11 @@ import {highlight} from "highlight.js";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {Line, Point} from "@app/utils";
+import {Angle, Arc, Line, Point} from "@app/utils";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ActivatedRoute} from "@angular/router";
+import {CadCircle} from "@src/app/cad-viewer/cad-data/cad-entity/cad-circle";
 
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
@@ -494,61 +495,101 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		const p4 = new Point(end2.x, end2.y);
 		const l1 = new Line(p1.clone(), p2.clone());
 		const l2 = new Line(p3.clone(), p4.clone());
-		const point = l1.intersect(l2, true);
+		let point = l1.intersects(l2, true);
+		let center: Point;
+		let startAngle: number;
+		let endAngle: number;
+		let clockwise: boolean;
 		if (!point) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "两条线平行"}});
-			return;
-		}
-		if (radius === undefined) {
-			const ref = openMessageDialog(this.dialog, {
-				data: {type: "prompt", content: "请输入圆角半径", promptData: {type: "number", value: "10"}}
-			});
-			radius = Number(await ref.afterClosed().toPromise());
-			if (!(radius > 0)) {
-				openMessageDialog(this.dialog, {data: {type: "alert", content: "请输入大于零的数字"}});
+			radius = l1.distanceTo(l2) / 2;
+			if (radius <= 0) {
+				openMessageDialog(this.dialog, {data: {type: "alert", content: "两直线平行且距离为0"}});
 				return;
 			}
-		}
-		l1.start.set(point);
-		l2.start.set(point);
-		if (p1.distance(point) > p2.distance(point)) {
-			l1.end.set(p1);
-		}
-		if (p3.distance(point) > p4.distance(point)) {
-			l2.end.set(p3);
-		}
-		const theta1 = l1.theta;
-		const theta2 = l2.theta;
-		const theta3 = Math.abs(theta2 - theta1) / 2;
-		let theta4 = (theta1 + theta2) / 2;
-		let clockwise = theta1 > theta2;
-		if (theta3 > Math.PI / 2) {
-			theta4 -= Math.PI;
-			clockwise = !clockwise;
-		}
-		const d1 = Math.abs(radius / Math.tan(theta3));
-		const d2 = Math.abs(radius / Math.sin(theta4));
-		const start = new Point(Math.cos(theta1), Math.sin(theta1)).multiply(d1).add(point);
-		const end = new Point(Math.cos(theta2), Math.sin(theta2)).multiply(d1).add(point);
-		if (!l1.containsPoint(start) || !l2.containsPoint(end)) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "半径过大"}});
-			return;
-		}
-		const center = new Point(Math.cos(theta4), Math.sin(theta4)).multiply(d2).add(point);
-		if (p1.distance(point) < p2.distance(point)) {
-			lines[0].start.set(start.x, start.y);
+			let l3: Line;
+			let l4: Line;
+			let reverse: number;
+			if (l1.theta.equals(l2.theta)) {
+				l3 = l1.clone().rotate(Math.PI / 2, l1.start);
+				l4 = l1.clone().rotate(Math.PI / 2, l1.end);
+				l3.end.copy(l3.intersects(l2, true));
+				l4.reverse().end.copy(l4.intersects(l2, true));
+				reverse = 1;
+			} else {
+				l3 = l1.clone().rotate(Math.PI / 2, l1.end);
+				l4 = l1.clone().rotate(Math.PI / 2, l1.start);
+				l3.reverse().end.copy(l3.intersects(l2, true));
+				l4.end.copy(l4.intersects(l2, true));
+				reverse = -1;
+			}
+			const d1 = l3.end.distanceTo(l2.start);
+			const d2 = l4.end.distanceTo(l2.end);
+			if (d1 < d2) {
+				center = l3.middle;
+				point = l3.end;
+				lines[1].start.set(point.x, point.y);
+				clockwise = l1.crossProduct(l3) * reverse > 0;
+			} else {
+				center = l4.middle;
+				point = l4.end;
+				lines[1].end.set(point.x, point.y);
+				clockwise = l1.crossProduct(l4) * reverse < 0;
+			}
+			endAngle = new Line(center, point).theta.deg;
+			startAngle = endAngle - 180;
 		} else {
-			lines[0].end.set(start.x, start.y);
-		}
-		if (p3.distance(point) < p4.distance(point)) {
-			lines[1].start.set(end.x, end.y);
-		} else {
-			lines[1].end.set(end.x, end.y);
+			if (radius === undefined) {
+				const ref = openMessageDialog(this.dialog, {
+					data: {type: "prompt", content: "请输入圆角半径", promptData: {type: "number", value: "10"}}
+				});
+				radius = Number(await ref.afterClosed().toPromise());
+				if (!(radius > 0)) {
+					openMessageDialog(this.dialog, {data: {type: "alert", content: "请输入大于零的数字"}});
+					return;
+				}
+			}
+			l1.start.set(point);
+			l2.start.set(point);
+			if (p1.distanceTo(point) > p2.distanceTo(point)) {
+				l1.end.set(p1);
+			}
+			if (p3.distanceTo(point) > p4.distanceTo(point)) {
+				l2.end.set(p3);
+			}
+			const theta1 = l1.theta.rad;
+			const theta2 = l2.theta.rad;
+			const theta3 = Math.abs(theta2 - theta1) / 2;
+			let theta4 = (theta1 + theta2) / 2;
+			if (theta3 > Math.PI / 2) {
+				theta4 -= Math.PI;
+			}
+			clockwise = l1.crossProduct(l2) > 0;
+			const d1 = Math.abs(radius / Math.tan(theta3));
+			const d2 = Math.abs(radius / Math.sin(theta4));
+			const startPoint = new Point(Math.cos(theta1), Math.sin(theta1)).multiply(d1).add(point);
+			const endPoint = new Point(Math.cos(theta2), Math.sin(theta2)).multiply(d1).add(point);
+			if (!l1.containsPoint(startPoint) || !l2.containsPoint(endPoint)) {
+				openMessageDialog(this.dialog, {data: {type: "alert", content: "半径过大"}});
+				return;
+			}
+			center = new Point(Math.cos(theta4), Math.sin(theta4)).multiply(d2).add(point);
+			if (p1.distanceTo(point) < p2.distanceTo(point)) {
+				lines[0].start.set(startPoint.x, startPoint.y);
+			} else {
+				lines[0].end.set(startPoint.x, startPoint.y);
+			}
+			if (p3.distanceTo(point) < p4.distanceTo(point)) {
+				lines[1].start.set(endPoint.x, endPoint.y);
+			} else {
+				lines[1].end.set(endPoint.x, endPoint.y);
+			}
+			startAngle = new Line(center, startPoint).theta.deg;
+			endAngle = new Line(center, endPoint).theta.deg;
 		}
 		if (radius > 0) {
 			const cadArc = new CadArc({center: center.toArray(), radius, color: lines[0].color});
-			cadArc.start_angle = MathUtils.radToDeg(new Line(start, point).theta);
-			cadArc.end_angle = MathUtils.radToDeg(new Line(end, point).theta);
+			cadArc.start_angle = startAngle;
+			cadArc.end_angle = endAngle;
 			cadArc.clockwise = clockwise;
 			const data = (await this.getCurrCadsData())[0];
 			data.entities.add(cadArc);
