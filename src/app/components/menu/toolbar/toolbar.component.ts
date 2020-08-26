@@ -5,6 +5,7 @@ import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
 import {Collection} from "@src/app/app.common";
 import {updateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
+import Color from "color";
 
 @Component({
 	selector: "app-toolbar",
@@ -123,7 +124,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		if (data.jointPoints.length < 1) {
 			data.jointPoints.push(new CadJointPoint());
 		}
-		data.entities.dimension.forEach((e) => e.color.set(0x00ff00));
+		data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
 		data.partners.forEach((v) => this.setCadData(v));
 		data.components.data.forEach((v) => this.setCadData(v));
 	}

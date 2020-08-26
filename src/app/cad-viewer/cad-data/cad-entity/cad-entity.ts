@@ -1,10 +1,11 @@
 import {CadLayer} from "../cad-layer";
 import {CadType, cadTypes} from "../cad-types";
-import {MathUtils, Color, Object3D} from "three";
+import {MathUtils, Object3D} from "three";
 import {index2RGB, RGB2Index} from "@app/utils";
 import {CadTransformation} from "../cad-transformation";
 import {lineweight2linewidth, linewidth2lineweight} from "../utils";
 import {Shape} from "@svgdotjs/svg.js";
+import Color from "color";
 
 export abstract class CadEntity {
 	id: string;
@@ -46,16 +47,16 @@ export abstract class CadEntity {
 			if (data.color === 256) {
 				const layer = layers.find((layer) => layer.name === this.layer);
 				if (layer) {
-					this.color.set(layer.color);
+					this.color = new Color(layer.color);
 				}
 			} else {
-				this.color.set(index2RGB(data.color, "number"));
+				this.color = new Color(index2RGB(data.color, "number"));
 			}
 		} else {
 			if (data.color instanceof Color) {
-				this.color.set(data.color);
+				this.color = new Color(data.color);
 			}
-			this._indexColor = RGB2Index(this.color.getHex());
+			this._indexColor = RGB2Index(this.color.hex());
 		}
 		this.linewidth = data.linewidth ?? 1;
 		this._lineweight = -3;
@@ -91,7 +92,7 @@ export abstract class CadEntity {
 	}
 
 	export() {
-		this._indexColor = RGB2Index(this.color.getHex());
+		this._indexColor = RGB2Index(this.color.hex());
 		return {
 			id: this.id,
 			originalId: this.originalId,
