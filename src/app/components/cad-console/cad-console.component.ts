@@ -15,11 +15,11 @@ import {highlight} from "highlight.js";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {Angle, Arc, Line, Point} from "@app/utils";
+import {Line, Point} from "@app/utils";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ActivatedRoute} from "@angular/router";
-import {CadCircle} from "@src/app/cad-viewer/cad-data/cad-entity/cad-circle";
+import Color from "color";
 
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
@@ -373,7 +373,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		if (data.jointPoints.length < 1) {
 			data.jointPoints.push(new CadJointPoint());
 		}
-		data.entities.dimension.forEach((e) => e.color.set(0x00ff00));
+		data.entities.dimension.forEach((e) => e.color = new Color(0x00ff00));
 		data.partners.forEach((v) => this.setCadData(v));
 		data.components.data.forEach((v) => this.setCadData(v));
 	}
@@ -738,7 +738,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			if (e.linewidth >= 0.3) {
 				e.linewidth *= 3;
 			}
-			e.color.set(0);
+			e.color = new Color(0);
 			if (e instanceof CadDimension) {
 				e.selected = true;
 			}

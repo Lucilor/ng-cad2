@@ -10,6 +10,7 @@ import {CadHatch} from "./cad-data/cad-entity/cad-hatch";
 import {CadLine} from "./cad-data/cad-entity/cad-line";
 import {CadMtext} from "./cad-data/cad-entity/cad-mtext";
 import {CadStyle} from "./cad-stylizer";
+import {CadStylizer} from "./cad-stylizer";
 
 export interface CadViewerConfig {
 	width?: number;
@@ -42,6 +43,7 @@ export class CadViewer {
 	};
 	dom: HTMLDivElement;
 	draw: Svg;
+	stylizer: CadStylizer;
 
 	constructor(data: CadData, config: CadViewerConfig = {}) {
 		this.data = data;
@@ -56,6 +58,7 @@ export class CadViewer {
 		dom.classList.add("cad-viewer");
 		this.dom = dom;
 		this.draw = SVG().addTo(dom).size("100%", "100%");
+		this.stylizer = new CadStylizer(this);
 
 		this.resize().setBackgroundColor();
 		this.render(true);
@@ -97,7 +100,11 @@ export class CadViewer {
 
 	zoom(level?: number, point?: CoordinateXY) {
 		// ! zoom method is somehow hidden
-		return (this.draw as any).zoom(level, point);
+		const result = (this.draw as any).zoom(level, point);
+		if (isNaN(result)) {
+			return 1;
+		}
+		return result;
 	}
 
 	resize(width?: number, height?: number) {
@@ -142,8 +149,9 @@ export class CadViewer {
 		this.draw.css("background-color", color.toString());
 	}
 
-	private _drawEntity(entity: CadEntity) {
-		const {draw} = this;
+	private _drawEntity(entity: CadEntity, style: CadStyle = {}) {
+		const {draw, stylizer} = this;
+		const {color, linewidth} = stylizer.get(entity, style);
 		if (entity instanceof CadArc) {
 			const {curve, radius, start_angle, end_angle, clockwise} = entity;
 			const {x: x0, y: y0} = curve.getPoint(0);
@@ -176,8 +184,8 @@ export class CadViewer {
 		}
 		const shape = entity.shape;
 		if (shape) {
-			shape.attr("id", entity.id);
-			shape.stroke({width: 1 / this.zoom(), color: entity.color.getStyle()});
+			shape.attr({id: entity.id, "vector-effect": "non-scaling-stroke"});
+			shape.stroke({width: linewidth, color: color.string()});
 			shape.fill("none");
 			shape.on("click", () => {
 				if (shape.hasClass("selected")) {

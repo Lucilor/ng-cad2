@@ -1,4 +1,4 @@
-import * as Color from "color";
+import Color from "color";
 
 const list: {[key: string]: number[]} = {
 	1: [255, 0, 0],

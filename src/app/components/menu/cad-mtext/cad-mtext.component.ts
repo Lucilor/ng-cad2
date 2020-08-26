@@ -1,5 +1,5 @@
 import {Component, OnInit, Injector, OnDestroy} from "@angular/core";
-import {Color} from "three";
+import Color from "color";
 import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
 import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity/cad-mtext";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
@@ -56,22 +56,22 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 
 	getColor() {
 		const selected = this.selected;
-		const color = new Color();
+		let color = new Color(0);
 		if (selected.length === 1) {
-			color.set(selected[0].color);
+			color = new Color(selected[0].color);
 		}
 		if (selected.length) {
-			const texts = Array.from(new Set(selected.map((v) => v.color.getHex())));
+			const texts = Array.from(new Set(selected.map((v) => v.color.hex())));
 			if (texts.length === 1) {
-				color.set(selected[0].color);
+				color = new Color(selected[0].color);
 			}
 		}
-		return "#" + color.getHexString();
+		return color.string();
 	}
 
 	setColor(event: ColorPickerEventArgs) {
 		const value = event.currentValue.hex;
-		this.selected.forEach((e) => e.color.set(value));
+		this.selected.forEach((e) => (e.color = new Color(value)));
 		this.cad.render();
 	}
 

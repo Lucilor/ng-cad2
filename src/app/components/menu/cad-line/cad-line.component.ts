@@ -1,17 +1,14 @@
 import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {Vector2, Color} from "three";
+import {Vector2} from "three";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
-import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {
-	findAllAdjacentLines,
 	generatePointsMap,
 	validateLines,
 	getPointsFromMap,
 	setLinesLength,
 	autoFixLine,
-	generateLineTexts,
 	updateLineTexts
 } from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getColorLightness} from "@app/utils";
@@ -25,6 +22,7 @@ import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls-legacy";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {State} from "@src/app/store/state";
+import Color from "color";
 
 @Component({
 	selector: "app-cad-line",
@@ -157,13 +155,13 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		const lines = this.selected;
 		if (colorStr) {
 			const color = new Color(colorStr);
-			return getColorLightness(color.getHex()) < 0.5 ? "black" : "white";
+			return getColorLightness(color.hex()) < 0.5 ? "black" : "white";
 		}
 		if (lines.length === 1) {
-			return "#" + lines[0].color.getHexString();
+			return "#" + lines[0].color.hex();
 		}
 		if (lines.length) {
-			const strs = Array.from(new Set(lines.map((l) => "#" + l.color.getHexString())));
+			const strs = Array.from(new Set(lines.map((l) => "#" + l.color.hex())));
 			if (strs.length === 1) {
 				return strs[0];
 			}
@@ -173,7 +171,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 
 	setLineColor(event: MatSelectChange) {
 		const color = parseInt(event.value.slice(1, 7), 16);
-		this.selected.forEach((e) => e.color.set(color));
+		this.selected.forEach((e) => (e.color = new Color(color)));
 		this.cad.render();
 	}
 
