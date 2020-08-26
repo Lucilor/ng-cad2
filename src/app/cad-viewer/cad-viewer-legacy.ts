@@ -5,7 +5,6 @@ import {
 	Vector2,
 	MathUtils,
 	Raycaster,
-	Color,
 	ShapeGeometry,
 	Shape,
 	Mesh,
@@ -26,11 +25,12 @@ import {CadLine} from "./cad-data/cad-entity/cad-line";
 import {CadCircle} from "./cad-data/cad-entity/cad-circle";
 import {CadArc} from "./cad-data/cad-entity/cad-arc";
 import {CadHatch} from "./cad-data/cad-entity/cad-hatch";
-import {CadStyle, CadStylizer} from "./cad-stylizer";
+import {CadStyle, CadStylizer} from "./cad-stylizer-legacy";
 import {CadTypeKey} from "./cad-data/cad-types";
 import {Line2} from "three/examples/jsm/lines/Line2";
 import {LineGeometry} from "three/examples/jsm/lines/LineGeometry";
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
+import Color from "color";
 
 export interface CadViewerConfig {
 	width?: number;
@@ -192,7 +192,7 @@ export class CadViewer {
 		const {dom, renderer, camera} = this;
 		dom.style.width = width + "px";
 		dom.style.height = height + "px";
-		dom.style.backgroundColor = new Color(this.config.backgroundColor).getStyle();
+		dom.style.backgroundColor = new Color(this.config.backgroundColor).string();
 		renderer.setSize(width, height);
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
@@ -308,7 +308,7 @@ export class CadViewer {
 		const positions = Array<number>();
 		points.forEach((p) => positions.push(p.x, p.y, 0));
 		const geometry = new LineGeometry().setPositions(positions);
-		const material = new LineMaterial({color: color.getHex(), linewidth, resolution, opacity});
+		const material = new LineMaterial({color: color.rgbNumber(), linewidth, resolution, opacity});
 		return new Line2(geometry, material);
 	}
 
@@ -339,7 +339,7 @@ export class CadViewer {
 			material.dashed = false;
 			delete material.defines?.USE_DASH;
 		}
-		material.color.set(color);
+		material.color.set(color.hex());
 		material.setValues({linewidth, opacity, transparent: true});
 		material.needsUpdate = true;
 		line.computeLineDistances();
@@ -537,7 +537,9 @@ export class CadViewer {
 		arrowShape2.lineTo(arrow2[1].x, arrow2[1].y);
 		arrowShape2.lineTo(arrow2[2].x, arrow2[2].y);
 		arrowShape2.closePath();
-		object.add(new Mesh(new ShapeGeometry([arrowShape1, arrowShape2]), new MeshBasicMaterial({color, opacity, transparent: true})));
+		object.add(
+			new Mesh(new ShapeGeometry([arrowShape1, arrowShape2]), new MeshBasicMaterial({color: color.hex(), opacity, transparent: true}))
+		);
 		let text = "";
 		if (mingzi) {
 			text = mingzi;
@@ -593,7 +595,7 @@ export class CadViewer {
 			shapes.push(shape);
 		});
 		const geometry = new ShapeGeometry(shapes);
-		const material = new MeshBasicMaterial({color, opacity, transparent: true});
+		const material = new MeshBasicMaterial({color: color.hex(), opacity, transparent: true});
 		if (object) {
 			object.geometry = geometry;
 			object.material = material;

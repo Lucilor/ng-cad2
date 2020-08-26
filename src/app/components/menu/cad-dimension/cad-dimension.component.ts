@@ -7,6 +7,7 @@ import {CadStatusAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls-legacy";
 import {getCadStatus} from "@src/app/store/selectors";
+import Color from "color";
 
 @Component({
 	selector: "app-cad-dimension",
@@ -79,7 +80,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				let dimension = dimensions[index];
 				if (!dimension) {
 					dimension = new CadDimension();
-					dimension.color.set(0x00ff00);
+					dimension.color = new Color(0x00ff00);
 					let newIndex = 0;
 					for (let i = 0; i < thatIndex; i++) {
 						newIndex += data[i].entities.dimension.length;

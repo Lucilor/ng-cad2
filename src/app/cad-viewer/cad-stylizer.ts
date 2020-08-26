@@ -1,8 +1,8 @@
-import {CadViewer} from "./cad-viewer-legacy";
+import {CadViewer} from "./cad-viewer";
 import {CadEntity} from "./cad-data/cad-entity/cad-entity";
 import {CadMtext} from "./cad-data/cad-entity/cad-mtext";
 import {CadDimension} from "./cad-data/cad-entity/cad-dimension";
-import {Color} from "three";
+import Color from "color";
 import {CadLine} from "./cad-data/cad-entity/cad-line";
 
 export interface CadStyle {
@@ -57,7 +57,7 @@ export class CadStylizer {
 		if (cad.config.validateLines && entity instanceof CadLine) {
 			if (!entity.valid || entity.info.error) {
 				result.linewidth *= 10;
-				result.color.set(0xff0000);
+				result.color = new Color(0xff0000);
 			}
 		}
 
@@ -65,17 +65,17 @@ export class CadStylizer {
 	}
 
 	correctColor(color: Color, threshold = 5) {
-		if (this.cad.config.reverseSimilarColor) {
-			const colorNum = color.getHex();
-			if (Math.abs(colorNum - this.cad.config.backgroundColor) <= threshold) {
-				color.set(0xfffffff - colorNum);
-			}
-		}
+		// const {reverseSimilarColor, backgroundColor} = this.cad.config;
+		// if (reverseSimilarColor) {
+		// 	const colorNum = color.getHex();
+		// 	if (Math.abs(colorNum - backgroundColor.brightness()) <= threshold) {
+		// 		color.set(0xfffffff - colorNum);
+		// 	}
+		// }
 	}
 
 	getColorStyle(color: Color, a = 1) {
-		const {r, g, b} = color;
-		const arr = [r, g, b].map((v) => v * 255);
+		const arr = [color.red(), color.green(), color.blue()].map((v) => v * 255);
 		if (a > 0 && a < 1) {
 			return `rgba(${[...arr, a].join(",")})`;
 		} else {
