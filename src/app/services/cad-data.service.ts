@@ -97,7 +97,6 @@ export class CadDataService {
 					}
 				} else {
 					formData.append("data", data);
-					console.log(data);
 				}
 				if (files) {
 					files.forEach((v, i) => formData.append("file" + i, v));

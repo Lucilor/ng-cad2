@@ -194,10 +194,10 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 		for (let i = 1; i < group.length; i++) {
 			const prev = group[i - 1];
 			const curr = group[i];
-			if (prev instanceof CadLine && curr instanceof CadLine && prev.slope === curr.slope) {
-				prev.end.copy(curr.end);
-				curr.start.copy(curr.end);
-			}
+			// if (prev instanceof CadLine && curr instanceof CadLine && prev.slope === curr.slope) {
+			// 	prev.end.copy(curr.end);
+			// 	curr.start.copy(curr.end);
+			// }
 			if (prev.end.distanceTo(curr.start) > tolerance) {
 				if (curr instanceof CadLine) {
 					[curr.start, curr.end] = [curr.end, curr.start];
