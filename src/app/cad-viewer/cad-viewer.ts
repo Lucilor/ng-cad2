@@ -293,7 +293,7 @@ export class CadViewer {
 			}
 		}
 		if (entity instanceof CadMtext) {
-			if (entity.text.length <= 0) {
+			if (entity.text.length <= 0 || !(entity.font_size > 0)) {
 				canDraw = false;
 			}
 		}

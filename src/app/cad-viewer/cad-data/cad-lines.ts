@@ -341,18 +341,21 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 	});
 }
 
-export function updateLineText(line: LineLike) {
+export function updateLineText(cad: CadViewer, line: LineLike) {
 	const middle = line.middle;
 	const lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
+	const {showLineLength, showGongshi} = cad.config;
 	if (lengthText) {
 		const offset = getVectorFromArray(lengthText.info.offset);
 		lengthText.text = Math.round(line.length).toString();
+		lengthText.font_size = showLineLength;
 		lengthText.insert.copy(offset.add(middle));
 	}
 	const gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
 	if (gongshiText) {
 		const offset = getVectorFromArray(gongshiText.info.offset);
 		gongshiText.text = line.gongshi;
+		gongshiText.font_size = showGongshi;
 		gongshiText.insert.copy(offset.add(middle));
 	}
 	return line;
@@ -361,7 +364,7 @@ export function updateLineText(line: LineLike) {
 export function updateLineTexts(cad: CadViewer) {
 	const {line, arc} = cad.data.getAllEntities();
 	[...line, ...arc].forEach((line) => {
-		updateLineText(line);
+		updateLineText(cad, line);
 	});
 }
 

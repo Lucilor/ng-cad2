@@ -4,6 +4,7 @@ import {CommandAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
 import {Collection} from "@src/app/app.common";
+import {updateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
 
 @Component({
 	selector: "app-toolbar",
@@ -163,6 +164,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		});
 		const num = Number(await ref.afterClosed().toPromise());
 		this.cad.config.showLineLength = num;
+		updateLineTexts(this.cad);
 		this.cad.render();
 	}
 
@@ -177,6 +179,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		});
 		const num = Number(await ref.afterClosed().toPromise());
 		this.cad.config.showGongshi = num;
+		updateLineTexts(this.cad);
 		this.cad.render();
 	}
 

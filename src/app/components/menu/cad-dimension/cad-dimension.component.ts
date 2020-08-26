@@ -34,9 +34,25 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				this.dimLineSelecting = index;
 				this.prevSelectMode = cad.controls.config.selectMode;
 				cad.controls.config.selectMode = "single";
+				cad.traverse((e) => {
+					if (!(e instanceof CadLine)) {
+						e.info.prevSelectable = e.selectable;
+						e.info.prevOpacity = e.opacity;
+						e.selectable = false;
+						e.opacity = 0.3;
+					}
+				});
 			} else if (this.dimLineSelecting !== null) {
 				this.dimLineSelecting = null;
 				cad.controls.config.selectMode = this.prevSelectMode;
+				cad.traverse((e) => {
+					if (!(e instanceof CadLine)) {
+						e.selectable = e.info.prevSelectable ?? true;
+						e.opacity = e.info.prevOpacity ?? 1;
+						delete e.info.prevSelectable;
+						delete e.info.prevOpacity;
+					}
+				});
 			}
 		});
 		cad.controls.on("entityselect", async (event, entity) => {
