@@ -211,7 +211,11 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			const cad = new CadViewer(this.cad.data.clone(), {width: innerWidth, height: innerHeight, padding: this.cad.config.padding});
 			this.cadContainer.nativeElement.appendChild(cad.dom);
 			Object.assign(window, {cad});
-			this.cad.data.components.data.forEach((v) => (v.entities = new CadEntities()));
+			this.cad.data.components.data.forEach((v) => {
+				v.entities = new CadEntities();
+				v.components.data = [];
+				v.partners = [];
+			});
 			this.cad.reset();
 		} else {
 			await timeout(0);

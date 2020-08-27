@@ -34,9 +34,6 @@ export class CadStylizer {
 				result.color = new Color(cad.config.hoverColor);
 			}
 		}
-		if (cad.config.reverseSimilarColor) {
-			this.correctColor(result.color);
-		}
 		if (params.linewidth > 0) {
 			result.linewidth = params.linewidth;
 		} else if (entity.linewidth > 0) {
@@ -61,17 +58,21 @@ export class CadStylizer {
 			}
 		}
 
+		if (cad.config.reverseSimilarColor) {
+			result.color = this.correctColor(result.color);
+		}
+
 		return result;
 	}
 
 	correctColor(color: Color, threshold = 5) {
-		// const {reverseSimilarColor, backgroundColor} = this.cad.config;
-		// if (reverseSimilarColor) {
-		// 	const colorNum = color.getHex();
-		// 	if (Math.abs(colorNum - backgroundColor.brightness()) <= threshold) {
-		// 		color.set(0xfffffff - colorNum);
-		// 	}
-		// }
+		const {reverseSimilarColor, backgroundColor} = this.cad.config;
+		if (reverseSimilarColor) {
+			if (Math.abs(color.rgbNumber() - backgroundColor.rgbNumber()) <= threshold) {
+				return color.negate();
+			}
+		}
+		return color;
 	}
 
 	getColorStyle(color: Color, a = 1) {
