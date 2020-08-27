@@ -4,6 +4,21 @@
 
 		* {
 			cursor: pointer;
+			user-select: none;
+		}
+
+		.fill {
+			stroke: none;
+			&:hover {
+				fill: cyan;
+			}
+			&.selected {
+				font-style: italic;
+			}
+		}
+
+		.stroke {
+			fill: none;
 			&:hover {
 				stroke: cyan;
 			}

@@ -1,4 +1,4 @@
-import {SVG, Svg, Color, CoordinateXY} from "@svgdotjs/svg.js";
+import {SVG, Svg, CoordinateXY, Tspan, List} from "@svgdotjs/svg.js";
 import {cloneDeep} from "lodash";
 import {CadData} from "./cad-data/cad-data";
 import {CadEntities} from "./cad-data/cad-entities";
@@ -13,6 +13,7 @@ import {CadStyle} from "./cad-stylizer";
 import {CadStylizer} from "./cad-stylizer";
 import {EventEmitter} from "events";
 import {Point} from "../utils";
+import Color from "color";
 
 export interface CadViewerConfig {
 	width?: number;
@@ -200,6 +201,7 @@ export class CadViewer extends EventEmitter {
 	drawEntity(entity: CadEntity, style: CadStyle = {}) {
 		const {draw, stylizer} = this;
 		const {color, linewidth} = stylizer.get(entity, style);
+		let type: "fill" | "stroke";
 		if (entity instanceof CadArc) {
 			const {curve, radius, start_angle, end_angle, clockwise} = entity;
 			const {x: x0, y: y0} = curve.getPoint(0);
@@ -213,6 +215,7 @@ export class CadViewer extends EventEmitter {
 				["M", x0, y0],
 				["A", radius, radius, end_angle - start_angle, isLargeArc, clockwise ? 0 : 1, x1, y1]
 			]);
+			type = "stroke";
 		} else if (entity instanceof CadCircle) {
 			const {center, radius} = entity;
 			if (!entity.shape) {
@@ -220,6 +223,7 @@ export class CadViewer extends EventEmitter {
 			}
 			entity.shape.center(center.x, center.y);
 			entity.shape.radius(radius);
+			type = "stroke";
 		} else if (entity instanceof CadDimension) {
 		} else if (entity instanceof CadHatch) {
 		} else if (entity instanceof CadLine) {
@@ -228,13 +232,35 @@ export class CadViewer extends EventEmitter {
 				entity.shape = draw.line();
 			}
 			entity.shape.plot(start.x, start.y, end.x, end.y);
+			type = "stroke";
 		} else if (entity instanceof CadMtext) {
+			const {text, insert, font_size, anchor} = entity;
+			if (!entity.shape) {
+				entity.shape = draw.text("");
+			}
+			entity.shape.font({size: font_size}).text(text).leading(1);
+			entity.shape.move(insert.x, insert.y);
+			type = "fill";
+			setTimeout(() => {
+				const tspans = entity.shape.children() as List<Tspan>;
+				const width = Math.max(...tspans.map((v) => v.length()));
+				const height = (tspans.length + 1 / 3) * font_size;
+				const dx = -width * anchor.x;
+				const dy = height * anchor.y;
+				entity.shape.transform({a: 1, b: 0, c: 0, d: -1, e: dx, f: dy + insert.y * 2});
+				tspans.slice(1).forEach((tspan) => tspan.dy("1em"));
+			}, 0);
 		}
 		const shape = entity.shape;
 		if (shape) {
 			shape.attr({id: entity.id, "vector-effect": "non-scaling-stroke"});
-			shape.stroke({width: linewidth, color: color.string()});
-			shape.fill("none");
+			if (type === "fill") {
+				shape.fill({color: color.string()});
+				shape.addClass("fill");
+			} else if (type === "stroke") {
+				shape.stroke({width: linewidth, color: color.string()});
+				shape.addClass("stroke");
+			}
 			shape.on("click", () => {
 				if (shape.hasClass("selected")) {
 					shape.removeClass("selected");
@@ -281,7 +307,7 @@ export class CadViewer extends EventEmitter {
 		const y = rect.y - rect.height / 2 - padding[2];
 		this.draw.viewbox(x, y, width, height);
 		this.draw.transform({a: 1, b: 0, c: 0, d: -1, e: 0, f: 0});
-		this.resize().render();
+		return this.resize();
 	}
 
 	// * Normalized Device Coordinate
