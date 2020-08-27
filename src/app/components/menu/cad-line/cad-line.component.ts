@@ -193,11 +193,14 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	setLineText(event: InputEvent | MatSelectChange, field: string) {
-		let value: string;
+		let value: string | number;
 		if (event instanceof MatSelectChange) {
 			value = event.value;
 		} else {
 			value = (event.target as HTMLInputElement).value;
+		}
+		if (field === "zidingzhankaichang") {
+			value = Number(value);
 		}
 		this.selected.forEach((e) => {
 			if (e instanceof CadLine) {

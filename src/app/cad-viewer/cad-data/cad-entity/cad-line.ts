@@ -15,6 +15,7 @@ export class CadLine extends CadEntity {
 	guanlianbianhuagongshi: string;
 	kongwei: string;
 	nextZhewan: "自动" | "无" | "1mm" | "6mm";
+	zidingzhankaichang = -1;
 
 	get valid() {
 		const {start, end} = this;
@@ -61,6 +62,7 @@ export class CadLine extends CadEntity {
 		this.guanlianbianhuagongshi = data.guanlianbianhuagongshi ?? "";
 		this.kongwei = data.kongwei ?? "";
 		this.nextZhewan = data.nextZhewan ?? "自动";
+		this.zidingzhankaichang = data.zidingzhankaichang ?? -1;
 	}
 
 	transform(trans: CadTransformation) {
@@ -81,7 +83,8 @@ export class CadLine extends CadEntity {
 			gongshi: this.gongshi,
 			guanlianbianhuagongshi: this.guanlianbianhuagongshi,
 			kongwei: this.kongwei,
-			nextZhewan: this.nextZhewan
+			nextZhewan: this.nextZhewan,
+			zidingzhankaichang: this.zidingzhankaichang
 		};
 	}
 

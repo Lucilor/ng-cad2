@@ -121,4 +121,16 @@
 			</mat-select>
 		</mat-form-field>
 	</div>
+	<div class="form-item zidingzhankaichang">
+		<mat-form-field>
+			<mat-label>指定展开长</mat-label>
+			<input
+				matInput
+				type="text"
+				name="zidingzhankaichang"
+				[ngModel]="getLineText('zidingzhankaichang')"
+				(change)="setLineText($event, 'zidingzhankaichang')"
+			/>
+		</mat-form-field>
+	</div>
 </form>
