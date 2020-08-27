@@ -1,4 +1,4 @@
-import {SVG, Svg, Color, PointArrayAlias, Point, CoordinateXY} from "@svgdotjs/svg.js";
+import {SVG, Svg, Color, CoordinateXY} from "@svgdotjs/svg.js";
 import {cloneDeep} from "lodash";
 import {CadData} from "./cad-data/cad-data";
 import {CadEntities} from "./cad-data/cad-entities";
@@ -11,6 +11,8 @@ import {CadLine} from "./cad-data/cad-entity/cad-line";
 import {CadMtext} from "./cad-data/cad-entity/cad-mtext";
 import {CadStyle} from "./cad-stylizer";
 import {CadStylizer} from "./cad-stylizer";
+import {EventEmitter} from "events";
+import {Point} from "../utils";
 
 export interface CadViewerConfig {
 	width?: number;
@@ -26,7 +28,7 @@ export interface CadViewerConfig {
 	validateLines?: boolean;
 }
 
-export class CadViewer {
+export class CadViewer extends EventEmitter {
 	data: CadData;
 	config: CadViewerConfig = {
 		width: 300,
@@ -45,7 +47,10 @@ export class CadViewer {
 	draw: Svg;
 	stylizer: CadStylizer;
 
+	private _status: {pointer: Point; button: number} = {pointer: null, button: -1};
+
 	constructor(data: CadData, config: CadViewerConfig = {}) {
+		super();
 		this.data = data;
 		this.config = {...this.config, ...config};
 
@@ -63,8 +68,12 @@ export class CadViewer {
 		this.resize().setBackgroundColor();
 		this.render(true);
 
-		this.dom.addEventListener("wheel", this._onWheel.bind(this));
-		this.draw.node.addEventListener("click", this._onClick.bind(this));
+		const node = this.draw.node;
+		node.addEventListener("wheel", this._onWheel.bind(this));
+		node.addEventListener("click", this._onClick.bind(this));
+		node.addEventListener("pointerdown", this._onPointerDown.bind(this));
+		node.addEventListener("pointermove", this._onPointerMove.bind(this));
+		node.addEventListener("pointerup", this._onPointerUp.bind(this));
 	}
 
 	width(): number;
@@ -87,19 +96,58 @@ export class CadViewer {
 		return this;
 	}
 
-	// position(value?: Point) {
-	// 	const box = this.draw.viewbox();
-	// 	if (value instanceof Point) {
-	// 		box.x = value.x;
-	// 		box.y = value.y;
-	// 		this.draw.viewbox(box);
-	// 	} else {
-	// 		return box;
-	// 	}
-	// }
+	x(): number;
+	x(value: number): this;
+	x(value?: number) {
+		const box = this.draw.viewbox();
+		if (typeof value === "number" && !isNaN(value)) {
+			box.x = value;
+			this.draw.viewbox(box);
+			return this;
+		} else {
+			return box.x;
+		}
+	}
+
+	y(): number;
+	y(value: number): this;
+	y(value?: number) {
+		const box = this.draw.viewbox();
+		if (typeof value === "number" && !isNaN(value)) {
+			box.y = value;
+			this.draw.viewbox(box);
+			return this;
+		} else {
+			return box.y;
+		}
+	}
+
+	dx(value = 0) {
+		return this.x(this.x() - value);
+	}
+
+	dy(value = 0) {
+		return this.y(this.y() + value);
+	}
+
+	move(dx = 0, dy = 0) {
+		const box = this.draw.viewbox();
+		box.x -= dx;
+		box.y += dy;
+		this.draw.viewbox(box);
+		return this;
+	}
+
+	moveTo(x = 0, y = 0) {
+		const box = this.draw.viewbox();
+		box.x = x;
+		box.y = y;
+		this.draw.viewbox(box);
+		return this;
+	}
 
 	zoom(level?: number, point?: CoordinateXY) {
-		// ! zoom method is somehow hidden
+		// ? zoom method is somehow hidden
 		const result = (this.draw as any).zoom(level, point);
 		if (isNaN(result)) {
 			return 1;
@@ -149,7 +197,7 @@ export class CadViewer {
 		this.draw.css("background-color", color.toString());
 	}
 
-	private _drawEntity(entity: CadEntity, style: CadStyle = {}) {
+	drawEntity(entity: CadEntity, style: CadStyle = {}) {
 		const {draw, stylizer} = this;
 		const {color, linewidth} = stylizer.get(entity, style);
 		if (entity instanceof CadArc) {
@@ -205,7 +253,7 @@ export class CadViewer {
 		if (center) {
 			this.center();
 		}
-		entities.forEach((e) => this._drawEntity(e));
+		entities.forEach((e) => this.drawEntity(e));
 	}
 
 	center() {
@@ -246,8 +294,7 @@ export class CadViewer {
 	}
 
 	getPointInView(x: number, y: number) {
-		const {width, height, top, left} = this.draw.node.getBoundingClientRect();
-		// const ndc = this._getNDC(x, y);
+		const {height} = this.draw.node.getBoundingClientRect();
 		const box = this.draw.viewbox();
 		const result = new Point();
 		const zoom = this.zoom();
@@ -269,10 +316,32 @@ export class CadViewer {
 		}
 	}
 
-	private _onClick(event: MouseEvent) {
-		const {clientX, clientY} = event;
-		console.log(clientY, screenY);
-		console.log(this.getPointInView(clientX, clientY));
+	private _onClick(event: PointerEvent) {
+		// const {clientX, clientY} = event;
+		// console.log(clientY, screenY);
+		// console.log(this.getPointInView(clientX, clientY));
+	}
+
+	private _onPointerDown({clientX, clientY, button}: PointerEvent) {
+		this._status.pointer = new Point(clientX, clientY);
+		this._status.button = button;
+	}
+
+	private _onPointerMove({clientX, clientY, shiftKey}: PointerEvent) {
+		const {_status} = this;
+		const {pointer, button} = _status;
+		if ((button === 0 && shiftKey) || button === 1) {
+			if (_status.pointer) {
+				const offset = new Point(clientX, clientY).sub(pointer).divide(this.zoom());
+				this.move(offset.x, offset.y);
+				pointer.set(clientX, clientY);
+			}
+		}
+	}
+
+	private _onPointerUp() {
+		this._status.pointer = null;
+		this._status.button = -1;
 	}
 	// * events end
 }
