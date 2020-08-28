@@ -28,6 +28,8 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	lastCommand: {name: string; arguments: IArguments};
 	showDimensions = true;
 	showCadGongshis = true;
+	prevLineLengths: number;
+	prevLineGongshis: number;
 	lastUrl: string = null;
 
 	constructor(injector: Injector) {
@@ -168,6 +170,18 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.render();
 	}
 
+	toggleShowLineLength() {
+		const cad = this.cad;
+		if (cad.config.showLineLength > 0) {
+			this.prevLineLengths = cad.config.showLineLength;
+			cad.config.showLineLength = 0;
+		} else {
+			cad.config.showLineLength = this.prevLineLengths;
+		}
+		updateLineTexts(cad);
+		cad.render();
+	}
+
 	async setShowGongshi() {
 		this.lastCommand = {name: this.setShowGongshi.name, arguments};
 		const ref = openMessageDialog(this.dialog, {
@@ -181,6 +195,18 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.config.showGongshi = num;
 		updateLineTexts(this.cad);
 		this.cad.render();
+	}
+
+	toggleShowLineGongshi() {
+		const cad = this.cad;
+		if (cad.config.showGongshi > 0) {
+			this.prevLineGongshis = cad.config.showGongshi;
+			cad.config.showGongshi = 0;
+		} else {
+			cad.config.showGongshi = this.prevLineGongshis;
+		}
+		updateLineTexts(cad);
+		cad.render();
 	}
 
 	printCad() {

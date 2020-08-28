@@ -7,6 +7,7 @@ import {CadStatusAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls";
 import {getCadStatus} from "@src/app/store/selectors";
+import {updateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
 
 @Component({
 	selector: "app-cad-dimension",
@@ -17,6 +18,8 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	dimNameFocus = -1;
 	dimLineSelecting: number = null;
 	prevSelectMode: CadViewerControlsConfig["selectMode"];
+	prevLineLengths: number;
+	prevLineGongshis: number;
 	get dimensions() {
 		return this.cad.data.getAllEntities().dimension;
 	}
@@ -42,6 +45,11 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 						e.opacity = 0.3;
 					}
 				});
+				this.prevLineLengths = cad.config.showLineLength;
+				cad.config.showLineLength = 0;
+				this.prevLineGongshis = cad.config.showGongshi;
+				cad.config.showGongshi = 0;
+				updateLineTexts(cad);
 			} else if (this.dimLineSelecting !== null) {
 				this.dimLineSelecting = null;
 				cad.controls.config.selectMode = this.prevSelectMode;
@@ -53,6 +61,9 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 						delete e.info.prevOpacity;
 					}
 				});
+				cad.config.showLineLength = this.prevLineLengths;
+				cad.config.showGongshi = this.prevLineGongshis;
+				updateLineTexts(cad);
 			}
 		});
 		cad.controls.on("entityselect", async (event, entity) => {

@@ -1,4 +1,4 @@
-<button mat-icon-button [matMenuTriggerFor]="file">文件</button>
+<button mat-button [matMenuTriggerFor]="file">文件</button>
 <mat-menu #file="matMenu">
 	<button mat-menu-item [matMenuTriggerFor]="openType">打开</button>
 	<button mat-menu-item (click)="clickBtn('s')">保存<span class="shortcut">Ctrl + S</span></button>
@@ -13,7 +13,7 @@
 	<button mat-menu-item (click)="clickBtn('5')">切料CAD<span class="shortcut">Ctrl + 5</span></button>
 </mat-menu>
 
-<button mat-icon-button [matMenuTriggerFor]="edit">编辑</button>
+<button mat-button [matMenuTriggerFor]="edit">编辑</button>
 <mat-menu #edit="matMenu">
 	<button mat-menu-item [matMenuTriggerFor]="transform">变形</button>
 	<button mat-menu-item (click)="clickBtn('g')">装配<span class="shortcut">Ctrl + G</span></button>
@@ -30,7 +30,7 @@
 	<button mat-menu-item (click)="rotate()">旋转</button>
 </mat-menu>
 
-<button mat-icon-button [matMenuTriggerFor]="view">视图</button>
+<button mat-button [matMenuTriggerFor]="view">视图</button>
 <mat-menu #view="matMenu">
 	<button mat-menu-item (click)="toggleShowDimensions()">{{ showDimensions ? "隐藏" : "显示" }}标注</button>
 	<button mat-menu-item (click)="toggleShowCadGongshis()">{{ showCadGongshis ? "隐藏" : "显示" }}展开表达式</button>
@@ -39,4 +39,10 @@
 	<button mat-menu-item (click)="setShowGongshi()">设置公式显示</button>
 </mat-menu>
 
-<button mat-icon-button (click)="showManual()">帮助</button>
+<button mat-button (click)="showManual()">帮助</button>
+
+<button mat-button (click)="toggleShowLineLength()">{{ prevLineLengths > 0 ? "显示" : "隐藏" }}线长</button>
+<button mat-button (click)="toggleShowLineGongshi()">{{ prevLineGongshis > 0 ? "显示" : "隐藏" }}公式</button>
+<button mat-button (click)="toggleShowDimensions()">{{ showDimensions ? "隐藏" : "显示" }}标注</button>
+<button mat-button (click)="toggleShowCadGongshis()">{{ showCadGongshis ? "隐藏" : "显示" }}展开表达式</button>
+<button mat-button (click)="toggleValidateLines()">{{ cad.config.validateLines ? "" : "不" }}验证线段</button>
