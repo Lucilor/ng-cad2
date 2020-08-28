@@ -296,9 +296,9 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 			}
 			if (Math.abs(y) > tolerance) {
 				if (y > 0) {
-					anchor.y = 0;
-				} else {
 					anchor.y = 1;
+				} else {
+					anchor.y = 0;
 				}
 			}
 

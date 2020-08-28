@@ -269,6 +269,7 @@ export class CadViewer extends EventEmitter {
 				controls.onEntityClick.call(this, event, entity);
 			});
 		}
+		entity.children.forEach((c) => this.drawEntity(c, style));
 	}
 
 	render(center = false, entities?: CadEntities | CadEntity[], style: CadStyle = {}) {
