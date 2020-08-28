@@ -23,8 +23,14 @@
 				stroke: cyan;
 			}
 			&.selected {
-				stroke-dasharray: 2, 1;
+				stroke-dasharray: 6, 3;
 			}
 		}
+	}
+
+	.multi-selector {
+		position: absolute;
+		background-color: rgba(29, 149, 234, 0.3);
+		border: white solid 1px;
 	}
 }

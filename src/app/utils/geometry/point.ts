@@ -86,6 +86,7 @@ export class Point {
 	copy({x, y}: Point) {
 		this.x = x;
 		this.y = y;
+		return this;
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point(0)) {

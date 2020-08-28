@@ -129,6 +129,12 @@ export class CadEntities {
 		this.forEachType((array) => array.forEach(callback), include);
 	}
 
+	fromArray(array: CadEntity[]) {
+		this.forEachType((array) => (array.length = 0));
+		array.forEach((e) => this.add(e));
+		return this;
+	}
+
 	toArray() {
 		const result: CadEntity[] = [];
 		this.forEach((e) => result.push(e));

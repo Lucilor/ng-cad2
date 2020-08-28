@@ -2,78 +2,100 @@ import {Point} from "./point";
 import {Line} from "./line";
 
 export class Rectangle {
-	position: Point;
-	width: number;
-	height: number;
+	min: Point;
+	max: Point;
 
-	constructor(position: Point, width: number, height: number) {
-		this.position = position;
-		this.width = width;
-		this.height = height;
+	get width() {
+		return this.max.x - this.min.x;
 	}
-
-	containsPoint(point: Point) {
-		const {x, y} = point;
-		const {top, right, bottom, left} = this;
-		return x >= left && x <= right && y <= top && y >= bottom;
+	get height() {
+		return this.max.y - this.min.y;
 	}
-
-	containsLine(line: Line) {
-		return this.containsPoint(line.start) && this.containsPoint(line.end);
-	}
-
-	get x() {
-		return this.position.x;
-	}
-
-	get y() {
-		return this.position.y;
-	}
-
 	get top() {
-		return this.position.y;
+		return this.min.y;
 	}
-
+	set top(value) {
+		this.min.y = value;
+	}
 	get right() {
-		return this.position.x + this.width;
+		return this.max.x;
 	}
-
+	set right(value) {
+		this.max.x = value;
+	}
 	get bottom() {
-		return this.position.y - this.height;
+		return this.max.y;
+	}
+	set bottom(value) {
+		this.max.y = value;
+	}
+	get left() {
+		return this.min.x;
+	}
+	set left(value) {
+		this.min.x = value;
 	}
 
-	get left() {
-		return this.position.x;
+	constructor(min = new Point(), max = new Point()) {
+		this.min = min;
+		this.max = max;
+	}
+
+	justify() {
+		if (this.min.x > this.max.x) {
+			[this.min.x, this.max.x] = [this.max.x, this.min.x];
+		}
+		if (this.min.y > this.max.y) {
+			[this.min.y, this.max.y] = [this.max.y, this.min.y];
+		}
+		return this;
+	}
+
+	clone() {
+		return new Rectangle(this.min.clone(), this.max.clone());
+	}
+
+	copy(rect: Rectangle) {
+		this.min.copy(rect.min);
+		this.max.copy(rect.max);
+	}
+
+	expand(point: Point) {
+		const {x, y} = point;
+		this.min.x = Math.min(this.min.x, x);
+		this.min.y = Math.min(this.min.y, y);
+		this.max.x = Math.max(this.max.x, x);
+		this.max.y = Math.max(this.max.y, y);
+	}
+
+	contains(object: Point | Line | Rectangle): boolean {
+		if (object instanceof Point) {
+			const {x, y} = object;
+			const {top, right, bottom, left} = this;
+			return x >= left && x <= right && y <= top && y >= bottom;
+		}
+		if (object instanceof Line) {
+			return this.contains(object.start) && this.contains(object.end);
+		}
+		if (object instanceof Rectangle) {
+			const {x: x1, y: y1} = this.min;
+			const {x: x2, y: y2} = this.max;
+			const {x: x3, y: y3} = object.min;
+			const {x: x4, y: y4} = object.max;
+			return x1 <= x3 && x2 >= x4 && y1 <= y3 && y2 >= y4;
+		}
+		return false;
 	}
 
 	equals(rect: Rectangle) {
-		return this.position.equals(rect.position) && this.width === rect.width && this.height === rect.height;
+		return this.min.equals(rect.min) && this.max.equals(rect.max);
 	}
 
-	intersects(rect: Rectangle) {
-		let x = 0;
-		let y = 0;
-		let width = 0;
-		let height = 0;
-		if (this.left < rect.right && this.left > rect.left) {
-			x = this.left;
-			width = rect.right - this.left;
-		}
-		if (this.right > rect.left && this.right < rect.right) {
-			x = rect.left;
-			width = this.right - rect.left;
-		}
-		if (this.top > rect.bottom && this.top < rect.top) {
-			y = rect.bottom;
-			height = this.top - rect.bottom;
-		}
-		if (this.bottom < rect.top && this.bottom > rect.bottom) {
-			y = this.bottom;
-			height = rect.top - this.bottom;
-		}
-		if (width > 0 && height > 0) {
-			return new Rectangle(new Point(x, y), width, height);
-		}
-		return null;
-	}
+	// TODO: intersects
+	// intersects(rect: Rectangle) {
+	// 	const min = new Point();
+	// 	const max = new Point();
+	// 	const rect1 = new Rectangle(rect.min.clone(), this.max.clone());
+	// 	return null;
+	// }
 }

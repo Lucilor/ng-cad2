@@ -17,8 +17,6 @@ export abstract class CadEntity {
 	visible: boolean;
 	opacity: number;
 	selectable: boolean;
-	selected: boolean;
-	hover: boolean;
 	object?: Object3D = null;
 	shape?: Shape = null;
 	info: {[key: string]: any};
@@ -26,6 +24,17 @@ export abstract class CadEntity {
 	_lineweight: number;
 	parent: CadEntity = null;
 	children: CadEntity[] = [];
+
+	get selected() {
+		return this.shape?.hasClass("selected") === true;
+	}
+	set selected(value) {
+		if (value === true) {
+			this.shape?.addClass("selected");
+		} else {
+			this.shape?.removeClass("selected");
+		}
+	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		if (typeof data !== "object") {
@@ -75,7 +84,6 @@ export abstract class CadEntity {
 		this.opacity = data.opacity ?? 1;
 		this.selectable = data.selectable ?? true;
 		this.selected = data.selected ?? false;
-		this.hover = data.hover ?? false;
 		if (typeof data.info === "object" && !Array.isArray(data.info)) {
 			this.info = data.info;
 		} else {
@@ -132,4 +140,6 @@ export abstract class CadEntity {
 	abstract clone(resetId?: boolean): CadEntity;
 
 	abstract equals(entity: CadEntity): boolean;
+
+	// abstract getBounds(): Rectangle;
 }

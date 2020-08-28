@@ -22,18 +22,7 @@ export class CadStylizer {
 	get(entity: CadEntity, params: CadStyle = {}) {
 		const cad = this.cad;
 		const result: CadStyle = {fontStyle: "normal"};
-		const {selectable, selected, hover} = entity;
 		result.color = new Color(params.color || entity?.color || 0);
-		if (selectable) {
-			if (selected) {
-				if (entity instanceof CadMtext) {
-					result.fontStyle = "italic";
-				}
-			}
-			if (hover && typeof cad.config.hoverColor === "number") {
-				result.color = new Color(cad.config.hoverColor);
-			}
-		}
 		if (params.linewidth > 0) {
 			result.linewidth = params.linewidth;
 		} else if (entity.linewidth > 0) {

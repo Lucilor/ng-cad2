@@ -143,7 +143,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	setLineLength(event: InputEvent) {
 		const {selected, cad} = this;
 		const lines = selected.filter((v) => v instanceof CadLine) as CadLine[];
-		setLinesLength(cad, lines, Number((event.target as HTMLInputElement).value));
+		setLinesLength(cad.data, lines, Number((event.target as HTMLInputElement).value));
 		if (cad.config.validateLines) {
 			validateLines(cad.data);
 		}
@@ -279,7 +279,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		entity.opacity = 1;
 		entity.selectable = true;
-		setLinesLength(this.cad, [entity], Math.round(entity.length));
+		setLinesLength(this.cad.data, [entity], Math.round(entity.length));
 		cad.render(false, new CadEntities().add(entity));
 		// this.lineDrawing.entity=null
 		this.lineDrawing = {start: null, end: null};

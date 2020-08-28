@@ -364,7 +364,6 @@ export class CadViewerControls extends EventEmitter {
 		const entity = this._getInterSection(_status.pTo);
 		const selectable = entity && entity.selectable;
 		if (selectable) {
-			entity.hover = true;
 			cad.render(null, new CadEntities().add(entity));
 			cad.dom.style.cursor = "pointer";
 			this.currentEntity = entity;
@@ -380,7 +379,6 @@ export class CadViewerControls extends EventEmitter {
 		const {cad, currentEntity} = this;
 		if (currentEntity) {
 			cad.dom.style.cursor = "default";
-			currentEntity.hover = false;
 			cad.render(null, new CadEntities().add(currentEntity));
 			this.currentEntity = null;
 		}

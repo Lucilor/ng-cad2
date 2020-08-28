@@ -568,7 +568,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			const d2 = Math.abs(radius / Math.sin(theta4));
 			const startPoint = new Point(Math.cos(theta1), Math.sin(theta1)).multiply(d1).add(point);
 			const endPoint = new Point(Math.cos(theta2), Math.sin(theta2)).multiply(d1).add(point);
-			if (!l1.containsPoint(startPoint) || !l2.containsPoint(endPoint)) {
+			if (!l1.contains(startPoint) || !l2.contains(endPoint)) {
 				openMessageDialog(this.dialog, {data: {type: "alert", content: "半径过大"}});
 				return;
 			}
