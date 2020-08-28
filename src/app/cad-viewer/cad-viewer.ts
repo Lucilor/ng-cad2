@@ -15,18 +15,20 @@ import {EventEmitter} from "events";
 import {Point} from "../utils";
 import Color from "color";
 import {CadEvents, controls} from "./cad-viewer-controls";
+import html2canvas from "html2canvas";
+import {CadTypeKey} from "./cad-data/cad-types";
 
 export interface CadViewerConfig {
-	width?: number;
-	height?: number;
-	backgroundColor?: Color;
-	showLineLength?: number;
-	showGongshi?: number;
-	padding?: number[] | number;
-	showStats?: boolean;
-	reverseSimilarColor?: boolean;
-	validateLines?: boolean;
-	selectMode?: "none" | "single" | "multiple";
+	width: number;
+	height: number;
+	backgroundColor: Color;
+	showLineLength: number;
+	showGongshi: number;
+	padding: number[] | number;
+	showStats: boolean;
+	reverseSimilarColor: boolean;
+	validateLines: boolean;
+	selectMode: "none" | "single" | "multiple";
 }
 
 export class CadViewer extends EventEmitter {
@@ -52,7 +54,7 @@ export class CadViewer extends EventEmitter {
 		multiSelector: null
 	};
 
-	constructor(data: CadData, config: CadViewerConfig = {}) {
+	constructor(data: CadData, config: Partial<CadViewerConfig> = {}) {
 		super();
 		this.data = data;
 		this.config = {...this.config, ...config};
@@ -172,8 +174,9 @@ export class CadViewer extends EventEmitter {
 		} else {
 			height = config.height;
 		}
-		draw.attr("width", width);
-		draw.attr("height", height);
+		draw.attr({width, height});
+		this.dom.style.width = width + "px";
+		this.dom.style.height = height + "px";
 
 		let padding = this.config.padding;
 		if (typeof padding === "number") {
@@ -391,7 +394,7 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	getPointInView(x: number, y: number) {
+	getWorldPoint(x: number, y: number) {
 		const {height} = this.draw.node.getBoundingClientRect();
 		const box = this.draw.viewbox();
 		const result = new Point();
@@ -414,5 +417,28 @@ export class CadViewer extends EventEmitter {
 		listener: (event: CadEvents[K][0], entity?: CadEvents[K][1], object?: CadEvents[K][2]) => void
 	) {
 		return super.off(type, listener);
+	}
+
+	async toDataURL() {
+		const canvas = await html2canvas(this.dom);
+		const canvas2 = document.createElement("canvas");
+		canvas2.width = canvas.width;
+		canvas2.height = canvas.height;
+		const context = canvas2.getContext("2d");
+		context.scale(1, -1);
+		context.drawImage(canvas, 0, -canvas.height);
+		return canvas2.toDataURL();
+	}
+
+	traverse(callback: (e: CadEntity) => void) {
+		this.data.getAllEntities().forEach((e) => callback(e));
+		return this;
+	}
+
+	destroy() {
+		this.data = new CadData();
+		this.dom.remove();
+		this.dom = null;
+		return this;
 	}
 }
