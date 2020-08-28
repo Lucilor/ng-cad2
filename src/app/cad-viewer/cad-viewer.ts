@@ -14,19 +14,19 @@ import {CadStylizer} from "./cad-stylizer";
 import {EventEmitter} from "events";
 import {Point} from "../utils";
 import Color from "color";
+import {CadEvents, controls} from "./cad-viewer-controls";
 
 export interface CadViewerConfig {
 	width?: number;
 	height?: number;
 	backgroundColor?: Color;
-	selectedColor?: number;
-	hoverColor?: number;
 	showLineLength?: number;
 	showGongshi?: number;
 	padding?: number[] | number;
 	showStats?: boolean;
 	reverseSimilarColor?: boolean;
 	validateLines?: boolean;
+	selectMode?: "none" | "single" | "multiple";
 }
 
 export class CadViewer extends EventEmitter {
@@ -35,20 +35,22 @@ export class CadViewer extends EventEmitter {
 		width: 300,
 		height: 150,
 		backgroundColor: new Color(),
-		selectedColor: 0xffff00,
-		hoverColor: 0x00ffff,
 		showLineLength: 0,
 		showGongshi: 0,
 		padding: [0],
 		showStats: false,
 		reverseSimilarColor: true,
-		validateLines: false
+		validateLines: false,
+		selectMode: "multiple"
 	};
 	dom: HTMLDivElement;
 	draw: Svg;
 	stylizer: CadStylizer;
-
-	private _status: {pointer: Point; button: number} = {pointer: null, button: -1};
+	status: {pointer: {from: Point; to: Point}; button: number; multiSelector: HTMLDivElement} = {
+		pointer: null,
+		button: -1,
+		multiSelector: null
+	};
 
 	constructor(data: CadData, config: CadViewerConfig = {}) {
 		super();
@@ -69,12 +71,14 @@ export class CadViewer extends EventEmitter {
 		this.resize().setBackgroundColor();
 		this.render(true);
 
-		const node = this.draw.node;
-		node.addEventListener("wheel", this._onWheel.bind(this));
-		node.addEventListener("click", this._onClick.bind(this));
-		node.addEventListener("pointerdown", this._onPointerDown.bind(this));
-		node.addEventListener("pointermove", this._onPointerMove.bind(this));
-		node.addEventListener("pointerup", this._onPointerUp.bind(this));
+		dom.addEventListener("wheel", controls.onWheel.bind(this));
+		dom.addEventListener("click", controls.onClick.bind(this));
+		dom.addEventListener("pointerdown", controls.onPointerDown.bind(this));
+		dom.addEventListener("pointermove", controls.onPointerMove.bind(this));
+		dom.addEventListener("pointerup", controls.onPointerUp.bind(this));
+		dom.addEventListener("keydown", controls.onKeyboard.bind(this));
+		dom.tabIndex = 0;
+		dom.focus();
 	}
 
 	width(): number;
@@ -261,25 +265,20 @@ export class CadViewer extends EventEmitter {
 				shape.stroke({width: linewidth, color: color.string()});
 				shape.addClass("stroke");
 			}
-			shape.on("click", () => {
-				if (shape.hasClass("selected")) {
-					shape.removeClass("selected");
-				} else {
-					shape.addClass("selected");
-				}
+			shape.on("click", (event) => {
+				controls.onEntityClick.call(this, event, entity);
 			});
 		}
 	}
 
-	render(center = false, entities?: CadEntities, style: CadStyle = {}) {
-		const {draw} = this;
+	render(center = false, entities?: CadEntities | CadEntity[], style: CadStyle = {}) {
 		if (!entities) {
 			entities = this.data.getAllEntities();
 		}
 		if (center) {
 			this.center();
 		}
-		entities.forEach((e) => this.drawEntity(e));
+		entities.forEach((e) => this.drawEntity(e, style));
 	}
 
 	center() {
@@ -310,13 +309,85 @@ export class CadViewer extends EventEmitter {
 		return this.resize();
 	}
 
-	// * Normalized Device Coordinate
-	private _getNDC(x: number, y: number) {
-		const {width, height, top, left} = this.draw.node.getBoundingClientRect();
-		const ndcX = ((x - left) / width) * 2 - 1;
-		const ndcY = (-(y - top) / height) * 2 + 1;
-		// const ndcY = ((y - top) / height) * 2 - 1;
-		return new Point(ndcX, ndcY);
+	addEntity(...entities: CadEntity[]) {
+		this.data.entities.add(...entities);
+		return this.render(false, entities);
+	}
+
+	removeEntity(...entities: CadEntity[]) {
+		entities.forEach((e) => e.shape?.remove());
+		this.data.entities.remove(...entities);
+		return this;
+	}
+
+	selected() {
+		return this.data.getAllEntities().filter((e) => e.selected);
+	}
+
+	unselected() {
+		return this.data.getAllEntities().filter((e) => !e.selected);
+	}
+
+	select(entities: CadEntities | CadEntity | CadEntity[]) {
+		if (entities instanceof CadEntity) {
+			return this.select(new CadEntities().add(entities));
+		}
+		if (Array.isArray(entities)) {
+			return this.select(new CadEntities().fromArray(entities));
+		}
+		entities.forEach((e) => (e.selected = true));
+		this.emit("entitiesselect", null, entities);
+		return this;
+	}
+
+	unselect(entities: CadEntities | CadEntity | CadEntity[]) {
+		if (entities instanceof CadEntity) {
+			return this.unselect(new CadEntities().add(entities));
+		}
+		if (Array.isArray(entities)) {
+			return this.unselect(new CadEntities().fromArray(entities));
+		}
+		entities.forEach((e) => (e.selected = false));
+		this.emit("entitiesunselect", null, entities);
+		return this;
+	}
+
+	selectAll() {
+		return this.select(this.data.getAllEntities());
+	}
+
+	unselectAll() {
+		return this.unselect(this.data.getAllEntities());
+	}
+
+	remove(entities: CadEntities | CadEntity | CadEntity[]) {
+		if (entities instanceof CadEntity) {
+			return this.remove(new CadEntities().add(entities));
+		}
+		if (Array.isArray(entities)) {
+			return this.remove(new CadEntities().fromArray(entities));
+		}
+		const data = new CadData();
+		data.entities = entities;
+		entities.forEach((e) => {
+			e.parent?.remove(e);
+			e.shape?.remove();
+			e.shape = null;
+		});
+		this.data.separate(data);
+		this.emit("entitiesremove", null, entities);
+		return this;
+	}
+
+	add(entities: CadEntities | CadEntity | CadEntity[]) {
+		if (entities instanceof CadEntity) {
+			return this.add(new CadEntities().add(entities));
+		}
+		if (Array.isArray(entities)) {
+			return this.add(new CadEntities().fromArray(entities));
+		}
+		this.emit("entitiesadd", null, entities);
+		return this;
 	}
 
 	getPointInView(x: number, y: number) {
@@ -329,45 +400,18 @@ export class CadViewer extends EventEmitter {
 		return result;
 	}
 
-	// * events start
-	private _onWheel(event: WheelEvent) {
-		const step = 0.1;
-		const {deltaY, clientX, clientY} = event;
-		const {x, y} = this.getPointInView(clientX, clientY);
-		const zoom = this.zoom();
-		if (deltaY > 0) {
-			this.zoom(zoom * (1 - step), [x, y]);
-		} else if (deltaY < 0) {
-			this.zoom(zoom * (1 + step), [x, y]);
-		}
+	emit<K extends keyof CadEvents>(type: K, event: CadEvents[K][0], entities?: CadEvents[K][1]) {
+		return super.emit(type, event, entities);
 	}
 
-	private _onClick(event: PointerEvent) {
-		// const {clientX, clientY} = event;
-		// console.log(clientY, screenY);
-		// console.log(this.getPointInView(clientX, clientY));
+	on<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1]) => void) {
+		return super.on(type, listener);
 	}
 
-	private _onPointerDown({clientX, clientY, button}: PointerEvent) {
-		this._status.pointer = new Point(clientX, clientY);
-		this._status.button = button;
+	off<K extends keyof CadEvents>(
+		type: K,
+		listener: (event: CadEvents[K][0], entity?: CadEvents[K][1], object?: CadEvents[K][2]) => void
+	) {
+		return super.off(type, listener);
 	}
-
-	private _onPointerMove({clientX, clientY, shiftKey}: PointerEvent) {
-		const {_status} = this;
-		const {pointer, button} = _status;
-		if ((button === 0 && shiftKey) || button === 1) {
-			if (_status.pointer) {
-				const offset = new Point(clientX, clientY).sub(pointer).divide(this.zoom());
-				this.move(offset.x, offset.y);
-				pointer.set(clientX, clientY);
-			}
-		}
-	}
-
-	private _onPointerUp() {
-		this._status.pointer = null;
-		this._status.button = -1;
-	}
-	// * events end
 }

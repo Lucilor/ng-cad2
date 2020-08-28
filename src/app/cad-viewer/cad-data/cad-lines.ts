@@ -108,8 +108,8 @@ export function findAllAdjacentLines(map: PointsMap, entity: LineLike, point: Ve
 	return {entities, closed};
 }
 
-export function setLinesLength(cad: CadViewer, lines: CadLine[], length: number) {
-	const pointsMap = generatePointsMap(cad.data.getAllEntities());
+export function setLinesLength(data: CadData, lines: CadLine[], length: number) {
+	const pointsMap = generatePointsMap(data.getAllEntities());
 	lines.forEach((line) => {
 		if (line instanceof CadLine) {
 			const {entities} = findAllAdjacentLines(pointsMap, line, line.end);

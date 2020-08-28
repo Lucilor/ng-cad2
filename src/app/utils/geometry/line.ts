@@ -25,16 +25,22 @@ export class Line {
 		return this;
 	}
 
-	containsPoint(point: Point, extend = false) {
-		const {x: x1, y: y1} = this.start;
-		const {x: x2, y: y2} = this.end;
-		const {x, y} = point;
-		const withinLine = extend || (Math.min(x1, x2) <= x && x <= Math.max(x1, x2) && Math.min(y1, y2) <= y && y <= Math.max(y1, y2));
-		if ((x - x1) * (y2 - y1) === (x2 - x1) * (y - y1) && withinLine) {
-			return true;
-		} else {
-			return false;
+	contains(object: Point | Line, extend = false): boolean {
+		if (object instanceof Point) {
+			const {x: x1, y: y1} = this.start;
+			const {x: x2, y: y2} = this.end;
+			const {x, y} = object;
+			const withinLine = extend || (Math.min(x1, x2) <= x && x <= Math.max(x1, x2) && Math.min(y1, y2) <= y && y <= Math.max(y1, y2));
+			if ((x - x1) * (y2 - y1) === (x2 - x1) * (y - y1) && withinLine) {
+				return true;
+			} else {
+				return false;
+			}
 		}
+		if (object instanceof Line) {
+			return this.contains(object.start, extend) && this.contains(object.end, extend);
+		}
+		return false;
 	}
 
 	get length() {
@@ -141,7 +147,7 @@ export class Line {
 		if (exp1 && exp2) {
 			intersection = solveLinearEqXY(exp1.a, exp1.b, -exp1.c, exp2.a, exp2.b, -exp2.c);
 		}
-		if (extend === false && (!this.containsPoint(intersection) || !line.containsPoint(intersection))) {
+		if (extend === false && (!this.contains(intersection) || !line.contains(intersection))) {
 			intersection = null;
 		}
 		return intersection;

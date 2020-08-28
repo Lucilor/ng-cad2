@@ -48,4 +48,10 @@ export class CadCircle extends CadEntity {
 	equals(entity: CadCircle) {
 		return this.radius === entity.radius && this.center.equals(entity.center);
 	}
+
+	// getBounds() {
+	// 	const min = this.center.subScalar(this.radius);
+	// 	const max = this.center.addScalar(this.radius);
+	// 	return new Rectangle(new Point(min.x, min.y), new Point(max.x, max.y));
+	// }
 }
