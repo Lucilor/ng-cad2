@@ -561,7 +561,7 @@ export class CadViewer {
 		const midPoint = new Vector2().add(p3).add(p4).divideScalar(2);
 		sprite.position.copy(midPoint);
 		if (axis === "x") {
-			this._setAnchor(sprite, midPoint, new Vector2(0.5, 1));
+			this._setAnchor(sprite, midPoint, new Vector2(0.5, 0));
 		}
 		if (axis === "y") {
 			sprite.lineGap = 0;
