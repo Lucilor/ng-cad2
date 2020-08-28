@@ -22,7 +22,7 @@ export interface CadEvents {
 function onWheel(this: CadViewer, event: WheelEvent) {
 	const step = 0.1;
 	const {deltaY, clientX, clientY} = event;
-	const {x, y} = this.getPointInView(clientX, clientY);
+	const {x, y} = this.getWorldPoint(clientX, clientY);
 	const zoom = this.zoom();
 	if (deltaY > 0) {
 		this.zoom(zoom * (1 - step), [x, y]);
