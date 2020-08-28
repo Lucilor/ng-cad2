@@ -196,17 +196,8 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		if (this.subCads) {
 			await this.subCads.updateList();
 			// await timeout(100);
-			// const collection = getCollection();
-			// if (collection === "CADmuban") {
-			// 	this.cad.data.components.data.forEach((v) => {
-			// 		v.components.data.forEach((vv) => generateLineTexts(this.cad, vv));
-			// 	});
-			// } else {
-			// 	this.cad.data.components.data.forEach((v) => {
-			// 		generateLineTexts(this.cad, v);
-			// 	});
-			// }
 			// this.cad.render(true);
+			// this.cad.reset();
 			// this.cad.dom.style.display = "none";
 			const cad = new CadViewer(this.cad.data.clone(), {width: innerWidth, height: innerHeight, padding: this.cad.config.padding});
 			this.cadContainer.nativeElement.appendChild(cad.dom);
@@ -216,7 +207,17 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 				v.components.data = [];
 				v.partners = [];
 			});
-			this.cad.reset();
+			const collection = getCollection();
+			if (collection === "CADmuban") {
+				cad.data.components.data.forEach((v) => {
+					v.components.data.forEach((vv) => generateLineTexts(this.cad, vv));
+				});
+			} else {
+				cad.data.components.data.forEach((v) => {
+					generateLineTexts(this.cad, v);
+				});
+			}
+			cad.render();
 		} else {
 			await timeout(0);
 			this.refresh();

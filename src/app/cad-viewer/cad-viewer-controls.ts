@@ -77,24 +77,26 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 
 function onPointerUp(this: CadViewer, event: PointerEvent) {
 	const status = this.status;
-	const {from, to} = status.pointer;
-	const rect = new Rectangle(from, to).justify();
-	const toSelect = Array<CadEntity>();
-	this.data.getAllEntities().forEach((e) => {
-		const domRect = e.shape?.node.getBoundingClientRect();
-		if (!domRect) {
-			return;
+	if (status.pointer) {
+		const {from, to} = status.pointer;
+		const rect = new Rectangle(from, to).justify();
+		const toSelect = Array<CadEntity>();
+		this.data.getAllEntities().forEach((e) => {
+			const domRect = e.shape?.node.getBoundingClientRect();
+			if (!domRect) {
+				return;
+			}
+			const {top, right, bottom, left} = domRect;
+			const rect2 = new Rectangle(new Point(left, top), new Point(right, bottom));
+			if (rect.contains(rect2)) {
+				toSelect.push(e);
+			}
+		});
+		if (toSelect.every((e) => e.selected)) {
+			toSelect.forEach((e) => (e.selected = false));
+		} else {
+			toSelect.forEach((e) => (e.selected = true));
 		}
-		const {top, right, bottom, left} = domRect;
-		const rect2 = new Rectangle(new Point(left, top), new Point(right, bottom));
-		if (rect.contains(rect2)) {
-			toSelect.push(e);
-		}
-	});
-	if (toSelect.every((e) => e.selected)) {
-		toSelect.forEach((e) => (e.selected = false));
-	} else {
-		toSelect.forEach((e) => (e.selected = true));
 	}
 	this.status.multiSelector?.remove();
 	this.status = {pointer: null, button: -1, multiSelector: null};
