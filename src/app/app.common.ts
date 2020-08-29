@@ -1,9 +1,7 @@
 import {environment} from "src/environments/environment";
-import {SessionStorage, LocalStorage} from "@app/utils";
+import {SessionStorage, LocalStorage, Point} from "@app/utils";
 import {CadData} from "./cad-viewer/cad-data/cad-data";
 import {CadMtext} from "./cad-viewer/cad-data/cad-entity/cad-mtext";
-import {Vector2} from "three";
-import {functionsIn} from "lodash";
 
 const host = environment.host;
 // export const apiBasePath = host + "/n/zy/index";
@@ -51,9 +49,9 @@ export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuh
 
 export function addCadGongshi(data: CadData) {
 	const mtext = new CadMtext();
-	const {x, y, width, height} = data.getBounds();
+	const {left, bottom} = data.getBoundingRect();
 	mtext.text = getCadGongshiText(data);
-	mtext.insert = new Vector2(x - width / 2, y - height / 2 - 10);
+	mtext.insert = new Point(left, bottom - 10);
 	mtext.selectable = false;
 	mtext.anchor.set(0, 1);
 	mtext.info.isCadGongshi = true;

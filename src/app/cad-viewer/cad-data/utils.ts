@@ -1,15 +1,15 @@
-import {Vector2, MathUtils} from "three";
+import {Point} from "@src/app/utils";
 import {CadLine} from "./cad-entity/cad-line";
 
-export function getVectorFromArray(data: number[] | Vector2, defaultVal = new Vector2()) {
-	if (data instanceof Vector2) {
+export function getVectorFromArray(data: number[] | Point, defaultVal = new Point()) {
+	if (data instanceof Point) {
 		return data.clone();
 	}
 	if (!Array.isArray(data)) {
 		return defaultVal.clone();
 	}
 	data = data.filter((v) => !isNaN(v));
-	return new Vector2(...data);
+	return new Point(...data);
 }
 
 export function isLinesParallel(lines: CadLine[], accurary = 0) {
@@ -114,8 +114,4 @@ export function linewidth2lineweight(value: number) {
 		return 0.25;
 	}
 	// return value * 100 * 0.25;
-}
-
-export function clampAngle(angle: number) {
-	MathUtils.clamp(angle, 0, Math.PI * 2);
 }

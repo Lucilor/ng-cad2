@@ -1,11 +1,11 @@
-import {ArcCurve, MathUtils, Vector2} from "three";
+import {Angle, Arc, Point} from "@src/app/utils";
 import {CadLayer} from "../cad-layer";
 import {CadTransformation} from "../cad-transformation";
-import {clampAngle, getVectorFromArray} from "../utils";
+import {getVectorFromArray} from "../utils";
 import {CadEntity} from "./cad-entity";
 
 export class CadArc extends CadEntity {
-	center: Vector2;
+	center: Point;
 	radius: number;
 	start_angle: number;
 	end_angle: number;
@@ -23,10 +23,10 @@ export class CadArc extends CadEntity {
 	}
 	get curve() {
 		const {center, radius, start_angle, end_angle, clockwise} = this;
-		return new ArcCurve(center.x, center.y, radius, MathUtils.degToRad(start_angle), MathUtils.degToRad(end_angle), clockwise);
+		return new Arc(center, radius, new Angle(start_angle, "deg"), new Angle(end_angle, "deg"), clockwise);
 	}
 	get length() {
-		return this.curve.getLength();
+		return this.curve.length;
 	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
@@ -41,18 +41,7 @@ export class CadArc extends CadEntity {
 
 	transform(trans: CadTransformation) {
 		super.transform(trans);
-		const {center, curve} = this;
-		const {matrix, flip} = trans;
-		center.applyMatrix3(matrix);
-		const start = curve.getPoint(0).applyMatrix3(matrix);
-		const end = curve.getPoint(1).applyMatrix3(matrix);
-		const startAngle = Math.atan2(start.y - center.y, start.x - center.x);
-		const endAngle = Math.atan2(end.y - center.y, end.x - center.x);
-		this.start_angle = MathUtils.radToDeg(startAngle);
-		this.end_angle = MathUtils.radToDeg(endAngle);
-		if (flip.vertical !== flip.horizontal) {
-			this.clockwise = !this.clockwise;
-		}
+		this.curve.transform(trans.matrix);
 		return this;
 	}
 
@@ -72,16 +61,6 @@ export class CadArc extends CadEntity {
 	}
 
 	equals(entity: CadArc) {
-		const startAngle1 = clampAngle(this.start_angle);
-		const endAngle1 = clampAngle(this.end_angle);
-		const startAngle2 = clampAngle(entity.start_angle);
-		const endAngle2 = clampAngle(entity.end_angle);
-		return (
-			this.radius === entity.radius &&
-			this.center.equals(entity.center) &&
-			startAngle1 === startAngle2 &&
-			endAngle1 === endAngle2 &&
-			this.clockwise === entity.clockwise
-		);
+		return this.curve.equals(entity.curve);
 	}
 }

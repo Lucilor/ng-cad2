@@ -1,19 +1,18 @@
 import {CadEntity} from "./cad-entity";
-import {Vector2, Mesh} from "three";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
 import {CadTransformation} from "../cad-transformation";
+import {Point} from "@src/app/utils";
 
 export class CadHatch extends CadEntity {
 	bgcolor: number[];
 	paths: {
 		edges: {
-			start: Vector2;
-			end: Vector2;
+			start: Point;
+			end: Point;
 		}[];
-		vertices: Vector2[];
+		vertices: Point[];
 	}[];
-	object?: Mesh;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
@@ -58,10 +57,10 @@ export class CadHatch extends CadEntity {
 		const {matrix} = trans;
 		this.paths.forEach((path) => {
 			path.edges.forEach((edge) => {
-				edge.start.applyMatrix3(matrix);
-				edge.end.applyMatrix3(matrix);
+				edge.start.transform(matrix);
+				edge.end.transform(matrix);
 			});
-			path.vertices.forEach((vertice) => vertice.applyMatrix3(matrix));
+			path.vertices.forEach((vertice) => vertice.transform(matrix));
 		});
 		return this;
 	}

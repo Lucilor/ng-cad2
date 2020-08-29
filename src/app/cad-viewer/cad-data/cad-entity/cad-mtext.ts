@@ -1,14 +1,14 @@
 import {CadEntity} from "./cad-entity";
-import {Vector2} from "three";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
 import {CadTransformation} from "../cad-transformation";
+import {Point} from "@src/app/utils";
 
 export class CadMtext extends CadEntity {
-	insert: Vector2;
+	insert: Point;
 	font_size: number;
 	text: string;
-	anchor: Vector2;
+	anchor: Point;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
@@ -19,7 +19,7 @@ export class CadMtext extends CadEntity {
 		if (typeof data.anchor?.[1] === "number") {
 			data.anchor[1] = data.anchor[1];
 		}
-		this.anchor = getVectorFromArray(data.anchor, new Vector2(0, 1));
+		this.anchor = getVectorFromArray(data.anchor, new Point(0, 1));
 	}
 
 	export() {
@@ -36,7 +36,7 @@ export class CadMtext extends CadEntity {
 	transform(trans: CadTransformation, parent?: CadEntity) {
 		super.transform(trans);
 		const {matrix} = trans;
-		this.insert.applyMatrix3(matrix);
+		this.insert.transform(matrix);
 		if (this.info.isLengthText) {
 			if (!Array.isArray(this.info.offset)) {
 				this.info.offset = [0, 0];

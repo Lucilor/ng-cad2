@@ -1,11 +1,11 @@
 import {CadLayer} from "../cad-layer";
 import {CadType, cadTypes} from "../cad-types";
-import {MathUtils, Object3D} from "three";
 import {index2RGB, RGB2Index} from "@app/utils";
 import {CadTransformation} from "../cad-transformation";
 import {lineweight2linewidth, linewidth2lineweight} from "../utils";
 import {G} from "@svgdotjs/svg.js";
 import Color from "color";
+import {v4} from "uuid";
 
 export abstract class CadEntity {
 	id: string;
@@ -16,7 +16,6 @@ export abstract class CadEntity {
 	linewidth: number;
 	visible: boolean;
 	opacity: number;
-	object?: Object3D = null;
 	el?: G = null;
 	info: {[key: string]: any};
 	_indexColor: number;
@@ -57,7 +56,7 @@ export abstract class CadEntity {
 		if (typeof data.id === "string" && !resetId) {
 			this.id = data.id;
 		} else {
-			this.id = MathUtils.generateUUID();
+			this.id = v4();
 		}
 		this.originalId = data.originalId ?? this.id;
 		this.layer = data.layer ?? "0";
@@ -152,5 +151,5 @@ export abstract class CadEntity {
 
 	abstract equals(entity: CadEntity): boolean;
 
-	// abstract getBounds(): Rectangle;
+	// abstract getBoundingRect(): Rectangle;
 }

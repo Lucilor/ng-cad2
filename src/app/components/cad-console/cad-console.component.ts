@@ -404,12 +404,12 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		const {cad} = this;
 		const seleted = cad.selectedEntities;
 		if (seleted.length) {
-			const {x, y} = cad.getBounds(seleted);
+			const {x, y} = cad.getBoundingRect(seleted);
 			trans.anchor.set(x, y);
 			seleted.transform(trans);
 		} else {
 			const t = (data: CadData) => {
-				const {x, y} = data.getBounds();
+				const {x, y} = data.getBoundingRect();
 				trans.anchor.set(x, y);
 				data.transform(trans);
 				if (rotateDimension) {

@@ -1,6 +1,7 @@
 import {Point} from "./point";
 import {Angle} from "./angle";
 import {Line} from "./line";
+import {Matrix} from "@svgdotjs/svg.js";
 
 export class Arc {
 	center: Point;
@@ -81,8 +82,27 @@ export class Arc {
 		return this;
 	}
 
-	// TODO: get point on arc
-	// getPoint(t:number){
+	equals(arc: Arc) {
+		return (
+			this.center.equals(arc.center) &&
+			this.radius === arc.radius &&
+			this.startAngle.equals(arc.startAngle) &&
+			this.endAngle.equals(arc.endAngle) &&
+			this.clockwise === arc.clockwise
+		);
+	}
 
-	// }
+	// TODO: get point on arc
+	getPoint(t: number) {
+		return new Point();
+	}
+
+	transform(matrix: Matrix) {
+		this.center.transform(matrix);
+		const start = this.getPoint(0).transform(matrix);
+		const end = this.getPoint(1).transform(matrix);
+		this.radius = this.center.distanceTo(start);
+		this.startPoint = start;
+		this.endPoint = end;
+	}
 }

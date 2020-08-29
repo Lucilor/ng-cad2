@@ -1,21 +1,21 @@
 import {CadEntity} from "./cad-entity";
-import {Vector2, ArcCurve} from "three";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
 import {CadTransformation} from "../cad-transformation";
 import {Line2} from "three/examples/jsm/lines/Line2";
+import {Angle, Arc, Point} from "@src/app/utils";
 
 export class CadCircle extends CadEntity {
 	object?: Line2;
-	center: Vector2;
+	center: Point;
 	radius: number;
 
 	get curve() {
 		const {center, radius} = this;
-		return new ArcCurve(center.x, center.y, radius, 0, Math.PI * 2, true);
+		return new Arc(center, radius, new Angle(0, "deg"), new Angle(360, "deg"), true);
 	}
 	get length() {
-		return this.curve.getLength();
+		return this.curve.length;
 	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
@@ -27,7 +27,7 @@ export class CadCircle extends CadEntity {
 
 	transform(trans: CadTransformation) {
 		super.transform(trans);
-		this.center.applyMatrix3(trans.matrix);
+		this.center.transform(trans.matrix);
 		return this;
 	}
 
@@ -47,7 +47,7 @@ export class CadCircle extends CadEntity {
 		return this.radius === entity.radius && this.center.equals(entity.center);
 	}
 
-	// getBounds() {
+	// getBoundingRect() {
 	// 	const min = this.center.subScalar(this.radius);
 	// 	const max = this.center.addScalar(this.radius);
 	// 	return new Rectangle(new Point(min.x, min.y), new Point(max.x, max.y));
