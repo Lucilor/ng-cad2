@@ -16,7 +16,6 @@ export abstract class CadEntity {
 	linewidth: number;
 	visible: boolean;
 	opacity: number;
-	selectable: boolean;
 	object?: Object3D = null;
 	el?: G = null;
 	info: {[key: string]: any};
@@ -25,6 +24,17 @@ export abstract class CadEntity {
 	parent: CadEntity = null;
 	children: CadEntity[] = [];
 
+	get selectable() {
+		return this.el?.hasClass("selectable");
+	}
+	set selectable(value) {
+		if (value) {
+			this.el?.addClass("selectable");
+		} else {
+			this.el?.removeClass("selectable");
+		}
+		this.children.forEach((c) => (c.selectable = value));
+	}
 	get selected() {
 		return this.el?.hasClass("selected") && this.selectable;
 	}
@@ -34,6 +44,7 @@ export abstract class CadEntity {
 		} else {
 			this.el?.removeClass("selected");
 		}
+		this.children.forEach((c) => (c.selected = value));
 	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {

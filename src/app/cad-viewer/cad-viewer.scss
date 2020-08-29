@@ -3,36 +3,55 @@
 		box-sizing: border-box;
 
 		* {
-			cursor: pointer;
 			user-select: none;
 			vector-effect: non-scaling-stroke;
 		}
 
 		g {
-			&.fill {
-				&:hover > * {
-					fill: cyan;
-				}
-				&.selected > * {
-					font-style: italic;
+			line,
+			circle,
+			path {
+				&:not([fill]) {
+					fill: none;
 				}
 			}
 
-			&.stroke {
-				&:hover > * {
-					stroke: cyan;
+			text {
+				&:not([stroke]) {
+					stroke: none;
 				}
-				&.selected > * {
+			}
+
+			&:hover.selectable {
+				cursor: pointer;
+
+				line,
+				circle,
+				path {
+					stroke: cyan;
+					&[fill] {
+						fill: cyan;
+					}
+				}
+
+				text {
+					fill: cyan;
+					&[stroke] {
+						stroke: cyan;
+					}
+				}
+			}
+
+			&.selected.selectable {
+				line,
+				circle,
+				path {
 					stroke-dasharray: 6, 3;
 				}
-			}
 
-			&:not(.fill) > * {
-				fill: none;
-			}
-
-			&:not(.stroke) > * {
-				stroke: none;
+				text {
+					font-style: italic;
+				}
 			}
 		}
 	}

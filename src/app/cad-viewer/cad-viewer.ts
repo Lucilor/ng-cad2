@@ -210,32 +210,28 @@ export class CadViewer extends EventEmitter {
 		const {draw, stylizer} = this;
 		const {color, linewidth} = stylizer.get(entity, style);
 		const drawType = Array<"fill" | "stroke">();
+		if (entity.el) {
+			entity.el.clear();
+		} else {
+			entity.el = draw.group().addClass("selectable");
+		}
+		const el = entity.el;
 		if (entity instanceof CadArc) {
 			const {center, radius, start_angle, end_angle, clockwise} = entity;
-			if (!entity.el) {
-				entity.el = draw.group();
-			}
-			drawArc(entity.el.clear(), center, radius, start_angle, end_angle, clockwise);
+			drawArc(el.clear(), center, radius, start_angle, end_angle, clockwise);
 			drawType.push("stroke");
 		} else if (entity instanceof CadCircle) {
 			const {center, radius} = entity;
-			if (!entity.el) {
-				entity.el = draw.group();
-			}
-			drawCircle(entity.el.clear(), center, radius);
+			drawCircle(el.clear(), center, radius);
 			drawType.push("stroke");
 		} else if (entity instanceof CadDimension) {
 			const {mingzi, qujian, font_size, axis} = entity;
-			if (!entity.el) {
-				entity.el = draw.group();
-			}
-			entity.el.clear();
 			const [p1, p2, p3, p4, p5, p6, p7, p8] = this.data.getDimensionPoints(entity);
-			drawLine(entity.el, p1, p3);
-			drawLine(entity.el, p3, p4);
-			drawLine(entity.el, p4, p2);
-			entity.el.path(`M${p3.x} ${p3.y} L${p5.x} ${p5.y} L${p6.x} ${p6.y}`).fill(color);
-			entity.el.path(`M${p4.x} ${p4.y} L${p7.x} ${p7.y} L${p8.x} ${p8.y}`).fill(color);
+			drawLine(el, p1, p3);
+			drawLine(el, p3, p4);
+			drawLine(el, p4, p2);
+			el.path(`M${p3.x} ${p3.y} L${p5.x} ${p5.y} L${p6.x} ${p6.y}`).fill(color);
+			el.path(`M${p4.x} ${p4.y} L${p7.x} ${p7.y} L${p8.x} ${p8.y}`).fill(color);
 			let text = "";
 			if (mingzi) {
 				text = mingzi;
@@ -257,34 +253,25 @@ export class CadViewer extends EventEmitter {
 		} else if (entity instanceof CadHatch) {
 		} else if (entity instanceof CadLine) {
 			const {start, end} = entity;
-			if (!entity.el) {
-				entity.el = draw.group();
-			}
-			drawLine(entity.el.clear(), start, end);
+			drawLine(el, start, end);
 			drawType.push("stroke");
 		} else if (entity instanceof CadMtext) {
 			const {text, insert, font_size, anchor} = entity;
-			if (!entity.el) {
-				entity.el = draw.group();
-			}
-			drawText(entity.el.clear(), text, font_size, insert, anchor);
+			drawText(el, text, font_size, insert, anchor);
 			drawType.push("fill");
 		}
-		const el = entity.el;
-		if (el) {
-			el.attr({id: entity.id, type: entity.type});
-			if (drawType.includes("fill")) {
-				el.fill(color);
-				el.addClass("fill");
-			}
-			if (drawType.includes("stroke")) {
-				el.stroke({width: linewidth, color});
-				el.addClass("stroke");
-			}
-			el.node.onclick = (event) => {
-				controls.onEntityClick.call(this, event, entity);
-			};
+		el.attr({id: entity.id, type: entity.type});
+		if (drawType.includes("fill")) {
+			el.fill(color);
+			el.addClass("fill");
 		}
+		if (drawType.includes("stroke")) {
+			el.stroke({width: linewidth, color});
+			el.addClass("stroke");
+		}
+		el.node.onclick = (event) => {
+			controls.onEntityClick.call(this, event, entity);
+		};
 		entity.children.forEach((c) => this.drawEntity(c, style));
 	}
 
