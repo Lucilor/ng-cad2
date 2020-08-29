@@ -1,4 +1,5 @@
 import {SVG, Svg, CoordinateXY, Tspan, List} from "@svgdotjs/svg.js";
+import {drawArc, drawCircle, drawLine, drawText} from "./draw";
 import {cloneDeep} from "lodash";
 import {CadData} from "./cad-data/cad-data";
 import {CadEntities} from "./cad-data/cad-entities";
@@ -16,7 +17,7 @@ import {Point} from "../utils";
 import Color from "color";
 import {CadEvents, controls} from "./cad-viewer-controls";
 import html2canvas from "html2canvas";
-import {CadTypeKey} from "./cad-data/cad-types";
+import {Vector2} from "three";
 
 export interface CadViewerConfig {
 	width: number;
@@ -78,7 +79,7 @@ export class CadViewer extends EventEmitter {
 		dom.addEventListener("pointerdown", controls.onPointerDown.bind(this));
 		dom.addEventListener("pointermove", controls.onPointerMove.bind(this));
 		dom.addEventListener("pointerup", controls.onPointerUp.bind(this));
-		dom.addEventListener("keydown", controls.onKeyboard.bind(this));
+		dom.addEventListener("keydown", controls.onKeyDown.bind(this));
 		dom.tabIndex = 0;
 		dom.focus();
 	}
@@ -208,69 +209,81 @@ export class CadViewer extends EventEmitter {
 	drawEntity(entity: CadEntity, style: CadStyle = {}) {
 		const {draw, stylizer} = this;
 		const {color, linewidth} = stylizer.get(entity, style);
-		let type: "fill" | "stroke";
+		const drawType = Array<"fill" | "stroke">();
 		if (entity instanceof CadArc) {
-			const {curve, radius, start_angle, end_angle, clockwise} = entity;
-			const {x: x0, y: y0} = curve.getPoint(0);
-			const {x: x1, y: y1} = curve.getPoint(1);
-			const l0 = Math.PI * 2 * radius;
-			const isLargeArc = curve.getLength() / l0 > 0.5 ? 1 : 0;
-			if (!entity.shape) {
-				entity.shape = draw.path();
+			const {center, radius, start_angle, end_angle, clockwise} = entity;
+			if (!entity.el) {
+				entity.el = draw.group();
 			}
-			entity.shape.plot([
-				["M", x0, y0],
-				["A", radius, radius, end_angle - start_angle, isLargeArc, clockwise ? 0 : 1, x1, y1]
-			]);
-			type = "stroke";
+			drawArc(entity.el.clear(), center, radius, start_angle, end_angle, clockwise);
+			drawType.push("stroke");
 		} else if (entity instanceof CadCircle) {
 			const {center, radius} = entity;
-			if (!entity.shape) {
-				entity.shape = draw.circle();
+			if (!entity.el) {
+				entity.el = draw.group();
 			}
-			entity.shape.center(center.x, center.y);
-			entity.shape.radius(radius);
-			type = "stroke";
+			drawCircle(entity.el.clear(), center, radius);
+			drawType.push("stroke");
 		} else if (entity instanceof CadDimension) {
+			const {mingzi, qujian, font_size, axis} = entity;
+			if (!entity.el) {
+				entity.el = draw.group();
+			}
+			entity.el.clear();
+			const [p1, p2, p3, p4, p5, p6, p7, p8] = this.data.getDimensionPoints(entity);
+			drawLine(entity.el, p1, p3);
+			drawLine(entity.el, p3, p4);
+			drawLine(entity.el, p4, p2);
+			entity.el.path(`M${p3.x} ${p3.y} L${p5.x} ${p5.y} L${p6.x} ${p6.y}`).fill(color);
+			entity.el.path(`M${p4.x} ${p4.y} L${p7.x} ${p7.y} L${p8.x} ${p8.y}`).fill(color);
+			let text = "";
+			if (mingzi) {
+				text = mingzi;
+			}
+			if (qujian) {
+				text = qujian;
+			}
+			if (text === "") {
+				text = "<>";
+			}
+			text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
+			const middle = p3.clone().add(p4).divideScalar(2);
+			if (axis === "x") {
+				drawText(entity.el, text, font_size, middle, new Vector2(0.5, 1));
+			} else if (axis === "y") {
+				drawText(entity.el, text, font_size, middle, new Vector2(0, 0.5), true);
+			}
+			drawType.push("fill", "stroke");
 		} else if (entity instanceof CadHatch) {
 		} else if (entity instanceof CadLine) {
 			const {start, end} = entity;
-			if (!entity.shape) {
-				entity.shape = draw.line();
+			if (!entity.el) {
+				entity.el = draw.group();
 			}
-			entity.shape.plot(start.x, start.y, end.x, end.y);
-			type = "stroke";
+			drawLine(entity.el.clear(), start, end);
+			drawType.push("stroke");
 		} else if (entity instanceof CadMtext) {
 			const {text, insert, font_size, anchor} = entity;
-			if (!entity.shape) {
-				entity.shape = draw.text("");
+			if (!entity.el) {
+				entity.el = draw.group();
 			}
-			entity.shape.font({size: font_size}).text(text).leading(1);
-			entity.shape.move(insert.x, insert.y);
-			type = "fill";
-			setTimeout(() => {
-				const tspans = entity.shape.children() as List<Tspan>;
-				const width = Math.max(...tspans.map((v) => v.length()));
-				const height = (tspans.length + 1 / 3) * font_size;
-				const dx = -width * anchor.x;
-				const dy = height * anchor.y;
-				entity.shape.transform({a: 1, b: 0, c: 0, d: -1, e: dx, f: dy + insert.y * 2});
-				tspans.slice(1).forEach((tspan) => tspan.dy("1em"));
-			}, 0);
+			drawText(entity.el.clear(), text, font_size, insert, anchor);
+			drawType.push("fill");
 		}
-		const shape = entity.shape;
-		if (shape) {
-			shape.attr({id: entity.id, "vector-effect": "non-scaling-stroke"});
-			if (type === "fill") {
-				shape.fill({color: color.string()});
-				shape.addClass("fill");
-			} else if (type === "stroke") {
-				shape.stroke({width: linewidth, color: color.string()});
-				shape.addClass("stroke");
+		const el = entity.el;
+		if (el) {
+			el.attr({id: entity.id, type: entity.type});
+			if (drawType.includes("fill")) {
+				el.fill(color);
+				el.addClass("fill");
 			}
-			shape.on("click", (event) => {
+			if (drawType.includes("stroke")) {
+				el.stroke({width: linewidth, color});
+				el.addClass("stroke");
+			}
+			el.node.onclick = (event) => {
 				controls.onEntityClick.call(this, event, entity);
-			});
+			};
 		}
 		entity.children.forEach((c) => this.drawEntity(c, style));
 	}
@@ -319,7 +332,7 @@ export class CadViewer extends EventEmitter {
 	}
 
 	removeEntity(...entities: CadEntity[]) {
-		entities.forEach((e) => e.shape?.remove());
+		entities.forEach((e) => e.el?.remove());
 		this.data.entities.remove(...entities);
 		return this;
 	}
@@ -375,8 +388,8 @@ export class CadViewer extends EventEmitter {
 		data.entities = entities;
 		entities.forEach((e) => {
 			e.parent?.remove(e);
-			e.shape?.remove();
-			e.shape = null;
+			e.el?.remove();
+			e.el = null;
 		});
 		this.data.separate(data);
 		this.emit("entitiesremove", null, entities);

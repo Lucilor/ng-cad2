@@ -5,25 +5,34 @@
 		* {
 			cursor: pointer;
 			user-select: none;
+			vector-effect: non-scaling-stroke;
 		}
 
-		.fill {
-			stroke: none;
-			&:hover {
-				fill: cyan;
+		g {
+			&.fill {
+				&:hover > * {
+					fill: cyan;
+				}
+				&.selected > * {
+					font-style: italic;
+				}
 			}
-			&.selected {
-				font-style: italic;
-			}
-		}
 
-		.stroke {
-			fill: none;
-			&:hover {
-				stroke: cyan;
+			&.stroke {
+				&:hover > * {
+					stroke: cyan;
+				}
+				&.selected > * {
+					stroke-dasharray: 6, 3;
+				}
 			}
-			&.selected {
-				stroke-dasharray: 6, 3;
+
+			&:not(.fill) > * {
+				fill: none;
+			}
+
+			&:not(.stroke) > * {
+				stroke: none;
 			}
 		}
 	}

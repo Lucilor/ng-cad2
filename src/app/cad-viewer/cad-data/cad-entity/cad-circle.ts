@@ -4,10 +4,8 @@ import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
 import {CadTransformation} from "../cad-transformation";
 import {Line2} from "three/examples/jsm/lines/Line2";
-import {Circle} from "@svgdotjs/svg.js";
 
 export class CadCircle extends CadEntity {
-	shape?: Circle;
 	object?: Line2;
 	center: Vector2;
 	radius: number;

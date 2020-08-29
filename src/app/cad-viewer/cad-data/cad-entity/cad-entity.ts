@@ -4,7 +4,7 @@ import {MathUtils, Object3D} from "three";
 import {index2RGB, RGB2Index} from "@app/utils";
 import {CadTransformation} from "../cad-transformation";
 import {lineweight2linewidth, linewidth2lineweight} from "../utils";
-import {Shape} from "@svgdotjs/svg.js";
+import {G} from "@svgdotjs/svg.js";
 import Color from "color";
 
 export abstract class CadEntity {
@@ -18,7 +18,7 @@ export abstract class CadEntity {
 	opacity: number;
 	selectable: boolean;
 	object?: Object3D = null;
-	shape?: Shape = null;
+	el?: G = null;
 	info: {[key: string]: any};
 	_indexColor: number;
 	_lineweight: number;
@@ -26,13 +26,13 @@ export abstract class CadEntity {
 	children: CadEntity[] = [];
 
 	get selected() {
-		return this.shape?.hasClass("selected") === true;
+		return this.el?.hasClass("selected") && this.selectable;
 	}
 	set selected(value) {
-		if (value === true) {
-			this.shape?.addClass("selected");
+		if (value && this.selectable) {
+			this.el?.addClass("selected");
 		} else {
-			this.shape?.removeClass("selected");
+			this.el?.removeClass("selected");
 		}
 	}
 

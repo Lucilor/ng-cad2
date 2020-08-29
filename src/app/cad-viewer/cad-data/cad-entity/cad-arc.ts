@@ -3,10 +3,8 @@ import {CadLayer} from "../cad-layer";
 import {CadTransformation} from "../cad-transformation";
 import {clampAngle, getVectorFromArray} from "../utils";
 import {CadEntity} from "./cad-entity";
-import {Path} from "@svgdotjs/svg.js";
 
 export class CadArc extends CadEntity {
-	shape?: Path;
 	center: Vector2;
 	radius: number;
 	start_angle: number;

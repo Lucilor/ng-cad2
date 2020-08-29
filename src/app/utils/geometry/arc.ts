@@ -48,14 +48,20 @@ export class Arc {
 	}
 
 	get length() {
-		const {radius, startAngle, endAngle} = this;
-		return radius * Math.abs(startAngle.rad - endAngle.rad);
-	}
-
-	get middle() {
-		const angle = (this.startAngle.rad + this.endAngle.rad) / 2;
-		const d = new Point(Math.cos(angle), Math.sin(angle)).multiply(this.radius);
-		return this.center.clone().add(d);
+		const {radius, startAngle, endAngle, clockwise} = this;
+		let start = startAngle.rad;
+		let end = endAngle.rad;
+		if (clockwise) {
+			while (end > start) {
+				end -= Math.PI * 2;
+			}
+			return radius * (start - end);
+		} else {
+			while (start > end) {
+				start -= Math.PI * 2;
+			}
+			return radius * (end - start);
+		}
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point()) {
@@ -74,4 +80,9 @@ export class Arc {
 		this.endPoint = this.endPoint.rotate(angle, anchor);
 		return this;
 	}
+
+	// TODO: get point on arc
+	// getPoint(t:number){
+
+	// }
 }
