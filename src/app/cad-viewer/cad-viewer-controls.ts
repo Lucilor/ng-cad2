@@ -82,7 +82,7 @@ function onPointerUp(this: CadViewer, event: PointerEvent) {
 		const rect = new Rectangle(from, to).justify();
 		const toSelect = Array<CadEntity>();
 		this.data.getAllEntities().forEach((e) => {
-			const domRect = e.shape?.node.getBoundingClientRect();
+			const domRect = e.el?.node.getBoundingClientRect();
 			if (!domRect) {
 				return;
 			}
@@ -117,6 +117,7 @@ function onKeyDown(this: CadViewer, event: KeyboardEvent) {
 }
 
 function onEntityClick(this: CadViewer, event: PointerEvent, entity: CadEntity) {
+	event.stopImmediatePropagation();
 	if (entity.selected) {
 		this.unselect(entity);
 	} else {
@@ -125,4 +126,4 @@ function onEntityClick(this: CadViewer, event: PointerEvent, entity: CadEntity) 
 	this.emit("entityclick", event, entity);
 }
 
-export const controls = {onWheel, onClick, onPointerDown, onPointerMove, onPointerUp, onKeyboard: onKeyDown, onEntityClick};
+export const controls = {onWheel, onClick, onPointerDown, onPointerMove, onPointerUp, onKeyDown, onEntityClick};

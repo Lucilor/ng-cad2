@@ -687,7 +687,8 @@ export class CadData {
 		});
 	}
 
-	getDimensionPoints({entity1, entity2, distance, axis, distance2, ref}: CadDimension) {
+	getDimensionPoints(dimension: CadDimension) {
+		const {entity1, entity2, distance, axis, distance2, ref} = dimension;
 		let entity: CadDimensionEntity;
 		const line1 = this.findEntity(entity1.id) as CadLine;
 		const line2 = this.findEntity(entity2.id) as CadLine;
@@ -776,7 +777,27 @@ export class CadData {
 		if (distance2 !== undefined) {
 			[p3, p4].forEach((p) => (p.y = distance2));
 		}
-		return [p1, p2, p3, p4];
+
+		const p5 = p3.clone();
+		const p6 = p3.clone();
+		const p7 = p4.clone();
+		const p8 = p4.clone();
+		const arrowSize = Math.max(1, Math.min(5, p3.distanceTo(p4) / 20));
+		const arrowLength = arrowSize * Math.sqrt(3);
+		if (axis === "x") {
+			p5.add(new Vector2(arrowLength, -arrowSize));
+			p6.add(new Vector2(arrowLength, arrowSize));
+			p7.add(new Vector2(-arrowLength, -arrowSize));
+			p8.add(new Vector2(-arrowLength, arrowSize));
+		}
+		if (axis === "y") {
+			p5.add(new Vector2(-arrowSize, -arrowLength));
+			p6.add(new Vector2(arrowSize, -arrowLength));
+			p7.add(new Vector2(-arrowSize, arrowLength));
+			p8.add(new Vector2(arrowSize, arrowLength));
+		}
+
+		return [p1, p2, p3, p4, p5, p6, p7, p8];
 	}
 
 	getBoundingBox() {

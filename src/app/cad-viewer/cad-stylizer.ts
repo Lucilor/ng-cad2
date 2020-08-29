@@ -6,7 +6,7 @@ import Color from "color";
 import {CadLine} from "./cad-data/cad-entity/cad-line";
 
 export interface CadStyle {
-	color?: Color;
+	color?: string;
 	linewidth?: number;
 	fontSize?: number;
 	opacity?: number;
@@ -22,7 +22,7 @@ export class CadStylizer {
 	get(entity: CadEntity, params: CadStyle = {}) {
 		const cad = this.cad;
 		const result: CadStyle = {fontStyle: "normal"};
-		result.color = new Color(params.color || entity?.color || 0);
+		let color = new Color(params.color || entity?.color || 0);
 		if (params.linewidth > 0) {
 			result.linewidth = params.linewidth;
 		} else if (entity.linewidth > 0) {
@@ -43,13 +43,14 @@ export class CadStylizer {
 		if (cad.config.validateLines && entity instanceof CadLine) {
 			if (!entity.valid || entity.info.error) {
 				result.linewidth *= 10;
-				result.color = new Color(0xff0000);
+				color = new Color(0xff0000);
 			}
 		}
 
 		if (cad.config.reverseSimilarColor) {
-			result.color = this.correctColor(result.color);
+			color = this.correctColor(color);
 		}
+		result.color = color.hex();
 
 		return result;
 	}

@@ -3,14 +3,12 @@ import {Vector2} from "three";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
 import {CadTransformation} from "../cad-transformation";
-import {Text} from "@svgdotjs/svg.js";
 
 export class CadMtext extends CadEntity {
 	insert: Vector2;
 	font_size: number;
 	text: string;
 	anchor: Vector2;
-	shape?: Text;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
