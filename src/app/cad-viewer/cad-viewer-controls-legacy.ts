@@ -1,5 +1,5 @@
 import {CadViewer} from "./cad-viewer-legacy";
-import {Vector2, Vector3, Object3D, MathUtils, Box2, Mesh, Plane} from "three";
+import {Vector2, Vector3, Object3D, MathUtils, Box2, Plane} from "three";
 import {EventEmitter} from "events";
 import {CadEntity} from "./cad-data/cad-entity/cad-entity";
 import {CadDimension} from "./cad-data/cad-entity/cad-dimension";
@@ -134,11 +134,11 @@ export class CadViewerControls extends EventEmitter {
 	private _getInterSection(pointer: Vector2) {
 		const {raycaster, camera, data} = this.cad;
 		const objects: Object3D[] = [];
-		data.getAllEntities(true).forEach((e) => {
-			if (e.object && e.visible && e.selectable) {
-				objects.push(e.object);
-			}
-		});
+		// data.getAllEntities(true).forEach((e) => {
+		// 	if (e.object && e.visible && e.selectable) {
+		// 		objects.push(e.object);
+		// 	}
+		// });
 		const points = [pointer];
 		const d = 1;
 		points.push(pointer.clone().add(new Vector2(d, 0)));
@@ -240,18 +240,18 @@ export class CadViewerControls extends EventEmitter {
 				const box = new Box2(new Vector2(x1, y1), new Vector2(x2, y2));
 				const toSelect: CadEntity[] = [];
 				entities.forEach((entity) => {
-					const object = entity.object as Mesh;
-					if (!object) {
-						return;
-					}
-					object.geometry.computeBoundingBox();
-					const {min, max} = object.geometry.boundingBox;
-					min.add(object.position);
-					max.add(object.position);
-					const objBox = new Box2(new Vector2(min.x, min.y), new Vector2(max.x, max.y));
-					if (box.containsBox(objBox) && entity.selectable === true) {
-						toSelect.push(entity);
-					}
+					// const object = entity.object as Mesh;
+					// if (!object) {
+					// 	return;
+					// }
+					// object.geometry.computeBoundingBox();
+					// const {min, max} = object.geometry.boundingBox;
+					// min.add(object.position);
+					// max.add(object.position);
+					// const objBox = new Box2(new Vector2(min.x, min.y), new Vector2(max.x, max.y));
+					// if (box.containsBox(objBox) && entity.selectable === true) {
+					// 	toSelect.push(entity);
+					// }
 				});
 				if (toSelect.every((e) => e.selected)) {
 					toSelect.forEach((e) => (e.selected = false));
@@ -405,57 +405,57 @@ export class CadViewerControls extends EventEmitter {
 	}
 
 	private _dragObject(p: Vector2, offset: Vector2) {
-		const {cad, currentEntity: entity, _multiSelector, config} = this;
-		if (!entity || !_multiSelector.hidden) {
-			return false;
-		}
-		if (entity instanceof CadDimension) {
-			let [point1, point2] = cad.data.getDimensionPoints(entity);
-			if (!point1 || !point2) {
-				return false;
-			}
-			point1 = cad.getScreenPoint(point1);
-			point2 = cad.getScreenPoint(point2);
-			const left = Math.min(point1.x, point2.x);
-			const right = Math.max(point1.x, point2.x);
-			const top = Math.max(point1.y, point2.y);
-			const bottom = Math.min(point1.y, point2.y);
-			if (entity.axis === "x") {
-				if (p.x >= left && p.x <= right) {
-					entity.distance += offset.y;
-				} else if (p.y >= bottom && p.y <= top) {
-					entity.axis = "y";
-					entity.distance = p.x - right;
-				} else {
-					entity.distance += offset.y;
-				}
-			}
-			if (entity.axis === "y") {
-				if (p.y >= bottom && p.y <= top) {
-					entity.distance += offset.x;
-				} else if (p.x >= left && p.x <= right) {
-					entity.axis = "x";
-					entity.distance = bottom - p.y;
-				} else {
-					entity.distance += offset.x;
-				}
-			}
-			this.pointerLock = true;
-			cad.render(null, new CadEntities().add(entity));
-		} else if (entity.selected && config.entitiesDraggable) {
-			const selected = cad.selectedEntities;
-			const notSelected = cad.notSelectedEntities;
-			if (selected.length <= notSelected.length) {
-				selected.transform(new CadTransformation({translate: offset}));
-				cad.render(null, selected);
-			} else {
-				offset.multiplyScalar(-1);
-				cad.position.add(new Vector3(offset.x, offset.y, 0));
-				notSelected.transform(new CadTransformation({translate: offset}));
-				cad.render(null, notSelected);
-			}
-			this.pointerLock = true;
-		}
+		// const {cad, currentEntity: entity, _multiSelector, config} = this;
+		// if (!entity || !_multiSelector.hidden) {
+		// 	return false;
+		// }
+		// if (entity instanceof CadDimension) {
+		// 	let [point1, point2] = cad.data.getDimensionPoints(entity);
+		// 	if (!point1 || !point2) {
+		// 		return false;
+		// 	}
+		// 	point1 = cad.getScreenPoint(point1);
+		// 	point2 = cad.getScreenPoint(point2);
+		// 	const left = Math.min(point1.x, point2.x);
+		// 	const right = Math.max(point1.x, point2.x);
+		// 	const top = Math.max(point1.y, point2.y);
+		// 	const bottom = Math.min(point1.y, point2.y);
+		// 	if (entity.axis === "x") {
+		// 		if (p.x >= left && p.x <= right) {
+		// 			entity.distance += offset.y;
+		// 		} else if (p.y >= bottom && p.y <= top) {
+		// 			entity.axis = "y";
+		// 			entity.distance = p.x - right;
+		// 		} else {
+		// 			entity.distance += offset.y;
+		// 		}
+		// 	}
+		// 	if (entity.axis === "y") {
+		// 		if (p.y >= bottom && p.y <= top) {
+		// 			entity.distance += offset.x;
+		// 		} else if (p.x >= left && p.x <= right) {
+		// 			entity.axis = "x";
+		// 			entity.distance = bottom - p.y;
+		// 		} else {
+		// 			entity.distance += offset.x;
+		// 		}
+		// 	}
+		// 	this.pointerLock = true;
+		// 	cad.render(null, new CadEntities().add(entity));
+		// } else if (entity.selected && config.entitiesDraggable) {
+		// 	const selected = cad.selectedEntities;
+		// 	const notSelected = cad.notSelectedEntities;
+		// 	if (selected.length <= notSelected.length) {
+		// 		selected.transform(new CadTransformation({translate: offset}));
+		// 		cad.render(null, selected);
+		// 	} else {
+		// 		offset.multiplyScalar(-1);
+		// 		cad.position.add(new Vector3(offset.x, offset.y, 0));
+		// 		notSelected.transform(new CadTransformation({translate: offset}));
+		// 		cad.render(null, notSelected);
+		// 	}
+		// 	this.pointerLock = true;
+		// }
 		return true;
 	}
 }

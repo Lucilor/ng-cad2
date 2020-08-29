@@ -1,7 +1,6 @@
 import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {Vector2} from "three";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {
 	generatePointsMap,
@@ -11,7 +10,7 @@ import {
 	autoFixLine,
 	updateLineTexts
 } from "@src/app/cad-viewer/cad-data/cad-lines";
-import {getColorLightness} from "@app/utils";
+import {getColorLightness, Point} from "@app/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
 import {MenuComponent} from "../menu.component";
@@ -33,7 +32,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	@Input() cad: CadViewer;
 	focusedField = "";
 	editDiabled = true;
-	lineDrawing: {start: Vector2; end: Vector2; entity?: CadLine};
+	lineDrawing: {start: Point; end: Point; entity?: CadLine};
 	data: CadData;
 	cadStatusName: State["cadStatus"]["name"];
 
@@ -96,7 +95,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			if (!point || name !== "draw line") {
 				return;
 			}
-			const start = cad.getWorldPoint(new Vector2(point.x, point.y));
+			const start = cad.getWorldPoint(new Point(point.x, point.y));
 			this.lineDrawing = {start, end: null};
 			this.store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 		});
@@ -134,7 +133,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			if (line instanceof CadLine) {
 				return line.length.toFixed(2);
 			} else if (line instanceof CadArc) {
-				return line.curve.getLength().toFixed(2);
+				return line.length.toFixed(2);
 			}
 		}
 		return "";
@@ -248,7 +247,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		if (!lineDrawing?.start) {
 			return;
 		}
-		lineDrawing.end = cad.getWorldPoint(new Vector2(clientX, clientY));
+		lineDrawing.end = cad.getWorldPoint(new Point(clientX, clientY));
 		if (shiftKey) {
 			const dx = Math.abs(lineDrawing.start.x - lineDrawing.end.x);
 			const dy = Math.abs(lineDrawing.start.y - lineDrawing.end.y);

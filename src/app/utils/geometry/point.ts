@@ -1,3 +1,4 @@
+import {Matrix, Point as P} from "@svgdotjs/svg.js";
 import {Line} from "..";
 import {DEFAULT_TOLERANCE} from "./constants";
 
@@ -84,9 +85,7 @@ export class Point {
 	}
 
 	copy({x, y}: Point) {
-		this.x = x;
-		this.y = y;
-		return this;
+		return this.set(x, y);
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point(0)) {
@@ -125,5 +124,11 @@ export class Point {
 
 	crossProduct(point: Point) {
 		return this.x * point.y - this.y * point.x;
+	}
+
+	transform(matrix: Matrix) {
+		const p = new P(this.x, this.y).transform(matrix);
+		this.set(p.x, p.y);
+		return this;
 	}
 }

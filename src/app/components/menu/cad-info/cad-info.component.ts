@@ -99,8 +99,8 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			let length = 0;
 			const entities = v.getAllEntities();
 			entities.line.forEach((e) => (length += e.length));
-			entities.arc.forEach((e) => (length += e.curve.getLength()));
-			entities.circle.forEach((e) => (length += e.curve.getLength()));
+			entities.arc.forEach((e) => (length += e.length));
+			entities.circle.forEach((e) => (length += e.curve.length));
 			this.lengths.push(length.toFixed(2));
 		});
 	}

@@ -35,6 +35,12 @@ export class Rectangle {
 	set left(value) {
 		this.min.x = value;
 	}
+	get x() {
+		return (this.min.x + this.max.x) / 2;
+	}
+	get y() {
+		return (this.min.y + this.max.y) / 2;
+	}
 
 	constructor(min = new Point(), max = new Point()) {
 		this.min = min;

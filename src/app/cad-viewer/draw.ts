@@ -1,8 +1,7 @@
 import {Container, List, Tspan} from "@svgdotjs/svg.js";
-import {Vector2} from "three";
 import {Angle, Arc, Point} from "../utils";
 
-export function drawLine(draw: Container, start: Vector2, end: Vector2) {
+export function drawLine(draw: Container, start: Point, end: Point) {
 	if (start.equals(end)) {
 		draw.remove();
 		return null;
@@ -10,7 +9,7 @@ export function drawLine(draw: Container, start: Vector2, end: Vector2) {
 	return draw.line(start.x, start.y, end.x, end.y);
 }
 
-export function drawCircle(draw: Container, center: Vector2, radius: number) {
+export function drawCircle(draw: Container, center: Point, radius: number) {
 	if (radius <= 0) {
 		draw.remove();
 		return null;
@@ -18,7 +17,7 @@ export function drawCircle(draw: Container, center: Vector2, radius: number) {
 	return draw.circle(radius).center(center.x, center.y);
 }
 
-export function drawArc(draw: Container, center: Vector2, radius: number, startAngle: number, endAngle: number, clockwise: boolean) {
+export function drawArc(draw: Container, center: Point, radius: number, startAngle: number, endAngle: number, clockwise: boolean) {
 	if (radius <= 0) {
 		draw.remove();
 		return null;
@@ -34,7 +33,7 @@ export function drawArc(draw: Container, center: Vector2, radius: number, startA
 	]);
 }
 
-export function drawText(draw: Container, text: string, size: number, position: Vector2, anchor: Vector2, vertical = false) {
+export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical = false) {
 	if (!text) {
 		draw.remove();
 		return null;

@@ -1,31 +1,30 @@
-import {Vector2, Matrix3} from "three";
+import {Point} from "@src/app/utils";
+import {Matrix} from "@svgdotjs/svg.js";
 
 export class CadTransformation {
-	translate: Vector2;
+	translate: Point;
 	flip: {vertical: boolean; horizontal: boolean};
 	rotate: {angle: number};
-	anchor: Vector2;
+	anchor: Point;
 	get matrix() {
-		const matrix = new Matrix3();
+		const matrix = new Matrix();
 		const {translate, flip, rotate, anchor} = this;
-		const {x: tx, y: ty} = translate;
-		const sx = flip.horizontal ? -1 : 1;
-		const sy = flip.vertical ? -1 : 1;
-		const {angle} = rotate;
-		matrix.setUvTransform(tx, ty, sx, sy, angle, anchor.x, anchor.y);
+		matrix.translate(translate.x, translate.y);
+		matrix.rotate(rotate.angle, anchor.x, anchor.y);
+		matrix.scale(flip.horizontal ? -1 : 1, flip.vertical ? -1 : 1);
 		return matrix;
 	}
 
 	constructor(
 		params: {
-			translate?: Vector2;
+			translate?: Point;
 			flip?: {vertical?: boolean; horizontal?: boolean};
 			rotate?: {angle?: number};
-			anchor?: Vector2;
+			anchor?: Point;
 		} = {}
 	) {
-		this.anchor = params.anchor || new Vector2();
-		this.translate = params.translate || new Vector2();
+		this.anchor = params.anchor || new Point();
+		this.translate = params.translate || new Point();
 		{
 			const {vertical = false, horizontal = false} = params.flip || {};
 			this.flip = {vertical, horizontal};

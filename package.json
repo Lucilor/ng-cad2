@@ -25,6 +25,7 @@
     "@seregpie/three.text-sprite": "^2.0.0",
     "@svgdotjs/svg.js": "^3.0.16",
     "@syncfusion/ej2-angular-inputs": "^18.2.54",
+    "@types/uuid": "^8.3.0",
     "ang-jsoneditor": "^1.10.0",
     "highlight.js": "^10.1.2",
     "html2canvas": "^1.0.0-rc.7",
@@ -37,6 +38,7 @@
     "rxjs": "~6.6.2",
     "three": "^0.119.1",
     "tslib": "^2.0.1",
+    "uuid": "^8.3.0",
     "zone.js": "~0.11.1"
   },
   "devDependencies": {

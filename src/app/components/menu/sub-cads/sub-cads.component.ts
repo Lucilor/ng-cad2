@@ -5,13 +5,12 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {timeout, Collection, session, copyToClipboard, removeCadGongshi, getCollection, addCadGongshi} from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
-import {RSAEncrypt} from "@app/utils";
+import {Point, RSAEncrypt} from "@app/utils";
 import {State} from "@src/app/store/state";
 import {MenuComponent} from "../menu.component";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
-import {takeUntil} from "rxjs/operators";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {Vector2, Vector3} from "three";
+import {Vector3} from "three";
 import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -69,14 +68,14 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			this.updateCad();
 		});
 
-		let lastPointer: Vector2 = null;
+		let lastPointer: Point = null;
 		const cad = this.cad;
 		const controls = cad.controls;
 		let entitiesToMove: CadEntities;
 		let entitiesNotToMove: CadEntities;
 		controls.on("dragstart", async ({clientX, clientY, shiftKey, button}) => {
 			if (controls.config.dragAxis === "" && (button === 1 || (shiftKey && button === 0))) {
-				lastPointer = new Vector2(clientX, clientY);
+				lastPointer = new Point(clientX, clientY);
 				entitiesToMove = new CadEntities();
 				entitiesNotToMove = new CadEntities();
 				const currCadsData = await this.getCurrCadsData();
@@ -94,8 +93,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			if (lastPointer) {
 				const currCads = await this.getObservableOnce(getCurrCads);
 				const {name} = await this.getObservableOnce(getCadStatus);
-				const pointer = new Vector2(clientX, clientY);
-				const translate = lastPointer.sub(pointer).divideScalar(cad.scale);
+				const pointer = new Point(clientX, clientY);
+				const translate = lastPointer.sub(pointer).divide(cad.scale);
 				translate.x = -translate.x;
 				if (name === "assemble") {
 					if (currCads.components.length) {
@@ -112,7 +111,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 						entitiesToMove.transform(new CadTransformation({translate}));
 						cad.render(null, entitiesToMove);
 					} else {
-						translate.multiplyScalar(-1);
+						translate.multiply(-1);
 						cad.position.add(new Vector3(translate.x, translate.y, 0));
 						entitiesNotToMove.transform(new CadTransformation({translate}));
 						cad.render(null, entitiesNotToMove);

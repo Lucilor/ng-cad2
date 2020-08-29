@@ -1,14 +1,12 @@
 import {CadEntity} from "./cad-entity";
-import {Vector2} from "three";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray, isBetween} from "../utils";
 import {CadTransformation} from "../cad-transformation";
-import {Line2} from "three/examples/jsm/lines/Line2";
+import {Line, Point} from "@src/app/utils";
 
 export class CadLine extends CadEntity {
-	object?: Line2;
-	start: Vector2;
-	end: Vector2;
+	start: Point;
+	end: Point;
 	mingzi: string;
 	qujian: string;
 	gongshi: string;
@@ -23,20 +21,20 @@ export class CadLine extends CadEntity {
 		const dy = Math.abs(start.y - end.y);
 		return !isBetween(dx) && !isBetween(dy);
 	}
-
+	get curve() {
+		return new Line(this.start, this.end);
+	}
 	get length() {
-		return this.start.distanceTo(this.end);
+		return this.curve.length;
 	}
 	get slope() {
-		const {start, end} = this;
-		return (start.y - end.y) / (start.x - end.x);
+		return this.curve.slope;
 	}
 	get theta() {
-		const {start, end} = this;
-		return Math.atan2(end.y - start.y, end.x - start.x);
+		return this.curve.theta;
 	}
 	get middle() {
-		return this.start.clone().add(this.end).divideScalar(2);
+		return this.curve.middle;
 	}
 	get maxX() {
 		return Math.max(this.start.x, this.end.x);
@@ -68,8 +66,8 @@ export class CadLine extends CadEntity {
 	transform(trans: CadTransformation) {
 		super.transform(trans);
 		const {matrix} = trans;
-		this.start.applyMatrix3(matrix);
-		this.end.applyMatrix3(matrix);
+		this.start.transform(matrix);
+		this.end.transform(matrix);
 		return this;
 	}
 
@@ -93,7 +91,7 @@ export class CadLine extends CadEntity {
 	}
 
 	equals(entity: CadLine) {
-		return this.start.equals(entity.start) && this.end.equals(entity.end);
+		return this.curve.equals(entity.curve);
 	}
 
 	isVertical(accuracy = 0) {

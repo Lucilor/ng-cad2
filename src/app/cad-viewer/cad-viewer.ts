@@ -1,4 +1,4 @@
-import {SVG, Svg, CoordinateXY, Tspan, List} from "@svgdotjs/svg.js";
+import {SVG, Svg, CoordinateXY} from "@svgdotjs/svg.js";
 import {drawArc, drawCircle, drawLine, drawText} from "./draw";
 import {cloneDeep} from "lodash";
 import {CadData} from "./cad-data/cad-data";
@@ -17,7 +17,6 @@ import {Point} from "../utils";
 import Color from "color";
 import {CadEvents, controls} from "./cad-viewer-controls";
 import html2canvas from "html2canvas";
-import {Vector2} from "three";
 
 export interface CadViewerConfig {
 	width: number;
@@ -243,11 +242,11 @@ export class CadViewer extends EventEmitter {
 				text = "<>";
 			}
 			text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
-			const middle = p3.clone().add(p4).divideScalar(2);
+			const middle = p3.clone().add(p4).divide(2);
 			if (axis === "x") {
-				drawText(entity.el, text, font_size, middle, new Vector2(0.5, 1));
+				drawText(entity.el, text, font_size, middle, new Point(0.5, 1));
 			} else if (axis === "y") {
-				drawText(entity.el, text, font_size, middle, new Vector2(0, 0.5), true);
+				drawText(entity.el, text, font_size, middle, new Point(0, 0.5), true);
 			}
 			drawType.push("fill", "stroke");
 		} else if (entity instanceof CadHatch) {
@@ -286,29 +285,29 @@ export class CadViewer extends EventEmitter {
 	}
 
 	center() {
-		const rect = this.data.getBounds();
+		let {width, height, x, y} = this.data.getBoundingRect();
 		const outerWidth = this.width();
 		const outerHeight = this.height();
 		const padding = cloneDeep(this.config.padding) as number[];
-		const scaleX = (outerWidth - padding[1] - padding[3]) / rect.width;
-		const scaleY = (outerHeight - padding[0] - padding[2]) / rect.height;
+		const scaleX = (outerWidth - padding[1] - padding[3]) / width;
+		const scaleY = (outerHeight - padding[0] - padding[2]) / height;
 		const scale = Math.min(scaleX, scaleY);
 		for (let i = 0; i < padding.length; i++) {
 			padding[i] /= scale;
 		}
-		let width = rect.width + padding[1] + padding[3];
-		let height = rect.height + padding[0] + padding[2];
+		let outterWidth = width + padding[1] + padding[3];
+		let outterHeight = height + padding[0] + padding[2];
 		const ratio = outerWidth / outerHeight;
-		if (ratio > width / height) {
-			width = height * ratio;
-			rect.width = width - padding[1] - padding[3];
+		if (ratio > outterWidth / outterHeight) {
+			outterWidth = outterHeight * ratio;
+			width = outterWidth - padding[1] - padding[3];
 		} else {
-			height = width / ratio;
-			rect.height = height - padding[0] - padding[2];
+			outterHeight = outterWidth / ratio;
+			height = outterHeight - padding[0] - padding[2];
 		}
-		const x = rect.x - rect.width / 2 - padding[3];
-		const y = rect.y - rect.height / 2 - padding[2];
-		this.draw.viewbox(x, y, width, height);
+		x = x - width / 2 - padding[3];
+		y = y - height / 2 - padding[2];
+		this.draw.viewbox(x, y, outterWidth, outterHeight);
 		this.draw.transform({a: 1, b: 0, c: 0, d: -1, e: 0, f: 0});
 		return this.resize();
 	}
