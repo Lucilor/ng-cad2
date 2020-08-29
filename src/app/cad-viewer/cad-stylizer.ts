@@ -51,6 +51,7 @@ export class CadStylizer {
 			color = this.correctColor(color);
 		}
 		result.color = color.hex();
+		result.linewidth += 1;
 
 		return result;
 	}
