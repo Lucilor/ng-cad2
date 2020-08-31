@@ -2,10 +2,9 @@ import {CadEntities} from "./cad-entities";
 import {CadLine} from "./cad-entity/cad-line";
 import {CadArc} from "./cad-entity/cad-arc";
 import {CadData} from "./cad-data";
-import {CadViewer} from "../cad-viewer-legacy";
+import {CadViewer} from "../cad-viewer";
 import {State} from "@src/app/store/state";
 import {CadMtext} from "./cad-entity/cad-mtext";
-import {CadTransformation} from "./cad-transformation";
 import {getVectorFromArray, isBetween} from "./utils";
 import {DEFAULT_TOLERANCE, Point} from "@app/utils";
 
@@ -117,7 +116,7 @@ export function setLinesLength(data: CadData, lines: CadLine[], length: number) 
 			const theta = line.theta.rad;
 			const translate = new Point(Math.cos(theta), Math.sin(theta)).multiply(d);
 			line.end.add(translate);
-			entities.forEach((e) => e.transform(new CadTransformation({translate})));
+			entities.forEach((e) => e.transform({translate}));
 		}
 	});
 }
@@ -381,7 +380,6 @@ export function autoFixLine(cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
 	}
 	const map = generatePointsMap(cad.data.getAllEntities(), tolerance);
 	const {entities} = findAllAdjacentLines(map, line, line.end, tolerance);
-	const trans = new CadTransformation({translate});
-	entities.forEach((e) => e.transform(trans));
+	entities.forEach((e) => e.transform({translate}));
 	line.end.add(translate);
 }

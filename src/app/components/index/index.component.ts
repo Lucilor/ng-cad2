@@ -5,7 +5,6 @@ import {SubCadsComponent} from "../menu/sub-cads/sub-cads.component";
 import {CadInfoComponent} from "../menu/cad-info/cad-info.component";
 import {CadDimensionComponent} from "../menu/cad-dimension/cad-dimension.component";
 import {CadAssembleComponent} from "../menu/cad-assemble/cad-assemble.component";
-import {CadViewer as CadViewer2} from "@src/app/cad-viewer/cad-viewer-legacy";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {environment} from "@src/environments/environment";
@@ -17,7 +16,6 @@ import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {getCadStatus} from "@src/app/store/selectors";
 import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {throttle} from "lodash";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 
 @Component({
@@ -90,7 +88,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		// this.dataService.getSampleFormulas().then((result) => {
 		// 	this.formulas = result;
 		// });
-		this.cad = new CadViewer2(new CadData(), {
+		this.cad = new CadViewer(new CadData(), {
 			width: innerWidth,
 			height: innerHeight,
 			showStats: !environment.production,
@@ -99,11 +97,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			showGongshi: 8,
 			validateLines: false
 		});
-		this.cad.setControls({selectMode: "multiple"});
-		if (this.cad.stats) {
-			this.cad.stats.dom.style.right = "0";
-			this.cad.stats.dom.style.left = "";
-		}
 		this.getObservable(getCadStatus).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
@@ -124,19 +117,9 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
-		let escapeDisabled = false;
-		this.cad.controls.on("entitiesdelete", () => this.refreshCurrCads());
-		this.cad.controls.on("entitiesunselect", ({key}: KeyboardEvent) => {
+		this.cad.on("entitiesremove", () => this.refreshCurrCads());
+		this.cad.on("keydown", async ({key}) => {
 			if (key === "Escape") {
-				escapeDisabled = true;
-			}
-		});
-		this.cad.dom.addEventListener("keydown", async ({key}) => {
-			if (key === "Escape") {
-				if (escapeDisabled) {
-					escapeDisabled = false;
-					return;
-				}
 				const {name} = await this.getObservableOnce(getCadStatus);
 				if (name === "assemble" || name === "split") {
 					return;
@@ -164,13 +147,13 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		// } else {
 		// 	data.merge(this.data);
 		// }
-		// const toRemove = generateLineTexts(data, {length: showLineLength, gongshi: showGongshi});
+	// const toRemove = generateLineTexts(data, {length: showLineLength, gongshi: showGongshi});
 		// toRemove.forEach((e) => this.cad.scene.remove(e?.object));
 		// });
 	}
 
 	ngAfterViewInit() {
-		// this.cadContainer.nativeElement.appendChild(this.cad.dom);
+		this.cad.appendTo(this.cadContainer.nativeElement);
 	}
 
 	ngOnDestroy() {
@@ -196,17 +179,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		if (this.subCads) {
 			await this.subCads.updateList();
 			// await timeout(100);
-			// this.cad.render(true);
-			// this.cad.reset();
-			// this.cad.dom.style.display = "none";
-			const cad = new CadViewer(this.cad.data.clone(), {width: innerWidth, height: innerHeight, padding: this.cad.config.padding});
-			this.cadContainer.nativeElement.appendChild(cad.dom);
-			Object.assign(window, {cad});
-			this.cad.data.components.data.forEach((v) => {
-				v.entities = new CadEntities();
-				v.components.data = [];
-				v.partners = [];
-			});
+			const cad = this.cad;
 			const collection = getCollection();
 			if (collection === "CADmuban") {
 				cad.data.components.data.forEach((v) => {

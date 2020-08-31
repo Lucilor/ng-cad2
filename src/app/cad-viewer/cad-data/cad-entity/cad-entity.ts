@@ -1,9 +1,8 @@
 import {CadLayer} from "../cad-layer";
 import {CadType, cadTypes} from "../cad-types";
 import {index2RGB, RGB2Index} from "@app/utils";
-import {CadTransformation} from "../cad-transformation";
 import {lineweight2linewidth, linewidth2lineweight} from "../utils";
-import {G} from "@svgdotjs/svg.js";
+import {G, MatrixAlias} from "@svgdotjs/svg.js";
 import Color from "color";
 import {v4} from "uuid";
 
@@ -104,8 +103,8 @@ export abstract class CadEntity {
 		// }
 	}
 
-	transform(trans: CadTransformation, _parent?: CadEntity) {
-		this.children.forEach((e) => e.transform(trans, this));
+	transform(matrix: MatrixAlias, _parent?: CadEntity) {
+		this.children.forEach((e) => e.transform(matrix, this));
 		return this;
 	}
 

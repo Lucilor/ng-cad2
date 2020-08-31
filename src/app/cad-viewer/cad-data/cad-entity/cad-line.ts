@@ -1,8 +1,8 @@
 import {CadEntity} from "./cad-entity";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray, isBetween} from "../utils";
-import {CadTransformation} from "../cad-transformation";
 import {Line, Point} from "@src/app/utils";
+import {Matrix, MatrixAlias} from "@svgdotjs/svg.js";
 
 export class CadLine extends CadEntity {
 	start: Point;
@@ -63,11 +63,11 @@ export class CadLine extends CadEntity {
 		this.zidingzhankaichang = data.zidingzhankaichang ?? -1;
 	}
 
-	transform(trans: CadTransformation) {
-		super.transform(trans);
-		const {matrix} = trans;
-		this.start.transform(matrix);
-		this.end.transform(matrix);
+	transform(matrix: MatrixAlias) {
+		super.transform(matrix);
+		const m = new Matrix(matrix);
+		this.start.transform(m);
+		this.end.transform(m);
 		return this;
 	}
 

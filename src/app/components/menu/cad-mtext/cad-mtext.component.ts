@@ -15,7 +15,7 @@ import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 export class CadMtextComponent extends MenuComponent implements OnInit, OnDestroy {
 	data: CadData;
 	get selected() {
-		return this.cad.selectedEntities.mtext;
+		return this.cad.selected().mtext;
 	}
 
 	constructor(injector: Injector) {
@@ -78,7 +78,7 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 	addMtext() {
 		const {cad, data} = this;
 		const mtext = new CadMtext();
-		const {x, y} = cad.position;
+		const {x, y} = cad.xy();
 		mtext.insert.set(x, y);
 		mtext.anchor.set(0.5, 0.5);
 		mtext.text = "新建文本";

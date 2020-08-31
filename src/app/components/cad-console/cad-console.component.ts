@@ -2,24 +2,24 @@ import {Component, OnInit, ViewChild, ElementRef, Input, Injector, Output, Event
 import {differenceWith} from "lodash";
 import {timeout, removeCadGongshi, Collection, addCadGongshi, Command, getDPI, session} from "@src/app/app.common";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {openMessageDialog, MessageComponent} from "../message/message.component";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {MenuComponent} from "../menu/menu.component";
 import {CurrCadsAction, CadStatusAction, LoadingAction} from "@src/app/store/actions";
-import {MathUtils} from "three";
 import {openCadListDialog} from "../cad-list/cad-list.component";
 import {getCadStatus, getCommand, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {highlight} from "highlight.js";
 import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {Line, Point} from "@app/utils";
+import {Angle, Line, Point} from "@app/utils";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ActivatedRoute} from "@angular/router";
 import Color from "color";
+import {v4} from "uuid";
+import {Matrix, MatrixAlias} from "@svgdotjs/svg.js";
 
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
@@ -71,7 +71,7 @@ export const commands: Command[] = [
 
 export const cmdNames = commands.map((v) => v.name);
 
-const spaceReplacer = MathUtils.generateUUID();
+const spaceReplacer = v4();
 
 @Component({
 	selector: "app-cad-console",
@@ -373,7 +373,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		if (data.jointPoints.length < 1) {
 			data.jointPoints.push(new CadJointPoint());
 		}
-		data.entities.dimension.forEach((e) => e.color = new Color(0x00ff00));
+		data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
 		data.partners.forEach((v) => this.setCadData(v));
 		data.components.data.forEach((v) => this.setCadData(v));
 	}
@@ -400,18 +400,17 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		return `<code class="bash hljs">${highlight("bash", str).value}</code>`;
 	}
 
-	async transform(trans: CadTransformation, rotateDimension = false) {
+	async transform(matrix: MatrixAlias, rotateDimension = false) {
 		const {cad} = this;
-		const seleted = cad.selectedEntities;
+		const seleted = cad.selected();
+		const m = new Matrix(matrix);
 		if (seleted.length) {
-			const {x, y} = cad.getBoundingRect(seleted);
-			trans.anchor.set(x, y);
-			seleted.transform(trans);
+			const {x, y, width, height} = cad.data.getBoundingRect(seleted);
+			seleted.transform({...m.decompose(), origin: [x, y]});
 		} else {
 			const t = (data: CadData) => {
 				const {x, y} = data.getBoundingRect();
-				trans.anchor.set(x, y);
-				data.transform(trans);
+				data.transform({...m.decompose(), origin: [x, y]});
 				if (rotateDimension) {
 					data.getAllEntities().dimension.forEach((d) => {
 						if (d.axis === "x") {
@@ -482,7 +481,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 
 	async fillet(radiusArg: string) {
 		let radius = Number(radiusArg) || 0;
-		const lines = this.cad.selectedEntities.line;
+		const lines = this.cad.selected().line;
 		if (lines.length !== 2) {
 			openMessageDialog(this.dialog, {data: {type: "alert", content: "请先选择且只选择两条线段"}});
 			return;
@@ -601,7 +600,9 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	}
 
 	flip(horizontal: string, vertival: string) {
-		this.transform(new CadTransformation({flip: {vertical: vertival === "true", horizontal: horizontal === "true"}}));
+		const scaleX = horizontal === "true" ? -1 : 1;
+		const scaleY = vertival === "true" ? -1 : 1;
+		this.transform({scaleX, scaleY});
 	}
 
 	man(name: string, list: string) {
@@ -747,15 +748,15 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			...this.cad.config,
 			width: width * scaleX,
 			height: height * scaleY,
-			backgroundColor: 0xffffff,
+			backgroundColor: new Color("white"),
 			padding: 18 * scale,
 			showStats: false,
 			showLineLength: 0,
 			showGongshi: 0
 		});
 		document.body.appendChild(cad.dom);
-		cad.render();
-		const src = cad.exportImage().src;
+		await timeout(0);
+		const src = (await cad.toCanvas()).toDataURL();
 		cad.destroy();
 		const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
 		pdf.getBlob((blob) => {
@@ -770,8 +771,8 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	rotate(degreesArg: string) {
 		const degrees = Number(degreesArg);
 		const rotateDimension = Math.round(degrees / 90) % 2 !== 0;
-		const radians = MathUtils.degToRad(degrees);
-		this.transform(new CadTransformation({rotate: {angle: radians}}), rotateDimension);
+		const radians = new Angle(degrees, "deg").rad;
+		this.transform({rotate: radians}, rotateDimension);
 	}
 
 	async save() {

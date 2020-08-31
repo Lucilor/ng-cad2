@@ -1,17 +1,19 @@
-import {environment} from "src/environments/environment";
 import {SessionStorage, LocalStorage, Point} from "@app/utils";
 import {CadData} from "./cad-viewer/cad-data/cad-data";
 import {CadMtext} from "./cad-viewer/cad-data/cad-entity/cad-mtext";
+import {CadEntities} from "./cad-viewer/cad-data/cad-entities";
+import {CadViewer} from "./cad-viewer/cad-viewer";
 
-const host = environment.host;
+// const host = environment.host;
 // export const apiBasePath = host + "/n/zy/index";
 export const apiBasePath = localStorage.getItem("baseURL");
 
 export const projectName = "NgCad";
-
 export const session = new SessionStorage(projectName);
-
 export const local = new LocalStorage(projectName);
+
+export const imgEmpty = "assets/images/empty.jpg";
+export const imgLoading = "assets/images/loading.gif";
 
 export const paths = {
 	index: "index",
@@ -61,7 +63,12 @@ export function addCadGongshi(data: CadData) {
 }
 
 export function removeCadGongshi(data: CadData) {
-	data.entities.mtext = data.entities.mtext.filter((e) => !e.info.isCadGongshi);
+	data.entities.mtext = data.entities.mtext.filter((e) => {
+		if (e.info.isCadGongshi) {
+			e.el?.remove();
+		}
+		return !e.info.isCadGongshi;
+	});
 	data.partners.forEach((d) => removeCadGongshi(d));
 	data.components.data.forEach((d) => removeCadGongshi(d));
 }
@@ -119,4 +126,17 @@ export interface Command {
 	name: string;
 	desc?: string;
 	args: {name: string; defaultValue?: string; value?: string; isBoolean?: boolean; desc?: string}[];
+}
+
+export async function getCadPreview(data: CadData, width = 300, height = 150, padding = 10) {
+	const data2 = new CadData();
+	data2.entities = new CadEntities(data.getAllEntities().export());
+	data2.entities.dimension = [];
+	data2.entities.mtext = [];
+	const cad = new CadViewer(data2, {width, height, padding, showGongshi: 0, showLineLength: 0});
+	cad.appendTo(document.body);
+	await timeout(0);
+	const src = cad.toBase64();
+	cad.destroy();
+	return src;
 }

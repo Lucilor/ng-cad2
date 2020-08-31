@@ -54,6 +54,12 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 		const {from, to} = pointer;
 		if ((button === 0 && shiftKey) || button === 1) {
 			const offset = new Point(clientX, clientY).sub(to).divide(this.zoom());
+			if (!this.config.dragAxis.includes("x")) {
+				offset.x = 0;
+			}
+			if (!this.config.dragAxis.includes("y")) {
+				offset.y = 0;
+			}
 			this.move(offset.x, offset.y);
 		} else if (button === 0) {
 			const triggerMultiple = this.config.selectMode === "multiple";

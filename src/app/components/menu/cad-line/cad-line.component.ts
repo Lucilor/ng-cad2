@@ -1,5 +1,5 @@
 import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
+import {CadViewer, CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {
@@ -18,7 +18,6 @@ import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {takeUntil} from "rxjs/operators";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls-legacy";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {State} from "@src/app/store/state";
 import Color from "color";
@@ -37,7 +36,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	cadStatusName: State["cadStatus"]["name"];
 
 	get selected() {
-		const {line, arc} = this.cad.selectedEntities;
+		const {line, arc} = this.cad.selected();
 		return [...line, ...arc];
 	}
 	readonly selectableColors = {a: ["#ffffff", "#ff0000", "#00ff00", "#0000ff"]};
@@ -49,9 +48,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	ngOnInit() {
 		super.ngOnInit();
 		const cad = this.cad;
-		const controls = cad.controls;
-		controls.on("entityselect", this.updateEditDisabled.bind(this));
-		controls.on("entitiesselect", this.updateEditDisabled.bind(this));
+		cad.on("entitiesselect", this.updateEditDisabled.bind(this));
 
 		this.getObservable(getCurrCads).subscribe((currCads) => {
 			const cads = getCurrCadsData(this.cad.data, currCads);
@@ -62,7 +59,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		});
 
-		let prevSelectMode: CadViewerControlsConfig["selectMode"];
+		let prevSelectMode: CadViewerConfig["selectMode"];
 		this.getObservable(getCadStatus).subscribe(({name}) => {
 			const {cad, store, data} = this;
 			this.cadStatusName = name;
@@ -73,8 +70,8 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 					e.info.prevSelectable = e.selectable;
 					e.selectable = false;
 				});
-				prevSelectMode = cad.controls.config.selectMode;
-				cad.controls.config.selectMode = "none";
+				prevSelectMode = cad.config.selectMode;
+				cad.config.selectMode = "none";
 				this.lineDrawing = {start: null, end: null};
 			} else if (this.lineDrawing) {
 				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
@@ -83,7 +80,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 					e.selectable = e.info.prevSelectable ?? true;
 					delete e.info.prevSelectable;
 				});
-				cad.controls.config.selectMode = prevSelectMode;
+				cad.config.selectMode = prevSelectMode;
 				this.lineDrawing = null;
 			}
 		});
@@ -95,7 +92,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			if (!point || name !== "draw line") {
 				return;
 			}
-			const start = cad.getWorldPoint(new Point(point.x, point.y));
+			const start = cad.getWorldPoint(point.x, point.y);
 			this.lineDrawing = {start, end: null};
 			this.store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 		});
@@ -107,9 +104,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	ngOnDestroy() {
 		super.ngOnDestroy();
 		const cad = this.cad;
-		const controls = cad.controls;
-		controls.off("entityselect", this.updateEditDisabled.bind(this));
-		controls.off("entitiesselect", this.updateEditDisabled.bind(this));
+		cad.off("entitiesselect", this.updateEditDisabled.bind(this));
 		cad.dom.removeEventListener("mousemove", this.onMouseMove.bind(this));
 		cad.dom.removeEventListener("click", this.onClick.bind(this));
 	}
@@ -247,7 +242,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		if (!lineDrawing?.start) {
 			return;
 		}
-		lineDrawing.end = cad.getWorldPoint(new Point(clientX, clientY));
+		lineDrawing.end = cad.getWorldPoint(clientX, clientY);
 		if (shiftKey) {
 			const dx = Math.abs(lineDrawing.start.x - lineDrawing.end.x);
 			const dy = Math.abs(lineDrawing.start.y - lineDrawing.end.y);

@@ -1,9 +1,9 @@
 import {CadEntity} from "./cad-entity";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
-import {CadTransformation} from "../cad-transformation";
 import {Line2} from "three/examples/jsm/lines/Line2";
 import {Angle, Arc, Point} from "@src/app/utils";
+import {Matrix, MatrixAlias} from "@svgdotjs/svg.js";
 
 export class CadCircle extends CadEntity {
 	object?: Line2;
@@ -25,9 +25,9 @@ export class CadCircle extends CadEntity {
 		this.radius = data.radius ?? 0;
 	}
 
-	transform(trans: CadTransformation) {
-		super.transform(trans);
-		this.center.transform(trans.matrix);
+	transform(matrix: MatrixAlias) {
+		super.transform(matrix);
+		this.center.transform(new Matrix(matrix));
 		return this;
 	}
 

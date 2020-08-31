@@ -57,7 +57,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 			}
 		});
-		this.cad.controls.on("entityclick", async (event, entity) => {
+		this.cad.on("entityclick", async (event, entity) => {
 			const {name, index} = await this.getObservableOnce(getCadStatus);
 			const data = (await this.getCurrCadsData())[0];
 			if (name === "select baseline") {

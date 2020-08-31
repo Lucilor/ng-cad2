@@ -1,4 +1,4 @@
-import {CadViewer} from "./cad-viewer-legacy";
+import {CadViewer2} from "./cad-viewer-legacy";
 import {Vector2, Vector3, Object3D, MathUtils, Box2, Plane} from "three";
 import {EventEmitter} from "events";
 import {CadEntity} from "./cad-data/cad-entity/cad-entity";
@@ -6,7 +6,7 @@ import {CadDimension} from "./cad-data/cad-entity/cad-dimension";
 import {CadTransformation} from "./cad-data/cad-transformation";
 import {CadEntities} from "./cad-data/cad-entities";
 
-export interface CadViewerControlsConfig {
+export interface CadViewerControlsConfig2 {
 	dragAxis?: "x" | "y" | "xy" | "";
 	selectMode?: "none" | "single" | "multiple";
 	selectable?: boolean;
@@ -33,9 +33,9 @@ export interface CadEvents {
 	// scale = "scale"
 }
 
-export class CadViewerControls extends EventEmitter {
-	cad: CadViewer;
-	config: CadViewerControlsConfig = {
+export class CadViewerControls2 extends EventEmitter {
+	cad: CadViewer2;
+	config: CadViewerControlsConfig2 = {
 		dragAxis: "xy",
 		selectMode: "none",
 		selectable: true,
@@ -56,7 +56,7 @@ export class CadViewerControls extends EventEmitter {
 	};
 	private _multiSelector: HTMLDivElement;
 
-	constructor(cad: CadViewer, config?: CadViewerControlsConfig) {
+	constructor(cad: CadViewer2, config?: CadViewerControlsConfig2) {
 		super();
 		this.cad = cad;
 		const dom = cad.dom;
