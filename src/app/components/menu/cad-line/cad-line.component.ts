@@ -3,15 +3,12 @@ import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {Vector2, Color} from "three";
 import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
-import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
 import {
-	findAllAdjacentLines,
 	generatePointsMap,
 	validateLines,
 	getPointsFromMap,
 	setLinesLength,
 	autoFixLine,
-	generateLineTexts,
 	updateLineTexts
 } from "@src/app/cad-viewer/cad-data/cad-lines";
 import {getColorLightness} from "@app/utils";
@@ -25,6 +22,7 @@ import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {State} from "@src/app/store/state";
+import {ErrorStateMatcher} from "@angular/material/core";
 
 @Component({
 	selector: "app-cad-line",
@@ -38,6 +36,11 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	lineDrawing: {start: Vector2; end: Vector2; entity?: CadLine};
 	data: CadData;
 	cadStatusName: State["cadStatus"]["name"];
+	gongshiMatcher: ErrorStateMatcher = {
+		isErrorState: () => {
+			return !!this.getLineText("gongshi").match(/[-+*/()（）]/);
+		}
+	};
 
 	get selected() {
 		const {line, arc} = this.cad.selectedEntities;
@@ -180,10 +183,10 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	getLineText(field: string) {
 		const lines = this.selected;
 		if (lines.length === 1) {
-			return lines[0][field];
+			return lines[0][field] as string;
 		}
 		if (lines.length) {
-			const texts = Array.from(new Set(lines.map((l) => l[field])));
+			const texts = Array.from(new Set(lines.map((l) => l[field] as string)));
 			if (texts.length === 1) {
 				return texts[0];
 			}
@@ -194,9 +197,10 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 
 	setLineText(event: InputEvent | MatSelectChange, field: string) {
 		let value: string | number;
+		console.log(event);
 		if (event instanceof MatSelectChange) {
 			value = event.value;
-		} else {
+		} else if (event instanceof InputEvent) {
 			value = (event.target as HTMLInputElement).value;
 		}
 		if (field === "zidingzhankaichang") {

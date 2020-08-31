@@ -47,7 +47,7 @@
 				matInput
 				type="text"
 				[ngModel]="getLineText('mingzi')"
-				(change)="setLineText($event, 'mingzi')"
+				(input)="setLineText($event, 'mingzi')"
 				(focus)="focusedField = 'mingzi'"
 				(blur)="focusedField = ''"
 				name="lineMingzi"
@@ -61,7 +61,7 @@
 				matInput
 				type="text"
 				[ngModel]="getLineText('qujian')"
-				(change)="setLineText($event, 'qujian')"
+				(input)="setLineText($event, 'qujian')"
 				(focus)="focusedField = 'qujian'"
 				(blur)="focusedField = ''"
 				name="lineQujian"
@@ -75,11 +75,13 @@
 				matInput
 				type="text"
 				[ngModel]="getLineText('gongshi')"
-				(change)="setLineText($event, 'gongshi')"
+				(input)="setLineText($event, 'gongshi')"
 				(focus)="focusedField = 'gongshi'"
 				(blur)="focusedField = ''"
 				name="lineGongshi"
+				[errorStateMatcher]="gongshiMatcher"
 			/>
+			<mat-error>不能使用四则运算</mat-error>
 		</mat-form-field>
 	</div>
 	<div class="form-item guanlianbianhuagongshi">
@@ -89,7 +91,7 @@
 				matInput
 				type="text"
 				[ngModel]="getLineText('guanlianbianhuagongshi')"
-				(change)="setLineText($event, 'guanlianbianhuagongshi')"
+				(input)="setLineText($event, 'guanlianbianhuagongshi')"
 				(focus)="focusedField = 'guanlianbianhuagongshi'"
 				(blur)="focusedField = ''"
 				name="guanlianbianhuagongshi"
@@ -103,7 +105,7 @@
 				matInput
 				type="text"
 				[ngModel]="getLineText('kongwei')"
-				(change)="setLineText($event, 'kongwei')"
+				(input)="setLineText($event, 'kongwei')"
 				(focus)="focusedField = 'kongwei'"
 				(blur)="focusedField = ''"
 				name="kongwei"
@@ -129,7 +131,7 @@
 				type="text"
 				name="zidingzhankaichang"
 				[ngModel]="getLineText('zidingzhankaichang')"
-				(change)="setLineText($event, 'zidingzhankaichang')"
+				(input)="setLineText($event, 'zidingzhankaichang')"
 			/>
 		</mat-form-field>
 	</div>
