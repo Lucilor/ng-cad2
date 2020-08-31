@@ -27,8 +27,8 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 
 	ngOnInit() {
 		super.ngOnInit();
-		this.cad.controls.on("entityclick", this.onEntityClick.bind(this));
-		this.cad.controls.on("entitiesselect", this.onEntitiesSelect.bind(this));
+		this.cad.on("entityclick", this.onEntityClick.bind(this));
+		this.cad.on("entitiesselect", this.onEntitiesSelect.bind(this));
 		this.getObservable(getCurrCads).subscribe(({cads}) => {
 			const data = this.cad.data.findChild(cads[0]);
 			if (data) {
@@ -39,8 +39,8 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 
 	ngOnDestroy() {
 		super.ngOnInit();
-		this.cad.controls.off("entityclick", this.onEntityClick.bind(this));
-		this.cad.controls.off("entitiesselect", this.onEntitiesSelect.bind(this));
+		this.cad.off("entityclick", this.onEntityClick.bind(this));
+		this.cad.off("entitiesselect", this.onEntitiesSelect.bind(this));
 	}
 
 	async onEntityClick(_event: PointerEvent, entity: CadEntity) {
@@ -130,7 +130,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 		}
 		const cad = this.cad;
 		const data = cad.data.components.data[index];
-		const selected = cad.selectedEntities.toArray().map((e) => e.id);
+		const selected = cad.selected().toArray().map((e) => e.id);
 		data.components.data.forEach((v) => {
 			const entities = v.getAllEntities().toArray();
 			for (const e of entities) {

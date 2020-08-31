@@ -1,8 +1,8 @@
 import {CadEntity} from "./cad-entity";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
-import {CadTransformation} from "../cad-transformation";
 import {Point} from "@src/app/utils";
+import {Matrix, MatrixAlias} from "@svgdotjs/svg.js";
 
 export class CadMtext extends CadEntity {
 	insert: Point;
@@ -33,17 +33,17 @@ export class CadMtext extends CadEntity {
 		};
 	}
 
-	transform(trans: CadTransformation, parent?: CadEntity) {
-		super.transform(trans);
-		const {matrix} = trans;
-		this.insert.transform(matrix);
+	transform(matrix: MatrixAlias, parent?: CadEntity) {
+		super.transform(matrix);
+		const m = new Matrix(matrix);
+		this.insert.transform(m);
 		if (this.info.isLengthText) {
 			if (!Array.isArray(this.info.offset)) {
 				this.info.offset = [0, 0];
 			}
 			if (!parent) {
-				this.info.offset[0] += trans.translate.x;
-				this.info.offset[1] += trans.translate.y;
+				this.info.offset[0] += m.e;
+				this.info.offset[1] += m.f;
 			}
 		}
 		return this;

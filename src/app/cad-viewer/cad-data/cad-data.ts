@@ -1,14 +1,13 @@
 import {intersection, cloneDeep, uniqWith} from "lodash";
 import {CadEntities} from "./cad-entities";
 import {CadLayer} from "./cad-layer";
-import {CadTransformation} from "./cad-transformation";
 import {CadLine} from "./cad-entity/cad-line";
 import {getVectorFromArray, isLinesParallel, mergeArray, separateArray, ExpressionsParser, Expressions} from "./utils";
 import {CadCircle} from "./cad-entity/cad-circle";
-import {CadDimension, CadDimensionEntity} from "./cad-entity/cad-dimension";
-import {CadArc} from "./cad-entity/cad-arc";
-import {Point, Rectangle} from "@src/app/utils";
+import {CadDimension} from "./cad-entity/cad-dimension";
+import {Point} from "@src/app/utils";
 import {v4} from "uuid";
+import {Matrix, MatrixAlias} from "@svgdotjs/svg.js";
 
 export class CadData {
 	entities: CadEntities;
@@ -255,31 +254,33 @@ export class CadData {
 		return this;
 	}
 
-	transform(trans: CadTransformation) {
-		this.entities.transform(trans);
-		this.partners.forEach((v) => v.transform(trans));
-		this.components.transform(trans);
-		const matrix = trans.matrix;
+	transform(matrix: MatrixAlias) {
+		this.entities.transform(matrix);
+		const m = new Matrix(matrix);
+		this.partners.forEach((v) => v.transform(matrix));
+		this.components.transform(matrix);
 		this.baseLines.forEach((v) => {
 			const point = new Point(v.valueX, v.valueY);
-			point.transform(matrix);
+			point.transform(m);
 			v.valueX = point.x;
 			v.valueY = point.y;
 		});
 		this.jointPoints.forEach((v) => {
 			const point = new Point(v.valueX, v.valueY);
-			point.transform(matrix);
+			point.transform(m);
 			v.valueX = point.x;
 			v.valueY = point.y;
 		});
+		const horizontal = m.a < 0;
+		const vertical = m.d < 0;
 		this.entities.dimension.forEach((e) => {
-			if (trans.flip.vertical && e.axis === "x") {
+			if (vertical && e.axis === "x") {
 				const [p1, p2] = this.getDimensionPoints(e);
 				if (p1 && p2) {
 					e.distance = -Math.abs(p1.y - p2.y) - e.distance;
 				}
 			}
-			if (trans.flip.horizontal && e.axis === "y") {
+			if (horizontal && e.axis === "y") {
 				const [p1, p2] = this.getDimensionPoints(e);
 				if (p1 && p2) {
 					e.distance = -Math.abs(p1.x - p2.x) - e.distance;
@@ -325,7 +326,7 @@ export class CadData {
 				translate = new Point();
 			}
 		}
-		partner.transform(new CadTransformation({translate}));
+		partner.transform({translate});
 		const data = this.partners;
 		const prev = data.findIndex((v) => v.id === partner.id);
 		if (prev > -1) {
@@ -352,7 +353,7 @@ export class CadData {
 			if (Math.abs(translate.x) > 1500 || Math.abs(translate.y) > 1500) {
 				translate.x += (rect1.width + rect2.width) / 2 + 15;
 				// offset1[1] += (rect1.height - rect2.height) / 2;
-				component.transform(new CadTransformation({translate}));
+				component.transform({translate});
 			}
 		}
 		const data = this.components.data;
@@ -619,7 +620,7 @@ export class CadData {
 				});
 			}
 		});
-		curr.transform(new CadTransformation({translate}));
+		curr.transform({translate});
 		for (const id in map) {
 			const next = this.components.data.find((v) => v.id === id);
 			if (next) {
@@ -689,156 +690,12 @@ export class CadData {
 	}
 
 	getDimensionPoints(dimension: CadDimension) {
-		const {entity1, entity2, distance, axis, distance2, ref} = dimension;
-		let entity: CadDimensionEntity;
-		const line1 = this.findEntity(entity1.id) as CadLine;
-		const line2 = this.findEntity(entity2.id) as CadLine;
-		if (!(line1 instanceof CadLine) || !(line2 instanceof CadLine)) {
-			return [];
-		}
-		switch (ref) {
-			case "entity1":
-				entity = entity1;
-				break;
-			case "entity2":
-				entity = entity2;
-				break;
-			case "maxLength":
-				entity = line2.length > line1.length ? entity2 : entity1;
-				break;
-			case "minLength":
-				entity = line2.length > line1.length ? entity1 : entity2;
-				break;
-			case "maxX":
-				entity = line2.maxX > line1.maxX ? entity2 : entity1;
-				break;
-			case "maxY":
-				entity = line2.maxY > line1.maxY ? entity2 : entity1;
-				break;
-			case "minX":
-				entity = line2.minX < line1.minX ? entity2 : entity1;
-				break;
-			case "minY":
-				entity = line2.minY < line1.minY ? entity2 : entity1;
-				break;
-			default:
-				break;
-		}
-		const getPoint = (e: CadLine, location: CadDimensionEntity["location"]) => {
-			const {start, end, middle} = e.clone();
-			if (location === "start") {
-				return start;
-			} else if (location === "end") {
-				return end;
-			} else if (location === "center") {
-				return middle;
-			} else if (location === "min") {
-				if (axis === "x") {
-					return start.y < end.y ? start : end;
-				} else if (axis === "y") {
-					return start.x < end.x ? start : end;
-				}
-			} else if (location === "max") {
-				if (axis === "x") {
-					return start.y > end.y ? start : end;
-				} else if (axis === "y") {
-					return start.x > end.x ? start : end;
-				}
-			}
-		};
-		let p1 = getPoint(line1, entity1.location);
-		let p2 = getPoint(line2, entity2.location);
-		if (!p1 || !p2) {
-			return [];
-		}
-		let p3 = p1.clone();
-		let p4 = p2.clone();
-		let p: Point;
-		if (entity.id === entity1.id) {
-			p = getPoint(line1, entity1.location);
-		} else {
-			p = getPoint(line2, entity2.location);
-		}
-		if (axis === "x") {
-			p3.y = p.y + distance;
-			p4.y = p.y + distance;
-			if (p3.x > p4.x) {
-				[p3, p4] = [p4, p3];
-				[p1, p2] = [p2, p1];
-			}
-		}
-		if (axis === "y") {
-			p3.x = p.x + distance;
-			p4.x = p.x + distance;
-			if (p3.y < p4.y) {
-				[p3, p4] = [p4, p3];
-				[p1, p2] = [p2, p1];
-			}
-		}
-		if (distance2 !== undefined) {
-			[p3, p4].forEach((p) => (p.y = distance2));
-		}
-
-		const p5 = p3.clone();
-		const p6 = p3.clone();
-		const p7 = p4.clone();
-		const p8 = p4.clone();
-		const arrowSize = Math.max(1, Math.min(5, p3.distanceTo(p4) / 20));
-		const arrowLength = arrowSize * Math.sqrt(3);
-		if (axis === "x") {
-			p5.add(new Point(arrowLength, -arrowSize));
-			p6.add(new Point(arrowLength, arrowSize));
-			p7.add(new Point(-arrowLength, -arrowSize));
-			p8.add(new Point(-arrowLength, arrowSize));
-		}
-		if (axis === "y") {
-			p5.add(new Point(-arrowSize, -arrowLength));
-			p6.add(new Point(arrowSize, -arrowLength));
-			p7.add(new Point(-arrowSize, arrowLength));
-			p8.add(new Point(arrowSize, arrowLength));
-		}
-
-		return [p1, p2, p3, p4, p5, p6, p7, p8];
+		return this.getAllEntities().getDimensionPoints(dimension);
 	}
 
-	getBoundingRect() {
-		const rect = new Rectangle();
-		const entities = this.getAllEntities();
-		entities.forEach((e) => {
-			if (!e.visible) {
-				return;
-			}
-			if (e instanceof CadLine) {
-				rect.expand(e.start);
-				rect.expand(e.end);
-			}
-			if (e instanceof CadCircle) {
-				const curve = e.curve;
-				if (e instanceof CadArc) {
-					rect.expand(curve.getPoint(0));
-					rect.expand(curve.getPoint(0.5));
-					rect.expand(curve.getPoint(1));
-				} else {
-					const {center, radius} = e;
-					rect.expand(center.clone().add(radius));
-					rect.expand(center.clone().sub(radius));
-				}
-			}
-			if (e instanceof CadDimension) {
-				this.getDimensionPoints(e).forEach((p) => rect.expand(p));
-			}
-		});
-		return rect;
+	getBoundingRect(entities?: CadEntities) {
+		return this.getAllEntities().getBoundingRect(entities);
 	}
-
-	// getBoundingRect() {
-	// 	const box = this.getBoundingRect();
-	// 	const center = new Point();
-	// 	const size = new Point();
-	// 	box.getCenter(center);
-	// 	box.getSize(size);
-	// 	return {x: center.x, y: center.y, width: size.x, height: size.y};
-	// }
 }
 
 export class CadBaseLine {
@@ -934,17 +791,18 @@ export class CadComponents {
 		}
 	}
 
-	transform(trans: CadTransformation) {
-		const {vertical, horizontal} = trans.flip;
+	transform(matrix: MatrixAlias) {
+		const m = new Matrix(matrix);
+		const {scaleX, scaleY} = m.decompose();
 		this.connections.forEach((v) => {
-			if ((vertical && v.axis === "y") || (horizontal && v.axis === "x")) {
+			if ((scaleX < 0 && v.axis === "x") || (scaleY && v.axis === "y")) {
 				const space = -Number(v.space);
 				if (!isNaN(space)) {
 					v.space = space.toString();
 				}
 			}
 		});
-		this.data.forEach((v) => v.transform(trans));
+		this.data.forEach((v) => v.transform(matrix));
 	}
 
 	export() {

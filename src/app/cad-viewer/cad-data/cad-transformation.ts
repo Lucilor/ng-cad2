@@ -1,7 +1,7 @@
 import {Point} from "@src/app/utils";
 import {Matrix} from "@svgdotjs/svg.js";
 
-export class CadTransformation {
+export class CadTransformation2 {
 	translate: Point;
 	flip: {vertical: boolean; horizontal: boolean};
 	rotate: {angle: number};

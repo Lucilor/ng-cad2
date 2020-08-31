@@ -2,7 +2,7 @@ import {CadEntity} from "./cad-entity";
 import {CadLayer} from "../cad-layer";
 import {intersection} from "lodash";
 import {Line2} from "three/examples/jsm/lines/Line2";
-import {CadTransformation} from "../cad-transformation";
+import {Matrix} from "@svgdotjs/svg.js";
 
 export interface CadDimensionEntity {
 	id: string;
@@ -57,8 +57,8 @@ export class CadDimension extends CadEntity {
 		}
 	}
 
-	transform(trans: CadTransformation) {
-		super.transform(trans);
+	transform(matrix: Matrix) {
+		super.transform(matrix);
 		return this;
 	}
 

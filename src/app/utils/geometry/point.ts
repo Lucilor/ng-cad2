@@ -109,7 +109,7 @@ export class Point {
 		return this.set(anchor.x + d.x, anchor.y + d.y);
 	}
 
-	toArray() {
+	toArray(): [number, number] {
 		return [this.x, this.y];
 	}
 
@@ -128,7 +128,6 @@ export class Point {
 
 	transform(matrix: Matrix) {
 		const p = new P(this.x, this.y).transform(matrix);
-		this.set(p.x, p.y);
-		return this;
+		return this.set(p.x, p.y);
 	}
 }

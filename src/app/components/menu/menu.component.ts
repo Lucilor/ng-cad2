@@ -3,7 +3,7 @@ import {CadDataService} from "@src/app/services/cad-data.service";
 import {Store} from "@ngrx/store";
 import {State} from "@src/app/store/state";
 import {MatDialog} from "@angular/material/dialog";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {Subject} from "rxjs";
 import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {take, takeUntil} from "rxjs/operators";

@@ -1,8 +1,8 @@
 import {CadEntity} from "./cad-entity";
 import {CadLayer} from "../cad-layer";
 import {getVectorFromArray} from "../utils";
-import {CadTransformation} from "../cad-transformation";
 import {Point} from "@src/app/utils";
+import {Matrix, MatrixAlias} from "@svgdotjs/svg.js";
 
 export class CadHatch extends CadEntity {
 	bgcolor: number[];
@@ -52,15 +52,15 @@ export class CadHatch extends CadEntity {
 		return {...super.export(), paths};
 	}
 
-	transform(trans: CadTransformation) {
-		super.transform(trans);
-		const {matrix} = trans;
+	transform(matrix: MatrixAlias) {
+		super.transform(matrix);
+		const m = new Matrix(matrix);
 		this.paths.forEach((path) => {
 			path.edges.forEach((edge) => {
-				edge.start.transform(matrix);
-				edge.end.transform(matrix);
+				edge.start.transform(m);
+				edge.end.transform(m);
 			});
-			path.vertices.forEach((vertice) => vertice.transform(matrix));
+			path.vertices.forEach((vertice) => vertice.transform(m));
 		});
 		return this;
 	}

@@ -1,6 +1,6 @@
 import {Angle, Arc, Point} from "@src/app/utils";
+import {Matrix, MatrixAlias} from "@svgdotjs/svg.js";
 import {CadLayer} from "../cad-layer";
-import {CadTransformation} from "../cad-transformation";
 import {getVectorFromArray} from "../utils";
 import {CadEntity} from "./cad-entity";
 
@@ -39,9 +39,9 @@ export class CadArc extends CadEntity {
 		this.clockwise = data.clockwise ?? false;
 	}
 
-	transform(trans: CadTransformation) {
-		super.transform(trans);
-		this.curve.transform(trans.matrix);
+	transform(matrix: MatrixAlias) {
+		super.transform(matrix);
+		this.curve.transform(new Matrix(matrix));
 		return this;
 	}
 

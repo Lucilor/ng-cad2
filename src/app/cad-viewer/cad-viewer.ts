@@ -17,6 +17,7 @@ import {Point} from "../utils";
 import Color from "color";
 import {CadEvents, controls} from "./cad-viewer-controls";
 import html2canvas from "html2canvas";
+import {timeout} from "../app.common";
 
 export interface CadViewerConfig {
 	width: number;
@@ -29,6 +30,7 @@ export interface CadViewerConfig {
 	reverseSimilarColor: boolean;
 	validateLines: boolean;
 	selectMode: "none" | "single" | "multiple";
+	dragAxis: "" | "x" | "y" | "xy";
 }
 
 export class CadViewer extends EventEmitter {
@@ -43,7 +45,8 @@ export class CadViewer extends EventEmitter {
 		showStats: false,
 		reverseSimilarColor: true,
 		validateLines: false,
-		selectMode: "multiple"
+		selectMode: "multiple",
+		dragAxis: "xy"
 	};
 	dom: HTMLDivElement;
 	draw: Svg;
@@ -81,6 +84,11 @@ export class CadViewer extends EventEmitter {
 		dom.addEventListener("keydown", controls.onKeyDown.bind(this));
 		dom.tabIndex = 0;
 		dom.focus();
+	}
+
+	appendTo(container: HTMLElement) {
+		container.appendChild(this.dom);
+		return this;
 	}
 
 	width(): number;
@@ -129,6 +137,20 @@ export class CadViewer extends EventEmitter {
 		}
 	}
 
+	xy(): {x: number; y: number};
+	xy(x: number, y: number): this;
+	xy(x?: number, y?: number) {
+		const box = this.draw.viewbox();
+		if (typeof x === "number" && typeof y === "number") {
+			box.x = x;
+			box.y = y;
+			this.draw.viewbox(box);
+			return this;
+		} else {
+			return {x: box.x, y: box.y};
+		}
+	}
+
 	dx(value = 0) {
 		return this.x(this.x() - value);
 	}
@@ -137,19 +159,15 @@ export class CadViewer extends EventEmitter {
 		return this.y(this.y() + value);
 	}
 
-	move(dx = 0, dy = 0) {
-		const box = this.draw.viewbox();
-		box.x -= dx;
-		box.y += dy;
-		this.draw.viewbox(box);
-		return this;
-	}
+	move(dx = 0, dy = 0, entities?: CadEntities) {
+		if (entities instanceof CadEntities) {
+		} else {
+			const box = this.draw.viewbox();
+			box.x -= dx;
+			box.y += dy;
+			this.draw.viewbox(box);
+		}
 
-	moveTo(x = 0, y = 0) {
-		const box = this.draw.viewbox();
-		box.x = x;
-		box.y = y;
-		this.draw.viewbox(box);
 		return this;
 	}
 
@@ -266,6 +284,7 @@ export class CadViewer extends EventEmitter {
 		}
 		if (drawType.includes("stroke")) {
 			el.stroke({width: linewidth, color});
+			el.children().forEach((c) => c.attr("vector-effect", "non-scaling-stroke"));
 			el.addClass("stroke");
 		}
 		el.node.onclick = (event) => {
@@ -418,15 +437,25 @@ export class CadViewer extends EventEmitter {
 		return super.off(type, listener);
 	}
 
-	async toDataURL() {
-		const canvas = await html2canvas(this.dom);
-		const canvas2 = document.createElement("canvas");
-		canvas2.width = canvas.width;
-		canvas2.height = canvas.height;
-		const context = canvas2.getContext("2d");
-		context.scale(1, -1);
-		context.drawImage(canvas, 0, -canvas.height);
-		return canvas2.toDataURL();
+	toBase64() {
+		let str = new XMLSerializer().serializeToString(this.draw.node);
+		str = unescape(encodeURIComponent(str));
+		return "data:image/svg+xml;base64," + window.btoa(str);
+	}
+
+	toCanvas() {
+		const img = new Image();
+		img.src = this.toBase64();
+		return new Promise<HTMLCanvasElement>((resolve) => {
+			img.onload = () => {
+				const canvas = document.createElement("canvas");
+				canvas.width = img.width;
+				canvas.height = img.height;
+				const ctx = canvas.getContext("2d");
+				ctx.drawImage(img, 0, 0);
+				resolve(canvas);
+			};
+		});
 	}
 
 	traverse(callback: (e: CadEntity) => void) {
@@ -439,5 +468,17 @@ export class CadViewer extends EventEmitter {
 		this.dom.remove();
 		this.dom = null;
 		return this;
+	}
+
+	reset(data?: CadData, center = false) {
+		this.draw.clear();
+		if (data instanceof CadData) {
+			this.data = data;
+		}
+		this.traverse((e) => {
+			e.el = null;
+			e.children.forEach((c) => (c.el = null));
+		});
+		return this.render(center);
 	}
 }

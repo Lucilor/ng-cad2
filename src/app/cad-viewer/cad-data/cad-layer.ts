@@ -1,7 +1,7 @@
 import {index2RGB, RGB2Index} from "@app/utils";
-import {MathUtils} from "three";
 import {lineweight2linewidth, linewidth2lineweight} from "./utils";
 import Color from "color";
+import {v4} from "uuid";
 
 export class CadLayer {
 	id: string;
@@ -14,7 +14,7 @@ export class CadLayer {
 
 	constructor(data: any = {}) {
 		this.name = data.name || "";
-		this.id = data.id ?? MathUtils.generateUUID();
+		this.id = data.id ?? v4();
 		this.originalId = data.originalId ?? this.id;
 		this.color = new Color();
 		if (typeof data.color === "number") {

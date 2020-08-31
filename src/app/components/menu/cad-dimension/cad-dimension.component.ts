@@ -5,10 +5,10 @@ import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimensio
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
 import {CadStatusAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
-import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls-legacy";
 import {getCadStatus} from "@src/app/store/selectors";
 import {updateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
 import Color from "color";
+import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 
 @Component({
 	selector: "app-cad-dimension",
@@ -18,9 +18,7 @@ import Color from "color";
 export class CadDimensionComponent extends MenuComponent implements OnInit, OnDestroy {
 	dimNameFocus = -1;
 	dimLineSelecting: number = null;
-	prevSelectMode: CadViewerControlsConfig["selectMode"];
-	prevLineLengths: number;
-	prevLineGongshis: number;
+	prevSelectMode: CadViewerConfig["selectMode"];
 	get dimensions() {
 		return this.cad.data.getAllEntities().dimension;
 	}
@@ -36,8 +34,8 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 			if (name === "edit dimension") {
 				this.updateDimLines(dimensions[index]);
 				this.dimLineSelecting = index;
-				this.prevSelectMode = cad.controls.config.selectMode;
-				cad.controls.config.selectMode = "single";
+				this.prevSelectMode = cad.config.selectMode;
+				cad.config.selectMode = "single";
 				cad.traverse((e) => {
 					if (!(e instanceof CadLine)) {
 						e.info.prevSelectable = e.selectable;
@@ -53,7 +51,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				updateLineTexts(cad);
 			} else if (this.dimLineSelecting !== null) {
 				this.dimLineSelecting = null;
-				cad.controls.config.selectMode = this.prevSelectMode;
+				cad.config.selectMode = this.prevSelectMode;
 				cad.traverse((e) => {
 					if (!(e instanceof CadLine)) {
 						e.selectable = e.info.prevSelectable ?? true;
@@ -67,11 +65,12 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				updateLineTexts(cad);
 			}
 		});
-		cad.controls.on("entityselect", async (event, entity) => {
+		cad.on("entitiesselect", async (_event, entities) => {
 			const data = cad.data.components.data;
 			const {name, index} = await this.getObservableOnce(getCadStatus);
 			const dimensions = this.dimensions;
-			if (name === "edit dimension" && entity instanceof CadLine) {
+			const entity = entities.line[0];
+			if (name === "edit dimension" && entity) {
 				let thatData: CadData;
 				let thatIndex: number;
 				cad.data.components.data.some((d, i) => {

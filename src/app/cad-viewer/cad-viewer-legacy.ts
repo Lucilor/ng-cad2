@@ -13,7 +13,7 @@ import {
 	AmbientLight
 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import {CadViewerControls, CadViewerControlsConfig} from "./cad-viewer-controls-legacy";
+import {CadViewerControls2, CadViewerControlsConfig} from "./cad-viewer-controls-legacy";
 import TextSprite from "@seregpie/three.text-sprite";
 import {CadEntity} from "./cad-data/cad-entity/cad-entity";
 import {CadMtext} from "./cad-data/cad-entity/cad-mtext";
@@ -32,7 +32,7 @@ import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
 import Color from "color";
 import {Point} from "../utils";
 
-export interface CadViewerConfig {
+export interface CadViewerConfig2 {
 	width?: number;
 	height?: number;
 	backgroundColor?: number;
@@ -51,11 +51,11 @@ export interface CadViewerConfig {
 	gapSize?: number;
 }
 
-export class CadViewer {
+export class CadViewer2 {
 	private _timer = {timeout: null, time: 0};
 	private _destroyed = false;
 	data: CadData;
-	config: CadViewerConfig = {
+	config: CadViewerConfig2 = {
 		width: 300,
 		height: 150,
 		backgroundColor: 0,
@@ -78,7 +78,7 @@ export class CadViewer {
 	camera: PerspectiveCamera;
 	renderer: WebGLRenderer;
 	raycaster = new Raycaster();
-	controls: CadViewerControls;
+	controls: CadViewerControls2;
 	stats: Stats;
 	stylizer: CadStylizer;
 
@@ -115,7 +115,7 @@ export class CadViewer {
 		return result;
 	}
 
-	constructor(data: CadData, config: CadViewerConfig = {}) {
+	constructor(data: CadData, config: CadViewerConfig2 = {}) {
 		this.data = data;
 		this.config = {...this.config, ...config};
 		const {width, height, backgroundColor, backgroundAlpha, antialias} = this.config;
@@ -169,7 +169,7 @@ export class CadViewer {
 				}
 			}
 		} else {
-			this.controls = new CadViewerControls(this, config);
+			this.controls = new CadViewerControls2(this, config);
 		}
 		return this;
 	}

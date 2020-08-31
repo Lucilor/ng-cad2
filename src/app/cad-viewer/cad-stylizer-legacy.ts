@@ -1,4 +1,4 @@
-import {CadViewer} from "./cad-viewer-legacy";
+import {CadViewer2} from "./cad-viewer-legacy";
 import {CadEntity} from "./cad-data/cad-entity/cad-entity";
 import {CadMtext} from "./cad-data/cad-entity/cad-mtext";
 import {CadDimension} from "./cad-data/cad-entity/cad-dimension";
@@ -14,8 +14,8 @@ export interface CadStyle {
 }
 
 export class CadStylizer {
-	cad: CadViewer;
-	constructor(cad: CadViewer) {
+	cad: CadViewer2;
+	constructor(cad: CadViewer2) {
 		this.cad = cad;
 	}
 
