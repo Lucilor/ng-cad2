@@ -1,16 +1,15 @@
 import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
 import {CadViewer, CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
-import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
 import {
 	generatePointsMap,
 	validateLines,
 	getPointsFromMap,
 	setLinesLength,
 	autoFixLine,
-	updateLineTexts
+	updateLineTexts,
+	CadLineLike
 } from "@src/app/cad-viewer/cad-data/cad-lines";
-import {getColorLightness, Point} from "@app/utils";
+import {Point} from "@app/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
 import {MenuComponent} from "../menu.component";
@@ -21,6 +20,7 @@ import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {State} from "@src/app/store/state";
 import Color from "color";
+import {CadLine, CadArc} from "@src/app/cad-viewer/cad-data/cad-entity";
 
 @Component({
 	selector: "app-cad-line",
@@ -34,11 +34,8 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	lineDrawing: {start: Point; end: Point; entity?: CadLine};
 	data: CadData;
 	cadStatusName: State["cadStatus"]["name"];
+	selected: CadLineLike[] = [];
 
-	get selected() {
-		const {line, arc} = this.cad.selected();
-		return [...line, ...arc];
-	}
 	readonly selectableColors = {a: ["#ffffff", "#ff0000", "#00ff00", "#0000ff"]};
 
 	constructor(injector: Injector) {
@@ -48,7 +45,6 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	ngOnInit() {
 		super.ngOnInit();
 		const cad = this.cad;
-		cad.on("entitiesselect", this.updateEditDisabled.bind(this));
 
 		this.getObservable(getCurrCads).subscribe((currCads) => {
 			const cads = getCurrCadsData(this.cad.data, currCads);
@@ -97,16 +93,30 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			this.store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 		});
 
-		cad.dom.addEventListener("mousemove", this.onMouseMove.bind(this));
-		cad.dom.addEventListener("click", this.onClick.bind(this));
+		cad.on("pointermove", this.onMouseMove.bind(this));
+		cad.on("entitiesselect", this.updateEditDisabled.bind(this));
+		cad.on("click", this.onClick.bind(this));
+		cad.on("entitiesselect", this.updateSelected.bind(this));
+		cad.on("entitiesunselect", this.updateSelected.bind(this));
+		cad.on("entitiesadd", this.updateSelected.bind(this));
+		cad.on("entitiesremove", this.updateSelected.bind(this));
 	}
 
 	ngOnDestroy() {
 		super.ngOnDestroy();
 		const cad = this.cad;
+		cad.off("pointermove", this.onMouseMove.bind(this));
 		cad.off("entitiesselect", this.updateEditDisabled.bind(this));
-		cad.dom.removeEventListener("mousemove", this.onMouseMove.bind(this));
-		cad.dom.removeEventListener("click", this.onClick.bind(this));
+		cad.off("click", this.onClick.bind(this));
+		cad.off("entitiesselect", this.updateSelected.bind(this));
+		cad.off("entitiesunselect", this.updateSelected.bind(this));
+		cad.off("entitiesadd", this.updateSelected.bind(this));
+		cad.off("entitiesremove", this.updateSelected.bind(this));
+	}
+
+	updateSelected() {
+		const {line, arc} = this.cad.selected();
+		this.selected = [...line, ...arc];
 	}
 
 	updateEditDisabled() {
@@ -145,17 +155,13 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		cad.render();
 	}
 
-	getCssColor(colorStr?: string) {
+	getCssColor() {
 		const lines = this.selected;
-		if (colorStr) {
-			const color = new Color(colorStr);
-			return getColorLightness(color.hex()) < 0.5 ? "black" : "white";
-		}
 		if (lines.length === 1) {
-			return "#" + lines[0].color.hex();
+			return lines[0].color.hex();
 		}
 		if (lines.length) {
-			const strs = Array.from(new Set(lines.map((l) => "#" + l.color.hex())));
+			const strs = Array.from(new Set(lines.map((l) => l.color.hex())));
 			if (strs.length === 1) {
 				return strs[0];
 			}

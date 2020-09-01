@@ -1,23 +1,14 @@
 import {SVG, Svg, CoordinateXY} from "@svgdotjs/svg.js";
-import {drawArc, drawCircle, drawLine, drawText} from "./draw";
+import Color from "color";
+import {EventEmitter} from "events";
 import {cloneDeep} from "lodash";
+import {Point} from "../utils";
 import {CadData} from "./cad-data/cad-data";
 import {CadEntities} from "./cad-data/cad-entities";
-import {CadArc} from "./cad-data/cad-entity/cad-arc";
-import {CadCircle} from "./cad-data/cad-entity/cad-circle";
-import {CadDimension} from "./cad-data/cad-entity/cad-dimension";
-import {CadEntity} from "./cad-data/cad-entity/cad-entity";
-import {CadHatch} from "./cad-data/cad-entity/cad-hatch";
-import {CadLine} from "./cad-data/cad-entity/cad-line";
-import {CadMtext} from "./cad-data/cad-entity/cad-mtext";
-import {CadStyle} from "./cad-stylizer";
-import {CadStylizer} from "./cad-stylizer";
-import {EventEmitter} from "events";
-import {Point} from "../utils";
-import Color from "color";
+import {CadEntity, CadArc, CadCircle, CadDimension, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entity";
+import {CadStyle, CadStylizer} from "./cad-stylizer";
 import {CadEvents, controls} from "./cad-viewer-controls";
-import html2canvas from "html2canvas";
-import {timeout} from "../app.common";
+import {drawArc, drawCircle, drawDimension, drawLine, drawText} from "./draw";
 
 export interface CadViewerConfig {
 	width: number;
@@ -160,19 +151,18 @@ export class CadViewer extends EventEmitter {
 	}
 
 	move(dx = 0, dy = 0, entities?: CadEntities) {
-		if (entities instanceof CadEntities) {
+		if (entities instanceof CadEntities && entities.length) {
 		} else {
 			const box = this.draw.viewbox();
 			box.x -= dx;
 			box.y += dy;
 			this.draw.viewbox(box);
 		}
-
 		return this;
 	}
 
 	zoom(level?: number, point?: CoordinateXY) {
-		// ? zoom method is somehow hidden
+		// ? .zoom() method is somehow hidden
 		const result = (this.draw as any).zoom(level, point);
 		if (isNaN(result)) {
 			return 1;
@@ -210,7 +200,6 @@ export class CadViewer extends EventEmitter {
 		} else if (padding.length === 3) {
 			padding = [padding[0], padding[1], padding[0], padding[2]];
 		}
-		// draw.css("padding", padding.map((v) => v + "px").join(" "));
 		this.config.padding = padding;
 
 		return this;
@@ -226,29 +215,24 @@ export class CadViewer extends EventEmitter {
 	drawEntity(entity: CadEntity, style: CadStyle = {}) {
 		const {draw, stylizer} = this;
 		const {color, linewidth} = stylizer.get(entity, style);
-		const drawType = Array<"fill" | "stroke">();
-		if (entity.el) {
-			entity.el.clear();
-		} else {
+		if (!entity.visible) {
+			entity.el?.remove();
+			entity.el = null;
+			return this;
+		}
+		if (!entity.el) {
 			entity.el = draw.group().addClass("selectable");
 		}
 		const el = entity.el;
 		if (entity instanceof CadArc) {
 			const {center, radius, start_angle, end_angle, clockwise} = entity;
-			drawArc(el.clear(), center, radius, start_angle, end_angle, clockwise);
-			drawType.push("stroke");
+			drawArc(el, center, radius, start_angle, end_angle, clockwise);
 		} else if (entity instanceof CadCircle) {
 			const {center, radius} = entity;
-			drawCircle(el.clear(), center, radius);
-			drawType.push("stroke");
+			drawCircle(el, center, radius);
 		} else if (entity instanceof CadDimension) {
 			const {mingzi, qujian, font_size, axis} = entity;
-			const [p1, p2, p3, p4, p5, p6, p7, p8] = this.data.getDimensionPoints(entity);
-			drawLine(el, p1, p3);
-			drawLine(el, p3, p4);
-			drawLine(el, p4, p2);
-			el.path(`M${p3.x} ${p3.y} L${p5.x} ${p5.y} L${p6.x} ${p6.y}`).fill(color);
-			el.path(`M${p4.x} ${p4.y} L${p7.x} ${p7.y} L${p8.x} ${p8.y}`).fill(color);
+			const points = this.data.getDimensionPoints(entity);
 			let text = "";
 			if (mingzi) {
 				text = mingzi;
@@ -259,38 +243,30 @@ export class CadViewer extends EventEmitter {
 			if (text === "") {
 				text = "<>";
 			}
-			text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
-			const middle = p3.clone().add(p4).divide(2);
-			if (axis === "x") {
-				drawText(entity.el, text, font_size, middle, new Point(0.5, 1));
-			} else if (axis === "y") {
-				drawText(entity.el, text, font_size, middle, new Point(0, 0.5), true);
-			}
-			drawType.push("fill", "stroke");
+			drawDimension(el, points, text, axis, font_size);
 		} else if (entity instanceof CadHatch) {
 		} else if (entity instanceof CadLine) {
 			const {start, end} = entity;
 			drawLine(el, start, end);
-			drawType.push("stroke");
 		} else if (entity instanceof CadMtext) {
 			const {text, insert, font_size, anchor} = entity;
 			drawText(el, text, font_size, insert, anchor);
-			drawType.push("fill");
 		}
 		el.attr({id: entity.id, type: entity.type});
-		if (drawType.includes("fill")) {
-			el.fill(color);
-			el.addClass("fill");
-		}
-		if (drawType.includes("stroke")) {
-			el.stroke({width: linewidth, color});
-			el.children().forEach((c) => c.attr("vector-effect", "non-scaling-stroke"));
-			el.addClass("stroke");
-		}
+		el.children().forEach((c) => {
+			if (c.hasClass("fill")) {
+				c.fill(color);
+			}
+			if (c.hasClass("stroke")) {
+				c.stroke({width: linewidth, color});
+				c.attr("vector-effect", "non-scaling-stroke");
+			}
+		});
 		el.node.onclick = (event) => {
 			controls.onEntityClick.call(this, event, entity);
 		};
 		entity.children.forEach((c) => this.drawEntity(c, style));
+		return this;
 	}
 
 	render(center = false, entities?: CadEntities | CadEntity[], style: CadStyle = {}) {
@@ -337,17 +313,17 @@ export class CadViewer extends EventEmitter {
 	}
 
 	removeEntity(...entities: CadEntity[]) {
-		entities.forEach((e) => e.el?.remove());
+		entities.forEach((e) => e?.el?.remove());
 		this.data.entities.remove(...entities);
 		return this;
 	}
 
 	selected() {
-		return this.data.getAllEntities().filter((e) => e.selected);
+		return this.data.getAllEntities().filter((e) => e.selected, true);
 	}
 
 	unselected() {
-		return this.data.getAllEntities().filter((e) => !e.selected);
+		return this.data.getAllEntities().filter((e) => !e.selected, true);
 	}
 
 	select(entities: CadEntities | CadEntity | CadEntity[]) {

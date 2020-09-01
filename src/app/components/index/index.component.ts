@@ -16,7 +16,6 @@ import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {getCadStatus} from "@src/app/store/selectors";
 import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 
 @Component({
 	selector: "app-index",
@@ -147,7 +146,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		// } else {
 		// 	data.merge(this.data);
 		// }
-	// const toRemove = generateLineTexts(data, {length: showLineLength, gongshi: showGongshi});
+		// const toRemove = generateLineTexts(data, {length: showLineLength, gongshi: showGongshi});
 		// toRemove.forEach((e) => this.cad.scene.remove(e?.object));
 		// });
 	}

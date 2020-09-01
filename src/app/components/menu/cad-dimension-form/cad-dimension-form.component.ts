@@ -1,7 +1,7 @@
 import {Component, OnInit, Inject} from "@angular/core";
 import {FormGroup, FormBuilder, FormControl, ValidatorFn, AbstractControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
-import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
+import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
 
 interface CadDimensionData {
 	data: CadDimension;

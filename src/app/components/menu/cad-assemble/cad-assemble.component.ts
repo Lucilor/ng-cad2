@@ -1,7 +1,7 @@
 import {Component, OnInit, OnDestroy, Injector, Output, EventEmitter} from "@angular/core";
 import {MenuComponent} from "../menu.component";
 import {CadConnection, CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadEntity} from "@src/app/cad-viewer/cad-data/cad-entity/cad-entity";
+import {CadEntity} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {openMessageDialog} from "../../message/message.component";
 import {getCadStatus, getCurrCads} from "@src/app/store/selectors";
 

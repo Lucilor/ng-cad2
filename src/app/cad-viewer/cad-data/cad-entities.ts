@@ -1,16 +1,9 @@
-import {CadLine} from "./cad-entity/cad-line";
-import {CadCircle} from "./cad-entity/cad-circle";
-import {CadArc} from "./cad-entity/cad-arc";
-import {CadMtext} from "./cad-entity/cad-mtext";
-import {CadDimension, CadDimensionEntity} from "./cad-entity/cad-dimension";
-import {CadHatch} from "./cad-entity/cad-hatch";
-import {CadLayer} from "./cad-layer";
-import {CadTypeKey, cadTypesKey} from "./cad-types";
-import {CadEntity} from "./cad-entity/cad-entity";
-import {mergeArray, separateArray} from "./utils";
-import {getCadEntity} from "./cad-entity/get-cad-entity";
 import {Point, Rectangle} from "@src/app/utils";
 import {MatrixAlias} from "@svgdotjs/svg.js";
+import {CadLine, CadCircle, CadArc, CadMtext, CadDimension, CadHatch, getCadEntity, CadEntity, CadDimensionEntity} from "./cad-entity";
+import {CadLayer} from "./cad-layer";
+import {cadTypesKey, CadTypeKey, CadType, cadTypes} from "./cad-types";
+import {mergeArray, separateArray} from "./utils";
 
 export class CadEntities {
 	line: CadLine[] = [];
@@ -25,16 +18,7 @@ export class CadEntities {
 		this.forEachType((array) => (result += array.length));
 		return result;
 	}
-	get children() {
-		const children = new CadEntities();
-		this.forEach((e) => {
-			e.children.forEach((c) => {
-				children.add(c);
-				children.merge(new CadEntities().add(c).children);
-			});
-		});
-		return children;
-	}
+
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetIds = false) {
 		if (typeof data !== "object") {
@@ -64,28 +48,26 @@ export class CadEntities {
 		return this;
 	}
 
-	find(id: string) {
+	find(callback: string | ((value: CadEntity, index: number, array: CadEntity[]) => boolean)) {
 		for (const key of cadTypesKey) {
-			for (const entity of this[key] as CadEntity[]) {
-				if (entity.id === id || entity.originalId === id) {
-					return entity;
-				}
-				for (const child of entity.children) {
-					if (child.id === id || child.originalId === id) {
-						return child;
+			for (let i = 0; i < this[key].length; i++) {
+				const e = this[key][i];
+				if (typeof callback === "string") {
+					if (e.id === callback || e.originalId === callback) {
+						return e;
 					}
+				} else {
+					if (callback(e, i, this[key])) {
+						return e;
+					}
+				}
+				const found = e.children.find(callback);
+				if (found) {
+					return found;
 				}
 			}
 		}
 		return null;
-	}
-
-	filter(callback: (value: CadEntity, index: number, array: CadEntity[]) => boolean) {
-		const result = new CadEntities();
-		for (const key of cadTypesKey) {
-			result[key] = (this[key] as CadEntity[]).filter(callback) as any;
-		}
-		return result;
 	}
 
 	export() {
@@ -109,25 +91,42 @@ export class CadEntities {
 	}
 
 	transform(matrix: MatrixAlias) {
-		let childrenIds = [];
-		this.forEach((e) => (childrenIds = childrenIds.concat(e.children.map((c) => c.id))));
-		this.forEach((e) => {
-			if (!childrenIds.includes(e.id)) {
-				e.transform(matrix);
-			}
-		});
+		this.forEach((e) => e.transform(matrix));
 	}
 
-	forEachType(callback: (array: CadEntity[], type: CadTypeKey, TYPE: string) => void, include?: CadTypeKey[]) {
-		for (const key of cadTypesKey) {
-			if (!include || include?.includes(key)) {
-				callback(this[key], key, key.toUpperCase());
-			}
+	forEachType(callback: (array: CadEntity[], type: CadTypeKey, TYPE: CadType) => void, recursive = false) {
+		for (let i = 0; i < cadTypes.length; i++) {
+			const arr = this[cadTypesKey[i]];
+			callback(arr, cadTypesKey[i], cadTypes[i]);
 		}
 	}
 
-	forEach(callback: (value: CadEntity, index: number, array: CadEntity[]) => void, include?: CadTypeKey[]) {
-		this.forEachType((array) => array.forEach(callback), include);
+	forEach(callback: (value: CadEntity, index: number, array: CadEntity[]) => void, recursive = false) {
+		this.forEachType((array) => {
+			array.forEach(callback);
+			array.forEach((v, i, a) => {
+				callback(v, i, a);
+				if (recursive) {
+					v.children.forEach(callback);
+				}
+			});
+		});
+	}
+
+	filter(callback: (value: CadEntity, index: number, array: CadEntity[]) => boolean, recursive = false) {
+		const result = new CadEntities();
+		this.forEachType((array) => {
+			array.forEach(callback);
+			array.forEach((v, i, a) => {
+				if (callback(v, i, a)) {
+					result.add(v);
+				}
+				if (recursive) {
+					result.merge(v.children.filter(callback));
+				}
+			});
+		});
+		return result;
 	}
 
 	fromArray(array: CadEntity[]) {

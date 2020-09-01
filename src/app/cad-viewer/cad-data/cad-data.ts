@@ -1,13 +1,11 @@
-import {intersection, cloneDeep, uniqWith} from "lodash";
-import {CadEntities} from "./cad-entities";
-import {CadLayer} from "./cad-layer";
-import {CadLine} from "./cad-entity/cad-line";
-import {getVectorFromArray, isLinesParallel, mergeArray, separateArray, ExpressionsParser, Expressions} from "./utils";
-import {CadCircle} from "./cad-entity/cad-circle";
-import {CadDimension} from "./cad-entity/cad-dimension";
 import {Point} from "@src/app/utils";
+import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
+import {uniqWith, intersection, cloneDeep} from "lodash";
 import {v4} from "uuid";
-import {Matrix, MatrixAlias} from "@svgdotjs/svg.js";
+import {CadEntities} from "./cad-entities";
+import {CadLine, CadDimension, CadCircle} from "./cad-entity";
+import {CadLayer} from "./cad-layer";
+import {Expressions, ExpressionsParser, mergeArray, separateArray, getVectorFromArray, isLinesParallel} from "./utils";
 
 export class CadData {
 	entities: CadEntities;
@@ -36,6 +34,7 @@ export class CadData {
 	kailiaopaibanfangshi: "自动排版" | "不排版" | "必须排版";
 	morenkailiaobancai: string;
 	readonly visible: boolean;
+
 	constructor(data: any = {}) {
 		if (typeof data !== "object") {
 			throw new Error("Invalid data.");
@@ -155,23 +154,20 @@ export class CadData {
 	 * 010: this.partners entities
 	 * 001: components.partners entities
 	 */
-	getAllEntities(flat = false, mode = 0b111) {
+	getAllEntities(mode = 0b111) {
 		const result = new CadEntities();
 		if (mode & 0b100) {
 			result.merge(this.entities);
 		}
 		if (mode & 0b010) {
 			this.partners.forEach((p) => {
-				result.merge(p.getAllEntities(flat, mode));
+				result.merge(p.getAllEntities(mode));
 			});
 		}
 		if (mode & 0b001) {
 			this.components.data.forEach((c) => {
-				result.merge(c.getAllEntities(flat, mode));
+				result.merge(c.getAllEntities(mode));
 			});
-		}
-		if (flat) {
-			result.merge(result.children);
 		}
 		return result;
 	}

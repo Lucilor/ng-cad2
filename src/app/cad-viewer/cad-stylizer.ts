@@ -1,9 +1,6 @@
 import {CadViewer} from "./cad-viewer";
-import {CadEntity} from "./cad-data/cad-entity/cad-entity";
-import {CadMtext} from "./cad-data/cad-entity/cad-mtext";
-import {CadDimension} from "./cad-data/cad-entity/cad-dimension";
+import {CadDimension, CadEntity, CadLine, CadMtext} from "./cad-data/cad-entity";
 import Color from "color";
-import {CadLine} from "./cad-data/cad-entity/cad-line";
 
 export interface CadStyle {
 	color?: string;

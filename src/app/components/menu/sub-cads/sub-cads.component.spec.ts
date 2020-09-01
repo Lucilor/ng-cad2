@@ -6,7 +6,7 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {provideMockStore} from "@ngrx/store/testing";
 import {initialState} from "@src/app/store/state";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
@@ -43,7 +43,6 @@ describe("SubCadsComponent", () => {
 		fixture = TestBed.createComponent(SubCadsComponent);
 		component = fixture.componentInstance;
 		component.cad = new CadViewer(new CadData());
-		component.cad.setControls();
 		fixture.detectChanges();
 	});
 

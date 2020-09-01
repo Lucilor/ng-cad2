@@ -1,23 +1,35 @@
-import {Container, List, Tspan} from "@svgdotjs/svg.js";
+import {Circle, Container, Line, List, Path, PathArrayAlias, Text, Tspan} from "@svgdotjs/svg.js";
 import {Angle, Arc, Point} from "../utils";
 
-export function drawLine(draw: Container, start: Point, end: Point) {
+export function drawLine(draw: Container, start: Point, end: Point, i = 0) {
 	if (start.equals(end)) {
 		draw.remove();
 		return null;
 	}
-	return draw.line(start.x, start.y, end.x, end.y);
+	let el = draw.children()[i] as Line;
+	if (el instanceof Line) {
+		el.plot(start.x, start.y, end.x, end.y);
+	} else {
+		el = draw.line(start.x, start.y, end.x, end.y).addClass("stroke");
+	}
+	return [el];
 }
 
-export function drawCircle(draw: Container, center: Point, radius: number) {
+export function drawCircle(draw: Container, center: Point, radius: number, i = 0) {
 	if (radius <= 0) {
 		draw.remove();
 		return null;
 	}
-	return draw.circle(radius).center(center.x, center.y);
+	let el = draw.children()[i] as Circle;
+	if (el instanceof Line) {
+		el.size(radius).center(center.x, center.y);
+	} else {
+		el = draw.circle(radius).center(center.x, center.y).addClass("stroke");
+	}
+	return [el];
 }
 
-export function drawArc(draw: Container, center: Point, radius: number, startAngle: number, endAngle: number, clockwise: boolean) {
+export function drawArc(draw: Container, center: Point, radius: number, startAngle: number, endAngle: number, clockwise: boolean, i = 0) {
 	if (radius <= 0) {
 		draw.remove();
 		return null;
@@ -27,36 +39,69 @@ export function drawArc(draw: Container, center: Point, radius: number, startAng
 	const isLargeArc = arc.length / l0 > 0.5 ? 1 : 0;
 	const {x: x0, y: y0} = arc.startPoint;
 	const {x: x1, y: y1} = arc.endPoint;
-	return draw.path([
+	const path: PathArrayAlias = [
 		["M", x0, y0],
 		["A", radius, radius, endAngle - startAngle, isLargeArc, clockwise ? 0 : 1, x1, y1]
-	]);
+	];
+	let el = draw.children()[i] as Path;
+	if (el instanceof Path) {
+		el.plot(path);
+	} else {
+		el = draw.path(path).addClass("stroke");
+	}
+	return el;
 }
 
-export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical = false) {
-	if (!text) {
+export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical = false, i = 0) {
+	if (!text || !(size > 0)) {
 		draw.remove();
 		return null;
 	}
-	const textEl = draw.text("");
-	textEl.font({size}).text(text).leading(1);
-	textEl.move(position.x, position.y);
-	setTimeout(() => {
-		const tspans = textEl.children() as List<Tspan>;
-		const width = Math.max(...tspans.map((v) => v.length()));
-		const height = (tspans.length + 1 / 3) * size;
-		if (vertical) {
-			drawCircle(draw, position, 5).fill("white");
-			const dx = height * (0.5 - anchor.x);
-			const dy = width * (0.5 + anchor.y);
-			textEl.css("writing-mode", "vertical-lr");
-			textEl.transform({a: 1, b: 0, c: 0, d: -1, e: dx, f: dy + position.y * 2});
-		} else {
-			const dx = -width * anchor.x;
-			const dy = height * anchor.y;
-			textEl.transform({a: 1, b: 0, c: 0, d: -1, e: dx, f: dy + position.y * 2});
-		}
-		tspans.slice(1).forEach((tspan) => tspan.dy("1em"));
-	}, 0);
-	return textEl;
+	let el = draw.children()[i] as Text;
+	if (el instanceof Text) {
+		el.text(text).font({size});
+	} else {
+		el = draw.text(text).addClass("fill");
+		el.css("transform-box", "fill-box");
+		el.font({size}).leading(1);
+	}
+	el.move(position.x, position.y);
+	if (vertical) {
+		el.css("writing-mode", "vertical-lr");
+	}
+	el.css("transform", `translate(${-anchor.x * 100}%, ${anchor.y * 100}%) scale(1, -1)`);
+	return [el];
+}
+
+export function drawTriangle(draw: Container, p1: Point, p2: Point, p3: Point, i = 0) {
+	let el = draw.children()[i] as Path;
+	const path: PathArrayAlias = `M${p1.x} ${p1.y} L${p2.x} ${p2.y} L${p3.x} ${p3.y}`;
+	if (el instanceof Path) {
+		el.plot(path);
+	} else {
+		el = draw.path(path).addClass("fill");
+	}
+	return [el];
+}
+
+export function drawDimension(draw: Container, points: Point[], text: string, axis: "x" | "y", fontSize: number, i = 0) {
+	if (points.length < 8 || !(fontSize > 0)) {
+		draw.remove();
+		return null;
+	}
+	const [p1, p2, p3, p4, p5, p6, p7, p8] = points;
+	const l1 = drawLine(draw, p1, p3, i)[0];
+	const l2 = drawLine(draw, p3, p4, i + 1)[0];
+	const l3 = drawLine(draw, p4, p2, i + 2)[0];
+	const tri1 = drawTriangle(draw, p3, p5, p6, i + 3);
+	const tri2 = drawTriangle(draw, p4, p7, p8, i + 4);
+	text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
+	const middle = p3.clone().add(p4).divide(2);
+	let textEl: Text;
+	if (axis === "x") {
+		textEl = drawText(draw, text, fontSize, middle, new Point(0.5, 1), false, i + 5)[0];
+	} else if (axis === "y") {
+		textEl = drawText(draw, text, fontSize, middle, new Point(0, 0.5), true, i + 5)[0];
+	}
+	return [l1, l2, l3, tri1, tri2, textEl];
 }

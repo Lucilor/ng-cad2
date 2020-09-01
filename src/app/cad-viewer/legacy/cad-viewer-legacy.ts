@@ -13,24 +13,18 @@ import {
 	AmbientLight
 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import {CadViewerControls2, CadViewerControlsConfig} from "./cad-viewer-controls-legacy";
+import {CadViewerControls2, CadViewerControlsConfig2} from "./cad-viewer-controls-legacy";
 import TextSprite from "@seregpie/three.text-sprite";
-import {CadEntity} from "./cad-data/cad-entity/cad-entity";
-import {CadMtext} from "./cad-data/cad-entity/cad-mtext";
-import {CadDimension} from "./cad-data/cad-entity/cad-dimension";
-import {CadData} from "./cad-data/cad-data";
-import {CadEntities} from "./cad-data/cad-entities";
-import {CadLine} from "./cad-data/cad-entity/cad-line";
-import {CadCircle} from "./cad-data/cad-entity/cad-circle";
-import {CadArc} from "./cad-data/cad-entity/cad-arc";
-import {CadHatch} from "./cad-data/cad-entity/cad-hatch";
+import {CadArc, CadCircle, CadDimension, CadEntity, CadHatch, CadLine, CadMtext} from "../cad-data/cad-entity";
+import {CadData} from "../cad-data/cad-data";
+import {CadEntities} from "../cad-data/cad-entities";
 import {CadStyle, CadStylizer} from "./cad-stylizer-legacy";
-import {CadTypeKey} from "./cad-data/cad-types";
+import {CadTypeKey} from "../cad-data/cad-types";
 import {Line2} from "three/examples/jsm/lines/Line2";
 import {LineGeometry} from "three/examples/jsm/lines/LineGeometry";
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
 import Color from "color";
-import {Point} from "../utils";
+import {Point} from "../../utils";
 
 export interface CadViewerConfig2 {
 	width?: number;
@@ -107,7 +101,7 @@ export class CadViewer2 {
 		return 50 / this.camera.position.z;
 	}
 	get selectedEntities() {
-		const result = this.data.getAllEntities(true).filter((e) => e.selected);
+		const result = this.data.getAllEntities().filter((e) => e.selected);
 		return result;
 	}
 	get notSelectedEntities() {
@@ -161,7 +155,7 @@ export class CadViewer2 {
 		this.resize().render(true);
 	}
 
-	setControls(config?: CadViewerControlsConfig) {
+	setControls(config?: CadViewerControlsConfig2) {
 		if (this.controls) {
 			for (const name in this.controls.config) {
 				if (config[name] !== undefined) {
@@ -604,12 +598,12 @@ export class CadViewer2 {
 	}
 
 	selectAll() {
-		this.data.getAllEntities(true).forEach((e) => (e.selected = e.selectable));
+		this.data.getAllEntities().forEach((e) => (e.selected = e.selectable));
 		return this.render();
 	}
 
 	unselectAll() {
-		this.data.getAllEntities(true).forEach((e) => (e.selected = false));
+		this.data.getAllEntities().forEach((e) => (e.selected = false));
 		return this.render();
 	}
 
@@ -675,8 +669,8 @@ export class CadViewer2 {
 		return result;
 	}
 
-	traverse(callback: (e: CadEntity) => void, entities = this.data.getAllEntities(), include?: CadTypeKey[]) {
-		entities.forEach((e) => callback(e), include);
+	traverse(callback: (e: CadEntity) => void, entities = this.data.getAllEntities()) {
+		entities.forEach((e) => callback(e));
 		return this;
 	}
 

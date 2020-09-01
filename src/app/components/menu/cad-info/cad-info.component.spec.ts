@@ -5,7 +5,7 @@ import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {provideMockStore} from "@ngrx/store/testing";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer-legacy";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {StoreModule} from "@ngrx/store";
 import {initialState} from "@src/app/store/state";
@@ -48,7 +48,6 @@ describe("CadInfoComponent", () => {
 		fixture = TestBed.createComponent(CadInfoComponent);
 		component = fixture.componentInstance;
 		component.cad = new CadViewer(new CadData());
-		component.cad.setControls();
 		fixture.detectChanges();
 	});
 

@@ -1,11 +1,11 @@
-import {Component, OnInit, Injector, OnDestroy} from "@angular/core";
-import Color from "color";
-import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
-import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity/cad-mtext";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {MenuComponent} from "../menu.component";
+import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
+import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
+import Color from "color";
+import {MenuComponent} from "../menu.component";
 
 @Component({
 	selector: "app-cad-mtext",
