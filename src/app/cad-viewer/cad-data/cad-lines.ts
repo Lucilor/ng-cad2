@@ -1,18 +1,16 @@
 import {CadEntities} from "./cad-entities";
-import {CadLine} from "./cad-entity/cad-line";
-import {CadArc} from "./cad-entity/cad-arc";
 import {CadData} from "./cad-data";
 import {CadViewer} from "../cad-viewer";
 import {State} from "@src/app/store/state";
-import {CadMtext} from "./cad-entity/cad-mtext";
 import {getVectorFromArray, isBetween} from "./utils";
 import {DEFAULT_TOLERANCE, Point} from "@app/utils";
+import {CadLine, CadArc, CadMtext} from "./cad-entity";
 
-export type LineLike = CadLine | CadArc;
+export type CadLineLike = CadLine | CadArc;
 
 export type PointsMap = {
 	point: Point;
-	lines: LineLike[];
+	lines: CadLineLike[];
 	selected: boolean;
 }[];
 
@@ -51,7 +49,7 @@ export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoin
 	});
 }
 
-export function findAdjacentLines(map: PointsMap, entity: LineLike, point?: Point, tolerance = DEFAULT_TOLERANCE): LineLike[] {
+export function findAdjacentLines(map: PointsMap, entity: CadLineLike, point?: Point, tolerance = DEFAULT_TOLERANCE): CadLineLike[] {
 	if (!point && entity instanceof CadLine) {
 		const adjStart = findAdjacentLines(map, entity, entity.start);
 		const adjEnd = findAdjacentLines(map, entity, entity.end);
@@ -65,8 +63,8 @@ export function findAdjacentLines(map: PointsMap, entity: LineLike, point?: Poin
 	return [];
 }
 
-export function findAllAdjacentLines(map: PointsMap, entity: LineLike, point: Point, tolerance = DEFAULT_TOLERANCE) {
-	const entities: LineLike[] = [];
+export function findAllAdjacentLines(map: PointsMap, entity: CadLineLike, point: Point, tolerance = DEFAULT_TOLERANCE) {
+	const entities: CadLineLike[] = [];
 	const id = entity.id;
 	let closed = false;
 	const maxStack = 1000;
@@ -121,7 +119,7 @@ export function setLinesLength(data: CadData, lines: CadLine[], length: number) 
 	});
 }
 
-export function swapStartEnd(entity: LineLike) {
+export function swapStartEnd(entity: CadLineLike) {
 	if (entity instanceof CadLine) {
 		[entity.start, entity.end] = [entity.end, entity.start];
 	}
@@ -133,7 +131,7 @@ export function swapStartEnd(entity: LineLike) {
 
 export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	const entities = data.getAllEntities();
-	const result: LineLike[][] = [];
+	const result: CadLineLike[][] = [];
 	if (entities.length === 0) {
 		return result;
 	}
@@ -340,7 +338,7 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 	});
 }
 
-export function updateLineText(cad: CadViewer, line: LineLike) {
+export function updateLineText(cad: CadViewer, line: CadLineLike) {
 	const middle = line.middle;
 	const lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
 	const {showLineLength, showGongshi} = cad.config;

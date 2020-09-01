@@ -76,59 +76,61 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			this.updateCad();
 		});
 
-		// let lastPointer: Point = null;
-		// const cad = this.cad;
-		// let entitiesToMove: CadEntities;
-		// let entitiesNotToMove: CadEntities;
-		// cad.on("pointerdown", async ({clientX, clientY, shiftKey, button}) => {
-		// 	if (cad.config.dragAxis === "" && (button === 1 || (shiftKey && button === 0))) {
-		// 		lastPointer = new Point(clientX, clientY);
-		// 		entitiesToMove = new CadEntities();
-		// 		entitiesNotToMove = new CadEntities();
-		// 		const currCadsData = await this.getCurrCadsData();
-		// 		currCadsData.forEach((v) => entitiesToMove.merge(v.getAllEntities()));
-		// 		const ids = [];
-		// 		entitiesToMove.forEach((e) => ids.push(e.id));
-		// 		cad.data.getAllEntities().forEach((e) => {
-		// 			if (!ids.includes(e.id)) {
-		// 				entitiesNotToMove.add(e);
-		// 			}
-		// 		});
-		// 	}
-		// });
-		// cad.on("pointermove", async ({clientX, clientY}) => {
-		// 	if (lastPointer) {
-		// 		const currCads = await this.getObservableOnce(getCurrCads);
-		// 		const {name} = await this.getObservableOnce(getCadStatus);
-		// 		const pointer = new Point(clientX, clientY);
-		// 		const translate = lastPointer.sub(pointer).divide(cad.zoom());
-		// 		translate.x = -translate.x;
-		// 		if (name === "assemble") {
-		// 			if (currCads.components.length) {
-		// 				const parent = cad.data.findChild(currCads.cads[0]);
-		// 				const data = cad.data.findChildren(currCads.components);
-		// 				data.forEach((v) => parent.moveComponent(v, translate));
-		// 			} else {
-		// 				const data = cad.data.findChildren(currCads.cads);
-		// 				data.forEach((v) => v.transform({translate: translate.toArray()}));
-		// 			}
-		// 			cad.render();
-		// 		} else {
-		// 			// if (entitiesToMove.length < entitiesNotToMove.length) {
-		// 			// 	entitiesToMove.transform(new CadTransformation({translate}));
-		// 			// 	cad.render(null, entitiesToMove);
-		// 			// } else {
-		// 			// 	cad.move(translate.x, translate.y);
-		// 			// 	entitiesNotToMove.transform(new CadTransformation({translate}));
-		// 			// 	cad.render(null, entitiesNotToMove);
-		// 			// }
-		// 		}
-		// 		lastPointer.copy(pointer);
-		// 	}
-		// });
-		// cad.on("pointerup", () => {
-		// 	lastPointer = null;
-		// });
+		let lastPointer: Point = null;
+		const cad = this.cad;
+		let entitiesToMove: CadEntities;
+		let entitiesNotToMove: CadEntities;
+		cad.on("pointerdown", async ({clientX, clientY, shiftKey, button}) => {
+			if (cad.config.dragAxis === "" && (button === 1 || (shiftKey && button === 0))) {
+				lastPointer = new Point(clientX, clientY);
+				entitiesToMove = new CadEntities();
+				entitiesNotToMove = new CadEntities();
+				const currCadsData = await this.getCurrCadsData();
+				currCadsData.forEach((v) => entitiesToMove.merge(v.getAllEntities()));
+				const ids = [];
+				entitiesToMove.forEach((e) => ids.push(e.id));
+				cad.data.getAllEntities().forEach((e) => {
+					if (!ids.includes(e.id)) {
+						entitiesNotToMove.add(e);
+					}
+				});
+			}
+		});
+		cad.on("pointermove", async ({clientX, clientY}) => {
+			if (lastPointer) {
+				const currCads = await this.getObservableOnce(getCurrCads);
+				const {name} = await this.getObservableOnce(getCadStatus);
+				const pointer = new Point(clientX, clientY);
+				const translate = lastPointer.sub(pointer).divide(cad.zoom());
+				translate.x = -translate.x;
+				if (name === "assemble") {
+					if (currCads.components.length) {
+						const parent = cad.data.findChild(currCads.cads[0]);
+						const data = cad.data.findChildren(currCads.components);
+						data.forEach((v) => parent.moveComponent(v, translate));
+					} else {
+						const data = cad.data.findChildren(currCads.cads);
+						data.forEach((v) => v.transform({translate: translate.toArray()}));
+					}
+					cad.render();
+				} else {
+					entitiesToMove.transform({translate});
+					cad.render(null, entitiesToMove);
+					// if (entitiesToMove.length < entitiesNotToMove.length) {
+					// 	entitiesToMove.transform({translate});
+					// 	cad.render(null, entitiesToMove);
+					// } else {
+					// 	cad.move(translate.x, -translate.y);
+					// 	entitiesNotToMove.transform({translate});
+					// 	cad.render(null, entitiesNotToMove);
+					// }
+				}
+				lastPointer.copy(pointer);
+			}
+		});
+		cad.on("pointerup", () => {
+			lastPointer = null;
+		});
 
 		window.addEventListener("keydown", this.splitCad.bind(this));
 	}

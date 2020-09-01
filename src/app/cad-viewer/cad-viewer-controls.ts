@@ -1,7 +1,7 @@
-import {CadViewer} from "./cad-viewer";
 import {Point, Rectangle} from "../utils";
-import {CadEntity} from "./cad-data/cad-entity/cad-entity";
 import {CadEntities} from "./cad-data/cad-entities";
+import {CadEntity} from "./cad-data/cad-entity";
+import {CadViewer} from "./cad-viewer";
 
 export interface CadEvents {
 	pointerdown: [PointerEvent, never];

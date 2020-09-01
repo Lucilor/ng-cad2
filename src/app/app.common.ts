@@ -1,7 +1,7 @@
 import {SessionStorage, LocalStorage, Point} from "@app/utils";
 import {CadData} from "./cad-viewer/cad-data/cad-data";
-import {CadMtext} from "./cad-viewer/cad-data/cad-entity/cad-mtext";
 import {CadEntities} from "./cad-viewer/cad-data/cad-entities";
+import {CadMtext} from "./cad-viewer/cad-data/cad-entity";
 import {CadViewer} from "./cad-viewer/cad-viewer";
 
 // const host = environment.host;
@@ -135,6 +135,7 @@ export async function getCadPreview(data: CadData, width = 300, height = 150, pa
 	data2.entities.mtext = [];
 	const cad = new CadViewer(data2, {width, height, padding, showGongshi: 0, showLineLength: 0});
 	cad.appendTo(document.body);
+	cad.render();
 	await timeout(0);
 	const src = cad.toBase64();
 	cad.destroy();

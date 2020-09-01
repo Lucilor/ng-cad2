@@ -1,15 +1,15 @@
-import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
-import {MenuComponent} from "../menu.component";
-import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {openCadOptionsDialog} from "../../menu/cad-options/cad-options.component";
-import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
-import {openMessageDialog} from "../../message/message.component";
-import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
-import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {generatePointsMap, getPointsFromMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {Component, OnInit, OnDestroy, Input, Injector} from "@angular/core";
 import {getCadGongshiText} from "@src/app/app.common";
+import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {getPointsFromMap, generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {CadPointsAction, CadStatusAction} from "@src/app/store/actions";
+import {getCurrCads, getCurrCadsData, getCadStatus, getCadPoints} from "@src/app/store/selectors";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
+import {openMessageDialog} from "../../message/message.component";
+import {openCadOptionsDialog} from "../cad-options/cad-options.component";
+import {MenuComponent} from "../menu.component";
 
 @Component({
 	selector: "app-cad-info",

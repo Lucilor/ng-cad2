@@ -1,14 +1,13 @@
 import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
-import {openCadDimensionDialog} from "../cad-dimension-form/cad-dimension-form.component";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
-import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
+import {CadLine, CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 import {CadStatusAction} from "@src/app/store/actions";
-import {MenuComponent} from "../menu.component";
 import {getCadStatus} from "@src/app/store/selectors";
 import {updateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
 import Color from "color";
-import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
+import {openCadDimensionDialog} from "../cad-dimension-form/cad-dimension-form.component";
+import {MenuComponent} from "../menu.component";
 
 @Component({
 	selector: "app-cad-dimension",

@@ -294,8 +294,3 @@ interface ColorMap {
 	string: string;
 	number: number;
 }
-
-export function getColorLightness(color: number | string | number[]) {
-	const c = Color(color);
-	return 1 - (0.299 * c.red() + 0.587 * c.green() + 0.114 * c.blue()) / 255;
-}

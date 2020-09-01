@@ -1,10 +1,8 @@
 import {CadViewer2} from "./cad-viewer-legacy";
 import {Vector2, Vector3, Object3D, MathUtils, Box2, Plane} from "three";
 import {EventEmitter} from "events";
-import {CadEntity} from "./cad-data/cad-entity/cad-entity";
-import {CadDimension} from "./cad-data/cad-entity/cad-dimension";
-import {CadTransformation} from "./cad-data/cad-transformation";
-import {CadEntities} from "./cad-data/cad-entities";
+import {CadEntity} from "../cad-data/cad-entity";
+import {CadEntities} from "../cad-data/cad-entities";
 
 export interface CadViewerControlsConfig2 {
 	dragAxis?: "x" | "y" | "xy" | "";
