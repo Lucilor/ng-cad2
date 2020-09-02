@@ -78,7 +78,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 				this.lineDrawing = {start: null, end: null};
 			} else if (this.lineDrawing) {
 				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
-				cad.removeEntity(this.lineDrawing.entity);
+				cad.remove(this.lineDrawing.entity);
 				cad.traverse((e) => {
 					e.selectable = e.info.prevSelectable ?? true;
 					delete e.info.prevSelectable;

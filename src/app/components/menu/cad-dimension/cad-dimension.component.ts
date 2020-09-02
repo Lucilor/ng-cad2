@@ -17,6 +17,8 @@ import {MenuComponent} from "../menu.component";
 export class CadDimensionComponent extends MenuComponent implements OnInit, OnDestroy {
 	dimNameFocus = -1;
 	dimLineSelecting: number = null;
+	prevLineLengths: CadViewerConfig["showLineLength"];
+	prevLineGongshis: CadViewerConfig["showGongshi"];
 	prevSelectMode: CadViewerConfig["selectMode"];
 	get dimensions() {
 		return this.cad.data.getAllEntities().dimension;
@@ -174,7 +176,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	}
 
 	removeDimension(index: number) {
-		this.cad.removeEntity(this.dimensions[index]);
+		this.cad.remove(this.dimensions[index]);
 	}
 
 	updateDimLines(dimension?: CadDimension) {

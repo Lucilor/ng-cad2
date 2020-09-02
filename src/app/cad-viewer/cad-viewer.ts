@@ -307,17 +307,6 @@ export class CadViewer extends EventEmitter {
 		return this.resize();
 	}
 
-	addEntity(...entities: CadEntity[]) {
-		this.data.entities.add(...entities);
-		return this.render(false, entities);
-	}
-
-	removeEntity(...entities: CadEntity[]) {
-		entities.forEach((e) => e?.el?.remove());
-		this.data.entities.remove(...entities);
-		return this;
-	}
-
 	selected() {
 		return this.data.getAllEntities().filter((e) => e.selected, true);
 	}

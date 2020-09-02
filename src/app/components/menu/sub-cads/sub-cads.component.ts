@@ -494,9 +494,9 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 					data1.entities = data.entities;
 					const data2 = new CadData();
 					data2.entities = resData.entities;
-					const {min: min1} = data1.getBoundingBox();
-					const {min: min2} = data2.getBoundingBox();
-					data2.transform(new CadTransformation({translate: min1.sub(min2)}));
+					const {min: min1} = data1.getBoundingRect();
+					const {min: min2} = data2.getBoundingRect();
+					data2.transform({translate: min1.sub(min2)});
 					data.entities = data2.entities;
 				} else {
 					data.entities = resData.entities;
