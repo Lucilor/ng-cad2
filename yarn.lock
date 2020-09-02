@@ -1342,12 +1342,12 @@
   resolved "https://registry.yarnpkg.com/@sphinxxxx/color-conversion/-/color-conversion-2.2.2.tgz#03ecc29279e3c0c832f6185a5bfa3497858ac8ca"
   integrity sha512-XExJS3cLqgrmNBIP3bBw6+1oQ1ksGjFh0+oClDKFYpCCqx/hlqwWO5KO/S63fzUo67SxI9dMrF0y5T/Ey7h8Zw==
 
-"@syncfusion/ej2-angular-base@~18.2.54":
-  version "18.2.54"
-  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-base/-/ej2-angular-base-18.2.54.tgz#abf1dc208e792dc6c2113c9a8b3f2e1ac4b512d9"
-  integrity sha512-Y7EEDoQBGpTDW/GhOvVMLM/v4tozvSoUCuedUC3o5NBW+/a5eMbS954NCJrJcTAIBUYGmYTTHzehVH3Ob/5mzQ==
+"@syncfusion/ej2-angular-base@~18.2.56":
+  version "18.2.56"
+  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-base/-/ej2-angular-base-18.2.56.tgz#2cade10dc781a360c51b7e68739f566823c57e12"
+  integrity sha512-WKPkxaykjKve3yTSQwJXDOWCc/2Ae4G43PB53TZzlPNszORXLTZAa+RG3kU03EM+nLf4hnCIgpm8SUqNn/pf5A==
   dependencies:
-    "@syncfusion/ej2-base" "~18.2.54"
+    "@syncfusion/ej2-base" "~18.2.55"
     "@syncfusion/ej2-icons" "~18.2.54"
     core-js "^3.4.8"
     reflect-metadata "^0.1.9"
@@ -1355,19 +1355,20 @@
     rxjs-compat "^6.5.4"
     zone.js "^0.10.2"
 
-"@syncfusion/ej2-angular-inputs@^18.2.54":
-  version "18.2.54"
-  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-inputs/-/ej2-angular-inputs-18.2.54.tgz#ce5e03741b13f816a1c76b6e190692d62f1c423a"
-  integrity sha512-mewwu4nzfDXc6xaclhMSaNUmS2g1JJs2tTNn3FhkSpejIlcW4HX5zOLvP2numYSR6O9LC45OWJzd+Cn8lQsG+g==
+"@syncfusion/ej2-angular-inputs@^18.2.56":
+  version "18.2.56"
+  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-angular-inputs/-/ej2-angular-inputs-18.2.56.tgz#d2c8dafd7bc1b1f7518433be87600f2af3c79bf0"
+  integrity sha512-nrMdR2+VcPNh6k+ldpE9WRYu6zzDN5DYiOrSHaPBDwH9PLfTdtMEhMA2YHivl/5zFEhxGc+pODtCeTH1v1Nb5Q==
   dependencies:
-    "@syncfusion/ej2-angular-base" "~18.2.54"
-    "@syncfusion/ej2-base" "~18.2.54"
-    "@syncfusion/ej2-inputs" "18.2.54"
+    "@syncfusion/ej2-angular-base" "~18.2.56"
+    "@syncfusion/ej2-base" "~18.2.55"
+    "@syncfusion/ej2-inputs" "18.2.56"
+    "@types/lodash" "4.14.159"
 
-"@syncfusion/ej2-base@~18.2.54":
-  version "18.2.54"
-  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-base/-/ej2-base-18.2.54.tgz#588cf6bb9ecbc209467d84d867e5c7ff3ba5d4d4"
-  integrity sha512-mlBOkYUcH95NMT/tc0Xhs2Ncty3Pfv7DMZ3vAe93oC2YBTf+HIeBjpEY3jC0K99nK3efbmh1rzKHe/xvWunbTQ==
+"@syncfusion/ej2-base@~18.2.54", "@syncfusion/ej2-base@~18.2.55":
+  version "18.2.55"
+  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-base/-/ej2-base-18.2.55.tgz#b86a97c0e8598d786da1cf84f88d42b2c4d20850"
+  integrity sha512-3yBYQ2trjeLiApyXTrxTmMN3ToB9AxP6xxaMQHlTCQ8dSrKzyL2YWX7lX3x+mkNsC4wwvwhZu6T58RTl7zHmpQ==
   dependencies:
     "@syncfusion/ej2-icons" "~18.2.54"
 
@@ -1383,12 +1384,12 @@
   resolved "https://registry.yarnpkg.com/@syncfusion/ej2-icons/-/ej2-icons-18.2.54.tgz#3e28896dac781aad2d3340ca8e33aadd8d521af7"
   integrity sha512-KheTKLmj9BgiQdp/yJ2JTTvCB1KQK134uGDBx6A5/J+8+mVTqOWwzZhqxzUIYpUhWtt1/gKohkjF86CZ/Ucs3A==
 
-"@syncfusion/ej2-inputs@18.2.54":
-  version "18.2.54"
-  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-inputs/-/ej2-inputs-18.2.54.tgz#696825eedde66540b6cfdaf88c0516a4ff8065b7"
-  integrity sha512-U8SEdBtXT/qt1PiSXXtf28n0fvlBqnbsqIaK2FL/2veycY2dIJuXLuExc48ea0ii5DxY0MUyRtlJuUAPDJ+Y1w==
+"@syncfusion/ej2-inputs@18.2.56":
+  version "18.2.56"
+  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-inputs/-/ej2-inputs-18.2.56.tgz#219cc8abc25c42705090b83538de288b18425666"
+  integrity sha512-7xyGgT+mdzkF+MUGxrH/IjBu6ct9RRYDPOb42BShTMpPW3nDLlNiBV7AIuik932iTuAM7XH/EjBRyJ6AnKOxag==
   dependencies:
-    "@syncfusion/ej2-base" "~18.2.54"
+    "@syncfusion/ej2-base" "~18.2.55"
     "@syncfusion/ej2-buttons" "~18.2.54"
     "@syncfusion/ej2-popups" "~18.2.54"
     "@syncfusion/ej2-splitbuttons" "~18.2.54"
@@ -1467,6 +1468,11 @@
   version "7.0.5"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.5.tgz#dcce4430e64b443ba8945f0290fb564ad5bac6dd"
   integrity sha512-7+2BITlgjgDhH0vvwZU/HZJVyk+2XUlvxXe8dFMedNX/aMkaOq++rMAFXc0tM7ij15QaWlbdQASBR9dihi+bDQ==
+
+"@types/lodash@4.14.159":
+  version "4.14.159"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.159.tgz#61089719dc6fdd9c5cb46efc827f2571d1517065"
+  integrity sha512-gF7A72f7WQN33DpqOWw9geApQPh4M3PxluMtaHxWHXEGSN12/WbcEk/eNSqWNQcQhF66VSZ06vCF94CrHwXJDg==
 
 "@types/lodash@^4.14.161":
   version "4.14.161"
