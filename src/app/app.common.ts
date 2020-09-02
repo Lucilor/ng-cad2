@@ -55,7 +55,7 @@ export function addCadGongshi(data: CadData) {
 	mtext.text = getCadGongshiText(data);
 	mtext.insert = new Point(left, bottom - 10);
 	mtext.selectable = false;
-	mtext.anchor.set(0, 1);
+	mtext.anchor.set(0, 0);
 	mtext.info.isCadGongshi = true;
 	data.entities.add(mtext);
 	data.partners.forEach((d) => addCadGongshi(d));
@@ -133,7 +133,7 @@ export async function getCadPreview(data: CadData, width = 300, height = 150, pa
 	data2.entities = new CadEntities(data.getAllEntities().export());
 	data2.entities.dimension = [];
 	data2.entities.mtext = [];
-	const cad = new CadViewer(data2, {width, height, padding, showGongshi: 0, showLineLength: 0});
+	const cad = new CadViewer(data2, {width, height, padding});
 	cad.appendTo(document.body);
 	cad.render();
 	await timeout(0);

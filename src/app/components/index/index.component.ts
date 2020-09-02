@@ -92,8 +92,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			height: innerHeight,
 			showStats: !environment.production,
 			padding: this.menuPadding.map((v) => v + 30),
-			showLineLength: 24,
-			showGongshi: 8,
+			lineTexts: {lineLength: 24, gongshi: 8},
 			validateLines: false
 		});
 		this.getObservable(getCadStatus).subscribe((cadStatus) => {

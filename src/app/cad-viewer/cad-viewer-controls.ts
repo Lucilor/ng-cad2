@@ -3,6 +3,12 @@ import {CadEntities} from "./cad-data/cad-entities";
 import {CadEntity} from "./cad-data/cad-entity";
 import {CadViewer} from "./cad-viewer";
 
+let pointer: {from: Point; to: Point} = null;
+let button: number = null;
+let multiSelector: HTMLDivElement = null;
+let entitiesToDrag: CadEntities = null;
+let entitiesNotToDrag: CadEntities = null;
+
 export interface CadEvents {
 	pointerdown: [PointerEvent, never];
 	pointermove: [PointerEvent, never];
@@ -11,12 +17,13 @@ export interface CadEvents {
 	wheel: [WheelEvent, never];
 	keydown: [KeyboardEvent, never];
 	entityclick: [PointerEvent, CadEntity];
+	entitypointerdown: [PointerEvent, CadEntity];
+	entitypointermove: [PointerEvent, CadEntity];
+	entitypointerup: [PointerEvent, CadEntity];
 	entitiesselect: [null, CadEntities];
 	entitiesunselect: [null, CadEntities];
 	entitiesremove: [null, CadEntities];
 	entitiesadd: [null, CadEntities];
-	// move = "move",
-	// scale = "scale"
 }
 
 function onWheel(this: CadViewer, event: WheelEvent) {
@@ -39,37 +46,36 @@ function onClick(this: CadViewer, event: PointerEvent) {
 }
 
 function onPointerDown(this: CadViewer, event: PointerEvent) {
-	const {clientX, clientY, button} = event;
+	const {clientX, clientY, button: eBtn} = event;
 	const point = new Point(clientX, clientY);
-	this.status.pointer = {from: point, to: point.clone()};
-	this.status.button = button;
+	pointer = {from: point, to: point.clone()};
+	button = eBtn;
 	this.emit("pointerdown", event);
 }
 
 function onPointerMove(this: CadViewer, event: PointerEvent) {
-	const {clientX, clientY, shiftKey} = event;
-	const {status} = this;
-	const {pointer, button} = this.status;
 	if (pointer) {
+		const {clientX, clientY, shiftKey} = event;
+		const {selectMode, entityDraggable} = this.config;
 		const {from, to} = pointer;
+		const translate = new Point(clientX, clientY).sub(to).divide(this.zoom());
 		if ((button === 0 && shiftKey) || button === 1) {
-			const offset = new Point(clientX, clientY).sub(to).divide(this.zoom());
 			if (!this.config.dragAxis.includes("x")) {
-				offset.x = 0;
+				translate.x = 0;
 			}
 			if (!this.config.dragAxis.includes("y")) {
-				offset.y = 0;
+				translate.y = 0;
 			}
-			this.move(offset.x, offset.y);
+			this.move(translate.x, -translate.y);
 		} else if (button === 0) {
-			const triggerMultiple = this.config.selectMode === "multiple";
-			if (triggerMultiple) {
-				if (!status.multiSelector) {
-					status.multiSelector = document.createElement("div");
-					status.multiSelector.classList.add("multi-selector");
-					this.dom.appendChild(status.multiSelector);
+			if (entitiesToDrag && entityDraggable) {
+				this.moveEntities(entitiesToDrag, entitiesNotToDrag, translate.x, -translate.y);
+			} else if (selectMode === "multiple") {
+				if (!multiSelector) {
+					multiSelector = document.createElement("div");
+					multiSelector.classList.add("multi-selector");
+					this.dom.appendChild(multiSelector);
 				}
-				const multiSelector = status.multiSelector;
 				multiSelector.style.left = Math.min(from.x, to.x) + "px";
 				multiSelector.style.top = Math.min(from.y, to.y) + "px";
 				multiSelector.style.width = Math.abs(from.x - to.x) + "px";
@@ -82,9 +88,8 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 }
 
 function onPointerUp(this: CadViewer, event: PointerEvent) {
-	const status = this.status;
-	if (status.pointer) {
-		const {from, to} = status.pointer;
+	if (pointer) {
+		const {from, to} = pointer;
 		const rect = new Rectangle(from, to).justify();
 		const toSelect = Array<CadEntity>();
 		this.data.getAllEntities().forEach((e) => {
@@ -104,8 +109,18 @@ function onPointerUp(this: CadViewer, event: PointerEvent) {
 			toSelect.forEach((e) => (e.selected = true));
 		}
 	}
-	this.status.multiSelector?.remove();
-	this.status = {pointer: null, button: -1, multiSelector: null};
+	pointer = null;
+	button = null;
+	multiSelector?.remove();
+	multiSelector = null;
+	if (entitiesToDrag && entitiesNotToDrag) {
+		if (entitiesToDrag.length <= entitiesNotToDrag.length) {
+			this.render(false, entitiesToDrag);
+		} else {
+			this.render(false, entitiesNotToDrag);
+		}
+	}
+	entitiesToDrag = entitiesNotToDrag = null;
 	this.emit("pointerup", event);
 }
 
@@ -132,4 +147,31 @@ function onEntityClick(this: CadViewer, event: PointerEvent, entity: CadEntity) 
 	this.emit("entityclick", event, entity);
 }
 
-export const controls = {onWheel, onClick, onPointerDown, onPointerMove, onPointerUp, onKeyDown, onEntityClick};
+function onEntityPointerDown(this: CadViewer, event: PointerEvent, entity: CadEntity) {
+	if (this.config.entityDraggable) {
+		entitiesToDrag = this.selected();
+		entitiesNotToDrag = this.unselected();
+	}
+	this.emit("entitypointerdown", event, entity);
+}
+
+function onEntityPointerMove(this: CadViewer, event: PointerEvent, entity: CadEntity) {
+	this.emit("entitypointermove", event, entity);
+}
+
+function onEntityPointerUp(this: CadViewer, event: PointerEvent, entity: CadEntity) {
+	this.emit("entitypointerup", event, entity);
+}
+
+export const controls = {
+	onWheel,
+	onClick,
+	onPointerDown,
+	onPointerMove,
+	onPointerUp,
+	onKeyDown,
+	onEntityClick,
+	onEntityPointerDown,
+	onEntityPointerMove,
+	onEntityPointerUp
+};

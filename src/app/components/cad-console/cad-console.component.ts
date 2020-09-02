@@ -140,7 +140,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		if (cachedData && vid) {
 			this.collection = params.collection ?? "cad";
 			const {showLineLength} = params;
-			this.cad.config.showLineLength = showLineLength;
+			this.cad.config.lineTexts.lineLength = showLineLength;
 			this.afterOpen([new CadData(cachedData)]);
 		} else if (location.search) {
 			const data = await dataService.getCadData();
@@ -749,9 +749,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			height: height * scaleY,
 			backgroundColor: new Color("white"),
 			padding: 18 * scale,
-			showStats: false,
-			showLineLength: 0,
-			showGongshi: 0
+			showStats: false
 		});
 		document.body.appendChild(cad.dom);
 		await timeout(0);

@@ -114,16 +114,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 					}
 					cad.render();
 				} else {
-					entitiesToMove.transform({translate});
-					cad.render(null, entitiesToMove);
-					// if (entitiesToMove.length < entitiesNotToMove.length) {
-					// 	entitiesToMove.transform({translate});
-					// 	cad.render(null, entitiesToMove);
-					// } else {
-					// 	cad.move(translate.x, -translate.y);
-					// 	entitiesNotToMove.transform({translate});
-					// 	cad.render(null, entitiesNotToMove);
-					// }
+					cad.moveEntities(entitiesToMove, entitiesNotToMove, translate.x, translate.y);
 				}
 				lastPointer.copy(pointer);
 			}

@@ -5,6 +5,9 @@
 		* {
 			user-select: none;
 			// vector-effect: non-scaling-stroke;
+			&.selectable {
+				cursor: pointer;
+			}
 		}
 
 		g {
@@ -23,8 +26,6 @@
 			}
 
 			&:hover.selectable {
-				cursor: pointer;
-
 				line,
 				circle,
 				path {

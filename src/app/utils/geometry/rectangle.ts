@@ -12,10 +12,10 @@ export class Rectangle {
 		return this.max.y - this.min.y;
 	}
 	get top() {
-		return this.min.y;
+		return this.max.y;
 	}
 	set top(value) {
-		this.min.y = value;
+		this.max.y = value;
 	}
 	get right() {
 		return this.max.x;
@@ -24,10 +24,10 @@ export class Rectangle {
 		this.max.x = value;
 	}
 	get bottom() {
-		return this.max.y;
+		return this.min.y;
 	}
 	set bottom(value) {
-		this.max.y = value;
+		this.min.y = value;
 	}
 	get left() {
 		return this.min.x;

@@ -1,4 +1,4 @@
-import {Circle, Container, Line, List, Path, PathArrayAlias, Text, Tspan} from "@svgdotjs/svg.js";
+import {Circle, Container, Line, Path, PathArrayAlias, Text} from "@svgdotjs/svg.js";
 import {Angle, Arc, Point} from "../utils";
 
 export function drawLine(draw: Container, start: Point, end: Point, i = 0) {
@@ -49,7 +49,7 @@ export function drawArc(draw: Container, center: Point, radius: number, startAng
 	} else {
 		el = draw.path(path).addClass("stroke");
 	}
-	return el;
+	return [el];
 }
 
 export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical = false, i = 0) {
@@ -93,8 +93,8 @@ export function drawDimension(draw: Container, points: Point[], text: string, ax
 	const l1 = drawLine(draw, p1, p3, i)[0];
 	const l2 = drawLine(draw, p3, p4, i + 1)[0];
 	const l3 = drawLine(draw, p4, p2, i + 2)[0];
-	const tri1 = drawTriangle(draw, p3, p5, p6, i + 3);
-	const tri2 = drawTriangle(draw, p4, p7, p8, i + 4);
+	const tri1 = drawTriangle(draw, p3, p5, p6, i + 3)[0];
+	const tri2 = drawTriangle(draw, p4, p7, p8, i + 4)[0];
 	text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
 	const middle = p3.clone().add(p4).divide(2);
 	let textEl: Text;

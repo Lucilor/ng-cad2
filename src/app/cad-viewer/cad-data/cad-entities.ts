@@ -19,7 +19,6 @@ export class CadEntities {
 		return result;
 	}
 
-
 	constructor(data: any = {}, layers: CadLayer[] = [], resetIds = false) {
 		if (typeof data !== "object") {
 			throw new Error("Invalid data.");
@@ -103,7 +102,6 @@ export class CadEntities {
 
 	forEach(callback: (value: CadEntity, index: number, array: CadEntity[]) => void, recursive = false) {
 		this.forEachType((array) => {
-			array.forEach(callback);
 			array.forEach((v, i, a) => {
 				callback(v, i, a);
 				if (recursive) {
@@ -116,13 +114,15 @@ export class CadEntities {
 	filter(callback: (value: CadEntity, index: number, array: CadEntity[]) => boolean, recursive = false) {
 		const result = new CadEntities();
 		this.forEachType((array) => {
-			array.forEach(callback);
 			array.forEach((v, i, a) => {
 				if (callback(v, i, a)) {
 					result.add(v);
-				}
-				if (recursive) {
-					result.merge(v.children.filter(callback));
+				} else if (recursive) {
+					v.children.forEach((vv, ii, aa) => {
+						if (callback(vv, ii, aa)) {
+							result.add(vv);
+						}
+					});
 				}
 			});
 		});

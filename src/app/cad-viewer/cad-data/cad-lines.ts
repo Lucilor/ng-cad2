@@ -299,9 +299,9 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				}
 			}
 
-			const {showLineLength, showGongshi} = cad.config;
+			const {lineLength, gongshi} = cad.config.lineTexts;
 			let lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
-			if (showLineLength > 0) {
+			if (lineLength > 0) {
 				if (!(lengthText instanceof CadMtext)) {
 					lengthText = new CadMtext();
 					lengthText.info.isLengthText = true;
@@ -311,7 +311,7 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				const offset = getVectorFromArray(lengthText.info.offset);
 				lengthText.insert.copy(offset.add(outer));
 				lengthText.text = Math.round(line.length).toString();
-				lengthText.font_size = showLineLength;
+				lengthText.font_size = lineLength;
 				lengthText.anchor.copy(anchor);
 			} else {
 				line.remove(lengthText);
@@ -319,7 +319,7 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 			}
 
 			let gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
-			if (showGongshi) {
+			if (gongshi) {
 				if (!(gongshiText instanceof CadMtext)) {
 					gongshiText = new CadMtext();
 					gongshiText.info.isGongshiText = true;
@@ -328,40 +328,13 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 					gongshiText.insert.copy(inner);
 				}
 				gongshiText.text = line.gongshi;
-				gongshiText.font_size = showGongshi;
+				gongshiText.font_size = gongshi;
 				gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
 			} else {
 				line.remove(gongshiText);
 				// cad.scene.remove(line.object);
 			}
 		});
-	});
-}
-
-export function updateLineText(cad: CadViewer, line: CadLineLike) {
-	const middle = line.middle;
-	const lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
-	const {showLineLength, showGongshi} = cad.config;
-	if (lengthText) {
-		const offset = getVectorFromArray(lengthText.info.offset);
-		lengthText.text = Math.round(line.length).toString();
-		lengthText.font_size = showLineLength;
-		lengthText.insert.copy(offset.add(middle));
-	}
-	const gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
-	if (gongshiText) {
-		const offset = getVectorFromArray(gongshiText.info.offset);
-		gongshiText.text = line.gongshi;
-		gongshiText.font_size = showGongshi;
-		gongshiText.insert.copy(offset.add(middle));
-	}
-	return line;
-}
-
-export function updateLineTexts(cad: CadViewer) {
-	const {line, arc} = cad.data.getAllEntities();
-	[...line, ...arc].forEach((line) => {
-		updateLineText(cad, line);
 	});
 }
 

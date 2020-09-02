@@ -22,6 +22,7 @@ export abstract class CadEntity {
 	parent: CadEntity = null;
 	children: CadEntities;
 	el?: G = null;
+	needsTransform = false;
 
 	get selectable() {
 		return this.el?.hasClass("selectable");
@@ -103,13 +104,17 @@ export abstract class CadEntity {
 		} else {
 			this.info = {};
 		}
-		this.children = new CadEntities(data.children || {});
+		this.children = new CadEntities(data.children || {}, [], false);
+		this.children.forEach((c) => (c.parent = this));
 		this.selectable = data.selectable ?? true;
 		this.selected = data.selected ?? false;
+		if (data.parent instanceof CadEntity) {
+			this.parent = data.parent;
+		}
 	}
 
-	transform(matrix: MatrixAlias) {
-		this.children.forEach((e) => e.transform(matrix));
+	transform(matrix: MatrixAlias, _parent?: CadEntity) {
+		this.children.forEach((e) => e.transform(matrix, this));
 		return this;
 	}
 
@@ -189,7 +194,7 @@ export class CadArc extends CadEntity {
 	}
 
 	transform(matrix: MatrixAlias) {
-		super.transform(matrix);
+		super.transform(matrix, this);
 		this.curve.transform(new Matrix(matrix));
 		return this;
 	}
@@ -544,7 +549,7 @@ export class CadMtext extends CadEntity {
 		super.transform(matrix);
 		const m = new Matrix(matrix);
 		this.insert.transform(m);
-		if (this.info.isLengthText) {
+		if (this.info.isLengthText || this.info.isGongshiText) {
 			if (!Array.isArray(this.info.offset)) {
 				this.info.offset = [0, 0];
 			}

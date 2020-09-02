@@ -1,11 +1,12 @@
-import {SVG, Svg, CoordinateXY} from "@svgdotjs/svg.js";
+import {SVG, Svg, CoordinateXY, Element} from "@svgdotjs/svg.js";
 import Color from "color";
 import {EventEmitter} from "events";
-import {cloneDeep} from "lodash";
+import {cloneDeep, result} from "lodash";
 import {Point} from "../utils";
 import {CadData} from "./cad-data/cad-data";
 import {CadEntities} from "./cad-data/cad-entities";
 import {CadEntity, CadArc, CadCircle, CadDimension, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entity";
+import {getVectorFromArray} from "./cad-data/utils";
 import {CadStyle, CadStylizer} from "./cad-stylizer";
 import {CadEvents, controls} from "./cad-viewer-controls";
 import {drawArc, drawCircle, drawDimension, drawLine, drawText} from "./draw";
@@ -14,14 +15,14 @@ export interface CadViewerConfig {
 	width: number;
 	height: number;
 	backgroundColor: Color;
-	showLineLength: number;
-	showGongshi: number;
+	lineTexts: {lineLength: number; gongshi: number};
 	padding: number[] | number;
 	showStats: boolean;
 	reverseSimilarColor: boolean;
 	validateLines: boolean;
 	selectMode: "none" | "single" | "multiple";
 	dragAxis: "" | "x" | "y" | "xy";
+	entityDraggable: boolean;
 }
 
 export class CadViewer extends EventEmitter {
@@ -30,23 +31,18 @@ export class CadViewer extends EventEmitter {
 		width: 300,
 		height: 150,
 		backgroundColor: new Color(),
-		showLineLength: 0,
-		showGongshi: 0,
+		lineTexts: {lineLength: 0, gongshi: 0},
 		padding: [0],
 		showStats: false,
 		reverseSimilarColor: true,
 		validateLines: false,
 		selectMode: "multiple",
-		dragAxis: "xy"
+		dragAxis: "xy",
+		entityDraggable: true
 	};
 	dom: HTMLDivElement;
 	draw: Svg;
 	stylizer: CadStylizer;
-	status: {pointer: {from: Point; to: Point}; button: number; multiSelector: HTMLDivElement} = {
-		pointer: null,
-		button: -1,
-		multiSelector: null
-	};
 
 	constructor(data: CadData, config: Partial<CadViewerConfig> = {}) {
 		super();
@@ -133,9 +129,11 @@ export class CadViewer extends EventEmitter {
 	xy(x?: number, y?: number) {
 		const box = this.draw.viewbox();
 		if (typeof x === "number" && typeof y === "number") {
-			box.x = x;
-			box.y = y;
-			this.draw.viewbox(box);
+			if (x || y) {
+				box.x = x;
+				box.y = y;
+				this.draw.viewbox(box);
+			}
 			return this;
 		} else {
 			return {x: box.x, y: box.y};
@@ -147,18 +145,12 @@ export class CadViewer extends EventEmitter {
 	}
 
 	dy(value = 0) {
-		return this.y(this.y() + value);
+		return this.y(this.y() - value);
 	}
 
-	move(dx = 0, dy = 0, entities?: CadEntities) {
-		if (entities instanceof CadEntities && entities.length) {
-		} else {
-			const box = this.draw.viewbox();
-			box.x -= dx;
-			box.y += dy;
-			this.draw.viewbox(box);
-		}
-		return this;
+	move(dx = 0, dy = 0) {
+		const box = this.draw.viewbox();
+		return this.xy((box.x -= dx), (box.y -= dy));
 	}
 
 	zoom(level?: number, point?: CoordinateXY) {
@@ -220,16 +212,35 @@ export class CadViewer extends EventEmitter {
 			entity.el = null;
 			return this;
 		}
-		if (!entity.el) {
-			entity.el = draw.group().addClass("selectable");
+		let el = entity.el;
+		if (!el) {
+			el = draw.group().addClass("selectable");
+			entity.el = el;
+			el.node.onclick = (event) => {
+				controls.onEntityClick.call(this, event, entity);
+			};
+			el.node.onpointerdown = (event) => {
+				controls.onEntityPointerDown.call(this, event, entity);
+			};
+			el.node.onpointermove = (event) => {
+				controls.onEntityPointerMove.call(this, event, entity);
+			};
+			el.node.onpointerup = (event) => {
+				controls.onEntityPointerUp.call(this, event, entity);
+			};
 		}
-		const el = entity.el;
+		if (entity.needsTransform) {
+			entity.transform(entity.el.transform());
+			entity.el.transform({});
+			entity.needsTransform = false;
+		}
+		let drawResult: Element[];
 		if (entity instanceof CadArc) {
 			const {center, radius, start_angle, end_angle, clockwise} = entity;
-			drawArc(el, center, radius, start_angle, end_angle, clockwise);
+			drawResult = drawArc(el, center, radius, start_angle, end_angle, clockwise);
 		} else if (entity instanceof CadCircle) {
 			const {center, radius} = entity;
-			drawCircle(el, center, radius);
+			drawResult = drawCircle(el, center, radius);
 		} else if (entity instanceof CadDimension) {
 			const {mingzi, qujian, font_size, axis} = entity;
 			const points = this.data.getDimensionPoints(entity);
@@ -243,14 +254,49 @@ export class CadViewer extends EventEmitter {
 			if (text === "") {
 				text = "<>";
 			}
-			drawDimension(el, points, text, axis, font_size);
+			drawResult = drawDimension(el, points, text, axis, font_size);
 		} else if (entity instanceof CadHatch) {
+			const {paths} = entity;
+			drawResult = [];
+			paths.forEach((path) => {
+				const {edges, vertices} = path;
+				let i = 0;
+				edges.forEach(({start, end}) => {
+					drawResult = drawResult.concat(drawLine(el, start, end, i++));
+				});
+				for (let j = 1; j < vertices.length; j++) {
+					drawResult = drawResult.concat(drawLine(el, vertices[j - 1], vertices[j], i + j));
+				}
+			});
+			if (!drawResult.length) {
+				drawResult = null;
+			}
 		} else if (entity instanceof CadLine) {
 			const {start, end} = entity;
-			drawLine(el, start, end);
+			drawResult = drawLine(el, start, end);
 		} else if (entity instanceof CadMtext) {
 			const {text, insert, font_size, anchor} = entity;
-			drawText(el, text, font_size, insert, anchor);
+			const parent = entity.parent;
+			if (parent instanceof CadLine) {
+				if (entity.info.isLengthText) {
+					entity.text = Math.round(parent.length).toString();
+					entity.font_size = this.config.lineTexts.lineLength;
+					const offset = getVectorFromArray(parent.info.offset);
+					entity.insert.copy(offset.add(parent.middle));
+				}
+				if (entity.info.isGongshiText) {
+					entity.text = parent.gongshi;
+					entity.font_size = this.config.lineTexts.gongshi;
+					const offset = getVectorFromArray(parent.info.offset);
+					entity.insert.copy(offset.add(parent.middle));
+				}
+			}
+			drawResult = drawText(el, text, font_size, insert, anchor);
+		}
+		if (!drawResult) {
+			entity.el?.remove();
+			entity.el = null;
+			return this;
 		}
 		el.attr({id: entity.id, type: entity.type});
 		el.children().forEach((c) => {
@@ -262,9 +308,6 @@ export class CadViewer extends EventEmitter {
 				c.attr("vector-effect", "non-scaling-stroke");
 			}
 		});
-		el.node.onclick = (event) => {
-			controls.onEntityClick.call(this, event, entity);
-		};
 		entity.children.forEach((c) => this.drawEntity(c, style));
 		return this;
 	}
@@ -277,6 +320,7 @@ export class CadViewer extends EventEmitter {
 			this.center();
 		}
 		entities.forEach((e) => this.drawEntity(e, style));
+		return this;
 	}
 
 	center() {
@@ -445,5 +489,24 @@ export class CadViewer extends EventEmitter {
 			e.children.forEach((c) => (c.el = null));
 		});
 		return this.render(center);
+	}
+
+	// ? move entities efficiently
+	moveEntities(toMove: CadEntities, notToMove: CadEntities, x: number, y: number) {
+		const move = (es: CadEntities, x: number, y: number) => {
+			es.forEach((e) => {
+				e.el?.translate(x, y);
+				e.needsTransform = true;
+				if (e.children.length) {
+					move(e.children, x, y);
+				}
+			});
+		};
+		if (toMove.length <= notToMove.length) {
+			move(toMove, x, y);
+		} else {
+			this.move(x, y);
+			move(notToMove, -x, -y);
+		}
 	}
 }

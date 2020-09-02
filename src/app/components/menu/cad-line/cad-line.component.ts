@@ -6,7 +6,6 @@ import {
 	getPointsFromMap,
 	setLinesLength,
 	autoFixLine,
-	updateLineTexts,
 	CadLineLike
 } from "@src/app/cad-viewer/cad-data/cad-lines";
 import {Point} from "@app/utils";
@@ -158,7 +157,6 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		if (cad.config.validateLines) {
 			validateLines(cad.data);
 		}
-		updateLineTexts(this.cad);
 		cad.render();
 	}
 
@@ -214,7 +212,6 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		});
 		if (field === "gongshi") {
-			updateLineTexts(this.cad);
 			this.cad.render();
 		}
 	}

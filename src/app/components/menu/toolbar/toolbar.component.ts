@@ -4,8 +4,8 @@ import {CommandAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
 import {Collection} from "@src/app/app.common";
-import {updateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
 import Color from "color";
+import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 
 @Component({
 	selector: "app-toolbar",
@@ -26,11 +26,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		h: () => this.splitCad(),
 		p: () => this.printCad()
 	};
-	lastCommand: {name: string; arguments: IArguments};
 	showDimensions = true;
 	showCadGongshis = true;
-	prevLineLengths: number;
-	prevLineGongshis: number;
+	prevLineTexts: CadViewerConfig["lineTexts"];
 	lastUrl: string = null;
 
 	constructor(injector: Injector) {
@@ -46,6 +44,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				this.clickBtn(key);
 			}
 		});
+		this.prevLineTexts = {...this.cad.config.lineTexts};
 	}
 
 	ngOnDestroy() {
@@ -130,7 +129,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	toggleShowDimensions() {
-		this.lastCommand = {name: this.toggleShowDimensions.name, arguments};
 		this.showDimensions = !this.showDimensions;
 		const cad = this.cad;
 		cad.data.getAllEntities().dimension.forEach((e) => (e.visible = this.showDimensions));
@@ -138,7 +136,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	toggleShowCadGongshis() {
-		this.lastCommand = {name: this.toggleShowCadGongshis.name, arguments};
 		this.showCadGongshis = !this.showCadGongshis;
 		const cad = this.cad;
 		cad.data.getAllEntities().mtext.forEach((e) => {
@@ -150,63 +147,58 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	toggleValidateLines() {
-		this.lastCommand = {name: this.toggleValidateLines.name, arguments};
 		const cad = this.cad;
 		cad.config.validateLines = !cad.config.validateLines;
 		cad.render();
 	}
 
 	async setShowLineLength() {
-		this.lastCommand = {name: this.setShowLineLength.name, arguments};
 		const ref = openMessageDialog(this.dialog, {
 			data: {
 				type: "prompt",
 				title: "线长字体大小",
-				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.showLineLength.toString()}
+				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.lineTexts.lineLength.toString()}
 			}
 		});
 		const num = Number(await ref.afterClosed().toPromise());
-		this.cad.config.showLineLength = num;
-		updateLineTexts(this.cad);
+		this.cad.config.lineTexts.lineLength = num;
 		this.cad.render();
 	}
 
 	toggleShowLineLength() {
 		const cad = this.cad;
-		if (cad.config.showLineLength > 0) {
-			this.prevLineLengths = cad.config.showLineLength;
-			cad.config.showLineLength = 0;
+		const lineTexts = cad.config.lineTexts;
+		if (lineTexts.lineLength > 0) {
+			this.prevLineTexts.lineLength = lineTexts.lineLength;
+			lineTexts.lineLength = 0;
 		} else {
-			cad.config.showLineLength = this.prevLineLengths;
+			lineTexts.lineLength = this.prevLineTexts.lineLength;
 		}
-		updateLineTexts(cad);
 		cad.render();
 	}
 
 	async setShowGongshi() {
-		this.lastCommand = {name: this.setShowGongshi.name, arguments};
 		const ref = openMessageDialog(this.dialog, {
 			data: {
 				type: "prompt",
 				title: "公式字体大小",
-				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.showGongshi.toString()}
+				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.lineTexts.gongshi.toString()}
 			}
 		});
 		const num = Number(await ref.afterClosed().toPromise());
-		this.cad.config.showGongshi = num;
-		updateLineTexts(this.cad);
+		this.cad.config.lineTexts.gongshi = num;
 		this.cad.render();
 	}
 
 	toggleShowLineGongshi() {
 		const cad = this.cad;
-		if (cad.config.showGongshi > 0) {
-			this.prevLineGongshis = cad.config.showGongshi;
-			cad.config.showGongshi = 0;
+		const lineTexts = cad.config.lineTexts;
+		if (lineTexts.gongshi > 0) {
+			this.prevLineTexts.gongshi = lineTexts.gongshi;
+			lineTexts.gongshi = 0;
 		} else {
-			cad.config.showGongshi = this.prevLineGongshis;
+			lineTexts.gongshi = this.prevLineTexts.gongshi;
 		}
-		updateLineTexts(cad);
 		cad.render();
 	}
 
