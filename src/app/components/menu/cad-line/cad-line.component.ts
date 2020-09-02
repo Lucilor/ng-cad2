@@ -23,6 +23,7 @@ import {CadViewerControlsConfig} from "@src/app/cad-viewer/cad-viewer-controls";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {State} from "@src/app/store/state";
 import {ErrorStateMatcher} from "@angular/material/core";
+import {getCollection} from "@src/app/app.common";
 
 @Component({
 	selector: "app-cad-line",
@@ -38,7 +39,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	cadStatusName: State["cadStatus"]["name"];
 	gongshiMatcher: ErrorStateMatcher = {
 		isErrorState: () => {
-			return !!this.getLineText("gongshi").match(/[-+*/()（）]/);
+			return getCollection() === "cad" && !!this.getLineText("gongshi").match(/[-+*/()（）]/);
 		}
 	};
 
