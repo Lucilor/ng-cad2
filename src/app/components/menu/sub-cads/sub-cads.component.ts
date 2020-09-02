@@ -463,8 +463,14 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		this.dataService.downloadDxf(data);
 	}
 
-	uploadDxf() {
-		this.dxfInut.nativeElement.click();
+	uploadDxf(mainCad = false) {
+		const el = this.dxfInut.nativeElement;
+		el.click();
+		if (mainCad) {
+			el.setAttribute("main-cad", "");
+		} else {
+			el.removeAttribute("main-cad");
+		}
 	}
 
 	async onDxfInutChange(event: InputEvent) {
@@ -477,9 +483,21 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		if (yes) {
 			const resData = await this.dataService.uploadDxf(file);
 			if (resData) {
-				data.entities = resData.entities;
-				data.partners = resData.partners;
-				data.components = resData.components;
+				if (input.hasAttribute("main-cad")) {
+					// TODO:getBoundingRect
+					const data1 = new CadData();
+					data1.entities = data.entities;
+					const data2 = new CadData();
+					data2.entities = resData.entities;
+					const {min: min1} = data1.getBoundingBox();
+					const {min: min2} = data2.getBoundingBox();
+					data2.transform(new CadTransformation({translate: min1.sub(min2)}));
+					data.entities = data2.entities;
+				} else {
+					data.entities = resData.entities;
+					data.partners = resData.partners;
+					data.components = resData.components;
+				}
 				this.updateList();
 				this.cad.reset(null, true);
 			}
@@ -504,8 +522,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			data = new CadData(result);
 			addCadGongshi(data);
 			this.contextMenuCad.data.copy(data);
-			this.cad.reset();
 			this.updateList();
+			this.cad.reset(null, true);
 		}
 	}
 
