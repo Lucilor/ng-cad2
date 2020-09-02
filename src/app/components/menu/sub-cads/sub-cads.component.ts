@@ -210,7 +210,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				});
 			}
 			if (this.needsReload === "split") {
-				if (getCollection() === "p_yuanshicadwenjian") {
+				if (getCollection() === "p_yuanshicadwenjian" && this._prevId) {
 					const data = cad.data.findChild(this._prevId);
 					data.components.data = [];
 					cad.reset();

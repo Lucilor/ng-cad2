@@ -792,10 +792,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			}
 			for (const i of indices) {
 				result = await dataService.postCadData(data[i].components.data, {collection: "cad"});
-				if (result) {
-					data[extra.index].components.data = result;
-					this.afterOpen();
-				}
+				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 			}
 		} else {
 			const validateResult = [];
