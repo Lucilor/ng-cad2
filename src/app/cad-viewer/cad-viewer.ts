@@ -251,6 +251,7 @@ export class CadViewer extends EventEmitter {
 		} else if (entity instanceof CadMtext) {
 			const {text, insert, font_size, anchor} = entity;
 			const parent = entity.parent;
+			let vertical = false;
 			if (parent instanceof CadLine) {
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
@@ -264,8 +265,11 @@ export class CadViewer extends EventEmitter {
 					const offset = getVectorFromArray(entity.info.offset);
 					entity.insert.copy(offset.add(parent.middle));
 				}
+				if (parent.isVertical()) {
+					vertical = true;
+				}
 			}
-			drawResult = drawText(el, text, font_size, insert, anchor);
+			drawResult = drawText(el, text, font_size, insert, anchor, vertical);
 		}
 		if (!drawResult) {
 			entity.el?.remove();

@@ -81,7 +81,7 @@
 				name="lineGongshi"
 				[errorStateMatcher]="gongshiMatcher"
 			/>
-			<mat-error>不能使用四则运算</mat-error>
+			<mat-error>{{ inputErrors.gongshi }}</mat-error>
 		</mat-form-field>
 	</div>
 	<div class="form-item guanlianbianhuagongshi">
@@ -95,7 +95,9 @@
 				(focus)="focusedField = 'guanlianbianhuagongshi'"
 				(blur)="focusedField = ''"
 				name="guanlianbianhuagongshi"
+				[errorStateMatcher]="guanlianbianhuagongshiMatcher"
 			/>
+			<mat-error>{{ inputErrors.guanlianbianhuagongshi }}</mat-error>
 		</mat-form-field>
 	</div>
 	<div class="form-item kongwei">

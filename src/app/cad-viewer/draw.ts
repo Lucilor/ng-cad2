@@ -52,7 +52,7 @@ export function drawArc(draw: Container, center: Point, radius: number, startAng
 	return [el];
 }
 
-export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical = false, i = 0) {
+export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical: boolean, i = 0) {
 	if (!text || !(size > 0)) {
 		draw.remove();
 		return null;

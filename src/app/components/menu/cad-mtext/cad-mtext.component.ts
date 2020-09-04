@@ -4,6 +4,7 @@ import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
 import Color from "color";
+import {throttle} from "lodash";
 import {MenuComponent} from "../menu.component";
 
 @Component({
@@ -13,9 +14,6 @@ import {MenuComponent} from "../menu.component";
 })
 export class CadMtextComponent extends MenuComponent implements OnInit, OnDestroy {
 	data: CadData;
-	renderInterval = 500;
-	lastRendered = -Infinity;
-	isWaitingForRender = false;
 
 	get selected() {
 		return this.cad.selected().mtext;
@@ -51,20 +49,12 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 		return "";
 	}
 
-	setInfo(field: string, event: InputEvent) {
-		const now = performance.now();
-		const timeout = this.lastRendered + this.renderInterval - now;
-		if (timeout < 0) {
-			this.lastRendered = now;
-			this.isWaitingForRender = false;
-			const value = (event.target as HTMLInputElement).value;
-			this.selected.forEach((e) => (e[field] = value));
-			this.cad.render();
-		} else if (!this.isWaitingForRender) {
-			this.isWaitingForRender = true;
-			setTimeout(() => this.setInfo(field, event), timeout);
-		}
-	}
+	// tslint:disable-next-line: member-ordering
+	setInfo = throttle((field: string, event: InputEvent) => {
+		const value = (event.target as HTMLInputElement).value;
+		this.selected.forEach((e) => (e[field] = value));
+		this.cad.render();
+	}, 500);
 
 	getColor() {
 		const selected = this.selected;

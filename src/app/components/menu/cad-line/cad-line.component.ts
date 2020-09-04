@@ -1,5 +1,5 @@
-import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
-import {CadViewer, CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
+import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
+import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 import {
 	generatePointsMap,
 	validateLines,
@@ -15,13 +15,13 @@ import {MenuComponent} from "../menu.component";
 import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
 import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {takeUntil} from "rxjs/operators";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {State} from "@src/app/store/state";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {getCollection} from "@src/app/app.common";
 import Color from "color";
 import {CadLine, CadArc} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {throttle} from "lodash";
 
 @Component({
 	selector: "app-cad-line",
@@ -29,15 +29,23 @@ import {CadLine, CadArc} from "@src/app/cad-viewer/cad-data/cad-entity";
 	styleUrls: ["./cad-line.component.scss"]
 })
 export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy {
-	@Input() cad: CadViewer;
 	focusedField = "";
 	editDiabled = true;
 	lineDrawing: {start: Point; end: Point; entity?: CadLine};
 	data: CadData;
 	cadStatusName: State["cadStatus"]["name"];
+	inputErrors: {gongshi: string; guanlianbianhuagongshi: string} = {
+		gongshi: null,
+		guanlianbianhuagongshi: null
+	};
 	gongshiMatcher: ErrorStateMatcher = {
 		isErrorState: () => {
-			return getCollection() === "cad" && !!this.getLineText("gongshi").match(/[-+*/()（）]/);
+			return !!this.inputErrors.gongshi;
+		}
+	};
+	guanlianbianhuagongshiMatcher: ErrorStateMatcher = {
+		isErrorState: () => {
+			return !!this.inputErrors.guanlianbianhuagongshi;
 		}
 	};
 	selected: CadLineLike[] = [];
@@ -123,6 +131,11 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	updateSelected() {
 		const {line, arc} = this.cad.selected();
 		this.selected = [...line, ...arc];
+		this.selected.forEach((e) => {
+			if (e instanceof CadLine) {
+				["gongshi", "guanlianbianhuagongshi"].forEach((v) => this.validateLineText(v, e[v]));
+			}
+		});
 	}
 
 	updateEditDisabled() {
@@ -195,25 +208,46 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		return "";
 	}
 
-	setLineText(event: InputEvent | MatSelectChange, field: string) {
-		let value: string | number;
-		console.log(event);
+	// tslint:disable-next-line: member-ordering
+	setLineText = throttle((event: InputEvent | MatSelectChange, field: string) => {
+		let value: string;
 		if (event instanceof MatSelectChange) {
 			value = event.value;
 		} else if (event instanceof InputEvent) {
 			value = (event.target as HTMLInputElement).value;
 		}
-		if (field === "zidingzhankaichang") {
-			value = Number(value);
+		if (this.validateLineText(field, value)) {
+			this.selected.forEach((e) => {
+				if (e instanceof CadLine) {
+					if (field === "zidingzhankaichang") {
+						e[field] = Number(value);
+					} else {
+						e[field] = value;
+					}
+				}
+			});
 		}
-		this.selected.forEach((e) => {
-			if (e instanceof CadLine) {
-				e[field] = value;
+	}, 500);
+
+	validateLineText(field: string, value: string) {
+		if (getCollection() === "cad" && value.match(/[-+*/()（）]/)) {
+			this.inputErrors.gongshi = "不能使用四则运算";
+			return false;
+		} else if (value.includes("变化值")) {
+			this.inputErrors.gongshi = "公式不能包含变化值";
+			return false;
+		} else {
+			this.inputErrors.gongshi = null;
+		}
+		if (field === "guanlianbianhuagongshi") {
+			if (value && !value.includes("变化值")) {
+				this.inputErrors.guanlianbianhuagongshi = "公式必须包含变化值";
+				return false;
+			} else {
+				this.inputErrors.guanlianbianhuagongshi = null;
 			}
-		});
-		if (field === "gongshi") {
-			this.cad.render();
 		}
+		return true;
 	}
 
 	getLinewidth() {
