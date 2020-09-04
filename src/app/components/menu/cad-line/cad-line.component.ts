@@ -273,7 +273,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			lineDrawing.entity = entity;
 			this.data.entities.add(entity);
 		}
-		cad.render(false, new CadEntities().add(entity));
+		cad.render(entity);
 	}
 
 	onClick() {
@@ -285,7 +285,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		entity.opacity = 1;
 		entity.selectable = true;
 		setLinesLength(this.cad.data, [entity], Math.round(entity.length));
-		cad.render(false, new CadEntities().add(entity));
+		cad.render(entity);
 		// this.lineDrawing.entity=null
 		this.lineDrawing = {start: null, end: null};
 		const points = getPointsFromMap(cad, generatePointsMap(this.data.getAllEntities()));

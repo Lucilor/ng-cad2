@@ -495,7 +495,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 					data.components = resData.components;
 				}
 				this.updateList();
-				this.cad.reset(null, true);
+				this.cad.reset();
 			}
 		}
 		input.value = "";
@@ -519,7 +519,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			addCadGongshi(data);
 			this.contextMenuCad.data.copy(data);
 			this.updateList();
-			this.cad.reset(null, true);
+			this.cad.reset();
 		}
 	}
 

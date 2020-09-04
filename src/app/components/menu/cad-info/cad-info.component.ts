@@ -230,7 +230,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	updateCadGongshi(data: CadData) {
 		const mtext = data.entities.mtext.find((e) => (e.info.isCadGongshi = true));
 		mtext.text = getCadGongshiText(data);
-		this.cad.render(false, new CadEntities().add(mtext));
+		this.cad.render(mtext);
 	}
 
 	async selectKailiaomuban(data: CadData) {

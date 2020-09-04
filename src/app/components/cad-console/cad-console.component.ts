@@ -389,7 +389,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				data.forEach((v) => validateLines(v));
 			}
 		}
-		cad.reset(null, true);
+		cad.reset();
 		this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
 		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		this.afterOpenCad.emit();

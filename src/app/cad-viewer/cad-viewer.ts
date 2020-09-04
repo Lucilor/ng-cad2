@@ -61,7 +61,7 @@ export class CadViewer extends EventEmitter {
 		this.stylizer = new CadStylizer(this);
 
 		this.resize().setBackgroundColor();
-		this.render(true);
+		this.render();
 
 		dom.addEventListener("wheel", controls.onWheel.bind(this));
 		dom.addEventListener("click", controls.onClick.bind(this));
@@ -312,12 +312,12 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	render(center = false, entities?: CadEntities | CadEntity[], style: CadStyle = {}) {
+	render(entities?: CadEntity | CadEntities | CadEntity[], style: CadStyle = {}) {
 		if (!entities) {
 			entities = this.data.getAllEntities();
 		}
-		if (center) {
-			this.center();
+		if (entities instanceof CadEntity) {
+			entities = [entities];
 		}
 		entities.forEach((e) => this.drawEntity(e, style));
 		return this;
@@ -479,7 +479,7 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	reset(data?: CadData, center = false) {
+	reset(data?: CadData) {
 		this.draw.clear();
 		if (data instanceof CadData) {
 			this.data = data;
@@ -488,7 +488,7 @@ export class CadViewer extends EventEmitter {
 			e.el = null;
 			e.children.forEach((c) => (c.el = null));
 		});
-		return this.render(center);
+		return this.center().render();
 	}
 
 	// ? move entities efficiently

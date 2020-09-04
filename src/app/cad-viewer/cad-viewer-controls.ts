@@ -115,9 +115,9 @@ function onPointerUp(this: CadViewer, event: PointerEvent) {
 	multiSelector = null;
 	if (entitiesToDrag && entitiesNotToDrag) {
 		if (entitiesToDrag.length <= entitiesNotToDrag.length) {
-			this.render(false, entitiesToDrag);
+			this.render(entitiesToDrag);
 		} else {
-			this.render(false, entitiesNotToDrag);
+			this.render(entitiesNotToDrag);
 		}
 	}
 	entitiesToDrag = entitiesNotToDrag = null;

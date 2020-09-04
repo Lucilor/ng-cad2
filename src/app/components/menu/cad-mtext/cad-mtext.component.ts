@@ -84,7 +84,7 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 		mtext.text = "新建文本";
 		mtext.selected = true;
 		data.entities.mtext.push(mtext);
-		cad.render(false, new CadEntities().add(mtext));
+		cad.render(mtext);
 	}
 
 	async cloneMtexts() {
