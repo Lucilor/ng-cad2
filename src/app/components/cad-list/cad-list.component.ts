@@ -2,10 +2,10 @@ import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
 import {PageEvent, MatPaginator} from "@angular/material/paginator";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {CadData, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadDataService} from "@services/cad-data.service";
-import {timeout, Collection} from "@src/app/app.common";
+import {Collection, getCadPreview, imgEmpty, imgLoading} from "@src/app/app.common";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
+import {DomSanitizer} from "@angular/platform-browser";
 
 interface CadListData {
 	selectMode: "single" | "multiple" | "table";
@@ -42,7 +42,8 @@ export class CadListComponent implements AfterViewInit {
 		public dialogRef: MatDialogRef<CadListComponent, CadData[]>,
 		@Inject(MAT_DIALOG_DATA) public data: CadListData,
 		private dataService: CadDataService,
-		private dialog: MatDialog
+		private dialog: MatDialog,
+		private sanitizer: DomSanitizer
 	) {}
 
 	async ngAfterViewInit() {
@@ -78,23 +79,18 @@ export class CadListComponent implements AfterViewInit {
 			this.pageData.length = 0;
 			data.data.forEach(async (d, i) => {
 				try {
-					d.entities.dimension.forEach((v) => (v.visible = false));
-					d.entities.mtext.forEach((v) => (v.visible = false));
-					const cad = new CadViewer(d, {width: this.width, height: this.height, padding: 10});
 					const checked = this.checkedItems.find((v) => v.id === d.id) ? true : false;
 					if (checked && this.data.selectMode === "single") {
 						this.checkedIndex = i;
 					}
-					const img = cad.exportImage().src;
-					this.pageData.push({data: cad.data, img, checked});
-					cad.destroy();
-					// *(trying to) prevent WebGL contexts lost
-					await timeout(0);
+					const pageData = {data: d, img: imgLoading, checked};
+					this.pageData.push(pageData);
+					pageData.img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(d)) as string;
 				} catch (e) {
 					console.warn(e);
 					this.pageData.push({
 						data: new CadData({id: d.id, name: d.name}),
-						img: "",
+						img: imgEmpty,
 						checked: false
 					});
 				}

@@ -1,26 +1,22 @@
-import {Vector2} from "three";
 import {CadEntities} from "./cad-entities";
-import {CadLine} from "./cad-entity/cad-line";
-import {CadArc} from "./cad-entity/cad-arc";
 import {CadData} from "./cad-data";
 import {CadViewer} from "../cad-viewer";
 import {State} from "@src/app/store/state";
-import {CadMtext} from "./cad-entity/cad-mtext";
-import {CadTransformation} from "./cad-transformation";
 import {getVectorFromArray, isBetween} from "./utils";
-import {DEFAULT_TOLERANCE} from "@app/utils";
+import {DEFAULT_TOLERANCE, Point} from "@app/utils";
+import {CadLine, CadArc, CadMtext} from "./cad-entity";
 
-export type LineLike = CadLine | CadArc;
+export type CadLineLike = CadLine | CadArc;
 
 export type PointsMap = {
-	point: Vector2;
-	lines: LineLike[];
+	point: Point;
+	lines: CadLineLike[];
 	selected: boolean;
 }[];
 
 export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOLERANCE) {
 	const map: PointsMap = [];
-	const addToMap = (point: Vector2, line: CadLine | CadArc) => {
+	const addToMap = (point: Point, line: CadLine | CadArc) => {
 		const linesAtPoint = map.find((v) => v.point.distanceTo(point) <= tolerance);
 		if (linesAtPoint) {
 			linesAtPoint.lines.push(line);
@@ -37,7 +33,7 @@ export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOL
 	});
 	entities.arc.forEach((entity) => {
 		const curve = entity.curve;
-		if (curve.getLength() > 0) {
+		if (curve.length > 0) {
 			addToMap(curve.getPoint(0), entity);
 			addToMap(curve.getPoint(1), entity);
 		}
@@ -47,12 +43,13 @@ export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOL
 
 export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
 	return map.map((v) => {
-		const {x, y} = cad.getScreenPoint(v.point);
+		// const {x, y} = cad.getScreenPoint(v.point);
+		const {x, y} = {x: 0, y: 0};
 		return {x, y, active: false};
 	});
 }
 
-export function findAdjacentLines(map: PointsMap, entity: LineLike, point?: Vector2, tolerance = DEFAULT_TOLERANCE): LineLike[] {
+export function findAdjacentLines(map: PointsMap, entity: CadLineLike, point?: Point, tolerance = DEFAULT_TOLERANCE): CadLineLike[] {
 	if (!point && entity instanceof CadLine) {
 		const adjStart = findAdjacentLines(map, entity, entity.start);
 		const adjEnd = findAdjacentLines(map, entity, entity.end);
@@ -66,8 +63,8 @@ export function findAdjacentLines(map: PointsMap, entity: LineLike, point?: Vect
 	return [];
 }
 
-export function findAllAdjacentLines(map: PointsMap, entity: LineLike, point: Vector2, tolerance = DEFAULT_TOLERANCE) {
-	const entities: LineLike[] = [];
+export function findAllAdjacentLines(map: PointsMap, entity: CadLineLike, point: Point, tolerance = DEFAULT_TOLERANCE) {
+	const entities: CadLineLike[] = [];
 	const id = entity.id;
 	let closed = false;
 	const maxStack = 1000;
@@ -108,21 +105,21 @@ export function findAllAdjacentLines(map: PointsMap, entity: LineLike, point: Ve
 	return {entities, closed};
 }
 
-export function setLinesLength(cad: CadViewer, lines: CadLine[], length: number) {
-	const pointsMap = generatePointsMap(cad.data.getAllEntities());
+export function setLinesLength(data: CadData, lines: CadLine[], length: number) {
+	const pointsMap = generatePointsMap(data.getAllEntities());
 	lines.forEach((line) => {
 		if (line instanceof CadLine) {
 			const {entities} = findAllAdjacentLines(pointsMap, line, line.end);
 			const d = length - line.length;
-			const theta = line.theta;
-			const translate = new Vector2(Math.cos(theta), Math.sin(theta)).multiplyScalar(d);
+			const theta = line.theta.rad;
+			const translate = new Point(Math.cos(theta), Math.sin(theta)).multiply(d);
 			line.end.add(translate);
-			entities.forEach((e) => e.transform(new CadTransformation({translate})));
+			entities.forEach((e) => e.transform({translate}));
 		}
 	});
 }
 
-export function swapStartEnd(entity: LineLike) {
+export function swapStartEnd(entity: CadLineLike) {
 	if (entity instanceof CadLine) {
 		[entity.start, entity.end] = [entity.end, entity.start];
 	}
@@ -134,7 +131,7 @@ export function swapStartEnd(entity: LineLike) {
 
 export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	const entities = data.getAllEntities();
-	const result: LineLike[][] = [];
+	const result: CadLineLike[][] = [];
 	if (entities.length === 0) {
 		return result;
 	}
@@ -222,7 +219,7 @@ export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	} else if (lines.length > 1) {
 		result.valid = false;
 		result.errMsg = "线分成了多段";
-		let lastEnd: Vector2;
+		let lastEnd: Point;
 		lines.forEach((group, i) => {
 			if (i === 0) {
 				group[group.length - 1].info.error = true;
@@ -267,20 +264,20 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 		group.forEach((line) => {
 			let theta: number;
 			if (line instanceof CadLine) {
-				theta = line.theta;
+				theta = line.theta.rad;
 				// return;
 			} else {
-				theta = new CadLine({start: line.start, end: line.end}).theta;
+				theta = new CadLine({start: line.start, end: line.end}).theta.rad;
 			}
 			if (cp > 0) {
 				theta += Math.PI / 2;
 			} else {
 				theta -= Math.PI / 2;
 			}
-			const offset = new Vector2(Math.cos(theta), Math.sin(theta));
+			const offset = new Point(Math.cos(theta), Math.sin(theta));
 			const outer = line.middle.clone().add(offset);
 			const inner = line.middle.clone().sub(offset);
-			const anchor = new Vector2(0.5, 0.5);
+			const anchor = new Point(0.5, 0.5);
 			let {x, y} = offset;
 			if (Math.abs(x) > Math.abs(y)) {
 				y = 0;
@@ -296,15 +293,15 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 			}
 			if (Math.abs(y) > tolerance) {
 				if (y > 0) {
-					anchor.y = 0;
-				} else {
 					anchor.y = 1;
+				} else {
+					anchor.y = 0;
 				}
 			}
 
-			const {showLineLength, showGongshi} = cad.config;
+			const {lineLength, gongshi} = cad.config.lineTexts;
 			let lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
-			if (showLineLength > 0) {
+			if (lineLength > 0) {
 				if (!(lengthText instanceof CadMtext)) {
 					lengthText = new CadMtext();
 					lengthText.info.isLengthText = true;
@@ -314,15 +311,15 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				const offset = getVectorFromArray(lengthText.info.offset);
 				lengthText.insert.copy(offset.add(outer));
 				lengthText.text = Math.round(line.length).toString();
-				lengthText.font_size = showLineLength;
+				lengthText.font_size = lineLength;
 				lengthText.anchor.copy(anchor);
 			} else {
 				line.remove(lengthText);
-				cad.scene.remove(line.object);
+				// cad.scene.remove(line.object);
 			}
 
 			let gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
-			if (showGongshi) {
+			if (gongshi) {
 				if (!(gongshiText instanceof CadMtext)) {
 					gongshiText = new CadMtext();
 					gongshiText.info.isGongshiText = true;
@@ -331,40 +328,13 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 					gongshiText.insert.copy(inner);
 				}
 				gongshiText.text = line.gongshi;
-				gongshiText.font_size = showGongshi;
+				gongshiText.font_size = gongshi;
 				gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
 			} else {
 				line.remove(gongshiText);
-				cad.scene.remove(line.object);
+				// cad.scene.remove(line.object);
 			}
 		});
-	});
-}
-
-export function updateLineText(cad: CadViewer, line: LineLike) {
-	const middle = line.middle;
-	const lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
-	const {showLineLength, showGongshi} = cad.config;
-	if (lengthText) {
-		const offset = getVectorFromArray(lengthText.info.offset);
-		lengthText.text = Math.round(line.length).toString();
-		lengthText.font_size = showLineLength;
-		lengthText.insert.copy(offset.add(middle));
-	}
-	const gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
-	if (gongshiText) {
-		const offset = getVectorFromArray(gongshiText.info.offset);
-		gongshiText.text = line.gongshi;
-		gongshiText.font_size = showGongshi;
-		gongshiText.insert.copy(offset.add(middle));
-	}
-	return line;
-}
-
-export function updateLineTexts(cad: CadViewer) {
-	const {line, arc} = cad.data.getAllEntities();
-	[...line, ...arc].forEach((line) => {
-		updateLineText(cad, line);
 	});
 }
 
@@ -372,7 +342,7 @@ export function autoFixLine(cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
 	const {start, end} = line;
 	const dx = start.x - end.x;
 	const dy = start.y - end.y;
-	const translate = new Vector2();
+	const translate = new Point();
 	if (isBetween(Math.abs(dx))) {
 		translate.x = dx;
 	}
@@ -381,7 +351,6 @@ export function autoFixLine(cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
 	}
 	const map = generatePointsMap(cad.data.getAllEntities(), tolerance);
 	const {entities} = findAllAdjacentLines(map, line, line.end, tolerance);
-	const trans = new CadTransformation({translate});
-	entities.forEach((e) => e.transform(trans));
+	entities.forEach((e) => e.transform({translate}));
 	line.end.add(translate);
 }

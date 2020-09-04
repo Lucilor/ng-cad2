@@ -48,7 +48,6 @@ describe("CadInfoComponent", () => {
 		fixture = TestBed.createComponent(CadInfoComponent);
 		component = fixture.componentInstance;
 		component.cad = new CadViewer(new CadData());
-		component.cad.setControls();
 		fixture.detectChanges();
 	});
 

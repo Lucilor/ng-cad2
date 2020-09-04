@@ -1,19 +1,19 @@
-import {environment} from "src/environments/environment";
-import {SessionStorage, LocalStorage} from "@app/utils";
+import {SessionStorage, LocalStorage, Point} from "@app/utils";
 import {CadData} from "./cad-viewer/cad-data/cad-data";
-import {CadMtext} from "./cad-viewer/cad-data/cad-entity/cad-mtext";
-import {Vector2} from "three";
-import {functionsIn} from "lodash";
+import {CadEntities} from "./cad-viewer/cad-data/cad-entities";
+import {CadMtext} from "./cad-viewer/cad-data/cad-entity";
+import {CadViewer} from "./cad-viewer/cad-viewer";
 
-const host = environment.host;
+// const host = environment.host;
 // export const apiBasePath = host + "/n/zy/index";
 export const apiBasePath = localStorage.getItem("baseURL");
 
 export const projectName = "NgCad";
-
 export const session = new SessionStorage(projectName);
-
 export const local = new LocalStorage(projectName);
+
+export const imgEmpty = "assets/images/empty.jpg";
+export const imgLoading = "assets/images/loading.gif";
 
 export const paths = {
 	index: "index",
@@ -51,11 +51,11 @@ export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuh
 
 export function addCadGongshi(data: CadData) {
 	const mtext = new CadMtext();
-	const {x, y, width, height} = data.getBounds();
+	const {left, bottom} = data.getBoundingRect();
 	mtext.text = getCadGongshiText(data);
-	mtext.insert = new Vector2(x - width / 2, y - height / 2 - 10);
+	mtext.insert = new Point(left, bottom - 10);
 	mtext.selectable = false;
-	mtext.anchor.set(0, 1);
+	mtext.anchor.set(0, 0);
 	mtext.info.isCadGongshi = true;
 	data.entities.add(mtext);
 	data.partners.forEach((d) => addCadGongshi(d));
@@ -63,7 +63,12 @@ export function addCadGongshi(data: CadData) {
 }
 
 export function removeCadGongshi(data: CadData) {
-	data.entities.mtext = data.entities.mtext.filter((e) => !e.info.isCadGongshi);
+	data.entities.mtext = data.entities.mtext.filter((e) => {
+		if (e.info.isCadGongshi) {
+			e.el?.remove();
+		}
+		return !e.info.isCadGongshi;
+	});
 	data.partners.forEach((d) => removeCadGongshi(d));
 	data.components.data.forEach((d) => removeCadGongshi(d));
 }
@@ -121,4 +126,18 @@ export interface Command {
 	name: string;
 	desc?: string;
 	args: {name: string; defaultValue?: string; value?: string; isBoolean?: boolean; desc?: string}[];
+}
+
+export async function getCadPreview(data: CadData, width = 300, height = 150, padding = 10) {
+	const data2 = new CadData();
+	data2.entities = new CadEntities(data.getAllEntities().export());
+	data2.entities.dimension = [];
+	data2.entities.mtext = [];
+	const cad = new CadViewer(data2, {width, height, padding});
+	cad.appendTo(document.body);
+	cad.render();
+	await timeout(0);
+	const src = cad.toBase64();
+	cad.destroy();
+	return src;
 }

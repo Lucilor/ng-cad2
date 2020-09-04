@@ -6,7 +6,7 @@ import {timeout} from "@src/app/app.common";
 import {Store} from "@ngrx/store";
 import {State} from "@src/app/store/state";
 import {LoadingAction} from "@src/app/store/actions";
-import {updateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
+import Color from "color";
 
 export type PreviewData = {
 	CAD?: any;
@@ -49,15 +49,14 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 						padding: 15,
 						width: 92,
 						height: 92,
-						backgroundColor: 0xffffff
+						backgroundColor: new Color("white")
 					});
-					updateLineTexts(cad);
 					document.body.appendChild(cad.dom);
 					if (card.text.every((v) => !v.includes("花件"))) {
-						cad.config.showLineLength = 10 / cad.scale;
+						cad.config.lineTexts.gongshi = 10 / cad.zoom();
 					}
 					await timeout(0);
-					card.cadImg = cad.render().exportImage().src;
+					card.cadImg = cad.toBase64();
 					cad.destroy();
 				}
 				done++;

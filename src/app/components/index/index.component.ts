@@ -16,7 +16,6 @@ import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {getCadStatus} from "@src/app/store/selectors";
 import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {throttle} from "lodash";
 
 @Component({
 	selector: "app-index",
@@ -55,7 +54,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	showBottomMenu = true;
 	showLeftMenu = true;
 	showAllMenu = true;
-	menuPadding = [40, 250, 20, 200];
+	menuPadding = [40, 270, 20, 220];
 	@ViewChild("cadContainer", {read: ElementRef}) cadContainer: ElementRef<HTMLElement>;
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
@@ -93,15 +92,9 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			height: innerHeight,
 			showStats: !environment.production,
 			padding: this.menuPadding.map((v) => v + 30),
-			showLineLength: 24,
-			showGongshi: 8,
+			lineTexts: {lineLength: 24, gongshi: 8},
 			validateLines: false
 		});
-		this.cad.setControls({selectMode: "multiple"});
-		if (this.cad.stats) {
-			this.cad.stats.dom.style.right = "0";
-			this.cad.stats.dom.style.left = "";
-		}
 		this.getObservable(getCadStatus).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
@@ -122,19 +115,9 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
-		let escapeDisabled = false;
-		this.cad.controls.on("entitiesdelete", () => this.refreshCurrCads());
-		this.cad.controls.on("entitiesunselect", ({key}: KeyboardEvent) => {
+		this.cad.on("entitiesremove", () => this.refreshCurrCads());
+		this.cad.on("keydown", async ({key}) => {
 			if (key === "Escape") {
-				escapeDisabled = true;
-			}
-		});
-		this.cad.dom.addEventListener("keydown", async ({key}) => {
-			if (key === "Escape") {
-				if (escapeDisabled) {
-					escapeDisabled = false;
-					return;
-				}
 				const {name} = await this.getObservableOnce(getCadStatus);
 				if (name === "assemble" || name === "split") {
 					return;
@@ -168,7 +151,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	}
 
 	ngAfterViewInit() {
-		this.cadContainer.nativeElement.appendChild(this.cad.dom);
+		this.cad.appendTo(this.cadContainer.nativeElement);
 	}
 
 	ngOnDestroy() {
@@ -194,17 +177,18 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		if (this.subCads) {
 			await this.subCads.updateList();
 			// await timeout(100);
+			const cad = this.cad;
 			const collection = getCollection();
 			if (collection === "CADmuban") {
-				this.cad.data.components.data.forEach((v) => {
+				cad.data.components.data.forEach((v) => {
 					v.components.data.forEach((vv) => generateLineTexts(this.cad, vv));
 				});
 			} else {
-				this.cad.data.components.data.forEach((v) => {
+				cad.data.components.data.forEach((v) => {
 					generateLineTexts(this.cad, v);
 				});
 			}
-			this.cad.render(true);
+			cad.render();
 		} else {
 			await timeout(0);
 			this.refresh();

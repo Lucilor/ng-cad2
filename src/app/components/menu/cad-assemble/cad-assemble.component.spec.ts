@@ -46,7 +46,6 @@ describe("CadAssembleComponent", () => {
 		fixture = TestBed.createComponent(CadAssembleComponent);
 		component = fixture.componentInstance;
 		component.cad = new CadViewer(new CadData());
-		component.cad.setControls();
 		fixture.detectChanges();
 	});
 

@@ -1,3 +1,4 @@
+import {Matrix, Point as P} from "@svgdotjs/svg.js";
 import {Line} from "..";
 import {DEFAULT_TOLERANCE} from "./constants";
 
@@ -6,14 +7,17 @@ export class Point {
 	y: number;
 
 	constructor(x?: number, y?: number);
-	constructor(xy: number[]);
-	constructor(x: number | number[] = 0, y?: number) {
+	constructor(xy: number[] | {x: number; y: number});
+	constructor(x: number | number[] | {x: number; y: number} = 0, y?: number) {
 		if (Array.isArray(x)) {
 			this.x = x[0];
 			this.y = x[1];
 		} else if (typeof x === "number") {
 			this.x = x;
 			this.y = typeof y === "number" ? y : x;
+		} else if (typeof x?.x === "number" && typeof x?.y === "number") {
+			this.x = x.x;
+			this.y = x.y;
 		}
 	}
 
@@ -84,8 +88,7 @@ export class Point {
 	}
 
 	copy({x, y}: Point) {
-		this.x = x;
-		this.y = y;
+		return this.set(x, y);
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point(0)) {
@@ -109,7 +112,7 @@ export class Point {
 		return this.set(anchor.x + d.x, anchor.y + d.y);
 	}
 
-	toArray() {
+	toArray(): [number, number] {
 		return [this.x, this.y];
 	}
 
@@ -124,5 +127,10 @@ export class Point {
 
 	crossProduct(point: Point) {
 		return this.x * point.y - this.y * point.x;
+	}
+
+	transform(matrix: Matrix) {
+		const p = new P(this.x, this.y).transform(matrix);
+		return this.set(p.x, p.y);
 	}
 }

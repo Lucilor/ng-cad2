@@ -240,21 +240,23 @@ export class CadDataService {
 	}
 
 	saveCadStatus(cad: CadViewer, field: string) {
-		const status = {id: cad.data.id, position: cad.position.toArray()};
-		session.save(field, status);
-		return status;
+		// const status = {id: cad.data.id, position: cad.xy()};
+		// session.save(field, status);
+		// return status;
 	}
 
 	loadCadStatus(cad: CadViewer, field: string) {
-		const status = session.load(field);
-		if (status && status.id === cad.data.id) {
-			if (Array.isArray(status.position)) {
-				cad.position.set(status.position[0], status.position[1], status.position[2]);
-			}
-			return status;
-		} else {
-			return null;
-		}
+		// const status = session.load(field);
+		// if (status && status.id === cad.data.id) {
+		// 	const x = status.position?.x;
+		// 	const y = status.position?.x;
+		// 	if (typeof x === "number" && typeof y === "number") {
+		// 		cad.xy(x, y);
+		// 	}
+		// 	return status;
+		// } else {
+		// 	return null;
+		// }
 	}
 
 	async getOptions(

@@ -1,6 +1,7 @@
 import {Point} from "./point";
 import {Angle} from "./angle";
 import {Line} from "./line";
+import {Matrix} from "@svgdotjs/svg.js";
 
 export class Arc {
 	center: Point;
@@ -48,14 +49,20 @@ export class Arc {
 	}
 
 	get length() {
-		const {radius, startAngle, endAngle} = this;
-		return radius * Math.abs(startAngle.rad - endAngle.rad);
-	}
-
-	get middle() {
-		const angle = (this.startAngle.rad + this.endAngle.rad) / 2;
-		const d = new Point(Math.cos(angle), Math.sin(angle)).multiply(this.radius);
-		return this.center.clone().add(d);
+		const {radius, startAngle, endAngle, clockwise} = this;
+		let start = startAngle.rad;
+		let end = endAngle.rad;
+		if (clockwise) {
+			while (end > start) {
+				end -= Math.PI * 2;
+			}
+			return radius * (start - end);
+		} else {
+			while (start > end) {
+				start -= Math.PI * 2;
+			}
+			return radius * (end - start);
+		}
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point()) {
@@ -73,5 +80,29 @@ export class Arc {
 		this.startPoint = this.startPoint.rotate(angle, anchor);
 		this.endPoint = this.endPoint.rotate(angle, anchor);
 		return this;
+	}
+
+	equals(arc: Arc) {
+		return (
+			this.center.equals(arc.center) &&
+			this.radius === arc.radius &&
+			this.startAngle.equals(arc.startAngle) &&
+			this.endAngle.equals(arc.endAngle) &&
+			this.clockwise === arc.clockwise
+		);
+	}
+
+	// TODO: get point on arc
+	getPoint(t: number) {
+		return new Point();
+	}
+
+	transform(matrix: Matrix) {
+		this.center.transform(matrix);
+		const start = this.getPoint(0).transform(matrix);
+		const end = this.getPoint(1).transform(matrix);
+		this.radius = this.center.distanceTo(start);
+		this.startPoint = start;
+		this.endPoint = end;
 	}
 }

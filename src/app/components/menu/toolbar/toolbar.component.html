@@ -41,8 +41,8 @@
 
 <button mat-button (click)="showManual()">帮助</button>
 
-<button mat-button (click)="toggleShowLineLength()">{{ prevLineLengths > 0 ? "显示" : "隐藏" }}线长</button>
-<button mat-button (click)="toggleShowLineGongshi()">{{ prevLineGongshis > 0 ? "显示" : "隐藏" }}公式</button>
+<button mat-button (click)="toggleShowLineLength()">{{ cad.config.lineTexts.lineLength > 0 ? "隐藏" : "显示" }}线长</button>
+<button mat-button (click)="toggleShowLineGongshi()">{{ cad.config.lineTexts.gongshi > 0 ? "隐藏" : "显示" }}公式</button>
 <button mat-button (click)="toggleShowDimensions()">{{ showDimensions ? "隐藏" : "显示" }}标注</button>
 <button mat-button (click)="toggleShowCadGongshis()">{{ showCadGongshis ? "隐藏" : "显示" }}展开表达式</button>
 <button mat-button (click)="toggleValidateLines()">{{ cad.config.validateLines ? "" : "不" }}验证线段</button>
