@@ -1,6 +1,6 @@
 import {Point, Rectangle} from "../utils";
 import {CadEntities} from "./cad-data/cad-entities";
-import {CadEntity} from "./cad-data/cad-entity";
+import {CadDimension, CadEntity} from "./cad-data/cad-entity";
 import {CadViewer} from "./cad-viewer";
 
 let pointer: {from: Point; to: Point} = null;
@@ -8,6 +8,8 @@ let button: number = null;
 let multiSelector: HTMLDivElement = null;
 let entitiesToDrag: CadEntities = null;
 let entitiesNotToDrag: CadEntities = null;
+let draggingDimension: CadDimension = null;
+let needsRender = false;
 
 export interface CadEvents {
 	pointerdown: [PointerEvent, never];
@@ -70,6 +72,47 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 		} else if (button === 0) {
 			if (entitiesToDrag && entityDraggable) {
 				this.moveEntities(entitiesToDrag, entitiesNotToDrag, translate.x, -translate.y);
+				needsRender = true;
+			} else if (draggingDimension) {
+				const [p1, p2] = this.data.getDimensionPoints(draggingDimension).map((v) => {
+					return this.getScreenPoint(v.x, v.y);
+				});
+				if (p1 && p2) {
+					const left = Math.min(p1.x, p2.x);
+					const right = Math.max(p1.x, p2.x);
+					const top = Math.max(p1.y, p2.y);
+					const bottom = Math.min(p1.y, p2.y);
+					if (draggingDimension.axis === "x") {
+						if (clientX >= left && clientX <= right) {
+							draggingDimension.distance -= translate.y;
+						} else if (clientY >= bottom && clientY <= top) {
+							draggingDimension.axis = "y";
+							if (clientX <= left) {
+								draggingDimension.distance = clientX - left;
+							} else {
+								draggingDimension.distance = clientX - right;
+							}
+							draggingDimension.distance = clientX - left;
+						} else {
+							draggingDimension.distance -= translate.y;
+						}
+					}
+					if (draggingDimension.axis === "y") {
+						if (clientY >= bottom && clientY <= top) {
+							draggingDimension.distance += translate.x;
+						} else if (clientX >= left && clientX <= right) {
+							draggingDimension.axis = "x";
+							if (clientY >= top) {
+								draggingDimension.distance = top - clientY;
+							} else {
+								draggingDimension.distance = bottom - clientY;
+							}
+						} else {
+							draggingDimension.distance += translate.x;
+						}
+					}
+					this.render(draggingDimension);
+				}
 			} else if (selectMode === "multiple") {
 				if (!multiSelector) {
 					multiSelector = document.createElement("div");
@@ -88,7 +131,7 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 }
 
 function onPointerUp(this: CadViewer, event: PointerEvent) {
-	if (pointer) {
+	if (pointer && multiSelector) {
 		const {from, to} = pointer;
 		const rect = new Rectangle(from, to).justify();
 		const toSelect = Array<CadEntity>();
@@ -113,14 +156,11 @@ function onPointerUp(this: CadViewer, event: PointerEvent) {
 	button = null;
 	multiSelector?.remove();
 	multiSelector = null;
-	if (entitiesToDrag && entitiesNotToDrag) {
-		if (entitiesToDrag.length <= entitiesNotToDrag.length) {
-			this.render(entitiesToDrag);
-		} else {
-			this.render(entitiesNotToDrag);
-		}
+	if (needsRender) {
+		needsRender = false;
+		this.render();
 	}
-	entitiesToDrag = entitiesNotToDrag = null;
+	entitiesToDrag = entitiesNotToDrag = draggingDimension = null;
 	this.emit("pointerup", event);
 }
 
@@ -149,8 +189,12 @@ function onEntityClick(this: CadViewer, event: PointerEvent, entity: CadEntity) 
 
 function onEntityPointerDown(this: CadViewer, event: PointerEvent, entity: CadEntity) {
 	if (this.config.entityDraggable) {
-		entitiesToDrag = this.selected();
-		entitiesNotToDrag = this.unselected();
+		if (entity instanceof CadDimension) {
+			draggingDimension = entity;
+		} else {
+			entitiesToDrag = this.selected();
+			entitiesNotToDrag = this.unselected();
+		}
 	}
 	this.emit("entitypointerdown", event, entity);
 }

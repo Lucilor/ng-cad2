@@ -60,8 +60,7 @@ export class CadViewer extends EventEmitter {
 		this.draw = SVG().addTo(dom).size("100%", "100%");
 		this.stylizer = new CadStylizer(this);
 
-		this.resize().setBackgroundColor();
-		this.render();
+		this.resize().center().render();
 
 		dom.addEventListener("wheel", controls.onWheel.bind(this));
 		dom.addEventListener("click", controls.onClick.bind(this));
@@ -98,59 +97,28 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	x(): number;
-	x(value: number): this;
-	x(value?: number) {
+	// TODO: get/set cad position
+
+	moveX(dx: number) {
 		const box = this.draw.viewbox();
-		if (typeof value === "number" && !isNaN(value)) {
-			box.x = value;
-			this.draw.viewbox(box);
-			return this;
-		} else {
-			return box.x;
-		}
+		box.x -= dx;
+		this.draw.viewbox(box);
+		return this;
 	}
 
-	y(): number;
-	y(value: number): this;
-	y(value?: number) {
+	moveY(dy: number) {
 		const box = this.draw.viewbox();
-		if (typeof value === "number" && !isNaN(value)) {
-			box.y = value;
-			this.draw.viewbox(box);
-			return this;
-		} else {
-			return box.y;
-		}
+		box.y -= dy;
+		this.draw.viewbox(box);
+		return this;
 	}
 
-	xy(): {x: number; y: number};
-	xy(x: number, y: number): this;
-	xy(x?: number, y?: number) {
+	move(dx: number, dy: number) {
 		const box = this.draw.viewbox();
-		if (typeof x === "number" && typeof y === "number") {
-			if (x || y) {
-				box.x = x;
-				box.y = y;
-				this.draw.viewbox(box);
-			}
-			return this;
-		} else {
-			return {x: box.x, y: box.y};
-		}
-	}
-
-	dx(value = 0) {
-		return this.x(this.x() - value);
-	}
-
-	dy(value = 0) {
-		return this.y(this.y() - value);
-	}
-
-	move(dx = 0, dy = 0) {
-		const box = this.draw.viewbox();
-		return this.xy((box.x -= dx), (box.y -= dy));
+		box.x -= dx;
+		box.y -= dy;
+		this.draw.viewbox(box);
+		return this;
 	}
 
 	zoom(level?: number, point?: CoordinateXY) {
@@ -197,11 +165,17 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	setBackgroundColor(color?: Color) {
-		if (!color) {
+	setBackgroundColor(color?: Color | string | number) {
+		if (color === undefined || color === null) {
 			color = this.config.backgroundColor;
+		} else {
+			if (!(color instanceof Color)) {
+				color = new Color(color);
+				this.config.backgroundColor = color;
+			}
 		}
 		this.draw.css("background-color", color.toString());
+		return this;
 	}
 
 	drawEntity(entity: CadEntity, style: CadStyle = {}) {
@@ -281,13 +255,13 @@ export class CadViewer extends EventEmitter {
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
 					entity.font_size = this.config.lineTexts.lineLength;
-					const offset = getVectorFromArray(parent.info.offset);
+					const offset = getVectorFromArray(entity.info.offset);
 					entity.insert.copy(offset.add(parent.middle));
 				}
 				if (entity.info.isGongshiText) {
 					entity.text = parent.gongshi;
 					entity.font_size = this.config.lineTexts.gongshi;
-					const offset = getVectorFromArray(parent.info.offset);
+					const offset = getVectorFromArray(entity.info.offset);
 					entity.insert.copy(offset.add(parent.middle));
 				}
 			}
@@ -319,8 +293,18 @@ export class CadViewer extends EventEmitter {
 		if (entities instanceof CadEntity) {
 			entities = [entities];
 		}
+		if (Array.isArray(entities)) {
+			entities = new CadEntities().fromArray(entities);
+		}
+		// * draw dimensions first, making them covered by other entities
+		entities.dimension.forEach((e) => this.drawEntity(e, style));
+		entities.forEachType((arr, type) => {
+			if (type !== "dimension") {
+				arr.forEach((e) => this.drawEntity(e, style));
+			}
+		});
 		entities.forEach((e) => this.drawEntity(e, style));
-		return this;
+		return this.setBackgroundColor();
 	}
 
 	center() {
@@ -428,6 +412,16 @@ export class CadViewer extends EventEmitter {
 		const zoom = this.zoom();
 		result.x = x / zoom + box.x;
 		result.y = (height - y) / zoom + box.y;
+		return result;
+	}
+
+	getScreenPoint(x: number, y: number) {
+		const {height} = this.draw.node.getBoundingClientRect();
+		const box = this.draw.viewbox();
+		const result = new Point();
+		const zoom = this.zoom();
+		result.x = (x - box.x) * zoom;
+		result.y = height - (y - box.y) * zoom;
 		return result;
 	}
 

@@ -28,15 +28,16 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 
 	ngOnInit() {
 		super.ngOnInit();
-		const {cad, dimensions} = this;
+		const {cad} = this;
 		this.getObservable(getCadStatus).subscribe(({name, index}) => {
 			if (name === "edit dimension") {
-				this.updateDimLines(dimensions[index]);
+				const dimension = this.dimensions[index];
+				this.updateDimLines(dimension);
 				this.dimLineSelecting = index;
 				this.prevSelectMode = cad.config.selectMode;
 				cad.config.selectMode = "single";
 				cad.traverse((e) => {
-					if (!(e instanceof CadLine)) {
+					if (!(e instanceof CadLine) && e.id !== dimension.id) {
 						e.info.prevSelectable = e.selectable;
 						e.info.prevOpacity = e.opacity;
 						e.selectable = false;
@@ -161,7 +162,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 		const cadStatus = await this.getObservableOnce(getCadStatus);
 		if (cadStatus.name === "edit dimension" && cadStatus.index === index) {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
-		} else if (this.dimLineSelecting === null) {
+		} else {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "edit dimension", index});
 		}
 	}
@@ -185,7 +186,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 					e.selectable = true;
 					e.selected = [entity1?.id, entity2?.id].includes(e.originalId);
 					e.opacity = 1;
-				} else if (e instanceof CadDimension) {
+				} else if (e.id === dimension.id) {
 					e.opacity = 1;
 				} else {
 					e.selectable = false;

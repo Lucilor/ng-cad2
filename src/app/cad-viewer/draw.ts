@@ -66,9 +66,7 @@ export function drawText(draw: Container, text: string, size: number, position: 
 		el.font({size}).leading(1);
 	}
 	el.move(position.x, position.y);
-	if (vertical) {
-		el.css("writing-mode", "vertical-lr");
-	}
+	el.css("writing-mode", vertical ? "vertical-lr" : "lr");
 	el.css("transform", `translate(${-anchor.x * 100}%, ${anchor.y * 100}%) scale(1, -1)`);
 	return [el];
 }

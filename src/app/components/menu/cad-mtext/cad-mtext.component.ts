@@ -1,6 +1,5 @@
 import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
@@ -14,6 +13,10 @@ import {MenuComponent} from "../menu.component";
 })
 export class CadMtextComponent extends MenuComponent implements OnInit, OnDestroy {
 	data: CadData;
+	renderInterval = 500;
+	lastRendered = -Infinity;
+	isWaitingForRender = false;
+
 	get selected() {
 		return this.cad.selected().mtext;
 	}
@@ -49,9 +52,18 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 	}
 
 	setInfo(field: string, event: InputEvent) {
-		const value = (event.target as HTMLInputElement).value;
-		this.selected.forEach((e) => (e[field] = value));
-		this.cad.render();
+		const now = performance.now();
+		const timeout = this.lastRendered + this.renderInterval - now;
+		if (timeout < 0) {
+			this.lastRendered = now;
+			this.isWaitingForRender = false;
+			const value = (event.target as HTMLInputElement).value;
+			this.selected.forEach((e) => (e[field] = value));
+			this.cad.render();
+		} else if (!this.isWaitingForRender) {
+			this.isWaitingForRender = true;
+			setTimeout(() => this.setInfo(field, event), timeout);
+		}
 	}
 
 	getColor() {
@@ -78,8 +90,8 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 	addMtext() {
 		const {cad, data} = this;
 		const mtext = new CadMtext();
-		const {x, y} = cad.xy();
-		mtext.insert.set(x, y);
+		const {cx, cy} = cad.draw.viewbox();
+		mtext.insert.set(cx, cy);
 		mtext.anchor.set(0.5, 0.5);
 		mtext.text = "新建文本";
 		mtext.selected = true;
