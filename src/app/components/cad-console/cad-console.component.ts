@@ -9,7 +9,7 @@ import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CurrCadsAction, CadStatusAction, LoadingAction} from "@src/app/store/actions";
 import {getCommand, getCurrCads, getCurrCadsData, getCadStatus} from "@src/app/store/selectors";
-import {Angle, Line, Point} from "@src/app/utils";
+import {Angle, dataURLtoBlob, Line, Point} from "@src/app/utils";
 import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
 import {differenceWith} from "lodash";
 import {v4} from "uuid";
@@ -744,12 +744,10 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			}
 		});
 		const cad = new CadViewer(data, {
-			...this.cad.config,
 			width: width * scaleX,
 			height: height * scaleY,
 			backgroundColor: new Color("white"),
-			padding: 18 * scale,
-			showStats: false
+			padding: 18 * scale
 		});
 		document.body.appendChild(cad.dom);
 		await timeout(0);

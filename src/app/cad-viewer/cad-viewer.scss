@@ -4,40 +4,25 @@
 
 		* {
 			user-select: none;
-			// vector-effect: non-scaling-stroke;
 			&.selectable {
 				cursor: pointer;
 			}
 		}
 
 		g {
-			line,
-			circle,
-			path {
-				&:not([fill]) {
-					fill: none;
-				}
-			}
-
-			text {
-				&:not([stroke]) {
-					stroke: none;
-				}
-			}
-
 			&:hover.selectable {
 				line,
 				circle,
 				path {
 					stroke: cyan;
-					&[fill] {
+					&[fill]:not([fill="none"]) {
 						fill: cyan;
 					}
 				}
 
 				text {
 					fill: cyan;
-					&[stroke] {
+					&[stroke]:not([stroke="none"]) {
 						stroke: cyan;
 					}
 				}

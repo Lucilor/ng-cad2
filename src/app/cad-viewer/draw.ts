@@ -10,7 +10,7 @@ export function drawLine(draw: Container, start: Point, end: Point, i = 0) {
 	if (el instanceof Line) {
 		el.plot(start.x, start.y, end.x, end.y);
 	} else {
-		el = draw.line(start.x, start.y, end.x, end.y).addClass("stroke");
+		el = draw.line(start.x, start.y, end.x, end.y).addClass("stroke").fill("none");
 	}
 	return [el];
 }
@@ -24,7 +24,7 @@ export function drawCircle(draw: Container, center: Point, radius: number, i = 0
 	if (el instanceof Line) {
 		el.size(radius).center(center.x, center.y);
 	} else {
-		el = draw.circle(radius).center(center.x, center.y).addClass("stroke");
+		el = draw.circle(radius).center(center.x, center.y).addClass("stroke").fill("none");
 	}
 	return [el];
 }
@@ -47,7 +47,7 @@ export function drawArc(draw: Container, center: Point, radius: number, startAng
 	if (el instanceof Path) {
 		el.plot(path);
 	} else {
-		el = draw.path(path).addClass("stroke");
+		el = draw.path(path).addClass("stroke").fill("none");
 	}
 	return [el];
 }
@@ -61,13 +61,13 @@ export function drawText(draw: Container, text: string, size: number, position: 
 	if (el instanceof Text) {
 		el.text(text).font({size});
 	} else {
-		el = draw.text(text).addClass("fill");
+		el = draw.text(text).addClass("fill").stroke("none");
 		el.css("transform-box", "fill-box");
 		el.font({size}).leading(1);
 	}
-	el.move(position.x, position.y);
 	el.css("writing-mode", vertical ? "vertical-lr" : "lr");
 	el.css("transform", `translate(${-anchor.x * 100}%, ${anchor.y * 100}%) scale(1, -1)`);
+	el.move(position.x, position.y);
 	return [el];
 }
 
@@ -77,7 +77,7 @@ export function drawTriangle(draw: Container, p1: Point, p2: Point, p3: Point, i
 	if (el instanceof Path) {
 		el.plot(path);
 	} else {
-		el = draw.path(path).addClass("fill");
+		el = draw.path(path).addClass("fill").stroke("none");
 	}
 	return [el];
 }

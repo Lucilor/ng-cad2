@@ -18,7 +18,6 @@ export interface CadViewerConfig {
 	backgroundColor: Color;
 	lineTexts: {lineLength: number; gongshi: number};
 	padding: number[] | number;
-	showStats: boolean;
 	reverseSimilarColor: boolean;
 	validateLines: boolean;
 	selectMode: "none" | "single" | "multiple";
@@ -34,7 +33,6 @@ export class CadViewer extends EventEmitter {
 		backgroundColor: new Color(),
 		lineTexts: {lineLength: 0, gongshi: 0},
 		padding: [0],
-		showStats: false,
 		reverseSimilarColor: true,
 		validateLines: false,
 		selectMode: "multiple",
@@ -254,7 +252,6 @@ export class CadViewer extends EventEmitter {
 			const {start, end} = entity;
 			drawResult = drawLine(el, start, end);
 		} else if (entity instanceof CadMtext) {
-			const {text, insert, font_size, anchor} = entity;
 			const parent = entity.parent;
 			let vertical = false;
 			if (parent instanceof CadLine) {
@@ -274,6 +271,7 @@ export class CadViewer extends EventEmitter {
 					vertical = true;
 				}
 			}
+			const {text, insert, font_size, anchor} = entity;
 			drawResult = drawText(el, text, font_size, insert, anchor, vertical);
 		}
 		if (!drawResult) {

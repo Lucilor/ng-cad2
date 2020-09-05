@@ -16,6 +16,7 @@ import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {getCadStatus} from "@src/app/store/selectors";
 import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
+import Color from "color";
 
 @Component({
 	selector: "app-index",
@@ -90,7 +91,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		this.cad = new CadViewer(new CadData(), {
 			width: innerWidth,
 			height: innerHeight,
-			showStats: !environment.production,
 			padding: this.menuPadding.map((v) => v + 30),
 			lineTexts: {lineLength: 24, gongshi: 8},
 			validateLines: false
