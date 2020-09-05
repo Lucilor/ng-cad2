@@ -1,15 +1,15 @@
-import {Component, OnInit, Input, OnDestroy, Injector} from "@angular/core";
-import {MenuComponent} from "../menu.component";
-import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {openCadOptionsDialog} from "../../menu/cad-options/cad-options.component";
-import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
-import {openMessageDialog} from "../../message/message.component";
-import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
-import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity/cad-line";
-import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {Component, OnInit, OnDestroy, Input, Injector} from "@angular/core";
 import {getCadGongshiText} from "@src/app/app.common";
+import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {getPointsFromMap, generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {CadPointsAction, CadStatusAction} from "@src/app/store/actions";
+import {getCurrCads, getCurrCadsData, getCadStatus, getCadPoints} from "@src/app/store/selectors";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
+import {openMessageDialog} from "../../message/message.component";
+import {openCadOptionsDialog} from "../cad-options/cad-options.component";
+import {MenuComponent} from "../menu.component";
 
 @Component({
 	selector: "app-cad-info",
@@ -30,6 +30,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 
 	ngOnInit() {
 		super.ngOnInit();
+		const store = this.store;
 		this.getObservable(getCurrCads).subscribe((currCads) => {
 			this.cadsData = getCurrCadsData(this.cad.data, currCads);
 			const ids = this.cad.data.components.data.map((v) => v.id);
@@ -43,7 +44,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 			this.updateLengths(this.cadsData);
 		});
-		this.getObservable(getCadStatus).subscribe(({name}) => {
+		this.getObservable(getCadStatus).subscribe(({name, index}) => {
 			if (name === "normal") {
 				this.baseLineIndex = -1;
 			}
@@ -56,7 +57,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 			}
 		});
-		this.cad.controls.on("entityclick", async (event, entity) => {
+		this.cad.on("entityclick", async (event, entity) => {
 			const {name, index} = await this.getObservableOnce(getCadStatus);
 			const data = (await this.getCurrCadsData())[0];
 			if (name === "select baseline") {
@@ -76,19 +77,16 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 			}
 		});
-		this.store
-			.select(getCadPoints)
-			.pipe(takeUntil(this.destroyed))
-			.subscribe(async (points) => {
-				const point = points.filter((v) => v.active)[0];
-				const status = await this.getCadStatus();
-				if (status.name !== "select jointpoint" || !point) {
-					return;
-				}
-				const jointPoint = this.cadsData[0].jointPoints[this.jointPointIndex];
-				jointPoint.valueX = point.x;
-				jointPoint.valueY = point.y;
-			});
+		this.getObservable(getCadPoints).subscribe(async (points) => {
+			const point = points.filter((v) => v.active)[0];
+			const {name} = await this.getObservableOnce(getCadStatus);
+			if (name !== "select jointpoint" || !point) {
+				return;
+			}
+			const jointPoint = this.cadsData[0].jointPoints[this.jointPointIndex];
+			jointPoint.valueX = point.x;
+			jointPoint.valueY = point.y;
+		});
 	}
 
 	ngOnDestroy() {
@@ -101,8 +99,8 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			let length = 0;
 			const entities = v.getAllEntities();
 			entities.line.forEach((e) => (length += e.length));
-			entities.arc.forEach((e) => (length += e.curve.getLength()));
-			entities.circle.forEach((e) => (length += e.curve.getLength()));
+			entities.arc.forEach((e) => (length += e.length));
+			entities.circle.forEach((e) => (length += e.curve.length));
 			this.lengths.push(length.toFixed(2));
 		});
 	}
@@ -119,11 +117,18 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			});
 		} else if (option === "huajian") {
 			const checkedItems = data.huajian.split(",");
-			openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems}});
 			const ref = openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems}});
 			ref.afterClosed().subscribe((v) => {
 				if (Array.isArray(v)) {
 					data.huajian = v.join(",");
+				}
+			});
+		} else if (option === "bancai") {
+			const checkedItems = data.morenkailiaobancai.split(",");
+			const ref = openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems}});
+			ref.afterClosed().subscribe((v) => {
+				if (Array.isArray(v)) {
+					data.morenkailiaobancai = v.join(",");
 				}
 			});
 		}
@@ -225,7 +230,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	updateCadGongshi(data: CadData) {
 		const mtext = data.entities.mtext.find((e) => (e.info.isCadGongshi = true));
 		mtext.text = getCadGongshiText(data);
-		this.cad.render(false, new CadEntities().add(mtext));
+		this.cad.render(mtext);
 	}
 
 	async selectKailiaomuban(data: CadData) {

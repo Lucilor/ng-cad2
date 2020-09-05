@@ -1,23 +1,24 @@
-import {Component, OnInit, ViewChild, ElementRef, Input, Injector, Output, EventEmitter, OnDestroy} from "@angular/core";
-import {differenceWith} from "lodash";
-import {timeout, removeCadGongshi, Collection, addCadGongshi, Command, getDPI} from "@src/app/app.common";
+import {trigger, transition, style, animate} from "@angular/animations";
+import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, Output, EventEmitter, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {ActivatedRoute} from "@angular/router";
+import {Command, timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection} from "@src/app/app.common";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {openMessageDialog, MessageComponent} from "../message/message.component";
+import {CadArc, CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {MenuComponent} from "../menu/menu.component";
+import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CurrCadsAction, CadStatusAction, LoadingAction} from "@src/app/store/actions";
-import {MathUtils} from "three";
+import {getCommand, getCurrCads, getCurrCadsData, getCadStatus} from "@src/app/store/selectors";
+import {Angle, dataURLtoBlob, Line, Point} from "@src/app/utils";
+import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
+import {differenceWith} from "lodash";
+import {v4} from "uuid";
 import {openCadListDialog} from "../cad-list/cad-list.component";
-import {getCadStatus, getCommand, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
+import {MenuComponent} from "../menu/menu.component";
+import {openMessageDialog, MessageComponent} from "../message/message.component";
 import {highlight} from "highlight.js";
-import {CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity/cad-dimension";
+import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {Line, Point} from "@lucilor/utils";
-import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity/cad-arc";
-import {animate, style, transition, trigger} from "@angular/animations";
 
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
@@ -69,7 +70,7 @@ export const commands: Command[] = [
 
 export const cmdNames = commands.map((v) => v.name);
 
-const spaceReplacer = MathUtils.generateUUID();
+const spaceReplacer = v4();
 
 @Component({
 	selector: "app-cad-console",
@@ -92,6 +93,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	historyOffset = -1;
 	historySize = 100;
 	collection: Collection;
+	ids: string[];
 	openLock = false;
 	lastUrl: string;
 	visible = false;
@@ -106,11 +108,11 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		return el.offsetWidth + getSelection().focusOffset + "px";
 	}
 
-	constructor(injector: Injector, private snackBar: MatSnackBar) {
+	constructor(injector: Injector, private snackBar: MatSnackBar, private route: ActivatedRoute) {
 		super(injector);
 	}
 
-	ngOnInit() {
+	async ngOnInit() {
 		super.ngOnInit();
 		this.getObservable(getCommand).subscribe((command) => {
 			if (command) {
@@ -118,6 +120,38 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			}
 		});
 		window.addEventListener("keydown", this.onKeyDownWin.bind(this));
+		this.route.queryParams.subscribe((queryParams) => {
+			if (typeof queryParams.collection === "string") {
+				this.collection = queryParams.collection as Collection;
+			}
+		});
+
+		const {ids, collection, dataService} = this;
+		let cachedData: any = null;
+		let params: any = null;
+		let vid: string = null;
+		try {
+			cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data"));
+			params = JSON.parse(sessionStorage.getItem("params"));
+			vid = sessionStorage.getItem("vid");
+		} catch (error) {
+			console.warn(error);
+		}
+		if (cachedData && vid) {
+			this.collection = params.collection ?? "cad";
+			const {showLineLength} = params;
+			this.cad.config.lineTexts.lineLength = showLineLength;
+			this.afterOpen([new CadData(cachedData)]);
+		} else if (location.search) {
+			const data = await dataService.getCadData();
+			if (typeof dataService.queryParams.collection === "string") {
+				this.collection = dataService.queryParams.collection as Collection;
+			}
+			this.afterOpen(data);
+		} else if (ids.length) {
+			const data = await dataService.getCadData({ids, collection});
+			this.afterOpen(data);
+		}
 	}
 
 	ngOnDestroy() {
@@ -338,7 +372,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		if (data.jointPoints.length < 1) {
 			data.jointPoints.push(new CadJointPoint());
 		}
-		data.entities.dimension.forEach((e) => e.color.set(0x00ff00));
+		data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
 		data.partners.forEach((v) => this.setCadData(v));
 		data.components.data.forEach((v) => this.setCadData(v));
 	}
@@ -355,7 +389,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				data.forEach((v) => validateLines(v));
 			}
 		}
-		cad.reset(null, true);
+		cad.reset();
 		this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
 		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		this.afterOpenCad.emit();
@@ -365,18 +399,17 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		return `<code class="bash hljs">${highlight("bash", str).value}</code>`;
 	}
 
-	async transform(trans: CadTransformation, rotateDimension = false) {
+	async transform(matrix: MatrixAlias, rotateDimension = false) {
 		const {cad} = this;
-		const seleted = cad.selectedEntities;
+		const seleted = cad.selected();
+		const m = new Matrix(matrix);
 		if (seleted.length) {
-			const {x, y} = cad.getBounds(seleted);
-			trans.anchor.set(x, y);
-			seleted.transform(trans);
+			const {x, y, width, height} = cad.data.getBoundingRect(seleted);
+			seleted.transform({...m.decompose(), origin: [x, y]});
 		} else {
 			const t = (data: CadData) => {
-				const {x, y} = data.getBounds();
-				trans.anchor.set(x, y);
-				data.transform(trans);
+				const {x, y} = data.getBoundingRect();
+				data.transform({...m.decompose(), origin: [x, y]});
 				if (rotateDimension) {
 					data.getAllEntities().dimension.forEach((d) => {
 						if (d.axis === "x") {
@@ -447,7 +480,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 
 	async fillet(radiusArg: string) {
 		let radius = Number(radiusArg) || 0;
-		const lines = this.cad.selectedEntities.line;
+		const lines = this.cad.selected().line;
 		if (lines.length !== 2) {
 			openMessageDialog(this.dialog, {data: {type: "alert", content: "请先选择且只选择两条线段"}});
 			return;
@@ -460,71 +493,115 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		const p4 = new Point(end2.x, end2.y);
 		const l1 = new Line(p1.clone(), p2.clone());
 		const l2 = new Line(p3.clone(), p4.clone());
-		const point = l1.intersect(l2, true);
+		let point = l1.intersects(l2, true);
+		let center: Point;
+		let startAngle: number;
+		let endAngle: number;
+		let clockwise: boolean;
 		if (!point) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "两条线平行"}});
-			return;
-		}
-		if (radius === undefined) {
-			const ref = openMessageDialog(this.dialog, {
-				data: {type: "prompt", content: "请输入圆角半径", promptData: {type: "number", value: "10"}}
-			});
-			radius = Number(await ref.afterClosed().toPromise());
-			if (!(radius > 0)) {
-				openMessageDialog(this.dialog, {data: {type: "alert", content: "请输入大于零的数字"}});
+			radius = l1.distanceTo(l2) / 2;
+			if (radius <= 0) {
+				openMessageDialog(this.dialog, {data: {type: "alert", content: "两直线平行且距离为0"}});
 				return;
 			}
-		}
-		l1.start.set(point);
-		l2.start.set(point);
-		if (p1.distance(point) > p2.distance(point)) {
-			l1.end.set(p1);
-		}
-		if (p3.distance(point) > p4.distance(point)) {
-			l2.end.set(p3);
-		}
-		const theta1 = l1.theta;
-		const theta2 = l2.theta;
-		const theta3 = Math.abs(theta2 - theta1) / 2;
-		let theta4 = (theta1 + theta2) / 2;
-		let clockwise = theta1 > theta2;
-		if (theta3 > Math.PI / 2) {
-			theta4 -= Math.PI;
-			clockwise = !clockwise;
-		}
-		const d1 = Math.abs(radius / Math.tan(theta3));
-		const d2 = Math.abs(radius / Math.sin(theta4));
-		console.log(MathUtils.radToDeg(theta1), MathUtils.radToDeg(theta2));
-		const start = new Point(Math.cos(theta1), Math.sin(theta1)).multiply(d1).add(point);
-		const end = new Point(Math.cos(theta2), Math.sin(theta2)).multiply(d1).add(point);
-		if (!l1.containsPoint(start) || !l2.containsPoint(end)) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "半径过大"}});
-			return;
-		}
-		const center = new Point(Math.cos(theta4), Math.sin(theta4)).multiply(d2).add(point);
-		if (p1.distance(point) < p2.distance(point)) {
-			lines[0].start.set(start.x, start.y);
+			let l3: Line;
+			let l4: Line;
+			let reverse: number;
+			if (l1.theta.equals(l2.theta)) {
+				l3 = l1.clone().rotate(Math.PI / 2, l1.start);
+				l4 = l1.clone().rotate(Math.PI / 2, l1.end);
+				l3.end.copy(l3.intersects(l2, true));
+				l4.reverse().end.copy(l4.intersects(l2, true));
+				reverse = 1;
+			} else {
+				l3 = l1.clone().rotate(Math.PI / 2, l1.end);
+				l4 = l1.clone().rotate(Math.PI / 2, l1.start);
+				l3.reverse().end.copy(l3.intersects(l2, true));
+				l4.end.copy(l4.intersects(l2, true));
+				reverse = -1;
+			}
+			const d1 = l3.end.distanceTo(l2.start);
+			const d2 = l4.end.distanceTo(l2.end);
+			if (d1 < d2) {
+				center = l3.middle;
+				point = l3.end;
+				lines[1].start.set(point.x, point.y);
+				clockwise = l1.crossProduct(l3) * reverse > 0;
+			} else {
+				center = l4.middle;
+				point = l4.end;
+				lines[1].end.set(point.x, point.y);
+				clockwise = l1.crossProduct(l4) * reverse < 0;
+			}
+			endAngle = new Line(center, point).theta.deg;
+			startAngle = endAngle - 180;
 		} else {
-			lines[0].end.set(start.x, start.y);
-		}
-		if (p3.distance(point) < p4.distance(point)) {
-			lines[1].start.set(end.x, end.y);
-		} else {
-			lines[1].end.set(end.x, end.y);
+			if (radius === undefined) {
+				const ref = openMessageDialog(this.dialog, {
+					data: {type: "prompt", content: "请输入圆角半径", promptData: {type: "number", value: "10"}}
+				});
+				radius = Number(await ref.afterClosed().toPromise());
+				if (!(radius > 0)) {
+					openMessageDialog(this.dialog, {data: {type: "alert", content: "请输入大于零的数字"}});
+					return;
+				}
+			}
+			l1.start.set(point);
+			l2.start.set(point);
+			if (p1.distanceTo(point) > p2.distanceTo(point)) {
+				l1.end.set(p1);
+			}
+			if (p3.distanceTo(point) > p4.distanceTo(point)) {
+				l2.end.set(p3);
+			}
+			const theta1 = l1.theta.rad;
+			const theta2 = l2.theta.rad;
+			const theta3 = Math.abs(theta2 - theta1) / 2;
+			let theta4 = (theta1 + theta2) / 2;
+			if (theta3 > Math.PI / 2) {
+				theta4 -= Math.PI;
+			}
+			clockwise = l1.crossProduct(l2) > 0;
+			const d1 = Math.abs(radius / Math.tan(theta3));
+			const d2 = Math.abs(radius / Math.sin(theta4));
+			const startPoint = new Point(Math.cos(theta1), Math.sin(theta1)).multiply(d1).add(point);
+			const endPoint = new Point(Math.cos(theta2), Math.sin(theta2)).multiply(d1).add(point);
+			if (!l1.contains(startPoint) || !l2.contains(endPoint)) {
+				openMessageDialog(this.dialog, {data: {type: "alert", content: "半径过大"}});
+				return;
+			}
+			center = new Point(Math.cos(theta4), Math.sin(theta4)).multiply(d2).add(point);
+			if (p1.distanceTo(point) < p2.distanceTo(point)) {
+				lines[0].start.set(startPoint.x, startPoint.y);
+			} else {
+				lines[0].end.set(startPoint.x, startPoint.y);
+			}
+			if (p3.distanceTo(point) < p4.distanceTo(point)) {
+				lines[1].start.set(endPoint.x, endPoint.y);
+			} else {
+				lines[1].end.set(endPoint.x, endPoint.y);
+			}
+			startAngle = new Line(center, startPoint).theta.deg;
+			endAngle = new Line(center, endPoint).theta.deg;
 		}
 		if (radius > 0) {
 			const cadArc = new CadArc({center: center.toArray(), radius, color: lines[0].color});
-			cadArc.start_angle = MathUtils.radToDeg(new Line(start, point).theta);
-			cadArc.end_angle = MathUtils.radToDeg(new Line(end, point).theta);
+			cadArc.start_angle = startAngle;
+			cadArc.end_angle = endAngle;
 			cadArc.clockwise = clockwise;
 			const data = (await this.getCurrCadsData())[0];
 			data.entities.add(cadArc);
+		}
+		if (this.cad.config.validateLines) {
+			validateLines(this.cad.data);
 		}
 		this.cad.unselectAll();
 	}
 
 	flip(horizontal: string, vertival: string) {
-		this.transform(new CadTransformation({flip: {vertical: vertival === "true", horizontal: horizontal === "true"}}));
+		const scaleX = horizontal === "true" ? -1 : 1;
+		const scaleY = vertival === "true" ? -1 : 1;
+		this.transform({scaleX, scaleY});
 	}
 
 	man(name: string, list: string) {
@@ -661,24 +738,20 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			if (e.linewidth >= 0.3) {
 				e.linewidth *= 3;
 			}
-			e.color.set(0);
+			e.color = new Color(0);
 			if (e instanceof CadDimension) {
 				e.selected = true;
 			}
 		});
 		const cad = new CadViewer(data, {
-			...this.cad.config,
 			width: width * scaleX,
 			height: height * scaleY,
-			backgroundColor: 0xffffff,
-			padding: 18 * scale,
-			showStats: false,
-			showLineLength: 0,
-			showGongshi: 0
+			backgroundColor: new Color("white"),
+			padding: 18 * scale
 		});
 		document.body.appendChild(cad.dom);
-		cad.render();
-		const src = cad.exportImage().src;
+		await timeout(0);
+		const src = (await cad.toCanvas()).toDataURL();
 		cad.destroy();
 		const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
 		pdf.getBlob((blob) => {
@@ -693,8 +766,8 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	rotate(degreesArg: string) {
 		const degrees = Number(degreesArg);
 		const rotateDimension = Math.round(degrees / 90) % 2 !== 0;
-		const radians = MathUtils.degToRad(degrees);
-		this.transform(new CadTransformation({rotate: {angle: radians}}), rotateDimension);
+		const radians = new Angle(degrees, "deg").rad;
+		this.transform({rotate: radians}, rotateDimension);
 	}
 
 	async save() {
@@ -715,10 +788,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			}
 			for (const i of indices) {
 				result = await dataService.postCadData(data[i].components.data, {collection: "cad"});
-				if (result) {
-					data[extra.index].components.data = result;
-					this.afterOpen();
-				}
+				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 			}
 		} else {
 			const validateResult = [];
@@ -766,4 +836,18 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	}
 
 	// * Console Functions end
+
+	saveStatus() {
+		const data = {
+			collection: this.collection,
+			ids: this.cad.data.components.data.map((v) => v.id)
+		};
+		session.save("console", data);
+	}
+
+	loadStatus() {
+		const data = session.load("console");
+		this.collection = data?.collection;
+		this.ids = data?.ids || [];
+	}
 }

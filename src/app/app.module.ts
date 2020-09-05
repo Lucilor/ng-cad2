@@ -22,6 +22,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatSelectModule} from "@angular/material/select";
 import {MatCardModule} from "@angular/material/card";
+import {MatListModule} from "@angular/material/list";
 
 import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
@@ -31,12 +32,12 @@ import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
 import {LoadingComponent} from "./components/loading/loading.component";
 import {ImageComponent} from "./components/image/image.component";
+import {PageNotFoundComponent} from "./components/page-not-found/page-not-found.component";
+import {MessageComponent} from "./components/message/message.component";
 import {IndexComponent} from "./components/index/index.component";
 import {PrintCadComponent} from "./components/print-cad/print-cad.component";
 import {MenuComponent} from "./components/menu/menu.component";
-import {PageNotFoundComponent} from "./components/page-not-found/page-not-found.component";
 import {ToolbarComponent} from "./components/menu/toolbar/toolbar.component";
-import {MessageComponent} from "./components/message/message.component";
 import {CadListComponent} from "./components/cad-list/cad-list.component";
 import {SubCadsComponent} from "./components/menu/sub-cads/sub-cads.component";
 import {CadLineComponent} from "./components/menu/cad-line/cad-line.component";
@@ -80,11 +81,11 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		LoadingComponent,
 		ImageComponent,
 		PageNotFoundComponent,
+		MessageComponent,
 		IndexComponent,
 		PrintCadComponent,
 		MenuComponent,
 		ToolbarComponent,
-		MessageComponent,
 		CadListComponent,
 		SubCadsComponent,
 		CadLineComponent,
@@ -133,6 +134,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		MatTabsModule,
 		MatSelectModule,
 		MatCardModule,
+		MatListModule,
 		PerfectScrollbarModule,
 		ColorPickerModule,
 		NgJsonEditorModule

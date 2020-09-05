@@ -9,7 +9,7 @@ import {LoadingAction} from "../store/actions";
 import {Response, session, Collection} from "../app.common";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
 import {CadViewer} from "../cad-viewer/cad-viewer";
-import {RSAEncrypt} from "@lucilor/utils";
+import {RSAEncrypt} from "@app/utils";
 import {Expressions} from "../cad-viewer/cad-data/utils";
 import {ActivatedRoute, Params} from "@angular/router";
 
@@ -97,7 +97,6 @@ export class CadDataService {
 					}
 				} else {
 					formData.append("data", data);
-					console.log(data);
 				}
 				if (files) {
 					files.forEach((v, i) => formData.append("file" + i, v));
@@ -241,21 +240,23 @@ export class CadDataService {
 	}
 
 	saveCadStatus(cad: CadViewer, field: string) {
-		const status = {id: cad.data.id, position: cad.position.toArray()};
-		session.save(field, status);
-		return status;
+		// const status = {id: cad.data.id, position: cad.xy()};
+		// session.save(field, status);
+		// return status;
 	}
 
 	loadCadStatus(cad: CadViewer, field: string) {
-		const status = session.load(field);
-		if (status && status.id === cad.data.id) {
-			if (Array.isArray(status.position)) {
-				cad.position.set(status.position[0], status.position[1], status.position[2]);
-			}
-			return status;
-		} else {
-			return null;
-		}
+		// const status = session.load(field);
+		// if (status && status.id === cad.data.id) {
+		// 	const x = status.position?.x;
+		// 	const y = status.position?.x;
+		// 	if (typeof x === "number" && typeof y === "number") {
+		// 		cad.xy(x, y);
+		// 	}
+		// 	return status;
+		// } else {
+		// 	return null;
+		// }
 	}
 
 	async getOptions(

@@ -37,7 +37,6 @@ describe("CadDimensionComponent", () => {
 		fixture = TestBed.createComponent(CadDimensionComponent);
 		component = fixture.componentInstance;
 		component.cad = new CadViewer(new CadData());
-		component.cad.setControls();
 		fixture.detectChanges();
 	});
 

@@ -1,15 +1,14 @@
 import {Point} from "./point";
 import {Angle} from "./angle";
 import {Line} from "./line";
+import {Matrix} from "@svgdotjs/svg.js";
 
 export class Arc {
 	center: Point;
 	radius: number;
 	clockwise: boolean;
-	private _startAngle: Angle;
-	private _endAngle: Angle;
-	private _startPoint: Point;
-	private _endPoint: Point;
+	startAngle: Angle;
+	endAngle: Angle;
 
 	constructor(center = new Point(), radius?: number, start?: Angle | Point, end?: Angle | Point, clockwise = true) {
 		this.center = center;
@@ -31,53 +30,38 @@ export class Arc {
 		}
 	}
 
-	get startAngle() {
-		return this._startAngle;
-	}
-
-	set startAngle(angle: Angle) {
-		this._startAngle = angle;
-		const d = new Point(Math.cos(this._startAngle.rad), Math.sin(this._startAngle.rad)).multiplyScalar(this.radius);
-		this._startPoint = this.center.clone().add(d);
-	}
-
-	get endAngle() {
-		return this._endAngle;
-	}
-
-	set endAngle(angle: Angle) {
-		this._endAngle = angle;
-		const d = new Point(Math.cos(this._endAngle.rad), Math.sin(this._endAngle.rad)).multiplyScalar(this.radius);
-		this._endPoint = this.center.clone().add(d);
-	}
-
 	get startPoint() {
-		return this._startPoint;
-	}
-
-	set startPoint(value: Point) {
-		this._startPoint = value;
-		this._startAngle.set(new Line(this.center, this._startPoint).theta, "rad");
-	}
-
-	get endPoint() {
-		return this._endPoint;
-	}
-
-	set endPoint(value: Point) {
-		this._endPoint = value;
-		this._endAngle.set(new Line(this.center, this._endPoint).theta, "rad");
-	}
-
-	get length() {
-		const {radius, _startAngle: startAngle, _endAngle: endAngle} = this;
-		return radius * Math.abs(startAngle.rad - endAngle.rad);
-	}
-
-	get middle() {
-		const angle = (this._startAngle.rad + this._endAngle.rad) / 2;
-		const d = new Point(Math.cos(angle), Math.sin(angle)).multiplyScalar(this.radius);
+		const d = new Point(Math.cos(this.startAngle.rad), Math.sin(this.startAngle.rad)).multiply(this.radius);
 		return this.center.clone().add(d);
+	}
+	set startPoint(value: Point) {
+		this.startAngle = new Line(this.center, value).theta;
+	}
+	get endPoint() {
+		const d = new Point(Math.cos(this.endAngle.rad), Math.sin(this.endAngle.rad)).multiply(this.radius);
+		return this.center.clone().add(d);
+	}
+	set endPoint(value: Point) {
+		this.endAngle = new Line(this.center, value).theta;
+	}
+	get totalAngle() {
+		const {startAngle, endAngle, clockwise} = this;
+		let start = startAngle.rad;
+		let end = endAngle.rad;
+		if (clockwise) {
+			while (end > start) {
+				end -= Math.PI * 2;
+			}
+			return new Angle(start - end, "rad");
+		} else {
+			while (start > end) {
+				start -= Math.PI * 2;
+			}
+			return new Angle(end - start, "rad");
+		}
+	}
+	get length() {
+		return this.radius * this.totalAngle.rad;
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point()) {
@@ -95,5 +79,31 @@ export class Arc {
 		this.startPoint = this.startPoint.rotate(angle, anchor);
 		this.endPoint = this.endPoint.rotate(angle, anchor);
 		return this;
+	}
+
+	equals(arc: Arc) {
+		return (
+			this.center.equals(arc.center) &&
+			this.radius === arc.radius &&
+			this.startAngle.equals(arc.startAngle) &&
+			this.endAngle.equals(arc.endAngle) &&
+			this.clockwise === arc.clockwise
+		);
+	}
+
+	getPoint(t: number) {
+		const {startAngle, totalAngle, clockwise, radius} = this;
+		const angle = startAngle.rad + totalAngle.rad * t * (clockwise ? -1 : 1);
+		const offset = new Point(Math.cos(angle), Math.sin(angle)).multiply(radius);
+		return this.center.clone().add(offset);
+	}
+
+	transform(matrix: Matrix) {
+		this.center.transform(matrix);
+		const start = this.getPoint(0).transform(matrix);
+		const end = this.getPoint(1).transform(matrix);
+		this.radius = this.center.distanceTo(start);
+		this.startPoint = start;
+		this.endPoint = end;
 	}
 }

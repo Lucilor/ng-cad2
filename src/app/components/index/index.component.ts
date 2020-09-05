@@ -10,11 +10,13 @@ import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {environment} from "@src/environments/environment";
 import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {timeout} from "@src/app/app.common";
+import {getCollection, timeout} from "@src/app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {getCadStatus} from "@src/app/store/selectors";
+import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
+import Color from "color";
 
 @Component({
 	selector: "app-index",
@@ -53,7 +55,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	showBottomMenu = true;
 	showLeftMenu = true;
 	showAllMenu = true;
-	menuPadding = [40, 250, 20, 200];
+	menuPadding = [40, 270, 20, 220];
 	@ViewChild("cadContainer", {read: ElementRef}) cadContainer: ElementRef<HTMLElement>;
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
@@ -89,17 +91,10 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		this.cad = new CadViewer(new CadData(), {
 			width: innerWidth,
 			height: innerHeight,
-			showStats: !environment.production,
 			padding: this.menuPadding.map((v) => v + 30),
-			showLineLength: 8,
-			showGongshi: 8,
+			lineTexts: {lineLength: 24, gongshi: 8},
 			validateLines: false
 		});
-		this.cad.setControls({selectMode: "multiple"});
-		if (this.cad.stats) {
-			this.cad.stats.dom.style.right = "0";
-			this.cad.stats.dom.style.left = "";
-		}
 		this.getObservable(getCadStatus).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
@@ -120,19 +115,9 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
-		let escapeDisabled = false;
-		this.cad.controls.on("entitiesdelete", () => this.refreshCurrCads());
-		this.cad.controls.on("entitiesunselect", ({key}: KeyboardEvent) => {
+		this.cad.on("entitiesremove", () => this.refreshCurrCads());
+		this.cad.on("keydown", async ({key}) => {
 			if (key === "Escape") {
-				escapeDisabled = true;
-			}
-		});
-		this.cad.dom.addEventListener("keydown", async ({key}) => {
-			if (key === "Escape") {
-				if (escapeDisabled) {
-					escapeDisabled = false;
-					return;
-				}
 				const {name} = await this.getObservableOnce(getCadStatus);
 				if (name === "assemble" || name === "split") {
 					return;
@@ -148,10 +133,25 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		window.addEventListener("contextmenu", (event) => {
 			event.preventDefault();
 		});
+
+		// this.cad.beforeRender = throttle(() => {
+		// const collection = getCollection();
+		// const {showLineLength, showGongshi} = this.cad.config;
+		// const data = new CadData();
+		// if (collection === "CADmuban") {
+		// 	this.data.components.data.forEach((v) => {
+		// 		v.components.data.forEach((vv) => data.merge(vv));
+		// 	});
+		// } else {
+		// 	data.merge(this.data);
+		// }
+		// const toRemove = generateLineTexts(data, {length: showLineLength, gongshi: showGongshi});
+		// toRemove.forEach((e) => this.cad.scene.remove(e?.object));
+		// });
 	}
 
 	ngAfterViewInit() {
-		this.cadContainer.nativeElement.appendChild(this.cad.dom);
+		this.cad.appendTo(this.cadContainer.nativeElement);
 	}
 
 	ngOnDestroy() {
@@ -177,7 +177,18 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		if (this.subCads) {
 			await this.subCads.updateList();
 			// await timeout(100);
-			this.cad.render(true);
+			const cad = this.cad;
+			const collection = getCollection();
+			if (collection === "CADmuban") {
+				cad.data.components.data.forEach((v) => {
+					v.components.data.forEach((vv) => generateLineTexts(this.cad, vv));
+				});
+			} else {
+				cad.data.components.data.forEach((v) => {
+					generateLineTexts(this.cad, v);
+				});
+			}
+			cad.render();
 		} else {
 			await timeout(0);
 			this.refresh();

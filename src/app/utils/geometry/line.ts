@@ -1,23 +1,46 @@
 import {Point} from "./point";
+import {DEFAULT_TOLERANCE} from "./constants";
+import {Angle} from "./angle";
 
 export class Line {
 	start: Point;
 	end: Point;
+
 	constructor(start: Point, end = start) {
 		this.start = start;
 		this.end = end;
 	}
 
-	containsPoint(point: Point, extend = false) {
-		const {x: x1, y: y1} = this.start;
-		const {x: x2, y: y2} = this.end;
-		const {x, y} = point;
-		const withinLine = extend || (Math.min(x1, x2) <= x && x <= Math.max(x1, x2) && Math.min(y1, y2) <= y && y <= Math.max(y1, y2));
-		if ((x - x1) * (y2 - y1) === (x2 - x1) * (y - y1) && withinLine) {
-			return true;
-		} else {
-			return false;
+	clone() {
+		return new Line(this.start.clone(), this.end.clone());
+	}
+
+	copy({start, end}: Line) {
+		this.start.copy(start);
+		this.end.copy(end);
+	}
+
+	reverse() {
+		[this.start, this.end] = [this.end, this.start];
+		return this;
+	}
+
+	contains(object: Point | Line, extend = false): boolean {
+		if (object instanceof Point) {
+			const {x: x1, y: y1} = this.start;
+			const {x: x2, y: y2} = this.end;
+			const {x, y} = object;
+			const withinLine = extend || (Math.min(x1, x2) <= x && x <= Math.max(x1, x2) && Math.min(y1, y2) <= y && y <= Math.max(y1, y2));
+			if ((x - x1) * (y2 - y1) === (x2 - x1) * (y - y1) && withinLine) {
+				return true;
+			} else {
+				return false;
+			}
 		}
+		if (object instanceof Line) {
+			return this.contains(object.start, extend) && this.contains(object.end, extend);
+		}
+		return false;
 	}
 
 	get length() {
@@ -29,7 +52,7 @@ export class Line {
 	get middle() {
 		const {x: x1, y: y1} = this.start;
 		const {x: x2, y: y2} = this.end;
-		return new Point(x1 + x2, y1 + y2).multiplyScalar(0.5);
+		return new Point(x1 + x2, y1 + y2).multiply(0.5);
 	}
 
 	get slope() {
@@ -44,7 +67,7 @@ export class Line {
 	get theta() {
 		const {x: x1, y: y1} = this.start;
 		const {x: x2, y: y2} = this.end;
-		return Math.atan2(y2 - y1, x2 - x1);
+		return new Angle(Math.atan2(y2 - y1, x2 - x1), "rad");
 	}
 
 	get expression() {
@@ -75,8 +98,17 @@ export class Line {
 		return result;
 	}
 
-	equals(line: Line) {
-		return this.start.equals(line.start) && this.end.equals(line.end);
+	equals(line: Line, tolerance = DEFAULT_TOLERANCE) {
+		return this.start.equals(line.start, tolerance) && this.end.equals(line.end, tolerance);
+	}
+
+	isParallelWith(line: Line, tolerance = DEFAULT_TOLERANCE) {
+		const slope1 = line.slope;
+		const slope2 = this.slope;
+		if (!isFinite(slope1) && !isFinite(slope2)) {
+			return true;
+		}
+		return Math.abs(this.slope - line.slope) <= tolerance;
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point(0)) {
@@ -91,25 +123,23 @@ export class Line {
 		return this;
 	}
 
-	distance(to: Line | Point) {
-		if (to instanceof Line) {
-			if (this.slope !== to.slope) {
+	distanceTo(line: Line | Point, tolerance = DEFAULT_TOLERANCE) {
+		if (line instanceof Line) {
+			if (!this.isParallelWith(line, tolerance)) {
 				return NaN;
 			}
 			const exp1 = this.expression;
-			const exp2 = to.expression;
+			const exp2 = line.expression;
 			return Math.abs(exp1.c - exp2.c) / Math.sqrt(exp1.a ** 2 + exp1.b ** 2);
 		} else {
 			const {a, b, c} = this.expression;
-			return Math.abs((a * to.x + b * to.y + c) / Math.sqrt(a ** 2 + b ** 2));
+			return Math.abs((a * line.x + b * line.y + c) / Math.sqrt(a ** 2 + b ** 2));
 		}
 	}
 
-	intersect(line: Line, extend = false) {
-		const slope1 = this.slope;
-		const slope2 = line.slope;
+	intersects(line: Line, extend = false, tolerance = DEFAULT_TOLERANCE) {
 		let intersection: Point = null;
-		if (slope1 === slope2 || (!isFinite(slope1) && !isFinite(slope2))) {
+		if (this.isParallelWith(line, tolerance)) {
 			return intersection;
 		}
 		const exp1 = this.expression;
@@ -117,10 +147,16 @@ export class Line {
 		if (exp1 && exp2) {
 			intersection = solveLinearEqXY(exp1.a, exp1.b, -exp1.c, exp2.a, exp2.b, -exp2.c);
 		}
-		if (extend === false && (!this.containsPoint(intersection) || !line.containsPoint(intersection))) {
+		if (extend === false && (!this.contains(intersection) || !line.contains(intersection))) {
 			intersection = null;
 		}
 		return intersection;
+	}
+
+	crossProduct(line: Line) {
+		const p1 = this.end.clone().sub(this.start);
+		const p2 = line.end.clone().sub(line.start);
+		return p1.crossProduct(p2);
 	}
 }
 
@@ -129,6 +165,6 @@ function solveLinearEqXY(a1: number, b1: number, c1: number, a2: number, b2: num
 	if (k === 0) {
 		return null;
 	} else {
-		return new Point(b2 * c1 - b1 * c2, a1 * c2 - a2 * c1).divideScalar(k);
+		return new Point(b2 * c1 - b1 * c2, a1 * c2 - a2 * c1).divide(k);
 	}
 }

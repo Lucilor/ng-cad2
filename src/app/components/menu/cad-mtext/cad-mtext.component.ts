@@ -1,11 +1,11 @@
-import {Component, OnInit, Injector, OnDestroy} from "@angular/core";
-import {Color} from "three";
-import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
-import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity/cad-mtext";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {MenuComponent} from "../menu.component";
+import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
+import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
+import Color from "color";
+import {throttle} from "lodash";
+import {MenuComponent} from "../menu.component";
 
 @Component({
 	selector: "app-cad-mtext",
@@ -14,8 +14,9 @@ import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 })
 export class CadMtextComponent extends MenuComponent implements OnInit, OnDestroy {
 	data: CadData;
+
 	get selected() {
-		return this.cad.selectedEntities.mtext;
+		return this.cad.selected().mtext;
 	}
 
 	constructor(injector: Injector) {
@@ -48,43 +49,44 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 		return "";
 	}
 
-	setInfo(field: string, event: InputEvent) {
+	// tslint:disable-next-line: member-ordering
+	setInfo = throttle((field: string, event: InputEvent) => {
 		const value = (event.target as HTMLInputElement).value;
 		this.selected.forEach((e) => (e[field] = value));
 		this.cad.render();
-	}
+	}, 500);
 
 	getColor() {
 		const selected = this.selected;
-		const color = new Color();
+		let color = new Color(0);
 		if (selected.length === 1) {
-			color.set(selected[0].color);
+			color = new Color(selected[0].color);
 		}
 		if (selected.length) {
-			const texts = Array.from(new Set(selected.map((v) => v.color.getHex())));
+			const texts = Array.from(new Set(selected.map((v) => v.color.hex())));
 			if (texts.length === 1) {
-				color.set(selected[0].color);
+				color = new Color(selected[0].color);
 			}
 		}
-		return "#" + color.getHexString();
+		return color.string();
 	}
 
 	setColor(event: ColorPickerEventArgs) {
 		const value = event.currentValue.hex;
-		this.selected.forEach((e) => e.color.set(value));
+		this.selected.forEach((e) => (e.color = new Color(value)));
 		this.cad.render();
 	}
 
 	addMtext() {
 		const {cad, data} = this;
 		const mtext = new CadMtext();
-		const {x, y} = cad.position;
-		mtext.insert.set(x, y);
+		const {cx, cy} = cad.draw.viewbox();
+		mtext.insert.set(cx, cy);
 		mtext.anchor.set(0.5, 0.5);
 		mtext.text = "新建文本";
 		mtext.selected = true;
 		data.entities.mtext.push(mtext);
-		cad.render(false, new CadEntities().add(mtext));
+		cad.render(mtext);
 	}
 
 	async cloneMtexts() {

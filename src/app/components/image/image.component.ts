@@ -1,4 +1,5 @@
 import {Component, Input} from "@angular/core";
+import {imgEmpty, imgLoading} from "@src/app/app.common";
 
 @Component({
 	selector: "app-image",
@@ -10,8 +11,8 @@ export class ImageComponent {
 	@Input() height: string;
 	@Input() src: string;
 	loading = true;
-	loadingSrc = "assets/images/loading.gif";
-	emptySrc = "assets/images/empty.jpg";
+	loadingSrc = imgLoading;
+	emptySrc = imgEmpty;
 
 	constructor() {}
 

@@ -12,6 +12,9 @@ import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from "@angular/material/button";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatTableModule} from "@angular/material/table";
+import {MatSelectModule} from "@angular/material/select";
+import {MatListModule} from "@angular/material/list";
+import {MatDividerModule} from "@angular/material/divider";
 import {FormsModule} from "@angular/forms";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {RouterTestingModule} from "@angular/router/testing";
@@ -34,6 +37,9 @@ describe("CadListComponent", () => {
 				MatPaginatorModule,
 				MatTableModule,
 				MatInputModule,
+				MatSelectModule,
+				MatListModule,
+				MatDividerModule,
 				FormsModule,
 				BrowserAnimationsModule,
 				RouterTestingModule

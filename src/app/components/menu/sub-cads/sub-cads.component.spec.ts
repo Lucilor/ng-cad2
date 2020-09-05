@@ -43,7 +43,6 @@ describe("SubCadsComponent", () => {
 		fixture = TestBed.createComponent(SubCadsComponent);
 		component = fixture.componentInstance;
 		component.cad = new CadViewer(new CadData());
-		component.cad.setControls();
 		fixture.detectChanges();
 	});
 

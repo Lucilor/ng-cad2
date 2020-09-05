@@ -1,22 +1,28 @@
 import {Component, OnInit, ViewChild, OnDestroy, Injector, ElementRef} from "@angular/core";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {timeout, Collection, session, copyToClipboard, removeCadGongshi, getCollection, addCadGongshi} from "@src/app/app.common";
+import {
+	timeout,
+	Collection,
+	session,
+	copyToClipboard,
+	removeCadGongshi,
+	getCollection,
+	addCadGongshi,
+	getCadPreview
+} from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
-import {RSAEncrypt} from "@lucilor/utils";
+import {Point, RSAEncrypt} from "@app/utils";
 import {State} from "@src/app/store/state";
 import {MenuComponent} from "../menu.component";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
-import {takeUntil} from "rxjs/operators";
 import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {Vector2, Vector3} from "three";
-import {CadTransformation} from "@src/app/cad-viewer/cad-data/cad-transformation";
-import {getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
+import {getCadStatus, getCurrCads} from "@src/app/store/selectors";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {openMessageDialog} from "../../message/message.component";
 import {openJsonEditorDialog} from "../../json-editor/json-editor.component";
+import {DomSanitizer} from "@angular/platform-browser";
 
 type SubCadsField = "cads" | "partners" | "components";
 
@@ -49,6 +55,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	@ViewChild("dxfInut", {read: ElementRef}) dxfInut: ElementRef<HTMLElement>;
 	contextMenuCad: {field: SubCadsField; data: CadData};
 	private _prevId = "";
+
 	get selected() {
 		const cads = this.cads.filter((v) => v.checked).map((v) => v.data);
 		const partners = this.partners.filter((v) => v.checked).map((v) => v.data);
@@ -56,7 +63,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		return {cads, partners, components};
 	}
 
-	constructor(injector: Injector, private snackBar: MatSnackBar) {
+	constructor(injector: Injector, private snackBar: MatSnackBar, private sanitizer: DomSanitizer) {
 		super(injector);
 	}
 
@@ -69,14 +76,13 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			this.updateCad();
 		});
 
-		let lastPointer: Vector2 = null;
+		let lastPointer: Point = null;
 		const cad = this.cad;
-		const controls = cad.controls;
 		let entitiesToMove: CadEntities;
 		let entitiesNotToMove: CadEntities;
-		controls.on("dragstart", async ({clientX, clientY, shiftKey, button}) => {
-			if (controls.config.dragAxis === "" && (button === 1 || (shiftKey && button === 0))) {
-				lastPointer = new Vector2(clientX, clientY);
+		cad.on("pointerdown", async ({clientX, clientY, shiftKey, button}) => {
+			if (cad.config.dragAxis === "" && (button === 1 || (shiftKey && button === 0))) {
+				lastPointer = new Point(clientX, clientY);
 				entitiesToMove = new CadEntities();
 				entitiesNotToMove = new CadEntities();
 				const currCadsData = await this.getCurrCadsData();
@@ -90,12 +96,12 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				});
 			}
 		});
-		controls.on("drag", async ({clientX, clientY}) => {
+		cad.on("pointermove", async ({clientX, clientY}) => {
 			if (lastPointer) {
 				const currCads = await this.getObservableOnce(getCurrCads);
 				const {name} = await this.getObservableOnce(getCadStatus);
-				const pointer = new Vector2(clientX, clientY);
-				const translate = lastPointer.sub(pointer).divideScalar(cad.scale);
+				const pointer = new Point(clientX, clientY);
+				const translate = lastPointer.sub(pointer).divide(cad.zoom());
 				translate.x = -translate.x;
 				if (name === "assemble") {
 					if (currCads.components.length) {
@@ -104,24 +110,16 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 						data.forEach((v) => parent.moveComponent(v, translate));
 					} else {
 						const data = cad.data.findChildren(currCads.cads);
-						data.forEach((v) => v.transform(new CadTransformation({translate})));
+						data.forEach((v) => v.transform({translate: translate.toArray()}));
 					}
 					cad.render();
 				} else {
-					if (entitiesToMove.length < entitiesNotToMove.length) {
-						entitiesToMove.transform(new CadTransformation({translate}));
-						cad.render(null, entitiesToMove);
-					} else {
-						translate.multiplyScalar(-1);
-						cad.position.add(new Vector3(translate.x, translate.y, 0));
-						entitiesNotToMove.transform(new CadTransformation({translate}));
-						cad.render(null, entitiesNotToMove);
-					}
+					cad.moveEntities(entitiesToMove, entitiesNotToMove, translate.x, translate.y);
 				}
 				lastPointer.copy(pointer);
 			}
 		});
-		controls.on("dragend", () => {
+		cad.on("pointerup", () => {
 			lastPointer = null;
 		});
 
@@ -134,10 +132,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	private async _getCadNode(data: CadData, parent?: string) {
-		const cad = new CadViewer(new CadData(data.export()), {width: 200, height: 100, padding: 10});
-		const img = cad.exportImage().src;
+		const img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data)) as string;
 		const node: CadNode = {data, img, checked: false, indeterminate: false, parent};
-		cad.destroy();
 		await timeout(0);
 		return node;
 	}
@@ -151,7 +147,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			return;
 		}
 		const cad = this.cad;
-		const entities = cad.selectedEntities;
+		const entities = cad.selected();
 		if (entities.length < 1) {
 			return;
 		}
@@ -168,7 +164,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			// data.separate(split);
 			data.addComponent(split);
 			this.blur(split.entities);
-			cad.removeEntities(entities);
+			cad.remove(entities);
 			split.conditions = cloneData.conditions;
 			split.options = cloneData.options;
 			split.type = cloneData.type;
@@ -180,20 +176,20 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 	}
 
-	private focus(entities?: CadEntities) {
-		this.cad.traverse((e) => {
+	private focus(entities = this.cad.data.getAllEntities()) {
+		entities.forEach((e) => {
 			e.selectable = !e.info.isCadGongshi;
 			e.selected = false;
 			e.opacity = 1;
-		}, entities);
+		});
 	}
 
-	private blur(entities?: CadEntities) {
-		this.cad.traverse((e) => {
+	private blur(entities = this.cad.data.getAllEntities()) {
+		entities.forEach((e) => {
 			e.selectable = false;
 			e.selected = false;
 			e.opacity = 0.3;
-		}, entities);
+		});
 	}
 
 	async updateCad() {
@@ -210,7 +206,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				});
 			}
 			if (this.needsReload === "split") {
-				if (getCollection() === "p_yuanshicadwenjian") {
+				if (getCollection() === "p_yuanshicadwenjian" && this._prevId) {
 					const data = cad.data.findChild(this._prevId);
 					data.components.data = [];
 					cad.reset();
@@ -223,13 +219,12 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			this.disabled = [];
 		}
 		if (name === "normal") {
-			cad.controls.config.selectMode = "multiple";
 			if (count === 0) {
 				this.focus();
-				cad.controls.config.dragAxis = "xy";
+				cad.config.dragAxis = "xy";
 			} else {
 				this.blur();
-				cad.controls.config.dragAxis = "";
+				cad.config.dragAxis = "";
 				this.cads.forEach((v) => {
 					v.data.show();
 					if (cads.includes(v.data.id)) {
@@ -284,7 +279,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 			});
 		} else if (name === "split") {
-			cad.controls.config.dragAxis = "xy";
+			cad.config.dragAxis = "xy";
 			if (this.needsReload !== "split") {
 				this.saveStatus();
 				this.disabled = ["components", "partners"];
@@ -464,8 +459,14 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		this.dataService.downloadDxf(data);
 	}
 
-	uploadDxf() {
-		this.dxfInut.nativeElement.click();
+	uploadDxf(mainCad = false) {
+		const el = this.dxfInut.nativeElement;
+		el.click();
+		if (mainCad) {
+			el.setAttribute("main-cad", "");
+		} else {
+			el.removeAttribute("main-cad");
+		}
 	}
 
 	async onDxfInutChange(event: InputEvent) {
@@ -478,11 +479,23 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		if (yes) {
 			const resData = await this.dataService.uploadDxf(file);
 			if (resData) {
-				data.entities = resData.entities;
-				data.partners = resData.partners;
-				data.components = resData.components;
+				if (input.hasAttribute("main-cad")) {
+					// TODO:getBoundingRect
+					const data1 = new CadData();
+					data1.entities = data.entities;
+					const data2 = new CadData();
+					data2.entities = resData.entities;
+					const {min: min1} = data1.getBoundingRect();
+					const {min: min2} = data2.getBoundingRect();
+					data2.transform({translate: min1.sub(min2)});
+					data.entities = data2.entities;
+				} else {
+					data.entities = resData.entities;
+					data.partners = resData.partners;
+					data.components = resData.components;
+				}
 				this.updateList();
-				this.cad.reset(null, true);
+				this.cad.reset();
 			}
 		}
 		input.value = "";
@@ -505,8 +518,8 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			data = new CadData(result);
 			addCadGongshi(data);
 			this.contextMenuCad.data.copy(data);
-			this.cad.reset();
 			this.updateList();
+			this.cad.reset();
 		}
 	}
 

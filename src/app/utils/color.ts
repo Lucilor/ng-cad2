@@ -1,4 +1,4 @@
-import * as Color from "color";
+import Color from "color";
 
 const list: {[key: string]: number[]} = {
 	1: [255, 0, 0],
@@ -293,9 +293,4 @@ export function RGB2Index(rgb: number | string) {
 interface ColorMap {
 	string: string;
 	number: number;
-}
-
-export function getColorLightness(color: number | string | number[]) {
-	const c = Color(color);
-	return 1 - (0.299 * c.red() + 0.587 * c.green() + 0.114 * c.blue()) / 255;
 }
