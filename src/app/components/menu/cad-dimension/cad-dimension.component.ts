@@ -37,7 +37,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				this.prevSelectMode = cad.config.selectMode;
 				cad.config.selectMode = "single";
 				cad.traverse((e) => {
-					if (!(e instanceof CadLine) && e.id !== dimension.id) {
+					if (!(e instanceof CadLine) && e.id !== dimension?.id) {
 						e.info.prevSelectable = e.selectable;
 						e.info.prevOpacity = e.opacity;
 						e.selectable = false;

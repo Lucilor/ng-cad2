@@ -43,8 +43,7 @@ export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOL
 
 export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
 	return map.map((v) => {
-		// const {x, y} = cad.getScreenPoint(v.point);
-		const {x, y} = {x: 0, y: 0};
+		const {x, y} = cad.getScreenPoint(v.point.x, v.point.y);
 		return {x, y, active: false};
 	});
 }

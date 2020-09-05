@@ -91,6 +91,9 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 					delete e.info.prevSelectable;
 				});
 				cad.config.selectMode = prevSelectMode;
+				if (this.lineDrawing?.entity) {
+					this.lineDrawing.entity.selectable = true;
+				}
 				this.lineDrawing = null;
 			}
 		});
@@ -302,10 +305,11 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			entity.end = lineDrawing.end;
 		} else {
 			entity = new CadLine({...lineDrawing});
-			entity.opacity = 0.7;
-			entity.selectable = false;
 			lineDrawing.entity = entity;
 			this.data.entities.add(entity);
+			this.cad.render(entity);
+			entity.opacity = 0.6;
+			entity.selectable = false;
 		}
 		cad.render(entity);
 	}
@@ -316,11 +320,11 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		if (!entity) {
 			return;
 		}
-		entity.opacity = 1;
-		entity.selectable = true;
 		setLinesLength(this.cad.data, [entity], Math.round(entity.length));
 		cad.render(entity);
 		// this.lineDrawing.entity=null
+		entity.opacity = 1;
+		entity.selectable = true;
 		this.lineDrawing = {start: null, end: null};
 		const points = getPointsFromMap(cad, generatePointsMap(this.data.getAllEntities()));
 		store.dispatch<CadPointsAction>({type: "set cad points", points});

@@ -60,7 +60,7 @@ export class CadViewer extends EventEmitter {
 		this.stylizer = new CadStylizer(this);
 
 		dom.addEventListener("wheel", controls.onWheel.bind(this));
-		dom.addEventListener("click", controls.onClick.bind(this));
+		// dom.addEventListener("click", controls.onClick.bind(this));
 		dom.addEventListener("pointerdown", controls.onPointerDown.bind(this));
 		dom.addEventListener("pointermove", controls.onPointerMove.bind(this));
 		dom.addEventListener("pointerup", controls.onPointerUp.bind(this));
@@ -378,15 +378,17 @@ export class CadViewer extends EventEmitter {
 		if (Array.isArray(entities)) {
 			return this.remove(new CadEntities().fromArray(entities));
 		}
-		const data = new CadData();
-		data.entities = entities;
-		entities.forEach((e) => {
-			e.parent?.remove(e);
-			e.el?.remove();
-			e.el = null;
-		});
-		this.data.separate(data);
-		this.emit("entitiesremove", null, entities);
+		if (entities instanceof CadEntities) {
+			const data = new CadData();
+			data.entities = entities;
+			entities.forEach((e) => {
+				e.parent?.remove(e);
+				e.el?.remove();
+				e.el = null;
+			});
+			this.data.separate(data);
+			this.emit("entitiesremove", null, entities);
+		}
 		return this;
 	}
 
@@ -397,7 +399,11 @@ export class CadViewer extends EventEmitter {
 		if (Array.isArray(entities)) {
 			return this.add(new CadEntities().fromArray(entities));
 		}
-		this.emit("entitiesadd", null, entities);
+		if (entities instanceof CadEntities) {
+			this.emit("entitiesadd", null, entities);
+			entities.forEach((e) => this.data.entities.add(e));
+			this.render(entities);
+		}
 		return this;
 	}
 

@@ -41,9 +41,6 @@ function onWheel(this: CadViewer, event: WheelEvent) {
 }
 
 function onClick(this: CadViewer, event: PointerEvent) {
-	// const {clientX, clientY} = event;
-	// console.log(clientY, screenY);
-	// console.log(this.getPointInView(clientX, clientY));
 	this.emit("click", event);
 }
 
@@ -131,31 +128,35 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 }
 
 function onPointerUp(this: CadViewer, event: PointerEvent) {
-	if (pointer && multiSelector) {
+	if (pointer) {
 		const {from, to} = pointer;
-		const rect = new Rectangle(from, to).justify();
-		const toSelect = Array<CadEntity>();
-		this.data.getAllEntities().forEach((e) => {
-			const domRect = e.el?.node.getBoundingClientRect();
-			if (!domRect) {
-				return;
+		if (from.distanceTo(to) < 1) {
+			this.emit("click", event);
+		} else if (multiSelector) {
+			const rect = new Rectangle(from, to).justify();
+			const toSelect = Array<CadEntity>();
+			this.data.getAllEntities().forEach((e) => {
+				const domRect = e.el?.node.getBoundingClientRect();
+				if (!domRect) {
+					return;
+				}
+				const {top, right, bottom, left} = domRect;
+				const rect2 = new Rectangle(new Point(left, top), new Point(right, bottom));
+				if (rect.contains(rect2)) {
+					toSelect.push(e);
+				}
+			});
+			if (toSelect.every((e) => e.selected)) {
+				toSelect.forEach((e) => (e.selected = false));
+			} else {
+				toSelect.forEach((e) => (e.selected = true));
 			}
-			const {top, right, bottom, left} = domRect;
-			const rect2 = new Rectangle(new Point(left, top), new Point(right, bottom));
-			if (rect.contains(rect2)) {
-				toSelect.push(e);
-			}
-		});
-		if (toSelect.every((e) => e.selected)) {
-			toSelect.forEach((e) => (e.selected = false));
-		} else {
-			toSelect.forEach((e) => (e.selected = true));
+			multiSelector.remove();
+			multiSelector = null;
 		}
 	}
 	pointer = null;
 	button = null;
-	multiSelector?.remove();
-	multiSelector = null;
 	if (needsRender) {
 		needsRender = false;
 		this.render();
