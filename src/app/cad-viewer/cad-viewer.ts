@@ -1,4 +1,4 @@
-import {SVG, Svg, CoordinateXY, Element} from "@svgdotjs/svg.js";
+import {SVG, Svg, CoordinateXY, Element, G} from "@svgdotjs/svg.js";
 import Color from "color";
 import {EventEmitter} from "events";
 import {cloneDeep, result} from "lodash";
@@ -6,6 +6,7 @@ import {Point} from "../utils";
 import {CadData} from "./cad-data/cad-data";
 import {CadEntities} from "./cad-data/cad-entities";
 import {CadEntity, CadArc, CadCircle, CadDimension, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entity";
+import {CadType} from "./cad-data/cad-types";
 import {getVectorFromArray} from "./cad-data/utils";
 import {CadStyle, CadStylizer} from "./cad-stylizer";
 import {CadEvents, controls} from "./cad-viewer-controls";
@@ -60,8 +61,6 @@ export class CadViewer extends EventEmitter {
 		this.draw = SVG().addTo(dom).size("100%", "100%");
 		this.stylizer = new CadStylizer(this);
 
-		this.resize().center().render();
-
 		dom.addEventListener("wheel", controls.onWheel.bind(this));
 		dom.addEventListener("click", controls.onClick.bind(this));
 		dom.addEventListener("pointerdown", controls.onPointerDown.bind(this));
@@ -70,6 +69,8 @@ export class CadViewer extends EventEmitter {
 		dom.addEventListener("keydown", controls.onKeyDown.bind(this));
 		dom.tabIndex = 0;
 		dom.focus();
+
+		this.resize().reset();
 	}
 
 	appendTo(container: HTMLElement) {
@@ -188,7 +189,11 @@ export class CadViewer extends EventEmitter {
 		}
 		let el = entity.el;
 		if (!el) {
-			el = draw.group().addClass("selectable");
+			const typeLayer = draw.find(`[type="${entity.type}"]`)[0] as G;
+			if (!typeLayer) {
+				draw.group().attr("type", entity.type);
+			}
+			el = typeLayer.group().addClass("selectable");
 			entity.el = el;
 			el.node.onclick = (event) => {
 				controls.onEntityClick.call(this, event, entity);
@@ -300,13 +305,6 @@ export class CadViewer extends EventEmitter {
 		if (Array.isArray(entities)) {
 			entities = new CadEntities().fromArray(entities);
 		}
-		// * draw dimensions first, making them covered by other entities
-		entities.dimension.forEach((e) => this.drawEntity(e, style));
-		entities.forEachType((arr, type) => {
-			if (type !== "dimension") {
-				arr.forEach((e) => this.drawEntity(e, style));
-			}
-		});
 		entities.forEach((e) => this.drawEntity(e, style));
 		return this.setBackgroundColor();
 	}
@@ -479,6 +477,10 @@ export class CadViewer extends EventEmitter {
 
 	reset(data?: CadData) {
 		this.draw.clear();
+		const types: CadType[] = ["DIMENSION", "HATCH", "MTEXT", "CIRCLE", "ARC", "LINE"];
+		types.forEach((t) => {
+			this.draw.group().attr("type", t);
+		});
 		if (data instanceof CadData) {
 			this.data = data;
 		}
