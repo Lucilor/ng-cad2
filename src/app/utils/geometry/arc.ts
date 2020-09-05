@@ -34,35 +34,34 @@ export class Arc {
 		const d = new Point(Math.cos(this.startAngle.rad), Math.sin(this.startAngle.rad)).multiply(this.radius);
 		return this.center.clone().add(d);
 	}
-
 	set startPoint(value: Point) {
 		this.startAngle = new Line(this.center, value).theta;
 	}
-
 	get endPoint() {
 		const d = new Point(Math.cos(this.endAngle.rad), Math.sin(this.endAngle.rad)).multiply(this.radius);
 		return this.center.clone().add(d);
 	}
-
 	set endPoint(value: Point) {
 		this.endAngle = new Line(this.center, value).theta;
 	}
-
-	get length() {
-		const {radius, startAngle, endAngle, clockwise} = this;
+	get totalAngle() {
+		const {startAngle, endAngle, clockwise} = this;
 		let start = startAngle.rad;
 		let end = endAngle.rad;
 		if (clockwise) {
 			while (end > start) {
 				end -= Math.PI * 2;
 			}
-			return radius * (start - end);
+			return new Angle(start - end, "rad");
 		} else {
 			while (start > end) {
 				start -= Math.PI * 2;
 			}
-			return radius * (end - start);
+			return new Angle(end - start, "rad");
 		}
+	}
+	get length() {
+		return this.radius * this.totalAngle.rad;
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point()) {
@@ -92,9 +91,11 @@ export class Arc {
 		);
 	}
 
-	// TODO: get point on arc
 	getPoint(t: number) {
-		return new Point();
+		const {startAngle, totalAngle, clockwise, radius} = this;
+		const angle = startAngle.rad + totalAngle.rad * t * (clockwise ? -1 : 1);
+		const offset = new Point(Math.cos(angle), Math.sin(angle)).multiply(radius);
+		return this.center.clone().add(offset);
 	}
 
 	transform(matrix: Matrix) {

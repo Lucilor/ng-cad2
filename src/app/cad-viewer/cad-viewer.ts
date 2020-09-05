@@ -254,7 +254,7 @@ export class CadViewer extends EventEmitter {
 		} else if (entity instanceof CadMtext) {
 			const parent = entity.parent;
 			let vertical = false;
-			if (parent instanceof CadLine) {
+			if (parent instanceof CadLine || parent instanceof CadArc) {
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
 					entity.font_size = this.config.lineTexts.lineLength;
@@ -267,7 +267,7 @@ export class CadViewer extends EventEmitter {
 					const offset = getVectorFromArray(entity.info.offset);
 					entity.insert.copy(offset.add(parent.middle));
 				}
-				if (parent.isVertical()) {
+				if (parent instanceof CadLine && parent.isVertical()) {
 					vertical = true;
 				}
 			}
