@@ -52,7 +52,7 @@ export function drawArc(draw: Container, center: Point, radius: number, startAng
 	return [el];
 }
 
-export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical: boolean, i = 0) {
+export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical = false, i = 0) {
 	if (!text || !(size > 0)) {
 		draw.remove();
 		return null;
@@ -65,8 +65,13 @@ export function drawText(draw: Container, text: string, size: number, position: 
 		el.css("transform-box", "fill-box");
 		el.font({size}).leading(1);
 	}
-	el.css("writing-mode", vertical ? "vertical-lr" : "lr");
-	el.css("transform", `translate(${-anchor.x * 100}%, ${anchor.y * 100}%) scale(1, -1)`);
+	if (vertical) {
+		el.css("writing-mode", "vertical-lr");
+		el.css("transform", `translate(${-anchor.x * 100}%, ${(anchor.y - 1) * 100}%) scale(1, -1) rotate(180deg)`);
+	} else {
+		el.css("writing-mode", "");
+		el.css("transform", `translate(${-anchor.x * 100}%, ${anchor.y * 100}%) scale(1, -1)`);
+	}
 	el.move(position.x, position.y);
 	return [el];
 }
