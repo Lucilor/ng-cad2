@@ -46,8 +46,6 @@ import {CadDimensionComponent} from "./components/menu/cad-dimension/cad-dimensi
 import {CadDimensionFormComponent} from "./components/menu/cad-dimension-form/cad-dimension-form.component";
 import {CadInfoComponent} from "./components/menu/cad-info/cad-info.component";
 import {CadOptionsComponent} from "./components/menu/cad-options/cad-options.component";
-import {ExpressionAnalysisComponent} from "./components/expression-analysis/expression-analysis.component";
-import {OrderListComponent} from "./components/order-list/order-list.component";
 import {CadPointsComponent} from "./components/menu/cad-points/cad-points.component";
 import {CadAssembleComponent} from "./components/menu/cad-assemble/cad-assemble.component";
 import {TestComponent} from "./components/test/test.component";
@@ -94,8 +92,6 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		CadDimensionFormComponent,
 		CadInfoComponent,
 		CadOptionsComponent,
-		ExpressionAnalysisComponent,
-		OrderListComponent,
 		CadPointsComponent,
 		CadAssembleComponent,
 		TestComponent,
