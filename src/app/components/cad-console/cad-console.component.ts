@@ -172,7 +172,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			const el = this.contentEl?.nativeElement;
 			const activeEl = document.activeElement;
 			if (
-				key.match(/[a-z]/) &&
+				key?.match(/[a-z]/) &&
 				el &&
 				el !== activeEl &&
 				!(activeEl instanceof HTMLInputElement) &&

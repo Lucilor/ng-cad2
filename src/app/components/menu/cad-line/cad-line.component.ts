@@ -233,18 +233,19 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	}, 500);
 
 	validateLineText(field: string, value: string) {
-		if (getCollection() === "cad" && value.match(/[-+*/()（）]/)) {
-			this.inputErrors.gongshi = "不能使用四则运算";
-			return false;
-		} else if (value.includes("变化值")) {
-			this.inputErrors.gongshi = "公式不能包含变化值";
-			return false;
-		} else {
-			this.inputErrors.gongshi = null;
-		}
-		if (field === "guanlianbianhuagongshi") {
+		if (field === "gongshi") {
+			if (getCollection() === "cad" && value.match(/[-+*/()（）]/)) {
+				this.inputErrors.gongshi = "不能使用四则运算";
+				return false;
+			} else if (value.includes("变化值")) {
+				this.inputErrors.gongshi = "公式不能包含变化值";
+				return false;
+			} else {
+				this.inputErrors.gongshi = null;
+			}
+		} else if (field === "guanlianbianhuagongshi") {
 			if (value && !value.includes("变化值")) {
-				this.inputErrors.guanlianbianhuagongshi = "公式必须包含变化值";
+				this.inputErrors.guanlianbianhuagongshi = "关联变化公式必须包含变化值";
 				return false;
 			} else {
 				this.inputErrors.guanlianbianhuagongshi = null;
