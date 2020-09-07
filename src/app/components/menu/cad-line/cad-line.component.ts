@@ -12,7 +12,7 @@ import {Point} from "@app/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
 import {MenuComponent} from "../menu.component";
-import {CadStatusAction, CadPointsAction} from "@src/app/store/actions";
+import {CadPointsAction, CommandAction} from "@src/app/store/actions";
 import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {takeUntil} from "rxjs/operators";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
@@ -276,13 +276,8 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.render();
 	}
 
-	async drawLine() {
-		const {name} = await this.getObservableOnce(getCadStatus);
-		if (name === "draw line") {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
-		} else {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "draw line"});
-		}
+	drawLine() {
+		this.store.dispatch<CommandAction>({type: "execute", command: {name: "draw-line", args: []}});
 	}
 
 	async onMouseMove({clientX, clientY, shiftKey}: MouseEvent) {

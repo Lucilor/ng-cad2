@@ -7,9 +7,9 @@ import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewe
 import {CadArc, CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
-import {CurrCadsAction, CadStatusAction, LoadingAction} from "@src/app/store/actions";
-import {getCommand, getCurrCads, getCurrCadsData, getCadStatus} from "@src/app/store/selectors";
-import {Angle, dataURLtoBlob, Line, Point} from "@src/app/utils";
+import {CurrCadsAction, CadStatusAction, LoadingAction, ConfigAction} from "@src/app/store/actions";
+import {getCommand, getCurrCads, getCurrCadsData, getCadStatus, getConfig} from "@src/app/store/selectors";
+import {Angle, Line, Point} from "@src/app/utils";
 import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
 import {differenceWith} from "lodash";
 import {v4} from "uuid";
@@ -19,6 +19,8 @@ import {openMessageDialog, MessageComponent} from "../message/message.component"
 import {highlight} from "highlight.js";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
+import {openJsonEditorDialog} from "../json-editor/json-editor.component";
+import {State} from "@src/app/store/state";
 
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
@@ -26,6 +28,8 @@ const getList = (content: string[]) => {
 
 export const commands: Command[] = [
 	{name: "assemble", desc: "进入/退出装配状态", args: []},
+	{name: "config", desc: "编辑CAD配置信息", args: []},
+	{name: "draw-line", desc: "进入/退出画线状态", args: []},
 	{name: "fillet", desc: "根据两条直线生成圆角", args: [{name: "radius", defaultValue: "0", desc: "圆角半径"}]},
 	{
 		name: "flip",
@@ -167,7 +171,13 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		} else {
 			const el = this.contentEl?.nativeElement;
 			const activeEl = document.activeElement;
-			if (key.match(/[a-z]/) && el && el !== activeEl && !(activeEl instanceof HTMLInputElement)) {
+			if (
+				key.match(/[a-z]/) &&
+				el &&
+				el !== activeEl &&
+				!(activeEl instanceof HTMLInputElement) &&
+				!(activeEl instanceof HTMLTextAreaElement)
+			) {
 				el.focus();
 				const selection = getSelection();
 				selection.setPosition(selection.focusNode, el.textContent.length);
@@ -349,8 +359,9 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				return values[v.name] ?? v.defaultValue;
 			}
 		});
+		const arr = name.split("-").map((v, i) => (i ? v[0].toUpperCase() + v.slice(1) : v));
 		try {
-			this[name](...argsValue);
+			this[arr.join("")](...argsValue);
 		} catch (error) {
 			this.snackBar.open("执行命令时出错");
 			console.warn(error);
@@ -404,7 +415,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		const seleted = cad.selected();
 		const m = new Matrix(matrix);
 		if (seleted.length) {
-			const {x, y, width, height} = cad.data.getBoundingRect(seleted);
+			const {x, y} = cad.data.getBoundingRect(seleted);
 			seleted.transform({...m.decompose(), origin: [x, y]});
 		} else {
 			const t = (data: CadData) => {
@@ -475,6 +486,24 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			if (index !== null) {
 				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "assemble", index});
 			}
+		}
+	}
+
+	async config() {
+		const config = await this.getObservableOnce(getConfig);
+		const ref = openJsonEditorDialog(this.dialog, {data: {json: config}});
+		const result = (await ref.afterClosed().toPromise()) as State["config"];
+		if (result) {
+			this.store.dispatch<ConfigAction>({type: "set config", config: result});
+		}
+	}
+
+	async drawLine() {
+		const {name} = await this.getObservableOnce(getCadStatus);
+		if (name === "draw line") {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+		} else {
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "draw line"});
 		}
 	}
 
@@ -746,7 +775,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		const cad = new CadViewer(data, {
 			width: width * scaleX,
 			height: height * scaleY,
-			backgroundColor: new Color("white"),
+			backgroundColor: "white",
 			padding: 18 * scale
 		});
 		document.body.appendChild(cad.dom);

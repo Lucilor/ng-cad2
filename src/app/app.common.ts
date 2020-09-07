@@ -133,7 +133,7 @@ export async function getCadPreview(data: CadData, width = 300, height = 150, pa
 	data2.entities = new CadEntities(data.getAllEntities().export());
 	data2.entities.dimension = [];
 	data2.entities.mtext = [];
-	const cad = new CadViewer(data2, {width, height, padding});
+	const cad = new CadViewer(data2, {width, height, padding, backgroundColor: "black"});
 	cad.appendTo(document.body);
 	cad.render();
 	await timeout(0);

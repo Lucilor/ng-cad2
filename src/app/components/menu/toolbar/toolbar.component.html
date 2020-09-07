@@ -32,7 +32,7 @@
 
 <button mat-button [matMenuTriggerFor]="view">视图</button>
 <mat-menu #view="matMenu">
-	<button mat-menu-item (click)="toggleShowDimensions()">{{ showDimensions ? "隐藏" : "显示" }}标注</button>
+	<button mat-menu-item (click)="toggleShowDimensions()">{{ cad.config.hideDimensions ? "显示" : "隐藏" }}标注</button>
 	<button mat-menu-item (click)="toggleShowCadGongshis()">{{ showCadGongshis ? "隐藏" : "显示" }}展开表达式</button>
 	<button mat-menu-item (click)="toggleValidateLines()">{{ cad.config.validateLines ? "" : "不" }}验证线段</button>
 	<button mat-menu-item (click)="setShowLineLength()">设置线长显示</button>
@@ -40,9 +40,10 @@
 </mat-menu>
 
 <button mat-button (click)="showManual()">帮助</button>
+<button mat-button disabled>|</button>
 
-<button mat-button (click)="toggleShowLineLength()">{{ cad.config.lineTexts.lineLength > 0 ? "隐藏" : "显示" }}线长</button>
-<button mat-button (click)="toggleShowLineGongshi()">{{ cad.config.lineTexts.gongshi > 0 ? "隐藏" : "显示" }}公式</button>
-<button mat-button (click)="toggleShowDimensions()">{{ showDimensions ? "隐藏" : "显示" }}标注</button>
+<button mat-button (click)="toggleShowLineLength()">{{ cad.config.lineTexts.hideLineLength? "显示" : "隐藏" }}线长</button>
+<button mat-button (click)="toggleShowLineGongshi()">{{ cad.config.lineTexts.hideGongshi ? "显示" : "隐藏" }}公式</button>
+<button mat-button (click)="toggleShowDimensions()">{{ cad.config.hideDimensions ? "显示" : "隐藏" }}标注</button>
 <button mat-button (click)="toggleShowCadGongshis()">{{ showCadGongshis ? "隐藏" : "显示" }}展开表达式</button>
 <button mat-button (click)="toggleValidateLines()">{{ cad.config.validateLines ? "" : "不" }}验证线段</button>

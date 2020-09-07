@@ -1,7 +1,6 @@
 import {SVG, Svg, CoordinateXY, Element, G} from "@svgdotjs/svg.js";
-import Color from "color";
 import {EventEmitter} from "events";
-import {cloneDeep, result} from "lodash";
+import {cloneDeep} from "lodash";
 import {Point} from "../utils";
 import {CadData} from "./cad-data/cad-data";
 import {CadEntities} from "./cad-data/cad-entities";
@@ -15,14 +14,15 @@ import {drawArc, drawCircle, drawDimension, drawLine, drawText} from "./draw";
 export interface CadViewerConfig {
 	width: number;
 	height: number;
-	backgroundColor: Color;
-	lineTexts: {lineLength: number; gongshi: number};
+	backgroundColor: string;
+	lineTexts: {lineLength: number; gongshi: number; hideLineLength?: boolean; hideGongshi?: boolean};
 	padding: number[] | number;
 	reverseSimilarColor: boolean;
 	validateLines: boolean;
 	selectMode: "none" | "single" | "multiple";
 	dragAxis: "" | "x" | "y" | "xy";
 	entityDraggable: boolean;
+	hideDimensions: boolean;
 }
 
 export class CadViewer extends EventEmitter {
@@ -30,14 +30,15 @@ export class CadViewer extends EventEmitter {
 	config: CadViewerConfig = {
 		width: 300,
 		height: 150,
-		backgroundColor: new Color(),
+		backgroundColor: "white",
 		lineTexts: {lineLength: 0, gongshi: 0},
 		padding: [0],
 		reverseSimilarColor: true,
 		validateLines: false,
 		selectMode: "multiple",
 		dragAxis: "xy",
-		entityDraggable: true
+		entityDraggable: true,
+		hideDimensions: false
 	};
 	dom: HTMLDivElement;
 	draw: Svg;
@@ -164,14 +165,9 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	setBackgroundColor(color?: Color | string | number) {
-		if (color === undefined || color === null) {
+	setBackgroundColor(color?: string) {
+		if (typeof color !== "string") {
 			color = this.config.backgroundColor;
-		} else {
-			if (!(color instanceof Color)) {
-				color = new Color(color);
-				this.config.backgroundColor = color;
-			}
 		}
 		this.draw.css("background-color", color.toString());
 		return this;
@@ -254,15 +250,16 @@ export class CadViewer extends EventEmitter {
 		} else if (entity instanceof CadMtext) {
 			const parent = entity.parent;
 			if (parent instanceof CadLine || parent instanceof CadArc) {
+				const {lineLength, gongshi, hideLineLength, hideGongshi} = this.config.lineTexts;
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
-					entity.font_size = this.config.lineTexts.lineLength;
+					entity.font_size = hideLineLength ? 0 : lineLength;
 					const offset = getVectorFromArray(entity.info.offset);
 					entity.insert.copy(offset.add(parent.middle));
 				}
 				if (entity.info.isGongshiText) {
 					entity.text = parent.gongshi;
-					entity.font_size = this.config.lineTexts.gongshi;
+					entity.font_size = hideGongshi ? 0 : gongshi;
 					const offset = getVectorFromArray(entity.info.offset);
 					entity.insert.copy(offset.add(parent.middle));
 				}
@@ -299,6 +296,7 @@ export class CadViewer extends EventEmitter {
 		if (Array.isArray(entities)) {
 			entities = new CadEntities().fromArray(entities);
 		}
+		entities.dimension.forEach((e) => (e.visible = !this.config.hideDimensions));
 		entities.forEach((e) => this.drawEntity(e, style));
 		return this.setBackgroundColor();
 	}

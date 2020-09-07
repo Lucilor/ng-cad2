@@ -6,7 +6,6 @@ import {timeout} from "@src/app/app.common";
 import {Store} from "@ngrx/store";
 import {State} from "@src/app/store/state";
 import {LoadingAction} from "@src/app/store/actions";
-import Color from "color";
 
 export type PreviewData = {
 	CAD?: any;
@@ -49,7 +48,7 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 						padding: 15,
 						width: 92,
 						height: 92,
-						backgroundColor: new Color("white")
+						backgroundColor: "white"
 					});
 					document.body.appendChild(cad.dom);
 					if (card.text.every((v) => !v.includes("花件"))) {

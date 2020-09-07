@@ -1,4 +1,6 @@
 import {Command} from "../app.common";
+import {CadViewerConfig} from "../cad-viewer/cad-viewer";
+
 export type CadStatusName = "normal" | "select baseline" | "select jointpoint" | "edit dimension" | "assemble" | "split" | "draw line";
 
 export interface CadStatus {
@@ -13,6 +15,7 @@ export interface State {
 	cadStatus: CadStatus;
 	cadPoints: {x: number; y: number; active: boolean}[];
 	command: Command;
+	config: CadViewerConfig;
 }
 
 export const initialState: State = {
@@ -20,5 +23,6 @@ export const initialState: State = {
 	currCads: {cads: [], partners: [], components: [], fullCads: []},
 	cadStatus: {name: "normal", index: -1},
 	cadPoints: [],
-	command: null
+	command: null,
+	config: null
 };

@@ -23,3 +23,5 @@ export const getCadStatus = ({cadStatus}: State) => cadStatus;
 export const getCadPoints = ({cadPoints}: State) => cadPoints;
 
 export const getCommand = ({command}: State) => command;
+
+export const getConfig = ({config}: State) => config;

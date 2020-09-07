@@ -23,7 +23,7 @@ export interface CadStatusAction extends Action {
 	extra?: State["cadStatus"]["extra"];
 }
 
-export type CadPointsActionType = "set cad points" | "activate cad points"  | "unactivate cad points" ;
+export type CadPointsActionType = "set cad points" | "activate cad points" | "unactivate cad points";
 export interface CadPointsAction extends Action {
 	readonly type: CadPointsActionType;
 	points?: State["cadPoints"];
@@ -34,4 +34,10 @@ export type CommandActionType = "execute";
 export interface CommandAction extends Action {
 	readonly type: CommandActionType;
 	command: Command;
+}
+
+export type ConfigActionType = "set config";
+export interface ConfigAction extends Action {
+	readonly type: ConfigActionType;
+	config: Partial<State["config"]>;
 }
