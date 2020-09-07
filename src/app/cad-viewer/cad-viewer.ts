@@ -383,6 +383,7 @@ export class CadViewer extends EventEmitter {
 				e.parent?.remove(e);
 				e.el?.remove();
 				e.el = null;
+				e.children.forEach((c) => c.el?.remove());
 			});
 			this.data.separate(data);
 			this.emit("entitiesremove", null, entities);
