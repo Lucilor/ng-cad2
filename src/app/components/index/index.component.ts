@@ -7,7 +7,7 @@ import {CadDimensionComponent} from "../menu/cad-dimension/cad-dimension.compone
 import {CadAssembleComponent} from "../menu/cad-assemble/cad-assemble.component";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadStatusAction, CurrCadsAction} from "@src/app/store/actions";
+import {CadStatusAction, ConfigAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {getCollection, timeout} from "@src/app/app.common";
 import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
@@ -86,7 +86,12 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		// this.dataService.getSampleFormulas().then((result) => {
 		// 	this.formulas = result;
 		// });
-		this.cad = new CadViewer(new CadData(), {width: innerWidth, height: innerHeight, padding: this.menuPadding.map((v) => v + 30)});
+		this.cad = new CadViewer(new CadData(), {
+			width: innerWidth,
+			height: innerHeight,
+			padding: this.menuPadding.map((v) => v + 30),
+			backgroundColor: "black"
+		});
 		this.getObservable(getCadStatus).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
@@ -120,6 +125,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
+		this.store.dispatch<ConfigAction>({type: "set config", config: this.cad.config()});
 		this.getObservable(getConfig).subscribe(this.applyConfig.bind(this));
 
 		Object.assign(window, {app: this});
@@ -183,8 +189,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 				});
 			}
 			cad.render();
-			const config = await this.getObservableOnce(getConfig);
-			this.applyConfig(config);
 		} else {
 			await timeout(0);
 			this.refresh();
@@ -201,11 +205,13 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	}
 
 	private _setCadPadding(show: boolean, i: number) {
+		const padding = this.cad.config("padding");
 		if (show) {
-			this.cad.config.padding[i] += this.menuPadding[i];
+			padding[i] += this.menuPadding[i];
 		} else {
-			this.cad.config.padding[i] -= this.menuPadding[i];
+			padding[i] -= this.menuPadding[i];
 		}
+		this.cad.config({padding});
 	}
 
 	toggleTopMenu(show?: boolean) {
@@ -238,7 +244,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	applyConfig(config: State["config"]) {
 		config = JSON.parse(JSON.stringify(config));
-		this.cad.config = {...this.cad.config, ...config};
-		this.cad.render();
+		this.cad.config(config);
 	}
 }

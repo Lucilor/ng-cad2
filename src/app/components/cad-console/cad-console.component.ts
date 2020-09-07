@@ -124,11 +124,6 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			}
 		});
 		window.addEventListener("keydown", this.onKeyDownWin.bind(this));
-		this.route.queryParams.subscribe((queryParams) => {
-			if (typeof queryParams.collection === "string") {
-				this.collection = queryParams.collection as Collection;
-			}
-		});
 
 		const {ids, collection, dataService} = this;
 		let cachedData: any = null;
@@ -144,7 +139,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		if (cachedData && vid) {
 			this.collection = params.collection ?? "cad";
 			const {showLineLength} = params;
-			this.cad.config.lineTexts.lineLength = showLineLength;
+			this.cad.config("lineLength", showLineLength);
 			this.afterOpen([new CadData(cachedData)]);
 		} else if (location.search) {
 			const data = await dataService.getCadData();
@@ -621,7 +616,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			const data = (await this.getCurrCadsData())[0];
 			data.entities.add(cadArc);
 		}
-		if (this.cad.config.validateLines) {
+		if (this.cad.config("validateLines")) {
 			validateLines(this.cad.data);
 		}
 		this.cad.unselectAll();

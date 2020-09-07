@@ -59,7 +59,7 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 					});
 					document.body.appendChild(cad.dom);
 					if (card.text.every((v) => !v.includes("花件"))) {
-						cad.config.lineTexts.lineLength = 10 / cad.zoom();
+						cad.config("lineLength", 10 / cad.zoom());
 					}
 					generateLineTexts(cad, cad.data);
 					cad.render();

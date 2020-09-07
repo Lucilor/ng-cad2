@@ -15,7 +15,6 @@ export interface CadViewerConfig {
 	width: number;
 	height: number;
 	backgroundColor: string;
-	lineTexts: {lineLength: number; gongshi: number; hideLineLength?: boolean; hideGongshi?: boolean};
 	padding: number[] | number;
 	reverseSimilarColor: boolean;
 	validateLines: boolean;
@@ -23,31 +22,70 @@ export interface CadViewerConfig {
 	dragAxis: "" | "x" | "y" | "xy";
 	entityDraggable: boolean;
 	hideDimensions: boolean;
+	lineLength: number;
+	lineGongshi: number;
+	hideLineLength: boolean;
+	hideLineGongshi: boolean;
 }
 
-export class CadViewer extends EventEmitter {
-	data: CadData;
-	config: CadViewerConfig = {
+function getConfigProxy(config?: Partial<CadViewerConfig>) {
+	const defalutConfig: CadViewerConfig = {
 		width: 300,
 		height: 150,
 		backgroundColor: "white",
-		lineTexts: {lineLength: 0, gongshi: 0},
-		padding: [0],
+		padding: 0,
 		reverseSimilarColor: true,
 		validateLines: false,
 		selectMode: "multiple",
 		dragAxis: "xy",
 		entityDraggable: true,
-		hideDimensions: false
+		hideDimensions: false,
+		lineLength: 0,
+		lineGongshi: 0,
+		hideLineLength: false,
+		hideLineGongshi: false
 	};
+	for (const key in config) {
+		if (key in defalutConfig) {
+			defalutConfig[key] = config[key];
+		}
+	}
+	return new Proxy(defalutConfig, {
+		set(target, key, value) {
+			if (key === "padding") {
+				if (typeof value === "number") {
+					value = [value, value, value, value];
+				} else if (!Array.isArray(value) || value.length === 0) {
+					value = [0, 0, 0, 0];
+				} else if (value.length === 0) {
+					value = [0, 0, 0, 0];
+				} else if (value.length === 1) {
+					value = [value[0], value[0], value[0], value[0]];
+				} else if (value.length === 2) {
+					value = [value[0], value[1], value[0], value[1]];
+				} else if (value.length === 3) {
+					value = [value[0], value[1], value[0], value[2]];
+				}
+			}
+			if (key in target) {
+				target[key] = value;
+				return true;
+			}
+			return false;
+		}
+	});
+}
+
+export class CadViewer extends EventEmitter {
+	data: CadData;
 	dom: HTMLDivElement;
 	draw: Svg;
 	stylizer: CadStylizer;
+	private _config: CadViewerConfig;
 
 	constructor(data: CadData, config: Partial<CadViewerConfig> = {}) {
 		super();
 		this.data = data;
-		this.config = {...this.config, ...config};
 
 		const dom = document.createElement("div");
 		dom.id = data.id;
@@ -69,7 +107,63 @@ export class CadViewer extends EventEmitter {
 		dom.tabIndex = 0;
 		dom.focus();
 
-		this.resize().reset();
+		this._config = getConfigProxy();
+		this.reset().config(config).center();
+	}
+
+	config(): CadViewerConfig;
+	config<T extends keyof CadViewerConfig>(key: T): CadViewerConfig[T];
+	config(config: Partial<CadViewerConfig>): this;
+	config<T extends keyof CadViewerConfig>(key: T, value: CadViewerConfig[T]): this;
+	config<T extends keyof CadViewerConfig>(config?: T | Partial<CadViewerConfig>, value?: CadViewerConfig[T]) {
+		if (!config) {
+			return cloneDeep(this._config);
+		}
+		if (typeof config === "string") {
+			if (value === undefined) {
+				return this._config[config];
+			} else {
+				const tmp: Partial<CadViewerConfig> = {};
+				tmp[config] = value;
+				return this.config(tmp);
+			}
+		}
+		let needsResize = false;
+		let needsSetBg = false;
+		let needsRender = false;
+		for (const key in config) {
+			const success = Reflect.set(this._config, key, config[key]);
+			if (success) {
+				switch (key as keyof CadViewerConfig) {
+					case "width":
+					case "height":
+						needsResize = true;
+						break;
+					case "backgroundColor":
+						needsSetBg = true;
+						break;
+					case "hideDimensions":
+					case "lineLength":
+					case "lineGongshi":
+					case "hideLineLength":
+					case "hideLineGongshi":
+					case "reverseSimilarColor":
+					case "validateLines":
+						needsRender = true;
+						break;
+				}
+			}
+		}
+		if (needsResize) {
+			this.resize();
+		}
+		if (needsSetBg) {
+			this.setBackgroundColor();
+		}
+		if (needsRender) {
+			this.render();
+		}
+		return this;
 	}
 
 	appendTo(container: HTMLElement) {
@@ -131,46 +225,32 @@ export class CadViewer extends EventEmitter {
 	}
 
 	resize(width?: number, height?: number) {
-		const {draw, config} = this;
+		const {draw, _config} = this;
 		if (width > 0) {
-			config.width = width;
+			_config.width = width;
 		} else {
-			width = config.width;
+			width = _config.width;
 		}
 		if (height > 0) {
-			config.height = height;
+			_config.height = height;
 		} else {
-			height = config.height;
+			height = _config.height;
 		}
 		draw.attr({width, height});
 		this.dom.style.width = width + "px";
 		this.dom.style.height = height + "px";
-
-		let padding = this.config.padding;
-		if (typeof padding === "number") {
-			padding = [padding, padding, padding, padding];
-		} else if (!Array.isArray(padding) || padding.length === 0) {
-			padding = [0, 0, 0, 0];
-		} else if (padding.length === 0) {
-			padding = [0, 0, 0, 0];
-		} else if (padding.length === 1) {
-			padding = [padding[0], padding[0], padding[0], padding[0]];
-		} else if (padding.length === 2) {
-			padding = [padding[0], padding[1], padding[0], padding[1]];
-		} else if (padding.length === 3) {
-			padding = [padding[0], padding[1], padding[0], padding[2]];
-		}
-		this.config.padding = padding;
 
 		return this;
 	}
 
 	setBackgroundColor(color?: string) {
 		if (typeof color !== "string") {
-			color = this.config.backgroundColor;
+			color = this._config.backgroundColor;
+		} else {
+			this._config.backgroundColor = color;
 		}
 		this.draw.css("background-color", color.toString());
-		return this;
+		return this.render();
 	}
 
 	drawEntity(entity: CadEntity, style: CadStyle = {}) {
@@ -250,7 +330,7 @@ export class CadViewer extends EventEmitter {
 		} else if (entity instanceof CadMtext) {
 			const parent = entity.parent;
 			if (parent instanceof CadLine || parent instanceof CadArc) {
-				const {lineLength, gongshi, hideLineLength, hideGongshi} = this.config.lineTexts;
+				const {lineLength, lineGongshi, hideLineLength, hideLineGongshi} = this._config;
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
 					entity.font_size = hideLineLength ? 0 : lineLength;
@@ -259,7 +339,7 @@ export class CadViewer extends EventEmitter {
 				}
 				if (entity.info.isGongshiText) {
 					entity.text = parent.gongshi;
-					entity.font_size = hideGongshi ? 0 : gongshi;
+					entity.font_size = hideLineGongshi ? 0 : lineGongshi;
 					const offset = getVectorFromArray(entity.info.offset);
 					entity.insert.copy(offset.add(parent.middle));
 				}
@@ -296,16 +376,16 @@ export class CadViewer extends EventEmitter {
 		if (Array.isArray(entities)) {
 			entities = new CadEntities().fromArray(entities);
 		}
-		entities.dimension.forEach((e) => (e.visible = !this.config.hideDimensions));
+		entities.dimension.forEach((e) => (e.visible = !this._config.hideDimensions));
 		entities.forEach((e) => this.drawEntity(e, style));
-		return this.setBackgroundColor();
+		return this;
 	}
 
 	center() {
 		let {width, height, x, y} = this.data.getBoundingRect();
 		const outerWidth = this.width();
 		const outerHeight = this.height();
-		const padding = cloneDeep(this.config.padding) as number[];
+		const padding = cloneDeep(this._config.padding) as number[];
 		const scaleX = (outerWidth - padding[1] - padding[3]) / width;
 		const scaleY = (outerHeight - padding[0] - padding[2]) / height;
 		const scale = Math.min(scaleX, scaleY);
@@ -326,7 +406,7 @@ export class CadViewer extends EventEmitter {
 		y = y - height / 2 - padding[2];
 		this.draw.viewbox(x, y, outterWidth, outterHeight);
 		this.draw.transform({a: 1, b: 0, c: 0, d: -1, e: 0, f: 0});
-		return this.resize();
+		return this;
 	}
 
 	selected() {
@@ -487,7 +567,7 @@ export class CadViewer extends EventEmitter {
 			e.el = null;
 			e.children.forEach((c) => (c.el = null));
 		});
-		return this.center().render();
+		return this.render().center();
 	}
 
 	// ? move entities efficiently

@@ -55,14 +55,14 @@ function onPointerDown(this: CadViewer, event: PointerEvent) {
 function onPointerMove(this: CadViewer, event: PointerEvent) {
 	if (pointer) {
 		const {clientX, clientY, shiftKey} = event;
-		const {selectMode, entityDraggable} = this.config;
+		const {selectMode, entityDraggable, dragAxis} = this.config();
 		const {from, to} = pointer;
 		const translate = new Point(clientX, clientY).sub(to).divide(this.zoom());
 		if ((button === 0 && shiftKey) || button === 1) {
-			if (!this.config.dragAxis.includes("x")) {
+			if (!dragAxis.includes("x")) {
 				translate.x = 0;
 			}
-			if (!this.config.dragAxis.includes("y")) {
+			if (!dragAxis.includes("y")) {
 				translate.y = 0;
 			}
 			this.move(translate.x, -translate.y);
@@ -189,7 +189,7 @@ function onEntityClick(this: CadViewer, event: PointerEvent, entity: CadEntity) 
 }
 
 function onEntityPointerDown(this: CadViewer, event: PointerEvent, entity: CadEntity) {
-	if (this.config.entityDraggable) {
+	if (this.config("entityDraggable")) {
 		if (entity instanceof CadDimension) {
 			draggingDimension = entity;
 		} else {

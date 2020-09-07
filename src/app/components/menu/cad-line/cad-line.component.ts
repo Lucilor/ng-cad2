@@ -80,8 +80,8 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 					e.info.prevSelectable = e.selectable;
 					e.selectable = false;
 				});
-				prevSelectMode = cad.config.selectMode;
-				cad.config.selectMode = "none";
+				prevSelectMode = cad.config("selectMode");
+				cad.config("selectMode", "none");
 				this.lineDrawing = {start: null, end: null};
 			} else if (this.lineDrawing) {
 				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
@@ -90,7 +90,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 					e.selectable = e.info.prevSelectable ?? true;
 					delete e.info.prevSelectable;
 				});
-				cad.config.selectMode = prevSelectMode;
+				cad.config("selectMode", prevSelectMode);
 				if (this.lineDrawing?.entity) {
 					this.lineDrawing.entity.selectable = true;
 				}
@@ -170,7 +170,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		const {selected, cad} = this;
 		const lines = selected.filter((v) => v instanceof CadLine) as CadLine[];
 		setLinesLength(cad.data, lines, Number((event.target as HTMLInputElement).value));
-		if (cad.config.validateLines) {
+		if (cad.config("validateLines")) {
 			validateLines(cad.data);
 		}
 		cad.render();
@@ -333,7 +333,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 				autoFixLine(this.cad, e);
 			}
 		});
-		if (cad.config.validateLines) {
+		if (cad.config("validateLines")) {
 			validateLines(cad.data);
 		}
 		cad.render();

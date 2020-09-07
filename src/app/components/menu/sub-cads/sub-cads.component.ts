@@ -81,7 +81,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		let entitiesToMove: CadEntities;
 		let entitiesNotToMove: CadEntities;
 		cad.on("pointerdown", async ({clientX, clientY, shiftKey, button}) => {
-			if (cad.config.dragAxis === "" && (button === 1 || (shiftKey && button === 0))) {
+			if (cad.config("dragAxis") === "" && (button === 1 || (shiftKey && button === 0))) {
 				lastPointer = new Point(clientX, clientY);
 				entitiesToMove = new CadEntities();
 				entitiesNotToMove = new CadEntities();
@@ -221,10 +221,10 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		if (name === "normal") {
 			if (count === 0) {
 				this.focus();
-				cad.config.dragAxis = "xy";
+				cad.config("dragAxis", "xy");
 			} else {
 				this.blur();
-				cad.config.dragAxis = "";
+				cad.config("dragAxis", "");
 				this.cads.forEach((v) => {
 					v.data.show();
 					if (cads.includes(v.data.id)) {
@@ -279,7 +279,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				}
 			});
 		} else if (name === "split") {
-			cad.config.dragAxis = "xy";
+			cad.config("dragAxis", "xy");
 			if (this.needsReload !== "split") {
 				this.saveStatus();
 				this.disabled = ["components", "partners"];

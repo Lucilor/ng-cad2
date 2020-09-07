@@ -37,14 +37,15 @@ export class CadStylizer {
 			result.opacity = params.opacity;
 		}
 
-		if (cad.config.validateLines && entity instanceof CadLine) {
+		const {validateLines, reverseSimilarColor} = cad.config();
+		if (validateLines && entity instanceof CadLine) {
 			if (!entity.valid || entity.info.error) {
 				result.linewidth *= 10;
 				color = new Color(0xff0000);
 			}
 		}
 
-		if (cad.config.reverseSimilarColor) {
+		if (reverseSimilarColor) {
 			color = this.correctColor(color);
 		}
 		result.color = color.hex();
@@ -54,7 +55,7 @@ export class CadStylizer {
 	}
 
 	correctColor(color: Color, threshold = 5) {
-		const {reverseSimilarColor, backgroundColor} = this.cad.config;
+		const {reverseSimilarColor, backgroundColor} = this.cad.config();
 		if (reverseSimilarColor) {
 			if (Math.abs(color.rgbNumber() - new Color(backgroundColor).rgbNumber()) <= threshold) {
 				return color.negate();

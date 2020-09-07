@@ -297,7 +297,7 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				}
 			}
 
-			const {lineLength, gongshi} = cad.config.lineTexts;
+			const {lineLength, lineGongshi} = cad.config();
 			let lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
 			if (lineLength > 0) {
 				if (!(lengthText instanceof CadMtext)) {
@@ -316,7 +316,7 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 			}
 
 			let gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
-			if (gongshi) {
+			if (lineGongshi) {
 				if (!(gongshiText instanceof CadMtext)) {
 					gongshiText = new CadMtext();
 					gongshiText.info.isGongshiText = true;
@@ -325,7 +325,7 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 					gongshiText.insert.copy(inner);
 				}
 				gongshiText.text = line.gongshi;
-				gongshiText.font_size = gongshi;
+				gongshiText.font_size = lineGongshi;
 				gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
 			} else {
 				line.remove(gongshiText);

@@ -96,14 +96,17 @@ export function configReducer(config = initialState.config, action: ConfigAction
 			width: innerWidth,
 			height: innerHeight,
 			backgroundColor: "black",
-			lineTexts: {lineLength: 24, gongshi: 8},
 			reverseSimilarColor: true,
 			validateLines: false,
 			padding: 0,
 			dragAxis: "xy",
 			selectMode: "multiple",
 			entityDraggable: true,
-			hideDimensions: false
+			hideDimensions: false,
+			lineLength: 24,
+			lineGongshi: 8,
+			hideLineLength: false,
+			hideLineGongshi: false
 		};
 		const cachedConfig = session.load("config");
 		if (cachedConfig) {

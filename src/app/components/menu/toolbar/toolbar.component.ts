@@ -5,7 +5,6 @@ import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
 import {Collection} from "@src/app/app.common";
 import Color from "color";
-import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 import {getConfig} from "@src/app/store/selectors";
 
 @Component({
@@ -28,7 +27,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		p: () => this.printCad()
 	};
 	showCadGongshis = true;
-	prevLineTexts: CadViewerConfig["lineTexts"];
 	lastUrl: string = null;
 
 	constructor(injector: Injector) {
@@ -44,7 +42,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				this.clickBtn(key);
 			}
 		});
-		this.prevLineTexts = {...this.cad.config.lineTexts};
 	}
 
 	ngOnDestroy() {
@@ -146,8 +143,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	toggleValidateLines() {
 		const cad = this.cad;
-		cad.config.validateLines = !cad.config.validateLines;
-		cad.render();
+		cad.config("validateLines", !cad.config("validateLines"));
 	}
 
 	async setShowLineLength() {
@@ -155,18 +151,16 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			data: {
 				type: "prompt",
 				title: "线长字体大小",
-				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.lineTexts.lineLength.toString()}
+				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config("lineLength").toString()}
 			}
 		});
 		const num = Number(await ref.afterClosed().toPromise());
-		this.cad.config.lineTexts.lineLength = num;
-		this.cad.render();
+		this.cad.config("lineLength", num);
 	}
 
 	toggleShowLineLength() {
 		const cad = this.cad;
-		cad.config.lineTexts.hideLineLength = !cad.config.lineTexts.hideLineLength;
-		cad.render();
+		cad.config("hideLineLength", !cad.config("hideLineLength"));
 	}
 
 	async setShowGongshi() {
@@ -174,18 +168,16 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			data: {
 				type: "prompt",
 				title: "公式字体大小",
-				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config.lineTexts.gongshi.toString()}
+				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config("lineGongshi").toString()}
 			}
 		});
 		const num = Number(await ref.afterClosed().toPromise());
-		this.cad.config.lineTexts.gongshi = num;
-		this.cad.render();
+		this.cad.config("lineGongshi", num);
 	}
 
 	toggleShowLineGongshi() {
 		const cad = this.cad;
-		cad.config.lineTexts.hideGongshi = !cad.config.lineTexts.hideGongshi;
-		cad.render();
+		cad.config("hideLineGongshi", !cad.config("hideLineGongshi"));
 	}
 
 	printCad() {

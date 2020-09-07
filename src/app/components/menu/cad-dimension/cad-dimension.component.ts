@@ -16,8 +16,9 @@ import {MenuComponent} from "../menu.component";
 export class CadDimensionComponent extends MenuComponent implements OnInit, OnDestroy {
 	dimNameFocus = -1;
 	dimLineSelecting: number = null;
-	prevLineTexts: CadViewerConfig["lineTexts"];
 	prevSelectMode: CadViewerConfig["selectMode"];
+	prevLineLength: CadViewerConfig["lineLength"];
+	prevLinegongshi: CadViewerConfig["lineGongshi"];
 	get dimensions() {
 		return this.cad.data.getAllEntities().dimension;
 	}
@@ -34,8 +35,6 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				const dimension = this.dimensions[index];
 				this.updateDimLines(dimension);
 				this.dimLineSelecting = index;
-				this.prevSelectMode = cad.config.selectMode;
-				cad.config.selectMode = "single";
 				cad.traverse((e) => {
 					if (!(e instanceof CadLine) && e.id !== dimension?.id) {
 						e.info.prevSelectable = e.selectable;
@@ -44,12 +43,13 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 						e.opacity = 0.3;
 					}
 				});
-				this.prevLineTexts = cad.config.lineTexts;
-				cad.config.lineTexts = {lineLength: 0, gongshi: 0};
-				cad.render();
+				const {lineLength, lineGongshi, selectMode} = cad.config();
+				this.prevLineLength = lineLength;
+				this.prevLinegongshi = lineGongshi;
+				this.prevSelectMode = selectMode;
+				cad.config({lineLength: 0, lineGongshi: 0, selectMode: "single"});
 			} else if (this.dimLineSelecting !== null) {
 				this.dimLineSelecting = null;
-				cad.config.selectMode = this.prevSelectMode;
 				cad.traverse((e) => {
 					if (!(e instanceof CadLine)) {
 						e.selectable = e.info.prevSelectable ?? true;
@@ -58,8 +58,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 						delete e.info.prevOpacity;
 					}
 				});
-				cad.config.lineTexts = this.prevLineTexts;
-				cad.render();
+				cad.config({lineLength: this.prevLineLength, lineGongshi: this.prevLinegongshi, selectMode: this.prevSelectMode});
 			}
 		});
 		cad.on("entitiesselect", async (_event, entities) => {
