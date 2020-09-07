@@ -86,7 +86,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		// this.dataService.getSampleFormulas().then((result) => {
 		// 	this.formulas = result;
 		// });
-		this.cad = new CadViewer(new CadData());
+		this.cad = new CadViewer(new CadData(), {width: innerWidth, height: innerHeight, padding: this.menuPadding.map((v) => v + 30)});
 		this.getObservable(getCadStatus).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
@@ -239,7 +239,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	applyConfig(config: State["config"]) {
 		config = JSON.parse(JSON.stringify(config));
 		this.cad.config = {...this.cad.config, ...config};
-		this.cad.config.padding = this.menuPadding.map((v) => v + 30);
 		this.cad.render();
 	}
 }
