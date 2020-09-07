@@ -6,6 +6,8 @@ import {timeout} from "@src/app/app.common";
 import {Store} from "@ngrx/store";
 import {State} from "@src/app/store/state";
 import {LoadingAction} from "@src/app/store/actions";
+import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
+import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
 
 export type PreviewData = {
 	CAD?: any;
@@ -15,7 +17,7 @@ export type PreviewData = {
 	type: "说明" | "CAD";
 	zhankai: string;
 	title?: string;
-	cadImg: string;
+	cadImg: SafeUrl;
 }[][];
 
 @Component({
@@ -27,7 +29,12 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 	data: PreviewData = [];
 	printing = false;
 
-	constructor(private dataService: CadDataService, private cd: ChangeDetectorRef, private store: Store<State>) {}
+	constructor(
+		private dataService: CadDataService,
+		private cd: ChangeDetectorRef,
+		private store: Store<State>,
+		private sanitizer: DomSanitizer
+	) {}
 
 	async ngOnInit() {
 		Object.assign(window, {app: this});
@@ -42,7 +49,7 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 		let done = 0;
 		this.store.dispatch<LoadingAction>({name: "loadCads", type: "set loading progress", progress: 0});
 		for (const page of this.data) {
-			for (const card of page) {
+			for (const card of page.slice(0, 2)) {
 				if (card.type === "CAD") {
 					const cad = new CadViewer(new CadData(card.CAD), {
 						padding: 15,
@@ -52,10 +59,12 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 					});
 					document.body.appendChild(cad.dom);
 					if (card.text.every((v) => !v.includes("花件"))) {
-						cad.config.lineTexts.gongshi = 10 / cad.zoom();
+						cad.config.lineTexts.lineLength = 10 / cad.zoom();
 					}
+					generateLineTexts(cad, cad.data);
+					cad.render();
 					await timeout(0);
-					card.cadImg = cad.toBase64();
+					card.cadImg = this.sanitizer.bypassSecurityTrustUrl(cad.toBase64());
 					cad.destroy();
 				}
 				done++;

@@ -264,7 +264,6 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 			let theta: number;
 			if (line instanceof CadLine) {
 				theta = line.theta.rad;
-				// return;
 			} else {
 				theta = new CadLine({start: line.start, end: line.end}).theta.rad;
 			}
@@ -314,7 +313,6 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				lengthText.anchor.copy(anchor);
 			} else {
 				line.remove(lengthText);
-				// cad.scene.remove(line.object);
 			}
 
 			let gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
@@ -331,7 +329,6 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
 			} else {
 				line.remove(gongshiText);
-				// cad.scene.remove(line.object);
 			}
 		});
 	});
