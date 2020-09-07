@@ -56,7 +56,7 @@ export class CadStylizer {
 	correctColor(color: Color, threshold = 5) {
 		const {reverseSimilarColor, backgroundColor} = this.cad.config;
 		if (reverseSimilarColor) {
-			if (Math.abs(color.rgbNumber() - backgroundColor.rgbNumber()) <= threshold) {
+			if (Math.abs(color.rgbNumber() - new Color(backgroundColor).rgbNumber()) <= threshold) {
 				return color.negate();
 			}
 		}

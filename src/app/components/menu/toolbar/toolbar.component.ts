@@ -1,11 +1,12 @@
 import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CommandAction} from "@src/app/store/actions";
+import {CommandAction, ConfigAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
 import {Collection} from "@src/app/app.common";
 import Color from "color";
 import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
+import {getConfig} from "@src/app/store/selectors";
 
 @Component({
 	selector: "app-toolbar",
@@ -26,7 +27,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		h: () => this.splitCad(),
 		p: () => this.printCad()
 	};
-	showDimensions = true;
 	showCadGongshis = true;
 	prevLineTexts: CadViewerConfig["lineTexts"];
 	lastUrl: string = null;
@@ -128,11 +128,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		data.components.data.forEach((v) => this.setCadData(v));
 	}
 
-	toggleShowDimensions() {
-		this.showDimensions = !this.showDimensions;
-		const cad = this.cad;
-		cad.data.getAllEntities().dimension.forEach((e) => (e.visible = this.showDimensions));
-		cad.render();
+	async toggleShowDimensions() {
+		const hideDimensions = !(await this.getObservableOnce(getConfig)).hideDimensions;
+		this.store.dispatch<ConfigAction>({type: "set config", config: {hideDimensions}});
 	}
 
 	toggleShowCadGongshis() {
@@ -167,13 +165,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	toggleShowLineLength() {
 		const cad = this.cad;
-		const lineTexts = cad.config.lineTexts;
-		if (lineTexts.lineLength > 0) {
-			this.prevLineTexts.lineLength = lineTexts.lineLength;
-			lineTexts.lineLength = 0;
-		} else {
-			lineTexts.lineLength = this.prevLineTexts.lineLength;
-		}
+		cad.config.lineTexts.hideLineLength = !cad.config.lineTexts.hideLineLength;
 		cad.render();
 	}
 
@@ -192,13 +184,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	toggleShowLineGongshi() {
 		const cad = this.cad;
-		const lineTexts = cad.config.lineTexts;
-		if (lineTexts.gongshi > 0) {
-			this.prevLineTexts.gongshi = lineTexts.gongshi;
-			lineTexts.gongshi = 0;
-		} else {
-			lineTexts.gongshi = this.prevLineTexts.gongshi;
-		}
+		cad.config.lineTexts.hideGongshi = !cad.config.lineTexts.hideGongshi;
 		cad.render();
 	}
 

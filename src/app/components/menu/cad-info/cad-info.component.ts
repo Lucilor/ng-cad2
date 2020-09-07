@@ -1,7 +1,6 @@
 import {Component, OnInit, OnDestroy, Input, Injector} from "@angular/core";
 import {getCadGongshiText} from "@src/app/app.common";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {getPointsFromMap, generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {CadPointsAction, CadStatusAction} from "@src/app/store/actions";

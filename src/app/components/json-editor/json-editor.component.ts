@@ -17,7 +17,7 @@ export class JsonEditorComponent implements OnInit {
 	@ViewChild(JsonEditorComponent2, {static: false}) editor: JsonEditorComponent2;
 
 	constructor(
-		public dialogRef: MatDialogRef<JsonEditorComponent, JSON>,
+		public dialogRef: MatDialogRef<JsonEditorComponent, any>,
 		@Inject(MAT_DIALOG_DATA) public data: JsonEditorData,
 		private dialog: MatDialog
 	) {}
@@ -51,5 +51,5 @@ export class JsonEditorComponent implements OnInit {
 }
 
 export function openJsonEditorDialog(dialog: MatDialog, config: MatDialogConfig<JsonEditorData>) {
-	return dialog.open<JsonEditorComponent, JsonEditorData, JSON>(JsonEditorComponent, config);
+	return dialog.open<JsonEditorComponent, JsonEditorData, any>(JsonEditorComponent, config);
 }
