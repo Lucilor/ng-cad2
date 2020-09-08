@@ -9,13 +9,17 @@ export interface CadStatus {
 	extra?: any;
 }
 
+export interface Config extends CadViewerConfig {
+	showCadGongshis: boolean;
+}
+
 export interface State {
 	loading: {list: Set<string>; progress: number};
 	currCads: {cads: string[]; partners: string[]; components: string[]; fullCads: string[]};
 	cadStatus: CadStatus;
 	cadPoints: {x: number; y: number; active: boolean}[];
 	command: Command;
-	config: CadViewerConfig;
+	config: Config;
 }
 
 export const initialState: State = {

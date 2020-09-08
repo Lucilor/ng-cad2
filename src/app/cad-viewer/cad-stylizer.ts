@@ -49,7 +49,8 @@ export class CadStylizer {
 			color = this.correctColor(color);
 		}
 		result.color = color.hex();
-		// result.linewidth += 1;
+		// ? make lines easier to select
+		result.linewidth += 1;
 
 		return result;
 	}

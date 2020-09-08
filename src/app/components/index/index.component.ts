@@ -5,7 +5,7 @@ import {SubCadsComponent} from "../menu/sub-cads/sub-cads.component";
 import {CadInfoComponent} from "../menu/cad-info/cad-info.component";
 import {CadDimensionComponent} from "../menu/cad-dimension/cad-dimension.component";
 import {CadAssembleComponent} from "../menu/cad-assemble/cad-assemble.component";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {CadViewer, CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadStatusAction, ConfigAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
@@ -86,12 +86,13 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		// this.dataService.getSampleFormulas().then((result) => {
 		// 	this.formulas = result;
 		// });
-		this.cad = new CadViewer(new CadData(), {
-			width: innerWidth,
-			height: innerHeight,
-			padding: this.menuPadding.map((v) => v + 30),
-			backgroundColor: "black"
-		});
+		const configOverwrite: Partial<CadViewerConfig> = {
+			padding: this.menuPadding.map((v) => v + 30)
+		};
+		this.cad = new CadViewer(new CadData(), configOverwrite);
+		this.store.dispatch<ConfigAction>({type: "set config", config: configOverwrite});
+		this.getObservable(getConfig).subscribe(this.applyConfig.bind(this));
+
 		this.getObservable(getCadStatus).subscribe((cadStatus) => {
 			if (cadStatus.name === "normal") {
 				this.cadStatusStr = "普通";
@@ -124,9 +125,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 				}
 			}
 		});
-
-		this.store.dispatch<ConfigAction>({type: "set config", config: this.cad.config()});
-		this.getObservable(getConfig).subscribe(this.applyConfig.bind(this));
 
 		Object.assign(window, {app: this});
 		window.addEventListener("resize", () => this.cad.resize(innerWidth, innerHeight));

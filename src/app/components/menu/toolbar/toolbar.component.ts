@@ -42,6 +42,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				this.clickBtn(key);
 			}
 		});
+		if (this.showCadGongshis !== (await this.getObservableOnce(getConfig)).showCadGongshis) {
+			this.toggleShowCadGongshis();
+		}
 	}
 
 	ngOnDestroy() {
@@ -139,11 +142,12 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		});
 		cad.render();
+		this.store.dispatch<ConfigAction>({type: "set config", config: {showCadGongshis: this.showCadGongshis}});
 	}
 
 	toggleValidateLines() {
-		const cad = this.cad;
-		cad.config("validateLines", !cad.config("validateLines"));
+		const validateLines = !this.cad.config("validateLines");
+		this.store.dispatch<ConfigAction>({type: "set config", config: {validateLines}});
 	}
 
 	async setShowLineLength() {
@@ -155,12 +159,12 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		});
 		const num = Number(await ref.afterClosed().toPromise());
-		this.cad.config("lineLength", num);
+		this.store.dispatch<ConfigAction>({type: "set config", config: {lineLength: num}});
 	}
 
 	toggleShowLineLength() {
-		const cad = this.cad;
-		cad.config("hideLineLength", !cad.config("hideLineLength"));
+		const hideLineLength = !this.cad.config("hideLineLength");
+		this.store.dispatch<ConfigAction>({type: "set config", config: {hideLineLength}});
 	}
 
 	async setShowGongshi() {
@@ -172,12 +176,12 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		});
 		const num = Number(await ref.afterClosed().toPromise());
-		this.cad.config("lineGongshi", num);
+		this.store.dispatch<ConfigAction>({type: "set config", config: {lineGongshi: num}});
 	}
 
 	toggleShowLineGongshi() {
-		const cad = this.cad;
-		cad.config("hideLineGongshi", !cad.config("hideLineGongshi"));
+		const hideLineGongshi = !this.cad.config("hideLineGongshi");
+		this.store.dispatch<ConfigAction>({type: "set config", config: {hideLineGongshi}});
 	}
 
 	printCad() {

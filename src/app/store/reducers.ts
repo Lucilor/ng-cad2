@@ -106,7 +106,8 @@ export function configReducer(config = initialState.config, action: ConfigAction
 			lineLength: 24,
 			lineGongshi: 8,
 			hideLineLength: false,
-			hideLineGongshi: false
+			hideLineGongshi: false,
+			showCadGongshis: true
 		};
 		const cachedConfig = session.load("config");
 		if (cachedConfig) {
