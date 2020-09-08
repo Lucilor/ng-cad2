@@ -31,7 +31,7 @@
 			&.selected.selectable {
 				line,
 				circle,
-				path {
+				path[fill="none"] {
 					stroke-dasharray: 10, 2;
 				}
 

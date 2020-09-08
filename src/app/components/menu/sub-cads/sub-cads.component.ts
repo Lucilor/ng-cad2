@@ -23,6 +23,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {openMessageDialog} from "../../message/message.component";
 import {openJsonEditorDialog} from "../../json-editor/json-editor.component";
 import {DomSanitizer} from "@angular/platform-browser";
+import {CadHatch} from "@src/app/cad-viewer/cad-data/cad-entity";
 
 type SubCadsField = "cads" | "partners" | "components";
 
@@ -178,7 +179,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 
 	private focus(entities = this.cad.data.getAllEntities()) {
 		entities.forEach((e) => {
-			e.selectable = !e.info.isCadGongshi;
+			e.selectable = !e.info.isCadGongshi && !(e instanceof CadHatch);
 			e.selected = false;
 			e.opacity = 1;
 		});

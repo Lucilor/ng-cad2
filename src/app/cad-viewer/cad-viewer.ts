@@ -9,7 +9,7 @@ import {CadType} from "./cad-data/cad-types";
 import {getVectorFromArray} from "./cad-data/utils";
 import {CadStyle, CadStylizer} from "./cad-stylizer";
 import {CadEvents, controls} from "./cad-viewer-controls";
-import {drawArc, drawCircle, drawDimension, drawLine, drawText} from "./draw";
+import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText} from "./draw";
 
 export interface CadViewerConfig {
 	width: number;
@@ -313,13 +313,9 @@ export class CadViewer extends EventEmitter {
 			drawResult = [];
 			paths.forEach((path) => {
 				const {edges, vertices} = path;
-				let i = 0;
-				edges.forEach(({start, end}) => {
-					drawResult = drawResult.concat(drawLine(el, start, end, i++));
-				});
-				for (let j = 1; j < vertices.length; j++) {
-					drawResult = drawResult.concat(drawLine(el, vertices[j - 1], vertices[j], i + j));
-				}
+				const edgePoints = edges.map((v) => v.start);
+				drawResult = drawResult.concat(drawShape(el, edgePoints, "fill", 0));
+				drawResult = drawResult.concat(drawShape(el, vertices, "fill", drawResult.length));
 			});
 			if (!drawResult.length) {
 				drawResult = null;

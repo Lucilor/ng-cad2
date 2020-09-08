@@ -15,6 +15,8 @@ import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {getCadStatus, getConfig} from "@src/app/store/selectors";
 import {State} from "@src/app/store/state";
+import {CadDimension, CadHatch} from "@src/app/cad-viewer/cad-data/cad-entity";
+import Color from "color";
 
 @Component({
 	selector: "app-index",
@@ -179,12 +181,10 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			const collection = getCollection();
 			if (collection === "CADmuban") {
 				cad.data.components.data.forEach((v) => {
-					v.components.data.forEach((vv) => generateLineTexts(this.cad, vv));
+					v.components.data.forEach((vv) => generateLineTexts(cad, vv));
 				});
 			} else {
-				cad.data.components.data.forEach((v) => {
-					generateLineTexts(this.cad, v);
-				});
+				cad.data.components.data.forEach((v) => generateLineTexts(cad, v));
 			}
 			cad.render();
 		} else {

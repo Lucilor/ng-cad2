@@ -76,13 +76,22 @@ export function drawText(draw: Container, text: string, size: number, position: 
 	return [el];
 }
 
-export function drawTriangle(draw: Container, p1: Point, p2: Point, p3: Point, i = 0) {
+export function drawShape(draw: Container, points: Point[], type: "fill" | "stroke", i = 0) {
 	let el = draw.children()[i] as Path;
-	const path: PathArrayAlias = `M${p1.x} ${p1.y} L${p2.x} ${p2.y} L${p3.x} ${p3.y}`;
+	const path = points
+		.map((p, i) => {
+			const {x, y} = p;
+			if (i === 0) {
+				return `M${x} ${y}`;
+			} else {
+				return `L${x} ${y}`;
+			}
+		})
+		.join(" ");
 	if (el instanceof Path) {
 		el.plot(path);
 	} else {
-		el = draw.path(path).addClass("fill").stroke("none");
+		el = draw.path(path).addClass("fill stroke");
 	}
 	return [el];
 }
@@ -96,8 +105,8 @@ export function drawDimension(draw: Container, points: Point[], text: string, ax
 	const l1 = drawLine(draw, p1, p3, i)[0];
 	const l2 = drawLine(draw, p3, p4, i + 1)[0];
 	const l3 = drawLine(draw, p4, p2, i + 2)[0];
-	const tri1 = drawTriangle(draw, p3, p5, p6, i + 3)[0];
-	const tri2 = drawTriangle(draw, p4, p7, p8, i + 4)[0];
+	const tri1 = drawShape(draw, [p3, p5, p6], "fill", i + 3)[0];
+	const tri2 = drawShape(draw, [p4, p7, p8], "fill", i + 4)[0];
 	text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
 	const middle = p3.clone().add(p4).divide(2);
 	let textEl: Text;

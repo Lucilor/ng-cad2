@@ -1,5 +1,5 @@
 import {CadViewer} from "./cad-viewer";
-import {CadDimension, CadEntity, CadLine, CadMtext} from "./cad-data/cad-entity";
+import {CadDimension, CadEntity, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entity";
 import Color from "color";
 
 export interface CadStyle {
@@ -49,8 +49,10 @@ export class CadStylizer {
 			color = this.correctColor(color);
 		}
 		result.color = color.hex();
-		// ? make lines easier to select
-		result.linewidth += 1;
+		if (!(entity instanceof CadHatch)) {
+			// ? make lines easier to select
+			result.linewidth += 1;
+		}
 
 		return result;
 	}
