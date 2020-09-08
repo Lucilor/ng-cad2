@@ -103,6 +103,7 @@ export class CadViewer extends EventEmitter {
 		dom.addEventListener("pointerdown", controls.onPointerDown.bind(this));
 		dom.addEventListener("pointermove", controls.onPointerMove.bind(this));
 		dom.addEventListener("pointerup", controls.onPointerUp.bind(this));
+		dom.addEventListener("pointerleave", controls.onPointerUp.bind(this));
 		dom.addEventListener("keydown", controls.onKeyDown.bind(this));
 		dom.tabIndex = 0;
 		dom.focus();

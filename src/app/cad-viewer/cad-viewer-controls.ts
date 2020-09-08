@@ -29,6 +29,7 @@ export interface CadEvents {
 }
 
 function onWheel(this: CadViewer, event: WheelEvent) {
+	event.preventDefault();
 	const step = 0.1;
 	const {deltaY, clientX, clientY} = event;
 	const {x, y} = this.getWorldPoint(clientX, clientY);
@@ -41,18 +42,25 @@ function onWheel(this: CadViewer, event: WheelEvent) {
 }
 
 function onClick(this: CadViewer, event: PointerEvent) {
+	event.preventDefault();
 	this.emit("click", event);
 }
 
 function onPointerDown(this: CadViewer, event: PointerEvent) {
+	event.preventDefault();
 	const {clientX, clientY, button: eBtn} = event;
 	const point = new Point(clientX, clientY);
 	pointer = {from: point, to: point.clone()};
 	button = eBtn;
+	if (multiSelector) {
+		multiSelector.remove();
+		multiSelector = null;
+	}
 	this.emit("pointerdown", event);
 }
 
 function onPointerMove(this: CadViewer, event: PointerEvent) {
+	event.preventDefault();
 	if (pointer) {
 		const {clientX, clientY, shiftKey} = event;
 		const {selectMode, entityDraggable, dragAxis} = this.config();
@@ -110,7 +118,7 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 					}
 					this.render(draggingDimension);
 				}
-			} else if (selectMode === "multiple") {
+			} else if (selectMode === "multiple" && from.distanceTo(to) > 1) {
 				if (!multiSelector) {
 					multiSelector = document.createElement("div");
 					multiSelector.classList.add("multi-selector");
@@ -128,6 +136,7 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 }
 
 function onPointerUp(this: CadViewer, event: PointerEvent) {
+	event.preventDefault();
 	if (pointer) {
 		const {from, to} = pointer;
 		if (from.distanceTo(to) < 1) {
@@ -166,6 +175,7 @@ function onPointerUp(this: CadViewer, event: PointerEvent) {
 }
 
 function onKeyDown(this: CadViewer, event: KeyboardEvent) {
+	event.preventDefault();
 	const {key, ctrlKey} = event;
 	event.preventDefault();
 	if (key === "Escape") {
