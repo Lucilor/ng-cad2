@@ -264,6 +264,7 @@ export class CadCircle extends CadEntity {
 export interface CadDimensionEntity {
 	id: string;
 	location: "start" | "end" | "center" | "min" | "max";
+	defPoint?: number[];
 }
 
 export class CadDimension extends CadEntity {
@@ -278,7 +279,7 @@ export class CadDimension extends CadEntity {
 	cad2: string;
 	mingzi: string;
 	qujian: string;
-	ref: "entity1" | "entity2" | "minX" | "maxX" | "minY" | "maxY" | "minLength" | "maxLength";
+	ref?: "entity1" | "entity2" | "minX" | "maxX" | "minY" | "maxY" | "minLength" | "maxLength";
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
@@ -303,14 +304,7 @@ export class CadDimension extends CadEntity {
 		this.cad2 = data.cad2 ?? "";
 		this.mingzi = data.mingzi ?? "";
 		this.qujian = data.qujian ?? "";
-		this.ref = data.ref;
-		if (!this.ref) {
-			if (this.axis === "x") {
-				this.ref = "maxY";
-			} else if (this.axis === "y") {
-				this.ref = "maxX";
-			}
-		}
+		this.ref = data.ref ?? "entity1";
 	}
 
 	transform(matrix: Matrix) {
