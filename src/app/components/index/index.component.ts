@@ -189,6 +189,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 				cad.data.components.data.forEach((v) => generateLineTexts(cad, v));
 			}
 			cad.render();
+			cad.dom.focus();
 		} else {
 			await timeout(0);
 			this.refresh();

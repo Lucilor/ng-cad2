@@ -99,7 +99,7 @@ export class CadViewer extends EventEmitter {
 		this.stylizer = new CadStylizer(this);
 
 		dom.addEventListener("wheel", controls.onWheel.bind(this));
-		// dom.addEventListener("click", controls.onClick.bind(this));
+		dom.addEventListener("click", controls.onClick.bind(this));
 		dom.addEventListener("pointerdown", controls.onPointerDown.bind(this));
 		dom.addEventListener("pointermove", controls.onPointerMove.bind(this));
 		dom.addEventListener("pointerup", controls.onPointerUp.bind(this));

@@ -481,7 +481,6 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 			const resData = await this.dataService.uploadDxf(file);
 			if (resData) {
 				if (input.hasAttribute("main-cad")) {
-					// TODO:getBoundingRect
 					const data1 = new CadData();
 					data1.entities = data.entities;
 					const data2 = new CadData();

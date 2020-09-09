@@ -43,6 +43,7 @@ function onWheel(this: CadViewer, event: WheelEvent) {
 
 function onClick(this: CadViewer, event: PointerEvent) {
 	event.preventDefault();
+	this.dom.focus();
 	this.emit("click", event);
 }
 
