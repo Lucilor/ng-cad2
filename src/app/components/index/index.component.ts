@@ -91,7 +91,9 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		const configOverwrite: Partial<CadViewerConfig> = {
 			width: innerWidth,
 			height: innerHeight,
-			padding: this.menuPadding.map((v) => v + 30)
+			padding: this.menuPadding.map((v) => v + 30),
+			selectMode: "multiple",
+			minLinewidth: 2
 		};
 		this.cad = new CadViewer(new CadData(), configOverwrite);
 		this.store.dispatch<ConfigAction>({type: "set config", config: configOverwrite});

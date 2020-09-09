@@ -28,17 +28,17 @@
 				}
 			}
 
-			&.selected.selectable {
-				line,
-				circle,
-				path[fill="none"] {
-					stroke-dasharray: 10, 2;
-				}
+			// &.selected.selectable {
+			// 	line,
+			// 	circle,
+			// 	path[fill="none"] {
+			// 		stroke-dasharray: 25, 7;
+			// 	}
 
-				text {
-					font-style: italic;
-				}
-			}
+			// 	text {
+			// 		font-style: italic;
+			// 	}
+			// }
 		}
 	}
 

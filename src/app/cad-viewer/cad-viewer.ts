@@ -26,6 +26,7 @@ export interface CadViewerConfig {
 	lineGongshi: number;
 	hideLineLength: boolean;
 	hideLineGongshi: boolean;
+	minLinewidth: number;
 }
 
 function getConfigProxy(config?: Partial<CadViewerConfig>) {
@@ -43,7 +44,8 @@ function getConfigProxy(config?: Partial<CadViewerConfig>) {
 		lineLength: 0,
 		lineGongshi: 0,
 		hideLineLength: false,
-		hideLineGongshi: false
+		hideLineGongshi: false,
+		minLinewidth: 1
 	};
 	for (const key in config) {
 		if (key in defalutConfig) {
@@ -109,7 +111,11 @@ export class CadViewer extends EventEmitter {
 		dom.focus();
 
 		this._config = getConfigProxy();
-		this.reset().config(config).center();
+		const types: CadType[] = ["DIMENSION", "HATCH", "MTEXT", "CIRCLE", "ARC", "LINE"];
+		types.forEach((t) => {
+			this.draw.group().attr("type", t);
+		});
+		this.config(config).center();
 	}
 
 	config(): CadViewerConfig;
@@ -169,7 +175,7 @@ export class CadViewer extends EventEmitter {
 
 	appendTo(container: HTMLElement) {
 		container.appendChild(this.dom);
-		return this;
+		return this.render();
 	}
 
 	width(): number;
@@ -414,7 +420,7 @@ export class CadViewer extends EventEmitter {
 		return this.data.getAllEntities().filter((e) => !e.selected, true);
 	}
 
-	select(entities: CadEntities | CadEntity | CadEntity[]) {
+	select(entities: CadEntities | CadEntity | CadEntity[]): this {
 		if (entities instanceof CadEntity) {
 			return this.select(new CadEntities().add(entities));
 		}
@@ -426,7 +432,7 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	unselect(entities: CadEntities | CadEntity | CadEntity[]) {
+	unselect(entities: CadEntities | CadEntity | CadEntity[]): this {
 		if (entities instanceof CadEntity) {
 			return this.unselect(new CadEntities().add(entities));
 		}
@@ -446,7 +452,7 @@ export class CadViewer extends EventEmitter {
 		return this.unselect(this.data.getAllEntities());
 	}
 
-	remove(entities: CadEntities | CadEntity | CadEntity[]) {
+	remove(entities: CadEntities | CadEntity | CadEntity[]): this {
 		if (entities instanceof CadEntity) {
 			return this.remove(new CadEntities().add(entities));
 		}
@@ -468,7 +474,7 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	add(entities: CadEntities | CadEntity | CadEntity[]) {
+	add(entities: CadEntities | CadEntity | CadEntity[]): this {
 		if (entities instanceof CadEntity) {
 			return this.add(new CadEntities().add(entities));
 		}

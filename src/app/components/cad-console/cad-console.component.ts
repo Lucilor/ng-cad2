@@ -763,17 +763,14 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				e.linewidth *= 3;
 			}
 			e.color = new Color(0);
-			if (e instanceof CadDimension) {
-				e.selected = true;
-			}
 		});
 		const cad = new CadViewer(data, {
 			width: width * scaleX,
 			height: height * scaleY,
 			backgroundColor: "white",
 			padding: 18 * scale
-		});
-		document.body.appendChild(cad.dom);
+		}).appendTo(document.body);
+		cad.select(cad.data.getAllEntities().dimension);
 		await timeout(0);
 		const src = (await cad.toCanvas()).toDataURL();
 		cad.destroy();

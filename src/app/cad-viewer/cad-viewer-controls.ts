@@ -183,7 +183,7 @@ function onKeyDown(this: CadViewer, event: KeyboardEvent) {
 		this.unselectAll();
 	} else if (ctrlKey && key === "a") {
 		this.selectAll();
-	} else if (key === "Delete") {
+	} else if (key === "Delete" || key === "Backspace") {
 		this.remove(this.selected());
 	}
 	this.emit("keydown", event);

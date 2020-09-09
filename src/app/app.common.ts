@@ -135,7 +135,6 @@ export async function getCadPreview(data: CadData, width = 300, height = 150, pa
 	data2.entities.mtext = [];
 	const cad = new CadViewer(data2, {width, height, padding, backgroundColor: "black"});
 	cad.appendTo(document.body);
-	cad.render();
 	await timeout(0);
 	const src = cad.toBase64();
 	cad.destroy();

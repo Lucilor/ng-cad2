@@ -37,21 +37,20 @@ export class CadStylizer {
 			result.opacity = params.opacity;
 		}
 
-		const {validateLines, reverseSimilarColor} = cad.config();
+		const {validateLines, reverseSimilarColor, minLinewidth} = cad.config();
 		if (validateLines && entity instanceof CadLine) {
 			if (!entity.valid || entity.info.error) {
 				result.linewidth *= 10;
 				color = new Color(0xff0000);
 			}
 		}
-
 		if (reverseSimilarColor) {
 			color = this.correctColor(color);
 		}
 		result.color = color.hex();
 		if (!(entity instanceof CadHatch)) {
 			// ? make lines easier to select
-			result.linewidth += 1;
+			result.linewidth = Math.max(minLinewidth, result.linewidth);
 		}
 
 		return result;
