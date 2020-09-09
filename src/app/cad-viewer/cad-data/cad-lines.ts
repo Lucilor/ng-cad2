@@ -4,7 +4,7 @@ import {CadViewer} from "../cad-viewer";
 import {State} from "@src/app/store/state";
 import {getVectorFromArray, isBetween} from "./utils";
 import {DEFAULT_TOLERANCE, Point} from "@app/utils";
-import {CadLine, CadArc, CadMtext} from "./cad-entity";
+import {CadLine, CadArc, CadMtext, CadEntity} from "./cad-entity";
 
 export type CadLineLike = CadLine | CadArc;
 
@@ -62,44 +62,28 @@ export function findAdjacentLines(map: PointsMap, entity: CadLineLike, point?: P
 	return [];
 }
 
-export function findAllAdjacentLines(map: PointsMap, entity: CadLineLike, point: Point, tolerance = DEFAULT_TOLERANCE) {
+export function findAllAdjacentLines(map: PointsMap, entity: CadLineLike, point: Point, tolerance = DEFAULT_TOLERANCE, ids = []) {
 	const entities: CadLineLike[] = [];
-	const id = entity.id;
 	let closed = false;
-	const maxStack = 1000;
-	let stack = 0;
-	while (entity && point && stack++ < maxStack) {
-		entity = findAdjacentLines(map, entity, point, tolerance)[0];
-		if (entity?.id === id) {
+	ids.push(entity.id);
+	const next = findAdjacentLines(map, entity, point, tolerance);
+	for (const e of next) {
+		if (ids.includes(e.id)) {
 			closed = true;
 			break;
 		}
-		if (entity) {
-			if (entity instanceof CadLine) {
-				entities.push(entity);
-				const {start, end} = entity;
-				if (start.distanceTo(point) <= tolerance) {
-					point = end;
-				} else if (end.distanceTo(point) < tolerance) {
-					point = start;
-				} else {
-					point = null;
-				}
-			}
-			if (entity instanceof CadArc) {
-				entities.push(entity);
-				const curve = entity.curve;
-				const start = curve.getPoint(0);
-				const end = curve.getPoint(1);
-				if (start.distanceTo(point) <= tolerance) {
-					point = end;
-				} else if (end.distanceTo(point) <= tolerance) {
-					point = start;
-				} else {
-					point = null;
-				}
-			}
+		let p: Point;
+		const {start, end} = e;
+		if (start.equals(point, tolerance)) {
+			p = end;
+		} else if (end.equals(point, tolerance)) {
+			p = start;
 		}
+		entities.push(e);
+		ids.push(e.id);
+		const result = findAllAdjacentLines(map, e, p, tolerance, ids) as {entities: CadLineLike[]; closed: boolean};
+		closed = result.closed;
+		entities.push(...result.entities);
 	}
 	return {entities, closed};
 }
@@ -169,7 +153,7 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 			map = generatePointsMap(entities);
 		}
 		const startPoint = startLine.end;
-		const adjLines = findAllAdjacentLines(map, startLine, startPoint).entities;
+		const adjLines = findAllAdjacentLines(map, startLine, startPoint).entities.filter((e) => e.length);
 		for (let i = 1; i < adjLines.length; i++) {
 			const prev = adjLines[i - 1];
 			const curr = adjLines[i];
@@ -177,33 +161,9 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 				swapStartEnd(curr);
 			}
 		}
-		if (adjLines.length) {
-			exclude.push(adjLines[adjLines.length - 1].id);
-		} else {
-			exclude.push(startLine.id);
-		}
 		const lines = [startLine, ...adjLines];
+		exclude.push(...lines.map((e) => e.id));
 		result.push(lines);
-	}
-	for (const j in result) {
-		const group = result[j];
-		for (let i = 1; i < group.length; i++) {
-			const prev = group[i - 1];
-			const curr = group[i];
-			// if (prev instanceof CadLine && curr instanceof CadLine && prev.slope === curr.slope) {
-			// 	prev.end.copy(curr.end);
-			// 	curr.start.copy(curr.end);
-			// }
-			if (prev.end.distanceTo(curr.start) > tolerance) {
-				if (curr instanceof CadLine) {
-					[curr.start, curr.end] = [curr.end, curr.start];
-				} else {
-					[curr.start_angle, curr.end_angle] = [curr.end_angle, curr.start_angle];
-					curr.clockwise = !curr.clockwise;
-				}
-			}
-		}
-		result[j] = group.filter((e) => e.length > 0);
 	}
 	return result;
 }
