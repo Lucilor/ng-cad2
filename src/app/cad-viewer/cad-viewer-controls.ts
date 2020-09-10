@@ -157,9 +157,9 @@ function onPointerUp(this: CadViewer, event: PointerEvent) {
 				}
 			});
 			if (toSelect.every((e) => e.selected)) {
-				toSelect.forEach((e) => (e.selected = false));
+				this.unselect(toSelect);
 			} else {
-				toSelect.forEach((e) => (e.selected = true));
+				this.select(toSelect);
 			}
 			multiSelector.remove();
 			multiSelector = null;

@@ -134,9 +134,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 		Object.assign(window, {app: this});
 		window.addEventListener("resize", () => this.cad.resize(innerWidth, innerHeight));
-		window.addEventListener("contextmenu", (event) => {
-			event.preventDefault();
-		});
+		window.addEventListener("contextmenu", (event) => event.preventDefault());
 
 		// this.cad.beforeRender = throttle(() => {
 		// const collection = getCollection();
