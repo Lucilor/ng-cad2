@@ -374,6 +374,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	}
 
 	execute(cmd: ValuedCommand) {
+		this.historyOffset = -1;
 		const {name, args} = cmd;
 		const values = {};
 		args.forEach((v) => (values[v.name] = v.value));
