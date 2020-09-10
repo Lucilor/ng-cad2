@@ -18,10 +18,10 @@ import {takeUntil} from "rxjs/operators";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {State} from "@src/app/store/state";
 import {ErrorStateMatcher} from "@angular/material/core";
-import {getCollection} from "@src/app/app.common";
 import Color from "color";
 import {CadLine, CadArc} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {throttle} from "lodash";
+import {globalVars} from "@src/app/app.common";
 
 @Component({
 	selector: "app-cad-line",
@@ -234,7 +234,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 
 	validateLineText(field: string, value: string) {
 		if (field === "gongshi") {
-			if (getCollection() === "cad" && value.match(/[-+*/()（）]/)) {
+			if (globalVars.collection === "cad" && value.match(/[-+*/()（）]/)) {
 				this.inputErrors.gongshi = "不能使用四则运算";
 				return false;
 			} else if (value.includes("变化值")) {

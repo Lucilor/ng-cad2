@@ -13,7 +13,6 @@ import {getConfig} from "@src/app/store/selectors";
 	styleUrls: ["./toolbar.component.scss"]
 })
 export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy {
-	@Output() afterOpenCad = new EventEmitter<void>();
 	openLock = false;
 	keyMap: {[key: string]: () => void} = {
 		s: () => this.save(),
@@ -108,24 +107,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	async splitCad() {
 		this.store.dispatch<CommandAction>({type: "execute", command: {name: "split", args: []}});
-	}
-
-	setCadData(data: CadData) {
-		if (data.options.length < 1) {
-			data.options.push(new CadOption());
-		}
-		if (data.conditions.length < 1) {
-			data.conditions.push("");
-		}
-		if (data.baseLines.length < 1) {
-			data.baseLines.push(new CadBaseLine());
-		}
-		if (data.jointPoints.length < 1) {
-			data.jointPoints.push(new CadJointPoint());
-		}
-		data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
-		data.partners.forEach((v) => this.setCadData(v));
-		data.components.data.forEach((v) => this.setCadData(v));
 	}
 
 	async toggleShowDimensions() {

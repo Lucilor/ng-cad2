@@ -7,9 +7,9 @@ import {
 	session,
 	copyToClipboard,
 	removeCadGongshi,
-	getCollection,
 	addCadGongshi,
-	getCadPreview
+	getCadPreview,
+	globalVars
 } from "@src/app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@src/app/store/actions";
@@ -123,6 +123,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		cad.on("pointerup", () => {
 			lastPointer = null;
 		});
+		cad.on("open", () => this.updateList());
 
 		window.addEventListener("keydown", this.splitCad.bind(this));
 	}
@@ -207,7 +208,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 				});
 			}
 			if (this.needsReload === "split") {
-				if (getCollection() === "p_yuanshicadwenjian" && this._prevId) {
+				if (globalVars.collection === "p_yuanshicadwenjian" && this._prevId) {
 					const data = cad.data.findChild(this._prevId);
 					data.components.data = [];
 					cad.reset();
@@ -432,7 +433,7 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 		if (type === "components") {
 			checkedItems = [...data.components.data];
 		}
-		const qiliao = type === "components" && getCollection() === "qiliaozuhe";
+		const qiliao = type === "components" && globalVars.collection === "qiliaozuhe";
 		const ref = openCadListDialog(this.dialog, {
 			data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
 		});

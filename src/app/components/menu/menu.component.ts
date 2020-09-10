@@ -3,10 +3,15 @@ import {CadDataService} from "@src/app/services/cad-data.service";
 import {Store} from "@ngrx/store";
 import {State} from "@src/app/store/state";
 import {MatDialog} from "@angular/material/dialog";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {Subject} from "rxjs";
 import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
 import {take, takeUntil} from "rxjs/operators";
+import {addCadGongshi, Collection, globalVars} from "@src/app/app.common";
+import {CadBaseLine, CadData, CadJointPoint, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
+import {generateLineTexts, validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
+import Color from "color";
+import {SubCadsComponent} from "./sub-cads/sub-cads.component";
 
 @Component({
 	selector: "app-menu",
@@ -17,9 +22,15 @@ export class MenuComponent implements OnInit, OnDestroy {
 	protected dataService: CadDataService;
 	protected store: Store<State>;
 	protected dialog: MatDialog;
-	@Input() cad: CadViewer;
 	destroyed = new Subject();
 	contextMenuPosition = {x: "0px", y: "0px"};
+
+	get cad() {
+		return globalVars.cad;
+	}
+	get collection() {
+		return globalVars.collection;
+	}
 
 	constructor(injector: Injector) {
 		this.dataService = injector.get(CadDataService);
@@ -58,4 +69,55 @@ export class MenuComponent implements OnInit, OnDestroy {
 	getObservableOnce<T>(selector: (state: State) => T) {
 		return this.store.select(selector).pipe(take(1)).toPromise();
 	}
+
+	openCad(data?: CadData[], collection?: Collection) {
+		const cad = globalVars.cad;
+		if (data) {
+			cad.data.components.data = data;
+			data.forEach((v) => {
+				setCadData(v);
+				addCadGongshi(v);
+			});
+			this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
+		} else {
+			data = cad.data.components.data;
+			this.store.dispatch<CurrCadsAction>({type: "refresh curr cads"});
+		}
+		if (collection) {
+			globalVars.collection = collection;
+		} else {
+			collection = globalVars.collection;
+		}
+		document.title = data.map((v) => v.name).join(", ");
+		if (collection === "cad") {
+			data.forEach((v) => validateLines(v));
+		}
+		if (collection === "CADmuban") {
+			cad.data.components.data.forEach((v) => {
+				v.components.data.forEach((vv) => generateLineTexts(cad, vv));
+			});
+		} else {
+			cad.data.components.data.forEach((v) => generateLineTexts(cad, v));
+		}
+		cad.reset().emit("open");
+		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+	}
+}
+
+function setCadData(data: CadData) {
+	if (data.options.length < 1) {
+		data.options.push(new CadOption());
+	}
+	if (data.conditions.length < 1) {
+		data.conditions.push("");
+	}
+	if (data.baseLines.length < 1) {
+		data.baseLines.push(new CadBaseLine());
+	}
+	if (data.jointPoints.length < 1) {
+		data.jointPoints.push(new CadJointPoint());
+	}
+	data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
+	data.partners.forEach((v) => setCadData(v));
+	data.components.data.forEach((v) => setCadData(v));
 }

@@ -9,14 +9,12 @@ import {CadViewer, CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadStatusAction, ConfigAction, CurrCadsAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {getCollection, timeout} from "@src/app/app.common";
+import {globalVars, setApp, timeout} from "@src/app/app.common";
 import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {getCadStatus, getConfig} from "@src/app/store/selectors";
 import {State} from "@src/app/store/state";
-import {CadDimension, CadHatch} from "@src/app/cad-viewer/cad-data/cad-entity";
-import Color from "color";
 
 @Component({
 	selector: "app-index",
@@ -46,7 +44,6 @@ import Color from "color";
 	]
 })
 export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, AfterViewInit {
-	collection = "";
 	cadStatusStr: string;
 	formulas: string[] = [];
 	shownMenus: ("cadInfo" | "entityInfo" | "cadAssemble")[] = ["cadInfo", "entityInfo"];
@@ -65,19 +62,29 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
 	@ViewChild(CadConsoleComponent) console: CadConsoleComponent;
 
-	// shortcuts for testing
+	// ! (deprecated) shortcuts for testing
+	// tslint:disable: no-string-literal
+	/** @deprecated */
 	get data() {
-		return this.cad.data;
+		console.warn("window.app.data已弃用, 使用window.data.");
+		return window["data"];
 	}
+	/** @deprecated */
 	get data0() {
-		return this.cad.data.components.data[0];
+		console.warn("window.app.data0已弃用, 使用window.data0.");
+		return window["data0"];
 	}
+	/** @deprecated */
 	get dataEx() {
-		return this.data.export();
+		console.warn("window.app.dataEx已弃用, 使用window.dataEx.");
+		return window["dataEx"];
 	}
+	/** @deprecated */
 	get data0Ex() {
-		return this.data0.export();
+		console.warn("window.app.data0Ex已弃用, 使用window.data0Ex.");
+		return window["data0Ex"];
 	}
+	// tslint:enable: no-string-literal
 
 	constructor(injector: Injector) {
 		super(injector);
@@ -85,6 +92,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	ngOnInit() {
 		super.ngOnInit();
+		setApp(this);
 		// this.dataService.getSampleFormulas().then((result) => {
 		// 	this.formulas = result;
 		// });
@@ -94,7 +102,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			padding: this.menuPadding.map((v) => v + 30),
 			selectMode: "multiple"
 		};
-		this.cad = new CadViewer(new CadData(), configOverwrite);
+		globalVars.cad = new CadViewer(new CadData(), configOverwrite);
 		this.store.dispatch<ConfigAction>({type: "set config", config: configOverwrite});
 		this.getObservable(getConfig).subscribe(this.applyConfig.bind(this));
 
@@ -118,7 +126,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
-		this.cad.on("entitiesremove", () => this.refreshCurrCads());
+		// this.cad.on("entitiesremove", () => this.refresh());
 		this.cad.on("keydown", async ({key}) => {
 			if (key === "Escape") {
 				const {name} = await this.getObservableOnce(getCadStatus);
@@ -131,7 +139,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
-		Object.assign(window, {app: this});
 		window.addEventListener("resize", () => this.cad.resize(innerWidth, innerHeight));
 		window.addEventListener("contextmenu", (event) => event.preventDefault());
 
@@ -166,37 +173,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	zoomAll() {
 		this.cad.center();
-	}
-
-	refresh() {
-		this.refreshCurrCads();
-		this.afterOpenCad();
-	}
-
-	async afterOpenCad() {
-		document.title = this.cad.data.components.data.map((v) => v.name).join(", ");
-		if (this.subCads) {
-			await this.subCads.updateList();
-			// await timeout(100);
-			const cad = this.cad;
-			const collection = getCollection();
-			if (collection === "CADmuban") {
-				cad.data.components.data.forEach((v) => {
-					v.components.data.forEach((vv) => generateLineTexts(cad, vv));
-				});
-			} else {
-				cad.data.components.data.forEach((v) => generateLineTexts(cad, v));
-			}
-			cad.render();
-			cad.dom.focus();
-		} else {
-			await timeout(0);
-			this.refresh();
-		}
-	}
-
-	refreshCurrCads() {
-		this.store.dispatch<CurrCadsAction>({type: "refresh curr cads"});
 	}
 
 	selectComponent(id: string) {

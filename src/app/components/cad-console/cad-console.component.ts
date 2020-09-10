@@ -2,7 +2,7 @@ import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, Output, EventEmitter, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {ActivatedRoute} from "@angular/router";
-import {Command, timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection} from "@src/app/app.common";
+import {Command, timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@src/app/app.common";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadArc, CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
@@ -96,7 +96,6 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	history: string[] = [];
 	historyOffset = -1;
 	historySize = 100;
-	collection: Collection;
 	ids: string[];
 	openLock = false;
 	lastUrl: string;
@@ -104,8 +103,6 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	@ViewChild("consoleOuter", {read: ElementRef}) consoleOuter: ElementRef<HTMLDivElement>;
 	@ViewChild("consoleInner", {read: ElementRef}) consoleInner: ElementRef<HTMLDivElement>;
 	@ViewChild("contentEl", {read: ElementRef}) contentEl: ElementRef<HTMLDivElement>;
-	@Input() cad: CadViewer;
-	@Output() afterOpenCad = new EventEmitter<void>();
 
 	get contentLength() {
 		const el = this.contentEl.nativeElement;
@@ -137,19 +134,15 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			console.warn(error);
 		}
 		if (cachedData && vid) {
-			this.collection = params.collection ?? "cad";
 			const {showLineLength} = params;
 			this.cad.config("lineLength", showLineLength);
-			this.afterOpen([new CadData(cachedData)]);
+			this.openCad([new CadData(cachedData)], params.collection ?? "cad");
 		} else if (location.search) {
 			const data = await dataService.getCadData();
-			if (typeof dataService.queryParams.collection === "string") {
-				this.collection = dataService.queryParams.collection as Collection;
-			}
-			this.afterOpen(data);
+			this.openCad(data, dataService.queryParams.collection ?? "cad");
 		} else if (ids.length) {
 			const data = await dataService.getCadData({ids, collection});
-			this.afterOpen(data);
+			this.openCad(data);
 		}
 	}
 
@@ -361,44 +354,6 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			this.snackBar.open("执行命令时出错");
 			console.warn(error);
 		}
-	}
-
-	// * Support Functions Start
-
-	setCadData(data: CadData) {
-		if (data.options.length < 1) {
-			data.options.push(new CadOption());
-		}
-		if (data.conditions.length < 1) {
-			data.conditions.push("");
-		}
-		if (data.baseLines.length < 1) {
-			data.baseLines.push(new CadBaseLine());
-		}
-		if (data.jointPoints.length < 1) {
-			data.jointPoints.push(new CadJointPoint());
-		}
-		data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
-		data.partners.forEach((v) => this.setCadData(v));
-		data.components.data.forEach((v) => this.setCadData(v));
-	}
-
-	afterOpen(data?: CadData[]) {
-		const cad = this.cad;
-		if (data) {
-			cad.data.components.data = data;
-			data.forEach((v) => {
-				this.setCadData(v);
-				addCadGongshi(v);
-			});
-			if (this.collection === "cad") {
-				data.forEach((v) => validateLines(v));
-			}
-		}
-		cad.reset();
-		this.store.dispatch<CurrCadsAction>({type: "clear curr cads"});
-		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
-		this.afterOpenCad.emit();
 	}
 
 	getBashStyle(str: string) {
@@ -731,8 +686,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		this.openLock = true;
 		ref.afterClosed().subscribe((data: CadData[]) => {
 			if (data) {
-				this.collection = collection;
-				this.afterOpen(data);
+				this.openCad(data, collection);
 			}
 			this.openLock = false;
 		});
@@ -833,7 +787,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			}
 			result = await dataService.postCadData(data, postData);
 			if (result) {
-				this.afterOpen(result);
+				this.openCad(result);
 			}
 		}
 		return result;
@@ -868,7 +822,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 
 	loadStatus() {
 		const data = session.load("console");
-		this.collection = data?.collection;
+		globalVars.collection = data?.collection;
 		this.ids = data?.ids || [];
 	}
 }

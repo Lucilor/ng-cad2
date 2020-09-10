@@ -105,12 +105,6 @@ export function getDPI() {
 	return result;
 }
 
-// TODO: get collection
-export function getCollection() {
-	// tslint:disable-next-line: no-string-literal
-	return window["app"]?.console?.collection as Collection;
-}
-
 const timeMap = {};
 export function getInterval(field: string) {
 	const now = performance.now();
@@ -139,4 +133,29 @@ export async function getCadPreview(data: CadData, width = 300, height = 150, pa
 	const src = cad.toBase64();
 	cad.destroy();
 	return src;
+}
+
+interface GlobalVars {
+	cad: CadViewer;
+	collection: Collection;
+}
+export const globalVars: GlobalVars = {
+	cad: null,
+	collection: "cad"
+};
+// define global vars for test
+Reflect.defineProperty(window, "cad", {get: () => globalVars.cad});
+Reflect.defineProperty(window, "collection", {get: () => globalVars.collection});
+Reflect.defineProperty(window, "data0", {get: () => globalVars.cad?.data.components.data[0]});
+Reflect.defineProperty(window, "data0Ex", {get: () => globalVars.cad?.data.components.data[0].export()});
+Reflect.defineProperty(window, "selected", {get: () => globalVars.cad?.selected()});
+Reflect.defineProperty(window, "selectedArray", {get: () => globalVars.cad?.selected().toArray()});
+Reflect.defineProperty(window, "selected0", {get: () => globalVars.cad?.selected().toArray()[0]});
+
+export function setApp(app: any) {
+	Reflect.defineProperty(window, "app", {
+		get() {
+			return app;
+		}
+	});
 }

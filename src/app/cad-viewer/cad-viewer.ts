@@ -509,10 +509,14 @@ export class CadViewer extends EventEmitter {
 		return result;
 	}
 
+	emit<K extends keyof CadEvents>(type: K, event: CadEvents[K][0], entities?: CadEvents[K][1]): boolean;
+	emit(type: string | symbol, ...args: any[]): boolean;
 	emit<K extends keyof CadEvents>(type: K, event: CadEvents[K][0], entities?: CadEvents[K][1]) {
 		return super.emit(type, event, entities);
 	}
 
+	on<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1]) => void): this;
+	on(type: string | symbol, listener: (...args: any[]) => void): this;
 	on<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1]) => void) {
 		return super.on(type, listener);
 	}
@@ -570,6 +574,7 @@ export class CadViewer extends EventEmitter {
 			e.el = null;
 			e.children.forEach((c) => (c.el = null));
 		});
+		this.dom.focus();
 		return this.render().center();
 	}
 
