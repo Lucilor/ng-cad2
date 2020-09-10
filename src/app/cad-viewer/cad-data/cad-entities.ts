@@ -265,7 +265,7 @@ export class CadEntities {
 		const p6 = p3.clone();
 		const p7 = p4.clone();
 		const p8 = p4.clone();
-		const arrowSize = Math.max(1, Math.min(10, p3.distanceTo(p4) / 10));
+		const arrowSize = Math.max(1, Math.min(8, p3.distanceTo(p4) / 20));
 		const arrowLength = arrowSize * Math.sqrt(3);
 		if (axis === "x") {
 			p5.add(new Point(arrowLength, -arrowSize));

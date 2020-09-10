@@ -92,8 +92,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			width: innerWidth,
 			height: innerHeight,
 			padding: this.menuPadding.map((v) => v + 30),
-			selectMode: "multiple",
-			minLinewidth: 2
+			selectMode: "multiple"
 		};
 		this.cad = new CadViewer(new CadData(), configOverwrite);
 		this.store.dispatch<ConfigAction>({type: "set config", config: configOverwrite});

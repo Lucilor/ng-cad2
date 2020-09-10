@@ -49,7 +49,7 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 		let done = 0;
 		this.store.dispatch<LoadingAction>({name: "loadCads", type: "set loading progress", progress: 0});
 		for (const page of this.data) {
-			for (const card of page.slice(0, 2)) {
+			for (const card of page) {
 				if (card.type === "CAD") {
 					const cad = new CadViewer(new CadData(card.CAD), {
 						padding: 15,
@@ -58,11 +58,8 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 						backgroundColor: "white"
 					});
 					document.body.appendChild(cad.dom);
-					if (card.text.every((v) => !v.includes("花件"))) {
-						cad.config("lineLength", 10 / cad.zoom());
-					}
-					generateLineTexts(cad, cad.data);
-					cad.render();
+					cad.data.transform({scaleY: -1});
+					cad.render().center();
 					await timeout(0);
 					card.cadImg = this.sanitizer.bypassSecurityTrustUrl(cad.toBase64());
 					cad.destroy();
