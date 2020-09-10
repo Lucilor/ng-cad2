@@ -1,5 +1,5 @@
-import {Command} from "../app.common";
 import {CadViewerConfig} from "../cad-viewer/cad-viewer";
+import {ValuedCommand} from "../components/cad-console/cad-command";
 
 export type CadStatusName = "normal" | "select baseline" | "select jointpoint" | "edit dimension" | "assemble" | "split" | "draw line";
 
@@ -18,7 +18,7 @@ export interface State {
 	currCads: {cads: string[]; partners: string[]; components: string[]; fullCads: string[]};
 	cadStatus: CadStatus;
 	cadPoints: {x: number; y: number; active: boolean}[];
-	command: Command;
+	command: ValuedCommand;
 	config: Config;
 }
 

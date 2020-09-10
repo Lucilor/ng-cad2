@@ -1,13 +1,12 @@
 import {trigger, transition, style, animate} from "@angular/animations";
-import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, Output, EventEmitter, Injector} from "@angular/core";
+import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {ActivatedRoute} from "@angular/router";
-import {Command, timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@src/app/app.common";
-import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadArc, CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@src/app/app.common";
+import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
-import {CurrCadsAction, CadStatusAction, LoadingAction, ConfigAction} from "@src/app/store/actions";
+import {CadStatusAction, LoadingAction, ConfigAction} from "@src/app/store/actions";
 import {getCommand, getCurrCads, getCurrCadsData, getCadStatus, getConfig} from "@src/app/store/selectors";
 import {Angle, Line, Point} from "@src/app/utils";
 import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
@@ -21,54 +20,93 @@ import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {openJsonEditorDialog} from "../json-editor/json-editor.component";
 import {State} from "@src/app/store/state";
+import {Command, Desc, ValuedCommand} from "./cad-command";
 
 const getList = (content: string[]) => {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 };
 
+const getContent = (desc: Desc): string => {
+	if (!desc) {
+		return "";
+	}
+	if (typeof desc === "string") {
+		return desc;
+	}
+	let content = desc.content;
+	const sub = desc.sub?.map((v) => getContent(v));
+	if (sub) {
+		content += "<br>" + getList(sub);
+	}
+	return content;
+};
+
 export const commands: Command[] = [
-	{name: "assemble", desc: "进入/退出装配状态", args: []},
-	{name: "config", desc: "编辑CAD配置信息", args: []},
-	{name: "draw-line", desc: "进入/退出画线状态", args: []},
-	{name: "fillet", desc: "根据两条直线生成圆角", args: [{name: "radius", defaultValue: "0", desc: "圆角半径"}]},
+	{name: "assemble", args: [], desc: "进入/退出装配状态"},
+	{
+		name: "config",
+		args: [],
+		desc: {
+			content: `编辑CAD配置信息<br><pre class="hljs">${highlight("typescript", `
+interface CadViewerConfig {
+	width: number; // 宽
+	height: number; // 高
+	backgroundColor: string; // 背景颜色, 写法与css相同
+	padding: number[] | number; // 内容居中时的内边距, 写法与css相同
+	reverseSimilarColor: boolean; // 实体颜色与背景颜色相近时是否反相
+	validateLines: boolean; // 是否验证线段
+	selectMode: "none" | "single" | "multiple"; // 实体选取模式
+	dragAxis: "" | "x" | "y" | "xy"; // 限制整体内容可向x或y方向拖动
+	entityDraggable: boolean; // 实体是否可拖动
+	hideDimensions: boolean; // 是否隐藏标注
+	lineLength: number;  // 显示线长度的字体大小, ≤0时不显示
+	lineGongshi: number; // 显示线公式的字体大小, ≤0时不显示
+	hideLineLength: boolean;  // 是否隐藏线长度(即使lineLength>0)
+	hideLineGongshi: boolean; // 是否隐藏线公式(即使lineGongshi>0)
+	minLinewidth: number; // 所有线的最小宽度(调大以便选中)
+}`).value}</pre>`
+		}
+	},
+	{name: "draw-line", args: [], desc: "进入/退出画线状态"},
+	{name: "fillet", args: [{name: "radius", defaultValue: "0", desc: "圆角半径"}], desc: "根据两条直线生成圆角"},
 	{
 		name: "flip",
-		desc: "翻转CAD",
 		args: [
 			{name: "horizontal", isBoolean: true, desc: "是否水平翻转"},
 			{name: "vertical", isBoolean: true, desc: "是否垂直翻转"}
-		]
+		],
+		desc: "翻转CAD"
 	},
 	{
 		name: "man",
-		desc: "查看控制台帮助手册",
 		args: [
 			{name: "name", defaultValue: "", desc: "要查询的命令"},
 			{name: "list", isBoolean: true, desc: "查看所有可用命令"}
-		]
+		],
+		desc: "查看控制台帮助手册"
 	},
 	{
 		name: "open",
-		desc: "打开一个或多个CAD",
 		args: [
 			{
 				name: "collection",
 				defaultValue: "2",
-				desc: "CAD集合名字<br>" + getList(["1: p_yuanshicadwenjian", "2: cad", "3: CADmuban", "4: qiliaozuhe", "5: qieliaocad"])
+				desc: {content: "CAD集合名字", sub: ["1: p_yuanshicadwenjian", "2: cad", "3: CADmuban", "4: qiliaozuhe", "5: qieliaocad"]}
 			}
-		]
+		],
+		desc: "打开一个或多个CAD"
 	},
-	{name: "print", desc: "打印当前CAD", args: []},
-	{name: "rotate", desc: "旋转CAD", args: [{name: "degrees", defaultValue: "0", desc: "旋转角度（角度制）"}]},
-	{name: "save", desc: "保存当前所有CAD。", args: []},
-	{name: "split", desc: "进入/退出选取状态", args: []},
+	{name: "print", args: [], desc: "打印当前CAD"},
+	{name: "rotate", args: [{name: "degrees", defaultValue: "0", desc: "旋转角度（角度制）"}], desc: "旋转CAD"},
+	{name: "save", args: [], desc: "保存当前所有CAD。"},
+	{name: "split", args: [], desc: "进入/退出选取状态"},
 	{
 		name: "test",
-		desc: "测试",
 		args: [
 			{name: "qwer", defaultValue: "aaa", desc: "..."},
 			{name: "asdf", isBoolean: true, desc: "???"}
-		]
+		],
+		desc: "测试"
 	}
 ];
 
@@ -92,7 +130,7 @@ const spaceReplacer = v4();
 })
 export class CadConsoleComponent extends MenuComponent implements OnInit, OnDestroy {
 	content = {correct: "", wrong: "", hint: "", args: ""};
-	currCmd: Command = {name: "", args: [], desc: ""};
+	currCmd: ValuedCommand = {name: "", args: []};
 	history: string[] = [];
 	historyOffset = -1;
 	historySize = 100;
@@ -109,7 +147,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		return el.offsetWidth + getSelection().focusOffset + "px";
 	}
 
-	constructor(injector: Injector, private snackBar: MatSnackBar, private route: ActivatedRoute) {
+	constructor(injector: Injector, private snackBar: MatSnackBar) {
 		super(injector);
 	}
 
@@ -271,7 +309,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 							i++;
 						}
 					}
-					currCmd.args.push(arg);
+					currCmd.args.push({name: arg.name, value: arg.value});
 				}
 			}
 			const hintArgs = differenceWith(cmd.args, currCmd.args, (a, b) => a.name === b.name);
@@ -335,7 +373,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		this.update();
 	}
 
-	execute(cmd: Command) {
+	execute(cmd: ValuedCommand) {
 		const {name, args} = cmd;
 		const values = {};
 		args.forEach((v) => (values[v.name] = v.value));
@@ -602,11 +640,18 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		} else if (name) {
 			for (const cmd of commands) {
 				if (name === cmd.name) {
-					const argsDesc = cmd.args.map((v) => `[${v.name}=${v.isBoolean ? "false" : v.defaultValue}]: ${v.desc}`);
-					if (argsDesc.length) {
-						data = [{title: name, content: `${cmd.desc}<br>${getList(argsDesc)}`}];
+					const argContent = getList(cmd.args.map((v) => getContent(v.desc)));
+					if (Array.isArray(cmd.desc)) {
+						data = [];
+						cmd.desc.forEach((v) => {
+							data.push({title: name, content: getContent(v)});
+						});
+						if (argContent) {
+							data.push({title: name + " 参数列表", content: argContent});
+						}
 					} else {
-						data = [{title: name, content: cmd.desc}];
+						const content = getContent(cmd.desc) + "<br>" + argContent;
+						data = [{title: name, content}];
 					}
 					break;
 				}

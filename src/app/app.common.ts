@@ -4,6 +4,9 @@ import {CadEntities} from "./cad-viewer/cad-data/cad-entities";
 import {CadMtext} from "./cad-viewer/cad-data/cad-entity";
 import {CadViewer} from "./cad-viewer/cad-viewer";
 
+export type Without<T, U> = {[P in Exclude<keyof T, keyof U>]?: never};
+export type XOR<T, U> = T | U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U;
+
 // const host = environment.host;
 // export const apiBasePath = host + "/n/zy/index";
 export const apiBasePath = localStorage.getItem("baseURL");
@@ -114,12 +117,6 @@ export function getInterval(field: string) {
 	const interval = now - timeMap[field];
 	timeMap[field] = now;
 	return interval;
-}
-
-export interface Command {
-	name: string;
-	desc?: string;
-	args: {name: string; defaultValue?: string; value?: string; isBoolean?: boolean; desc?: string}[];
 }
 
 export async function getCadPreview(data: CadData, width = 300, height = 150, padding = 10) {

@@ -1,6 +1,6 @@
 import {Action} from "@ngrx/store";
+import {ValuedCommand} from "../components/cad-console/cad-command";
 import {State} from "./state";
-import {Command} from "@app/app.common";
 
 export type LoadingActionType = "add loading" | "remove loading" | "set loading progress";
 export interface LoadingAction extends Action {
@@ -33,7 +33,7 @@ export interface CadPointsAction extends Action {
 export type CommandActionType = "execute";
 export interface CommandAction extends Action {
 	readonly type: CommandActionType;
-	command: Command;
+	command: ValuedCommand;
 }
 
 export type ConfigActionType = "set config";
