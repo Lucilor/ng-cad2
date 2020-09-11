@@ -295,6 +295,17 @@ export class CadDimension extends CadEntity {
 	qujian: string;
 	ref?: "entity1" | "entity2" | "minX" | "maxX" | "minY" | "maxY" | "minLength" | "maxLength";
 
+	private _renderStyle: 1 | 2;
+	get renderStyle() {
+		return this._renderStyle;
+	}
+	set renderStyle(value) {
+		if (this._renderStyle !== value) {
+			this.el?.clear();
+		}
+		this._renderStyle = value;
+	}
+
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
 		this.type = "DIMENSION";
@@ -319,6 +330,7 @@ export class CadDimension extends CadEntity {
 		this.mingzi = data.mingzi ?? "";
 		this.qujian = data.qujian ?? "";
 		this.ref = data.ref ?? "entity1";
+		this.renderStyle = data.renderStyle ?? 1;
 	}
 
 	transform(matrix: Matrix) {
@@ -339,7 +351,8 @@ export class CadDimension extends CadEntity {
 			cad2: this.cad2,
 			mingzi: this.mingzi,
 			qujian: this.qujian,
-			ref: this.ref
+			ref: this.ref,
+			renderStyle: this.renderStyle
 		};
 	}
 

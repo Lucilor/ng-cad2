@@ -3,7 +3,7 @@ import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector} from "@an
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@src/app/app.common";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadArc} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {CadArc, CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
 import {CadStatusAction, LoadingAction, ConfigAction} from "@src/app/store/actions";
@@ -47,7 +47,10 @@ export const commands: Command[] = [
 		name: "config",
 		args: [],
 		desc: {
-			content: `编辑CAD配置信息<br><pre class="hljs">${highlight("typescript", `
+			content: `编辑CAD配置信息<br><pre class="hljs">${
+				highlight(
+					"typescript",
+					`
 interface CadViewerConfig {
 	width: number; // 宽
 	height: number; // 高
@@ -64,7 +67,9 @@ interface CadViewerConfig {
 	hideLineLength: boolean;  // 是否隐藏线长度(即使lineLength>0)
 	hideLineGongshi: boolean; // 是否隐藏线公式(即使lineGongshi>0)
 	minLinewidth: number; // 所有线的最小宽度(调大以便选中)
-}`).value}</pre>`
+}`
+				).value
+			}</pre>`
 		}
 	},
 	{name: "draw-line", args: [], desc: "进入/退出画线状态"},
@@ -763,6 +768,9 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			// 	e.linewidth *= 2;
 			// }
 			e.color = new Color(0);
+			if (e instanceof CadDimension) {
+				e.renderStyle = 2;
+			}
 		});
 		const cad = new CadViewer(data, {
 			width: width * scaleX,

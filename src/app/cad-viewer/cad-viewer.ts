@@ -302,7 +302,7 @@ export class CadViewer extends EventEmitter {
 			const {center, radius} = entity;
 			drawResult = drawCircle(el, center, radius);
 		} else if (entity instanceof CadDimension) {
-			const {mingzi, qujian, font_size, axis} = entity;
+			const {mingzi, qujian, font_size, axis, renderStyle} = entity;
 			const points = this.data.getDimensionPoints(entity);
 			let text = "";
 			if (mingzi) {
@@ -314,7 +314,7 @@ export class CadViewer extends EventEmitter {
 			if (text === "") {
 				text = "<>";
 			}
-			drawResult = drawDimension(el, points, text, axis, font_size);
+			drawResult = drawDimension(el, renderStyle, points, text, axis, font_size);
 		} else if (entity instanceof CadHatch) {
 			const {paths} = entity;
 			drawResult = [];

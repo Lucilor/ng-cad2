@@ -96,26 +96,30 @@ export function drawShape(draw: Container, points: Point[], type: "fill" | "stro
 	return [el];
 }
 
-export function drawDimension(draw: Container, points: Point[], text: string, axis: "x" | "y", fontSize: number, i = 0) {
+export function drawDimension(draw: Container, style = 1 | 2, points: Point[], text: string, axis: "x" | "y", fontSize: number, i = 0) {
 	if (points.length < 8 || !(fontSize > 0)) {
 		draw.remove();
 		return null;
 	}
 	const [p1, p2, p3, p4, p5, p6, p7, p8] = points;
-	// const l1 = drawLine(draw, p1, p3, i)[0];
-	// const l2 = drawLine(draw, p3, p4, i + 1)[0];
-	// const l3 = drawLine(draw, p4, p2, i + 2)[0];
 	let l1: Line;
 	let l2: Line;
-	const length = 20;
-	if (axis === "x") {
-		l1 = drawLine(draw, p3.clone().sub(0, length), p3.clone().add(0, length), i)[0];
-		l2 = drawLine(draw, p4.clone().sub(0, length), p4.clone().add(0, length), i + 1)[0];
-	} else if (axis === "y") {
-		l1 = drawLine(draw, p3.clone().sub(length, 0), p3.clone().add(length, 0), i)[0];
-		l2 = drawLine(draw, p4.clone().sub(length, 0), p4.clone().add(length, 0), i + 1)[0];
+	let l3: Line;
+	if (style === 1) {
+		l1 = drawLine(draw, p1, p3, i)[0];
+		l2 = drawLine(draw, p3, p4, i + 1)[0];
+		l3 = drawLine(draw, p4, p2, i + 2)[0];
+	} else {
+		const length = 20;
+		if (axis === "x") {
+			l1 = drawLine(draw, p3.clone().sub(0, length), p3.clone().add(0, length), i)[0];
+			l2 = drawLine(draw, p4.clone().sub(0, length), p4.clone().add(0, length), i + 1)[0];
+		} else if (axis === "y") {
+			l1 = drawLine(draw, p3.clone().sub(length, 0), p3.clone().add(length, 0), i)[0];
+			l2 = drawLine(draw, p4.clone().sub(length, 0), p4.clone().add(length, 0), i + 1)[0];
+		}
+		l3 = drawLine(draw, p3, p4, i + 2)[0];
 	}
-	const l3 = drawLine(draw, p3, p4, i + 2)[0];
 	const tri1 = drawShape(draw, [p3, p5, p6], "fill", i + 3)[0];
 	const tri2 = drawShape(draw, [p4, p7, p8], "fill", i + 4)[0];
 	text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
