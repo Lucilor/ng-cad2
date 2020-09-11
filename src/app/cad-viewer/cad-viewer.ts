@@ -22,9 +22,9 @@ export interface CadViewerConfig {
 	dragAxis: "" | "x" | "y" | "xy"; // 限制整体内容可向x或y方向拖动
 	entityDraggable: boolean; // 实体是否可拖动
 	hideDimensions: boolean; // 是否隐藏标注
-	lineLength: number;  // 显示线长度的字体大小, ≤0时不显示
+	lineLength: number; // 显示线长度的字体大小, ≤0时不显示
 	lineGongshi: number; // 显示线公式的字体大小, ≤0时不显示
-	hideLineLength: boolean;  // 是否隐藏线长度(即使lineLength>0)
+	hideLineLength: boolean; // 是否隐藏线长度(即使lineLength>0)
 	hideLineGongshi: boolean; // 是否隐藏线公式(即使lineGongshi>0)
 	minLinewidth: number; // 所有线的最小宽度(调大以便选中)
 }
@@ -336,13 +336,15 @@ export class CadViewer extends EventEmitter {
 				const {lineLength, lineGongshi, hideLineLength, hideLineGongshi} = this._config;
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
-					entity.font_size = hideLineLength ? 0 : lineLength;
+					entity.font_size = lineLength;
+					entity.visible = !hideLineLength;
 					const offset = getVectorFromArray(entity.info.offset);
 					entity.insert.copy(offset.add(parent.middle));
 				}
 				if (entity.info.isGongshiText) {
 					entity.text = parent.gongshi;
-					entity.font_size = hideLineGongshi ? 0 : lineGongshi;
+					entity.font_size = lineGongshi;
+					entity.visible = !hideLineGongshi;
 					const offset = getVectorFromArray(entity.info.offset);
 					entity.insert.copy(offset.add(parent.middle));
 				}
