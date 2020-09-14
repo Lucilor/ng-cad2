@@ -764,9 +764,9 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		const scaleY = 300 / dpiY / 0.75;
 		const scale = Math.sqrt(scaleX * scaleY);
 		data.getAllEntities().forEach((e) => {
-			// if (e.linewidth >= 0.3) {
-			// 	e.linewidth *= 2;
-			// }
+			if (e.linewidth >= 0.3) {
+				e.linewidth *= 3;
+			}
 			e.color = new Color(0);
 			if (e instanceof CadDimension) {
 				e.renderStyle = 2;
@@ -776,7 +776,8 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			width: width * scaleX,
 			height: height * scaleY,
 			backgroundColor: "white",
-			padding: 18 * scale
+			padding: 18 * scale,
+			minLinewidth: 4
 		}).appendTo(document.body);
 		cad.select(cad.data.getAllEntities().dimension);
 		await timeout(0);
