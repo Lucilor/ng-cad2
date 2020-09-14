@@ -3,14 +3,14 @@ import {MenuComponent} from "../menu/menu.component";
 import {ToolbarComponent} from "../menu/toolbar/toolbar.component";
 import {SubCadsComponent} from "../menu/sub-cads/sub-cads.component";
 import {CadInfoComponent} from "../menu/cad-info/cad-info.component";
+import {CadLineComponent} from "../menu/cad-line/cad-line.component";
 import {CadDimensionComponent} from "../menu/cad-dimension/cad-dimension.component";
 import {CadAssembleComponent} from "../menu/cad-assemble/cad-assemble.component";
 import {CadViewer, CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadStatusAction, ConfigAction, CurrCadsAction} from "@src/app/store/actions";
+import {CadStatusAction, ConfigAction} from "@src/app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {globalVars, setApp, timeout} from "@src/app/app.common";
-import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {globalVars, setApp} from "@src/app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {getCadStatus, getConfig} from "@src/app/store/selectors";
@@ -57,6 +57,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
 	@ViewChild(CadInfoComponent) cadInfo: CadInfoComponent;
+	@ViewChild(CadLineComponent) cadLine: CadLineComponent;
 	@ViewChild(CadDimensionComponent) cadDimension: CadDimensionComponent;
 	@ViewChild(CadAssembleComponent) cadAssemble: CadAssembleComponent;
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
@@ -126,7 +127,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
-		// this.cad.on("entitiesremove", () => this.refresh());
 		this.cad.on("keydown", async ({key}) => {
 			if (key === "Escape") {
 				const {name} = await this.getObservableOnce(getCadStatus);

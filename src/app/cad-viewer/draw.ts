@@ -106,9 +106,9 @@ export function drawDimension(draw: Container, style = 1 | 2, points: Point[], t
 	let l2: Line;
 	let l3: Line;
 	if (style === 1) {
-		l1 = drawLine(draw, p1, p3, i)[0];
-		l2 = drawLine(draw, p3, p4, i + 1)[0];
-		l3 = drawLine(draw, p4, p2, i + 2)[0];
+		l1 = drawLine(draw, p1, p3, i)?.[0];
+		l2 = drawLine(draw, p3, p4, i + 1)?.[0];
+		l3 = drawLine(draw, p4, p2, i + 2)?.[0];
 	} else {
 		const length = 20;
 		if (axis === "x") {

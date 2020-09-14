@@ -1,10 +1,12 @@
 import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {CadLine, CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
 import {CadStatusAction} from "@src/app/store/actions";
 import {getCadStatus} from "@src/app/store/selectors";
 import Color from "color";
+import {throttle} from "lodash";
 import {openCadDimensionDialog} from "../cad-dimension-form/cad-dimension-form.component";
 import {MenuComponent} from "../menu.component";
 
@@ -19,9 +21,73 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	prevSelectMode: CadViewerConfig["selectMode"];
 	prevLineLength: CadViewerConfig["lineLength"];
 	prevLinegongshi: CadViewerConfig["lineGongshi"];
+
 	get dimensions() {
 		return this.cad.data.getAllEntities().dimension;
 	}
+
+	onEntitiesClick = (async (_event: PointerEvent, entities: CadEntities) => {
+		const cad = this.cad;
+		const data = cad.data.components.data;
+		const {name, index} = await this.getObservableOnce(getCadStatus);
+		const dimensions = this.dimensions;
+		const entity = entities.line[0];
+		if (name === "edit dimension" && entity) {
+			let thatData: CadData;
+			let thatIndex: number;
+			cad.data.components.data.some((d, i) => {
+				if (d.findEntity(entity.id)) {
+					thatData = d;
+					thatIndex = i;
+					return true;
+				}
+				return false;
+			});
+			for (const d of cad.data.components.data) {
+				if (d.findEntity(entity.id)) {
+					thatData = d;
+					break;
+				}
+			}
+			let dimension = dimensions[index];
+			if (!dimension) {
+				dimension = new CadDimension();
+				dimension.color = new Color(0x00ff00);
+				let newIndex = 0;
+				for (let i = 0; i < thatIndex; i++) {
+					newIndex += data[i].entities.dimension.length;
+				}
+				newIndex += thatData.entities.dimension.push(dimension) - 1;
+				this.store.dispatch<CadStatusAction>({type: "set cad status", index: newIndex});
+			}
+			if (!dimension.entity1.id) {
+				dimension.entity1 = {id: entity.originalId, location: "start"};
+				dimension.cad1 = thatData.name;
+			} else if (!dimension.entity2.id) {
+				dimension.entity2 = {id: entity.originalId, location: "end"};
+				dimension.cad2 = thatData.name;
+			} else {
+				dimension.entity1 = dimension.entity2;
+				dimension.entity2 = {id: entity.originalId, location: "end"};
+				dimension.cad2 = thatData.name;
+			}
+			const e1 = cad.data.findEntity(dimension.entity1.id);
+			const e2 = cad.data.findEntity(dimension.entity2.id);
+			if (e1 instanceof CadLine && e2 instanceof CadLine) {
+				const slope1 = e1.slope;
+				const slope2 = e2.slope;
+				// default axis: x
+				if (Math.abs(slope1 - slope2) <= 1) {
+					if (Math.abs(slope1) <= 1) {
+						dimension.axis = "y";
+					} else {
+						dimension.axis = "x";
+					}
+				}
+			}
+			this.updateDimLines(dimension);
+		}
+	}).bind(this);
 
 	constructor(injector: Injector) {
 		super(injector);
@@ -29,8 +95,8 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 
 	ngOnInit() {
 		super.ngOnInit();
-		const {cad} = this;
 		this.getObservable(getCadStatus).subscribe(({name, index}) => {
+			const cad = this.cad;
 			if (name === "edit dimension") {
 				const dimension = this.dimensions[index];
 				this.updateDimLines(dimension);
@@ -61,71 +127,12 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				cad.config({lineLength: this.prevLineLength, lineGongshi: this.prevLinegongshi, selectMode: this.prevSelectMode});
 			}
 		});
-		cad.on("entitiesselect", async (_event, entities) => {
-			const data = cad.data.components.data;
-			const {name, index} = await this.getObservableOnce(getCadStatus);
-			const dimensions = this.dimensions;
-			const entity = entities.line[0];
-			if (name === "edit dimension" && entity) {
-				let thatData: CadData;
-				let thatIndex: number;
-				cad.data.components.data.some((d, i) => {
-					if (d.findEntity(entity.id)) {
-						thatData = d;
-						thatIndex = i;
-						return true;
-					}
-					return false;
-				});
-				for (const d of cad.data.components.data) {
-					if (d.findEntity(entity.id)) {
-						thatData = d;
-						break;
-					}
-				}
-				let dimension = dimensions[index];
-				if (!dimension) {
-					dimension = new CadDimension();
-					dimension.color = new Color(0x00ff00);
-					let newIndex = 0;
-					for (let i = 0; i < thatIndex; i++) {
-						newIndex += data[i].entities.dimension.length;
-					}
-					newIndex += thatData.entities.dimension.push(dimension) - 1;
-					this.store.dispatch<CadStatusAction>({type: "set cad status", index: newIndex});
-				}
-				if (!dimension.entity1.id) {
-					dimension.entity1 = {id: entity.originalId, location: "start"};
-					dimension.cad1 = thatData.name;
-				} else if (!dimension.entity2.id) {
-					dimension.entity2 = {id: entity.originalId, location: "end"};
-					dimension.cad2 = thatData.name;
-				} else {
-					dimension.entity1 = dimension.entity2;
-					dimension.entity2 = {id: entity.originalId, location: "end"};
-					dimension.cad2 = thatData.name;
-				}
-				const e1 = cad.data.findEntity(dimension.entity1.id);
-				const e2 = cad.data.findEntity(dimension.entity2.id);
-				if (e1 instanceof CadLine && e2 instanceof CadLine) {
-					const slope1 = e1.slope;
-					const slope2 = e2.slope;
-					// default axis: x
-					if (Math.abs(slope1 - slope2) <= 1) {
-						if (Math.abs(slope1) <= 1) {
-							dimension.axis = "y";
-						} else {
-							dimension.axis = "x";
-						}
-					}
-				}
-				this.updateDimLines(dimension);
-			}
-		});
+		this.cad.on("entitiesselect", this.onEntitiesClick);
 	}
 
 	ngOnDestroy() {
 		super.ngOnDestroy();
+		this.cad.off("entitiesselect", this.onEntitiesClick);
 	}
 
 	editDimension(i: number) {
@@ -146,11 +153,12 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 		}
 	}
 
-	setDimensionName(event: InputEvent, dimension: CadDimension) {
+	// tslint:disable-next-line: member-ordering
+	setDimensionName = throttle((event: InputEvent, dimension: CadDimension) => {
 		const str = (event.target as HTMLInputElement).value;
 		dimension.mingzi = str;
-		this.cad.render();
-	}
+		this.cad.render(dimension);
+	}, 500);
 
 	async isSelectingDimLine(i: number) {
 		const {name, index} = await this.getObservableOnce(getCadStatus);

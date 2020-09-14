@@ -9,7 +9,7 @@
 				[value]="getDimensionName(d, i)"
 				(focus)="dimNameFocus = i"
 				(blur)="dimNameFocus = -1"
-				(change)="setDimensionName($event, d)"
+				(input)="setDimensionName($event, d)"
 				name="dimensionName"
 			/>
 			<mat-icon matSuffix color="primary" (click)="removeDimension(i)">remove_circle</mat-icon>

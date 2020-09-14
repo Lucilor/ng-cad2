@@ -1,7 +1,7 @@
 import {Component, OnInit, OnDestroy, Input, Injector} from "@angular/core";
 import {getCadGongshiText} from "@src/app/app.common";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {CadEntity, CadLine} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {getPointsFromMap, generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {CadPointsAction, CadStatusAction} from "@src/app/store/actions";
 import {getCurrCads, getCurrCadsData, getCadStatus, getCadPoints} from "@src/app/store/selectors";
@@ -22,6 +22,27 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	baseLineIndex = -1;
 	jointPointIndex = -1;
 	editDisabled = true;
+
+	onEntityClick = (async (_event: PointerEvent, entity: CadEntity) => {
+		const {name, index} = await this.getObservableOnce(getCadStatus);
+		const data = (await this.getCurrCadsData())[0];
+		if (name === "select baseline") {
+			if (entity instanceof CadLine) {
+				const baseLine = data.baseLines[index];
+				if (entity.isHorizonal()) {
+					baseLine.idY = entity.selected ? entity.originalId : "";
+				}
+				if (entity.isVertical()) {
+					baseLine.idX = entity.selected ? entity.originalId : "";
+				}
+				data.updateBaseLines();
+				data.getAllEntities().forEach((e) => {
+					e.selected = [baseLine.idX, baseLine.idY].includes(e.originalId);
+				});
+				this.cad.render();
+			}
+		}
+	}).bind(this);
 
 	constructor(injector: Injector) {
 		super(injector);
@@ -56,26 +77,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 			}
 		});
-		this.cad.on("entityclick", async (event, entity) => {
-			const {name, index} = await this.getObservableOnce(getCadStatus);
-			const data = (await this.getCurrCadsData())[0];
-			if (name === "select baseline") {
-				if (entity instanceof CadLine) {
-					const baseLine = data.baseLines[index];
-					if (entity.isHorizonal()) {
-						baseLine.idY = entity.selected ? entity.originalId : "";
-					}
-					if (entity.isVertical()) {
-						baseLine.idX = entity.selected ? entity.originalId : "";
-					}
-					data.updateBaseLines();
-					data.getAllEntities().forEach((e) => {
-						e.selected = [baseLine.idX, baseLine.idY].includes(e.originalId);
-					});
-					this.cad.render();
-				}
-			}
-		});
+		this.cad.on("entityclick", this.onEntityClick);
 		this.getObservable(getCadPoints).subscribe(async (points) => {
 			const point = points.filter((v) => v.active)[0];
 			const {name} = await this.getObservableOnce(getCadStatus);
@@ -90,6 +92,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 
 	ngOnDestroy() {
 		super.ngOnDestroy();
+		this.cad.off("entityclick", this.onEntityClick);
 	}
 
 	updateLengths(cadsData: CadData[]) {

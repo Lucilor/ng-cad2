@@ -52,6 +52,70 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 
 	readonly selectableColors = {a: ["#ffffff", "#ff0000", "#00ff00", "#0000ff"]};
 
+	onPointerMove = (async ({clientX, clientY, shiftKey}: MouseEvent) => {
+		const {cad, lineDrawing} = this;
+		if (!lineDrawing?.start) {
+			return;
+		}
+		lineDrawing.end = cad.getWorldPoint(clientX, clientY);
+		if (shiftKey) {
+			const dx = Math.abs(lineDrawing.start.x - lineDrawing.end.x);
+			const dy = Math.abs(lineDrawing.start.y - lineDrawing.end.y);
+			if (dx < dy) {
+				lineDrawing.end.x = lineDrawing.start.x;
+			} else {
+				lineDrawing.end.y = lineDrawing.start.y;
+			}
+		}
+		let entity = lineDrawing.entity;
+		if (entity) {
+			entity.end = lineDrawing.end;
+		} else {
+			entity = new CadLine({...lineDrawing});
+			lineDrawing.entity = entity;
+			this.data.entities.add(entity);
+			this.cad.render(entity);
+			entity.opacity = 0.6;
+			entity.selectable = false;
+		}
+		cad.render(entity);
+	}).bind(this);
+
+	onClick = (() => {
+		const {store, lineDrawing, cad} = this;
+		const entity = lineDrawing?.entity;
+		if (!entity) {
+			return;
+		}
+		setLinesLength(this.cad.data, [entity], Math.round(entity.length));
+		cad.render(entity);
+		// this.lineDrawing.entity=null
+		entity.opacity = 1;
+		entity.selectable = true;
+		this.lineDrawing = {start: null, end: null};
+		const points = getPointsFromMap(cad, generatePointsMap(this.data.getAllEntities()));
+		store.dispatch<CadPointsAction>({type: "set cad points", points});
+	}).bind(this);
+
+	onEntitiesChange = (() => {
+		const {line, arc} = this.cad.selected();
+		const selected = [...line, ...arc];
+		this.selected = selected;
+		selected.forEach((e) => {
+			if (e instanceof CadLine) {
+				["gongshi", "guanlianbianhuagongshi"].forEach((v) => this.validateLineText(v, e[v]));
+			}
+		});
+		if (selected.length < 1) {
+			this.editDiabled = false;
+		} else {
+			const cads = this.cad.data.components.data;
+			const ids: string[] = [];
+			cads.forEach((v) => v.entities.forEach((vv) => ids.push(vv.id)));
+			this.editDiabled = !selected.every((e) => ids.includes(e.id));
+		}
+	}).bind(this);
+
 	constructor(injector: Injector) {
 		super(injector);
 	}
@@ -110,47 +174,23 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			this.store.dispatch<CadPointsAction>({type: "set cad points", points: []});
 		});
 
-		cad.on("pointermove", this.onMouseMove.bind(this));
-		cad.on("entitiesselect", this.updateEditDisabled.bind(this));
-		cad.on("click", this.onClick.bind(this));
-		cad.on("entitiesselect", this.updateSelected.bind(this));
-		cad.on("entitiesunselect", this.updateSelected.bind(this));
-		cad.on("entitiesadd", this.updateSelected.bind(this));
-		cad.on("entitiesremove", this.updateSelected.bind(this));
+		cad.on("pointermove", this.onPointerMove);
+		cad.on("click", this.onClick);
+		cad.on("entitiesselect", this.onEntitiesChange);
+		cad.on("entitiesunselect", this.onEntitiesChange);
+		cad.on("entitiesadd", this.onEntitiesChange);
+		cad.on("entitiesremove", this.onEntitiesChange);
 	}
 
 	ngOnDestroy() {
 		super.ngOnDestroy();
 		const cad = this.cad;
-		cad.off("pointermove", this.onMouseMove.bind(this));
-		cad.off("entitiesselect", this.updateEditDisabled.bind(this));
-		cad.off("click", this.onClick.bind(this));
-		cad.off("entitiesselect", this.updateSelected.bind(this));
-		cad.off("entitiesunselect", this.updateSelected.bind(this));
-		cad.off("entitiesadd", this.updateSelected.bind(this));
-		cad.off("entitiesremove", this.updateSelected.bind(this));
-	}
-
-	updateSelected() {
-		const {line, arc} = this.cad.selected();
-		this.selected = [...line, ...arc];
-		this.selected.forEach((e) => {
-			if (e instanceof CadLine) {
-				["gongshi", "guanlianbianhuagongshi"].forEach((v) => this.validateLineText(v, e[v]));
-			}
-		});
-	}
-
-	updateEditDisabled() {
-		const selected = this.selected;
-		if (selected.length < 1) {
-			this.editDiabled = false;
-			return;
-		}
-		const cads = this.cad.data.components.data;
-		const ids = Array<string>();
-		cads.forEach((v) => v.entities.forEach((vv) => ids.push(vv.id)));
-		this.editDiabled = !selected.every((e) => ids.includes(e.id));
+		cad.off("pointermove", this.onPointerMove);
+		cad.off("click", this.onClick);
+		cad.off("entitiesselect", this.onEntitiesChange);
+		cad.off("entitiesunselect", this.onEntitiesChange);
+		cad.off("entitiesadd", this.onEntitiesChange);
+		cad.off("entitiesremove", this.onEntitiesChange);
 	}
 
 	getLineLength() {
@@ -279,51 +319,6 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 
 	drawLine() {
 		this.store.dispatch<CommandAction>({type: "execute", command: {name: "draw-line", args: []}});
-	}
-
-	async onMouseMove({clientX, clientY, shiftKey}: MouseEvent) {
-		const {cad, lineDrawing} = this;
-		if (!lineDrawing?.start) {
-			return;
-		}
-		lineDrawing.end = cad.getWorldPoint(clientX, clientY);
-		if (shiftKey) {
-			const dx = Math.abs(lineDrawing.start.x - lineDrawing.end.x);
-			const dy = Math.abs(lineDrawing.start.y - lineDrawing.end.y);
-			if (dx < dy) {
-				lineDrawing.end.x = lineDrawing.start.x;
-			} else {
-				lineDrawing.end.y = lineDrawing.start.y;
-			}
-		}
-		let entity = lineDrawing.entity;
-		if (entity) {
-			entity.end = lineDrawing.end;
-		} else {
-			entity = new CadLine({...lineDrawing});
-			lineDrawing.entity = entity;
-			this.data.entities.add(entity);
-			this.cad.render(entity);
-			entity.opacity = 0.6;
-			entity.selectable = false;
-		}
-		cad.render(entity);
-	}
-
-	onClick() {
-		const {store, lineDrawing, cad} = this;
-		const entity = lineDrawing?.entity;
-		if (!entity) {
-			return;
-		}
-		setLinesLength(this.cad.data, [entity], Math.round(entity.length));
-		cad.render(entity);
-		// this.lineDrawing.entity=null
-		entity.opacity = 1;
-		entity.selectable = true;
-		this.lineDrawing = {start: null, end: null};
-		const points = getPointsFromMap(cad, generatePointsMap(this.data.getAllEntities()));
-		store.dispatch<CadPointsAction>({type: "set cad points", points});
 	}
 
 	autoFix() {

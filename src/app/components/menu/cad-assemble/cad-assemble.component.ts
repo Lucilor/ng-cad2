@@ -17,33 +17,12 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 	names: string[] = [];
 	lines: string[] = [];
 	data = new CadData();
+
 	get connections() {
 		return this.data.components.connections;
 	}
 
-	constructor(injector: Injector) {
-		super(injector);
-	}
-
-	ngOnInit() {
-		super.ngOnInit();
-		this.cad.on("entityclick", this.onEntityClick.bind(this));
-		this.cad.on("entitiesselect", this.onEntitiesSelect.bind(this));
-		this.getObservable(getCurrCads).subscribe(({cads}) => {
-			const data = this.cad.data.findChild(cads[0]);
-			if (data) {
-				this.data = data;
-			}
-		});
-	}
-
-	ngOnDestroy() {
-		super.ngOnInit();
-		this.cad.off("entityclick", this.onEntityClick.bind(this));
-		this.cad.off("entitiesselect", this.onEntitiesSelect.bind(this));
-	}
-
-	async onEntityClick(_event: PointerEvent, entity: CadEntity) {
+	onEntityClick = (async (_event: PointerEvent, entity: CadEntity) => {
 		const {name} = await this.getObservableOnce(getCadStatus);
 		if (name !== "assemble") {
 			return;
@@ -121,16 +100,19 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 				break;
 			}
 		}
-	}
+	}).bind(this);
 
-	async onEntitiesSelect() {
+	onEntitiesSelect = (async () => {
 		const {name, index} = await this.getObservableOnce(getCadStatus);
 		if (name !== "assemble") {
 			return;
 		}
 		const cad = this.cad;
 		const data = cad.data.components.data[index];
-		const selected = cad.selected().toArray().map((e) => e.id);
+		const selected = cad
+			.selected()
+			.toArray()
+			.map((e) => e.id);
 		data.components.data.forEach((v) => {
 			const entities = v.getAllEntities().toArray();
 			for (const e of entities) {
@@ -140,6 +122,28 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 				}
 			}
 		});
+	}).bind(this);
+
+	constructor(injector: Injector) {
+		super(injector);
+	}
+
+	ngOnInit() {
+		super.ngOnInit();
+		this.cad.on("entityclick", this.onEntityClick);
+		this.cad.on("entitiesselect", this.onEntitiesSelect);
+		this.getObservable(getCurrCads).subscribe(({cads}) => {
+			const data = this.cad.data.findChild(cads[0]);
+			if (data) {
+				this.data = data;
+			}
+		});
+	}
+
+	ngOnDestroy() {
+		super.ngOnInit();
+		this.cad.off("entityclick", this.onEntityClick);
+		this.cad.off("entitiesselect", this.onEntitiesSelect);
 	}
 
 	clearConnections() {

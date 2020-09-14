@@ -65,6 +65,7 @@ export abstract class CadEntity {
 	}
 	set opacity(value) {
 		this.el?.css("opacity", value);
+		this.children.forEach((c) => (c.opacity = value));
 	}
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
@@ -111,8 +112,6 @@ export abstract class CadEntity {
 				}
 			}
 		}
-		this.visible = data.visible ?? true;
-		this.opacity = data.opacity ?? 1;
 		if (typeof data.info === "object" && !Array.isArray(data.info)) {
 			this.info = data.info;
 		} else {
@@ -125,6 +124,8 @@ export abstract class CadEntity {
 		if (data.parent instanceof CadEntity) {
 			this.parent = data.parent;
 		}
+		this.visible = data.visible ?? true;
+		this.opacity = data.opacity ?? 1;
 	}
 
 	transform(matrix: MatrixAlias, _parent?: CadEntity) {
