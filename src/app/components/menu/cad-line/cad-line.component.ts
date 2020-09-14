@@ -12,7 +12,7 @@ import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {State} from "@app/store/state";
 import {ErrorStateMatcher} from "@angular/material/core";
 import Color from "color";
-import {CadLine, CadArc} from "@app/cad-viewer/cad-data/cad-entity";
+import {CadLine, CadArc, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {throttle} from "lodash";
 import {getPointsFromMap, globalVars} from "@app/app.common";
 
@@ -245,11 +245,11 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	// tslint:disable-next-line: member-ordering
-	setLineText = throttle((event: InputEvent | MatSelectChange, field: string) => {
+	setLineText = throttle((event: InputEvent | MatSelectChange | Event, field: string) => {
 		let value: string;
 		if (event instanceof MatSelectChange) {
 			value = event.value;
-		} else if (event instanceof InputEvent) {
+		} else if (event instanceof InputEvent || event instanceof Event) {
 			value = (event.target as HTMLInputElement).value;
 		}
 		if (this.validateLineText(field, value)) {
@@ -259,6 +259,13 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 						e[field] = Number(value);
 					} else {
 						e[field] = value;
+						if (field === "gongshi") {
+							const gongshiText = e.children.find((c) => c.info.isGongshiText);
+							if (gongshiText instanceof CadMtext) {
+								gongshiText.text = value;
+							}
+							this.cad.render(e);
+						}
 					}
 				}
 			});
