@@ -139,36 +139,15 @@ export class CadData {
 		};
 	}
 
-	extractExpressions() {
-		const exps: Expressions = {};
-		this.getAllEntities().line.forEach((e) => {
-			if (e.mingzi && e.gongshi) {
-				exps[e.mingzi] = e.gongshi;
-			}
-		});
-		return new ExpressionsParser(exps);
-	}
-
-	/**
-	 * 100: this.entities
-	 * 010: this.partners entities
-	 * 001: components.partners entities
-	 */
 	getAllEntities(mode = 0b111) {
 		const result = new CadEntities();
-		if (mode & 0b100) {
-			result.merge(this.entities);
-		}
-		if (mode & 0b010) {
-			this.partners.forEach((p) => {
-				result.merge(p.getAllEntities(mode));
-			});
-		}
-		if (mode & 0b001) {
-			this.components.data.forEach((c) => {
-				result.merge(c.getAllEntities(mode));
-			});
-		}
+		result.merge(this.entities);
+		this.partners.forEach((p) => {
+			result.merge(p.getAllEntities(mode));
+		});
+		this.components.data.forEach((c) => {
+			result.merge(c.getAllEntities(mode));
+		});
 		return result;
 	}
 

@@ -6,6 +6,8 @@ import {openMessageDialog} from "../../message/message.component";
 import {Collection} from "@src/app/app.common";
 import Color from "color";
 import {getConfig} from "@src/app/store/selectors";
+import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity";
 
 @Component({
 	selector: "app-toolbar",
@@ -174,5 +176,15 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 			type: "execute",
 			command: {name: "fillet", args: [{name: "radius", value: radius ? radius.toString() : "0"}]}
 		});
+	}
+
+	resetLineLength() {
+		this.cad.data.getAllEntities().forEach((e) => {
+			if (e.info.isLengthText) {
+				e.info.offset = [0, 0];
+				console.log(e);
+			}
+		}, true);
+		this.cad.render();
 	}
 }

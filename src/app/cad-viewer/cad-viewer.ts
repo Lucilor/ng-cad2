@@ -334,18 +334,24 @@ export class CadViewer extends EventEmitter {
 			const parent = entity.parent;
 			if (parent instanceof CadLine || parent instanceof CadArc) {
 				const {lineLength, lineGongshi, hideLineLength, hideLineGongshi} = this._config;
+				let offset: Point;
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
 					entity.font_size = lineLength;
 					entity.visible = !hideLineLength;
-					const offset = getVectorFromArray(entity.info.offset);
-					entity.insert.copy(offset.add(parent.middle));
+					offset = getVectorFromArray(entity.info.offset);
 				}
 				if (entity.info.isGongshiText) {
 					entity.text = parent.gongshi;
 					entity.font_size = lineGongshi;
 					entity.visible = !hideLineGongshi;
-					const offset = getVectorFromArray(entity.info.offset);
+					offset = getVectorFromArray(entity.info.offset);
+				}
+				if (offset) {
+					if (Math.abs(offset.x) >= 150 || Math.abs(offset.y) >= 150) {
+						offset.set(0, 0);
+						entity.info.offset = offset.toArray();
+					}
 					entity.insert.copy(offset.add(parent.middle));
 				}
 			}
