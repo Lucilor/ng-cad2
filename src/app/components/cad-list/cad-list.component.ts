@@ -1,9 +1,9 @@
 import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
 import {PageEvent, MatPaginator} from "@angular/material/paginator";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
-import {CadData, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadData, CadOption} from "@app/cad-viewer/cad-data/cad-data";
 import {CadDataService} from "@services/cad-data.service";
-import {Collection, getCadPreview, imgEmpty, imgLoading} from "@src/app/app.common";
+import {Collection, getCadPreview, imgEmpty, imgLoading} from "@app/app.common";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 import {DomSanitizer} from "@angular/platform-browser";
 

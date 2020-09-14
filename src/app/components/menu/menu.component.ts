@@ -1,15 +1,15 @@
 import {Component, OnDestroy, Injector, Input, OnInit} from "@angular/core";
-import {CadDataService} from "@src/app/services/cad-data.service";
+import {CadDataService} from "@app/services/cad-data.service";
 import {Store} from "@ngrx/store";
-import {State} from "@src/app/store/state";
+import {State} from "@app/store/state";
 import {MatDialog} from "@angular/material/dialog";
 import {Subject} from "rxjs";
-import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
+import {getCurrCads, getCurrCadsData} from "@app/store/selectors";
 import {take, takeUntil} from "rxjs/operators";
-import {addCadGongshi, Collection, globalVars} from "@src/app/app.common";
-import {CadBaseLine, CadData, CadJointPoint, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
-import {generateLineTexts, validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {CurrCadsAction, CadStatusAction} from "@src/app/store/actions";
+import {addCadGongshi, Collection, globalVars} from "@app/app.common";
+import {CadBaseLine, CadData, CadJointPoint, CadOption} from "@app/cad-viewer/cad-data/cad-data";
+import {generateLineTexts, validateLines} from "@app/cad-viewer/cad-data/cad-lines";
+import {CurrCadsAction, CadStatusAction} from "@app/store/actions";
 import Color from "color";
 import {SubCadsComponent} from "./sub-cads/sub-cads.component";
 

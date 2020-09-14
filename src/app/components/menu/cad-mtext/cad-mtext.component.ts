@@ -1,7 +1,7 @@
 import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadMtext} from "@src/app/cad-viewer/cad-data/cad-entity";
-import {getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
+import {CadData} from "@app/cad-viewer/cad-data/cad-data";
+import {CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
+import {getCurrCads, getCurrCadsData} from "@app/store/selectors";
 import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
 import Color from "color";
 import {throttle} from "lodash";

@@ -1,9 +1,9 @@
 import {Component, OnInit, Input, OnDestroy} from "@angular/core";
 import {Observable, Subject} from "rxjs";
-import {State} from "@src/app/store/state";
+import {State} from "@app/store/state";
 import {Store} from "@ngrx/store";
-import {getCadPoints} from "@src/app/store/selectors";
-import {CadPointsAction} from "@src/app/store/actions";
+import {getCadPoints} from "@app/store/selectors";
+import {CadPointsAction} from "@app/store/actions";
 
 @Component({
 	selector: "app-cad-points",

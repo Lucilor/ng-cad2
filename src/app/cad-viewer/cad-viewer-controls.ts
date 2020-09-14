@@ -1,4 +1,4 @@
-import {Point, Rectangle} from "../utils";
+import {Point, Rectangle} from "@app/utils";
 import {CadEntities} from "./cad-data/cad-entities";
 import {CadDimension, CadEntity} from "./cad-data/cad-entity";
 import {CadViewer} from "./cad-viewer";

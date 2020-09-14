@@ -1,5 +1,5 @@
 import {Component, OnInit, AfterViewInit} from "@angular/core";
-import {timeout, session} from "@src/app/app.common";
+import {timeout, session} from "@app/app.common";
 
 @Component({
 	selector: "app-print-cad",

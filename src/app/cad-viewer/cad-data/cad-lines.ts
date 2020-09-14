@@ -1,10 +1,9 @@
 import {CadEntities} from "./cad-entities";
 import {CadData} from "./cad-data";
 import {CadViewer} from "../cad-viewer";
-import {State} from "@src/app/store/state";
 import {getVectorFromArray, isBetween} from "./utils";
 import {DEFAULT_TOLERANCE, Point} from "@app/utils";
-import {CadLine, CadArc, CadMtext, CadEntity} from "./cad-entity";
+import {CadLine, CadArc, CadMtext} from "./cad-entity";
 
 export type CadLineLike = CadLine | CadArc;
 
@@ -39,13 +38,6 @@ export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOL
 		}
 	});
 	return map;
-}
-
-export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
-	return map.map((v) => {
-		const {x, y} = cad.getScreenPoint(v.point.x, v.point.y);
-		return {x, y, active: false};
-	});
 }
 
 export function findAdjacentLines(map: PointsMap, entity: CadLineLike, point?: Point, tolerance = DEFAULT_TOLERANCE): CadLineLike[] {

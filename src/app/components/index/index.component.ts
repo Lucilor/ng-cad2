@@ -6,15 +6,15 @@ import {CadInfoComponent} from "../menu/cad-info/cad-info.component";
 import {CadLineComponent} from "../menu/cad-line/cad-line.component";
 import {CadDimensionComponent} from "../menu/cad-dimension/cad-dimension.component";
 import {CadAssembleComponent} from "../menu/cad-assemble/cad-assemble.component";
-import {CadViewer, CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadStatusAction, ConfigAction} from "@src/app/store/actions";
+import {CadViewer, CadViewerConfig} from "@app/cad-viewer/cad-viewer";
+import {CadData} from "@app/cad-viewer/cad-data/cad-data";
+import {CadStatusAction, ConfigAction} from "@app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {globalVars, setApp} from "@src/app/app.common";
+import {globalVars, setApp} from "@app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
-import {getCadStatus, getConfig} from "@src/app/store/selectors";
-import {State} from "@src/app/store/state";
+import {getCadStatus, getConfig} from "@app/store/selectors";
+import {State} from "@app/store/state";
 
 @Component({
 	selector: "app-index",

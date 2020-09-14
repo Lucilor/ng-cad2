@@ -2,7 +2,9 @@ import {SessionStorage, LocalStorage, Point} from "@app/utils";
 import {CadData} from "./cad-viewer/cad-data/cad-data";
 import {CadEntities} from "./cad-viewer/cad-data/cad-entities";
 import {CadMtext} from "./cad-viewer/cad-data/cad-entity";
+import {PointsMap} from "./cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "./cad-viewer/cad-viewer";
+import {State} from "./store/state";
 
 export type Without<T, U> = {[P in Exclude<keyof T, keyof U>]?: never};
 export type XOR<T, U> = T | U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U;
@@ -154,5 +156,12 @@ export function setApp(app: any) {
 		get() {
 			return app;
 		}
+	});
+}
+
+export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
+	return map.map((v) => {
+		const {x, y} = cad.getScreenPoint(v.point.x, v.point.y);
+		return {x, y, active: false};
 	});
 }

@@ -5,7 +5,7 @@ import {MatDialogRef, MAT_DIALOG_DATA, MatDialogModule} from "@angular/material/
 import {provideMockStore} from "@ngrx/store/testing";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
-import {initialState} from "@src/app/store/state";
+import {initialState} from "@app/store/state";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";

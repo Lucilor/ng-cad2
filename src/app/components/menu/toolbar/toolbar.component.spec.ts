@@ -5,10 +5,10 @@ import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {provideMockStore} from "@ngrx/store/testing";
-import {initialState} from "@src/app/store/state";
+import {initialState} from "@app/store/state";
 import {MatMenuModule} from "@angular/material/menu";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadViewer} from "@app/cad-viewer/cad-viewer";
+import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {RouterTestingModule} from "@angular/router/testing";
 
 describe("ToolbarComponent", () => {

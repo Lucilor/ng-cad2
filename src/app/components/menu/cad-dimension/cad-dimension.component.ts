@@ -1,10 +1,10 @@
 import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {CadLine, CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
-import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
-import {CadStatusAction} from "@src/app/store/actions";
-import {getCadStatus} from "@src/app/store/selectors";
+import {CadData} from "@app/cad-viewer/cad-data/cad-data";
+import {CadEntities} from "@app/cad-viewer/cad-data/cad-entities";
+import {CadLine, CadDimension} from "@app/cad-viewer/cad-data/cad-entity";
+import {CadViewerConfig} from "@app/cad-viewer/cad-viewer";
+import {CadStatusAction} from "@app/store/actions";
+import {getCadStatus} from "@app/store/selectors";
 import Color from "color";
 import {throttle} from "lodash";
 import {openCadDimensionDialog} from "../cad-dimension-form/cad-dimension-form.component";

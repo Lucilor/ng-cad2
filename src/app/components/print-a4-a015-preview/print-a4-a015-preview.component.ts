@@ -1,13 +1,13 @@
 import {Component, OnInit, ChangeDetectorRef, OnDestroy} from "@angular/core";
-import {CadDataService} from "@src/app/services/cad-data.service";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {timeout} from "@src/app/app.common";
+import {CadDataService} from "@app/services/cad-data.service";
+import {CadViewer} from "@app/cad-viewer/cad-viewer";
+import {CadData} from "@app/cad-viewer/cad-data/cad-data";
+import {timeout} from "@app/app.common";
 import {Store} from "@ngrx/store";
-import {State} from "@src/app/store/state";
-import {LoadingAction} from "@src/app/store/actions";
+import {State} from "@app/store/state";
+import {LoadingAction} from "@app/store/actions";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
-import {generateLineTexts} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {generateLineTexts} from "@app/cad-viewer/cad-data/cad-lines";
 
 export type PreviewData = {
 	CAD?: any;

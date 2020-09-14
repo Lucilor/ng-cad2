@@ -4,7 +4,7 @@ import {provideMockStore} from "@ngrx/store/testing";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
-import {initialState} from "@src/app/store/state";
+import {initialState} from "@app/store/state";
 
 describe("TestComponent", () => {
 	let component: TestComponent;

@@ -1,27 +1,20 @@
 import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
-import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
-import {
-	generatePointsMap,
-	validateLines,
-	getPointsFromMap,
-	setLinesLength,
-	autoFixLine,
-	CadLineLike
-} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {CadViewerConfig} from "@app/cad-viewer/cad-viewer";
+import {generatePointsMap, validateLines, setLinesLength, autoFixLine, CadLineLike} from "@app/cad-viewer/cad-data/cad-lines";
 import {Point} from "@app/utils";
 import {MatSelectChange} from "@angular/material/select";
-import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
+import {linewidth2lineweight, lineweight2linewidth} from "@app/cad-viewer/cad-data/utils";
 import {MenuComponent} from "../menu.component";
-import {CadPointsAction, CommandAction} from "@src/app/store/actions";
-import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@src/app/store/selectors";
+import {CadPointsAction, CommandAction} from "@app/store/actions";
+import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@app/store/selectors";
 import {takeUntil} from "rxjs/operators";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {State} from "@src/app/store/state";
+import {CadData} from "@app/cad-viewer/cad-data/cad-data";
+import {State} from "@app/store/state";
 import {ErrorStateMatcher} from "@angular/material/core";
 import Color from "color";
-import {CadLine, CadArc} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {CadLine, CadArc} from "@app/cad-viewer/cad-data/cad-entity";
 import {throttle} from "lodash";
-import {globalVars} from "@src/app/app.common";
+import {getPointsFromMap, globalVars} from "@app/app.common";
 
 @Component({
 	selector: "app-cad-line",

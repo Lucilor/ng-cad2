@@ -2,7 +2,7 @@ import {async, ComponentFixture, TestBed} from "@angular/core/testing";
 
 import {LoadingComponent} from "./loading.component";
 import {provideMockStore} from "@ngrx/store/testing";
-import {initialState} from "@src/app/store/state";
+import {initialState} from "@app/store/state";
 
 describe("LoadingComponent", () => {
 	let component: LoadingComponent;

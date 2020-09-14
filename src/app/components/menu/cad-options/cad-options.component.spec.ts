@@ -5,7 +5,7 @@ import {provideMockStore} from "@ngrx/store/testing";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {MatDialogModule, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
-import {initialState} from "@src/app/store/state";
+import {initialState} from "@app/store/state";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
@@ -14,7 +14,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from "@angular/material/button";
 import {FormsModule} from "@angular/forms";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {RouterTestingModule} from "@angular/router/testing";
 
 describe("CadOptionsComponent", () => {

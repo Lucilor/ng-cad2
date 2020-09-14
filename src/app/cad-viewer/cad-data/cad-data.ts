@@ -1,4 +1,4 @@
-import {Point} from "@src/app/utils";
+import {Point} from "@app/utils";
 import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
 import {uniqWith, intersection, cloneDeep} from "lodash";
 import {v4} from "uuid";

@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild, OnDestroy, Injector, ElementRef} from "@angular/core";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {
 	timeout,
@@ -10,20 +10,20 @@ import {
 	addCadGongshi,
 	getCadPreview,
 	globalVars
-} from "@src/app/app.common";
+} from "@app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
-import {CurrCadsAction} from "@src/app/store/actions";
+import {CurrCadsAction} from "@app/store/actions";
 import {Point, RSAEncrypt} from "@app/utils";
-import {State} from "@src/app/store/state";
+import {State} from "@app/store/state";
 import {MenuComponent} from "../menu.component";
 import {openCadListDialog} from "../../cad-list/cad-list.component";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {getCadStatus, getCurrCads} from "@src/app/store/selectors";
+import {CadEntities} from "@app/cad-viewer/cad-data/cad-entities";
+import {getCadStatus, getCurrCads} from "@app/store/selectors";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {openMessageDialog} from "../../message/message.component";
 import {openJsonEditorDialog} from "../../json-editor/json-editor.component";
 import {DomSanitizer} from "@angular/platform-browser";
-import {CadHatch} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {CadHatch} from "@app/cad-viewer/cad-data/cad-entity";
 
 type SubCadsField = "cads" | "partners" | "components";
 

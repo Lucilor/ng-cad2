@@ -1,9 +1,9 @@
 import {Component, OnInit, OnDestroy, Injector, Output, EventEmitter} from "@angular/core";
 import {MenuComponent} from "../menu.component";
-import {CadConnection, CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadEntity} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {CadConnection, CadData} from "@app/cad-viewer/cad-data/cad-data";
+import {CadEntity} from "@app/cad-viewer/cad-data/cad-entity";
 import {openMessageDialog} from "../../message/message.component";
-import {getCadStatus, getCurrCads} from "@src/app/store/selectors";
+import {getCadStatus, getCurrCads} from "@app/store/selectors";
 
 @Component({
 	selector: "app-cad-assemble",

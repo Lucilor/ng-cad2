@@ -1,14 +1,14 @@
 import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@src/app/app.common";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadArc, CadDimension} from "@src/app/cad-viewer/cad-data/cad-entity";
-import {validateLines} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
-import {CadStatusAction, LoadingAction, ConfigAction} from "@src/app/store/actions";
-import {getCommand, getCurrCads, getCurrCadsData, getCadStatus, getConfig} from "@src/app/store/selectors";
-import {Angle, Line, Point} from "@src/app/utils";
+import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@app/app.common";
+import {CadData} from "@app/cad-viewer/cad-data/cad-data";
+import {CadArc, CadDimension} from "@app/cad-viewer/cad-data/cad-entity";
+import {validateLines} from "@app/cad-viewer/cad-data/cad-lines";
+import {CadViewer} from "@app/cad-viewer/cad-viewer";
+import {CadStatusAction, LoadingAction, ConfigAction} from "@app/store/actions";
+import {getCommand, getCurrCads, getCurrCadsData, getCadStatus, getConfig} from "@app/store/selectors";
+import {Angle, Line, Point} from "@app/utils";
 import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
 import {differenceWith} from "lodash";
 import {v4} from "uuid";
@@ -19,7 +19,7 @@ import {highlight} from "highlight.js";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {openJsonEditorDialog} from "../json-editor/json-editor.component";
-import {State} from "@src/app/store/state";
+import {State} from "@app/store/state";
 import {Command, Desc, ValuedCommand} from "./cad-command";
 
 const getList = (content: string[]) => {

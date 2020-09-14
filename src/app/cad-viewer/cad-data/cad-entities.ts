@@ -1,4 +1,4 @@
-import {Point, Rectangle} from "@src/app/utils";
+import {Point, Rectangle} from "@app/utils";
 import {MatrixAlias} from "@svgdotjs/svg.js";
 import {CadLine, CadCircle, CadArc, CadMtext, CadDimension, CadHatch, getCadEntity, CadEntity, CadDimensionEntity} from "./cad-entity";
 import {CadLayer} from "./cad-layer";
