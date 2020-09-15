@@ -173,6 +173,14 @@
 			<input matInput type="text" [(ngModel)]="cad.morenkailiaobancai" name="morenkailiaobancai" />
 			<mat-icon matSuffix color="primary" (click)="selectOptions('bancai')">list</mat-icon>
 		</mat-form-field>
+		<mat-form-field>
+			<mat-label>算料处理</mat-label>
+			<mat-select [(ngModel)]="cad.suanliaochuli" name="suanliaochuli">
+				<mat-option [value]="'算料+开料'">算料+开料</mat-option>
+				<mat-option [value]="'只算料'">只算料</mat-option>
+				<mat-option [value]="'不算料不开料'">不算料不开料</mat-option>
+			</mat-select>
+		</mat-form-field>
 	</form>
 </div>
 <app-cad-points></app-cad-points>
