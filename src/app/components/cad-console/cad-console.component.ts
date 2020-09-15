@@ -3,7 +3,7 @@ import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector} from "@an
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@app/app.common";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
-import {CadArc, CadDimension} from "@app/cad-viewer/cad-data/cad-entity";
+import {CadArc, CadDimension, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@app/cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadStatusAction, LoadingAction, ConfigAction} from "@app/store/actions";
@@ -770,8 +770,11 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			e.color = new Color(0);
 			if (e instanceof CadDimension) {
 				e.renderStyle = 2;
+			} else if (e instanceof CadMtext) {
+				// TODO: 字体偏移
+				e.insert.y += 5;
 			}
-		});
+		}, true);
 		const cad = new CadViewer(data, {
 			width: width * scaleX,
 			height: height * scaleY,

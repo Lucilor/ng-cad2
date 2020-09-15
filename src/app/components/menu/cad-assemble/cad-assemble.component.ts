@@ -160,7 +160,7 @@ export class CadAssembleComponent extends MenuComponent implements OnInit, OnDes
 			try {
 				data.directAssemble(v);
 			} catch (error) {
-				openMessageDialog(this.dialog, {data: {type: "alert", content: error}});
+				openMessageDialog(this.dialog, {data: {type: "alert", title: v.name, content: error}});
 			}
 		});
 		this.cad.render();

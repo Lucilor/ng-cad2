@@ -182,7 +182,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.cad.data.getAllEntities().forEach((e) => {
 			if (e.info.isLengthText) {
 				e.info.offset = [0, 0];
-				console.log(e);
 			}
 		}, true);
 		this.cad.render();
