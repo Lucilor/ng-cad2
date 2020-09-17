@@ -33,7 +33,7 @@ export class CadData {
 	bancaiwenlifangxiang: "垂直" | "水平";
 	kailiaopaibanfangshi: "自动排版" | "不排版" | "必须排版";
 	morenkailiaobancai: string;
-	suanliaochuli: "算料+开料" | "只算料" | "不算料不开料";
+	suanliaochuli: "算料+显示展开+开料" | "算料+开料" | "算料+显示展开" | "算料";
 	readonly visible: boolean;
 
 	constructor(data: any = {}) {
@@ -96,7 +96,7 @@ export class CadData {
 		this.bancaiwenlifangxiang = data.bancaiwenlifangxiang ?? "垂直";
 		this.kailiaopaibanfangshi = data.kailiaopaibanfangshi ?? "自动排版";
 		this.morenkailiaobancai = data.morenkailiaobancai ?? "";
-		this.suanliaochuli = data.suanliaochuli ?? "算料+开料";
+		this.suanliaochuli = data.suanliaochuli ?? "算料+显示展开+开料";
 		this.updateDimensions();
 	}
 
