@@ -618,7 +618,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		if (this.cad.config("validateLines")) {
 			validateLines(this.cad.data);
 		}
-		this.cad.unselectAll();
+		this.cad.unselectAll().render();
 	}
 
 	flip(horizontal: string, vertival: string) {
