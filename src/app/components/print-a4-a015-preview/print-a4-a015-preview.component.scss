@@ -17,15 +17,21 @@
 		// margin: 5px;
 
 		.title {
-			font-size: 18px;
-			text-align: center;
-			font-weight: 700;
+			font-size: 30px;
+			line-height: 30px;
 			width: 100%;
-			top: 9px;
+			top: 30px;
+			position: absolute;
+			text-align: left;
+			left: 8px;
 		}
 
-		.desc {
+		.desc-left {
+			bottom: 12px;
 			padding-left: 5px;
+			font-size: 15px;
+			line-height: 16px;
+			position: absolute;
 		}
 
 		.code {
@@ -36,11 +42,12 @@
 			font-weight: 700;
 		}
 
-		.name {
+		.desc-right {
 			position: absolute;
-			top: 70px;
+			top: 74px;
 			right: 11px;
 			font-size: 12px;
+			line-height: 13px;
 			width: 60px;
 		}
 
