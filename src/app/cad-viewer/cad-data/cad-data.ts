@@ -26,7 +26,6 @@ export class CadData {
 	shuliangbeishu: string;
 	huajian: string;
 	needZhankai: boolean;
-	mubanfangda: boolean;
 	kailiaomuban: string;
 	kailiaoshibaokeng: boolean;
 	bianxingfangshi: "自由" | "高比例变形" | "宽比例变形" | "宽高比例变形";
@@ -89,7 +88,6 @@ export class CadData {
 		this.shuliangbeishu = data.shuliangbeishu ?? "1";
 		this.huajian = data.huajian ?? "";
 		this.needZhankai = data.needZhankai ?? true;
-		this.mubanfangda = data.mubanfangda ?? true;
 		this.kailiaomuban = data.kailiaomuban ?? "";
 		this.kailiaoshibaokeng = data.kailiaoshibaokeng ?? false;
 		this.bianxingfangshi = data.bianxingfangshi ?? "自由";
@@ -131,7 +129,6 @@ export class CadData {
 			shuliangbeishu: this.shuliangbeishu,
 			huajian: this.huajian,
 			needZhankai: this.needZhankai,
-			mubanfangda: this.mubanfangda,
 			kailiaomuban: this.kailiaomuban,
 			kailiaoshibaokeng: this.kailiaoshibaokeng,
 			bianxingfangshi: this.bianxingfangshi,
