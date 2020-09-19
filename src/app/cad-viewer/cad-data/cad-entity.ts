@@ -543,12 +543,18 @@ export class CadMtext extends CadEntity {
 	font_size: number;
 	text: string;
 	anchor: Point;
+	isNew: boolean;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
 		this.type = "MTEXT";
 		this.insert = getVectorFromArray(data.insert);
-		this.font_size = data.font_size ?? 16;
+		this.isNew = data.isNew === true ? true : false;
+		if (this.isNew) {
+			this.font_size = data.font_size ?? 28;
+		} else {
+			this.font_size = 28;
+		}
 		this.text = data.text ?? "";
 		if (typeof data.anchor?.[1] === "number") {
 			data.anchor[1] = data.anchor[1];
@@ -563,7 +569,8 @@ export class CadMtext extends CadEntity {
 			insert: this.insert.toArray(),
 			font_size: this.font_size,
 			text: this.text,
-			anchor
+			anchor,
+			isNew: this.isNew
 		};
 	}
 

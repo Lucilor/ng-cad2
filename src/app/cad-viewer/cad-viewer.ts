@@ -337,7 +337,11 @@ export class CadViewer extends EventEmitter {
 				let offset: Point;
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
-					entity.font_size = lineLength;
+					if (entity.isNew) {
+						entity.font_size = lineLength;
+					} else {
+						entity.font_size = 28;
+					}
 					if (hideLineLength) {
 						el.remove();
 						entity.el = null;
@@ -346,7 +350,11 @@ export class CadViewer extends EventEmitter {
 				}
 				if (entity.info.isGongshiText) {
 					entity.text = parent.gongshi;
-					entity.font_size = lineGongshi;
+					if (entity.isNew) {
+						entity.font_size = lineGongshi;
+					} else {
+						entity.font_size = 28;
+					}
 					offset = getVectorFromArray(entity.info.offset);
 					if (hideLineGongshi) {
 						el.remove();
