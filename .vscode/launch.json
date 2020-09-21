@@ -5,20 +5,18 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Python: read.py",
-			"type": "python",
+			"type": "edge",
 			"request": "launch",
-			"program": "${workspaceFolder}/src/python/test/read.py",
-			"console": "integratedTerminal",
-			"cwd": "${workspaceFolder}/src/python"
+			"version": "dev",
+			"name": "Launch Edge against localhost",
+			"url": "http://localhost:4200",
+			"webRoot": "${workspaceFolder}"
 		},
 		{
-			"name": "Python: write.py",
-			"type": "python",
-			"request": "launch",
-			"program": "${workspaceFolder}/src/python/test/write.py",
-			"console": "integratedTerminal",
-			"cwd": "${workspaceFolder}/src/python"
+			"type": "edge",
+			"request": "attach",
+			"name": "Attach to Edge",
+			"port": 9222
 		}
 	]
 }
