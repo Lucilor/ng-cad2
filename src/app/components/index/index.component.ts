@@ -15,6 +15,7 @@ import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {getCadStatus, getConfig} from "@app/store/selectors";
 import {State} from "@app/store/state";
+import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
 
 @Component({
 	selector: "app-index",
@@ -62,6 +63,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(CadAssembleComponent) cadAssemble: CadAssembleComponent;
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
 	@ViewChild(CadConsoleComponent) console: CadConsoleComponent;
+	@ViewChild(MatTabGroup) infoTabs: MatTabGroup;
 
 	// ! (deprecated) shortcuts for testing
 	// tslint:disable: no-string-literal
@@ -158,8 +160,10 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		// });
 	}
 
-	ngAfterViewInit() {
+	async ngAfterViewInit() {
 		this.cad.appendTo(this.cadContainer.nativeElement);
+		const {infoTabIndex} = await this.getObservableOnce(getConfig);
+		this.infoTabs.selectedIndex = infoTabIndex;
 	}
 
 	ngOnDestroy() {
@@ -221,5 +225,9 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	applyConfig(config: State["config"]) {
 		config = JSON.parse(JSON.stringify(config));
 		this.cad.config(config);
+	}
+
+	onInfoTabChange({index}: MatTabChangeEvent) {
+		this.store.dispatch<ConfigAction>({type: "set config", config: {infoTabIndex: index}});
 	}
 }

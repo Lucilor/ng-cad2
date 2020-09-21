@@ -107,8 +107,9 @@ export function configReducer(config = initialState.config, action: ConfigAction
 			lineGongshi: 8,
 			hideLineLength: false,
 			hideLineGongshi: false,
+			minLinewidth: 2,
 			showCadGongshis: true,
-			minLinewidth: 2
+			infoTabIndex: 0
 		};
 		const cachedConfig = session.load("config");
 		if (cachedConfig) {

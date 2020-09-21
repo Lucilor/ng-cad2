@@ -37,7 +37,7 @@
 				<mat-expansion-panel-header>
 					<mat-panel-title>CAD信息</mat-panel-title>
 				</mat-expansion-panel-header>
-				<mat-tab-group dynamicHeight>
+				<mat-tab-group #infoTabs dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
 					<mat-tab label="CAD">
 						<app-cad-info [formulas]="formulas"></app-cad-info>
 					</mat-tab>

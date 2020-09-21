@@ -11,6 +11,7 @@ export interface CadStatus {
 
 export interface Config extends CadViewerConfig {
 	showCadGongshis: boolean;
+	infoTabIndex: number;
 }
 
 export interface State {
