@@ -16,7 +16,8 @@
 			"type": "edge",
 			"request": "attach",
 			"name": "Attach to Edge",
-			"port": 9222
+			"port": 9222,
+			"webRoot": "${workspaceFolder}"
 		}
 	]
 }
