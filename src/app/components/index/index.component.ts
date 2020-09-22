@@ -141,7 +141,9 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
-		window.addEventListener("resize", () => this.cad.resize(innerWidth, innerHeight));
+		window.addEventListener("resize", () => {
+			this.store.dispatch<ConfigAction>({type: "set config", config: {width: innerWidth, height: innerHeight}});
+		});
 		window.addEventListener("contextmenu", (event) => event.preventDefault());
 
 		// this.cad.beforeRender = throttle(() => {
