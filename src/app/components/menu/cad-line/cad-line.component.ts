@@ -15,6 +15,8 @@ import Color from "color";
 import {CadLine, CadArc, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {throttle} from "lodash";
 import {getPointsFromMap, globalVars} from "@app/app.common";
+import {openCadLineTiaojianquzhiDialog} from "../cad-line-tiaojianquzhi/cad-line-tiaojianquzhi.component";
+import {openMessageDialog} from "../../message/message.component";
 
 @Component({
 	selector: "app-cad-line",
@@ -332,5 +334,20 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			validateLines(cad.data);
 		}
 		cad.render();
+	}
+
+	async editTiaojianquzhi() {
+		const lines = this.selected.filter((v) => v instanceof CadLine) as CadLine[];
+		if (lines.length < 0) {
+			openMessageDialog(this.dialog, {data: {type: "alert", content: "请先选中一条直线"}});
+		} else if (lines.length > 1) {
+			openMessageDialog(this.dialog, {data: {type: "alert", content: "无法同时编辑多根线的条件取值"}});
+		} else {
+			const ref = openCadLineTiaojianquzhiDialog(this.dialog, {data: lines[0].tiaojianquzhi});
+			const result = await ref.afterClosed().toPromise();
+			if (result) {
+				lines[0].tiaojianquzhi = result;
+			}
+		}
 	}
 }

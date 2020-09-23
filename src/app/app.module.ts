@@ -7,7 +7,7 @@ import {reducers, metaReducers} from "./store/reducers";
 import {HttpClientModule} from "@angular/common/http";
 
 import {MatMenuModule} from "@angular/material/menu";
-import {MatDialogModule} from "@angular/material/dialog";
+import {MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS} from "@angular/material/dialog";
 import {MatButtonModule} from "@angular/material/button";
 import {MatInputModule} from "@angular/material/input";
 import {MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS} from "@angular/material/snack-bar";
@@ -23,10 +23,12 @@ import {MatTabsModule} from "@angular/material/tabs";
 import {MatSelectModule} from "@angular/material/select";
 import {MatCardModule} from "@angular/material/card";
 import {MatListModule} from "@angular/material/list";
+import {MatSortModule} from "@angular/material/sort";
 
 import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
 import {NgJsonEditorModule} from "ang-jsoneditor";
+import {SatPopoverModule} from "@ncstate/sat-popover";
 
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
@@ -53,6 +55,8 @@ import {JsonEditorComponent} from "./components/json-editor/json-editor.componen
 import {CadSearchFormComponent} from "./components/cad-search-form/cad-search-form.component";
 import {PrintA4A015PreviewComponent} from "./components/print-a4-a015-preview/print-a4-a015-preview.component";
 import {CadConsoleComponent} from "./components/cad-console/cad-console.component";
+import {CadLineTiaojianquzhiComponent} from "./components/menu/cad-line-tiaojianquzhi/cad-line-tiaojianquzhi.component";
+import {TableComponent} from "./components/table/table.component";
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -98,7 +102,9 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		JsonEditorComponent,
 		CadSearchFormComponent,
 		PrintA4A015PreviewComponent,
-		CadConsoleComponent
+		CadConsoleComponent,
+		CadLineTiaojianquzhiComponent,
+		TableComponent
 	],
 	imports: [
 		BrowserModule,
@@ -131,11 +137,14 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		MatSelectModule,
 		MatCardModule,
 		MatListModule,
+		MatSortModule,
 		PerfectScrollbarModule,
 		ColorPickerModule,
-		NgJsonEditorModule
+		NgJsonEditorModule,
+		SatPopoverModule
 	],
 	providers: [
+		{provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {maxWidth: "unset"}},
 		{provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 3000, verticalPosition: "top"}},
 		{provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
 		{provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG}

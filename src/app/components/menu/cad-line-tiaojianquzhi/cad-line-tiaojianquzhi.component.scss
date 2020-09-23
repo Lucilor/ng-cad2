@@ -1,0 +1,28 @@
+:host {
+	width: calc(100vw - 48px);
+	height: calc(100vh - 48px);
+	display: flex;
+	flex-direction: column;
+}
+
+.title {
+	text-align: center;
+	font-size: 1.2rem;
+	line-height: 1.5rem;
+}
+
+.content {
+	display: flex;
+	flex-grow: 1;
+	justify-content: space-between;
+	align-items: center;
+
+	app-table {
+		width: 50%;
+		height: 100%;
+	}
+
+	.mat-icon {
+		cursor: default;
+	}
+}

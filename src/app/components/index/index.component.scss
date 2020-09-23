@@ -80,3 +80,7 @@ perfect-scrollbar {
 	width: 100%;
 	text-align: center;
 }
+
+::ng-deep .mat-form-field-suffix {
+	top: 8px;
+}

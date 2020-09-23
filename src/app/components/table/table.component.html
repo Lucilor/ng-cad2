@@ -1,0 +1,84 @@
+<div class="table-container">
+	<div class="table-title" *ngIf="title">{{ title }}</div>
+	<div class="btn-group table-toolbar">
+		<button mat-raised-button color="primary" (click)="addItem()" [disabled]="newItem === undefined">添加</button>
+		<button mat-raised-button color="primary" (click)="removeItem()" [disabled]="selection.selected.length < 1">删除</button>
+		<button mat-raised-button color="primary" (click)="export()">导出</button>
+		<button mat-raised-button color="primary" (click)="import()">导入</button>
+	</div>
+	<perfect-scrollbar class="table-body">
+		<mat-table [dataSource]="data" matSort>
+			<ng-container matColumnDef="select">
+				<th mat-header-cell *matHeaderCellDef [style.width]="columns[0].width">
+					<mat-checkbox
+						(change)="$event ? masterToggle() : null"
+						[checked]="selection.hasValue() && isAllSelected()"
+						[indeterminate]="selection.hasValue() && !isAllSelected()"
+					>
+					</mat-checkbox>
+				</th>
+				<td mat-cell *matCellDef="let row" [style.width]="columns[0].width">
+					<mat-checkbox
+						(click)="$event.stopPropagation()"
+						(change)="$event ? selection.toggle(row) : null"
+						[checked]="selection.isSelected(row)"
+					>
+					</mat-checkbox>
+				</td>
+			</ng-container>
+
+			<ng-container [matColumnDef]="column.field" *ngFor="let column of columns.slice(1); let colIdx = index">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header [style.width]="columns[colIdx + 1].width">{{ column.name }}</th>
+				<td mat-cell *matCellDef="let item" [satPopoverAnchor]="editor" [style.width]="columns[colIdx + 1].width">
+					<input
+						*ngIf="getColumnType(column) === 'string'"
+						type="text"
+						matInput
+						[value]="item[column.field]"
+						(input)="setCellValue($event, colIdx, item)"
+					/>
+					<input
+						matInput
+						type="number"
+						*ngIf="getColumnType(column) === 'number'"
+						[value]="item[column.field]"
+						(input)="setCellValue($event, colIdx, item)"
+					/>
+					<mat-slide-toggle
+						*ngIf="getColumnType(column) === 'boolean'"
+						[checked]="item[column.field] === true"
+						(change)="setCellValue($event, colIdx, item)"
+					></mat-slide-toggle>
+					<mat-select
+						*ngIf="getColumnType(column) === 'array'"
+						[value]="item[column.field]"
+						(selectionChange)="setCellValue($event, colIdx, item)"
+					>
+						<mat-option *ngFor="let item of column.type" [value]="item">
+							{{ item }}
+						</mat-option>
+					</mat-select>
+					<div class="row-btn-group" *ngIf="getColumnType(column) === 'button'">
+						<button
+							mat-stroked-button
+							color="primary"
+							*ngFor="let btn of column.buttons"
+							(click)="onRowButtonClick(btn.event, column.field, item)"
+						>
+							{{ btn.name }}
+						</button>
+					</div>
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="columnFields; sticky: true"></tr>
+			<tr mat-row *matRowDef="let row; columns: columnFields"></tr>
+		</mat-table>
+	</perfect-scrollbar>
+</div>
+
+<input #input type="file" hidden accept=".json">
+
+<sat-popover #editor hasBackdrop forceAlignment xAlign="center" yAlign="center" (afterClose)="onEdit()">
+	<form class="popup-form" (ngSubmit)="editor.close()"></form>
+</sat-popover>

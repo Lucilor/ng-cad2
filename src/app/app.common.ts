@@ -165,3 +165,15 @@ export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoin
 		return {x, y, active: false};
 	});
 }
+
+export function downloadFile(content: string, filename: string) {
+	const link = document.createElement("a");
+	link.download = filename;
+	link.style.display = "none";
+	const blob = new Blob([content]);
+	link.href = URL.createObjectURL(blob);
+	document.body.appendChild(link);
+	link.click();
+	URL.revokeObjectURL(link.href);
+	document.body.removeChild(link);
+}
