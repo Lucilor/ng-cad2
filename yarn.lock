@@ -2082,10 +2082,10 @@ amdefine@>=0.0.4:
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
 
-ang-jsoneditor@^1.10.1:
-  version "1.10.1"
-  resolved "https://registry.yarnpkg.com/ang-jsoneditor/-/ang-jsoneditor-1.10.1.tgz#ba02594f398b0bf22a176ba2b9a9ff1e7c0911a8"
-  integrity sha512-fItgSldK9LiJnMDCb/uo22MzWa1mEsqdIUdD2UEQlYrUZNDk1KF8fkIvbK4gFq1uBxrVsnFOf7KmB0Y3gCWezg==
+ang-jsoneditor@^1.10.2:
+  version "1.10.2"
+  resolved "https://registry.yarnpkg.com/ang-jsoneditor/-/ang-jsoneditor-1.10.2.tgz#a5c98fe10e89fe2e6497d78503c8e6994952a099"
+  integrity sha512-acETID3CGLawSk8/x/AkaniLJYgdwW5pJcjTBjmZYT1++GGtyEr6JTQdLxqKxHRChhLhcC5+I56ctrCBXzLdug==
 
 ansi-colors@4.1.1:
   version "4.1.1"
