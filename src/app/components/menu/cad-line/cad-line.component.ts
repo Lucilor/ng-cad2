@@ -102,7 +102,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		});
 		if (selected.length < 1) {
-			this.editDiabled = false;
+			this.editDiabled = true;
 		} else {
 			const cads = this.cad.data.components.data;
 			const ids: string[] = [];
@@ -338,7 +338,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 
 	async editTiaojianquzhi() {
 		const lines = this.selected.filter((v) => v instanceof CadLine) as CadLine[];
-		if (lines.length < 0) {
+		if (lines.length < 1) {
 			openMessageDialog(this.dialog, {data: {type: "alert", content: "请先选中一条直线"}});
 		} else if (lines.length > 1) {
 			openMessageDialog(this.dialog, {data: {type: "alert", content: "无法同时编辑多根线的条件取值"}});
@@ -347,6 +347,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			const result = await ref.afterClosed().toPromise();
 			if (result) {
 				lines[0].tiaojianquzhi = result;
+				this.store.dispatch<CommandAction>({type: "execute", command: {name: "save", args: []}});
 			}
 		}
 	}
