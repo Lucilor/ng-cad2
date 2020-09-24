@@ -18,11 +18,11 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	openLock = false;
 	keyMap: {[key: string]: () => void} = {
 		s: () => this.save(),
-		1: () => this.open("p_yuanshicadwenjian"),
-		2: () => this.open("cad"),
-		3: () => this.open("CADmuban"),
-		4: () => this.open("qiliaozuhe"),
-		5: () => this.open("qieliaocad"),
+		1: () => this.open("1"),
+		2: () => this.open("2"),
+		3: () => this.open("3"),
+		4: () => this.open("4"),
+		5: () => this.open("5"),
 		g: () => this.assembleCads(),
 		h: () => this.splitCad(),
 		p: () => this.printCad()
@@ -56,7 +56,7 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.keyMap[key]?.();
 	}
 
-	open(collection: Collection) {
+	open(collection: string) {
 		this.store.dispatch<CommandAction>({type: "execute", command: {name: "open", args: [{name: "collection", value: collection}]}});
 	}
 

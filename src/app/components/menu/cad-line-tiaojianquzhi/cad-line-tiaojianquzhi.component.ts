@@ -18,18 +18,18 @@ type RawDataRight = RawDataLeft["data"][0];
 export class CadLineTiaojianquzhiComponent {
 	dataLeft: MatTableDataSource<RawDataLeft>;
 	columnsLeft: ColumnInfo[] = [
-		{field: "key", name: "名字", type: "string"},
-		{field: "level", name: "优先级", type: "number"},
-		{field: "type", name: "类型", type: ["选项", "数值"]},
+		{field: "key", name: "名字", type: "string", editable: true},
+		{field: "level", name: "优先级", type: "number", editable: true},
+		{field: "type", name: "类型", type: "select", options: ["选项", "数值"], editable: true},
 		{field: "data", name: "数据", type: "button", buttons: [{name: "编辑", event: "edit"}]}
 	];
 	newItemLeft: RawDataLeft = {key: "", level: 1, type: "数值", data: []};
 
 	dataRight: MatTableDataSource<RawDataRight>;
 	columnsRight: ColumnInfo[] = [
-		{field: "name", name: "选项/范围", type: "string"},
-		{field: "value", name: "取值", type: "number"},
-		{field: "input", name: "可以输入修改", type: "boolean"}
+		{field: "name", name: "选项/范围", type: "string", editable: true},
+		{field: "value", name: "取值", type: "number", editable: true},
+		{field: "input", name: "可以输入修改", type: "boolean", editable: true}
 	];
 	newItemRight: RawDataRight;
 

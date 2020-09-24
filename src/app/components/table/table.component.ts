@@ -4,19 +4,35 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatSort} from "@angular/material/sort";
-import {MatTableDataSource} from "@angular/material/table";
+import {MatTable, MatTableDataSource} from "@angular/material/table";
 import {SatPopover} from "@ncstate/sat-popover";
 import {downloadFile} from "@src/app/app.common";
 import {cloneDeep, throttle} from "lodash";
 import {openMessageDialog} from "../message/message.component";
 
-export interface ColumnInfo {
+export interface ColumnInfoBase {
 	field: string;
 	name: string;
-	type: "string" | "number" | "boolean" | string[] | "button" | "none";
-	buttons?: {name: string; event: string}[];
 	width?: string;
+	editable?: boolean;
 }
+
+export interface ColumnInfoNormal extends ColumnInfoBase {
+	type: "string" | "number" | "boolean" | "checkbox";
+}
+
+export interface ColumnInfoSelect extends ColumnInfoBase {
+	type: "select";
+	options: string[];
+}
+
+export interface ColumnInfoButton extends ColumnInfoBase {
+	type: "button";
+	buttons: {name: string; event: string}[];
+}
+
+export type ColumnInfo = ColumnInfoNormal | ColumnInfoSelect | ColumnInfoButton;
+
 export interface RowButtonEvent<T> {
 	name: string;
 	field: string;
@@ -33,33 +49,22 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	@Input() columns: ColumnInfo[];
 	@Input() newItem: T;
 	@Input() title: string;
-	@Input() selectBoxSize = 40;
+	@Input() checkBoxSize = 40;
+	@Input() editable: string | boolean;
 	@Output() rowButtonClick = new EventEmitter<RowButtonEvent<T>>();
 	selection = new SelectionModel<T>(true, []);
 	columnFields: string[];
+	@ViewChild(MatTable) table: MatTable<T>;
 	@ViewChild(MatSort) sort: MatSort;
 	@ViewChild(SatPopover) editor: SatPopover;
 	@ViewChild("input", {read: ElementRef}) input: ElementRef<HTMLInputElement>;
 
 	editing: {colIdx: number; rowIdx: number; value: string};
-	getColumnType(column: ColumnInfo) {
-		const {type, buttons} = column;
-		if (Array.isArray(type)) {
-			return "array";
-		} else if (type === "none") {
-			return "string";
-		} else if (Array.isArray(buttons) && type === "button") {
-			return "button";
-		} else {
-			return type ?? "string";
-		}
-	}
 
 	constructor(private dialog: MatDialog) {}
 
 	ngOnInit() {
-		this.columns = [{field: "select", name: "", type: "none", width: `${this.selectBoxSize}px`}, ...this.columns];
-		this.columnFields = this.columns.map((v) => v.field);
+		this.columnFields = ["select", ...this.columns.map((v) => v.field)];
 		this.editing = {colIdx: -1, rowIdx: -1, value: ""};
 	}
 
@@ -101,12 +106,10 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	}
 
 	setEditing(colIdx: number, rowIdx: number) {
-		const {field, type} = this.columns[colIdx + 1];
+		const {field, type} = this.columns[colIdx];
 		let value = this.data.data[rowIdx][field];
 		if (type === "boolean") {
 			value = value === true ? "true" : "false";
-		} else if (type === "none") {
-			value = "";
 		} else if (type === "number") {
 			value = value.toString();
 		}
@@ -117,11 +120,9 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 
 	onEdit() {
 		const {colIdx, rowIdx, value} = this.editing;
-		const {field, type} = this.columns[colIdx + 1];
+		const {field, type} = this.columns[colIdx];
 		if (type === "boolean") {
 			this.data.data[rowIdx][field] = value === "true";
-		} else if (type === "none") {
-			this.data.data[rowIdx][field] = null;
 		} else if (type === "number") {
 			this.data.data[rowIdx][field] = Number(value);
 		} else {
@@ -132,7 +133,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 
 	// tslint:disable-next-line: member-ordering
 	setCellValue = throttle((event: InputEvent | MatSelectChange | MatSlideToggleChange, colIdx: number, item: T) => {
-		const {field, type} = this.columns[colIdx + 1];
+		const {field, type} = this.columns[colIdx];
 		if (event instanceof MatSelectChange) {
 			item[field] = event.value;
 		} else if (event instanceof MatSlideToggleChange) {
@@ -173,5 +174,21 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 		} finally {
 			this.input.nativeElement.value = "";
 		}
+	}
+
+	isColumnEditable(column: ColumnInfo) {
+		const {type, editable} = column;
+		if (type === "button") {
+			return true;
+		}
+		return (typeof this.editable === "string" || this.editable) && editable;
+	}
+
+	getColumnOptions(column: ColumnInfoSelect) {
+		return column.options;
+	}
+
+	getColumnButtons(column: ColumnInfoButton) {
+		return column.buttons;
 	}
 }

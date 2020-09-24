@@ -9,8 +9,9 @@
 		[data]="dataLeft"
 		[columns]="columnsLeft"
 		[newItem]="newItemLeft"
+		editable
 		(rowButtonClick)="onRowButtonClick($event)"
 	></app-table>
 	<mat-icon style="margin: 10px">forward</mat-icon>
-	<app-table title="条件取值数据" [data]="dataRight" [columns]="columnsRight" [newItem]="newItemRight"></app-table>
+	<app-table title="条件取值数据" [data]="dataRight" [columns]="columnsRight" [newItem]="newItemRight" editable></app-table>
 </div>
