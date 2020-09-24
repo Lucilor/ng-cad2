@@ -66,6 +66,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	ngOnInit() {
 		this.columnFields = ["select", ...this.columns.map((v) => v.field)];
 		this.editing = {colIdx: -1, rowIdx: -1, value: ""};
+		console.log(this);
 	}
 
 	ngAfterViewInit() {
@@ -100,7 +101,14 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 			this.data.data.splice(index, 1);
 			this.data._updateChangeSubscription();
 		} else {
-			dataSource.data = dataSource.data.filter((v) => !selection.isSelected(v));
+			const toRemove: number[] = [];
+			dataSource.data.forEach((v, i) => {
+				if (selection.isSelected(v)) {
+					toRemove.unshift(i);
+				}
+			});
+			toRemove.forEach((v) => dataSource.data.splice(v, 1));
+			this.data._updateChangeSubscription();
 			selection.clear();
 		}
 	}
