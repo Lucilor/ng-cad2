@@ -824,19 +824,21 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 			}
 		} else {
-			const validateResult = [];
-			data.forEach((v) => {
-				removeCadGongshi(v);
-				if (this.collection === "cad") {
-					validateResult.push(validateLines(v));
-				}
-			});
-			cad.render();
-			if (validateResult.some((v) => !v.valid)) {
-				const ref = openMessageDialog(this.dialog, {data: {type: "confirm", content: "当前打开的CAD存在错误，是否继续保存？"}});
-				const yes = await ref.afterClosed().toPromise();
-				if (!yes) {
-					return;
+			if (cad.config("validateLines")) {
+				const validateResult = [];
+				data.forEach((v) => {
+					removeCadGongshi(v);
+					if (this.collection === "cad") {
+						validateResult.push(validateLines(v));
+					}
+				});
+				cad.render();
+				if (validateResult.some((v) => !v.valid)) {
+					const ref = openMessageDialog(this.dialog, {data: {type: "confirm", content: "当前打开的CAD存在错误，是否继续保存？"}});
+					const yes = await ref.afterClosed().toPromise();
+					if (!yes) {
+						return;
+					}
 				}
 			}
 			const postData: any = {};

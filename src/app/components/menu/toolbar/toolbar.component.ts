@@ -1,13 +1,8 @@
-import {Component, OnInit, Output, EventEmitter, Injector, OnDestroy} from "@angular/core";
-import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@app/cad-viewer/cad-data/cad-data";
+import {Component, OnInit, Injector, OnDestroy} from "@angular/core";
 import {CommandAction, ConfigAction} from "@app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
-import {Collection} from "@app/app.common";
-import Color from "color";
 import {getConfig} from "@app/store/selectors";
-import {generateLineTexts} from "@app/cad-viewer/cad-data/cad-lines";
-import {CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 
 @Component({
 	selector: "app-toolbar",
