@@ -568,10 +568,7 @@ export class CadMtext extends CadEntity {
 			this.font_size = 28;
 		}
 		this.text = data.text ?? "";
-		if (typeof data.anchor?.[1] === "number") {
-			data.anchor[1] = data.anchor[1];
-		}
-		this.anchor = getVectorFromArray(data.anchor, new Point(0, 1));
+		this.anchor = getVectorFromArray(data.anchor);
 	}
 
 	export() {

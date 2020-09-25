@@ -4,6 +4,7 @@ import {CadViewer} from "../cad-viewer";
 import {getVectorFromArray, isBetween} from "./utils";
 import {DEFAULT_TOLERANCE, Point} from "@app/utils";
 import {CadLine, CadArc, CadMtext} from "./cad-entity";
+import {log} from "console";
 
 export type CadLineLike = CadLine | CadArc;
 
@@ -146,14 +147,14 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 		}
 		const startPoint = startLine.end;
 		const adjLines = findAllAdjacentLines(map, startLine, startPoint).entities.filter((e) => e.length);
-		for (let i = 1; i < adjLines.length; i++) {
-			const prev = adjLines[i - 1];
-			const curr = adjLines[i];
+		const lines = [startLine, ...adjLines];
+		for (let i = 1; i < lines.length; i++) {
+			const prev = lines[i - 1];
+			const curr = lines[i];
 			if (prev.end.distanceTo(curr.start) > tolerance) {
 				swapStartEnd(curr);
 			}
 		}
-		const lines = [startLine, ...adjLines];
 		exclude.push(...lines.map((e) => e.id));
 		result.push(lines);
 	}
@@ -212,6 +213,7 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				cp = 1;
 			}
 		}
+		console.log(1);
 		group.forEach((line) => {
 			let theta: number;
 			if (line instanceof CadLine) {
