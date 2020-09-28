@@ -1723,10 +1723,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/pdfmake@^0.1.14":
-  version "0.1.14"
-  resolved "https://registry.yarnpkg.com/@types/pdfmake/-/pdfmake-0.1.14.tgz#7aced5b2f89848c946e81a52ad3352a91f8198a7"
-  integrity sha512-PlBAUHVaPGwuNyeCvptsdsLKAYlm+5vFi/eL34PmfrNyykz7DMIU/lcx9wijMm5WJ2YkH9A1qFymM7xgC+O+7Q==
+"@types/pdfmake@^0.1.15":
+  version "0.1.15"
+  resolved "https://registry.yarnpkg.com/@types/pdfmake/-/pdfmake-0.1.15.tgz#383a8fca407612a580b82d1ca496d39001aee102"
+  integrity sha512-uyKefZzC1OUTKoUdY0fU9n7BjciSSYPHq2KLQmGNejeZn6Xo6hI04xhAGk368Rv9wHjKo36IGLIVIysvhrGVJQ==
   dependencies:
     "@types/node" "*"
     "@types/pdfkit" "*"
@@ -2087,7 +2087,7 @@ ang-jsoneditor@^1.10.2:
   resolved "https://registry.yarnpkg.com/ang-jsoneditor/-/ang-jsoneditor-1.10.2.tgz#a5c98fe10e89fe2e6497d78503c8e6994952a099"
   integrity sha512-acETID3CGLawSk8/x/AkaniLJYgdwW5pJcjTBjmZYT1++GGtyEr6JTQdLxqKxHRChhLhcC5+I56ctrCBXzLdug==
 
-ansi-colors@4.1.1:
+ansi-colors@4.1.1, ansi-colors@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/ansi-colors/-/ansi-colors-4.1.1.tgz#cbb9ae256bf750af1eab344f229aa27fe94ba348"
   integrity sha512-JoX0apGbHaUJBNl6yF+p6JAFYZ666/hhCGKN5t9QFjbJQKUU/g8MNbFDbvfrgKXvI1QpZplPOnwIo99lX/AAmA==
@@ -5989,10 +5989,10 @@ karma-source-map-support@1.4.0:
   dependencies:
     source-map-support "^0.5.5"
 
-karma@~5.2.2:
-  version "5.2.2"
-  resolved "https://registry.yarnpkg.com/karma/-/karma-5.2.2.tgz#2e51d877635a8c3e4d07e83f1271ec2b1ab75cc0"
-  integrity sha512-rB3Ua5yDxmIupTj67r3Q8itz7TxJzRE6DmVcOfV20D509Uu9AoBKlVwbZhND4kcm6BqLfbHtv4DZC9QJfrUY+w==
+karma@~5.2.3:
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/karma/-/karma-5.2.3.tgz#3264024219bad2728e92542e0058a2492d7a46e4"
+  integrity sha512-tHdyFADhVVPBorIKCX8A37iLHxc6RBRphkSoQ+MLKdAtFn1k97tD8WUGi1KlEtDZKL3hui0qhsY9HXUfSNDYPQ==
   dependencies:
     body-parser "^1.19.0"
     braces "^3.0.2"
@@ -6015,7 +6015,7 @@ karma@~5.2.2:
     socket.io "^2.3.0"
     source-map "^0.6.1"
     tmp "0.2.1"
-    ua-parser-js "0.7.21"
+    ua-parser-js "0.7.22"
     yargs "^15.3.1"
 
 killable@^1.0.1:
@@ -6662,18 +6662,18 @@ next-tick@~1.0.0:
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.0.0.tgz#ca86d1fe8828169b0120208e3dc8424b9db8342c"
   integrity sha1-yobR/ogoFpsBICCOPchCS524NCw=
 
-ng-packagr@^10.1.0:
-  version "10.1.0"
-  resolved "https://registry.yarnpkg.com/ng-packagr/-/ng-packagr-10.1.0.tgz#a2fc0f86f5f8895f811597d33d943f93c7c77c17"
-  integrity sha512-KXyajkAyY/51iMJPVezDybb5Bn1rtl/JDGC4w9jjIdeL2Ip+KTMDGsqpc+5nQm/vnasZcJ/Xj2a+0VOwrbyVWg==
+ng-packagr@^10.1.2:
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/ng-packagr/-/ng-packagr-10.1.2.tgz#7c869ec5bea92ff3ab65392913ad4e8af749799a"
+  integrity sha512-pm61gu6jPkohL8tFWk+2DwUtb3rs5GpND1ZjKUYv5WUJPUQmBfG5WvEO/CDVQpSDWhNWWLTt17NIQ+RS3hNUHg==
   dependencies:
     "@rollup/plugin-commonjs" "^15.0.0"
     "@rollup/plugin-json" "^4.0.0"
     "@rollup/plugin-node-resolve" "^9.0.0"
     ajv "^6.12.3"
+    ansi-colors "^4.1.1"
     autoprefixer "^9.6.5"
     browserslist "^4.7.0"
-    chalk "^4.0.0"
     chokidar "^3.2.1"
     commander "^6.0.0"
     cssnano-preset-default "^4.0.7"
@@ -9661,10 +9661,10 @@ typescript@~4.0.3:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.0.3.tgz#153bbd468ef07725c1df9c77e8b453f8d36abba5"
   integrity sha512-tEu6DGxGgRJPb/mVPIZ48e69xCn2yRmCgYmDugAVwmJ6o+0u1RI18eO7E7WBTLYLaEVVOhwQmcdhQHweux/WPg==
 
-ua-parser-js@0.7.21:
-  version "0.7.21"
-  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.21.tgz#853cf9ce93f642f67174273cc34565ae6f308777"
-  integrity sha512-+O8/qh/Qj8CgC6eYBVBykMrNtp5Gebn4dlGD/kKXVkJNDwyrAwSIqwz8CDf+tsAIWVycKcku6gIXJ0qwx/ZXaQ==
+ua-parser-js@0.7.22:
+  version "0.7.22"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.22.tgz#960df60a5f911ea8f1c818f3747b99c6e177eae3"
+  integrity sha512-YUxzMjJ5T71w6a8WWVcMGM6YWOTX27rCoIQgLXiWaxqXSx9D7DNjiGWn1aJIRSQ5qr0xuhra77bSIh6voR/46Q==
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"
