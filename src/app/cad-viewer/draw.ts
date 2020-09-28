@@ -63,6 +63,7 @@ export function drawText(draw: Container, text: string, size: number, position: 
 	} else {
 		el = draw.text(text).addClass("fill").stroke("none");
 		el.css("transform-box", "fill-box");
+		el.css("white-space", "pre");
 		el.font({size}).leading(1);
 	}
 	if (vertical) {
