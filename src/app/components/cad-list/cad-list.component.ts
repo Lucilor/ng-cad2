@@ -44,7 +44,9 @@ export class CadListComponent implements AfterViewInit {
 		private dataService: CadDataService,
 		private dialog: MatDialog,
 		private sanitizer: DomSanitizer
-	) {}
+	) {
+		this.dataService.loaderId = "cadList";
+	}
 
 	async ngAfterViewInit() {
 		await this.paginator.initialized.toPromise();

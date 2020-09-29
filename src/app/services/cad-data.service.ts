@@ -1,17 +1,15 @@
 import {Injectable} from "@angular/core";
-import {Store} from "@ngrx/store";
-import {State} from "../store/state";
 import {HttpClient} from "@angular/common/http";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {openMessageDialog} from "../components/message/message.component";
-import {LoadingAction} from "../store/actions";
-import {Response, session, Collection} from "../app.common";
+import {Response, Collection} from "../app.common";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
 import {CadViewer} from "../cad-viewer/cad-viewer";
 import {RSAEncrypt} from "@app/utils";
 import {Expressions} from "../cad-viewer/cad-data/utils";
 import {ActivatedRoute, Params} from "@angular/router";
+import {NgxUiLoaderService} from "ngx-ui-loader";
 
 export interface Order {
 	vid: string;
@@ -35,13 +33,14 @@ export class CadDataService {
 	baseURL: string;
 	silent = false;
 	queryParams: Params;
+	loaderId = "app";
 
 	constructor(
-		private store: Store<State>,
 		private http: HttpClient,
 		private dialog: MatDialog,
 		private snackBar: MatSnackBar,
-		private route: ActivatedRoute
+		private route: ActivatedRoute,
+		private loader: NgxUiLoaderService
 	) {
 		this.baseURL = localStorage.getItem("baseURL");
 		if (!this.baseURL && location.origin === "http://localhost:4200") {
@@ -56,14 +55,16 @@ export class CadDataService {
 		}
 	}
 
-	async request(url: string, name: string, method: "GET" | "POST", postData?: any, encrypt = true) {
-		const {baseURL, queryParams} = this;
+	async request(url: string, method: "GET" | "POST", postData?: any, encrypt = true) {
+		const {baseURL, queryParams, loader, loaderId} = this;
 		if (!baseURL) {
 			return null;
 		}
+		const name = url;
 		const data = encodeURIComponent(queryParams.data ?? "");
 		const encode = encodeURIComponent(queryParams.encode ?? "");
-		this.store.dispatch<LoadingAction>({type: "add loading", name});
+		console.log(loaderId);
+		loader.startLoader(loaderId, name);
 		url = `${baseURL}/${url}/${encode}`;
 		try {
 			let response: Response;
@@ -115,12 +116,12 @@ export class CadDataService {
 			this.alert(error);
 			return null;
 		} finally {
-			this.store.dispatch<LoadingAction>({type: "remove loading", name});
+			loader.stopLoader(loaderId, name);
 		}
 	}
 
 	async getCadData(postData?: string | {id?: string; ids?: string[]; collection?: Collection}) {
-		const response = await this.request("peijian/cad/getCad", "getCadData", "POST", postData);
+		const response = await this.request("peijian/cad/getCad", "POST", postData);
 		if (!response) {
 			return [];
 		}
@@ -133,7 +134,7 @@ export class CadDataService {
 	}
 
 	async postCadData(cadData: CadData[], postData?: any) {
-		const {baseURL, queryParams} = this;
+		const {baseURL, queryParams, loader, loaderId} = this;
 		if (cadData.length < 1) {
 			return [];
 		}
@@ -141,11 +142,8 @@ export class CadDataService {
 		const result: CadData[] = [];
 		let counter = 0;
 		let successCounter = 0;
-		this.store.dispatch<LoadingAction>({
-			type: "set loading progress",
-			name: "postCadData",
-			progress: 0
-		});
+		const name = "postCadData";
+		loader.startLoader(loaderId, name);
 		const data = encodeURIComponent(queryParams.data ?? "");
 		const encode = encodeURIComponent(queryParams.encode ?? "");
 		return new Promise<CadData[]>(async (resolve) => {
@@ -171,18 +169,9 @@ export class CadDataService {
 				} finally {
 					counter++;
 				}
-				this.store.dispatch<LoadingAction>({
-					type: "set loading progress",
-					name: "postCadData",
-					progress: counter / cadData.length
-				});
 				if (counter >= cadData.length) {
 					setTimeout(() => {
-						this.store.dispatch<LoadingAction>({
-							type: "set loading progress",
-							name: "postCadData",
-							progress: -1
-						});
+						loader.stopLoader(loaderId, name);
 					}, 200);
 					if (successCounter === counter) {
 						this.snackBar.open(`${successCounter > 1 ? "全部" : ""}成功`);
@@ -207,7 +196,7 @@ export class CadDataService {
 		qiliao = false
 	) {
 		const postData = {page, limit, search, options, collection, optionsMatchType, qiliao};
-		const response = await this.request("peijian/cad/getCad", "getCadDataPage", "POST", postData);
+		const response = await this.request("peijian/cad/getCad", "POST", postData);
 		if (!response) {
 			return {data: [], count: 0};
 		}
@@ -218,7 +207,7 @@ export class CadDataService {
 
 	async getCadListPage(collection: Collection, page: number, limit: number, search?: {[key: string]: string}) {
 		const postData = {page, limit, search, collection};
-		const response = await this.request("peijian/cad/getCadList", "getCadDataPage", "POST", postData);
+		const response = await this.request("peijian/cad/getCadList", "POST", postData);
 		if (!response) {
 			return {data: [], count: 0};
 		}
@@ -227,7 +216,7 @@ export class CadDataService {
 
 	async replaceData(source: CadData, target: string, collection?: Collection) {
 		source.sortComponents();
-		const response = await this.request("peijian/cad/replaceCad", "replaceData", "POST", {
+		const response = await this.request("peijian/cad/replaceCad", "POST", {
 			source: source.export(),
 			target,
 			collection
@@ -277,7 +266,7 @@ export class CadDataService {
 			xuanxiang: exportData.options,
 			tiaojian: exportData.conditions
 		};
-		const response = await this.request("peijian/cad/getOptions", "getOptions", "POST", postData);
+		const response = await this.request("peijian/cad/getOptions", "POST", postData);
 		if (response) {
 			return {
 				data: response.data.map((v: any) => {
@@ -290,19 +279,19 @@ export class CadDataService {
 	}
 
 	async getShowLineInfo() {
-		const response = await this.request("peijian/cad/showLineInfo", "getShowLineInfo", "GET");
+		const response = await this.request("peijian/cad/showLineInfo", "GET");
 		return response ? (response.data as boolean) : false;
 	}
 
 	async getSampleFormulas() {
-		const response = await this.request("peijian/Houtaisuanliao/getSampleFormulas", "getSampleFormulas", "GET");
+		const response = await this.request("peijian/Houtaisuanliao/getSampleFormulas", "GET");
 		return response ? (response.data as string[]) : [];
 	}
 
 	async getOrders(data: CadData) {
 		const exportData = data.export();
 		const postData = {options: exportData.options, conditions: exportData.conditions};
-		const response = await this.request("order/order/getOrders", "getOrders", "POST", postData);
+		const response = await this.request("order/order/getOrders", "POST", postData);
 		if (response) {
 			return response.data as Order[];
 		}
@@ -310,7 +299,7 @@ export class CadDataService {
 	}
 
 	async getOrderExpressions(order: Order) {
-		const response = await this.request("order/order/getOrderGongshi", "getOrders", "POST", {order});
+		const response = await this.request("order/order/getOrderGongshi", "POST", {order});
 		if (response) {
 			const exps = response.data as Expressions;
 			for (const key in exps) {
@@ -323,7 +312,7 @@ export class CadDataService {
 	}
 
 	async downloadDxf(data: CadData) {
-		const result = await this.request("peijian/cad/downloadDxf", "downloadDxf", "POST", {cadData: data.export()});
+		const result = await this.request("peijian/cad/downloadDxf", "POST", {cadData: data.export()});
 		const host = this.baseURL === "/api" ? "localhost" : origin;
 		if (result) {
 			open(host + "/" + result.data.path);
@@ -331,12 +320,12 @@ export class CadDataService {
 	}
 
 	async saveAsDxf(data: CadData, path: string) {
-		const response = await this.request("peijian/cad/saveAsDxf", "saveAsDxf", "POST", {cadData: data.export(), path});
+		const response = await this.request("peijian/cad/saveAsDxf", "POST", {cadData: data.export(), path});
 		return response ? response.data : null;
 	}
 
 	async uploadDxf(dxf: File) {
-		const response = await this.request("peijian/cad/uploadDxf", "uploadDxf", "POST", {dxf});
+		const response = await this.request("peijian/cad/uploadDxf", "POST", {dxf});
 		if (response) {
 			return new CadData(response.data);
 		}
@@ -344,7 +333,7 @@ export class CadDataService {
 	}
 
 	async getCadSearchForm() {
-		const response = await this.request("peijian/cad/getSearchForm", "getCadSearchForm", "GET");
+		const response = await this.request("peijian/cad/getSearchForm", "GET");
 		if (response) {
 			return response.data as CadSearchData;
 		}
@@ -352,7 +341,7 @@ export class CadDataService {
 	}
 
 	async getCadSearchOptions(table: string) {
-		const response = await this.request("peijian/cad/getSearchOptions", "getCadSearchOptions", "POST", {table});
+		const response = await this.request("peijian/cad/getSearchOptions", "POST", {table});
 		if (response) {
 			return response.data as CadSearchData[0]["items"][0];
 		}

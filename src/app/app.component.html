@@ -1,2 +1,4 @@
-<app-loading></app-loading>
-<router-outlet></router-outlet>
+<ngx-ui-loader [loaderId]="'app'" [fgsType]="loaderFgsType"></ngx-ui-loader>
+<div ngxUiLoaderBlurred [loaderId]="'app'">
+	<router-outlet></router-outlet>
+</div>

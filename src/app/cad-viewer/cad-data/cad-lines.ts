@@ -213,7 +213,6 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				cp = 1;
 			}
 		}
-		console.log(1);
 		group.forEach((line) => {
 			let theta: number;
 			if (line instanceof CadLine) {

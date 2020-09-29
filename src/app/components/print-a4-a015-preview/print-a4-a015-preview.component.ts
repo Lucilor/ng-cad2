@@ -5,9 +5,8 @@ import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {timeout} from "@app/app.common";
 import {Store} from "@ngrx/store";
 import {State} from "@app/store/state";
-import {LoadingAction} from "@app/store/actions";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
-import {generateLineTexts} from "@app/cad-viewer/cad-data/cad-lines";
+import {NgxUiLoaderService} from "ngx-ui-loader";
 
 export type PreviewData = {
 	CAD?: any;
@@ -32,8 +31,8 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 	constructor(
 		private dataService: CadDataService,
 		private cd: ChangeDetectorRef,
-		private store: Store<State>,
-		private sanitizer: DomSanitizer
+		private sanitizer: DomSanitizer,
+		private loader: NgxUiLoaderService
 	) {}
 
 	async ngOnInit() {
@@ -41,13 +40,13 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 		document.title = "订单配件标签";
 		document.body.style.overflowX = "hidden";
 		document.body.style.overflowY = "auto";
-		const response = await this.dataService.request("order/printCode/printA4A015Preview", "printA4A015Preview", "GET");
+		const response = await this.dataService.request("order/printCode/printA4A015Preview", "GET");
 		if (response) {
 			this.data = response.data;
 		}
 		const total = this.data.reduce((total, v) => total + v.filter((vv) => vv.type === "CAD").length, 0);
 		let done = 0;
-		this.store.dispatch<LoadingAction>({name: "loadCads", type: "set loading progress", progress: 0});
+		this.loader.startLoader("app");
 		for (const page of this.data) {
 			for (const card of page) {
 				if (card.type === "CAD") {
@@ -65,11 +64,10 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 					cad.destroy();
 				}
 				done++;
-				this.store.dispatch<LoadingAction>({name: "loadCads", type: "set loading progress", progress: done / total});
 			}
 			await timeout(0);
 		}
-		this.store.dispatch<LoadingAction>({name: "loadCads", type: "set loading progress", progress: -1});
+		this.loader.stopLoader("app");
 	}
 
 	ngOnDestroy() {

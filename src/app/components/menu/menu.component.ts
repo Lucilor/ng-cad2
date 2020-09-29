@@ -12,6 +12,7 @@ import {generateLineTexts, validateLines} from "@app/cad-viewer/cad-data/cad-lin
 import {CurrCadsAction, CadStatusAction} from "@app/store/actions";
 import Color from "color";
 import {SubCadsComponent} from "./sub-cads/sub-cads.component";
+import {NgxUiLoaderService} from "ngx-ui-loader";
 
 @Component({
 	selector: "app-menu",
@@ -22,6 +23,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 	protected dataService: CadDataService;
 	protected store: Store<State>;
 	protected dialog: MatDialog;
+	protected loader: NgxUiLoaderService;
 	destroyed = new Subject();
 	contextMenuPosition = {x: "0px", y: "0px"};
 
@@ -36,6 +38,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 		this.dataService = injector.get(CadDataService);
 		this.store = injector.get(Store);
 		this.dialog = injector.get(MatDialog);
+		this.loader = injector.get(NgxUiLoaderService);
 	}
 
 	ngOnInit() {

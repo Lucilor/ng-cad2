@@ -2,8 +2,6 @@ import {State} from "./state";
 import {difference} from "lodash";
 import {CadData} from "../cad-viewer/cad-data/cad-data";
 
-export const getLoading = ({loading}: State) => loading;
-
 export const getCurrCads = ({currCads}: State) => currCads;
 
 export function getCurrCadsData(data: CadData, currCads: State["currCads"]) {

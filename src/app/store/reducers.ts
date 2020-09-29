@@ -2,29 +2,8 @@ import {ActionReducerMap, MetaReducer} from "@ngrx/store";
 import {environment} from "@src/environments/environment";
 import {cloneDeep} from "lodash";
 import {session} from "../app.common";
-import {LoadingAction, CurrCadsAction, CadStatusAction, CadPointsAction, CommandAction, ConfigAction} from "./actions";
+import {CurrCadsAction, CadStatusAction, CadPointsAction, CommandAction, ConfigAction} from "./actions";
 import {initialState, State} from "./state";
-
-export function loadingReducer(loading = initialState.loading, action: LoadingAction) {
-	const newLoading: State["loading"] = cloneDeep(loading);
-	if (action.type === "add loading") {
-		newLoading.list.add(action.name);
-	} else if (action.type === "remove loading") {
-		newLoading.list.delete(action.name);
-	} else if (action.type === "set loading progress") {
-		const progress = action.progress;
-		if (progress < 0 || progress > 1) {
-			newLoading.list.delete(action.name);
-			newLoading.progress = -1;
-		} else {
-			if (!newLoading.list.has(action.name)) {
-				newLoading.list.add(action.name);
-			}
-			newLoading.progress = progress;
-		}
-	}
-	return newLoading;
-}
 
 export function currCadsReducer(currCads = initialState.currCads, action: CurrCadsAction) {
 	const {type, cads} = action;
@@ -126,7 +105,6 @@ export function configReducer(config = initialState.config, action: ConfigAction
 }
 
 export const reducers: ActionReducerMap<State> = {
-	loading: loadingReducer,
 	currCads: currCadsReducer,
 	cadStatus: cadStatusReducer,
 	cadPoints: cadPointsReducer,

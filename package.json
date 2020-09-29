@@ -33,6 +33,7 @@
     "lodash": "^4.17.20",
     "material-design-icons": "^3.0.1",
     "ngx-perfect-scrollbar": "^10.0.1",
+    "ngx-ui-loader": "^9.1.1",
     "pdfmake": "^0.1.68",
     "rxjs": "~6.6.3",
     "tslib": "^2.0.1",

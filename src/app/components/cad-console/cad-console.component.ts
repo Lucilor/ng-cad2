@@ -6,7 +6,7 @@ import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {CadArc, CadDimension, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@app/cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
-import {CadStatusAction, LoadingAction, ConfigAction} from "@app/store/actions";
+import {CadStatusAction, ConfigAction} from "@app/store/actions";
 import {getCommand, getCurrCads, getCurrCadsData, getCadStatus, getConfig} from "@app/store/selectors";
 import {Angle, Line, Point} from "@app/utils";
 import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
@@ -749,7 +749,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	 * 	  =(794 × 1123)px² (96dpi)
 	 */
 	async print() {
-		this.store.dispatch<LoadingAction>({type: "add loading", name: "printCad"});
+		this.loader.startLoader("app");
 		await timeout(100);
 		const data = this.cad.data.clone();
 		removeCadGongshi(data);
@@ -788,7 +788,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		cad.destroy();
 		const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
 		pdf.getBlob((blob) => {
-			this.store.dispatch<LoadingAction>({type: "remove loading", name: "printCad"});
+			this.loader.stopLoader("app");
 			const url = URL.createObjectURL(blob);
 			open(url);
 			URL.revokeObjectURL(this.lastUrl);
