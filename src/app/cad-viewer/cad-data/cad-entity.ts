@@ -448,7 +448,7 @@ export class CadLine extends CadEntity {
 	guanlianbianhuagongshi: string;
 	kongwei: string;
 	nextZhewan: "自动" | "无" | "1mm" | "6mm";
-	zidingzhankaichang = -1;
+	zidingzhankaichang;
 	tiaojianquzhi: {
 		key: string;
 		level: number;
@@ -459,6 +459,7 @@ export class CadLine extends CadEntity {
 			input: boolean;
 		}[];
 	}[];
+	zhewanOffset;
 
 	get valid() {
 		const {start, end} = this;
@@ -507,6 +508,7 @@ export class CadLine extends CadEntity {
 		this.nextZhewan = data.nextZhewan ?? "自动";
 		this.zidingzhankaichang = data.zidingzhankaichang ?? -1;
 		this.tiaojianquzhi = data.tiaojianquzhi ?? [];
+		this.zhewanOffset = data.zhewanOffset ?? 0;
 	}
 
 	transform(matrix: MatrixAlias) {
@@ -529,7 +531,8 @@ export class CadLine extends CadEntity {
 			kongwei: this.kongwei,
 			nextZhewan: this.nextZhewan,
 			zidingzhankaichang: this.zidingzhankaichang,
-			tiaojianquzhi: this.tiaojianquzhi
+			tiaojianquzhi: this.tiaojianquzhi,
+			zhewanOffset: this.zhewanOffset
 		};
 	}
 

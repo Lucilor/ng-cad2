@@ -9,7 +9,7 @@
 	</button>
 	<button mat-raised-button color="primary" (click)="autoFix()">修正</button>
 </div>
-<form [class.not-allowed]="editDiabled">
+<form [class.not-allowed]="editDiabled" [ngSwitch]="">
 	<button hidden></button>
 	<div class="form-item length">
 		<mat-form-field>
@@ -136,10 +136,24 @@
 				(input)="setLineText($event, 'zidingzhankaichang')"
 			/>
 		</mat-form-field>
+	</div>
+	<div class="form-item tiaojianquzhi">
 		<mat-form-field>
 			<mat-label>条件取值</mat-label>
 			<input matInput type="text" disabled />
 			<mat-icon matSuffix color="primary" (click)="editTiaojianquzhi()">list</mat-icon>
+		</mat-form-field>
+	</div>
+	<div class="form-item zhewanOffset">
+		<mat-form-field>
+			<mat-label>折弯标记偏移</mat-label>
+			<input
+				matInput
+				type="text"
+				name="zhewanOffset"
+				[ngModel]="getLineText('zhewanOffset')"
+				(input)="setLineText($event, 'zhewanOffset')"
+			/>
 		</mat-form-field>
 	</div>
 </form>
