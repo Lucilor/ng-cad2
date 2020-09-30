@@ -55,6 +55,7 @@ export async function timeout(time = 0) {
 export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";
 
 export function addCadGongshi(data: CadData) {
+	removeCadGongshi(data);
 	const mtext = new CadMtext();
 	const {left, bottom} = data.getBoundingRect();
 	mtext.text = getCadGongshiText(data);
@@ -71,8 +72,9 @@ export function removeCadGongshi(data: CadData) {
 	data.entities.mtext = data.entities.mtext.filter((e) => {
 		if (e.info.isCadGongshi) {
 			e.el?.remove();
+			return false;
 		}
-		return !e.info.isCadGongshi;
+		return true;
 	});
 	data.partners.forEach((d) => removeCadGongshi(d));
 	data.components.data.forEach((d) => removeCadGongshi(d));
