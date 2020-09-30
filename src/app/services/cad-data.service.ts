@@ -9,7 +9,6 @@ import {CadViewer} from "../cad-viewer/cad-viewer";
 import {RSAEncrypt} from "@app/utils";
 import {Expressions} from "../cad-viewer/cad-data/utils";
 import {ActivatedRoute, Params} from "@angular/router";
-import {NgxUiLoaderService} from "ngx-ui-loader";
 
 export interface Order {
 	vid: string;
@@ -33,15 +32,8 @@ export class CadDataService {
 	baseURL: string;
 	silent = false;
 	queryParams: Params;
-	loaderId = "app";
 
-	constructor(
-		private http: HttpClient,
-		private dialog: MatDialog,
-		private snackBar: MatSnackBar,
-		private route: ActivatedRoute,
-		private loader: NgxUiLoaderService
-	) {
+	constructor(private http: HttpClient, private dialog: MatDialog, private snackBar: MatSnackBar, private route: ActivatedRoute) {
 		this.baseURL = localStorage.getItem("baseURL");
 		if (!this.baseURL && location.origin === "http://localhost:4200") {
 			this.baseURL = "/api";
@@ -56,15 +48,13 @@ export class CadDataService {
 	}
 
 	async request(url: string, method: "GET" | "POST", postData?: any, encrypt = true) {
-		const {baseURL, queryParams, loader, loaderId} = this;
+		const {baseURL, queryParams} = this;
 		if (!baseURL) {
 			return null;
 		}
 		const name = url;
 		const data = encodeURIComponent(queryParams.data ?? "");
 		const encode = encodeURIComponent(queryParams.encode ?? "");
-		console.log(loaderId);
-		loader.startLoader(loaderId, name);
 		url = `${baseURL}/${url}/${encode}`;
 		try {
 			let response: Response;
@@ -115,8 +105,6 @@ export class CadDataService {
 		} catch (error) {
 			this.alert(error);
 			return null;
-		} finally {
-			loader.stopLoader(loaderId, name);
 		}
 	}
 
@@ -134,7 +122,7 @@ export class CadDataService {
 	}
 
 	async postCadData(cadData: CadData[], postData?: any) {
-		const {baseURL, queryParams, loader, loaderId} = this;
+		const {baseURL, queryParams} = this;
 		if (cadData.length < 1) {
 			return [];
 		}
@@ -143,7 +131,6 @@ export class CadDataService {
 		let counter = 0;
 		let successCounter = 0;
 		const name = "postCadData";
-		loader.startLoader(loaderId, name);
 		const data = encodeURIComponent(queryParams.data ?? "");
 		const encode = encodeURIComponent(queryParams.encode ?? "");
 		return new Promise<CadData[]>(async (resolve) => {
@@ -170,9 +157,6 @@ export class CadDataService {
 					counter++;
 				}
 				if (counter >= cadData.length) {
-					setTimeout(() => {
-						loader.stopLoader(loaderId, name);
-					}, 200);
 					if (successCounter === counter) {
 						this.snackBar.open(`${successCounter > 1 ? "全部" : ""}成功`);
 						resolve(result);

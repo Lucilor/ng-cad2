@@ -362,7 +362,7 @@ export class CadViewer extends EventEmitter {
 					}
 				}
 				if (offset) {
-					if (Math.abs(offset.x) >= 150 || Math.abs(offset.y) >= 150) {
+					if (Math.abs(offset.x) >= 30 || Math.abs(offset.y) >= 30) {
 						offset.set(0, 0);
 						entity.info.offset = offset.toArray();
 					}

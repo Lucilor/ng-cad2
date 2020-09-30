@@ -565,13 +565,17 @@ export class CadMtext extends CadEntity {
 		this.type = "MTEXT";
 		this.insert = getVectorFromArray(data.insert);
 		this.isNew = data.isNew === true ? true : false;
-		if (this.isNew) {
-			this.font_size = data.font_size ?? 28;
-		} else {
-			this.font_size = 28;
-		}
 		this.text = data.text ?? "";
 		this.anchor = getVectorFromArray(data.anchor);
+		if (this.info.isLengthText || this.info.isGongshiText) {
+			if (this.isNew) {
+				this.font_size = data.font_size ?? 28;
+			} else {
+				this.font_size = 28;
+			}
+		} else {
+			this.font_size = 40;
+		}
 	}
 
 	export() {

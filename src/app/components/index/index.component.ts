@@ -54,6 +54,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	showLeftMenu = true;
 	showAllMenu = true;
 	menuPadding = [40, 270, 20, 220];
+	saveLoaderId = "savingCad";
 	@ViewChild("cadContainer", {read: ElementRef}) cadContainer: ElementRef<HTMLElement>;
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
@@ -231,5 +232,13 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	onInfoTabChange({index}: MatTabChangeEvent) {
 		this.store.dispatch<ConfigAction>({type: "set config", config: {infoTabIndex: index}});
+	}
+
+	onSaveBegin() {
+		this.loader.startLoader(this.saveLoaderId);
+	}
+
+	onSaveEnd() {
+		this.loader.stopLoader(this.saveLoaderId);
 	}
 }

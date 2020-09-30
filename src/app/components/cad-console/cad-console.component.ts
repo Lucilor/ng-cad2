@@ -1,5 +1,5 @@
 import {trigger, transition, style, animate} from "@angular/animations";
-import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector} from "@angular/core";
+import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector, Output, EventEmitter} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@app/app.common";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
@@ -146,6 +146,8 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	@ViewChild("consoleOuter", {read: ElementRef}) consoleOuter: ElementRef<HTMLDivElement>;
 	@ViewChild("consoleInner", {read: ElementRef}) consoleInner: ElementRef<HTMLDivElement>;
 	@ViewChild("contentEl", {read: ElementRef}) contentEl: ElementRef<HTMLDivElement>;
+	@Output() saveBegin = new EventEmitter<never>();
+	@Output() saveEnd = new EventEmitter<never>();
 
 	get contentLength() {
 		const el = this.contentEl.nativeElement;
@@ -749,7 +751,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	 * 	  =(794 × 1123)px² (96dpi)
 	 */
 	async print() {
-		this.loader.startLoader("app");
+		this.loader.start();
 		await timeout(100);
 		const data = this.cad.data.clone();
 		removeCadGongshi(data);
@@ -788,7 +790,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		cad.destroy();
 		const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
 		pdf.getBlob((blob) => {
-			this.loader.stopLoader("app");
+			this.loader.stop();
 			const url = URL.createObjectURL(blob);
 			open(url);
 			URL.revokeObjectURL(this.lastUrl);
@@ -804,6 +806,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	}
 
 	async save() {
+		this.saveBegin.emit();
 		const {cad, dataService} = this;
 		let result: CadData[] = [];
 		const data = cad.data.components.data;
@@ -850,6 +853,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				this.openCad(result);
 			}
 		}
+		this.saveEnd.emit();
 		return result;
 	}
 

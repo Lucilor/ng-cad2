@@ -1,10 +1,8 @@
-import {Component, OnInit, ChangeDetectorRef, OnDestroy} from "@angular/core";
+import {Component, OnInit, ChangeDetectorRef, OnDestroy, AfterViewInit} from "@angular/core";
 import {CadDataService} from "@app/services/cad-data.service";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {timeout} from "@app/app.common";
-import {Store} from "@ngrx/store";
-import {State} from "@app/store/state";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
@@ -24,9 +22,11 @@ export type PreviewData = {
 	templateUrl: "./print-a4-a015-preview.component.html",
 	styleUrls: ["./print-a4-a015-preview.component.scss"]
 })
-export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
+export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
 	data: PreviewData = [];
 	printing = false;
+	loaderId = "printPreview";
+	loadingText = "";
 
 	constructor(
 		private dataService: CadDataService,
@@ -35,7 +35,7 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 		private loader: NgxUiLoaderService
 	) {}
 
-	async ngOnInit() {
+	async ngAfterViewInit() {
 		Object.assign(window, {app: this});
 		document.title = "订单配件标签";
 		document.body.style.overflowX = "hidden";
@@ -44,9 +44,10 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 		if (response) {
 			this.data = response.data;
 		}
-		const total = this.data.reduce((total, v) => total + v.filter((vv) => vv.type === "CAD").length, 0);
+		const total = this.data.reduce((total, v) => total + v.length, 0);
 		let done = 0;
-		this.loader.startLoader("app");
+		this.loader.startLoader(this.loaderId);
+		this.loadingText = `0 / ${total}`;
 		for (const page of this.data) {
 			for (const card of page) {
 				if (card.type === "CAD") {
@@ -64,10 +65,12 @@ export class PrintA4A015PreviewComponent implements OnInit, OnDestroy {
 					cad.destroy();
 				}
 				done++;
+				this.loadingText = `${done} / ${total}`;
 			}
 			await timeout(0);
 		}
-		this.loader.stopLoader("app");
+		this.loader.stopLoader(this.loaderId);
+		this.loadingText = "";
 	}
 
 	ngOnDestroy() {

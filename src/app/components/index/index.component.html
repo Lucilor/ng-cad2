@@ -1,6 +1,6 @@
 <div #cadContainer (contextmenu)="onContextMenu($event)"></div>
 <div
-	style="visibility: hidden; position: fixed;"
+	style="visibility: hidden; position: fixed"
 	[style.left]="contextMenuPosition.x"
 	[style.top]="contextMenuPosition.y"
 	[matMenuTriggerFor]="contextMenu"
@@ -18,7 +18,10 @@
 </div>
 <div class="menu left" [@closeLeft]="showLeftMenu ? 'open' : 'closed'">
 	<div class="btn-group">
-		<button mat-raised-button color="accent" (click)="toolbar.save()">保存</button>
+		<div style="position: relative; display: inline-block">
+			<button mat-raised-button color="accent" (click)="toolbar.save()">保存</button>
+			<ngx-ui-loader [loaderId]="saveLoaderId" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+		</div>
 		<mat-icon class="menu-icon left" [class.closed]="!showLeftMenu" (click)="toggleLeftMenu()">
 			{{ showLeftMenu ? "navigate_before" : "navigate_next" }}
 		</mat-icon>
@@ -62,7 +65,7 @@
 	</perfect-scrollbar>
 </div>
 <div class="menu bottom" [class.accent]="cadStatusStr !== '普通'" [@closeBottom]="showBottomMenu ? 'open' : 'closed'">
-	<app-cad-console></app-cad-console>
+	<app-cad-console (saveBegin)="onSaveBegin()" (saveEnd)="onSaveEnd()"></app-cad-console>
 	<div class="cad-status">当前状态：{{ cadStatusStr }}</div>
 </div>
 <app-cad-points></app-cad-points>

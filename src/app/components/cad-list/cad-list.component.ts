@@ -6,6 +6,7 @@ import {CadDataService} from "@services/cad-data.service";
 import {Collection, getCadPreview, imgEmpty, imgLoading} from "@app/app.common";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 import {DomSanitizer} from "@angular/platform-browser";
+import {NgxUiLoaderService} from "ngx-ui-loader";
 
 interface CadListData {
 	selectMode: "single" | "multiple" | "table";
@@ -36,6 +37,8 @@ export class CadListComponent implements AfterViewInit {
 	checkedItems: CadData[] = [];
 	checkedColumns: any[] = [];
 	checkedInOtherPages = false;
+	loaderId = "cadList";
+	loadingText = "";
 	@ViewChild("paginator", {read: MatPaginator}) paginator: MatPaginator;
 
 	constructor(
@@ -43,10 +46,9 @@ export class CadListComponent implements AfterViewInit {
 		@Inject(MAT_DIALOG_DATA) public data: CadListData,
 		private dataService: CadDataService,
 		private dialog: MatDialog,
-		private sanitizer: DomSanitizer
-	) {
-		this.dataService.loaderId = "cadList";
-	}
+		private sanitizer: DomSanitizer,
+		private loader: NgxUiLoaderService
+	) {}
 
 	async ngAfterViewInit() {
 		await this.paginator.initialized.toPromise();
@@ -69,14 +71,18 @@ export class CadListComponent implements AfterViewInit {
 		const limit = this.paginator.pageSize;
 		const collection = this.data.collection;
 		if (this.data.selectMode === "table") {
+			this.loader.startLoader(this.loaderId);
 			const data = await this.dataService.getCadListPage(collection, page, limit, this.searchForm);
+			this.loader.stopLoader(this.loaderId);
 			this.length = data.count;
 			this.pageData.length = 0;
 			this.tableData = data.data;
 		} else {
 			const search = this.searchForm;
 			const qiliao = this.data.qiliao;
+			this.loader.startLoader(this.loaderId);
 			const data = await this.dataService.getCadDataPage(collection, page, limit, search, options, matchType, qiliao);
+			this.loader.stopLoader(this.loaderId);
 			this.length = data.count;
 			this.pageData.length = 0;
 			data.data.forEach(async (d, i) => {
