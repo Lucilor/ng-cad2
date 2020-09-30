@@ -1,7 +1,7 @@
 import {Point} from "./point";
 import {Angle} from "./angle";
 import {Line} from "./line";
-import {Matrix} from "@svgdotjs/svg.js";
+import {Matrix, MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
 
 export class Arc {
 	center: Point;
@@ -98,12 +98,12 @@ export class Arc {
 		return this.center.clone().add(offset);
 	}
 
-	transform(matrix: Matrix) {
-		this.center.transform(matrix);
+	transform(matrix: MatrixExtract | MatrixTransformParam) {
 		const start = this.getPoint(0).transform(matrix);
 		const end = this.getPoint(1).transform(matrix);
-		this.radius = this.center.distanceTo(start);
+		this.center.transform(matrix);
 		this.startPoint = start;
 		this.endPoint = end;
+		this.radius = this.center.distanceTo(start);
 	}
 }

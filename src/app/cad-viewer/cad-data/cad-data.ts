@@ -1,5 +1,5 @@
 import {Point} from "@app/utils";
-import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
+import {Matrix, MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
 import {uniqWith, intersection, cloneDeep} from "lodash";
 import {v4} from "uuid";
 import {CadEntities} from "./cad-entities";
@@ -229,23 +229,23 @@ export class CadData {
 		return this;
 	}
 
-	transform(matrix: MatrixAlias) {
+	transform(matrix: MatrixExtract | MatrixTransformParam) {
 		this.entities.transform(matrix);
-		const m = new Matrix(matrix);
 		this.partners.forEach((v) => v.transform(matrix));
 		this.components.transform(matrix);
 		this.baseLines.forEach((v) => {
 			const point = new Point(v.valueX, v.valueY);
-			point.transform(m);
+			point.transform(matrix);
 			v.valueX = point.x;
 			v.valueY = point.y;
 		});
 		this.jointPoints.forEach((v) => {
 			const point = new Point(v.valueX, v.valueY);
-			point.transform(m);
+			point.transform(matrix);
 			v.valueX = point.x;
 			v.valueY = point.y;
 		});
+		const m = new Matrix(matrix);
 		const horizontal = m.a < 0;
 		const vertical = m.d < 0;
 		this.entities.dimension.forEach((e) => {
@@ -766,7 +766,7 @@ export class CadComponents {
 		}
 	}
 
-	transform(matrix: MatrixAlias) {
+	transform(matrix: MatrixExtract | MatrixTransformParam) {
 		const m = new Matrix(matrix);
 		const {scaleX, scaleY} = m.decompose();
 		this.connections.forEach((v) => {

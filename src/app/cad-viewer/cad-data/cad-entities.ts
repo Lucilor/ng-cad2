@@ -1,5 +1,5 @@
 import {Point, Rectangle} from "@app/utils";
-import {MatrixAlias} from "@svgdotjs/svg.js";
+import {MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
 import {CadLine, CadCircle, CadArc, CadMtext, CadDimension, CadHatch, getCadEntity, CadEntity, CadDimensionEntity} from "./cad-entity";
 import {CadLayer} from "./cad-layer";
 import {cadTypesKey, CadTypeKey, CadType, cadTypes} from "./cad-types";
@@ -89,11 +89,11 @@ export class CadEntities {
 		return new CadEntities(this, [], resetIds);
 	}
 
-	transform(matrix: MatrixAlias) {
+	transform(matrix: MatrixExtract | MatrixTransformParam) {
 		this.forEach((e) => e.transform(matrix));
 	}
 
-	forEachType(callback: (array: CadEntity[], type: CadTypeKey, TYPE: CadType) => void, recursive = false) {
+	forEachType(callback: (array: CadEntity[], type: CadTypeKey, TYPE: CadType) => void) {
 		for (let i = 0; i < cadTypes.length; i++) {
 			const arr = this[cadTypesKey[i]];
 			callback(arr, cadTypesKey[i], cadTypes[i]);
@@ -295,9 +295,11 @@ export class CadEntities {
 				rect.expand(center.clone().sub(radius));
 			} else if (e instanceof CadArc) {
 				const curve = e.curve;
-				rect.expand(curve.getPoint(0));
-				rect.expand(curve.getPoint(0.5));
-				rect.expand(curve.getPoint(1));
+				if (curve.radius) {
+					rect.expand(curve.getPoint(0));
+					rect.expand(curve.getPoint(0.5));
+					rect.expand(curve.getPoint(1));
+				}
 			} else if (e instanceof CadDimension) {
 				this.getDimensionPoints(e).forEach((p) => rect.expand(p));
 			} else if (e instanceof CadLine) {

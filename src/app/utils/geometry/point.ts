@@ -1,4 +1,4 @@
-import {Matrix, Point as P} from "@svgdotjs/svg.js";
+import {Matrix, MatrixExtract, MatrixTransformParam, Point as P} from "@svgdotjs/svg.js";
 import {Line} from "..";
 import {DEFAULT_TOLERANCE} from "./constants";
 
@@ -129,8 +129,8 @@ export class Point {
 		return this.x * point.y - this.y * point.x;
 	}
 
-	transform(matrix: Matrix) {
-		const p = new P(this.x, this.y).transform(matrix);
+	transform(matrix: MatrixExtract | MatrixTransformParam) {
+		const p = new P(this.x, this.y).transform(new Matrix(matrix));
 		return this.set(p.x, p.y);
 	}
 }

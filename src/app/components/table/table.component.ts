@@ -33,6 +33,8 @@ export interface ColumnInfoButton extends ColumnInfoBase {
 
 export type ColumnInfo = ColumnInfoNormal | ColumnInfoSelect | ColumnInfoButton;
 
+export type TableValidator<T> = (data: MatTableDataSource<T>) => boolean[];
+
 export interface RowButtonEvent<T> {
 	name: string;
 	field: string;
@@ -51,6 +53,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	@Input() title: string;
 	@Input() checkBoxSize = 40;
 	@Input() editable: string | boolean;
+	@Input() validator: TableValidator<T>;
 	@Output() rowButtonClick = new EventEmitter<RowButtonEvent<T>>();
 	selection = new SelectionModel<T>(true, []);
 	columnFields: string[];
@@ -153,6 +156,10 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 			} else {
 				item[field] = value;
 			}
+		}
+		if(this.validator){
+			const result = this.validator(this.data);
+			console.log(result);
 		}
 	});
 

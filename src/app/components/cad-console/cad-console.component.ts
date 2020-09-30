@@ -9,7 +9,7 @@ import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadStatusAction, ConfigAction} from "@app/store/actions";
 import {getCommand, getCurrCads, getCurrCadsData, getCadStatus, getConfig} from "@app/store/selectors";
 import {Angle, Line, Point} from "@app/utils";
-import {MatrixAlias, Matrix} from "@svgdotjs/svg.js";
+import {MatrixAlias, Matrix, MatrixExtract} from "@svgdotjs/svg.js";
 import {differenceWith} from "lodash";
 import {v4} from "uuid";
 import {openCadListDialog} from "../cad-list/cad-list.component";
@@ -406,17 +406,17 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		return `<code class="bash hljs">${highlight("bash", str).value}</code>`;
 	}
 
-	async transform(matrix: MatrixAlias, rotateDimension = false) {
+	async transform(matrix: MatrixExtract, rotateDimension = false) {
 		const {cad} = this;
 		const seleted = cad.selected();
-		const m = new Matrix(matrix);
+		console.log(matrix);
 		if (seleted.length) {
 			const {x, y} = cad.data.getBoundingRect(seleted);
-			seleted.transform({...m.decompose(), origin: [x, y]});
+			seleted.transform({...matrix, origin: [x, y]});
 		} else {
 			const t = (data: CadData) => {
 				const {x, y} = data.getBoundingRect();
-				data.transform({...m.decompose(), origin: [x, y]});
+				data.transform({...matrix, origin: [x, y]});
 				if (rotateDimension) {
 					data.getAllEntities().dimension.forEach((d) => {
 						if (d.axis === "x") {
@@ -801,8 +801,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	rotate(degreesArg: string) {
 		const degrees = Number(degreesArg);
 		const rotateDimension = Math.round(degrees / 90) % 2 !== 0;
-		const radians = new Angle(degrees, "deg").rad;
-		this.transform({rotate: radians}, rotateDimension);
+		this.transform({rotate: degrees}, rotateDimension);
 	}
 
 	async save() {

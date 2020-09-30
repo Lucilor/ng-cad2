@@ -20,7 +20,7 @@ export class CadLineTiaojianquzhiComponent {
 	columnsLeft: ColumnInfo[] = [
 		{field: "key", name: "名字", type: "string", editable: true},
 		{field: "level", name: "优先级", type: "number", editable: true},
-		{field: "type", name: "类型", type: "select", options: ["选项", "数值"], editable: true},
+		{field: "type", name: "类型", type: "select", options: ["选择", "数值"], editable: true},
 		{field: "data", name: "数据", type: "button", buttons: [{name: "编辑", event: "edit"}]}
 	];
 	newItemLeft: RawDataLeft = {key: "", level: 1, type: "数值", data: []};
