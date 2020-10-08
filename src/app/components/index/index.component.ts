@@ -66,30 +66,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(CadConsoleComponent) console: CadConsoleComponent;
 	@ViewChild(MatTabGroup) infoTabs: MatTabGroup;
 
-	// ! (deprecated) shortcuts for testing
-	// tslint:disable: no-string-literal
-	/** @deprecated */
-	get data() {
-		console.warn("window.app.data已弃用, 使用window.data.");
-		return window["data"];
-	}
-	/** @deprecated */
-	get data0() {
-		console.warn("window.app.data0已弃用, 使用window.data0.");
-		return window["data0"];
-	}
-	/** @deprecated */
-	get dataEx() {
-		console.warn("window.app.dataEx已弃用, 使用window.dataEx.");
-		return window["dataEx"];
-	}
-	/** @deprecated */
-	get data0Ex() {
-		console.warn("window.app.data0Ex已弃用, 使用window.data0Ex.");
-		return window["data0Ex"];
-	}
-	// tslint:enable: no-string-literal
-
 	constructor(injector: Injector) {
 		super(injector);
 	}
