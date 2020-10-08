@@ -188,7 +188,6 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 		} else {
 			this.errorState = [];
 		}
-		console.log(this.errorState);
 	}
 
 	isVaild(row: number) {

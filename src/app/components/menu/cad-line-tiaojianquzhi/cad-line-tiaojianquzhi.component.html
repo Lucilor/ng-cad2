@@ -1,6 +1,9 @@
 <div class="title">条件取值设置</div>
 <div class="btn-group">
-	<button mat-raised-button color="accent" (click)="submit()">保存</button>
+	<div style="position: relative; display: inline-block">
+		<button mat-raised-button color="accent" (click)="submit()">保存</button>
+		<ngx-ui-loader [loaderId]="saveLoaderId" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+	</div>
 	<button mat-raised-button color="normal" (click)="close()">关闭</button>
 </div>
 <div class="content">

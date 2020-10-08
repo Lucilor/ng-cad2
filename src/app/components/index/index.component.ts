@@ -54,7 +54,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	showLeftMenu = true;
 	showAllMenu = true;
 	menuPadding = [40, 270, 20, 220];
-	saveLoaderId = "savingCad";
+	saveLoaderId = "indexSavingCad";
 	@ViewChild("cadContainer", {read: ElementRef}) cadContainer: ElementRef<HTMLElement>;
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
@@ -133,7 +133,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		this.getObservable(getLoaders).subscribe((loaders) => {
 			if (loaders.includes("saveCad")) {
 				this.loader.startLoader(this.saveLoaderId);
-			} else {
+			} else if (this.loader.getLoader(this.saveLoaderId)) {
 				this.loader.stopLoader(this.saveLoaderId);
 			}
 		});

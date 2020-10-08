@@ -11,7 +11,6 @@ import {CadBaseLine, CadData, CadJointPoint, CadOption} from "@app/cad-viewer/ca
 import {generateLineTexts, validateLines} from "@app/cad-viewer/cad-data/cad-lines";
 import {CurrCadsAction, CadStatusAction} from "@app/store/actions";
 import Color from "color";
-import {SubCadsComponent} from "./sub-cads/sub-cads.component";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
 @Component({
