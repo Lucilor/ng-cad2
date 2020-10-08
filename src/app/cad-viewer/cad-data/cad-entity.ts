@@ -283,7 +283,7 @@ export class CadCircle extends CadEntity {
 
 export interface CadDimensionEntity {
 	id: string;
-	location: "start" | "end" | "center" | "min" | "max";
+	location: "start" | "end" | "center" | "min" | "max" | "minX" | "maxX" | "minY" | "maxY";
 	defPoint?: number[];
 }
 

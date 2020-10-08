@@ -20,7 +20,7 @@
 	<div class="btn-group">
 		<div style="position: relative; display: inline-block">
 			<button mat-raised-button color="accent" (click)="toolbar.save()">保存</button>
-			<!-- <ngx-ui-loader [loaderId]="saveLoaderId" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader> -->
+			<ngx-ui-loader [loaderId]="saveLoaderId" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
 		</div>
 		<mat-icon class="menu-icon left" [class.closed]="!showLeftMenu" (click)="toggleLeftMenu()">
 			{{ showLeftMenu ? "navigate_before" : "navigate_next" }}

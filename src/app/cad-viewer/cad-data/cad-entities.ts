@@ -226,6 +226,14 @@ export class CadEntities {
 				} else if (axis === "y") {
 					return start.x > end.x ? start : end;
 				}
+			} else if (location === "minX") {
+				return start.x < end.x ? start : end;
+			} else if (location === "maxX") {
+				return start.x > end.x ? start : end;
+			} else if (location === "minY") {
+				return start.y < end.y ? start : end;
+			} else if (location === "maxY") {
+				return start.y > end.y ? start : end;
 			}
 		};
 		let p1 = getPoint(line1, entity1.location);
