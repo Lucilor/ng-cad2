@@ -452,18 +452,18 @@ export class CadLine extends CadEntity {
 	guanlianbianhuagongshi: string;
 	kongwei: string;
 	nextZhewan: "自动" | "无" | "1mm" | "6mm";
-	zidingzhankaichang;
+	zidingzhankaichang: number;
 	tiaojianquzhi: {
 		key: string;
 		level: number;
-		type: "选项" | "数值";
+		type: "选择" | "数值";
 		data: {
 			name: string;
 			value: number;
 			input: boolean;
 		}[];
 	}[];
-	zhewanOffset;
+	zhewanOffset: number;
 
 	get valid() {
 		const {start, end} = this;

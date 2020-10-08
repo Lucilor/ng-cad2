@@ -6,7 +6,7 @@ import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {CadArc, CadDimension, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@app/cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
-import {CadStatusAction, ConfigAction} from "@app/store/actions";
+import {CadStatusAction, ConfigAction, LoaderAction} from "@app/store/actions";
 import {getCommand, getCurrCads, getCurrCadsData, getCadStatus, getConfig} from "@app/store/selectors";
 import {Angle, Line, Point} from "@app/utils";
 import {MatrixAlias, Matrix, MatrixExtract} from "@svgdotjs/svg.js";
@@ -146,8 +146,6 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	@ViewChild("consoleOuter", {read: ElementRef}) consoleOuter: ElementRef<HTMLDivElement>;
 	@ViewChild("consoleInner", {read: ElementRef}) consoleInner: ElementRef<HTMLDivElement>;
 	@ViewChild("contentEl", {read: ElementRef}) contentEl: ElementRef<HTMLDivElement>;
-	@Output() saveBegin = new EventEmitter<never>();
-	@Output() saveEnd = new EventEmitter<never>();
 
 	get contentLength() {
 		const el = this.contentEl.nativeElement;
@@ -805,7 +803,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	}
 
 	async save() {
-		this.saveBegin.emit();
+		this.store.dispatch<LoaderAction>({type: "add loader", name: "saveCad"});
 		const {cad, dataService} = this;
 		let result: CadData[] = [];
 		const data = cad.data.components.data;
@@ -852,7 +850,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				this.openCad(result);
 			}
 		}
-		this.saveEnd.emit();
+		this.store.dispatch<LoaderAction>({type: "remove loader", name: "saveCad"});
 		return result;
 	}
 

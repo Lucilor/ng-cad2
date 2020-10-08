@@ -13,7 +13,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {globalVars, setApp} from "@app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
-import {getCadStatus, getConfig} from "@app/store/selectors";
+import {getCadStatus, getConfig, getLoaders} from "@app/store/selectors";
 import {State} from "@app/store/state";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
 
@@ -130,6 +130,14 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			}
 		});
 
+		this.getObservable(getLoaders).subscribe((loaders) => {
+			if (loaders.includes("saveCad")) {
+				this.loader.startLoader(this.saveLoaderId);
+			} else {
+				this.loader.stopLoader(this.saveLoaderId);
+			}
+		});
+
 		this.cad.on("keydown", async ({key}) => {
 			if (key === "Escape") {
 				const {name} = await this.getObservableOnce(getCadStatus);
@@ -232,13 +240,5 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	onInfoTabChange({index}: MatTabChangeEvent) {
 		this.store.dispatch<ConfigAction>({type: "set config", config: {infoTabIndex: index}});
-	}
-
-	onSaveBegin() {
-		this.loader.startLoader(this.saveLoaderId);
-	}
-
-	onSaveEnd() {
-		this.loader.stopLoader(this.saveLoaderId);
 	}
 }

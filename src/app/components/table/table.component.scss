@@ -39,6 +39,10 @@
 			&:not(.mat-column-select) {
 				flex: 1 1 0;
 			}
+
+			&.error {
+				background-color: #ffcece;
+			}
 		}
 	}
 
@@ -68,4 +72,10 @@
 		width: 100%;
 		padding: 5px;
 	}
+}
+
+.error-msg {
+	background-color: #ffcece;
+	color: gray;
+	padding: 5px 10px;
 }

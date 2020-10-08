@@ -33,7 +33,9 @@ export interface ColumnInfoButton extends ColumnInfoBase {
 
 export type ColumnInfo = ColumnInfoNormal | ColumnInfoSelect | ColumnInfoButton;
 
-export type TableValidator<T> = (data: MatTableDataSource<T>) => boolean[];
+export type TableErrorState = {rows: number[]; msg: string}[];
+
+export type TableValidator<T> = (data: MatTableDataSource<T>) => TableErrorState;
 
 export interface RowButtonEvent<T> {
 	name: string;
@@ -59,8 +61,8 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	columnFields: string[];
 	@ViewChild(MatTable) table: MatTable<T>;
 	@ViewChild(MatSort) sort: MatSort;
-	@ViewChild(SatPopover) editor: SatPopover;
 	@ViewChild("input", {read: ElementRef}) input: ElementRef<HTMLInputElement>;
+	errorState: TableErrorState;
 
 	editing: {colIdx: number; rowIdx: number; value: string};
 
@@ -69,7 +71,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	ngOnInit() {
 		this.columnFields = ["select", ...this.columns.map((v) => v.field)];
 		this.editing = {colIdx: -1, rowIdx: -1, value: ""};
-		console.log(this);
+		this.validate();
 	}
 
 	ngAfterViewInit() {
@@ -96,6 +98,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 		const {data: dataSource, newItem} = this;
 		dataSource.data.splice(index, 0, cloneDeep(newItem));
 		dataSource._updateChangeSubscription();
+		this.validate();
 	}
 
 	removeItem(index?: number) {
@@ -114,32 +117,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 			this.data._updateChangeSubscription();
 			selection.clear();
 		}
-	}
-
-	setEditing(colIdx: number, rowIdx: number) {
-		const {field, type} = this.columns[colIdx];
-		let value = this.data.data[rowIdx][field];
-		if (type === "boolean") {
-			value = value === true ? "true" : "false";
-		} else if (type === "number") {
-			value = value.toString();
-		}
-		this.editing = {colIdx, rowIdx, value};
-		this.editor.anchor = document.querySelector(`td[col='${colIdx}'][row='${rowIdx}']`) as HTMLElement;
-		this.editor.open();
-	}
-
-	onEdit() {
-		const {colIdx, rowIdx, value} = this.editing;
-		const {field, type} = this.columns[colIdx];
-		if (type === "boolean") {
-			this.data.data[rowIdx][field] = value === "true";
-		} else if (type === "number") {
-			this.data.data[rowIdx][field] = Number(value);
-		} else {
-			this.data.data[rowIdx][field] = value;
-		}
-		this.editor.close();
+		this.validate();
 	}
 
 	// tslint:disable-next-line: member-ordering
@@ -157,10 +135,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 				item[field] = value;
 			}
 		}
-		if(this.validator){
-			const result = this.validator(this.data);
-			console.log(result);
-		}
+		this.validate();
 	});
 
 	onRowButtonClick(name: string, field: string, item: T) {
@@ -205,5 +180,23 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 
 	getColumnButtons(column: ColumnInfoButton) {
 		return column.buttons;
+	}
+
+	validate() {
+		if (this.validator) {
+			this.errorState = this.validator(this.data);
+		} else {
+			this.errorState = [];
+		}
+		console.log(this.errorState);
+	}
+
+	isVaild(row: number) {
+		for (const v of this.errorState) {
+			if (v.rows.includes(row)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

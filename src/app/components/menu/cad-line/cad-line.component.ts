@@ -343,12 +343,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		} else if (lines.length > 1) {
 			openMessageDialog(this.dialog, {data: {type: "alert", content: "无法同时编辑多根线的条件取值"}});
 		} else {
-			const ref = openCadLineTiaojianquzhiDialog(this.dialog, {data: lines[0].tiaojianquzhi});
-			const result = await ref.afterClosed().toPromise();
-			if (result) {
-				lines[0].tiaojianquzhi = result;
-				this.store.dispatch<CommandAction>({type: "execute", command: {name: "save", args: []}});
-			}
+			openCadLineTiaojianquzhiDialog(this.dialog, {data: lines[0]});
 		}
 	}
 }

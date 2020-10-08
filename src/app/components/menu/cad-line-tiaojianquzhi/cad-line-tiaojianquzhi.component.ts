@@ -1,13 +1,16 @@
-import {Component, Inject} from "@angular/core";
+import {Component, Inject, Input, ViewChild} from "@angular/core";
 import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity";
-import {ColumnInfo, RowButtonEvent} from "../../table/table.component";
+import {ColumnInfo, RowButtonEvent, TableComponent, TableErrorState, TableValidator} from "../../table/table.component";
 import {MatTableDataSource} from "@angular/material/table";
 import {cloneDeep} from "lodash";
 import {openMessageDialog} from "../../message/message.component";
+import {Store} from "@ngrx/store";
+import {State} from "@src/app/store/state";
+import {CommandAction} from "@src/app/store/actions";
 
-type RawData = CadLine["tiaojianquzhi"];
-type RawDataLeft = RawData[0];
+type RawData = CadLine;
+type RawDataLeft = RawData["tiaojianquzhi"][0];
 type RawDataRight = RawDataLeft["data"][0];
 
 @Component({
@@ -24,6 +27,28 @@ export class CadLineTiaojianquzhiComponent {
 		{field: "data", name: "数据", type: "button", buttons: [{name: "编辑", event: "edit"}]}
 	];
 	newItemLeft: RawDataLeft = {key: "", level: 1, type: "数值", data: []};
+	validatorLeft: TableValidator<RawDataLeft> = (data) => {
+		const result: TableErrorState = [];
+		const duplicateLevels = [];
+		const levels = [];
+		const rows = [];
+		data.data.forEach((v, row) => {
+			if (levels.includes(v.level)) {
+				duplicateLevels.push(v.level);
+			} else {
+				levels.push(v.level);
+			}
+		});
+		data.data.forEach((v, row) => {
+			if (duplicateLevels.includes(v.level)) {
+				rows.push(row);
+			}
+		});
+		if (rows.length) {
+			result.push({rows, msg: "优先级重复"});
+		}
+		return result;
+	};
 
 	dataRight: MatTableDataSource<RawDataRight>;
 	columnsRight: ColumnInfo[] = [
@@ -33,17 +58,25 @@ export class CadLineTiaojianquzhiComponent {
 	];
 	newItemRight: RawDataRight;
 
+	@ViewChild("tableLeft") tableLeft: TableComponent<RawDataLeft>;
+
 	constructor(
 		private dialog: MatDialog,
 		public dialogRef: MatDialogRef<CadLineTiaojianquzhiComponent, RawData>,
-		@Inject(MAT_DIALOG_DATA) public data: RawData
+		@Inject(MAT_DIALOG_DATA) public data: RawData,
+		private store: Store<State>
 	) {
-		this.dataLeft = new MatTableDataSource(cloneDeep(data));
+		this.dataLeft = new MatTableDataSource(cloneDeep(data.tiaojianquzhi));
 		this.dataRight = new MatTableDataSource([]);
 	}
 
 	submit() {
-		this.dialogRef.close(this.dataLeft.data);
+		if (this.tableLeft.errorState.length) {
+			openMessageDialog(this.dialog, {data: {type: "alert", content: "当前数据存在错误"}});
+		} else {
+			this.data.tiaojianquzhi = this.dataLeft.data;
+			this.store.dispatch<CommandAction>({type: "execute", command: {name: "save", args: []}});
+		}
 	}
 
 	async close() {

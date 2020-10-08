@@ -1,15 +1,17 @@
 <div class="title">条件取值设置</div>
 <div class="btn-group">
 	<button mat-raised-button color="accent" (click)="submit()">保存</button>
-	<button mat-raised-button color="normal" (click)="close()">取消</button>
+	<button mat-raised-button color="normal" (click)="close()">关闭</button>
 </div>
 <div class="content">
 	<app-table
-		title="条件取值"
+		#tableLeft
+		[title]="'条件取值'"
 		[data]="dataLeft"
 		[columns]="columnsLeft"
 		[newItem]="newItemLeft"
-		editable
+		[validator]="validatorLeft"
+		[editable]="true"
 		(rowButtonClick)="onRowButtonClick($event)"
 	></app-table>
 	<div class="divider"></div>

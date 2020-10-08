@@ -6,6 +6,10 @@
 		<button mat-raised-button color="primary" (click)="export()">导出</button>
 		<button mat-raised-button color="primary" (click)="import()">导入</button>
 	</div>
+	<div class="error-msg" *ngIf="errorState.length">
+		<div>错误:</div>
+		<div *ngFor="let item of errorState">{{ item.msg }}</div>
+	</div>
 	<perfect-scrollbar class="table-body">
 		<mat-table [dataSource]="data" matSort>
 			<ng-container matColumnDef="select">
@@ -29,7 +33,12 @@
 
 			<ng-container [matColumnDef]="column.field" *ngFor="let column of columns; let colIdx = index">
 				<th mat-header-cell *matHeaderCellDef mat-sort-header [style.width]="columns[colIdx].width">{{ column.name }}</th>
-				<td mat-cell *matCellDef="let item" [satPopoverAnchor]="editor" [style.width]="columns[colIdx].width">
+				<td
+					mat-cell
+					*matCellDef="let item; let rowIdx = index"
+					[style.width]="columns[colIdx].width"
+					[class.error]="!isVaild(rowIdx)"
+				>
 					<ng-container *ngIf="isColumnEditable(column); else notEditable" [ngSwitch]="column.type">
 						<input
 							*ngSwitchCase="'string'"
@@ -83,7 +92,3 @@
 </div>
 
 <input #input type="file" hidden accept=".json" />
-
-<sat-popover #editor hasBackdrop forceAlignment xAlign="center" yAlign="center" (afterClose)="onEdit()">
-	<form class="popup-form" (ngSubmit)="editor.close()"></form>
-</sat-popover>
