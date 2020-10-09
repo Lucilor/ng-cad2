@@ -68,7 +68,8 @@ export function drawText(draw: Container, text: string, size: number, position: 
 	}
 	if (vertical) {
 		el.css("writing-mode", "vertical-lr");
-		el.css("transform", `translate(${-anchor.x * 100}%, ${(anchor.y - 1) * 100}%) scale(1, -1) rotate(180deg)`);
+		console.log(anchor);
+		el.css("transform", `translate(${-anchor.x * 100}%, ${(1 - anchor.y) * 100}%) scale(-1, 1) rotate(180deg)`);
 	} else {
 		el.css("writing-mode", "");
 		el.css("transform", `translate(${-anchor.x * 100}%, ${anchor.y * 100}%) scale(1, -1)`);
@@ -129,7 +130,7 @@ export function drawDimension(draw: Container, style = 1 | 2, points: Point[], t
 	if (axis === "x") {
 		textEl = drawText(draw, text, fontSize, middle, new Point(0.5, 1), false, i + 5)[0];
 	} else if (axis === "y") {
-		textEl = drawText(draw, text, fontSize, middle, new Point(0, 0.5), true, i + 5)[0];
+		textEl = drawText(draw, text, fontSize, middle, new Point(1, 0.5), true, i + 5)[0];
 	}
 	return [l1, l2, l3, tri1, tri2, textEl];
 }
