@@ -175,6 +175,13 @@
 				<mat-option [value]="'算料'">算料</mat-option>
 			</mat-select>
 		</mat-form-field>
+		<mat-form-field>
+			<mat-label>显示宽度标注</mat-label>
+			<mat-select [(ngModel)]="cad.showKuandubaizhu" name="showKuandubaizhu">
+				<mat-option [value]="true">是</mat-option>
+				<mat-option [value]="false">否</mat-option>
+			</mat-select>
+		</mat-form-field>
 	</form>
 </div>
 <app-cad-points></app-cad-points>
