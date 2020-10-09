@@ -465,12 +465,6 @@ export class CadLine extends CadEntity {
 	}[];
 	zhewanOffset: number;
 
-	get valid() {
-		const {start, end} = this;
-		const dx = Math.abs(start.x - end.x);
-		const dy = Math.abs(start.y - end.y);
-		return !isBetween(dx) && !isBetween(dy);
-	}
 	get curve() {
 		return new Line(this.start, this.end);
 	}

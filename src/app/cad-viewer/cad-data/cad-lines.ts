@@ -2,7 +2,7 @@ import {CadEntities} from "./cad-entities";
 import {CadData} from "./cad-data";
 import {CadViewer} from "../cad-viewer";
 import {getVectorFromArray, isBetween} from "./utils";
-import {DEFAULT_TOLERANCE, Point} from "@app/utils";
+import {DEFAULT_TOLERANCE, Line, Point} from "@app/utils";
 import {CadLine, CadArc, CadMtext} from "./cad-entity";
 import {log} from "console";
 
@@ -161,34 +161,64 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	return result;
 }
 
+export function getLinesDistance(l1: CadLineLike, l2: CadLineLike) {
+	const {start: p1, end: p2} = l1;
+	const {start: p3, end: p4} = l2;
+	const d1 = p1.distanceTo(p3);
+	const d2 = p1.distanceTo(p4);
+	const d3 = p2.distanceTo(p3);
+	const d4 = p2.distanceTo(p4);
+	return Math.min(d1, d2, d3, d4);
+}
+
 export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	const lines = sortLines(data, tolerance);
 	const result = {valid: true, errMsg: "", lines};
-	lines.forEach((v) => v.forEach((vv) => (vv.info.error = false)));
+	lines.forEach((v) =>
+		v.forEach((vv) => {
+			const {start, end} = vv;
+			const dx = Math.abs(start.x - end.x);
+			const dy = Math.abs(start.y - end.y);
+			if (isBetween(dx) || isBetween(dy)) {
+				vv.info.errors = ["斜率不符合要求"];
+			} else {
+				vv.info.errors = [];
+			}
+		})
+	);
 	if (lines.length < 1) {
 		result.valid = false;
 		result.errMsg = "没有线";
 	} else if (lines.length > 1) {
 		result.valid = false;
 		result.errMsg = "线分成了多段";
-		let lastEnd: Point;
-		lines.forEach((group, i) => {
-			if (i === 0) {
-				group[group.length - 1].info.error = true;
-				lastEnd = group[group.length - 1].end;
-			} else {
-				const start = group[0].start;
-				const end = group[group.length - 1].end;
-				if (lastEnd.distanceTo(start) < lastEnd.distanceTo(end)) {
-					group[0].info.error = true;
-					lastEnd = end;
-				} else {
-					group[group.length - 1].info.error = true;
-					lastEnd = start;
+		for (let i = 0; i < lines.length - 1; i++) {
+			const currGroup = lines[i];
+			const nextGroup = lines[i + 1];
+			const l1 = currGroup[0];
+			const l2 = currGroup[currGroup.length - 1];
+			const l3 = nextGroup[0];
+			const l4 = nextGroup[nextGroup.length - 1];
+			let minD = Infinity;
+			let errLines: CadLineLike[];
+			[
+				[l1, l3],
+				[l1, l4],
+				[l2, l3],
+				[l2, l4]
+			].forEach((lines) => {
+				const d = getLinesDistance(lines[0], lines[1]);
+				if (d < minD) {
+					minD = d;
+					errLines = lines;
 				}
-			}
-		});
+			});
+			errLines.forEach((l) => {
+				l.info.errors.push(result.errMsg);
+			});
+		}
 	}
+	console.log(result);
 	return result;
 }
 

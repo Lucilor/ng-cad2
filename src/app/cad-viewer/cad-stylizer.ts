@@ -39,7 +39,7 @@ export class CadStylizer {
 
 		const {validateLines, reverseSimilarColor, minLinewidth} = cad.config();
 		if (validateLines && entity instanceof CadLine) {
-			if (!entity.valid || entity.info.error) {
+			if (entity.info.errors?.length) {
 				result.linewidth *= 10;
 				color = new Color(0xff0000);
 			}
