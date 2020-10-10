@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 import {TestComponent} from "./test.component";
 import {provideMockStore} from "@ngrx/store/testing";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
@@ -10,13 +10,15 @@ describe("TestComponent", () => {
 	let component: TestComponent;
 	let fixture: ComponentFixture<TestComponent>;
 
-	beforeEach(async(() => {
-		TestBed.configureTestingModule({
-			declarations: [TestComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule],
-			providers: [provideMockStore({initialState})]
-		}).compileComponents();
-	}));
+	beforeEach(
+		waitForAsync(() => {
+			TestBed.configureTestingModule({
+				declarations: [TestComponent],
+				imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule],
+				providers: [provideMockStore({initialState})]
+			}).compileComponents();
+		})
+	);
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(TestComponent);

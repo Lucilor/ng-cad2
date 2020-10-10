@@ -1,8 +1,6 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 
 import {CadLineComponent} from "./cad-line.component";
-import {CadViewer} from "@app/cad-viewer/cad-viewer";
-import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
@@ -21,7 +19,7 @@ describe("CadLineComponent", () => {
 	let component: CadLineComponent;
 	let fixture: ComponentFixture<CadLineComponent>;
 
-	beforeEach(async(() => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			declarations: [CadLineComponent],
 			imports: [
@@ -46,7 +44,6 @@ describe("CadLineComponent", () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(CadLineComponent);
 		component = fixture.componentInstance;
-		component.cad = new CadViewer(new CadData());
 		fixture.detectChanges();
 	});
 

@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 
 import {PrintA4A015PreviewComponent} from "./print-a4-a015-preview.component";
 import {provideMockStore} from "@ngrx/store/testing";
@@ -12,13 +12,15 @@ describe("PrintA4A015PreviewComponent", () => {
 	let component: PrintA4A015PreviewComponent;
 	let fixture: ComponentFixture<PrintA4A015PreviewComponent>;
 
-	beforeEach(async(() => {
-		TestBed.configureTestingModule({
-			declarations: [PrintA4A015PreviewComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, RouterTestingModule],
-			providers: [provideMockStore({initialState})]
-		}).compileComponents();
-	}));
+	beforeEach(
+		waitForAsync(() => {
+			TestBed.configureTestingModule({
+				declarations: [PrintA4A015PreviewComponent],
+				imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, RouterTestingModule],
+				providers: [provideMockStore({initialState})]
+			}).compileComponents();
+		})
+	);
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(PrintA4A015PreviewComponent);

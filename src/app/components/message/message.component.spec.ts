@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 
 import {MessageComponent} from "./message.component";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
@@ -10,16 +10,18 @@ describe("MessageComponent", () => {
 	let component: MessageComponent;
 	let fixture: ComponentFixture<MessageComponent>;
 
-	beforeEach(async(() => {
-		TestBed.configureTestingModule({
-			declarations: [MessageComponent],
-			imports: [MatFormFieldModule, MatInputModule, MatButtonModule],
-			providers: [
-				{provide: MatDialogRef, useValue: {}},
-				{provide: MAT_DIALOG_DATA, useValue: {}}
-			]
-		}).compileComponents();
-	}));
+	beforeEach(
+		waitForAsync(() => {
+			TestBed.configureTestingModule({
+				declarations: [MessageComponent],
+				imports: [MatFormFieldModule, MatInputModule, MatButtonModule],
+				providers: [
+					{provide: MatDialogRef, useValue: {}},
+					{provide: MAT_DIALOG_DATA, useValue: {}}
+				]
+			}).compileComponents();
+		})
+	);
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(MessageComponent);

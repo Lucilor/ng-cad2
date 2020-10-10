@@ -153,7 +153,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 		}
 	}
 
-	// tslint:disable-next-line: member-ordering
+	// eslint-disable-next-line @typescript-eslint/member-ordering
 	setDimensionName = throttle((event: InputEvent, dimension: CadDimension) => {
 		const str = (event.target as HTMLInputElement).value;
 		dimension.mingzi = str;

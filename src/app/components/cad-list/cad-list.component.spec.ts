@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 
 import {CadListComponent} from "./cad-list.component";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialogModule} from "@angular/material/dialog";
@@ -23,30 +23,36 @@ describe("CadListComponent", () => {
 	let component: CadListComponent;
 	let fixture: ComponentFixture<CadListComponent>;
 
-	beforeEach(async(() => {
-		TestBed.configureTestingModule({
-			declarations: [CadListComponent],
-			imports: [
-				HttpClientTestingModule,
-				MatDialogModule,
-				MatSnackBarModule,
-				PerfectScrollbarModule,
-				MatFormFieldModule,
-				MatInputModule,
-				MatButtonModule,
-				MatPaginatorModule,
-				MatTableModule,
-				MatInputModule,
-				MatSelectModule,
-				MatListModule,
-				MatDividerModule,
-				FormsModule,
-				BrowserAnimationsModule,
-				RouterTestingModule
-			],
-			providers: [provideMockStore({initialState}), {provide: MatDialogRef, useValue: {}}, {provide: MAT_DIALOG_DATA, useValue: {}}]
-		}).compileComponents();
-	}));
+	beforeEach(
+		waitForAsync(() => {
+			TestBed.configureTestingModule({
+				declarations: [CadListComponent],
+				imports: [
+					HttpClientTestingModule,
+					MatDialogModule,
+					MatSnackBarModule,
+					PerfectScrollbarModule,
+					MatFormFieldModule,
+					MatInputModule,
+					MatButtonModule,
+					MatPaginatorModule,
+					MatTableModule,
+					MatInputModule,
+					MatSelectModule,
+					MatListModule,
+					MatDividerModule,
+					FormsModule,
+					BrowserAnimationsModule,
+					RouterTestingModule
+				],
+				providers: [
+					provideMockStore({initialState}),
+					{provide: MatDialogRef, useValue: {}},
+					{provide: MAT_DIALOG_DATA, useValue: {}}
+				]
+			}).compileComponents();
+		})
+	);
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(CadListComponent);

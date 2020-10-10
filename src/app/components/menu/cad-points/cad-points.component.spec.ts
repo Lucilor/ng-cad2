@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 
 import {CadPointsComponent} from "./cad-points.component";
 import {provideMockStore} from "@ngrx/store/testing";
@@ -8,12 +8,14 @@ describe("CadPointsComponent", () => {
 	let component: CadPointsComponent;
 	let fixture: ComponentFixture<CadPointsComponent>;
 
-	beforeEach(async(() => {
-		TestBed.configureTestingModule({
-			declarations: [CadPointsComponent],
-			providers: [provideMockStore({initialState})]
-		}).compileComponents();
-	}));
+	beforeEach(
+		waitForAsync(() => {
+			TestBed.configureTestingModule({
+				declarations: [CadPointsComponent],
+				providers: [provideMockStore({initialState})]
+			}).compileComponents();
+		})
+	);
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(CadPointsComponent);

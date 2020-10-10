@@ -88,7 +88,11 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 
 	masterToggle() {
 		const {data: dataSource, selection} = this;
-		this.isAllSelected() ? selection.clear() : dataSource.data.forEach((row) => selection.select(row));
+		if (this.isAllSelected()) {
+			selection.clear();
+		} else {
+			dataSource.data.forEach((row) => selection.select(row));
+		}
 	}
 
 	addItem(index?: number) {
@@ -120,7 +124,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 		this.validate();
 	}
 
-	// tslint:disable-next-line: member-ordering
+	// eslint-disable-next-line @typescript-eslint/member-ordering
 	setCellValue = throttle((event: InputEvent | MatSelectChange | MatSlideToggleChange, colIdx: number, item: T) => {
 		const {field, type} = this.columns[colIdx];
 		if (event instanceof MatSelectChange) {

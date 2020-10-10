@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 
 import {CadConsoleComponent} from "./cad-console.component";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
@@ -12,13 +12,15 @@ describe("CadConsoleComponent", () => {
 	let component: CadConsoleComponent;
 	let fixture: ComponentFixture<CadConsoleComponent>;
 
-	beforeEach(async(() => {
-		TestBed.configureTestingModule({
-			declarations: [CadConsoleComponent],
-			imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, RouterTestingModule],
-			providers: [provideMockStore({initialState})]
-		}).compileComponents();
-	}));
+	beforeEach(
+		waitForAsync(() => {
+			TestBed.configureTestingModule({
+				declarations: [CadConsoleComponent],
+				imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule, RouterTestingModule],
+				providers: [provideMockStore({initialState})]
+			}).compileComponents();
+		})
+	);
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(CadConsoleComponent);

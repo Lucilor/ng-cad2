@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 
 import {CadOptionsComponent} from "./cad-options.component";
 import {provideMockStore} from "@ngrx/store/testing";
@@ -21,27 +21,33 @@ describe("CadOptionsComponent", () => {
 	let component: CadOptionsComponent;
 	let fixture: ComponentFixture<CadOptionsComponent>;
 
-	beforeEach(async(() => {
-		TestBed.configureTestingModule({
-			declarations: [CadOptionsComponent, ImageComponent],
-			imports: [
-				HttpClientTestingModule,
-				MatDialogModule,
-				MatSnackBarModule,
-				MatPaginatorModule,
-				BrowserAnimationsModule,
-				PerfectScrollbarModule,
-				MatFormFieldModule,
-				MatInputModule,
-				MatButtonModule,
-				MatPaginatorModule,
-				MatInputModule,
-				FormsModule,
-				RouterTestingModule
-			],
-			providers: [provideMockStore({initialState}), {provide: MatDialogRef, useValue: {}}, {provide: MAT_DIALOG_DATA, useValue: {}}]
-		}).compileComponents();
-	}));
+	beforeEach(
+		waitForAsync(() => {
+			TestBed.configureTestingModule({
+				declarations: [CadOptionsComponent, ImageComponent],
+				imports: [
+					HttpClientTestingModule,
+					MatDialogModule,
+					MatSnackBarModule,
+					MatPaginatorModule,
+					BrowserAnimationsModule,
+					PerfectScrollbarModule,
+					MatFormFieldModule,
+					MatInputModule,
+					MatButtonModule,
+					MatPaginatorModule,
+					MatInputModule,
+					FormsModule,
+					RouterTestingModule
+				],
+				providers: [
+					provideMockStore({initialState}),
+					{provide: MatDialogRef, useValue: {}},
+					{provide: MAT_DIALOG_DATA, useValue: {}}
+				]
+			}).compileComponents();
+		})
+	);
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(CadOptionsComponent);

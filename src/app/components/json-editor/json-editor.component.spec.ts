@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 
 import {JsonEditorComponent} from "./json-editor.component";
 import {JsonEditorComponent as JsonEditorComponent2} from "ang-jsoneditor";
@@ -8,7 +8,7 @@ describe("JsonEditorComponent", () => {
 	let component: JsonEditorComponent;
 	let fixture: ComponentFixture<JsonEditorComponent>;
 
-	beforeEach(async(() => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			declarations: [JsonEditorComponent, JsonEditorComponent2],
 			imports: [MatDialogModule],

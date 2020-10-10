@@ -246,7 +246,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		return "";
 	}
 
-	// tslint:disable-next-line: member-ordering
+	// eslint-disable-next-line @typescript-eslint/member-ordering
 	setLineText = throttle((event: InputEvent | MatSelectChange | Event, field: string) => {
 		let value: string;
 		if (event instanceof MatSelectChange) {

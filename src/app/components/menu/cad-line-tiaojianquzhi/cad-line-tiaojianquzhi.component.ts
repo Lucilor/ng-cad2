@@ -60,7 +60,6 @@ export class CadLineTiaojianquzhiComponent extends MenuComponent implements OnIn
 			result.push({rows, msg: "优先级重复"});
 		}
 		return result;
-		// tslint:disable-next-line: semicolon
 	};
 
 	constructor(

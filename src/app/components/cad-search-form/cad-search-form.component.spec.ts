@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
 
 import {CadSearchFormComponent} from "./cad-search-form.component";
 import {provideMockStore} from "@ngrx/store/testing";
@@ -20,7 +20,7 @@ describe("CadSearchFormComponent", () => {
 	let component: CadSearchFormComponent;
 	let fixture: ComponentFixture<CadSearchFormComponent>;
 
-	beforeEach(async(() => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			declarations: [CadSearchFormComponent],
 			imports: [

@@ -49,7 +49,7 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 		return "";
 	}
 
-	// tslint:disable-next-line: member-ordering
+	// eslint-disable-next-line @typescript-eslint/member-ordering
 	setInfo = throttle((field: string, event: InputEvent) => {
 		const value = (event.target as HTMLInputElement).value;
 		this.selected.forEach((e) => (e[field] = value));

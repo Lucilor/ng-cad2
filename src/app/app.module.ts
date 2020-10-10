@@ -69,7 +69,6 @@ export class MyMatPaginatorIntl extends MatPaginatorIntl {
 	getRangeLabel = (page: number, pageSize: number, length: number) => {
 		const totalPage = Math.ceil(length / pageSize);
 		return `第${page + 1}页，共${totalPage}页`;
-		// tslint:disable-next-line: semicolon
 	};
 }
 
