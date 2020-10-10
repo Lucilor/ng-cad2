@@ -218,7 +218,6 @@ export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 			});
 		}
 	}
-	console.log(result);
 	return result;
 }
 

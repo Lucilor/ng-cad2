@@ -5,7 +5,6 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {openMessageDialog} from "../components/message/message.component";
 import {Response, Collection} from "../app.common";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
-import {CadViewer} from "../cad-viewer/cad-viewer";
 import {RSAEncrypt} from "@app/utils";
 import {Expressions} from "../cad-viewer/cad-data/utils";
 import {ActivatedRoute, Params} from "@angular/router";
@@ -52,7 +51,6 @@ export class CadDataService {
 		if (!baseURL) {
 			return null;
 		}
-		const name = url;
 		const data = encodeURIComponent(queryParams.data ?? "");
 		const encode = encodeURIComponent(queryParams.encode ?? "");
 		url = `${baseURL}/${url}/${encode}`;
@@ -130,7 +128,6 @@ export class CadDataService {
 		const result: CadData[] = [];
 		let counter = 0;
 		let successCounter = 0;
-		const name = "postCadData";
 		const data = encodeURIComponent(queryParams.data ?? "");
 		const encode = encodeURIComponent(queryParams.encode ?? "");
 		return new Promise<CadData[]>(async (resolve) => {
@@ -148,6 +145,10 @@ export class CadDataService {
 					if (response.code === 0) {
 						result[i] = new CadData(response.data);
 						successCounter++;
+					} else if (response.code === -2){
+						this.alert(response.msg);
+						resolve(null);
+						break;
 					} else {
 						throw new Error(response.msg);
 					}
@@ -210,26 +211,6 @@ export class CadDataService {
 		}
 		this.snackBar.open(response.msg);
 		return new CadData(response.data);
-	}
-
-	saveCadStatus(cad: CadViewer, field: string) {
-		// const status = {id: cad.data.id, position: cad.xy()};
-		// session.save(field, status);
-		// return status;
-	}
-
-	loadCadStatus(cad: CadViewer, field: string) {
-		// const status = session.load(field);
-		// if (status && status.id === cad.data.id) {
-		// 	const x = status.position?.x;
-		// 	const y = status.position?.x;
-		// 	if (typeof x === "number" && typeof y === "number") {
-		// 		cad.xy(x, y);
-		// 	}
-		// 	return status;
-		// } else {
-		// 	return null;
-		// }
 	}
 
 	async getOptions(

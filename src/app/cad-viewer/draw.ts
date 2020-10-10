@@ -68,7 +68,6 @@ export function drawText(draw: Container, text: string, size: number, position: 
 	}
 	if (vertical) {
 		el.css("writing-mode", "vertical-lr");
-		console.log(anchor);
 		el.css("transform", `translate(${-anchor.x * 100}%, ${(1 - anchor.y) * 100}%) scale(-1, 1) rotate(180deg)`);
 	} else {
 		el.css("writing-mode", "");
