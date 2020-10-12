@@ -1,0 +1,11 @@
+<form>
+	<mat-form-field *ngFor="let item of data">
+		<mat-label>{{item.key}}</mat-label>
+		<input matInput type="text" [(ngModel)]="item.value" [name]="item.key" />
+		<mat-icon matSuffix color="primary" (click)="onListClick(item)">list</mat-icon>
+	</mat-form-field>
+</form>
+<div class="btn-group">
+    <button mat-raised-button color="normal" (click)="submit()">确定</button>
+    <button mat-raised-button color="normal" (click)="close()">取消</button>
+</div>

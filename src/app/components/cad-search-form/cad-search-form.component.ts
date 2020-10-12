@@ -3,7 +3,7 @@ import {MatDialogRef, MatDialogConfig, MatDialog} from "@angular/material/dialog
 import {CadDataService, CadSearchData} from "@app/services/cad-data.service";
 import {timeout} from "@app/app.common";
 import {openMessageDialog} from "../message/message.component";
-import {CadData, CadOption} from "@app/cad-viewer/cad-data/cad-data";
+import {CadOption} from "@app/cad-viewer/cad-data/cad-data";
 
 @Component({
 	selector: "app-cad-search-form",

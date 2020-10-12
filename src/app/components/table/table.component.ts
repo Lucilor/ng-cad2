@@ -5,7 +5,6 @@ import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatSort} from "@angular/material/sort";
 import {MatTable, MatTableDataSource} from "@angular/material/table";
-import {SatPopover} from "@ncstate/sat-popover";
 import {downloadFile} from "@src/app/app.common";
 import {cloneDeep, throttle} from "lodash";
 import {openMessageDialog} from "../message/message.component";
@@ -41,6 +40,15 @@ export interface RowButtonEvent<T> {
 	name: string;
 	field: string;
 	item: T;
+	colIdx: number;
+	rowIdx: number;
+}
+
+export interface CellEvent<T> {
+	field: string;
+	item: T;
+	colIdx: number;
+	rowIdx: number;
 }
 
 @Component({
@@ -57,6 +65,9 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	@Input() editable: string | boolean;
 	@Input() validator: TableValidator<T>;
 	@Output() rowButtonClick = new EventEmitter<RowButtonEvent<T>>();
+	@Output() cellFocus = new EventEmitter<CellEvent<T>>();
+	@Output() cellBlur = new EventEmitter<CellEvent<T>>();
+	@Output() cellChange = new EventEmitter<CellEvent<T>>();
 	selection = new SelectionModel<T>(true, []);
 	columnFields: string[];
 	@ViewChild(MatTable) table: MatTable<T>;
@@ -125,7 +136,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/member-ordering
-	setCellValue = throttle((event: InputEvent | MatSelectChange | MatSlideToggleChange, colIdx: number, item: T) => {
+	setCellValue = throttle((event: InputEvent | MatSelectChange | MatSlideToggleChange, colIdx: number, rowIdx: number, item: T) => {
 		const {field, type} = this.columns[colIdx];
 		if (event instanceof MatSelectChange) {
 			item[field] = event.value;
@@ -140,10 +151,21 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 			}
 		}
 		this.validate();
+		this.cellChange.emit({field, item, colIdx, rowIdx});
 	});
 
-	onRowButtonClick(name: string, field: string, item: T) {
-		this.rowButtonClick.emit({name, field, item});
+	onCellFocus(_event: FocusEvent, colIdx: number, rowIdx: number, item: T) {
+		const {field} = this.columns[colIdx];
+		this.cellFocus.emit({field, item, colIdx, rowIdx});
+	}
+
+	onCellBlur(_event: FocusEvent, colIdx: number, rowIdx: number, item: T) {
+		const {field} = this.columns[colIdx];
+		this.cellBlur.emit({field, item, colIdx, rowIdx});
+	}
+
+	onRowButtonClick(name: string, field: string, item: T, colIdx: number, rowIdx: number) {
+		this.rowButtonClick.emit({name, field, item, colIdx, rowIdx});
 	}
 
 	export() {

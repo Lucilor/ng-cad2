@@ -45,24 +45,26 @@
 							type="text"
 							matInput
 							[value]="item[column.field]"
-							(input)="setCellValue($event, colIdx, item)"
+							(input)="setCellValue($event, colIdx, rowIdx, item)"
+							(focus)="onCellFocus($event, colIdx, rowIdx, item)"
+							(blur)="onCellBlur($event, colIdx, rowIdx, item)"
 						/>
 						<input
 							*ngSwitchCase="'number'"
 							matInput
 							type="number"
 							[value]="item[column.field]"
-							(input)="setCellValue($event, colIdx, item)"
+							(input)="setCellValue($event, colIdx, rowIdx, item)"
 						/>
 						<mat-slide-toggle
 							*ngSwitchCase="'boolean'"
 							[checked]="item[column.field] === true"
-							(change)="setCellValue($event, colIdx, item)"
+							(change)="setCellValue($event, colIdx, rowIdx, item)"
 						></mat-slide-toggle>
 						<mat-select
 							*ngSwitchCase="'select'"
 							[value]="item[column.field]"
-							(selectionChange)="setCellValue($event, colIdx, item)"
+							(selectionChange)="setCellValue($event, colIdx, rowIdx, item)"
 						>
 							<mat-option *ngFor="let item of getColumnOptions(column)" [value]="item">
 								{{ item }}
@@ -73,7 +75,7 @@
 								mat-stroked-button
 								color="primary"
 								*ngFor="let btn of getColumnButtons(column)"
-								(click)="onRowButtonClick(btn.event, column.field, item)"
+								(click)="onRowButtonClick(btn.event, column.field, item, colIdx, rowIdx)"
 							>
 								{{ btn.name }}
 							</button>

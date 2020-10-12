@@ -1,13 +1,17 @@
-import {Component, Inject, Injector, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, Inject, Injector, OnInit, ViewChild} from "@angular/core";
 import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadLine} from "@src/app/cad-viewer/cad-data/cad-entity";
-import {ColumnInfo, RowButtonEvent, TableComponent, TableErrorState, TableValidator} from "../../table/table.component";
+import {CellEvent, ColumnInfo, RowButtonEvent, TableComponent, TableErrorState, TableValidator} from "../../table/table.component";
 import {MatTableDataSource} from "@angular/material/table";
 import {cloneDeep} from "lodash";
 import {openMessageDialog} from "../../message/message.component";
 import {CommandAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {getLoaders} from "@src/app/store/selectors";
+import {
+	CadLineTiaojianquzhiSelectData,
+	openCadLineTiaojianquzhiSelectDialog
+} from "../cad-line-tiaojianquzhi-select/cad-line-tiaojianquzhi-select.component";
 
 type RawData = CadLine;
 type RawDataLeft = RawData["tiaojianquzhi"][0];
@@ -38,6 +42,8 @@ export class CadLineTiaojianquzhiComponent extends MenuComponent implements OnIn
 
 	@ViewChild("tableLeft") tableLeft: TableComponent<RawDataLeft>;
 	saveLoaderId = "cadLineTiaojianquzhiSavingCad";
+	// openSelection: CadLineTiaojianquzhiSelectData = [];
+	openSelection = -1;
 
 	validatorLeft: TableValidator<RawDataLeft> = (data) => {
 		const result: TableErrorState = [];
@@ -104,11 +110,36 @@ export class CadLineTiaojianquzhiComponent extends MenuComponent implements OnIn
 		this.dialogRef.close();
 	}
 
+	setOpenSelection(item: RawDataLeft, rowIdx: number) {
+		const {type} = item;
+		this.openSelection = type === "选择" ? rowIdx : -1;
+	}
+
 	onRowButtonClick(event: RowButtonEvent<RawDataLeft>) {
-		const {name, item} = event;
+		const {name, item, rowIdx} = event;
 		if (name === "edit") {
 			this.dataRight.data = item.data;
 			this.newItemRight = {name: "", value: 0, input: true};
+			this.setOpenSelection(item, rowIdx);
+		}
+	}
+
+	onCellChange(event: CellEvent<RawDataLeft>) {
+		this.setOpenSelection(event.item, event.rowIdx);
+	}
+
+	async onCellFocus(event: CellEvent<RawDataRight>) {
+		if (event.field === "name" && this.openSelection > -1) {
+			const keys = this.dataLeft.data[this.openSelection].key.split(/,|，/);
+			const values = event.item.name.split(/,|，/);
+			const data: CadLineTiaojianquzhiSelectData = keys.map((v, i) => {
+				return {key: v, value: values[i] ?? ""};
+			});
+			const ref = openCadLineTiaojianquzhiSelectDialog(this.dialog, {data});
+			const result = await ref.afterClosed().toPromise();
+			if (result) {
+				this.dataRight.data[event.rowIdx].name = result.map((v) => v.value).join(",");
+			}
 		}
 	}
 }
