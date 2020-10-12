@@ -2,6 +2,7 @@ import {Component, Inject, OnInit} from "@angular/core";
 import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {cloneDeep} from "lodash";
+import {openMessageDialog} from "../../message/message.component";
 import {openCadOptionsDialog} from "../cad-options/cad-options.component";
 
 export type CadLineTiaojianquzhiSelectData = {key: string; value: string}[];
@@ -33,6 +34,12 @@ export class CadLineTiaojianquzhiSelectComponent implements OnInit {
 	}
 
 	submit() {
+		for (const item of this.data) {
+			if (!item.value) {
+				openMessageDialog(this.dialog, {data: {type: "alert", content: "请不要留空！"}});
+				return;
+			}
+		}
 		this.dialogRef.close(this.data);
 	}
 
