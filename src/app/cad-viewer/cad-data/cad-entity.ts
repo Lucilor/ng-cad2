@@ -507,6 +507,11 @@ export class CadLine extends CadEntity {
 		this.zidingzhankaichang = data.zidingzhankaichang ?? -1;
 		this.tiaojianquzhi = data.tiaojianquzhi ?? [];
 		this.zhewanOffset = data.zhewanOffset ?? 0;
+		this.tiaojianquzhi.forEach((v) => {
+			if ((v.type as any) === "选项") {
+				v.type = "选择";
+			}
+		});
 	}
 
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
