@@ -24,7 +24,8 @@ export const paths = {
 	index: "index",
 	"print-cad": "print-cad",
 	test: "test",
-	printA4A015Preview: "printA4A015Preview"
+	printA4A015Preview: "printA4A015Preview",
+	import: "import"
 };
 
 export interface Response {
@@ -49,7 +50,7 @@ export function checkLogout(response: string, execute = true) {
 }
 
 export async function timeout(time = 0) {
-	return new Promise((r) => setTimeout(() => r(), time));
+	return new Promise<never>((r) => setTimeout(() => r(), time));
 }
 
 export type Collection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";

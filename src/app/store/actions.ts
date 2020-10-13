@@ -35,8 +35,9 @@ export interface ConfigAction extends Action {
 	config: Partial<State["config"]>;
 }
 
-export type LoaderActionType = "add loader" | "remove loader" | "clear loader";
+export type LoaderActionType = "add loader" | "remove loader" | "clear loader" | "set loader progress";
 export interface LoaderAction extends Action {
 	readonly type: LoaderActionType;
-	name: string;
+	id: State["loaders"][0]["id"];
+	progress?: State["loaders"][0]["progress"];
 }

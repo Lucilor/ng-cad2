@@ -58,6 +58,7 @@ import {CadConsoleComponent} from "./components/cad-console/cad-console.componen
 import {CadLineTiaojianquzhiComponent} from "./components/menu/cad-line-tiaojianquzhi/cad-line-tiaojianquzhi.component";
 import {TableComponent} from "./components/table/table.component";
 import {CadLineTiaojianquzhiSelectComponent} from "./components/menu/cad-line-tiaojianquzhi-select/cad-line-tiaojianquzhi-select.component";
+import {ImportComponent} from "./components/import/import.component";
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -104,7 +105,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		CadConsoleComponent,
 		CadLineTiaojianquzhiComponent,
 		TableComponent,
-		CadLineTiaojianquzhiSelectComponent
+		CadLineTiaojianquzhiSelectComponent,
+		ImportComponent
 	],
 	imports: [
 		BrowserModule,

@@ -1,16 +1,7 @@
 import {Component, OnInit, ViewChild, OnDestroy, Injector, ElementRef} from "@angular/core";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {
-	timeout,
-	Collection,
-	session,
-	copyToClipboard,
-	removeCadGongshi,
-	addCadGongshi,
-	getCadPreview,
-	globalVars
-} from "@app/app.common";
+import {timeout, Collection, session, copyToClipboard, removeCadGongshi, addCadGongshi, getCadPreview, globalVars} from "@app/app.common";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {CurrCadsAction} from "@app/store/actions";
 import {Point, RSAEncrypt} from "@app/utils";
@@ -589,11 +580,10 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 	async replaceData() {
 		const data = this.contextMenuCad.data;
 		const ref = openCadListDialog(this.dialog, {data: {selectMode: "single", options: data.options, collection: "cad"}});
-		ref.afterClosed().subscribe((cads: CadData[]) => {
-			if (cads && cads[0]) {
-				this.dataService.replaceData(data, cads[0].id);
-			}
-		});
+		const cads = await ref.afterClosed().toPromise();
+		if (cads && cads[0]) {
+			this.dataService.replaceData(data, cads[0].id);
+		}
 	}
 
 	saveStatus() {

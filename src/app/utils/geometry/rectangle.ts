@@ -79,11 +79,9 @@ export class Rectangle {
 			const {x, y} = object;
 			const {top, right, bottom, left} = this;
 			return x >= left && x <= right && y <= top && y >= bottom;
-		}
-		if (object instanceof Line) {
+		} else if (object instanceof Line) {
 			return this.contains(object.start) && this.contains(object.end);
-		}
-		if (object instanceof Rectangle) {
+		} else if (object instanceof Rectangle) {
 			const {x: x1, y: y1} = this.min;
 			const {x: x2, y: y2} = this.max;
 			const {x: x3, y: y3} = object.min;

@@ -803,8 +803,8 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	}
 
 	async save() {
-		this.store.dispatch<LoaderAction>({type: "add loader", name: "saveCad"});
-		const {cad, dataService} = this;
+		this.store.dispatch<LoaderAction>({type: "add loader", id: "saveCad"});
+		const {cad, dataService, store} = this;
 		let result: CadData[] = [];
 		const data = cad.data.components.data;
 		if (this.collection === "p_yuanshicadwenjian") {
@@ -819,10 +819,14 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			} else {
 				indices = [...Array(data.length).keys()];
 			}
-			for (const i of indices) {
-				result = await dataService.postCadData(data[i].components.data, {collection: "cad"});
-				this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+			let cads: CadData[] = [];
+			indices.forEach((v) => (cads = cads.concat(data[v].components.data)));
+			const total = cads.length;
+			for (let i = 0; i < total; i++) {
+				await dataService.setCadData(cads[i], true);
+				store.dispatch<LoaderAction>({type: "set loader progress", id: "saveCad", progress: {current: i + 1, total}});
 			}
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		} else {
 			if (cad.config("validateLines")) {
 				const validateResult = [];
@@ -845,12 +849,16 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			if (this.collection) {
 				postData.collection = this.collection;
 			}
-			result = await dataService.postCadData(data, postData);
+			const total = data.length;
+			for (let i = 0; i < total; i++) {
+				await dataService.setCadData(data[i], true);
+				store.dispatch<LoaderAction>({type: "set loader progress", id: "saveCad", progress: {current: i + 1, total}});
+			}
 			if (result) {
 				this.openCad(result);
 			}
 		}
-		this.store.dispatch<LoaderAction>({type: "remove loader", name: "saveCad"});
+		store.dispatch<LoaderAction>({type: "remove loader", id: "saveCad"});
 		return result;
 	}
 

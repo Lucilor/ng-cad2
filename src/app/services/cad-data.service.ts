@@ -54,8 +54,8 @@ export class CadDataService {
 		const data = encodeURIComponent(queryParams.data ?? "");
 		const encode = encodeURIComponent(queryParams.encode ?? "");
 		url = `${baseURL}/${url}/${encode}`;
+		let response: Response;
 		try {
-			let response: Response;
 			if (method === "GET") {
 				if (data) {
 					url += `?data=${data}`;
@@ -92,23 +92,26 @@ export class CadDataService {
 				}
 				response = await this.http.post<Response>(url, formData).toPromise();
 			}
-			if (!response) {
+			if (response.code !== 0) {
 				throw new Error("服务器无响应");
 			}
 			if (response.code === 0) {
-				return response;
+				if (response.msg && !this.silent) {
+					this.snackBar.open(response.msg);
+				}
 			} else {
 				throw new Error(response.msg);
 			}
 		} catch (error) {
 			this.alert(error);
-			return null;
+		} finally {
+			return response;
 		}
 	}
 
 	async getCadData(postData?: string | {id?: string; ids?: string[]; collection?: Collection}) {
 		const response = await this.request("peijian/cad/getCad", "POST", postData);
-		if (!response) {
+		if (response.code !== 0) {
 			return [];
 		}
 		if (!Array.isArray(response.data)) {
@@ -119,57 +122,67 @@ export class CadDataService {
 		return result;
 	}
 
-	async postCadData(cadData: CadData[], postData?: any) {
-		const {baseURL, queryParams} = this;
-		if (cadData.length < 1) {
-			return [];
+	async setCadData(cadData: CadData, force: boolean, time?: number) {
+		const postData = {cadData: cadData.export(), force, time};
+		const response = await this.request("peijian/cad/setCad", "POST", postData, true);
+		if (response?.code === 0) {
+			return response.data as CadData;
+		} else {
+			return null;
 		}
-		cadData.forEach((d) => d.sortComponents());
-		const result: CadData[] = [];
-		let counter = 0;
-		let successCounter = 0;
-		const data = encodeURIComponent(queryParams.data ?? "");
-		const encode = encodeURIComponent(queryParams.encode ?? "");
-		return new Promise<CadData[]>(async (resolve) => {
-			for (let i = 0; i < cadData.length; i++) {
-				const formData = new FormData();
-				if (postData) {
-					formData.append("data", RSAEncrypt(postData));
-				} else if (data) {
-					formData.append("data", data);
-				}
-				const d = cadData[i];
-				formData.append("cadData", JSON.stringify(d.export()));
-				try {
-					const response = await this.http.post<Response>(`${baseURL}/peijian/cad/setCAD/${encode}`, formData).toPromise();
-					if (response.code === 0) {
-						result[i] = new CadData(response.data);
-						successCounter++;
-					} else if (response.code === -2){
-						this.alert(response.msg);
-						resolve(null);
-						break;
-					} else {
-						throw new Error(response.msg);
-					}
-				} catch (error) {
-					result[i] = new CadData();
-				} finally {
-					counter++;
-				}
-				if (counter >= cadData.length) {
-					if (successCounter === counter) {
-						this.snackBar.open(`${successCounter > 1 ? "全部" : ""}成功`);
-						resolve(result);
-					} else {
-						this.snackBar.open(`${counter > 1 ? (successCounter > 0 ? "部分" : "全部") : ""}失败`);
-						resolve(null);
-					}
-					// resolve(result);
-				}
-			}
-		});
 	}
+
+	// async postCadData(cadData: CadData[], postData?: any) {
+	// 	const {baseURL, queryParams} = this;
+	// 	if (cadData.length < 1) {
+	// 		return [];
+	// 	}
+	// 	cadData.forEach((d) => d.sortComponents());
+	// 	const result: CadData[] = [];
+	// 	let counter = 0;
+	// 	let successCounter = 0;
+	// 	const data = encodeURIComponent(queryParams.data ?? "");
+	// 	const encode = encodeURIComponent(queryParams.encode ?? "");
+	// 	return new Promise<CadData[]>(async (resolve) => {
+	// 		for (let i = 0; i < cadData.length; i++) {
+	// 			const formData = new FormData();
+	// 			if (postData) {
+	// 				formData.append("data", RSAEncrypt(postData));
+	// 			} else if (data) {
+	// 				formData.append("data", data);
+	// 			}
+	// 			const d = cadData[i];
+	// 			formData.append("cadData", JSON.stringify(d.export()));
+	// 			try {
+	// 				const response = await this.http.post<Response>(`${baseURL}/peijian/cad/setCAD/${encode}`, formData).toPromise();
+	// 				if (response.code === 0) {
+	// 					result[i] = new CadData(response.data);
+	// 					successCounter++;
+	// 				} else if (response.code === -2){
+	// 					this.alert(response.msg);
+	// 					resolve(null);
+	// 					break;
+	// 				} else {
+	// 					throw new Error(response.msg);
+	// 				}
+	// 			} catch (error) {
+	// 				result[i] = new CadData();
+	// 			} finally {
+	// 				counter++;
+	// 			}
+	// 			if (counter >= cadData.length) {
+	// 				if (successCounter === counter) {
+	// 					this.snackBar.open(`${successCounter > 1 ? "全部" : ""}成功`);
+	// 					resolve(result);
+	// 				} else {
+	// 					this.snackBar.open(`${counter > 1 ? (successCounter > 0 ? "部分" : "全部") : ""}失败`);
+	// 					resolve(null);
+	// 				}
+	// 				// resolve(result);
+	// 			}
+	// 		}
+	// 	});
+	// }
 
 	async getCadDataPage(
 		collection: Collection,
@@ -182,7 +195,7 @@ export class CadDataService {
 	) {
 		const postData = {page, limit, search, options, collection, optionsMatchType, qiliao};
 		const response = await this.request("peijian/cad/getCad", "POST", postData);
-		if (!response) {
+		if (response.code !== 0) {
 			return {data: [], count: 0};
 		}
 		const result: CadData[] = [];
@@ -193,7 +206,7 @@ export class CadDataService {
 	async getCadListPage(collection: Collection, page: number, limit: number, search?: {[key: string]: string}) {
 		const postData = {page, limit, search, collection};
 		const response = await this.request("peijian/cad/getCadList", "POST", postData);
-		if (!response) {
+		if (response.code !== 0) {
 			return {data: [], count: 0};
 		}
 		return {data: response.data, count: response.count};
@@ -206,10 +219,9 @@ export class CadDataService {
 			target,
 			collection
 		});
-		if (!response) {
+		if (response.code !== 0) {
 			return null;
 		}
-		this.snackBar.open(response.msg);
 		return new CadData(response.data);
 	}
 
@@ -284,10 +296,10 @@ export class CadDataService {
 		}
 	}
 
-	async saveAsDxf(data: CadData, path: string) {
-		const response = await this.request("peijian/cad/saveAsDxf", "POST", {cadData: data.export(), path});
-		return response ? response.data : null;
-	}
+	// async saveAsDxf(data: CadData, path: string) {
+	// 	const response = await this.request("peijian/cad/saveAsDxf", "POST", {cadData: data.export(), path});
+	// 	return response ? response.data : null;
+	// }
 
 	async uploadDxf(dxf: File) {
 		const response = await this.request("peijian/cad/uploadDxf", "POST", {dxf});

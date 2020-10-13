@@ -107,7 +107,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		});
 
 		this.getObservable(getLoaders).subscribe((loaders) => {
-			if (loaders.includes("saveCad")) {
+			if (loaders.find((v) => v.id === "saveCad")) {
 				this.loader.startLoader(this.saveLoaderId);
 			} else if (this.loader.getLoader(this.saveLoaderId)) {
 				this.loader.stopLoader(this.saveLoaderId);

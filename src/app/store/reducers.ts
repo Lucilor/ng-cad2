@@ -105,13 +105,17 @@ export function configReducer(config = initialState.config, action: ConfigAction
 }
 
 export function loadersReducer(loaders = initialState.loaders, action: LoaderAction) {
-	const {type, name} = action;
+	const {type, id, progress} = action;
 	if (type === "add loader") {
-		return [...Array.from(loaders), name];
+		return [...Array.from(loaders), {id, progress}];
 	} else if (type === "remove loader") {
-		return Array.from(loaders).filter((v) => v !== name);
+		return Array.from(loaders).filter((v) => v.id !== id);
 	} else if (type === "clear loader") {
 		return [];
+	} else if (type === "set loader progress") {
+		const loader = loaders.find((v) => v.id === id);
+		loader.progress = progress;
+		return loaders;
 	}
 	return loaders;
 }

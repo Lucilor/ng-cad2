@@ -3,6 +3,7 @@
 	<button mat-menu-item [matMenuTriggerFor]="openType">打开</button>
 	<button mat-menu-item (click)="clickBtn('s')">保存<span class="shortcut">Ctrl + S</span></button>
 	<button mat-menu-item (click)="clickBtn('p')">打印<span class="shortcut">Ctrl + P</span></button>
+	<button mat-menu-item [routerLink]="'/import'">导入</button>
 	<!-- <button mat-menu-item>另存为</button> -->
 </mat-menu>
 <mat-menu #openType="matMenu">
