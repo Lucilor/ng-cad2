@@ -342,7 +342,7 @@ export class CadViewer extends EventEmitter {
 					} else {
 						entity.font_size = 28;
 					}
-					if (hideLineLength) {
+					if (hideLineLength || parent.hideLength) {
 						el.remove();
 						entity.el = null;
 					}
@@ -485,10 +485,18 @@ export class CadViewer extends EventEmitter {
 			const data = new CadData();
 			data.entities = entities;
 			entities.forEach((e) => {
-				e.parent?.remove(e);
-				e.el?.remove();
-				e.el = null;
-				e.children.forEach((c) => c.el?.remove());
+				if (e instanceof CadMtext && e.info.isLengthText) {
+					const parent = e.parent;
+					if (parent instanceof CadLine || parent instanceof CadArc) {
+						parent.hideLength = true;
+						this.render(e);
+					}
+				} else {
+					e.parent?.remove(e);
+					e.el?.remove();
+					e.el = null;
+					e.children.forEach((c) => c.el?.remove());
+				}
 			});
 			this.data.separate(data);
 			this.emit("entitiesremove", null, entities);

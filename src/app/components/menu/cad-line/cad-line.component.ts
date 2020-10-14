@@ -17,6 +17,7 @@ import {throttle} from "lodash";
 import {getPointsFromMap, globalVars} from "@app/app.common";
 import {openCadLineTiaojianquzhiDialog} from "../cad-line-tiaojianquzhi/cad-line-tiaojianquzhi.component";
 import {openMessageDialog} from "../../message/message.component";
+import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 
 @Component({
 	selector: "app-cad-line",
@@ -345,5 +346,14 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		} else {
 			openCadLineTiaojianquzhiDialog(this.dialog, {data: lines[0]});
 		}
+	}
+
+	getHideLength() {
+		return this.selected.some((v) => v.hideLength);
+	}
+
+	setHideLength(event: MatSlideToggleChange) {
+		this.selected.forEach((v) => (v.hideLength = event.checked));
+		this.cad.render(this.selected);
 	}
 }

@@ -17,6 +17,13 @@
 			<input matInput type="number" [ngModel]="getLineLength()" (change)="setLineLength($event)" name="lineLength" />
 		</mat-form-field>
 	</div>
+	<div class="form-item hideLength">
+		<mat-form-field floatLabel="always">
+			<mat-label>是否隐藏线长</mat-label>
+			<mat-slide-toggle [ngModel]="getHideLength()" (change)="setHideLength($event)" name="hideLength"></mat-slide-toggle>
+			<input matInput hidden />
+		</mat-form-field>
+	</div>
 	<div class="form-item color">
 		<mat-form-field>
 			<mat-label>颜色</mat-label>

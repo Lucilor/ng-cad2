@@ -180,6 +180,7 @@ export class CadArc extends CadEntity {
 	end_angle: number;
 	clockwise: boolean;
 	gongshi = "";
+	hideLength: boolean;
 
 	get start() {
 		return this.curve.getPoint(0);
@@ -206,6 +207,7 @@ export class CadArc extends CadEntity {
 		this.start_angle = data.start_angle ?? 0;
 		this.end_angle = data.end_angle ?? 0;
 		this.clockwise = data.clockwise ?? false;
+		this.hideLength = data.hideLength === true;
 	}
 
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
@@ -226,7 +228,8 @@ export class CadArc extends CadEntity {
 			radius: this.radius,
 			start_angle: this.start_angle,
 			end_angle: this.end_angle,
-			clockwise: this.clockwise
+			clockwise: this.clockwise,
+			hideLength: this.hideLength
 		};
 	}
 
@@ -464,6 +467,7 @@ export class CadLine extends CadEntity {
 		}[];
 	}[];
 	zhewanOffset: number;
+	hideLength: boolean;
 
 	get curve() {
 		return new Line(this.start, this.end);
@@ -512,6 +516,7 @@ export class CadLine extends CadEntity {
 				v.type = "选择";
 			}
 		});
+		this.hideLength = data.hideLength === true;
 	}
 
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
@@ -534,7 +539,8 @@ export class CadLine extends CadEntity {
 			nextZhewan: this.nextZhewan,
 			zidingzhankaichang: this.zidingzhankaichang,
 			tiaojianquzhi: this.tiaojianquzhi,
-			zhewanOffset: this.zhewanOffset
+			zhewanOffset: this.zhewanOffset,
+			hideLength: this.hideLength
 		};
 	}
 
@@ -566,7 +572,7 @@ export class CadMtext extends CadEntity {
 		super(data, layers, resetId);
 		this.type = "MTEXT";
 		this.insert = getVectorFromArray(data.insert);
-		this.isNew = data.isNew === true ? true : false;
+		this.isNew = data.isNew === true;
 		this.text = data.text ?? "";
 		this.anchor = getVectorFromArray(data.anchor);
 		if (this.info.isLengthText || this.info.isGongshiText) {
