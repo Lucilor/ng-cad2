@@ -803,7 +803,6 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	}
 
 	async save() {
-		this.store.dispatch<LoaderAction>({type: "add loader", id: "saveCad"});
 		const {cad, dataService, store} = this;
 		let result: CadData[] = [];
 		const data = cad.data.components.data;
@@ -822,11 +821,13 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			let cads: CadData[] = [];
 			indices.forEach((v) => (cads = cads.concat(data[v].components.data)));
 			const total = cads.length;
+			store.dispatch<LoaderAction>({type: "add loader", id: "saveCad"});
 			for (let i = 0; i < total; i++) {
 				await dataService.setCadData(cads[i], true);
 				store.dispatch<LoaderAction>({type: "set loader progress", id: "saveCad", progress: {current: i + 1, total}});
 			}
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+			store.dispatch<LoaderAction>({type: "remove loader", id: "saveCad"});
 		} else {
 			if (cad.config("validateLines")) {
 				const validateResult = [];
@@ -850,15 +851,16 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				postData.collection = this.collection;
 			}
 			const total = data.length;
+			store.dispatch<LoaderAction>({type: "add loader", id: "saveCad"});
 			for (let i = 0; i < total; i++) {
 				await dataService.setCadData(data[i], true);
 				store.dispatch<LoaderAction>({type: "set loader progress", id: "saveCad", progress: {current: i + 1, total}});
 			}
+			store.dispatch<LoaderAction>({type: "remove loader", id: "saveCad"});
 			if (result) {
 				this.openCad(result);
 			}
 		}
-		store.dispatch<LoaderAction>({type: "remove loader", id: "saveCad"});
 		return result;
 	}
 
