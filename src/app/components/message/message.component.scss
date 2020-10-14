@@ -1,16 +1,29 @@
 :host {
 	position: relative;
-	display: block;
-	width: 100%;
-	height: 100%;
+	display: flex;
+	flex-direction: column;
+	max-width: calc(90vw - 48px);
+	max-height: calc(90vh - 48px);
+
+	> .mat-dialog-content {
+		flex: 1 1 auto;
+	}
+	> :not(.mat-dialog-content) {
+		flex: 0 0 0;
+	}
 }
 
-mat-form-field {
+.mat-form-field {
 	font-size: 1rem;
 }
 
-// .mat-dialog-actions {
-// 	position: absolute;
-// 	bottom: 0;
-// 	width: 100%;
-// }
+.mat-dialog-content {
+	max-height: unset;
+	display: flex;
+}
+
+perfect-scrollbar {
+	width: auto;
+	height: auto;
+	flex: 1 1 auto;
+}

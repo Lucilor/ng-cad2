@@ -1,5 +1,5 @@
 import {Line, Point, Rectangle} from "@src/app/utils";
-import {CadData} from "./cad-data";
+import {CadData, CadOption} from "./cad-data";
 import {CadLine, CadMtext, CadArc, CadCircle} from "./cad-entity";
 import {sortLines} from "./cad-lines";
 
@@ -80,6 +80,8 @@ export function splitCad(data: CadData) {
 						} else {
 							throw Error("CAD信息有错");
 						}
+					} else {
+						v.options.push(new CadOption(key, value));
 					}
 				});
 				return true;

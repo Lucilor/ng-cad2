@@ -92,14 +92,11 @@ export class CadDataService {
 				}
 				response = await this.http.post<Response>(url, formData).toPromise();
 			}
-			if (response.code !== 0) {
-				throw new Error("服务器无响应");
-			}
 			if (response.code === 0) {
 				if (response.msg && !this.silent) {
 					this.snackBar.open(response.msg);
 				}
-			} else {
+			}  else {
 				throw new Error(response.msg);
 			}
 		} catch (error) {
@@ -126,7 +123,7 @@ export class CadDataService {
 		const postData = {cadData: cadData.export(), force, time};
 		const response = await this.request("peijian/cad/setCad", "POST", postData, true);
 		if (response?.code === 0) {
-			return response.data as CadData;
+			return new CadData(response.data);
 		} else {
 			return null;
 		}

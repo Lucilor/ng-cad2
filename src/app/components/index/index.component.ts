@@ -13,7 +13,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {globalVars, setApp} from "@app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
-import {getCadStatus, getConfig, getLoaders} from "@app/store/selectors";
+import {getCadStatus, getConfig} from "@app/store/selectors";
 import {State} from "@app/store/state";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
 
@@ -54,7 +54,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	showLeftMenu = true;
 	showAllMenu = true;
 	menuPadding = [40, 270, 20, 220];
-	saveLoaderId = "indexSavingCad";
+	loaderId = "indexSavingCad";
 	@ViewChild("cadContainer", {read: ElementRef}) cadContainer: ElementRef<HTMLElement>;
 	@ViewChild(ToolbarComponent) toolbar: ToolbarComponent;
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
@@ -103,14 +103,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 				this.cadStatusStr = "选取";
 			} else if (cadStatus.name === "draw line") {
 				this.cadStatusStr = "画线";
-			}
-		});
-
-		this.getObservable(getLoaders).subscribe((loaders) => {
-			if (loaders.find((v) => v.id === "saveCad")) {
-				this.loader.startLoader(this.saveLoaderId);
-			} else if (this.loader.getLoader(this.saveLoaderId)) {
-				this.loader.stopLoader(this.saveLoaderId);
 			}
 		});
 

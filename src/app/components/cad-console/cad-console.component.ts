@@ -1,15 +1,15 @@
 import {trigger, transition, style, animate} from "@angular/animations";
-import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector, Output, EventEmitter} from "@angular/core";
+import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@app/app.common";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {CadArc, CadDimension, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@app/cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
-import {CadStatusAction, ConfigAction, LoaderAction} from "@app/store/actions";
+import {CadStatusAction, ConfigAction} from "@app/store/actions";
 import {getCommand, getCurrCads, getCurrCadsData, getCadStatus, getConfig} from "@app/store/selectors";
-import {Angle, Line, Point} from "@app/utils";
-import {MatrixAlias, Matrix, MatrixExtract} from "@svgdotjs/svg.js";
+import {Line, Point} from "@app/utils";
+import {MatrixExtract} from "@svgdotjs/svg.js";
 import {differenceWith} from "lodash";
 import {v4} from "uuid";
 import {openCadListDialog} from "../cad-list/cad-list.component";
@@ -103,7 +103,17 @@ interface CadViewerConfig {
 	},
 	{name: "print", args: [], desc: "打印当前CAD"},
 	{name: "rotate", args: [{name: "degrees", defaultValue: "0", desc: "旋转角度（角度制）"}], desc: "旋转CAD"},
-	{name: "save", args: [], desc: "保存当前所有CAD。"},
+	{
+		name: "save",
+		args: [
+			{
+				name: "loaderId",
+				defaultValue: "indexSavingCad",
+				desc: "一般不需理会"
+			}
+		],
+		desc: "保存当前所有CAD。"
+	},
 	{name: "split", args: [], desc: "进入/退出选取状态"},
 	{
 		name: "test",
@@ -646,7 +656,15 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		} else if (name) {
 			for (const cmd of commands) {
 				if (name === cmd.name) {
-					const argContent = getList(cmd.args.map((v) => getContent(v.desc)));
+					const argContent = getList(
+						cmd.args.map((v) => {
+							let defaultValue = "";
+							if (v.defaultValue !== undefined) {
+								defaultValue += "=" + v.defaultValue;
+							}
+							return `[${v.name}${defaultValue}] ${getContent(v.desc)}`;
+						})
+					);
 					if (Array.isArray(cmd.desc)) {
 						data = [];
 						cmd.desc.forEach((v) => {
@@ -749,7 +767,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	 * 	  =(794 × 1123)px² (96dpi)
 	 */
 	async print() {
-		this.loader.start();
+		this.startLoader();
 		await timeout(100);
 		const data = this.cad.data.clone();
 		removeCadGongshi(data);
@@ -788,7 +806,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		cad.destroy();
 		const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
 		pdf.getBlob((blob) => {
-			this.loader.stop();
+			this.stopLoader();
 			const url = URL.createObjectURL(blob);
 			open(url);
 			URL.revokeObjectURL(this.lastUrl);
@@ -802,9 +820,13 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		this.transform({rotate: degrees}, rotateDimension);
 	}
 
-	async save() {
+	async save(loaderId: string) {
+		this.loaderId = loaderId;
 		const {cad, dataService, store} = this;
-		let result: CadData[] = [];
+		const silent = dataService.silent;
+		dataService.silent = true;
+		const result: CadData[] = [];
+		const skipped: string[] = [];
 		const data = cad.data.components.data;
 		if (this.collection === "p_yuanshicadwenjian") {
 			const {name, extra} = await this.getObservableOnce(getCadStatus);
@@ -821,13 +843,20 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			let cads: CadData[] = [];
 			indices.forEach((v) => (cads = cads.concat(data[v].components.data)));
 			const total = cads.length;
-			store.dispatch<LoaderAction>({type: "add loader", id: "saveCad"});
+			this.startLoader();
+			this.loaderText = `正在保存CAD(0/${total})`;
+			const now = new Date().getTime();
 			for (let i = 0; i < total; i++) {
-				await dataService.setCadData(cads[i], true);
-				store.dispatch<LoaderAction>({type: "set loader progress", id: "saveCad", progress: {current: i + 1, total}});
+				const resData = await dataService.setCadData(cads[i], true, now);
+				if (resData) {
+					result.push(resData);
+				} else {
+					skipped.push(cads[i].name);
+				}
+				this.loaderText = `正在保存CAD(${i + 1}/${total})`;
 			}
+			this.stopLoader();
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
-			store.dispatch<LoaderAction>({type: "remove loader", id: "saveCad"});
 		} else {
 			if (cad.config("validateLines")) {
 				const validateResult = [];
@@ -851,16 +880,27 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 				postData.collection = this.collection;
 			}
 			const total = data.length;
-			store.dispatch<LoaderAction>({type: "add loader", id: "saveCad"});
+			this.loaderText = `正在保存CAD(0/${total})`;
+			this.startLoader();
+			const now = new Date().getTime();
 			for (let i = 0; i < total; i++) {
-				await dataService.setCadData(data[i], true);
-				store.dispatch<LoaderAction>({type: "set loader progress", id: "saveCad", progress: {current: i + 1, total}});
+				const resData = await dataService.setCadData(data[i], true, now);
+				if (resData) {
+					result.push(resData);
+				} else {
+					skipped.push(data[i].name);
+				}
+				this.loaderText = `正在保存CAD(${i + 1}/${total})`;
 			}
-			store.dispatch<LoaderAction>({type: "remove loader", id: "saveCad"});
-			if (result) {
-				this.openCad(result);
-			}
+			this.stopLoader();
 		}
+		if (result.length) {
+			this.openCad(result);
+			this.snackBar.open("保存成功");
+		} else {
+			this.snackBar.open(`${skipped.join(", ")}保存失败`);
+		}
+		dataService.silent = silent;
 		return result;
 	}
 

@@ -6,7 +6,8 @@
 	</mat-form-field>
 </form>
 
-<perfect-scrollbar style="height: 400px;">
+<perfect-scrollbar style="height: 400px">
+	<ngx-ui-loader [loaderId]="loaderId"></ngx-ui-loader>
 	<div class="checkbox-group add-empty-msg">
 		<div class="data-container" *ngFor="let item of pageData; let i = index">
 			<mat-checkbox [(ngModel)]="item.checked">{{ item.value }}</mat-checkbox>

@@ -1,10 +1,9 @@
-import {Component, OnInit, ChangeDetectorRef, OnDestroy, AfterViewInit} from "@angular/core";
-import {CadDataService} from "@app/services/cad-data.service";
+import {Component, ChangeDetectorRef, OnDestroy, AfterViewInit, Injector} from "@angular/core";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {timeout} from "@app/app.common";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
-import {NgxUiLoaderService} from "ngx-ui-loader";
+import {MenuComponent} from "../menu/menu.component";
 
 export type PreviewData = {
 	CAD?: any;
@@ -22,18 +21,15 @@ export type PreviewData = {
 	templateUrl: "./print-a4-a015-preview.component.html",
 	styleUrls: ["./print-a4-a015-preview.component.scss"]
 })
-export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
+export class PrintA4A015PreviewComponent extends MenuComponent implements AfterViewInit, OnDestroy {
 	data: PreviewData = [];
 	printing = false;
 	loaderId = "printPreview";
 	loadingText = "";
 
-	constructor(
-		private dataService: CadDataService,
-		private cd: ChangeDetectorRef,
-		private sanitizer: DomSanitizer,
-		private loader: NgxUiLoaderService
-	) {}
+	constructor(injecor: Injector, private cd: ChangeDetectorRef, private sanitizer: DomSanitizer) {
+		super(injecor);
+	}
 
 	async ngAfterViewInit() {
 		Object.assign(window, {app: this});
@@ -46,7 +42,7 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
 		}
 		const total = this.data.reduce((total, v) => total + v.length, 0);
 		let done = 0;
-		this.loader.startLoader(this.loaderId);
+		this.startLoader();
 		this.loadingText = `0 / ${total}`;
 		for (const page of this.data) {
 			for (const card of page) {
@@ -69,7 +65,7 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
 			}
 			await timeout(0);
 		}
-		this.loader.stopLoader(this.loaderId);
+		this.stopLoader();
 		this.loadingText = "";
 	}
 

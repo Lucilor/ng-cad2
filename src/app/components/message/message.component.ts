@@ -1,3 +1,4 @@
+import {HttpErrorResponse} from "@angular/common/http";
 import {Component, OnInit, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
@@ -47,9 +48,18 @@ export class MessageComponent implements OnInit {
 			data.title = "Oops!";
 			data.content = data.content.message;
 			console.warn(data.content);
+		} else if (data.content instanceof HttpErrorResponse) {
+			data.title = "网络错误";
+			if (typeof data.content.error === "string") {
+				data.content = data.content.error;
+			} else if (typeof data.content.error?.text === "string") {
+				data.content = data.content.error.text;
+			} else {
+				data.content = "未知网络错误";
+			}
 		} else if (typeof data.content !== "string") {
 			try {
-				this.data.content = JSON.stringify(data.content);
+				data.content = JSON.stringify(data.content);
 			} catch (error) {
 				console.warn(error);
 			}

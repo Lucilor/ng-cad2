@@ -2,7 +2,6 @@ import {AfterViewInit, Component, Injector} from "@angular/core";
 import {DomSanitizer} from "@angular/platform-browser";
 import {getCadPreview, setApp} from "@src/app/app.common";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {openJsonEditorDialog} from "../json-editor/json-editor.component";
 import {MenuComponent} from "../menu/menu.component";
 import {openMessageDialog} from "../message/message.component";
 
@@ -14,7 +13,6 @@ import {openMessageDialog} from "../message/message.component";
 export class BackupComponent extends MenuComponent implements AfterViewInit {
 	data: {id: number; title: string; cads: {data: CadData; img: string; checked: boolean}[]}[];
 	loaderId = "backupLoader";
-	loaderText = "";
 
 	constructor(injector: Injector, private sanitizer: DomSanitizer) {
 		super(injector);
@@ -22,6 +20,7 @@ export class BackupComponent extends MenuComponent implements AfterViewInit {
 
 	async ngAfterViewInit() {
 		setApp(this);
+		document.title = "恢复备份";
 		this.data = (await this.dataService.getBackupCads())
 			.sort((a, b) => b.time - a.time)
 			.map((v) => {
@@ -40,12 +39,12 @@ export class BackupComponent extends MenuComponent implements AfterViewInit {
 		const cads = this.data[i].cads.map((v) => v.data);
 		const total = cads.length;
 		this.loaderText = `正在恢复备份(0/${total})`;
-		this.loader.startLoader(this.loaderId);
+		this.startLoader();
 		for (let i = 0; i < total; i++) {
 			await this.dataService.setCadData(cads[i], true);
 			this.loaderText = `正在恢复备份(${i + 1}/${total})`;
 		}
-		this.loader.stopLoader(this.loaderId);
+		this.stopLoader();
 	}
 
 	async remove(i: number) {
@@ -53,9 +52,9 @@ export class BackupComponent extends MenuComponent implements AfterViewInit {
 		const yes = await ref.afterClosed().toPromise();
 		if (yes) {
 			this.loaderText = "正在删除备份";
-			this.loader.startLoader(this.loaderId);
+			this.startLoader();
 			const result = await this.dataService.removeBackup(this.data[i].id);
-			this.loader.stopLoader(this.loaderId);
+			this.stopLoader();
 			if (result) {
 				this.data.splice(i, 1);
 			}

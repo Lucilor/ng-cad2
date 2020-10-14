@@ -1,12 +1,16 @@
 <div class="container">
-	<mat-form-field>
-		<textarea matInput hidden></textarea>
-		<mat-slide-toggle [(ngModel)]="force">{{ force ? "" : "不" }}覆盖数据</mat-slide-toggle>
-		<mat-hint *ngIf="!force">重复数据将会被跳过</mat-hint>
-		<mat-hint *ngIf="force" style="color: red">重复数据将会被覆盖</mat-hint>
-	</mat-form-field>
-	<button mat-flat-button color="primary" (click)="fileInput.click()" style="width: 200px; height: 50px">选择文件</button>
-	<input #fileInput type="file" accept=".dxf" hidden (input)="importDxf($event)" />
-	<div class="msg">{{ msg }}</div>
+	<mat-card>
+		<mat-card-content class="content">
+			<mat-form-field>
+				<textarea matInput hidden></textarea>
+				<mat-slide-toggle [(ngModel)]="force">{{ force ? "" : "不" }}覆盖数据</mat-slide-toggle>
+				<mat-hint *ngIf="!force">重复数据将会被跳过</mat-hint>
+				<mat-hint *ngIf="force" style="color: red">重复数据将会被覆盖</mat-hint>
+			</mat-form-field>
+			<button mat-flat-button color="primary" (click)="fileInput.click()" style="width: 200px; height: 50px">选择文件</button>
+			<input #fileInput type="file" accept=".dxf" hidden (input)="importDxf($event)" />
+			<div class="msg">{{ msg }}</div>
+		</mat-card-content>
+	</mat-card>
 </div>
 <ngx-ui-loader [loaderId]="loaderId" [text]="loaderText"></ngx-ui-loader>

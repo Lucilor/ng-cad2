@@ -23,6 +23,8 @@ export class MenuComponent implements OnInit, OnDestroy {
 	protected store: Store<State>;
 	protected dialog: MatDialog;
 	protected loader: NgxUiLoaderService;
+	loaderId = "";
+	loaderText = "";
 	destroyed = new Subject();
 	contextMenuPosition = {x: "0px", y: "0px"};
 
@@ -103,6 +105,22 @@ export class MenuComponent implements OnInit, OnDestroy {
 		}
 		cad.reset().emit("open");
 		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+	}
+
+	startLoader() {
+		if (this.loaderId) {
+			this.loader.startLoader(this.loaderId);
+		} else {
+			this.loader.start();
+		}
+	}
+
+	stopLoader() {
+		if (this.loaderId) {
+			this.loader.stopLoader(this.loaderId);
+		} else {
+			this.loader.stop();
+		}
 	}
 }
 

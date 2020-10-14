@@ -7,7 +7,6 @@ import {cloneDeep} from "lodash";
 import {openMessageDialog} from "../../message/message.component";
 import {CommandAction} from "@src/app/store/actions";
 import {MenuComponent} from "../menu.component";
-import {getLoaders} from "@src/app/store/selectors";
 import {
 	CadLineTiaojianquzhiSelectData,
 	openCadLineTiaojianquzhiSelectDialog
@@ -41,7 +40,7 @@ export class CadLineTiaojianquzhiComponent extends MenuComponent implements OnIn
 	newItemRight: RawDataRight;
 
 	@ViewChild("tableLeft") tableLeft: TableComponent<RawDataLeft>;
-	saveLoaderId = "cadLineTiaojianquzhiSavingCad";
+	loaderId = "cadLineTiaojianquzhiSavingCad";
 	// openSelection: CadLineTiaojianquzhiSelectData = [];
 	openSelection = -1;
 
@@ -69,31 +68,26 @@ export class CadLineTiaojianquzhiComponent extends MenuComponent implements OnIn
 	};
 
 	constructor(
+		injector: Injector,
 		public dialogRef: MatDialogRef<CadLineTiaojianquzhiComponent, RawData>,
-		@Inject(MAT_DIALOG_DATA) public data: RawData,
-		injector: Injector
+		@Inject(MAT_DIALOG_DATA) public data: RawData
 	) {
 		super(injector);
 		this.dataLeft = new MatTableDataSource(cloneDeep(data.tiaojianquzhi));
 		this.dataRight = new MatTableDataSource([]);
 	}
 
-	ngOnInit() {
-		this.getObservable(getLoaders).subscribe((loaders) => {
-			if (loaders.find((v) => v.id === "saveCad")) {
-				this.loader.startLoader(this.saveLoaderId);
-			} else if (this.loader.getLoader(this.saveLoaderId)) {
-				this.loader.stopLoader(this.saveLoaderId);
-			}
-		});
-	}
+	ngOnInit() {}
 
 	submit() {
 		if (this.tableLeft.errorState.length) {
 			openMessageDialog(this.dialog, {data: {type: "alert", content: "当前数据存在错误"}});
 		} else {
 			this.data.tiaojianquzhi = this.dataLeft.data;
-			this.store.dispatch<CommandAction>({type: "execute", command: {name: "save", args: []}});
+			this.store.dispatch<CommandAction>({
+				type: "execute",
+				command: {name: "save", args: [{name: "loaderId", value: this.loaderId}]}
+			});
 		}
 	}
 

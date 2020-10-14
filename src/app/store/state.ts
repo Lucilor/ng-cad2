@@ -20,7 +20,6 @@ export interface State {
 	cadPoints: {x: number; y: number; active: boolean}[];
 	command: ValuedCommand;
 	config: Config;
-	loaders: {id: string; progress: {current: number; total: number}}[];
 }
 
 export const initialState: State = {
@@ -28,6 +27,5 @@ export const initialState: State = {
 	cadStatus: {name: "normal", index: -1},
 	cadPoints: [],
 	command: null,
-	config: null,
-	loaders: []
+	config: null
 };

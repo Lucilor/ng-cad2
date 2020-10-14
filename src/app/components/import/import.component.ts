@@ -11,7 +11,6 @@ import {openMessageDialog} from "../message/message.component";
 })
 export class ImportComponent extends MenuComponent implements OnInit {
 	loaderId = "importLoader";
-	loaderText = "";
 	msg = "";
 	force = false;
 
@@ -34,7 +33,7 @@ export class ImportComponent extends MenuComponent implements OnInit {
 		}
 		const el = event.target as HTMLInputElement;
 		if (el.files?.length) {
-			this.loader.startLoader(this.loaderId);
+			this.startLoader();
 			this.loaderText = "正在读取文件";
 			this.dataService.silent = true;
 			const data = await this.dataService.uploadDxf(el.files[0]);
@@ -52,7 +51,7 @@ export class ImportComponent extends MenuComponent implements OnInit {
 				}
 				this.loaderText = text;
 			}
-			this.loader.stopLoader(this.loaderId);
+			this.stopLoader();
 			this.msg = `导入结束, ${total - skipped.length}个成功(共${total}个)`;
 		}
 		el.value = "";

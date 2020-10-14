@@ -1,11 +1,13 @@
 <h1 mat-dialog-title [innerHTML]="titleHTML"></h1>
 <h2 mat-dialog-title [innerHTML]="subTitleHTML"></h2>
 <div mat-dialog-content>
-	<div [innerHTML]="contentHTML"></div>
-	<mat-form-field *ngIf="data.type === 'prompt'">
-		<input matInput [type]="data.promptData.type" [(ngModel)]="input" />
-		<mat-hint>{{ data.promptData.hint }}</mat-hint>
-	</mat-form-field>
+	<perfect-scrollbar>
+		<div [innerHTML]="contentHTML"></div>
+		<mat-form-field *ngIf="data.type === 'prompt'">
+			<input matInput [type]="data.promptData.type" [(ngModel)]="input" />
+			<mat-hint>{{ data.promptData.hint }}</mat-hint>
+		</mat-form-field>
+	</perfect-scrollbar>
 </div>
 <div mat-dialog-actions style="justify-content: center" [ngSwitch]="data.type">
 	<ng-container *ngSwitchCase="'alert'">

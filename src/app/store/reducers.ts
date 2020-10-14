@@ -2,7 +2,7 @@ import {ActionReducerMap, MetaReducer} from "@ngrx/store";
 import {environment} from "@src/environments/environment";
 import {cloneDeep} from "lodash";
 import {session} from "../app.common";
-import {CurrCadsAction, CadStatusAction, CadPointsAction, CommandAction, ConfigAction, LoaderAction} from "./actions";
+import {CurrCadsAction, CadStatusAction, CadPointsAction, CommandAction, ConfigAction} from "./actions";
 import {initialState, State} from "./state";
 
 export function currCadsReducer(currCads = initialState.currCads, action: CurrCadsAction) {
@@ -104,29 +104,12 @@ export function configReducer(config = initialState.config, action: ConfigAction
 	return config;
 }
 
-export function loadersReducer(loaders = initialState.loaders, action: LoaderAction) {
-	const {type, id, progress} = action;
-	if (type === "add loader") {
-		return [...Array.from(loaders), {id, progress}];
-	} else if (type === "remove loader") {
-		return Array.from(loaders).filter((v) => v.id !== id);
-	} else if (type === "clear loader") {
-		return [];
-	} else if (type === "set loader progress") {
-		// const loader = loaders.find((v) => v.id === id);
-		// loader.progress = progress;
-		return loaders;
-	}
-	return loaders;
-}
-
 export const reducers: ActionReducerMap<State> = {
 	currCads: currCadsReducer,
 	cadStatus: cadStatusReducer,
 	cadPoints: cadPointsReducer,
 	command: commandReducer,
-	config: configReducer,
-	loaders: loadersReducer
+	config: configReducer
 };
 
 export const metaReducers: MetaReducer<State>[] = !environment.production ? [] : [];

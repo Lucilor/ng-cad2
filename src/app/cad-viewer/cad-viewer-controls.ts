@@ -197,6 +197,7 @@ function onEntityClick(this: CadViewer, event: PointerEvent, entity: CadEntity) 
 		this.select(entity);
 	}
 	this.emit("entityclick", event, entity);
+	this.dom.focus();
 }
 
 function onEntityPointerDown(this: CadViewer, event: PointerEvent, entity: CadEntity) {

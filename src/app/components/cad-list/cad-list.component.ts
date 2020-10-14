@@ -1,12 +1,11 @@
-import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
+import {Component, Inject, ViewChild, AfterViewInit, Injector} from "@angular/core";
 import {PageEvent, MatPaginator} from "@angular/material/paginator";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {CadData, CadOption} from "@app/cad-viewer/cad-data/cad-data";
-import {CadDataService} from "@services/cad-data.service";
 import {Collection, getCadPreview, imgEmpty, imgLoading} from "@app/app.common";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 import {DomSanitizer} from "@angular/platform-browser";
-import {NgxUiLoaderService} from "ngx-ui-loader";
+import {MenuComponent} from "../menu/menu.component";
 
 interface CadListData {
 	selectMode: "single" | "multiple" | "table";
@@ -21,7 +20,7 @@ interface CadListData {
 	templateUrl: "./cad-list.component.html",
 	styleUrls: ["./cad-list.component.scss"]
 })
-export class CadListComponent implements AfterViewInit {
+export class CadListComponent extends MenuComponent implements AfterViewInit {
 	length = 100;
 	pageSizeOptions = [1, 10, 20, 50, 100];
 	pageSize = 10;
@@ -44,11 +43,11 @@ export class CadListComponent implements AfterViewInit {
 	constructor(
 		public dialogRef: MatDialogRef<CadListComponent, CadData[]>,
 		@Inject(MAT_DIALOG_DATA) public data: CadListData,
-		private dataService: CadDataService,
-		private dialog: MatDialog,
 		private sanitizer: DomSanitizer,
-		private loader: NgxUiLoaderService
-	) {}
+		injector: Injector
+	) {
+		super(injector);
+	}
 
 	async ngAfterViewInit() {
 		await this.paginator.initialized.toPromise();
@@ -71,18 +70,18 @@ export class CadListComponent implements AfterViewInit {
 		const limit = this.paginator.pageSize;
 		const collection = this.data.collection;
 		if (this.data.selectMode === "table") {
-			this.loader.startLoader(this.loaderId);
+			this.startLoader();
 			const data = await this.dataService.getCadListPage(collection, page, limit, this.searchForm);
-			this.loader.stopLoader(this.loaderId);
+			this.stopLoader();
 			this.length = data.count;
 			this.pageData.length = 0;
 			this.tableData = data.data;
 		} else {
 			const search = this.searchForm;
 			const qiliao = this.data.qiliao;
-			this.loader.startLoader(this.loaderId);
+			this.startLoader();
 			const data = await this.dataService.getCadDataPage(collection, page, limit, search, options, matchType, qiliao);
-			this.loader.stopLoader(this.loaderId);
+			this.stopLoader();
 			this.length = data.count;
 			this.pageData.length = 0;
 			data.data.forEach(async (d, i) => {
