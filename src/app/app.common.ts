@@ -25,7 +25,8 @@ export const paths = {
 	"print-cad": "print-cad",
 	test: "test",
 	printA4A015Preview: "printA4A015Preview",
-	import: "import"
+	import: "import",
+	backup: "backup"
 };
 
 export interface Response {

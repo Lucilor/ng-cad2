@@ -8,6 +8,7 @@ import {PrintCadComponent} from "./components/print-cad/print-cad.component";
 import {TestComponent} from "./components/test/test.component";
 import {PrintA4A015PreviewComponent} from "./components/print-a4-a015-preview/print-a4-a015-preview.component";
 import {ImportComponent} from "./components/import/import.component";
+import {BackupComponent} from "./components/backup/backup.component";
 
 const routes: Routes = [
 	{path: "", pathMatch: "full", redirectTo: paths.index},
@@ -16,6 +17,7 @@ const routes: Routes = [
 	{path: paths.test, component: TestComponent},
 	{path: paths.printA4A015Preview, component: PrintA4A015PreviewComponent},
 	{path: paths.import, component: ImportComponent},
+	{path: paths.backup, component: BackupComponent},
 	{path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
 ];
 

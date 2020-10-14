@@ -1,0 +1,36 @@
+.mat-expansion-panel-header-description {
+	flex-grow: 1;
+	justify-content: flex-end;
+}
+
+.mat-expansion-panel-header-title,
+.mat-expansion-panel-header-description {
+	align-items: center;
+}
+
+.cads {
+	display: flex;
+	flex-wrap: wrap;
+
+	.cad {
+		display: flex;
+		flex-direction: column;
+		margin: 5px;
+
+		.cad-name {
+			padding: 3px;
+			> *:not(:last-child) {
+				margin-right: 5px;
+			}
+			cursor: pointer;
+		}
+
+		.cad-preview {
+			cursor: pointer;
+		}
+	}
+}
+
+.container {
+	padding: 20px;
+}

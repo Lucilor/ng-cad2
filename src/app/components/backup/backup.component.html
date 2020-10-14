@@ -1,0 +1,26 @@
+<perfect-scrollbar>
+	<div class="container">
+		<mat-accordion>
+			<mat-expansion-panel *ngFor="let item of data; let i = index">
+				<mat-expansion-panel-header>
+					<mat-panel-title>备份时间: {{ item.title }} </mat-panel-title>
+					<mat-panel-description>{{ item.cads.length }}个CAD</mat-panel-description>
+				</mat-expansion-panel-header>
+				<div class="btn-group">
+					<button mat-raised-button color="primary" (click)="restore(i)">恢复备份</button>
+					<button mat-raised-button color="accent" (click)="remove(i)">删除备份</button>
+				</div>
+				<div class="cads">
+					<div *ngFor="let cad of item.cads; let j = index" class="cad">
+						<div class="cad-name">
+							<!-- <mat-checkbox [(ngModel)]="cad.checked"></mat-checkbox> -->
+							<span>{{ cad.data.name }}</span>
+						</div>
+						<app-image class="cad-preview" [src]="cad.img"></app-image>
+					</div>
+				</div>
+			</mat-expansion-panel>
+		</mat-accordion>
+	</div>
+</perfect-scrollbar>
+<ngx-ui-loader [loaderId]="loaderId" [text]="loaderText"></ngx-ui-loader>

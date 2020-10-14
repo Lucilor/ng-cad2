@@ -5,7 +5,7 @@ import {openMessageDialog} from "../message/message.component";
 
 interface JsonEditorData {
 	json?: any;
-	options?: JsonEditorOptions;
+	options?: Partial<JsonEditorOptions>;
 }
 
 @Component({

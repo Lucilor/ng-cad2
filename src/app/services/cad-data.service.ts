@@ -324,4 +324,21 @@ export class CadDataService {
 		}
 		return null;
 	}
+
+	async getBackupCads() {
+		const response = await this.request("peijian/cad/getBackupCads", "POST");
+		if (response) {
+			const result = response.data as {time: number; cads: CadData[]}[];
+			result.forEach((v) => {
+				v.cads = v.cads.map((vv) => new CadData(vv));
+			});
+			return result;
+		}
+		return null;
+	}
+
+	async removeBackup(time: number) {
+		const response = await this.request("peijian/cad/removeBackup", "POST", {time});
+		return response ? true : false;
+	}
 }
