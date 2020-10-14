@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
 import {CadViewerConfig} from "@app/cad-viewer/cad-viewer";
-import {generatePointsMap, validateLines, setLinesLength, autoFixLine, CadLineLike} from "@app/cad-viewer/cad-data/cad-lines";
+import {generatePointsMap, validateLines, setLinesLength, autoFixLine, CadLineLike, validColors} from "@app/cad-viewer/cad-data/cad-lines";
 import {Point} from "@app/utils";
 import {MatSelectChange} from "@angular/material/select";
 import {linewidth2lineweight, lineweight2linewidth} from "@app/cad-viewer/cad-data/utils";
@@ -45,7 +45,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	};
 	selected: CadLineLike[] = [];
 
-	readonly selectableColors = {a: ["#ffffff", "#ff0000", "#00ff00", "#0000ff"]};
+	readonly selectableColors = {a: validColors};
 
 	onPointerMove = (async ({clientX, clientY, shiftKey}: MouseEvent) => {
 		const {cad, lineDrawing} = this;

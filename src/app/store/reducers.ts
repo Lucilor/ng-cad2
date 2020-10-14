@@ -113,8 +113,8 @@ export function loadersReducer(loaders = initialState.loaders, action: LoaderAct
 	} else if (type === "clear loader") {
 		return [];
 	} else if (type === "set loader progress") {
-		const loader = loaders.find((v) => v.id === id);
-		loader.progress = progress;
+		// const loader = loaders.find((v) => v.id === id);
+		// loader.progress = progress;
 		return loaders;
 	}
 	return loaders;

@@ -2,11 +2,13 @@ import {CadEntities} from "./cad-entities";
 import {CadData} from "./cad-data";
 import {CadViewer} from "../cad-viewer";
 import {getVectorFromArray, isBetween} from "./utils";
-import {DEFAULT_TOLERANCE, Line, Point} from "@app/utils";
+import {DEFAULT_TOLERANCE, Point} from "@app/utils";
 import {CadLine, CadArc, CadMtext} from "./cad-entity";
-import {log} from "console";
+import Color from "color";
 
 export type CadLineLike = CadLine | CadArc;
+
+export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff"];
 
 export type PointsMap = {
 	point: Point;
@@ -174,15 +176,19 @@ export function getLinesDistance(l1: CadLineLike, l2: CadLineLike) {
 export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	const lines = sortLines(data, tolerance);
 	const result = {valid: true, errMsg: "", lines};
+	const validColorsNum = validColors.map((v) => new Color(v).rgbNumber());
 	lines.forEach((v) =>
 		v.forEach((vv) => {
-			const {start, end} = vv;
+			const {start, end, color} = vv;
 			const dx = Math.abs(start.x - end.x);
 			const dy = Math.abs(start.y - end.y);
 			if (isBetween(dx) || isBetween(dy)) {
 				vv.info.errors = ["斜率不符合要求"];
 			} else {
 				vv.info.errors = [];
+			}
+			if (!validColorsNum.includes(color.rgbNumber())) {
+				vv.info.errors.push("颜色不符合要求");
 			}
 		})
 	);
