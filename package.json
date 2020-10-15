@@ -48,7 +48,7 @@
     "@angular-eslint/eslint-plugin-template": "0.5.0-beta.4",
     "@angular-eslint/schematics": "^0.5.0-beta.4",
     "@angular-eslint/template-parser": "0.5.0-beta.4",
-    "@angular/cli": "~10.1.6",
+    "@angular/cli": "~10.1.7",
     "@angular/compiler-cli": "~10.1.6",
     "@types/color": "^3.0.1",
     "@types/jasmine": "~3.5.14",
