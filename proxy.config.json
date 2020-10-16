@@ -1,6 +1,6 @@
 {
 	"/api": {
-		"target": "http://localhost/n/zy/index",
+		"target": "http://localhost/n/kgs/index",
 		"pathRewrite": {"^/api" : ""},
 		"secure": false,
 		"changeOrigin": true,

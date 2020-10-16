@@ -347,8 +347,7 @@ export class CadViewer extends EventEmitter {
 						entity.el = null;
 					}
 					offset = getVectorFromArray(entity.info.offset);
-				}
-				if (entity.info.isGongshiText) {
+				} else if (entity.info.isGongshiText) {
 					entity.text = parent.gongshi;
 					if (entity.isNew) {
 						entity.font_size = lineGongshi;
@@ -367,6 +366,14 @@ export class CadViewer extends EventEmitter {
 						entity.info.offset = offset.toArray();
 					}
 					entity.insert.copy(offset.add(parent.middle));
+				}
+
+				// * 计算文字尺寸
+				const rect = entity.el?.node?.getBoundingClientRect();
+				if (rect) {
+					const {width, height} = rect;
+					const zoom = this.zoom();
+					entity.info.size = [width / zoom, height / zoom];
 				}
 			}
 			const {text, insert, font_size, anchor} = entity;
