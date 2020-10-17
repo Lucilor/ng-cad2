@@ -1,7 +1,7 @@
 import {SVG, Svg, CoordinateXY, Element, G} from "@svgdotjs/svg.js";
 import {EventEmitter} from "events";
 import {cloneDeep} from "lodash";
-import {Point} from "@app/utils";
+import {Line, Point, Rectangle} from "@app/utils";
 import {CadData} from "./cad-data/cad-data";
 import {CadEntities} from "./cad-data/cad-entities";
 import {CadEntity, CadArc, CadCircle, CadDimension, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entity";
@@ -365,20 +365,51 @@ export class CadViewer extends EventEmitter {
 						entity.el = null;
 					}
 				}
+				const middle = parent.middle;
 				if (offset) {
 					if (Math.abs(offset.x) >= 60 || Math.abs(offset.y) >= 60) {
 						offset.set(0, 0);
 						entity.info.offset = offset.toArray();
 					}
-					entity.insert.copy(offset.add(parent.middle));
+					entity.insert.copy(offset.add(middle));
 				}
 
-				// * 计算文字尺寸
 				const rect = entity.el?.node?.getBoundingClientRect();
-				if (rect) {
+				if (rect && rect.width && rect.height) {
+					// * 计算文字尺寸
 					const {width, height} = rect;
-					const zoom = this.zoom();
-					entity.info.size = [width / zoom, height / zoom];
+					const size = new Point(width, height).divide(this.zoom());
+					entity.info.size = size.toArray();
+
+					// * 重新计算锚点
+					const {insert, anchor} = entity;
+					const x = insert.x - anchor.x * size.x;
+					const y = insert.y + anchor.y * size.y;
+					const points = [
+						[0, 0],
+						[1, 0],
+						[1, 1],
+						[0, 1],
+						[0, 0.5],
+						[0.5, 0],
+						[1, 0.5],
+						[0, 5, 1]
+					].map((v) => [new Point(x + v[0] * size.x, y - v[1] * size.y), new Point(v)]);
+					let minD = Infinity;
+					let index = -1;
+					points.forEach((p, i) => {
+						const d = middle.distanceTo(p[0]);
+						if (d < minD) {
+							minD = d;
+							index = i;
+						}
+					});
+					if (index >= 0) {
+						entity.anchor.copy(points[index][1]);
+						const offset = points[index][0].clone().sub(middle);
+						entity.info.offset = offset.toArray();
+						entity.insert.copy(offset.add(middle));
+					}
 				}
 			}
 			const {text, insert, font_size, anchor} = entity;
