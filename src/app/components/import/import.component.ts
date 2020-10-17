@@ -43,7 +43,7 @@ export class ImportComponent extends MenuComponent implements OnInit {
 			const total = cads.length;
 			const now = new Date().getTime();
 			for (let i = 0; i < total; i++) {
-				let result = await this.dataService.setCadData(cads[i], this.force, now);
+				let result = await this.dataService.setCadData("cad", cads[i], this.force, now);
 				let text = `正在导入dxf数据(${i + 1}/${total})`;
 				if (!result) {
 					skipped.push(cads[i].name);

@@ -41,7 +41,7 @@ export class BackupComponent extends MenuComponent implements AfterViewInit {
 		this.loaderText = `正在恢复备份(0/${total})`;
 		this.startLoader();
 		for (let i = 0; i < total; i++) {
-			await this.dataService.setCadData(cads[i], true);
+			await this.dataService.setCadData("cad", cads[i], true);
 			this.loaderText = `正在恢复备份(${i + 1}/${total})`;
 		}
 		this.stopLoader();

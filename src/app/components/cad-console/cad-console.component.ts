@@ -822,7 +822,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 
 	async save(loaderId: string) {
 		this.loaderId = loaderId;
-		const {cad, dataService, store} = this;
+		const {cad, dataService, store, collection} = this;
 		const silent = dataService.silent;
 		dataService.silent = true;
 		const result: CadData[] = [];
@@ -847,7 +847,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			this.loaderText = `正在保存CAD(0/${total})`;
 			const now = new Date().getTime();
 			for (let i = 0; i < total; i++) {
-				const resData = await dataService.setCadData(cads[i], true, now);
+				const resData = await dataService.setCadData(collection, cads[i], true, now);
 				if (resData) {
 					result.push(resData);
 				} else {
@@ -884,7 +884,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			this.startLoader();
 			const now = new Date().getTime();
 			for (let i = 0; i < total; i++) {
-				const resData = await dataService.setCadData(data[i], true, now);
+				const resData = await dataService.setCadData(collection, data[i], true, now);
 				if (resData) {
 					result.push(resData);
 				} else {

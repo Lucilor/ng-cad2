@@ -96,7 +96,7 @@ export class CadDataService {
 				if (response.msg && !this.silent) {
 					this.snackBar.open(response.msg);
 				}
-			}  else {
+			} else {
 				throw new Error(response.msg);
 			}
 		} catch (error) {
@@ -119,8 +119,8 @@ export class CadDataService {
 		return result;
 	}
 
-	async setCadData(cadData: CadData, force: boolean, time?: number) {
-		const postData = {cadData: cadData.export(), force, time};
+	async setCadData(collection: Collection, cadData: CadData, force: boolean, time?: number) {
+		const postData = {collection, cadData: cadData.export(), force, time};
 		const response = await this.request("peijian/cad/setCad", "POST", postData, true);
 		if (response?.code === 0) {
 			return new CadData(response.data);
