@@ -35,6 +35,21 @@
 			<input matInput ejs-colorpicker type="color" [enableOpacity]="false" [value]="getColor()" (change)="setColor($event)" />
 		</mat-form-field>
 	</div>
+	<!-- TODO:选择锚点 -->
+	<!-- <div class="form-item font-size">
+		<mat-form-field>
+			<mat-label>锚点</mat-label>
+			<input
+				matInput
+				type="text"
+				min="0"
+				[ngModel]="getInfo('anchor')"
+				(change)="setInfo('anchor', $event)"
+				placeholder="请输入锚点"
+				name="anchor"
+			/>
+		</mat-form-field>
+	</div> -->
 </form>
 
 <span *ngIf="!data" style="color: #888888"> 若要添加或复制文本， </span>

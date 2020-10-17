@@ -27,6 +27,7 @@ export interface CadViewerConfig {
 	hideLineLength: boolean; // 是否隐藏线长度(即使lineLength>0)
 	hideLineGongshi: boolean; // 是否隐藏线公式(即使lineGongshi>0)
 	minLinewidth: number; // 所有线的最小宽度(调大以便选中)
+	fontFamily: string;
 }
 
 function getConfigProxy(config?: Partial<CadViewerConfig>) {
@@ -45,7 +46,8 @@ function getConfigProxy(config?: Partial<CadViewerConfig>) {
 		lineGongshi: 0,
 		hideLineLength: false,
 		hideLineGongshi: false,
-		minLinewidth: 1
+		minLinewidth: 1,
+		fontFamily: "Roboto"
 	};
 	for (const key in config) {
 		if (key in defalutConfig) {
@@ -115,7 +117,7 @@ export class CadViewer extends EventEmitter {
 		types.forEach((t) => {
 			this.draw.group().attr("type", t);
 		});
-		this.config(config).center();
+		this.config({...this._config, ...config}).center();
 	}
 
 	config(): CadViewerConfig;
@@ -157,6 +159,9 @@ export class CadViewer extends EventEmitter {
 					case "reverseSimilarColor":
 					case "validateLines":
 						needsRender = true;
+						break;
+					case "fontFamily":
+						this.dom.style.fontFamily = config.fontFamily;
 						break;
 				}
 			}
@@ -377,7 +382,8 @@ export class CadViewer extends EventEmitter {
 				}
 			}
 			const {text, insert, font_size, anchor} = entity;
-			drawResult = drawText(el, text, font_size, insert, anchor);
+			const offset = new Point(0, 0);
+			drawResult = drawText(el, text, font_size, insert.clone().add(offset), anchor);
 		}
 		if (!drawResult) {
 			entity.el?.remove();

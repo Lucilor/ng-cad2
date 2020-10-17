@@ -88,7 +88,8 @@ export function configReducer(config = initialState.config, action: ConfigAction
 			hideLineGongshi: false,
 			minLinewidth: 2,
 			showCadGongshis: true,
-			infoTabIndex: 0
+			infoTabIndex: 0,
+			fontFamily: "Roboto"
 		};
 		const cachedConfig = session.load("config");
 		if (cachedConfig) {

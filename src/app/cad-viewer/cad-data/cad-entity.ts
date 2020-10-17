@@ -582,7 +582,7 @@ export class CadMtext extends CadEntity {
 				this.font_size = 28;
 			}
 		} else {
-			this.font_size = 40;
+			this.font_size = data.font_size ?? 40;
 		}
 	}
 

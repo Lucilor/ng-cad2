@@ -67,6 +67,7 @@ interface CadViewerConfig {
 	hideLineLength: boolean;  // 是否隐藏线长度(即使lineLength>0)
 	hideLineGongshi: boolean; // 是否隐藏线公式(即使lineGongshi>0)
 	minLinewidth: number; // 所有线的最小宽度(调大以便选中)
+	fontFamily: string; // 设置字体
 }`
 				).value
 			}</pre>`

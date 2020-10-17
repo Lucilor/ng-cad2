@@ -68,7 +68,7 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 				color = new Color(selected[0].color);
 			}
 		}
-		return color.string();
+		return "#" + color.rgbNumber;
 	}
 
 	setColor(event: ColorPickerEventArgs) {
