@@ -7,11 +7,11 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      - run: yarn install
+          key: ng-cad2-{{ .Branch }}-{{ checksum "package-lock.json" }}
+      - run: npm install
       - save_cache:
-          key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: ng-cad2-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - "node_modules"
-      - run: yarn test --no-watch --no-progress --browsers=ChromeHeadless
-      - run: yarn e2e --protractor-config=e2e/protractor.conf.js
+      - run: npm run test --no-watch --no-progress --browsers=ChromeHeadless
+      - run: npm run e2e --protractor-config=e2e/protractor.conf.js

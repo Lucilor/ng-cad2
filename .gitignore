@@ -37,14 +37,9 @@ speed-measure-plugin*.json
 /coverage
 /libpeerconnection.log
 npm-debug.log
-yarn-error.log
 testem.log
 /typings
 
 # System Files
 .DS_Store
 Thumbs.db
-
-#python
-__pycache__
-src/python/test/output
