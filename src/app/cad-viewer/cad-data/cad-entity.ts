@@ -47,14 +47,14 @@ export abstract class CadEntity {
 						c.css("stroke-dasharray", "20, 7");
 					}
 					if (c.hasClass("fill")) {
-						c.css("font-style", "italic");
+						c.css("fill", "#ffca1c");
 					}
 				});
 			} else {
 				this.el.removeClass("selected").css("stroke-dasharray", "");
 				this.el.children().forEach((c) => {
 					c.css("stroke-dasharray", "");
-					c.css("font-style", "");
+					c.css("fill", "");
 				});
 			}
 		}
@@ -579,7 +579,6 @@ export class CadMtext extends CadEntity {
 		this.insert = getVectorFromArray(data.insert);
 		this.text = data.text ?? "";
 		this.anchor = getVectorFromArray(data.anchor);
-		this.font_size = data.font_size ?? 24;
 	}
 
 	export() {

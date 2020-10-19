@@ -45,7 +45,7 @@ function getConfigProxy(config?: Partial<CadViewerConfig>) {
 		hideLineLength: false,
 		hideLineGongshi: false,
 		minLinewidth: 1,
-		fontFamily: "Roboto"
+		fontFamily: ""
 	};
 	for (const key in config) {
 		if (key in defalutConfig) {
