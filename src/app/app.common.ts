@@ -1,7 +1,9 @@
 import {SessionStorage, LocalStorage, Point} from "@app/utils";
+import Color from "color";
+import {createPdf} from "pdfmake/build/pdfmake";
 import {CadData} from "./cad-viewer/cad-data/cad-data";
 import {CadEntities} from "./cad-viewer/cad-data/cad-entities";
-import {CadMtext} from "./cad-viewer/cad-data/cad-entity";
+import {CadDimension, CadMtext} from "./cad-viewer/cad-data/cad-entity";
 import {PointsMap} from "./cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "./cad-viewer/cad-viewer";
 import {State} from "./store/state";
@@ -182,4 +184,50 @@ export function downloadFile(content: string, filename: string) {
 	link.click();
 	URL.revokeObjectURL(link.href);
 	document.body.removeChild(link);
+}
+
+export async function printCad(cad: CadViewer) {
+	const data = cad.data.clone();
+	removeCadGongshi(data);
+	let [dpiX, dpiY] = getDPI();
+	if (!(dpiX > 0) || !(dpiY > 0)) {
+		console.warn("Unable to get screen dpi.Assuming dpi = 96.");
+		dpiX = dpiY = 96;
+	}
+	const width = (210 / 25.4) * dpiX * 0.75;
+	const height = (297 / 25.4) * dpiY * 0.75;
+	const scaleX = 300 / dpiX / 0.75;
+	const scaleY = 300 / dpiY / 0.75;
+	const scale = Math.sqrt(scaleX * scaleY);
+	data.getAllEntities().forEach((e) => {
+		if (e.linewidth >= 0.3) {
+			e.linewidth *= 3;
+		}
+		e.color = new Color(0);
+		if (e instanceof CadDimension) {
+			e.renderStyle = 2;
+		} else if (e instanceof CadMtext) {
+			// TODO: 字体偏移
+			e.insert.y += 5;
+		}
+	}, true);
+	const cadPrint = new CadViewer(data, {
+		...cad.config(),
+		width: width * scaleX,
+		height: height * scaleY,
+		backgroundColor: "white",
+		padding: 18 * scale,
+		minLinewidth: 4,
+		hideLineLength: true,
+		hideLineGongshi: true
+	}).appendTo(document.body);
+	cadPrint.select(cad.data.getAllEntities().dimension);
+	await timeout(0);
+	const src = (await cadPrint.toCanvas()).toDataURL();
+	cadPrint.destroy();
+	const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
+	const url = await new Promise<string>((resolve) => {
+		pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
+	});
+	return url;
 }

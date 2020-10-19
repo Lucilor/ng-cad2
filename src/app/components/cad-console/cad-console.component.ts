@@ -1,7 +1,7 @@
 import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars} from "@app/app.common";
+import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars, printCad} from "@app/app.common";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {CadArc, CadDimension, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@app/cad-viewer/cad-data/cad-lines";
@@ -768,49 +768,11 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	async print() {
 		this.startLoader();
 		await timeout(100);
-		const data = this.cad.data.clone();
-		removeCadGongshi(data);
-		let [dpiX, dpiY] = getDPI();
-		if (!(dpiX > 0) || !(dpiY > 0)) {
-			console.warn("Unable to get screen dpi.Assuming dpi = 96.");
-			dpiX = dpiY = 96;
-		}
-		const width = (210 / 25.4) * dpiX * 0.75;
-		const height = (297 / 25.4) * dpiY * 0.75;
-		const scaleX = 300 / dpiX / 0.75;
-		const scaleY = 300 / dpiY / 0.75;
-		const scale = Math.sqrt(scaleX * scaleY);
-		data.getAllEntities().forEach((e) => {
-			if (e.linewidth >= 0.3) {
-				e.linewidth *= 3;
-			}
-			e.color = new Color(0);
-			if (e instanceof CadDimension) {
-				e.renderStyle = 2;
-			} else if (e instanceof CadMtext) {
-				// TODO: 字体偏移
-				e.insert.y += 5;
-			}
-		}, true);
-		const cad = new CadViewer(data, {
-			width: width * scaleX,
-			height: height * scaleY,
-			backgroundColor: "white",
-			padding: 18 * scale,
-			minLinewidth: 4
-		}).appendTo(document.body);
-		cad.select(cad.data.getAllEntities().dimension);
-		await timeout(0);
-		const src = (await cad.toCanvas()).toDataURL();
-		cad.destroy();
-		const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
-		pdf.getBlob((blob) => {
-			this.stopLoader();
-			const url = URL.createObjectURL(blob);
-			open(url);
-			URL.revokeObjectURL(this.lastUrl);
-			this.lastUrl = url;
-		});
+		const url = await printCad(this.cad);
+		window.open(url);
+		URL.revokeObjectURL(this.lastUrl);
+		this.lastUrl = url;
+		this.stopLoader();
 	}
 
 	rotate(degreesArg: string) {
