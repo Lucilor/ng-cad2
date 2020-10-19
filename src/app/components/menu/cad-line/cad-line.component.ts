@@ -257,17 +257,22 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 		if (this.validateLineText(field, value)) {
 			this.selected.forEach((e) => {
-				if (e instanceof CadLine) {
-					if (field === "zidingzhankaichang") {
-						e[field] = Number(value);
-					} else {
-						e[field] = value;
-						if (field === "gongshi") {
-							const gongshiText = e.children.find((c) => c.info.isGongshiText);
-							if (gongshiText instanceof CadMtext) {
-								gongshiText.text = value;
+				if (field === "lengthTextSize") {
+					e[field] = Number(value);
+					this.cad.render(e);
+				} else {
+					if (e instanceof CadLine) {
+						if (field === "zidingzhankaichang") {
+							e[field] = Number(value);
+						} else {
+							e[field] = value;
+							if (field === "gongshi") {
+								const gongshiText = e.children.find((c) => c.info.isGongshiText);
+								if (gongshiText instanceof CadMtext) {
+									gongshiText.text = value;
+								}
+								this.cad.render(e);
 							}
-							this.cad.render(e);
 						}
 					}
 				}

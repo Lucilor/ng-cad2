@@ -128,18 +128,6 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		this.store.dispatch<ConfigAction>({type: "set config", config: {validateLines}});
 	}
 
-	async setShowLineLength() {
-		const ref = openMessageDialog(this.dialog, {
-			data: {
-				type: "prompt",
-				title: "线长字体大小",
-				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config("lineLength").toString()}
-			}
-		});
-		const num = Number(await ref.afterClosed().toPromise());
-		this.store.dispatch<ConfigAction>({type: "set config", config: {lineLength: num}});
-	}
-
 	toggleShowLineLength() {
 		const hideLineLength = !this.cad.config("hideLineLength");
 		this.store.dispatch<ConfigAction>({type: "set config", config: {hideLineLength}});

@@ -188,8 +188,6 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 			console.warn(error);
 		}
 		if (cachedData && vid) {
-			const {showLineLength} = params;
-			this.cad.config("lineLength", showLineLength);
 			this.openCad([new CadData(cachedData)], params.collection ?? "cad");
 		} else if (location.search) {
 			const data = await dataService.getCadData();

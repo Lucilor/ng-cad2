@@ -19,7 +19,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	dimNameFocus = -1;
 	dimLineSelecting: number = null;
 	prevSelectMode: CadViewerConfig["selectMode"];
-	prevLineLength: CadViewerConfig["lineLength"];
+	prevHideLineLength: CadViewerConfig["hideLineLength"];
 	prevLinegongshi: CadViewerConfig["lineGongshi"];
 
 	get dimensions() {
@@ -109,11 +109,11 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 						e.opacity = 0.3;
 					}
 				});
-				const {lineLength, lineGongshi, selectMode} = cad.config();
-				this.prevLineLength = lineLength;
+				const {hideLineLength, lineGongshi, selectMode} = cad.config();
+				this.prevHideLineLength = hideLineLength;
 				this.prevLinegongshi = lineGongshi;
 				this.prevSelectMode = selectMode;
-				cad.config({lineLength: 0, lineGongshi: 0, selectMode: "single"});
+				cad.config({hideLineLength: true, lineGongshi: 0, selectMode: "single"});
 			} else if (this.dimLineSelecting !== null) {
 				this.dimLineSelecting = null;
 				cad.traverse((e) => {
@@ -124,7 +124,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 						delete e.info.prevOpacity;
 					}
 				});
-				cad.config({lineLength: this.prevLineLength, lineGongshi: this.prevLinegongshi, selectMode: this.prevSelectMode});
+				cad.config({hideLineLength: this.prevHideLineLength, lineGongshi: this.prevLinegongshi, selectMode: this.prevSelectMode});
 			}
 		});
 		this.cad.on("entitiesselect", this.onEntitiesClick);

@@ -1,7 +1,7 @@
 import {SVG, Svg, CoordinateXY, Element, G} from "@svgdotjs/svg.js";
 import {EventEmitter} from "events";
 import {cloneDeep} from "lodash";
-import {Line, Point, Rectangle} from "@app/utils";
+import {Point} from "@app/utils";
 import {CadData} from "./cad-data/cad-data";
 import {CadEntities} from "./cad-data/cad-entities";
 import {CadEntity, CadArc, CadCircle, CadDimension, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entity";
@@ -22,7 +22,6 @@ export interface CadViewerConfig {
 	dragAxis: "" | "x" | "y" | "xy"; // 限制整体内容可向x或y方向拖动
 	entityDraggable: boolean; // 实体是否可拖动
 	hideDimensions: boolean; // 是否隐藏标注
-	lineLength: number; // 显示线长度的字体大小, ≤0时不显示
 	lineGongshi: number; // 显示线公式的字体大小, ≤0时不显示
 	hideLineLength: boolean; // 是否隐藏线长度(即使lineLength>0)
 	hideLineGongshi: boolean; // 是否隐藏线公式(即使lineGongshi>0)
@@ -42,7 +41,6 @@ function getConfigProxy(config?: Partial<CadViewerConfig>) {
 		dragAxis: "xy",
 		entityDraggable: true,
 		hideDimensions: false,
-		lineLength: 0,
 		lineGongshi: 0,
 		hideLineLength: false,
 		hideLineGongshi: false,
@@ -152,7 +150,6 @@ export class CadViewer extends EventEmitter {
 						needsSetBg = true;
 						break;
 					case "hideDimensions":
-					case "lineLength":
 					case "lineGongshi":
 					case "hideLineLength":
 					case "hideLineGongshi":
@@ -338,15 +335,11 @@ export class CadViewer extends EventEmitter {
 		} else if (entity instanceof CadMtext) {
 			const parent = entity.parent;
 			if (parent instanceof CadLine || parent instanceof CadArc) {
-				const {lineLength, lineGongshi, hideLineLength, hideLineGongshi} = this._config;
+				const {lineGongshi, hideLineLength, hideLineGongshi} = this._config;
 				let offset: Point;
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
-					if (entity.isNew) {
-						entity.font_size = lineLength;
-					} else {
-						entity.font_size = 28;
-					}
+					entity.font_size = parent.lengthTextSize;
 					if (hideLineLength || parent.hideLength) {
 						el.remove();
 						entity.el = null;
@@ -354,11 +347,7 @@ export class CadViewer extends EventEmitter {
 					offset = getVectorFromArray(entity.info.offset);
 				} else if (entity.info.isGongshiText) {
 					entity.text = parent.gongshi;
-					if (entity.isNew) {
-						entity.font_size = lineGongshi;
-					} else {
-						entity.font_size = 28;
-					}
+					entity.font_size = lineGongshi;
 					offset = getVectorFromArray(entity.info.offset);
 					if (hideLineGongshi) {
 						el.remove();
@@ -405,9 +394,13 @@ export class CadViewer extends EventEmitter {
 						}
 					});
 					if (index >= 0) {
+						if (!entity.anchor.equals(points[index][1])) {
+							console.log(entity.anchor, points[index][1], entity.text);
+						}
 						entity.anchor.copy(points[index][1]);
 						const offset = points[index][0].clone().sub(middle);
 						entity.info.offset = offset.toArray();
+						entity.info.anchorOverwrite = entity.anchor.toArray();
 						entity.insert.copy(offset.add(middle));
 					}
 				}

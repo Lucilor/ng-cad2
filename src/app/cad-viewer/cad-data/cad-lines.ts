@@ -285,9 +285,11 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				}
 			}
 
-			const {lineLength, lineGongshi} = cad.config();
+			const {hideLineLength, lineGongshi} = cad.config();
 			let lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
-			if (lineLength > 0) {
+			if (hideLineLength) {
+				line.remove(lengthText);
+			} else {
 				if (!(lengthText instanceof CadMtext)) {
 					lengthText = new CadMtext();
 					lengthText.info.isLengthText = true;
@@ -297,10 +299,12 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				const offset = getVectorFromArray(lengthText.info.offset);
 				lengthText.insert.copy(offset.add(outer));
 				lengthText.text = Math.round(line.length).toString();
-				lengthText.font_size = lineLength;
-				lengthText.anchor.copy(anchor);
-			} else {
-				line.remove(lengthText);
+				lengthText.font_size = line.lengthTextSize;
+				if (Array.isArray(lengthText.info.anchorOverwrite)) {
+					lengthText.anchor.copy(getVectorFromArray(lengthText.info.anchorOverwrite));
+				} else {
+					lengthText.anchor.copy(anchor);
+				}
 			}
 
 			let gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;

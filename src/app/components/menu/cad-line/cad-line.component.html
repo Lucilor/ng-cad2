@@ -24,6 +24,18 @@
 			<input matInput hidden />
 		</mat-form-field>
 	</div>
+	<div class="form-item lengthTextSize">
+		<mat-form-field>
+			<mat-label>线长字体大小</mat-label>
+			<input
+				matInput
+				type="text"
+				[ngModel]="getLineText('lengthTextSize')"
+				(change)="setLineText($event, 'lengthTextSize')"
+				name="lengthTextSize"
+			/>
+		</mat-form-field>
+	</div>
 	<div class="form-item color">
 		<mat-form-field>
 			<mat-label>颜色</mat-label>

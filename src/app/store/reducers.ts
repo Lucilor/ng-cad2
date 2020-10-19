@@ -82,7 +82,6 @@ export function configReducer(config = initialState.config, action: ConfigAction
 			selectMode: "multiple",
 			entityDraggable: true,
 			hideDimensions: false,
-			lineLength: 24,
 			lineGongshi: 8,
 			hideLineLength: false,
 			hideLineGongshi: false,

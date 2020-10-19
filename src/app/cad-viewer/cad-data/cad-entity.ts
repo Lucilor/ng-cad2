@@ -181,6 +181,7 @@ export class CadArc extends CadEntity {
 	clockwise: boolean;
 	gongshi = "";
 	hideLength: boolean;
+	lengthTextSize: number;
 
 	get start() {
 		return this.curve.getPoint(0);
@@ -208,6 +209,7 @@ export class CadArc extends CadEntity {
 		this.end_angle = data.end_angle ?? 0;
 		this.clockwise = data.clockwise ?? false;
 		this.hideLength = data.hideLength === true;
+		this.lengthTextSize = data.lengthTextSize ?? 35;
 	}
 
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
@@ -229,7 +231,8 @@ export class CadArc extends CadEntity {
 			start_angle: this.start_angle,
 			end_angle: this.end_angle,
 			clockwise: this.clockwise,
-			hideLength: this.hideLength
+			hideLength: this.hideLength,
+			lengthTextSize: this.lengthTextSize
 		};
 	}
 
@@ -468,6 +471,7 @@ export class CadLine extends CadEntity {
 	}[];
 	zhewanOffset: number;
 	hideLength: boolean;
+	lengthTextSize: number;
 
 	get curve() {
 		return new Line(this.start, this.end);
@@ -517,6 +521,7 @@ export class CadLine extends CadEntity {
 			}
 		});
 		this.hideLength = data.hideLength === true;
+		this.lengthTextSize = data.lengthTextSize ?? 35;
 	}
 
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
@@ -540,7 +545,8 @@ export class CadLine extends CadEntity {
 			zidingzhankaichang: this.zidingzhankaichang,
 			tiaojianquzhi: this.tiaojianquzhi,
 			zhewanOffset: this.zhewanOffset,
-			hideLength: this.hideLength
+			hideLength: this.hideLength,
+			lengthTextSize: this.lengthTextSize
 		};
 	}
 
@@ -566,23 +572,17 @@ export class CadMtext extends CadEntity {
 	font_size: number;
 	text: string;
 	anchor: Point;
-	isNew: boolean;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
 		this.type = "MTEXT";
 		this.insert = getVectorFromArray(data.insert);
-		this.isNew = data.isNew === true;
 		this.text = data.text ?? "";
 		this.anchor = getVectorFromArray(data.anchor);
 		if (this.info.isLengthText || this.info.isGongshiText) {
-			if (this.isNew) {
-				this.font_size = data.font_size ?? 28;
-			} else {
-				this.font_size = 28;
-			}
+			this.font_size = 28;
 		} else {
-			this.font_size = data.font_size ?? 40;
+			this.font_size = data.font_size ?? 35;
 		}
 	}
 
@@ -593,8 +593,7 @@ export class CadMtext extends CadEntity {
 			insert: this.insert.toArray(),
 			font_size: this.font_size,
 			text: this.text,
-			anchor,
-			isNew: this.isNew
+			anchor
 		};
 	}
 
