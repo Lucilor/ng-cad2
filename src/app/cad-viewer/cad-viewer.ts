@@ -394,9 +394,6 @@ export class CadViewer extends EventEmitter {
 						}
 					});
 					if (index >= 0) {
-						if (!entity.anchor.equals(points[index][1])) {
-							console.log(entity.anchor, points[index][1], entity.text);
-						}
 						entity.anchor.copy(points[index][1]);
 						const offset = points[index][0].clone().sub(middle);
 						entity.info.offset = offset.toArray();
