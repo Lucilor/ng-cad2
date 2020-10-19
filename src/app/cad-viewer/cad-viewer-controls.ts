@@ -176,15 +176,16 @@ function onPointerUp(this: CadViewer, event: PointerEvent) {
 }
 
 function onKeyDown(this: CadViewer, event: KeyboardEvent) {
-	event.preventDefault();
 	const {key, ctrlKey} = event;
-	event.preventDefault();
 	if (key === "Escape") {
 		this.unselectAll();
+		event.preventDefault();
 	} else if (ctrlKey && key === "a") {
 		this.selectAll();
+		event.preventDefault();
 	} else if (key === "Delete" || key === "Backspace") {
 		this.remove(this.selected());
+		event.preventDefault();
 	}
 	this.emit("keydown", event);
 }

@@ -3,6 +3,7 @@ import {CommandAction, ConfigAction} from "@app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
 import {getConfig} from "@app/store/selectors";
+import {CadMtext, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer/cad-data/cad-entity";
 
 @Component({
 	selector: "app-toolbar",
@@ -163,8 +164,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 
 	resetLineLength() {
 		this.cad.data.getAllEntities().forEach((e) => {
-			if (e.info.isLengthText) {
+			if (e instanceof CadMtext && e.info.isLengthText) {
 				e.info.offset = [0, 0];
+				e.font_size = DEFAULT_LENGTH_TEXT_SIZE;
 			}
 		}, true);
 		this.cad.render();

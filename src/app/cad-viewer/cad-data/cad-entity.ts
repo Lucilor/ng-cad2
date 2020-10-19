@@ -8,6 +8,8 @@ import {v4} from "uuid";
 import {CadEntities} from "./cad-entities";
 import {cloneDeep, intersection} from "lodash";
 
+export const DEFAULT_LENGTH_TEXT_SIZE = 24;
+
 export abstract class CadEntity {
 	id: string;
 	originalId: string;
@@ -209,7 +211,7 @@ export class CadArc extends CadEntity {
 		this.end_angle = data.end_angle ?? 0;
 		this.clockwise = data.clockwise ?? false;
 		this.hideLength = data.hideLength === true;
-		this.lengthTextSize = data.lengthTextSize ?? 24;
+		this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
 	}
 
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
@@ -521,7 +523,7 @@ export class CadLine extends CadEntity {
 			}
 		});
 		this.hideLength = data.hideLength === true;
-		this.lengthTextSize = data.lengthTextSize ?? 24;
+		this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
 	}
 
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
@@ -579,6 +581,11 @@ export class CadMtext extends CadEntity {
 		this.insert = getVectorFromArray(data.insert);
 		this.text = data.text ?? "";
 		this.anchor = getVectorFromArray(data.anchor);
+		if (this.text.includes("\x02")) {
+			this.font_size = 37;
+		} else {
+			this.font_size = data.font_size ?? DEFAULT_LENGTH_TEXT_SIZE;
+		}
 	}
 
 	export() {
