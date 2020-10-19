@@ -53,17 +53,13 @@ export function drawArc(draw: Container, center: Point, radius: number, startAng
 }
 
 export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical = false, i = 0) {
-	// ? 调整字体的玄学数字
-	const fontScale = 1;
-	const offsetYfactor = -0.1;
-
 	if (!text || !(size > 0)) {
 		draw.remove();
 		return null;
 	}
 	let el = draw.children()[i] as Text;
 	if (el instanceof Text) {
-		el.text(text).font({size: size * fontScale});
+		el.text(text).font({size});
 	} else {
 		el = draw.text(text).addClass("fill").stroke("none");
 		el.css("transform-box", "fill-box");
@@ -78,14 +74,7 @@ export function drawText(draw: Container, text: string, size: number, position: 
 		el.css("transform", `translate(${-anchor.x * 100}%, ${anchor.y * 100}%) scale(1, -1)`);
 	}
 
-	// ? 位置调整
-	let offsetY = 0;
-	if (anchor.y === 0) {
-		// offsetY = -0.2 * size;
-	} else if (anchor.y === 1) {
-		offsetY = offsetYfactor * size;
-	}
-	el.move(position.x, position.y + offsetY);
+	el.move(position.x, position.y);
 	return [el];
 }
 

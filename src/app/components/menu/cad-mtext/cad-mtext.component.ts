@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
-import {CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
+import {CadEntity, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {getCurrCads, getCurrCadsData} from "@app/store/selectors";
 import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
 import Color from "color";
@@ -53,7 +53,7 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 	setInfo = throttle((field: string, event: InputEvent) => {
 		const value = (event.target as HTMLInputElement).value;
 		this.selected.forEach((e) => (e[field] = value));
-		this.cad.render();
+		this.cad.render(this.selected);
 	}, 500);
 
 	getColor() {
@@ -74,7 +74,7 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 	setColor(event: ColorPickerEventArgs) {
 		const value = event.currentValue.hex;
 		this.selected.forEach((e) => (e.color = new Color(value)));
-		this.cad.render();
+		this.cad.render(this.selected);
 	}
 
 	addMtext() {
@@ -91,10 +91,12 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 
 	async cloneMtexts() {
 		const {cad, data} = this;
+		const toRender: CadEntity[] = [];
 		this.selected.forEach((mtext) => {
 			const newText = mtext.clone(true);
 			data.entities.mtext.push(newText);
+			toRender.push(newText);
 		});
-		cad.render();
+		cad.render(toRender);
 	}
 }

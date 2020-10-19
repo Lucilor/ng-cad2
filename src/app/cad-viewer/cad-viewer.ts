@@ -414,6 +414,15 @@ export class CadViewer extends EventEmitter {
 			}
 			const {text, insert, font_size, anchor} = entity;
 			const offset = new Point(0, 0);
+			// * 算料单特殊逻辑
+			if (this.data.info.算料单) {
+				// ? 调整字体的玄学数字
+				const offsetYfactor = -0.1;
+
+				if (anchor.y === 0) {
+					offset.y = offsetYfactor * font_size;
+				}
+			}
 			drawResult = drawText(el, text, font_size, insert.clone().add(offset), anchor);
 		}
 		if (!drawResult) {

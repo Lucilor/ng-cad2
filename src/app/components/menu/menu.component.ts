@@ -78,6 +78,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 		const cad = globalVars.cad;
 		if (data) {
 			cad.data.components.data = data;
+			cad.data.info.算料单 = data.some((v) => v.info.算料单);
 			data.forEach((v) => {
 				setCadData(v);
 				addCadGongshi(v);

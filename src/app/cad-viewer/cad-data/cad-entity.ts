@@ -1,7 +1,7 @@
 import {CadLayer} from "./cad-layer";
 import {CadType, cadTypes} from "./cad-types";
 import {Angle, Arc, index2RGB, Line, Point, RGB2Index} from "@app/utils";
-import {getVectorFromArray, isBetween, lineweight2linewidth, linewidth2lineweight} from "./utils";
+import {getVectorFromArray, lineweight2linewidth, linewidth2lineweight} from "./utils";
 import {G, Matrix, MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
 import Color from "color";
 import {v4} from "uuid";
