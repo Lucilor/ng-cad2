@@ -27,7 +27,7 @@
     "@svgdotjs/svg.js": "^3.0.16",
     "@syncfusion/ej2-angular-inputs": "^18.3.35",
     "ang-jsoneditor": "^1.10.3",
-    "highlight.js": "^10.2.1",
+    "highlight.js": "^10.3.1",
     "jsencrypt": "^3.0.0-rc.1",
     "jsoneditor": "^9.1.1",
     "lodash": "^4.17.20",
@@ -38,7 +38,7 @@
     "rxjs": "~6.6.3",
     "tslib": "^2.0.3",
     "uuid": "^8.3.1",
-    "zone.js": "~0.11.1"
+    "zone.js": "~0.11.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1001.7",
@@ -54,12 +54,12 @@
     "@types/jasmine": "~3.5.14",
     "@types/jasminewd2": "~2.0.8",
     "@types/lodash": "^4.14.162",
-    "@types/node": "^14.11.8",
+    "@types/node": "^14.11.10",
     "@types/pdfmake": "^0.1.15",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "4.4.1",
     "@typescript-eslint/parser": "4.4.1",
-    "eslint": "^7.6.0",
+    "eslint": "^7.11.0",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~6.0.0",
     "karma": "~5.2.3",
