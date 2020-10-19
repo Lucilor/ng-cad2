@@ -209,7 +209,7 @@ export class CadArc extends CadEntity {
 		this.end_angle = data.end_angle ?? 0;
 		this.clockwise = data.clockwise ?? false;
 		this.hideLength = data.hideLength === true;
-		this.lengthTextSize = data.lengthTextSize ?? 35;
+		this.lengthTextSize = data.lengthTextSize ?? 24;
 	}
 
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
@@ -521,7 +521,7 @@ export class CadLine extends CadEntity {
 			}
 		});
 		this.hideLength = data.hideLength === true;
-		this.lengthTextSize = data.lengthTextSize ?? 35;
+		this.lengthTextSize = data.lengthTextSize ?? 24;
 	}
 
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
@@ -579,11 +579,7 @@ export class CadMtext extends CadEntity {
 		this.insert = getVectorFromArray(data.insert);
 		this.text = data.text ?? "";
 		this.anchor = getVectorFromArray(data.anchor);
-		if (this.info.isLengthText || this.info.isGongshiText) {
-			this.font_size = 28;
-		} else {
-			this.font_size = data.font_size ?? 35;
-		}
+		this.font_size = data.font_size ?? 24;
 	}
 
 	export() {
