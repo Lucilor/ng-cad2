@@ -382,7 +382,7 @@ export class CadViewer extends EventEmitter {
 						[0, 0.5],
 						[0.5, 0],
 						[1, 0.5],
-						[0, 5, 1]
+						[0.5, 1]
 					].map((v) => [new Point(x + v[0] * size.x, y - v[1] * size.y), new Point(v)]);
 					let minD = Infinity;
 					let index = -1;

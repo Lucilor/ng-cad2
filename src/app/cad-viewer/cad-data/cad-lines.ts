@@ -8,7 +8,7 @@ import Color from "color";
 
 export type CadLineLike = CadLine | CadArc;
 
-export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff"];
+export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff" ,"#ffff00"];
 
 export type PointsMap = {
 	point: Point;
