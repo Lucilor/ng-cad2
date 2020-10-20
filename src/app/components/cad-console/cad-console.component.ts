@@ -1,7 +1,7 @@
 import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars, printCad} from "@app/app.common";
+import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars, printCads} from "@app/app.common";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {CadArc, CadDimension, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@app/cad-viewer/cad-data/cad-lines";
@@ -768,7 +768,9 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 	async print() {
 		this.startLoader();
 		await timeout(100);
-		const url = await printCad(this.cad);
+		const data = this.cad.data.clone();
+		removeCadGongshi(data);
+		const url = await printCads([data], this.cad.config());
 		window.open(url);
 		URL.revokeObjectURL(this.lastUrl);
 		this.lastUrl = url;

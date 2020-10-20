@@ -5,7 +5,7 @@ import {CadData} from "./cad-viewer/cad-data/cad-data";
 import {CadEntities} from "./cad-viewer/cad-data/cad-entities";
 import {CadDimension, CadMtext} from "./cad-viewer/cad-data/cad-entity";
 import {PointsMap} from "./cad-viewer/cad-data/cad-lines";
-import {CadViewer} from "./cad-viewer/cad-viewer";
+import {CadViewer, CadViewerConfig} from "./cad-viewer/cad-viewer";
 import {State} from "./store/state";
 
 export type Without<T, U> = {[P in Exclude<keyof T, keyof U>]?: never};
@@ -186,9 +186,7 @@ export function downloadFile(content: string, filename: string) {
 	document.body.removeChild(link);
 }
 
-export async function printCad(cad: CadViewer) {
-	const data = cad.data.clone();
-	removeCadGongshi(data);
+export async function printCads(dataArr: CadData[], config: Partial<CadViewerConfig> = {}) {
 	let [dpiX, dpiY] = getDPI();
 	if (!(dpiX > 0) || !(dpiY > 0)) {
 		console.warn("Unable to get screen dpi.Assuming dpi = 96.");
@@ -199,30 +197,43 @@ export async function printCad(cad: CadViewer) {
 	const scaleX = 300 / dpiX / 0.75;
 	const scaleY = 300 / dpiY / 0.75;
 	const scale = Math.sqrt(scaleX * scaleY);
-	data.getAllEntities().forEach((e) => {
-		if (e.linewidth >= 0.3) {
-			e.linewidth *= 3;
-		}
-		e.color = new Color(0);
-		if (e instanceof CadDimension) {
-			e.renderStyle = 2;
-		}
-	}, true);
-	const cadPrint = new CadViewer(data, {
-		...cad.config(),
-		width: width * scaleX,
-		height: height * scaleY,
-		backgroundColor: "white",
-		padding: 18 * scale,
-		minLinewidth: 4,
-		hideLineLength: true,
-		hideLineGongshi: true
-	}).appendTo(document.body);
-	cadPrint.select(cadPrint.data.getAllEntities().dimension);
-	await timeout(0);
-	const src = (await cadPrint.toCanvas()).toDataURL();
-	cadPrint.destroy();
-	const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0}, {}, {微软雅黑: {}});
+
+	const imgs: string[] = [];
+	for (const data of dataArr) {
+		data.getAllEntities().forEach((e) => {
+			if (e.linewidth >= 0.3) {
+				e.linewidth *= 3;
+			}
+			e.color = new Color(0);
+			if (e instanceof CadDimension) {
+				e.renderStyle = 2;
+			}
+		}, true);
+		const cadPrint = new CadViewer(data, {
+			...config,
+			width: width * scaleX,
+			height: height * scaleY,
+			backgroundColor: "white",
+			padding: 18 * scale,
+			minLinewidth: 4,
+			hideLineLength: true,
+			hideLineGongshi: true
+		}).appendTo(document.body);
+		cadPrint.select(cadPrint.data.getAllEntities().dimension);
+		await timeout(0);
+		const src = (await cadPrint.toCanvas()).toDataURL();
+		cadPrint.destroy();
+		imgs.push(src);
+	}
+
+	const pdf = createPdf(
+		{
+			content: imgs.map((image) => ({image, width, height})),
+			pageSize: "A4",
+			pageMargins: 0
+		},
+		{}
+	);
 	const url = await new Promise<string>((resolve) => {
 		pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
 	});
