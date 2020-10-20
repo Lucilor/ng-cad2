@@ -369,6 +369,13 @@ export class CadViewer extends EventEmitter {
 					const {width, height} = rect;
 					const size = new Point(width, height).divide(this.zoom());
 					entity.info.size = size.toArray();
+					const dTop24 = 35;
+					const dBottom24 = 27;
+					// const dTop37 = 41;
+					// const dBottom37 = 43;
+					if (entity.font_size === 24) {
+						entity.info.size[1] -= dTop24 + dBottom24;
+					}
 
 					// * 重新计算锚点
 					const {insert, anchor} = entity;
