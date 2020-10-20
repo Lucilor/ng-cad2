@@ -97,6 +97,12 @@ export class MenuComponent implements OnInit, OnDestroy {
 		if (collection === "cad") {
 			data.forEach((v) => validateLines(v));
 		}
+		cad.reset().emit("open");
+		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+	}
+
+	generateLineTexts() {
+		const {collection, cad} = this;
 		if (collection === "CADmuban") {
 			cad.data.components.data.forEach((v) => {
 				v.components.data.forEach((vv) => generateLineTexts(cad, vv));
@@ -104,8 +110,6 @@ export class MenuComponent implements OnInit, OnDestroy {
 		} else {
 			cad.data.components.data.forEach((v) => generateLineTexts(cad, v));
 		}
-		cad.reset().emit("open");
-		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 	}
 
 	startLoader() {

@@ -288,13 +288,13 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 			const {hideLineLength, lineGongshi} = cad.config();
 			let lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
 			if (hideLineLength) {
-				line.remove(lengthText);
+				line.removeChild(lengthText);
 			} else {
 				if (!(lengthText instanceof CadMtext)) {
 					lengthText = new CadMtext();
 					lengthText.info.isLengthText = true;
 					lengthText.info.offset = [0, 0];
-					line.add(lengthText);
+					line.addChild(lengthText);
 				}
 				const offset = getVectorFromArray(lengthText.info.offset);
 				lengthText.insert.copy(offset.add(outer));
@@ -313,14 +313,14 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 					gongshiText = new CadMtext();
 					gongshiText.info.isGongshiText = true;
 					gongshiText.info.offset = [0, 0];
-					line.add(gongshiText);
+					line.addChild(gongshiText);
 					gongshiText.insert.copy(inner);
 				}
 				gongshiText.text = line.gongshi;
 				gongshiText.font_size = lineGongshi;
 				gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
 			} else {
-				line.remove(gongshiText);
+				line.removeChild(gongshiText);
 			}
 		});
 	});

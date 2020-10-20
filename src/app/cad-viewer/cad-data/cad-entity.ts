@@ -149,7 +149,7 @@ export abstract class CadEntity {
 		};
 	}
 
-	add(...children: CadEntity[]) {
+	addChild(...children: CadEntity[]) {
 		children.forEach((e) => {
 			if (e instanceof CadEntity) {
 				e.parent = this;
@@ -159,12 +159,19 @@ export abstract class CadEntity {
 		return this;
 	}
 
-	remove(...children: CadEntity[]) {
+	removeChild(...children: CadEntity[]) {
 		children.forEach((e) => {
 			if (e instanceof CadEntity) {
 				this.children.remove(e);
 			}
 		});
+		return this;
+	}
+
+	remove() {
+		this.el.remove();
+		this.el = null;
+		this.parent.removeChild(this);
 		return this;
 	}
 
@@ -581,7 +588,7 @@ export class CadMtext extends CadEntity {
 		this.insert = getVectorFromArray(data.insert);
 		this.text = data.text ?? "";
 		this.anchor = getVectorFromArray(data.anchor);
-		if (this.text.includes("\x02")) {
+		if (this.text.includes("\x09")) {
 			this.font_size = 37;
 		} else {
 			this.font_size = data.font_size ?? DEFAULT_LENGTH_TEXT_SIZE;

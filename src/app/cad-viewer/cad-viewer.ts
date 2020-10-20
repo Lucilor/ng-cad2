@@ -369,13 +369,6 @@ export class CadViewer extends EventEmitter {
 					const {width, height} = rect;
 					const size = new Point(width, height).divide(this.zoom());
 					entity.info.size = size.toArray();
-					const dTop24 = 35;
-					const dBottom24 = 27;
-					// const dTop37 = 41;
-					// const dBottom37 = 43;
-					if (entity.font_size === 24) {
-						entity.info.size[1] -= dTop24 + dBottom24;
-					}
 
 					// * 重新计算锚点
 					const {insert, anchor} = entity;
@@ -542,7 +535,7 @@ export class CadViewer extends EventEmitter {
 						this.render(e);
 					}
 				} else {
-					e.parent?.remove(e);
+					e.parent?.removeChild(e);
 					e.el?.remove();
 					e.el = null;
 					e.children.forEach((c) => c.el?.remove());
@@ -629,8 +622,8 @@ export class CadViewer extends EventEmitter {
 		});
 	}
 
-	traverse(callback: (e: CadEntity) => void) {
-		this.data.getAllEntities().forEach((e) => callback(e));
+	traverse(callback: (e: CadEntity) => void, recursive = false) {
+		this.data.getAllEntities().forEach((e) => callback(e), recursive);
 		return this;
 	}
 
