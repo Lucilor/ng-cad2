@@ -295,6 +295,11 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 					lengthText.info.isLengthText = true;
 					lengthText.info.offset = [0, 0];
 					line.addChild(lengthText);
+					if (anchor.x === 0) {
+						lengthText.info.offset[0] += 5;
+					} else if (anchor.x === 1) {
+						lengthText.info.offset[0] -= 5;
+					}
 				}
 				const offset = getVectorFromArray(lengthText.info.offset);
 				lengthText.insert.copy(offset.add(outer));

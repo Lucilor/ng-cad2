@@ -8,6 +8,7 @@ export interface CadStyle {
 	fontSize?: number;
 	opacity?: number;
 	fontStyle?: string;
+	fontFamily?: string;
 }
 
 export class CadStylizer {
@@ -53,6 +54,10 @@ export class CadStylizer {
 			result.linewidth = Math.max(minLinewidth, result.linewidth);
 		}
 
+		result.fontFamily = cad.config("fontFamily");
+		if (entity instanceof CadMtext && entity.fontFamily) {
+			result.fontFamily = entity.fontFamily;
+		}
 		return result;
 	}
 

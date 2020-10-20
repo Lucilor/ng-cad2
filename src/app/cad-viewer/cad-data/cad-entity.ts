@@ -44,12 +44,24 @@ export abstract class CadEntity {
 		if (this.el) {
 			if (value && this.selectable) {
 				this.el.addClass("selected");
-				this.el.children().forEach((c) => {
+				this.el.children().forEach((c, i) => {
 					if (c.hasClass("stroke")) {
-						c.css("stroke-dasharray", "20, 7");
+						if (this instanceof CadDimension) {
+							if (this.renderStyle === 1) {
+								c.css("stroke-dasharray", "20, 7");
+							} else if (this.renderStyle === 2 && i == 2) {
+								c.css("stroke-dasharray", "20, 7");
+							}
+						} else {
+							c.css("stroke-dasharray", "20, 7");
+						}
 					}
-					if (c.hasClass("fill")) {
-						c.css("fill", "#ffca1c");
+					if (this instanceof CadDimension) {
+						// pass
+					} else {
+						if (c.hasClass("fill")) {
+							c.css("fill", "#ffca1c");
+						}
 					}
 				});
 			} else {
@@ -581,6 +593,7 @@ export class CadMtext extends CadEntity {
 	font_size: number;
 	text: string;
 	anchor: Point;
+	fontFamily: string;
 
 	constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
 		super(data, layers, resetId);
@@ -588,8 +601,13 @@ export class CadMtext extends CadEntity {
 		this.insert = getVectorFromArray(data.insert);
 		this.text = data.text ?? "";
 		this.anchor = getVectorFromArray(data.anchor);
-		if (this.text.includes("\x09")) {
-			this.font_size = 37;
+		this.fontFamily = data.fontFamily ?? "";
+		if (this.text.includes("     ")) {
+			this.font_size = 36;
+			this.insert.y += 11;
+			this.insert.x -= 4;
+			this.text = this.text.replace("     ", "");
+			this.fontFamily = "仿宋";
 		} else {
 			this.font_size = data.font_size ?? DEFAULT_LENGTH_TEXT_SIZE;
 		}
@@ -602,7 +620,8 @@ export class CadMtext extends CadEntity {
 			insert: this.insert.toArray(),
 			font_size: this.font_size,
 			text: this.text,
-			anchor
+			anchor,
+			fontFamily: this.fontFamily
 		};
 	}
 

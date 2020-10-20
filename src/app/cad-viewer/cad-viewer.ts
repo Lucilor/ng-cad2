@@ -45,7 +45,7 @@ function getConfigProxy(config?: Partial<CadViewerConfig>) {
 		hideLineLength: false,
 		hideLineGongshi: false,
 		minLinewidth: 1,
-		fontFamily: ""
+		fontFamily: "微软雅黑"
 	};
 	for (const key in config) {
 		if (key in defalutConfig) {
@@ -264,7 +264,7 @@ export class CadViewer extends EventEmitter {
 
 	drawEntity(entity: CadEntity, style: CadStyle = {}) {
 		const {draw, stylizer} = this;
-		const {color, linewidth} = stylizer.get(entity, style);
+		const {color, linewidth, fontSize, fontFamily} = stylizer.get(entity, style);
 		if (!entity.visible) {
 			entity.el?.remove();
 			entity.el = null;
@@ -304,7 +304,7 @@ export class CadViewer extends EventEmitter {
 			const {center, radius} = entity;
 			drawResult = drawCircle(el, center, radius);
 		} else if (entity instanceof CadDimension) {
-			const {mingzi, qujian, font_size, axis, renderStyle} = entity;
+			const {mingzi, qujian, axis, renderStyle} = entity;
 			const points = this.data.getDimensionPoints(entity);
 			let text = "";
 			if (mingzi) {
@@ -316,7 +316,7 @@ export class CadViewer extends EventEmitter {
 			if (text === "") {
 				text = "<>";
 			}
-			drawResult = drawDimension(el, renderStyle, points, text, axis, font_size);
+			drawResult = drawDimension(el, renderStyle, points, text, axis, fontSize, fontFamily);
 		} else if (entity instanceof CadHatch) {
 			const {paths} = entity;
 			drawResult = [];
@@ -402,7 +402,7 @@ export class CadViewer extends EventEmitter {
 					}
 				}
 			}
-			const {text, insert, font_size, anchor} = entity;
+			const {text, insert, anchor} = entity;
 			const offset = new Point(0, 0);
 			// * 算料单特殊逻辑
 			if (this.data.info.算料单) {
@@ -410,10 +410,10 @@ export class CadViewer extends EventEmitter {
 				const offsetYfactor = -0.1;
 
 				if (anchor.y === 0) {
-					offset.y = offsetYfactor * font_size;
+					offset.y = offsetYfactor * fontSize;
 				}
 			}
-			drawResult = drawText(el, text, font_size, insert.clone().add(offset), anchor);
+			drawResult = drawText(el, text, fontSize, insert.clone().add(offset), anchor, fontFamily);
 		}
 		if (!drawResult) {
 			entity.el?.remove();

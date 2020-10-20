@@ -52,7 +52,16 @@ export function drawArc(draw: Container, center: Point, radius: number, startAng
 	return [el];
 }
 
-export function drawText(draw: Container, text: string, size: number, position: Point, anchor: Point, vertical = false, i = 0) {
+export function drawText(
+	draw: Container,
+	text: string,
+	size: number,
+	position: Point,
+	anchor: Point,
+	fontFamily?: string,
+	vertical = false,
+	i = 0
+) {
 	if (!text || !(size > 0)) {
 		draw.remove();
 		return null;
@@ -73,7 +82,7 @@ export function drawText(draw: Container, text: string, size: number, position: 
 		el.css("writing-mode", "");
 		el.css("transform", `translate(${-anchor.x * 100}%, ${anchor.y * 100}%) scale(1, -1)`);
 	}
-
+	el.css("font-family", fontFamily);
 	el.move(position.x, position.y);
 	return [el];
 }
@@ -98,7 +107,16 @@ export function drawShape(draw: Container, points: Point[], type: "fill" | "stro
 	return [el];
 }
 
-export function drawDimension(draw: Container, style = 1 | 2, points: Point[], text: string, axis: "x" | "y", fontSize: number, i = 0) {
+export function drawDimension(
+	draw: Container,
+	style = 1 | 2,
+	points: Point[],
+	text: string,
+	axis: "x" | "y",
+	fontSize: number,
+	fontFamily?: string,
+	i = 0
+) {
 	if (points.length < 8 || !(fontSize > 0)) {
 		draw.remove();
 		return null;
@@ -128,9 +146,9 @@ export function drawDimension(draw: Container, style = 1 | 2, points: Point[], t
 	const middle = p3.clone().add(p4).divide(2);
 	let textEl: Text;
 	if (axis === "x") {
-		textEl = drawText(draw, text, fontSize, middle, new Point(0.5, 1), false, i + 5)[0];
+		textEl = drawText(draw, text, fontSize, middle, new Point(0.5, 1), fontFamily, false, i + 5)[0];
 	} else if (axis === "y") {
-		textEl = drawText(draw, text, fontSize, middle, new Point(1, 0.5), true, i + 5)[0];
+		textEl = drawText(draw, text, fontSize, middle, new Point(1, 0.5), fontFamily, true, i + 5)[0];
 	}
 	return [l1, l2, l3, tri1, tri2, textEl];
 }

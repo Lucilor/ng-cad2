@@ -206,9 +206,6 @@ export async function printCad(cad: CadViewer) {
 		e.color = new Color(0);
 		if (e instanceof CadDimension) {
 			e.renderStyle = 2;
-		} else if (e instanceof CadMtext) {
-			// TODO: 字体偏移
-			e.insert.y += 5;
 		}
 	}, true);
 	const cadPrint = new CadViewer(data, {
@@ -221,11 +218,11 @@ export async function printCad(cad: CadViewer) {
 		hideLineLength: true,
 		hideLineGongshi: true
 	}).appendTo(document.body);
-	cadPrint.select(cad.data.getAllEntities().dimension);
+	cadPrint.select(cadPrint.data.getAllEntities().dimension);
 	await timeout(0);
 	const src = (await cadPrint.toCanvas()).toDataURL();
 	cadPrint.destroy();
-	const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0});
+	const pdf = createPdf({content: {image: src, width, height}, pageSize: "A4", pageMargins: 0}, {}, {微软雅黑: {}});
 	const url = await new Promise<string>((resolve) => {
 		pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
 	});
