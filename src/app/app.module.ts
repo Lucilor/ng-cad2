@@ -5,6 +5,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {StoreModule} from "@ngrx/store";
 import {reducers, metaReducers} from "./store/reducers";
 import {HttpClientModule} from "@angular/common/http";
+import {DragDropModule} from "@angular/cdk/drag-drop";
 
 import {MatMenuModule} from "@angular/material/menu";
 import {MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS} from "@angular/material/dialog";
@@ -60,6 +61,7 @@ import {TableComponent} from "./components/table/table.component";
 import {CadLineTiaojianquzhiSelectComponent} from "./components/menu/cad-line-tiaojianquzhi-select/cad-line-tiaojianquzhi-select.component";
 import {ImportComponent} from "./components/import/import.component";
 import {BackupComponent} from "./components/backup/backup.component";
+import {AnchorSelectorComponent} from "./components/anchor-selector/anchor-selector.component";
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -108,7 +110,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		TableComponent,
 		CadLineTiaojianquzhiSelectComponent,
 		ImportComponent,
-		BackupComponent
+		BackupComponent,
+		AnchorSelectorComponent
 	],
 	imports: [
 		BrowserModule,
@@ -121,6 +124,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		}),
 		AppRoutingModule,
 		HttpClientModule,
+		DragDropModule,
 		BrowserAnimationsModule,
 		FormsModule,
 		ReactiveFormsModule,

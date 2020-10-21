@@ -460,7 +460,7 @@ export class CadData {
 				if (l1.isVertical(accuracy)) {
 					translate.x = l1.start.x - l2.start.x + spaceNum;
 					axis = "x";
-				} else if (l1.isHorizonal(accuracy)) {
+				} else if (l1.isHorizontal(accuracy)) {
 					translate.y = l1.start.y - l2.start.y + spaceNum;
 					axis = "y";
 				} else {
@@ -635,7 +635,7 @@ export class CadData {
 				if (l.length <= accuracy) {
 					continue;
 				}
-				if (l.isHorizonal(accuracy) && (!hLine || hLine.start.y > l.start.y)) {
+				if (l.isHorizontal(accuracy) && (!hLine || hLine.start.y > l.start.y)) {
 					hLine = l;
 				} else if (l.isVertical(accuracy) && (!vLine || vLine.start.x > l.start.x)) {
 					vLine = l;

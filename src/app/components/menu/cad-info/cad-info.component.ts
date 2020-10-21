@@ -29,7 +29,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		if (name === "select baseline") {
 			if (entity instanceof CadLine) {
 				const baseLine = data.baseLines[index];
-				if (entity.isHorizonal()) {
+				if (entity.isHorizontal()) {
 					baseLine.idY = entity.selected ? entity.originalId : "";
 				}
 				if (entity.isVertical()) {

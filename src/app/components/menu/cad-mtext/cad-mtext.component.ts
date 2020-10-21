@@ -1,10 +1,12 @@
-import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
+import {Component, OnInit, OnDestroy, Injector, ElementRef} from "@angular/core";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {CadEntity, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
 import {getCurrCads, getCurrCadsData} from "@app/store/selectors";
+import {Point} from "@src/app/utils";
 import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
 import Color from "color";
 import {throttle} from "lodash";
+import {AnchorEvent} from "../../anchor-selector/anchor-selector.component";
 import {MenuComponent} from "../menu.component";
 
 @Component({
@@ -14,12 +16,13 @@ import {MenuComponent} from "../menu.component";
 })
 export class CadMtextComponent extends MenuComponent implements OnInit, OnDestroy {
 	data: CadData;
+	currAnchor = new Point();
 
 	get selected() {
 		return this.cad.selected().mtext;
 	}
 
-	constructor(injector: Injector) {
+	constructor(injector: Injector, private elRef: ElementRef<HTMLElement>) {
 		super(injector);
 	}
 
@@ -98,5 +101,21 @@ export class CadMtextComponent extends MenuComponent implements OnInit, OnDestro
 			toRender.push(newText);
 		});
 		cad.render(toRender);
+	}
+
+	getAnchor() {
+		const selected = this.selected;
+		const anchor = new Point();
+		if (selected.length === 1) {
+			anchor.copy(selected[0].anchor);
+		}
+		this.currAnchor.copy(anchor);
+		return anchor.toArray().join(", ");
+	}
+
+	setAnchor(event: AnchorEvent) {
+		const [x, y] = event.anchor;
+		this.selected.forEach((e) => e.anchor.set(x, y));
+		this.cad.render(this.selected);
 	}
 }

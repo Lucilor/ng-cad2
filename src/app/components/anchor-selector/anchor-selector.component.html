@@ -1,0 +1,43 @@
+<div #background class="background" [style]="{width: backgroundSize + 'px', height: backgroundSize + 'px'}">
+	<div class="horizontal divider"></div>
+	<div class="vertical divider"></div>
+	<div #pointer class="pointer" [style]="{width: pointerSize + 'px', height: pointerSize + 'px', left: left, top: top}"></div>
+</div>
+<div class="selections">
+	<mat-form-field>
+		<mat-label>x</mat-label>
+		<input
+			matInput
+			type="number"
+			step="0.1"
+			min="0"
+			max="1"
+			[matAutocomplete]="autoX"
+			[ngModel]="x"
+			(change)="onInputChange($event, 'x')"
+		/>
+		<mat-autocomplete #autoX (optionSelected)="onInputChange($event, 'x')">
+			<mat-option [value]="0">左</mat-option>
+			<mat-option [value]="0.5">中</mat-option>
+			<mat-option [value]="1">右</mat-option>
+		</mat-autocomplete>
+	</mat-form-field>
+	<mat-form-field>
+		<mat-label>y</mat-label>
+		<input
+			matInput
+			type="number"
+			step="0.1"
+			min="0"
+			max="1"
+			[matAutocomplete]="autoY"
+			[ngModel]="y"
+			(change)="onInputChange($event, 'y')"
+		/>
+		<mat-autocomplete #autoY (optionSelected)="onInputChange($event, 'y')">
+			<mat-option [value]="0">上</mat-option>
+			<mat-option [value]="0.5">中</mat-option>
+			<mat-option [value]="1">下</mat-option>
+		</mat-autocomplete>
+	</mat-form-field>
+</div>

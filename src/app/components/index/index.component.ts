@@ -16,6 +16,7 @@ import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {getCadStatus, getConfig} from "@app/store/selectors";
 import {State} from "@app/store/state";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
+import {CadMtextComponent} from "../menu/cad-mtext/cad-mtext.component";
 
 @Component({
 	selector: "app-index",
@@ -60,6 +61,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(SubCadsComponent) subCads: SubCadsComponent;
 	@ViewChild(CadInfoComponent) cadInfo: CadInfoComponent;
 	@ViewChild(CadLineComponent) cadLine: CadLineComponent;
+	@ViewChild(CadMtextComponent) cadMTexts: CadMtextComponent;
 	@ViewChild(CadDimensionComponent) cadDimension: CadDimensionComponent;
 	@ViewChild(CadAssembleComponent) cadAssemble: CadAssembleComponent;
 	@ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;

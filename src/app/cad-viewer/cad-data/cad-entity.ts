@@ -181,7 +181,7 @@ export abstract class CadEntity {
 	}
 
 	remove() {
-		this.el.remove();
+		this.el?.remove();
 		this.el = null;
 		this.parent.removeChild(this);
 		return this;
@@ -583,7 +583,7 @@ export class CadLine extends CadEntity {
 		return Math.abs(this.start.x - this.end.x) <= accuracy;
 	}
 
-	isHorizonal(accuracy = 0) {
+	isHorizontal(accuracy = 0) {
 		return Math.abs(this.start.y - this.end.y) <= accuracy;
 	}
 }

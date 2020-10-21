@@ -62,7 +62,6 @@ interface CadViewerConfig {
 	dragAxis: "" | "x" | "y" | "xy"; // 限制整体内容可向x或y方向拖动
 	entityDraggable: boolean; // 实体是否可拖动
 	hideDimensions: boolean; // 是否隐藏标注
-	lineLength: number;  // 显示线长度的字体大小, ≤0时不显示
 	lineGongshi: number; // 显示线公式的字体大小, ≤0时不显示
 	hideLineLength: boolean;  // 是否隐藏线长度(即使lineLength>0)
 	hideLineGongshi: boolean; // 是否隐藏线公式(即使lineGongshi>0)
