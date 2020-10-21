@@ -63,7 +63,6 @@ export class AnchorSelectorComponent implements AfterViewInit, OnDestroy {
 	ngAfterViewInit() {
 		this.x = clamp(this.x, 0, 1);
 		this.y = clamp(this.y, 0, 1);
-		window["a"] = this;
 		window.addEventListener("pointerdown", this.onDragStarted);
 		window.addEventListener("pointermove", this.onDragMoved);
 		window.addEventListener("pointerup", this.onDragEnded);

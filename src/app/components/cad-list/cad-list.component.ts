@@ -164,7 +164,11 @@ export class CadListComponent extends MenuComponent implements AfterViewInit {
 			this.checkedItems = this.checkedItems.filter((v) => !toRemove.includes(v.id));
 			this.checkedInOtherPages = checkedNum < this.checkedItems.length;
 		} else if (this.data.selectMode === "single") {
-			this.checkedItems = [this.pageData[this.checkedIndex].data];
+			if (this.checkedIndex >= 0) {
+				this.checkedItems = [this.pageData[this.checkedIndex].data];
+			} else {
+				this.checkedItems = [];
+			}
 		}
 	}
 

@@ -30,7 +30,7 @@ import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLB
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
 import {NgJsonEditorModule} from "ang-jsoneditor";
 import {SatPopoverModule} from "@ncstate/sat-popover";
-import {NgxUiLoaderHttpModule, NgxUiLoaderModule, NgxUiLoaderRouterModule, SPINNER} from "ngx-ui-loader";
+import {NgxUiLoaderHttpModule, NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
 
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
@@ -157,8 +157,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 			fgsType: SPINNER.threeStrings,
 			bgsType: SPINNER.ballScaleMultiple
 		}),
-		NgxUiLoaderHttpModule,
-		NgxUiLoaderRouterModule
+		NgxUiLoaderHttpModule
 	],
 	providers: [
 		{provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {maxWidth: "unset"}},

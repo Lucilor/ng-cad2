@@ -338,4 +338,14 @@ export class CadDataService {
 		const response = await this.request("peijian/cad/removeBackup", "POST", {time});
 		return response ? true : false;
 	}
+
+	async getSuanliaodan(codes: string[]) {
+		const response = await this.request("order/order/suanliaodan", "POST", {codes});
+		if (response) {
+			const data: CadData[] = response.data.map((v) => new CadData(v));
+			return data;
+		} else {
+			return [];
+		}
+	}
 }

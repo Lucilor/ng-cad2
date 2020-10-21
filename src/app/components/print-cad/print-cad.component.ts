@@ -1,37 +1,41 @@
-import {Component, OnInit} from "@angular/core";
-import {printCads} from "@app/app.common";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadViewer} from "@src/app/cad-viewer/cad-viewer";
+import {AfterViewInit, Component, OnInit} from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
+import {ActivatedRoute} from "@angular/router";
+import {printCads, timeout} from "@app/app.common";
+import {CadDataService} from "@src/app/services/cad-data.service";
 import {NgxUiLoaderService} from "ngx-ui-loader";
+import {openMessageDialog} from "../message/message.component";
 
 @Component({
 	selector: "app-print-cad",
 	templateUrl: "./print-cad.component.html",
 	styleUrls: ["./print-cad.component.scss"]
 })
-export class PrintCadComponent implements OnInit {
+export class PrintCadComponent implements AfterViewInit {
 	loaderId = "printLoader";
-	dataError = false;
+	loaderText = "";
 
-	constructor(private loader: NgxUiLoaderService) {}
+	constructor(
+		private loader: NgxUiLoaderService,
+		private route: ActivatedRoute,
+		private dataService: CadDataService,
+		private dialog: MatDialog
+	) {}
 
-	async ngOnInit() {
-		let cachedData: any = null;
-		try {
-			cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data"));
-		} catch (error) {
-			console.warn(error);
+	async ngAfterViewInit() {
+		await timeout(0);
+		const codes = this.route.snapshot.queryParams.codes;
+		if (!codes) {
+			openMessageDialog(this.dialog, {data: {type: "alert", content: "缺少订单号"}});
+			return;
 		}
-		if (cachedData && Array.isArray(cachedData)) {
-			const dataArr: CadData[] = [];
-			cachedData.forEach((v) => dataArr.push(new CadData(v)));
-			this.loader.startLoader(this.loaderId);
-			const url = await printCads(dataArr);
-			location.href = url;
-			// window.open(url);
-			this.loader.stopLoader(this.loaderId);
-		} else {
-			this.dataError = true;
-		}
+		this.loader.startLoader(this.loaderId);
+		this.loaderText = "正在获取数据...";
+		const dataArr = await this.dataService.getSuanliaodan(codes.split(","));
+		this.loaderText = "正在打印CAD...";
+		const url = await printCads(dataArr);
+		location.href = url;
+		// window.open(url);
+		this.loader.stopLoader(this.loaderId);
 	}
 }
