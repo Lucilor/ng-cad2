@@ -674,8 +674,8 @@ export class CadData {
 		return this.getAllEntities().getDimensionPoints(dimension);
 	}
 
-	getBoundingRect(entities?: CadEntities) {
-		return this.getAllEntities().getBoundingRect(entities);
+	getBoundingRect() {
+		return this.getAllEntities().getBoundingRect();
 	}
 }
 

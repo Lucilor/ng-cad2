@@ -192,10 +192,16 @@ function onKeyDown(this: CadViewer, event: KeyboardEvent) {
 
 function onEntityClick(this: CadViewer, event: PointerEvent, entity: CadEntity) {
 	event.stopImmediatePropagation();
-	if (entity.selected) {
-		this.unselect(entity);
-	} else {
-		this.select(entity);
+	const selectMode = this.config("selectMode");
+	if (selectMode === "single" || selectMode === "multiple") {
+		if (selectMode === "single") {
+			this.unselectAll();
+		}
+		if (entity.selected) {
+			this.unselect(entity);
+		} else {
+			this.select(entity);
+		}
 	}
 	this.emit("entityclick", event, entity);
 	this.dom.focus();

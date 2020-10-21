@@ -10,7 +10,7 @@ import {CadViewer, CadViewerConfig} from "@app/cad-viewer/cad-viewer";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {CadStatusAction, ConfigAction} from "@app/store/actions";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {globalVars, setApp} from "@app/app.common";
+import {globalVars, setApp, timeout} from "@app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {getCadStatus, getConfig} from "@app/store/selectors";
@@ -68,11 +68,15 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 	@ViewChild(CadConsoleComponent) console: CadConsoleComponent;
 	@ViewChild(MatTabGroup) infoTabs: MatTabGroup;
 
+	get multiSelect() {
+		return this.cad.config("selectMode") === "multiple";
+	}
+
 	constructor(injector: Injector) {
 		super(injector);
 	}
 
-	ngOnInit() {
+	async ngOnInit() {
 		super.ngOnInit();
 		setApp(this);
 		// this.dataService.getSampleFormulas().then((result) => {
@@ -81,8 +85,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		const configOverwrite: Partial<CadViewerConfig> = {
 			width: innerWidth,
 			height: innerHeight,
-			padding: this.menuPadding.map((v) => v + 30),
-			selectMode: "multiple"
+			padding: this.menuPadding.map((v) => v + 30)
 		};
 		globalVars.cad = new CadViewer(new CadData(), configOverwrite);
 		this.store.dispatch<ConfigAction>({type: "set config", config: configOverwrite});
@@ -114,20 +117,8 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		});
 		window.addEventListener("contextmenu", (event) => event.preventDefault());
 
-		// this.cad.beforeRender = throttle(() => {
-		// const collection = getCollection();
-		// const {showLineLength, showGongshi} = this.cad.config;
-		// const data = new CadData();
-		// if (collection === "CADmuban") {
-		// 	this.data.components.data.forEach((v) => {
-		// 		v.components.data.forEach((vv) => data.merge(vv));
-		// 	});
-		// } else {
-		// 	data.merge(this.data);
-		// }
-		// const toRemove = generateLineTexts(data, {length: showLineLength, gongshi: showGongshi});
-		// toRemove.forEach((e) => this.cad.scene.remove(e?.object));
-		// });
+		await timeout(1000);
+		this.cad.center();
 	}
 
 	async ngAfterViewInit() {
@@ -199,5 +190,11 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 
 	onInfoTabChange({index}: MatTabChangeEvent) {
 		this.store.dispatch<ConfigAction>({type: "set config", config: {infoTabIndex: index}});
+	}
+
+	toggleMultiSelect() {
+		let selectMode = this.cad.config("selectMode");
+		selectMode = selectMode === "multiple" ? "single" : "multiple";
+		this.store.dispatch<ConfigAction>({type: "set config", config: {selectMode}});
 	}
 }

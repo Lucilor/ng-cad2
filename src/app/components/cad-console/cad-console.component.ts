@@ -418,7 +418,7 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		const seleted = cad.selected();
 		console.log(matrix);
 		if (seleted.length) {
-			const {x, y} = cad.data.getBoundingRect(seleted);
+			const {x, y} = seleted.getBoundingRect();
 			seleted.transform({...matrix, origin: [x, y]});
 		} else {
 			const t = (data: CadData) => {

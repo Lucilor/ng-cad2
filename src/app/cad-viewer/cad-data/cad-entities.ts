@@ -291,9 +291,9 @@ export class CadEntities {
 		return [p1, p2, p3, p4, p5, p6, p7, p8];
 	}
 
-	getBoundingRect(entities = this) {
+	getBoundingRect() {
 		const rect = new Rectangle(new Point(Infinity, Infinity), new Point(-Infinity, -Infinity));
-		entities.forEach((e) => {
+		this.forEach((e) => {
 			if (!e.visible) {
 				return;
 			}
@@ -313,8 +313,19 @@ export class CadEntities {
 			} else if (e instanceof CadLine) {
 				rect.expand(e.start);
 				rect.expand(e.end);
+			} else if (e instanceof CadMtext) {
+				const elRect = e.el?.node?.getBoundingClientRect();
+				const {insert, anchor, scale} = e;
+				if (elRect && !isNaN(scale)) {
+					const width = elRect.width / scale;
+					const height = elRect.height / scale;
+					const x = insert.x - anchor.x * width;
+					const y = insert.y - (1 - anchor.y) * height;
+					rect.expand(new Point(x, y));
+					rect.expand(new Point(x + width, y + height));
+				}
 			}
-		});
+		}, true);
 		if (!isFinite(rect.width) || !isFinite(rect.height)) {
 			return new Rectangle();
 		}

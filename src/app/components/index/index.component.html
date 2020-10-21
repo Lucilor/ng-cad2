@@ -40,6 +40,9 @@
 				<mat-expansion-panel-header>
 					<mat-panel-title>CAD信息</mat-panel-title>
 				</mat-expansion-panel-header>
+				<mat-slide-toggle [checked]="multiSelect" (change)="toggleMultiSelect()">
+					实体{{ multiSelect ? "多选" : "单选" }}
+				</mat-slide-toggle>
 				<mat-tab-group #infoTabs dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
 					<mat-tab label="CAD">
 						<app-cad-info [formulas]="formulas"></app-cad-info>

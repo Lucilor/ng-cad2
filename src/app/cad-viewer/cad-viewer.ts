@@ -160,6 +160,14 @@ export class CadViewer extends EventEmitter {
 					case "fontFamily":
 						this.dom.style.fontFamily = config.fontFamily;
 						break;
+					case "selectMode":
+						if (config.selectMode === "none") {
+							this.unselectAll();
+						} else if (config.selectMode === "single") {
+							const selected = this.selected().toArray().pop();
+							this.unselectAll().select(selected);
+						}
+						break;
 				}
 			}
 		}
@@ -486,10 +494,11 @@ export class CadViewer extends EventEmitter {
 	}
 
 	select(entities: CadEntities | CadEntity | CadEntity[]): this {
-		if (entities instanceof CadEntity) {
+		if (!entities) {
+			return this;
+		} else if (entities instanceof CadEntity) {
 			return this.select(new CadEntities().add(entities));
-		}
-		if (Array.isArray(entities)) {
+		} else if (Array.isArray(entities)) {
 			return this.select(new CadEntities().fromArray(entities));
 		}
 		entities.forEach((e) => (e.selected = true));
@@ -498,7 +507,9 @@ export class CadViewer extends EventEmitter {
 	}
 
 	unselect(entities: CadEntities | CadEntity | CadEntity[]): this {
-		if (entities instanceof CadEntity) {
+		if (!entities) {
+			return this;
+		} else if (entities instanceof CadEntity) {
 			return this.unselect(new CadEntities().add(entities));
 		}
 		if (Array.isArray(entities)) {
@@ -518,7 +529,9 @@ export class CadViewer extends EventEmitter {
 	}
 
 	remove(entities: CadEntities | CadEntity | CadEntity[]): this {
-		if (entities instanceof CadEntity) {
+		if (!entities) {
+			return this;
+		} else if (entities instanceof CadEntity) {
 			return this.remove(new CadEntities().add(entities));
 		}
 		if (Array.isArray(entities)) {
@@ -548,7 +561,9 @@ export class CadViewer extends EventEmitter {
 	}
 
 	add(entities: CadEntities | CadEntity | CadEntity[]): this {
-		if (entities instanceof CadEntity) {
+		if (!entities) {
+			return this;
+		} else if (entities instanceof CadEntity) {
 			return this.add(new CadEntities().add(entities));
 		}
 		if (Array.isArray(entities)) {
