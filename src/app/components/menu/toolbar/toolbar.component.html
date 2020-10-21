@@ -15,7 +15,7 @@
 	<button mat-menu-item (click)="clickBtn('5')">切料CAD<span class="shortcut">Ctrl + 5</span></button>
 </mat-menu>
 
-<button mat-button [matMenuTriggerFor]="edit">编辑</button>
+<button mat-button [matMenuTriggerFor]="edit" [disabled]="!isStatusNormal">编辑</button>
 <mat-menu #edit="matMenu">
 	<button mat-menu-item [matMenuTriggerFor]="transform">变形</button>
 	<button mat-menu-item (click)="clickBtn('g')">装配<span class="shortcut">Ctrl + G</span></button>
@@ -32,7 +32,7 @@
 	<button mat-menu-item (click)="rotate()">旋转</button>
 </mat-menu>
 
-<button mat-button [matMenuTriggerFor]="view">视图</button>
+<button mat-button [matMenuTriggerFor]="view" [disabled]="!isStatusNormal">视图</button>
 <mat-menu #view="matMenu">
 	<button mat-menu-item (click)="toggleShowDimensions()">{{ cad.config("hideDimensions") ? "显示" : "隐藏" }}标注</button>
 	<button mat-menu-item (click)="toggleShowCadGongshis()">{{ showCadGongshis ? "隐藏" : "显示" }}展开表达式</button>
@@ -43,9 +43,20 @@
 <button mat-button (click)="showManual()">帮助</button>
 <button mat-button disabled>|</button>
 
-<button mat-button (click)="toggleShowLineLength()">{{ cad.config("hideLineLength") ? "显示" : "隐藏" }}线长</button>
-<button mat-button (click)="toggleShowLineGongshi()">{{ cad.config("hideLineGongshi") ? "显示" : "隐藏" }}公式</button>
-<button mat-button (click)="toggleShowDimensions()">{{ cad.config("hideDimensions") ? "显示" : "隐藏" }}标注</button>
-<button mat-button (click)="toggleShowCadGongshis()">{{ showCadGongshis ? "隐藏" : "显示" }}展开表达式</button>
-<button mat-button (click)="toggleValidateLines()">{{ cad.config("validateLines") ? "" : "不" }}验证线段</button>
-<button mat-button (click)="resetLineLength()">重置线长</button>
+<button mat-button (click)="toggleShowLineLength()" [disabled]="!isStatusNormal">
+	{{ cad.config("hideLineLength") ? "显示" : "隐藏" }}线长
+</button>
+<button mat-button (click)="toggleShowLineGongshi()" [disabled]="!isStatusNormal">
+	{{ cad.config("hideLineGongshi") ? "显示" : "隐藏" }}公式
+</button>
+<button mat-button (click)="toggleShowDimensions()" [disabled]="!isStatusNormal">
+	{{ cad.config("hideDimensions") ? "显示" : "隐藏" }}标注
+</button>
+<button mat-button (click)="toggleShowCadGongshis()" [disabled]="!isStatusNormal">{{ showCadGongshis ? "隐藏" : "显示" }}展开表达式</button>
+<button mat-button (click)="toggleValidateLines()" [disabled]="!isStatusNormal">
+	{{ cad.config("validateLines") ? "" : "不" }}验证线段
+</button>
+
+<button mat-raised-button color="accent" (click)="backToNormal()" *ngIf="!isStatusNormal">
+	退出{{ statusName }}(Esc)
+</button>

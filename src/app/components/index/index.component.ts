@@ -14,7 +14,7 @@ import {globalVars, setApp} from "@app/app.common";
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CadConsoleComponent} from "../cad-console/cad-console.component";
 import {getCadStatus, getConfig} from "@app/store/selectors";
-import {State} from "@app/store/state";
+import {cadStatusMap, State} from "@app/store/state";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
 import {CadMtextComponent} from "../menu/cad-mtext/cad-mtext.component";
 
@@ -89,26 +89,15 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		this.getObservable(getConfig).subscribe(this.applyConfig.bind(this));
 
 		this.getObservable(getCadStatus).subscribe((cadStatus) => {
+			this.cadStatusStr = cadStatusMap[cadStatus.name];
 			if (cadStatus.name === "normal") {
-				this.cadStatusStr = "普通";
 				this.shownMenus = ["cadInfo", "entityInfo"];
-			} else if (cadStatus.name === "select baseline") {
-				this.cadStatusStr = "选择基准线";
-			} else if (cadStatus.name === "select jointpoint") {
-				this.cadStatusStr = "选择连接点";
-			} else if (cadStatus.name === "edit dimension") {
-				this.cadStatusStr = "编辑标注";
 			} else if (cadStatus.name === "assemble") {
-				this.cadStatusStr = "装配";
 				this.shownMenus = ["cadAssemble"];
-			} else if (cadStatus.name === "split") {
-				this.cadStatusStr = "选取";
-			} else if (cadStatus.name === "draw line") {
-				this.cadStatusStr = "画线";
 			}
 		});
 
-		this.cad.on("keydown", async ({key}) => {
+		window.addEventListener("keydown", async ({key}) => {
 			if (key === "Escape") {
 				const {name} = await this.getObservableOnce(getCadStatus);
 				if (name === "assemble" || name === "split") {

@@ -235,14 +235,14 @@ export class SubCadsComponent extends MenuComponent implements OnInit, OnDestroy
 					}
 				});
 			}
-		} else if (name === "select baseline") {
-		} else if (name === "select jointpoint") {
-		} else if (name === "edit dimension") {
-			if (this.needsReload !== "edit dimension") {
+		} else if (name === "selectBaseline") {
+		} else if (name === "selectJointpoint") {
+		} else if (name === "editDimension") {
+			if (this.needsReload !== "editDimension") {
 				this.saveStatus();
 				this.unselectAll();
 				this.disabled = ["cads", "components", "partners"];
-				this.needsReload = "edit dimension";
+				this.needsReload = "editDimension";
 			}
 		} else if (name === "assemble") {
 			if (this.needsReload !== "assemble") {

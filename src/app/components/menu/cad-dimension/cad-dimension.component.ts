@@ -18,9 +18,7 @@ import {MenuComponent} from "../menu.component";
 export class CadDimensionComponent extends MenuComponent implements OnInit, OnDestroy {
 	dimNameFocus = -1;
 	dimLineSelecting: number = null;
-	prevSelectMode: CadViewerConfig["selectMode"];
-	prevHideLineLength: CadViewerConfig["hideLineLength"];
-	prevLinegongshi: CadViewerConfig["lineGongshi"];
+	prevConfig: CadViewerConfig = null;
 
 	get dimensions() {
 		return this.cad.data.getAllEntities().dimension;
@@ -32,7 +30,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 		const {name, index} = await this.getObservableOnce(getCadStatus);
 		const dimensions = this.dimensions;
 		const entity = entities.line[0];
-		if (name === "edit dimension" && entity) {
+		if (name === "editDimension" && entity) {
 			let thatData: CadData;
 			let thatIndex: number;
 			cad.data.components.data.some((d, i) => {
@@ -97,7 +95,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 		super.ngOnInit();
 		this.getObservable(getCadStatus).subscribe(({name, index}) => {
 			const cad = this.cad;
-			if (name === "edit dimension") {
+			if (name === "editDimension") {
 				const dimension = this.dimensions[index];
 				this.updateDimLines(dimension);
 				this.dimLineSelecting = index;
@@ -109,11 +107,10 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 						e.opacity = 0.3;
 					}
 				});
-				const {hideLineLength, lineGongshi, selectMode} = cad.config();
-				this.prevHideLineLength = hideLineLength;
-				this.prevLinegongshi = lineGongshi;
-				this.prevSelectMode = selectMode;
-				cad.config({hideLineLength: true, lineGongshi: 0, selectMode: "single"});
+				if (!this.prevConfig) {
+					this.prevConfig = cad.config();
+					cad.config({hideLineLength: true, lineGongshi: 0, selectMode: "single"});
+				}
 			} else if (this.dimLineSelecting !== null) {
 				this.dimLineSelecting = null;
 				cad.traverse((e) => {
@@ -124,7 +121,10 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 						delete e.info.prevOpacity;
 					}
 				});
-				cad.config({hideLineLength: this.prevHideLineLength, lineGongshi: this.prevLinegongshi, selectMode: this.prevSelectMode});
+				if (this.prevConfig) {
+					cad.config(this.prevConfig);
+					this.prevConfig = null;
+				}
 			}
 		});
 		this.cad.on("entitiesselect", this.onEntitiesClick);
@@ -162,15 +162,15 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 
 	async isSelectingDimLine(i: number) {
 		const {name, index} = await this.getObservableOnce(getCadStatus);
-		return name === "edit dimension" && index === i;
+		return name === "editDimension" && index === i;
 	}
 
 	async selectDimLine(index: number) {
 		const cadStatus = await this.getObservableOnce(getCadStatus);
-		if (cadStatus.name === "edit dimension" && cadStatus.index === index) {
+		if (cadStatus.name === "editDimension" && cadStatus.index === index) {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		} else {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "edit dimension", index});
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "editDimension", index});
 		}
 	}
 

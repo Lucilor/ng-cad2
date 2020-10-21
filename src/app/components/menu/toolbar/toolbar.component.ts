@@ -1,10 +1,11 @@
 import {Component, OnInit, Injector, OnDestroy} from "@angular/core";
-import {CommandAction, ConfigAction} from "@app/store/actions";
+import {CadStatusAction, CommandAction, ConfigAction} from "@app/store/actions";
 import {MenuComponent} from "../menu.component";
 import {openMessageDialog} from "../../message/message.component";
-import {getConfig} from "@app/store/selectors";
+import {getCadStatus, getConfig} from "@app/store/selectors";
 import {CadMtext, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer/cad-data/cad-entity";
 import {CadLineLike} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {CadStatusMap, cadStatusMap} from "@src/app/store/state";
 
 @Component({
 	selector: "app-toolbar",
@@ -26,6 +27,11 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	};
 	showCadGongshis = true;
 	lastUrl: string = null;
+	statusName: CadStatusMap[keyof CadStatusMap];
+
+	get isStatusNormal() {
+		return this.statusName == "普通";
+	}
 
 	constructor(injector: Injector) {
 		super(injector);
@@ -43,6 +49,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		if (this.showCadGongshis !== (await this.getObservableOnce(getConfig)).showCadGongshis) {
 			this.toggleShowCadGongshis();
 		}
+		this.getObservable(getCadStatus).subscribe((status) => {
+			this.statusName = cadStatusMap[status.name];
+		});
 	}
 
 	ngOnDestroy() {
@@ -164,6 +173,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	resetLineLength() {
+		if (this.cad.config("hideLineLength")) {
+			return;
+		}
 		this.cad.traverse((e) => {
 			if (e instanceof CadMtext && e.info.isLengthText) {
 				(e.parent as CadLineLike).lengthTextSize = DEFAULT_LENGTH_TEXT_SIZE;
@@ -172,5 +184,9 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		}, true);
 		this.generateLineTexts();
 		this.cad.render().render();
+	}
+
+	backToNormal() {
+		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 	}
 }

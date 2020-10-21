@@ -8,7 +8,7 @@ import Color from "color";
 
 export type CadLineLike = CadLine | CadArc;
 
-export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff" ,"#ffff00"];
+export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00"];
 
 export type PointsMap = {
 	point: Point;
@@ -321,7 +321,11 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 					line.addChild(gongshiText);
 					gongshiText.insert.copy(inner);
 				}
-				gongshiText.text = line.gongshi;
+				if (line instanceof CadLine && line.mingzi) {
+					gongshiText.text = `${line.mingzi}=${line.gongshi}`;
+				} else {
+					gongshiText.text = "=" + line.gongshi;
+				}
 				gongshiText.font_size = lineGongshi;
 				gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
 			} else {

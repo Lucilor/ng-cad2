@@ -133,7 +133,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		this.getObservable(getCadStatus).subscribe(({name}) => {
 			const {cad, store, data} = this;
 			this.cadStatusName = name;
-			if (name === "draw line") {
+			if (name === "drawLine") {
 				const points = getPointsFromMap(cad, generatePointsMap(data.getAllEntities()));
 				store.dispatch<CadPointsAction>({type: "set cad points", points});
 				cad.traverse((e) => {
@@ -162,7 +162,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			const index = points.findIndex((v) => v.active);
 			const point = points[index];
 			const {name} = await this.getObservableOnce(getCadStatus);
-			if (!point || name !== "draw line") {
+			if (!point || name !== "drawLine") {
 				return;
 			}
 			const start = cad.getWorldPoint(point.x, point.y);

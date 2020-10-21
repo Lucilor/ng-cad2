@@ -1,11 +1,10 @@
 import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, OnInit, OnDestroy, ViewChild, ElementRef, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {timeout, addCadGongshi, removeCadGongshi, getDPI, session, Collection, globalVars, printCads} from "@app/app.common";
+import {timeout, addCadGongshi, removeCadGongshi, session, Collection, globalVars, printCads} from "@app/app.common";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
-import {CadArc, CadDimension, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
+import {CadArc} from "@app/cad-viewer/cad-data/cad-entity";
 import {validateLines} from "@app/cad-viewer/cad-data/cad-lines";
-import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadStatusAction, ConfigAction} from "@app/store/actions";
 import {getCommand, getCurrCads, getCurrCadsData, getCadStatus, getConfig} from "@app/store/selectors";
 import {Line, Point} from "@app/utils";
@@ -16,17 +15,15 @@ import {openCadListDialog} from "../cad-list/cad-list.component";
 import {MenuComponent} from "../menu/menu.component";
 import {openMessageDialog, MessageComponent} from "../message/message.component";
 import {highlight} from "highlight.js";
-import Color from "color";
-import {createPdf} from "pdfmake/build/pdfmake";
 import {openJsonEditorDialog} from "../json-editor/json-editor.component";
 import {State} from "@app/store/state";
 import {Command, Desc, ValuedCommand} from "./cad-command";
 
-const getList = (content: string[]) => {
+function getList(content: string[]) {
 	return `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
-};
+}
 
-const getContent = (desc: Desc): string => {
+function getContent(desc: Desc): string {
 	if (!desc) {
 		return "";
 	}
@@ -39,7 +36,11 @@ const getContent = (desc: Desc): string => {
 		content += "<br>" + getList(sub);
 	}
 	return content;
-};
+}
+
+function getEmphasized(str: string) {
+	return `<span style='color:deeppink'>${str}</span>`;
+}
 
 export const commands: Command[] = [
 	{name: "assemble", args: [], desc: "进入/退出装配状态"},
@@ -502,10 +503,10 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 
 	async drawLine() {
 		const {name} = await this.getObservableOnce(getCadStatus);
-		if (name === "draw line") {
+		if (name === "drawLine") {
 			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		} else {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "draw line"});
+			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "drawLine"});
 		}
 	}
 
@@ -686,11 +687,15 @@ export class CadConsoleComponent extends MenuComponent implements OnInit, OnDest
 		if (!data) {
 			data = [
 				{
+					title: "基本操作",
+					content: getList([`处于非普通状态时，按下 ${getEmphasized("Esc")} 可退出至普通状态。`, "...等等"])
+				},
+				{
 					title: "控制台",
 					content: getList([
-						"按下 <span style='color:deeppink'>Ctrl + ~</span> 以显示/隐藏控制台。",
+						`按下 ${getEmphasized("Ctrl + ~")} 以显示/隐藏控制台。`,
 						"控制台显示时，按下任意字母可以聚焦至控制台。",
-						"输入命令时，按 <span style='color:deeppink'>Tab</span> 可以自动补全命令。"
+						`输入命令时，按 ${getEmphasized("Tab")} 可以自动补全命令。`
 					])
 				},
 				{

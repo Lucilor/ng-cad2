@@ -26,7 +26,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	onEntityClick = (async (_event: PointerEvent, entity: CadEntity) => {
 		const {name, index} = await this.getObservableOnce(getCadStatus);
 		const data = (await this.getCurrCadsData())[0];
-		if (name === "select baseline") {
+		if (name === "selectBaseline") {
 			if (entity instanceof CadLine) {
 				const baseLine = data.baseLines[index];
 				if (entity.isHorizontal()) {
@@ -68,7 +68,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			if (name === "normal") {
 				this.baseLineIndex = -1;
 			}
-			if (name === "select jointpoint") {
+			if (name === "selectJointpoint") {
 				this.jointPointIndex = index;
 				const points = getPointsFromMap(this.cad, generatePointsMap(this.cadsData[0].getAllEntities()));
 				store.dispatch<CadPointsAction>({type: "set cad points", points});
@@ -81,7 +81,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		this.getObservable(getCadPoints).subscribe(async (points) => {
 			const point = points.filter((v) => v.active)[0];
 			const {name} = await this.getObservableOnce(getCadStatus);
-			if (name !== "select jointpoint" || !point) {
+			if (name !== "selectJointpoint" || !point) {
 				return;
 			}
 			const jointPoint = this.cadsData[0].jointPoints[this.jointPointIndex];
@@ -189,7 +189,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	selectBaseLine(index: number) {
 		const {store} = this;
 		if (this.getItemColor(index, "baseLine") === "primary") {
-			store.dispatch<CadStatusAction>({type: "set cad status", name: "select baseline", index});
+			store.dispatch<CadStatusAction>({type: "set cad status", name: "selectBaseline", index});
 		} else {
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		}
@@ -213,7 +213,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	selectJointPoint(index: number) {
 		const {store} = this;
 		if (this.getItemColor(index, "jointPoint") === "primary") {
-			store.dispatch<CadStatusAction>({type: "set cad status", name: "select jointpoint", index});
+			store.dispatch<CadStatusAction>({type: "set cad status", name: "selectJointpoint", index});
 		} else {
 			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 		}
