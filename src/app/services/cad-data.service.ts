@@ -192,12 +192,14 @@ export class CadDataService {
 	) {
 		const postData = {page, limit, search, options, collection, optionsMatchType, qiliao};
 		const response = await this.request("peijian/cad/getCad", "POST", postData);
-		if (response.code !== 0) {
-			return {data: [], count: 0};
+		if (response) {
+			const result: CadData[] = [];
+			if (Array.isArray(response.data)) {
+				response.data.forEach((d) => result.push(new CadData(d)));
+			}
+			return {data: result, count: response.count};
 		}
-		const result: CadData[] = [];
-		response.data.forEach((d) => result.push(new CadData(d)));
-		return {data: result, count: response.count};
+		return {data: [], count: 0};
 	}
 
 	async getCadListPage(collection: Collection, page: number, limit: number, search?: {[key: string]: string}) {

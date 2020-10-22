@@ -238,9 +238,9 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	async selectKailiaomuban(data: CadData) {
 		const checkedItems = [new CadData({id: data.kailiaomuban})];
 		const ref = openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
-		const resData = await ref.afterClosed().toPromise();
-		if (resData?.length) {
-			data.kailiaomuban = resData[0].id;
+		const result = await ref.afterClosed().toPromise();
+		if (result?.length) {
+			data.kailiaomuban = result[0].id;
 		}
 	}
 

@@ -4,6 +4,7 @@
 		<mat-form-field style="width: 30%">
 			<mat-label>搜索类型</mat-label>
 			<mat-select name="search-field" [(ngModel)]="searchField">
+				<mat-option value="_id">ID</mat-option>
 				<mat-option value="名字">名字</mat-option>
 				<mat-option value="选项">选项</mat-option>
 				<mat-option value="条件">条件</mat-option>
@@ -31,18 +32,26 @@
 </form>
 
 <div class="content" [ngSwitch]="data.selectMode">
-	<perfect-scrollbar *ngSwitchCase="'single'" ngxUiLoaderBlurred [loaderId]="'cadList'">
-		<mat-radio-group class="add-empty-msg" [(ngModel)]="checkedIndex">
+	<perfect-scrollbar *ngSwitchCase="'single'" ngxUiLoaderBlurred [loaderId]="loaderId">
+		<mat-radio-group class="add-empty-msg" [value]="checkedIndex.getValue()" (change)="checkedIndex.next($event.value)">
 			<div class="data-container" *ngFor="let item of pageData; let i = index">
 				<mat-radio-button class="example-radio-button" [value]="i">
 					{{ item.data.name }}
 				</mat-radio-button>
-				<img [src]="item.img" (click)="checkedIndex = i" />
+				<img [src]="item.img" (click)="checkedIndex.next(i)" />
+				<mat-list class="details">
+					<mat-divider></mat-divider>
+					<div matSubheader>选项</div>
+					<mat-list-item *ngFor="let o of item.data.options">{{ o.name }}: {{ o.value }}</mat-list-item>
+					<mat-divider></mat-divider>
+					<div matSubheader>条件</div>
+					<mat-list-item *ngFor="let c of item.data.conditions">{{ c }}</mat-list-item>
+				</mat-list>
 			</div>
 		</mat-radio-group>
 	</perfect-scrollbar>
 
-	<perfect-scrollbar *ngSwitchCase="'multiple'" ngxUiLoaderBlurred [loaderId]="'cadList'">
+	<perfect-scrollbar *ngSwitchCase="'multiple'" ngxUiLoaderBlurred [loaderId]="loaderId">
 		<div class="checkbox-group add-empty-msg">
 			<div class="data-container" *ngFor="let item of pageData; let i = index">
 				<mat-checkbox [(ngModel)]="item.checked">{{ item.data.name }}</mat-checkbox>

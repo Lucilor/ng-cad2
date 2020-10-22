@@ -1,4 +1,4 @@
-import {Component, Inject, ViewChild, AfterViewInit, Injector} from "@angular/core";
+import {Component, Inject, ViewChild, AfterViewInit, Injector, OnChanges, SimpleChanges, OnInit} from "@angular/core";
 import {PageEvent, MatPaginator} from "@angular/material/paginator";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {CadData, CadOption} from "@app/cad-viewer/cad-data/cad-data";
@@ -6,6 +6,8 @@ import {Collection, getCadPreview, imgEmpty, imgLoading} from "@app/app.common";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 import {DomSanitizer} from "@angular/platform-browser";
 import {MenuComponent} from "../menu/menu.component";
+import {BehaviorSubject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 interface CadListData {
 	selectMode: "single" | "multiple" | "table";
@@ -32,7 +34,7 @@ export class CadListComponent extends MenuComponent implements AfterViewInit {
 	searchField = "选项";
 	searchForm: {[key: string]: string} = {};
 	searchNameInput = "";
-	checkedIndex = -1;
+	checkedIndex = new BehaviorSubject<number>(-1);
 	checkedItems: CadData[] = [];
 	checkedColumns: any[] = [];
 	checkedInOtherPages = false;
@@ -59,6 +61,14 @@ export class CadListComponent extends MenuComponent implements AfterViewInit {
 			this.data.options = [];
 		}
 		this.getData(1);
+		this.checkedIndex.pipe(takeUntil(this.destroyed)).subscribe((i) => {
+			if (i >= 0) {
+				this.checkedItems = [this.pageData[i].data];
+			} else {
+				this.checkedItems = [];
+			}
+		});
+		window["l"] = this;
 	}
 
 	changePage(event: PageEvent) {
@@ -88,7 +98,7 @@ export class CadListComponent extends MenuComponent implements AfterViewInit {
 				try {
 					const checked = this.checkedItems.find((v) => v.id === d.id) ? true : false;
 					if (checked && this.data.selectMode === "single") {
-						this.checkedIndex = i;
+						this.checkedIndex.next(i);
 					}
 					const pageData = {data: d, img: imgLoading, checked};
 					this.pageData.push(pageData);
@@ -102,6 +112,7 @@ export class CadListComponent extends MenuComponent implements AfterViewInit {
 					});
 				}
 			});
+			this.checkedIndex.next(-1);
 			this.syncCheckedItems();
 			return data;
 		}
@@ -113,7 +124,7 @@ export class CadListComponent extends MenuComponent implements AfterViewInit {
 			this.dialogRef.close(data);
 		} else {
 			this.syncCheckedItems();
-			this.dialogRef.close(this.checkedItems.map((v) => new CadData(v.export())));
+			this.dialogRef.close(this.checkedItems.map((v) => v.clone()));
 		}
 	}
 
@@ -164,9 +175,23 @@ export class CadListComponent extends MenuComponent implements AfterViewInit {
 			this.checkedItems = this.checkedItems.filter((v) => !toRemove.includes(v.id));
 			this.checkedInOtherPages = checkedNum < this.checkedItems.length;
 		} else if (this.data.selectMode === "single") {
-			if (this.checkedIndex >= 0) {
-				this.checkedItems = [this.pageData[this.checkedIndex].data];
+			const data = this.checkedItems[0];
+			if (data) {
+				const index = this.pageData.findIndex((v) => v.data.id === data.id);
+				if (index > -1) {
+					this.checkedIndex.next(index);
+					this.checkedItems = [this.pageData[index].data];
+				} else {
+				}
 			} else {
+				this.checkedItems = [];
+			}
+			const checkedIndex = this.checkedIndex.getValue();
+			if (checkedIndex >= 0) {
+				this.checkedItems = [this.pageData[checkedIndex].data];
+			} else {
+				if (data?.id) {
+				}
 				this.checkedItems = [];
 			}
 		}

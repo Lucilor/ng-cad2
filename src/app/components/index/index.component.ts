@@ -76,7 +76,7 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 		super(injector);
 	}
 
-	async ngOnInit() {
+	ngOnInit() {
 		super.ngOnInit();
 		setApp(this);
 		// this.dataService.getSampleFormulas().then((result) => {
@@ -116,9 +116,6 @@ export class IndexComponent extends MenuComponent implements OnInit, OnDestroy, 
 			this.store.dispatch<ConfigAction>({type: "set config", config: {width: innerWidth, height: innerHeight}});
 		});
 		window.addEventListener("contextmenu", (event) => event.preventDefault());
-
-		await timeout(1000);
-		this.cad.center();
 	}
 
 	async ngAfterViewInit() {

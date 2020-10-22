@@ -98,6 +98,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 			data.forEach((v) => validateLines(v));
 		}
 		cad.reset().emit("open");
+		setTimeout(() => cad.center(), 1000);
 		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
 	}
 

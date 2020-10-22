@@ -124,15 +124,17 @@ export class CadLineTiaojianquzhiComponent extends MenuComponent implements OnIn
 
 	async onCellFocus(event: CellEvent<RawDataRight>) {
 		if (event.field === "name" && this.openSelection > -1) {
-			const keys = this.dataLeft.data[this.openSelection].key.split(/,|，/);
+			const keys = this.dataLeft.data[this.openSelection].key.split(/,|，/).filter((v) => v);
 			const values = event.item.name.split(/,|，/);
 			const data: CadLineTiaojianquzhiSelectData = keys.map((v, i) => {
 				return {key: v, value: values[i] ?? ""};
 			});
-			const ref = openCadLineTiaojianquzhiSelectDialog(this.dialog, {data});
-			const result = await ref.afterClosed().toPromise();
-			if (result) {
-				this.dataRight.data[event.rowIdx].name = result.map((v) => v.value).join(",");
+			if (data.length) {
+				const ref = openCadLineTiaojianquzhiSelectDialog(this.dialog, {data});
+				const result = await ref.afterClosed().toPromise();
+				if (result) {
+					this.dataRight.data[event.rowIdx].name = result.map((v) => v.value).join(",");
+				}
 			}
 		}
 	}

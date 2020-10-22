@@ -12,7 +12,7 @@
 		<div class="data-container" *ngFor="let item of pageData; let i = index">
 			<mat-checkbox [(ngModel)]="item.checked">{{ item.value }}</mat-checkbox>
 			<br />
-			<app-image [src]="item.img"></app-image>
+			<app-image [src]="item.img" (click)="item.checked = !item.checked"></app-image>
 		</div>
 	</div>
 </perfect-scrollbar>

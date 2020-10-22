@@ -56,6 +56,7 @@
 <button mat-button (click)="toggleValidateLines()" [disabled]="!isStatusNormal">
 	{{ cad.config("validateLines") ? "" : "不" }}验证线段
 </button>
+<button mat-button (click)="resetLineLength()" [disabled]="!isStatusNormal">重置线长</button>
 
 <button mat-raised-button color="accent" (click)="backToNormal()" *ngIf="!isStatusNormal">
 	退出{{ statusName }}(Esc)
