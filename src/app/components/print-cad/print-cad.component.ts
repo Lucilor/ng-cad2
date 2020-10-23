@@ -32,10 +32,12 @@ export class PrintCadComponent implements AfterViewInit {
 		this.loader.startLoader(this.loaderId);
 		this.loaderText = "正在获取数据...";
 		const dataArr = await this.dataService.getSuanliaodan(codes.split(","));
-		this.loaderText = "正在打印CAD...";
-		const url = await printCads(dataArr);
-		location.href = url;
-		// window.open(url);
+		if (dataArr.length) {
+			this.loaderText = "正在打印CAD...";
+			const url = await printCads(dataArr);
+			location.href = url;
+			// window.open(url);
+		}
 		this.loader.stopLoader(this.loaderId);
 	}
 }
