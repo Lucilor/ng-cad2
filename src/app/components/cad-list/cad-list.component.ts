@@ -62,13 +62,14 @@ export class CadListComponent extends MenuComponent implements AfterViewInit {
 		}
 		this.getData(1);
 		this.checkedIndex.pipe(takeUntil(this.destroyed)).subscribe((i) => {
-			if (i >= 0) {
-				this.checkedItems = [this.pageData[i].data];
-			} else {
-				this.checkedItems = [];
+			if (this.data.selectMode==="single") {
+				if (this.pageData[i]) {
+					this.checkedItems = [this.pageData[i].data];
+				} else {
+					// this.checkedItems = [];
+				}
 			}
 		});
-		window["l"] = this;
 	}
 
 	changePage(event: PageEvent) {
@@ -178,21 +179,7 @@ export class CadListComponent extends MenuComponent implements AfterViewInit {
 			const data = this.checkedItems[0];
 			if (data) {
 				const index = this.pageData.findIndex((v) => v.data.id === data.id);
-				if (index > -1) {
-					this.checkedIndex.next(index);
-					this.checkedItems = [this.pageData[index].data];
-				} else {
-				}
-			} else {
-				this.checkedItems = [];
-			}
-			const checkedIndex = this.checkedIndex.getValue();
-			if (checkedIndex >= 0) {
-				this.checkedItems = [this.pageData[checkedIndex].data];
-			} else {
-				if (data?.id) {
-				}
-				this.checkedItems = [];
+				this.checkedIndex.next(index);
 			}
 		}
 	}
