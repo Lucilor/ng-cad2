@@ -331,4 +331,33 @@ export class CadEntities {
 		}
 		return rect;
 	}
+
+	// * 实体的偏移, 目前只实现的直线和弧线
+	offset(direction: number, distance: number) {
+		if (!(direction > 0) && !(direction < 0)) {
+			throw new Error("ERROR: direction must be a number that greater than 0 or less than 0.");
+		}
+		this.forEach((e) => {
+			if (e instanceof CadArc) {
+				if (direction < 0 === e.clockwise) {
+					e.radius -= distance;
+				} else {
+					e.radius += distance;
+				}
+			} else if (e instanceof CadLine) {
+				let dx = 0;
+				let dy = 0;
+				const theta = e.theta.rad;
+				if (direction < 0) {
+					dx = distance * Math.sin(theta);
+					dy = -distance * Math.cos(theta);
+				} else {
+					dx = -distance * Math.sin(theta);
+					dy = distance * Math.cos(theta);
+				}
+				e.start.add(dx, dy);
+				e.end.add(dx, dy);
+			}
+		});
+	}
 }

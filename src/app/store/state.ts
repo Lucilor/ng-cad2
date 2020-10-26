@@ -9,6 +9,7 @@ export type CadStatusMap = {
 	split: "选取CAD";
 	drawLine: "画线";
 	editDimension: "编辑标注";
+	offset: "偏移";
 };
 export const cadStatusMap: CadStatusMap = {
 	normal: "普通",
@@ -17,7 +18,8 @@ export const cadStatusMap: CadStatusMap = {
 	assemble: "装配",
 	split: "选取CAD",
 	drawLine: "画线",
-	editDimension: "编辑标注"
+	editDimension: "编辑标注",
+	offset: "偏移"
 };
 
 export interface CadStatus {

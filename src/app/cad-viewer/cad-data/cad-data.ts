@@ -35,6 +35,7 @@ export class CadData {
 	suanliaochuli: "算料+显示展开+开料" | "算料+开料" | "算料+显示展开" | "算料";
 	showKuandubiaozhu: boolean;
 	info: {[key: string]: any};
+	bancaihoudufangxiang: "none" | "gt0" | "lt0";
 	readonly visible: boolean;
 
 	constructor(data: any = {}) {
@@ -99,6 +100,7 @@ export class CadData {
 		this.suanliaochuli = data.suanliaochuli ?? "算料+显示展开+开料";
 		this.showKuandubiaozhu = data.showKuandubiaozhu ?? false;
 		this.info = data.info ?? {};
+		this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
 		this.updateDimensions();
 	}
 
@@ -141,7 +143,8 @@ export class CadData {
 			morenkailiaobancai: this.morenkailiaobancai,
 			suanliaochuli: this.suanliaochuli,
 			showKuandubiaozhu: this.showKuandubiaozhu,
-			info: this.info
+			info: this.info,
+			bancaihoudufangxiang: this.bancaihoudufangxiang
 		};
 	}
 

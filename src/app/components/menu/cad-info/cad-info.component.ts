@@ -1,4 +1,5 @@
 import {Component, OnInit, OnDestroy, Input, Injector} from "@angular/core";
+import {MatSelectChange} from "@angular/material/select";
 import {getCadGongshiText, getPointsFromMap} from "@app/app.common";
 import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@app/cad-viewer/cad-data/cad-data";
 import {CadEntity, CadLine} from "@app/cad-viewer/cad-data/cad-entity";
@@ -242,6 +243,49 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		if (result?.length) {
 			data.kailiaomuban = result[0].id;
 		}
+	}
+
+	async offset(event: MatSelectChange) {
+		const value: CadData["bancaihoudufangxiang"] = event.value;
+		const data = (await this.getCurrCadsData())[0];
+		const cad = this.cad;
+		data.bancaihoudufangxiang = value;
+		let direction = 0;
+		if (value === "gt0") {
+			direction = 1;
+		} else if (value === "lt0") {
+			direction = -1;
+		} else {
+			return;
+		}
+		const distance = 2;
+		const entities = data.getAllEntities().clone(true);
+		entities.offset(direction, distance);
+		cad.add(entities);
+
+		const blinkInterval = 500;
+		const blinkCount = 3;
+		const blink = (el: CadEntity["el"]) => {
+			if (el) {
+				el.css("opacity", 1);
+				setTimeout(() => el.css("opacity", 0), blinkInterval);
+			}
+		};
+		entities.forEach((e) => {
+			const el = e.el;
+			if (el) {
+				el.css("transition", blinkInterval + "ms");
+				blink(el);
+			}
+		});
+		let count = 1;
+		const id = setInterval(() => {
+			entities.forEach((e) => blink(e.el));
+			if (++count > blinkCount) {
+				clearInterval(id);
+				cad.remove(entities);
+			}
+		}, blinkInterval * 2);
 	}
 
 	saveStatus() {}
