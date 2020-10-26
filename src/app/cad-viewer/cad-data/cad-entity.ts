@@ -251,6 +251,10 @@ export class CadArc extends CadEntity {
 		this.radius = curve.radius;
 		this.start_angle = curve.startAngle.deg;
 		this.end_angle = curve.endAngle.deg;
+		const {scaleX, scaleY} = matrix;
+		if (scaleX && scaleY && scaleX * scaleY < 0) {
+			this.clockwise = !this.clockwise;
+		}
 		return this;
 	}
 
