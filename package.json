@@ -27,7 +27,7 @@
     "@svgdotjs/svg.js": "^3.0.16",
     "@syncfusion/ej2-angular-inputs": "^18.3.44",
     "ang-jsoneditor": "^1.10.3",
-    "highlight.js": "^10.3.1",
+    "highlight.js": "^10.3.2",
     "jsencrypt": "^3.0.0-rc.1",
     "jsoneditor": "^9.1.1",
     "lodash": "^4.17.20",
