@@ -44,6 +44,8 @@ export interface SelectedCads {
 	fullCads: string[];
 }
 
+export type SelectedCadType = "cads" | "partners" | "components";
+
 export interface Loader {
 	id: string;
 	start: boolean;
@@ -51,6 +53,8 @@ export interface Loader {
 }
 
 export type CadPoints = {x: number; y: number; active: boolean}[];
+
+const history: any[] = [];
 
 @Injectable({
 	providedIn: "root"
@@ -62,6 +66,7 @@ export class AppStatusService {
 		components: [],
 		fullCads: []
 	});
+	disabledCadTypes$ = new BehaviorSubject<SelectedCadType[]>([]);
 	cadStatus$ = new BehaviorSubject<CadStatus>({
 		name: "normal",
 		index: -1,
@@ -113,7 +118,7 @@ export class AppStatusService {
 		this.selectedCads$.next({cads: [], partners: [], components: [], fullCads: []});
 	}
 
-	refreshSelectedCad() {
+	refreshSelectedCads() {
 		this.selectedCads$.next(this.selectedCads$.getValue());
 	}
 
@@ -165,7 +170,7 @@ export class AppStatusService {
 			this.clearSelectedCads();
 		} else {
 			data = cad.data.components.data;
-			this.refreshSelectedCad();
+			this.refreshSelectedCads();
 		}
 		if (!collection) {
 			collection = this.config.config("collection");

@@ -1,7 +1,4 @@
 import {SessionStorage, LocalStorage} from "@app/utils";
-import {Nullable} from "./utils/types";
-import {CadViewer} from "./cad-viewer/cad-viewer";
-import {CadCollection} from "./services/cad-data.service";
 
 export const projectName = "NgCad";
 export const session = new SessionStorage(projectName);

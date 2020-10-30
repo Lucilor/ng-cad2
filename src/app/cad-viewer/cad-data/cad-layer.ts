@@ -2,7 +2,6 @@ import {index2RGB, RGB2Index} from "@app/utils";
 import {lineweight2linewidth, linewidth2lineweight} from "./utils";
 import Color from "color";
 import {v4} from "uuid";
-import {Nullable} from "@src/app/utils/types";
 
 export class CadLayer {
 	id: string;
@@ -10,7 +9,7 @@ export class CadLayer {
 	color: Color;
 	name: string;
 	linewidth: number;
-	_indexColor: Nullable<number>;
+	_indexColor: number | null;
 	_lineweight: number;
 
 	constructor(data: any = {}) {

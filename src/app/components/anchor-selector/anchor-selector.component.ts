@@ -1,7 +1,6 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild} from "@angular/core";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {Point} from "@src/app/utils";
-import {Nullable} from "@src/app/utils/types";
 import {clamp} from "lodash";
 
 export interface AnchorEvent {
@@ -24,7 +23,7 @@ export class AnchorSelectorComponent implements AfterViewInit, OnDestroy {
 	@ViewChild("background", {read: ElementRef}) background?: ElementRef<HTMLDivElement>;
 
 	dragging = false;
-	pointerPosition: Nullable<Point> = null;
+	pointerPosition: Point | null = null;
 
 	get left() {
 		return this.x * this.backgroundSize + "px";

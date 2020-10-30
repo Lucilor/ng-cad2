@@ -41,7 +41,6 @@ export class CadDataService extends HttpService {
 	constructor(injector: Injector, private route: ActivatedRoute) {
 		super(injector);
 		this.baseURL = localStorage.getItem("baseURL") || "/api";
-		(window as any)["a"]=this;
 	}
 
 	// async request<T>(url: string, method: "GET" | "POST", data?: AnyObject) {
@@ -71,6 +70,15 @@ export class CadDataService extends HttpService {
 		} else {
 			return null;
 		}
+	}
+
+	async getYuanshicadwenjian(params: Partial<GetCadParams>){
+		const response = await this.request<any[]>("peijian/cad/getYuanshicadwenjian", "POST", params);
+		const result: {cads: any[]; total: number} = {cads: [], total: 0};
+		if (response && response.data) {
+			result.cads = response.data;
+		}
+		return result;
 	}
 
 	async getCadSearchForm() {

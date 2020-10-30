@@ -1,5 +1,5 @@
 import {Angle, Arc, index2RGB, Line, Point, Rectangle, RGB2Index} from "@app/utils";
-import {AnyObject, Nullable} from "@src/app/utils/types";
+import {AnyObject} from "@src/app/utils/types";
 import {G, Matrix, MatrixExtract, MatrixTransformParam, Svg} from "@svgdotjs/svg.js";
 import Color from "color";
 import {cloneDeep, intersection} from "lodash";
@@ -19,11 +19,11 @@ export abstract class CadEntity {
 	linewidth: number;
 	visible: boolean;
 	info: AnyObject;
-	_indexColor: Nullable<number>;
+	_indexColor: number | null;
 	_lineweight: number;
-	parent: Nullable<CadEntity>;
+	parent?: CadEntity;
 	children: CadEntities;
-	el: Nullable<G>;
+	el?: G | null;
 	needsTransform = false;
 
 	get scale() {
@@ -342,7 +342,7 @@ export class CadDimension extends CadEntity {
 	qujian: string;
 	ref?: "entity1" | "entity2" | "minX" | "maxX" | "minY" | "maxY" | "minLength" | "maxLength";
 
-	private _renderStyle: Nullable<1 | 2>;
+	private _renderStyle: 1 | 2 = 1;
 	get renderStyle() {
 		return this._renderStyle;
 	}
@@ -671,7 +671,7 @@ export class CadMtext extends CadEntity {
 }
 
 export function getCadEntity<T extends CadEntity>(data: any = {}, layers: CadLayer[] = [], resetId = false) {
-	let entity: Nullable<CadEntity>;
+	let entity: CadEntity | undefined;
 	const type = data.type as CadType;
 	if (type === "ARC") {
 		entity = new CadArc(data, layers, resetId);
@@ -731,7 +731,10 @@ export class CadEntities {
 		return this;
 	}
 
-	find(callback: string | ((value: CadEntity, index: number, array: CadEntity[]) => boolean)): Nullable<CadEntity> {
+	find(callback?: string | ((value: CadEntity, index: number, array: CadEntity[]) => boolean)): CadEntity | null {
+		if (!callback) {
+			return null;
+		}
 		for (const key of cadTypesKey) {
 			for (let i = 0; i < this[key].length; i++) {
 				const e = this[key][i];
@@ -856,7 +859,7 @@ export class CadEntities {
 
 	getDimensionPoints(dimension: CadDimension) {
 		const {entity1, entity2, distance, axis, distance2, ref} = dimension;
-		let entity: Nullable<CadDimensionEntity>;
+		let entity: CadDimensionEntity | undefined;
 		const line1 = this.find(entity1.id) as CadLine;
 		const line2 = this.find(entity2.id) as CadLine;
 		if (!(line1 instanceof CadLine) || !(line2 instanceof CadLine)) {

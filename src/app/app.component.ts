@@ -20,6 +20,7 @@ export class AppComponent implements OnInit {
 		const cad = this.status.cad;
 		Reflect.defineProperty(window, "cad", {value: cad});
 		Reflect.defineProperty(window, "config", {value: this.config.config.bind(this.config)});
+		Reflect.defineProperty(window, "status", {value: this.status});
 		Reflect.defineProperty(window, "data0", {get: () => cad.data.components.data[0]});
 		Reflect.defineProperty(window, "data0Ex", {get: () => cad.data.components.data[0].export()});
 		Reflect.defineProperty(window, "selected", {get: () => cad.selected()});

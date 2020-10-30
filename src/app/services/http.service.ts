@@ -3,7 +3,7 @@ import {Injectable, Injector} from "@angular/core";
 import {Response} from "../app.common";
 import {MessageService} from "../modules/message/services/message.service";
 import {RSAEncrypt} from "../utils";
-import {AnyObject, Nullable} from "../utils/types";
+import {AnyObject} from "../utils/types";
 
 @Injectable({
 	providedIn: "root"
@@ -31,7 +31,7 @@ export class HttpService {
 	async request<T>(url: string, method: "GET" | "POST", data?: AnyObject, encrypt = true) {
 		url = `${this.baseURL}/${url}`;
 		try {
-			let response: Nullable<Response<T>>;
+			let response: Response<T> | null = null;
 			if (method === "GET") {
 				if (data) {
 					if (encrypt) {

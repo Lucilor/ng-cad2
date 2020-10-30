@@ -58,6 +58,7 @@ import {ImportComponent} from "./components/views/import/import.component";
 import {BackupComponent} from "./components/views/backup/backup.component";
 import {PrintCadComponent} from "./components/views/print/print-cad.component";
 import {PrintA4A015PreviewComponent} from "./components/views/print-a4-a015-preview/print-a4-a015-preview.component";
+import {CadAssembleComponent} from "./components/menu/cad-assemble/cad-assemble.component";
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -102,7 +103,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 		ImportComponent,
 		BackupComponent,
 		PrintCadComponent,
-		PrintA4A015PreviewComponent
+		PrintA4A015PreviewComponent,
+		CadAssembleComponent
 	],
 	imports: [
 		HttpClientModule,

@@ -1,7 +1,6 @@
 import {Point} from "./point";
 import {DEFAULT_TOLERANCE} from "./constants";
 import {Angle} from "./angle";
-import {Nullable} from "@src/app/utils/types";
 
 export class Line {
 	start: Point;
@@ -26,7 +25,7 @@ export class Line {
 		return this;
 	}
 
-	contains(object: Nullable<Point | Line>, extend = false): boolean {
+	contains(object?: Point | Line | null, extend = false): boolean {
 		if (object instanceof Point) {
 			const {x: x1, y: y1} = this.start;
 			const {x: x2, y: y2} = this.end;
@@ -134,8 +133,8 @@ export class Line {
 		}
 	}
 
-	intersects(line: Nullable<Line>, extend = false, tolerance = DEFAULT_TOLERANCE) {
-		let intersection: Nullable<Point> = null;
+	intersects(line?: Line, extend = false, tolerance = DEFAULT_TOLERANCE) {
+		let intersection: Point | null = null;
 		if (!line) {
 			return null;
 		}

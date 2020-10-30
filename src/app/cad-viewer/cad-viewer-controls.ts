@@ -1,14 +1,13 @@
 import {Point, Rectangle} from "@app/utils";
-import {Nullable} from "../utils/types";
 import {CadDimension, CadEntities, CadEntity} from "./cad-data/cad-entities";
 import {CadViewer} from "./cad-viewer";
 
-let pointer: Nullable<{from: Point; to: Point}>;
-let button: Nullable<number>;
-let multiSelector: Nullable<HTMLDivElement>;
-let entitiesToDrag: Nullable<CadEntities>;
-let entitiesNotToDrag: Nullable<CadEntities>;
-let draggingDimension: Nullable<CadDimension>;
+let pointer: {from: Point; to: Point} | null = null;
+let button: number | null = null;
+let multiSelector: HTMLDivElement | null = null;
+let entitiesToDrag: CadEntities | null = null;
+let entitiesNotToDrag: CadEntities | null = null;
+let draggingDimension: CadDimension | null = null;
 let needsRender = false;
 
 export interface CadEvents {

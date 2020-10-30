@@ -1,6 +1,5 @@
 import {CadViewer} from "./cad-viewer";
 import Color from "color";
-import {Nullable} from "../utils/types";
 import {CadEntity, CadMtext, CadDimension, CadLine, CadHatch} from "./cad-data/cad-entities";
 
 export interface CadStyle {
@@ -36,7 +35,7 @@ export class CadStylizer {
 		} else {
 			result.linewidth = 1;
 		}
-		let eFontSize: Nullable<number>;
+		let eFontSize: number | undefined;
 		if (entity instanceof CadMtext || entity instanceof CadDimension) {
 			eFontSize = entity.font_size;
 		}

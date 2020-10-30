@@ -70,7 +70,14 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements AfterVi
 		}
 		this.config.config({padding: this.menuPadding.map((v) => v + 30)});
 		this.subscribe(this.console.command, (cmd) => this.consoleComponent?.execute(cmd));
-		this.subscribe(this.status.cadStatus$, ({name}) => (this.cadStatusStr = cadStatusNameMap[name]));
+		this.subscribe(this.status.cadStatus$, ({name}) => {
+			this.cadStatusStr = cadStatusNameMap[name];
+			if (name === "assemble") {
+				this.shownMenus = ["cadAssemble"];
+			} else {
+				this.shownMenus = ["cadInfo", "entityInfo"];
+			}
+		});
 
 		if (this.infoTabs) {
 			this.infoTabs.selectedIndex = this.config.config("infoTabIndex");

@@ -4,8 +4,8 @@ import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {CadDimension, CadEntities, CadLine} from "@app/cad-viewer/cad-data/cad-entities";
 import {CadViewerConfig} from "@app/cad-viewer/cad-viewer";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
-import {AppStatusService} from "@src/app/services/app-status.service";
-import {Nullable} from "@src/app/utils/types";
+import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
+import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import Color from "color";
 import {debounce} from "lodash";
 import {openCadDimensionFormDialog} from "../../dialogs/cad-dimension-form/cad-dimension-form.component";
@@ -18,8 +18,10 @@ import {openCadDimensionFormDialog} from "../../dialogs/cad-dimension-form/cad-d
 export class CadDimensionComponent extends Subscribed() implements OnInit, OnDestroy {
 	dimNameFocus = -1;
 	dimLineSelecting = -1;
-	prevConfig: Nullable<CadViewerConfig> = null;
 	dimensions: CadDimension[] = [];
+	private prevConfig: AppConfig | null = null;
+	private prevDisabledCadTypes: SelectedCadType[] | null = null;
+	private prevSelectedCads: SelectedCads | null = null;
 
 	private updateDimensions = (() => {
 		this.dimensions = this.status.cad.data.getAllEntities().dimension;
@@ -32,7 +34,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 		const dimensions = this.dimensions;
 		const entity = entities?.line[0];
 		if (name === "editDimension" && entity) {
-			let thatData: Nullable<CadData>;
+			let thatData: CadData | undefined;
 			let thatIndex = -1;
 			cad.data.components.data.some((d, i) => {
 				if (d.findEntity(entity.id)) {
@@ -87,11 +89,11 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 					}
 				}
 			}
-			this.updateDimLines(dimension);
+			this.focus(dimension);
 		}
 	}).bind(this);
 
-	constructor(private status: AppStatusService, private dialog: MatDialog) {
+	constructor(private status: AppStatusService, private dialog: MatDialog, private config: AppConfigService) {
 		super();
 	}
 
@@ -101,37 +103,38 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 			const cad = this.status.cad;
 			if (name === "editDimension") {
 				const dimension = this.dimensions[index];
-				this.updateDimLines(dimension);
+				this.focus(dimension);
 				this.dimLineSelecting = index;
-				cad.traverse((e) => {
-					if (!(e instanceof CadLine) && e.id !== dimension?.id) {
-						e.info.prevSelectable = e.selectable;
-						e.info.prevOpacity = e.opacity;
-						e.selectable = false;
-						e.opacity = 0.3;
-					}
-				});
 				if (!this.prevConfig) {
-					this.prevConfig = cad.config();
+					this.prevConfig = this.config.config();
 					cad.config({hideLineLength: true, lineGongshi: 0, selectMode: "single"});
+				}
+				if (!this.prevSelectedCads) {
+					this.prevSelectedCads = this.status.selectedCads$.getValue();
+					this.status.clearSelectedCads();
+				}
+				if (!this.prevDisabledCadTypes) {
+					this.prevDisabledCadTypes = this.status.disabledCadTypes$.getValue();
+					this.status.disabledCadTypes$.next(["cads", "partners", "components"]);
 				}
 			} else if (this.dimLineSelecting >= 0) {
 				this.dimLineSelecting = -1;
-				cad.traverse((e) => {
-					if (!(e instanceof CadLine)) {
-						e.selectable = e.info.prevSelectable ?? true;
-						e.opacity = e.info.prevOpacity ?? 1;
-						delete e.info.prevSelectable;
-						delete e.info.prevOpacity;
-					}
-				});
+				this.blur();
 				if (this.prevConfig) {
-					cad.config(this.prevConfig);
+					this.config.config(this.prevConfig);
 					this.prevConfig = null;
+				}
+				if (this.prevSelectedCads) {
+					this.status.selectedCads$.next(this.prevSelectedCads);
+					this.prevSelectedCads = null;
+				}
+				if (this.prevDisabledCadTypes) {
+					this.status.disabledCadTypes$.next(this.prevDisabledCadTypes);
+					this.prevDisabledCadTypes = null;
 				}
 			}
 		});
-		
+
 		this.updateDimensions();
 		const cad = this.status.cad;
 		cad.on("entitiesselect", this.onEntitiesClick);
@@ -194,24 +197,35 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 		this.status.cad.remove(this.dimensions[index]);
 	}
 
-	updateDimLines(dimension?: CadDimension) {
+	focus(dimension?: CadDimension) {
 		if (!dimension) {
 			return;
 		}
 		const {entity1, entity2} = dimension;
-		this.status.cad
-			.traverse((e) => {
-				if (e instanceof CadLine) {
-					e.selectable = true;
-					e.selected = [entity1?.id, entity2?.id].includes(e.originalId);
-					e.opacity = 1;
-				} else if (e.id === dimension.id) {
-					e.opacity = 1;
-				} else {
-					e.selectable = false;
-					e.opacity = 0.3;
-				}
-			})
-			.render();
+		this.status.cad.traverse((e) => {
+			if (e instanceof CadLine) {
+				e.selectable = true;
+				e.selected = [entity1?.id, entity2?.id].includes(e.originalId);
+				e.opacity = 1;
+			} else if (e.id === dimension.id) {
+				e.opacity = 1;
+			} else {
+				e.info.prevSelectable = e.info.prevSelectable ?? e.selectable;
+				e.info.prevOpacity = e.info.prevOpacity ?? e.opacity;
+				e.selectable = false;
+				e.opacity = 0.3;
+			}
+		}, true);
+	}
+
+	blur() {
+		this.status.cad.traverse((e) => {
+			if (!(e instanceof CadLine)) {
+				e.selectable = e.info.prevSelectable ?? e.selectable;
+				e.opacity = e.info.prevOpacity ?? e.opacity;
+				delete e.info.prevSelectable;
+				delete e.info.prevOpacity;
+			}
+		}, true);
 	}
 }

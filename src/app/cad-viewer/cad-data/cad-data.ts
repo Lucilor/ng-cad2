@@ -1,5 +1,5 @@
 import {Point} from "@app/utils";
-import {AnyObject, Nullable} from "@src/app/utils/types";
+import {AnyObject} from "@src/app/utils/types";
 import {Matrix, MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
 import {uniqWith, intersection, cloneDeep} from "lodash";
 import {v4} from "uuid";
@@ -160,7 +160,7 @@ export class CadData {
 		return result;
 	}
 
-	findEntity(id: string) {
+	findEntity(id?: string) {
 		return this.getAllEntities().find(id);
 	}
 
@@ -175,7 +175,7 @@ export class CadData {
 		return result;
 	}
 
-	findChild(id: string): Nullable<CadData> {
+	findChild(id: string): CadData | null {
 		const children = [...this.partners, ...this.components.data];
 		for (const data of children) {
 			if (data.id === id) {
@@ -291,7 +291,7 @@ export class CadData {
 	}
 
 	addPartner(partner: CadData) {
-		let translate: Nullable<Point>;
+		let translate: Point | undefined;
 		for (const p1 of this.jointPoints) {
 			for (const p2 of partner.jointPoints) {
 				if (p1.name === p2.name) {
@@ -393,10 +393,10 @@ export class CadData {
 	// It is likely to throw an error.
 	// TODO: avoid it.
 	assembleComponents(connection: CadConnection, accuracy = 1) {
-		const {ids, lines, space, position} = connection;
+		const {ids, lines, space, position, value} = connection;
 		const components = this.components;
-		let c1: Nullable<CadData>;
-		let c2: Nullable<CadData>;
+		let c1: CadData | null = null;
+		let c2: CadData | null = null;
 		for (const c of components.data) {
 			if (c.id === ids[0] || c.id === ids[0]) {
 				c1 = c;
@@ -422,7 +422,7 @@ export class CadData {
 			lines.unshift(lines.pop() as string);
 			ids.unshift(ids.pop() as string);
 		}
-		let axis: Nullable<"x" | "y">;
+		let axis: "x" | "y" | undefined;
 		const getLine = (e: CadCircle, l: CadLine) => {
 			const result = new CadLine();
 			result.start = e.center.clone();
@@ -436,42 +436,53 @@ export class CadData {
 		};
 		const translate = new Point();
 		if (position === "absolute") {
+			const spaceNum = Number(space);
 			const e1 = c1.findEntity(lines[0]);
 			const e2 = c2.findEntity(lines[1]);
-			if (!e1 || !e2) {
-				throw new Error("未找到对应实体");
-			}
-			const spaceNum = Number(space);
-			let l1: Nullable<CadLine>;
-			let l2: Nullable<CadLine>;
-			if (e1 instanceof CadLine) {
-				l1 = e1;
-			}
-			if (e2 instanceof CadLine) {
-				l2 = e2;
-			}
-			if (!l1 && l2) {
-				l1 = getLine(e1 as CadCircle, l2);
-			}
-			if (!l2 && l1) {
-				l2 = getLine(e2 as CadCircle, l1);
-			}
-			if (!l1 || !l2) {
-				throw new Error("至少需要一条直线");
-			}
-			if (isLinesParallel([l1, l2], accuracy)) {
-				if (l1.isVertical(accuracy)) {
-					translate.x = l1.start.x - l2.start.x + spaceNum;
-					axis = "x";
-				} else if (l1.isHorizontal(accuracy)) {
-					translate.y = l1.start.y - l2.start.y + spaceNum;
-					axis = "y";
-				} else {
-					throw new Error("两条线不是横线或者竖线");
+			let l1: CadLine | null = null;
+			let l2: CadLine | null = null;
+			if (e1 && e2) {
+				if (e1 instanceof CadLine) {
+					l1 = e1;
+				}
+				if (e2 instanceof CadLine) {
+					l2 = e2;
+				}
+				if (!l1 && l2) {
+					l1 = getLine(e1 as CadCircle, l2);
+				}
+				if (!l2 && l1) {
+					l2 = getLine(e2 as CadCircle, l1);
 				}
 			} else {
-				throw new Error("两条线不平行");
 			}
+			if (!l1 || !l2) {
+				if (typeof value === "number") {
+					axis = connection.axis;
+					if (axis === "x") {
+						translate.x = value + spaceNum;
+					} else if (axis === "y") {
+						translate.y = value + spaceNum;
+					}
+				} else {
+					throw new Error("未找到对应直线");
+				}
+			} else {
+				if (isLinesParallel([l1, l2], accuracy)) {
+					if (l1.isVertical(accuracy)) {
+						translate.x = l1.start.x - l2.start.x + spaceNum;
+						axis = "x";
+					} else if (l1.isHorizontal(accuracy)) {
+						translate.y = l1.start.y - l2.start.y + spaceNum;
+						axis = "y";
+					} else {
+						throw new Error("两条线不是横线或者竖线");
+					}
+				} else {
+					throw new Error("两条线不平行");
+				}
+			}
+
 			if (isNaN(spaceNum)) {
 				translate.set(0, 0);
 			}
@@ -500,7 +511,7 @@ export class CadData {
 			}
 			const l1 = e1;
 			const l2 = e1;
-			let l3: Nullable<CadLine>;
+			let l3: CadLine | null = null;
 			if (e3 instanceof CadLine) {
 				l3 = e3;
 			}
@@ -579,6 +590,7 @@ export class CadData {
 		}
 		components.connections = components.connections.filter((v, i) => !toRemove.includes(i));
 		this.moveComponent(c2, translate, c1);
+		c2.transform({translate: translate.toArray()});
 		components.connections.push(cloneDeep(connection));
 
 		return this;
@@ -631,53 +643,32 @@ export class CadData {
 	}
 
 	show() {
-		this.getAllEntities().forEach((e) => (e.visible = true));
+		this.getAllEntities().forEach((e) => (e.visible = true), true);
 		return this;
 	}
 
 	hide() {
-		this.getAllEntities().forEach((e) => (e.visible = false));
+		this.getAllEntities().forEach((e) => (e.visible = false), true);
 		return this;
 	}
 
 	directAssemble(component: CadData, accuracy = 1) {
-		const findLines = (entities: CadEntities): {[key: string]: CadLine} => {
-			let hLine: Nullable<CadLine>;
-			let vLine: Nullable<CadLine>;
-			for (const l of entities.line) {
-				if (l.length <= accuracy) {
-					continue;
-				}
-				if (l.isHorizontal(accuracy) && (!hLine || hLine.start.y > l.start.y)) {
-					hLine = l;
-				} else if (l.isVertical(accuracy) && (!vLine || vLine.start.x > l.start.x)) {
-					vLine = l;
-				}
-			}
-			if (!hLine || !vLine) {
-				throw new Error("缺少水平或垂直的线");
-			}
-			return {x: vLine, y: hLine};
-		};
-
-		const lines = findLines(this.entities);
-		if (!lines) {
-			return;
-		}
-		const cLines = findLines(component.getAllEntities());
-		if (!cLines) {
-			return;
-		}
 		["x", "y"].forEach((axis) => {
 			const conn = new CadConnection({axis, position: "absolute"});
 			conn.ids = [this.id, component.id];
 			conn.names = [this.name, component.name];
-			conn.lines = [lines[axis].originalId, cLines[axis].originalId];
+			const rect1 = this.entities.getBoundingRect();
+			const rect2 = component.getBoundingRect();
+			const p1 = [rect1.left, rect1.top];
+			const p2 = [rect2.left, rect2.top];
+			console.log(rect1, rect2);
 			if (axis === "x") {
-				conn.space = (cLines[axis].start.x - lines[axis].start.x).toString();
+				conn.value = p1[0] - p2[0];
+				conn.space = (-conn.value).toString();
 			}
 			if (axis === "y") {
-				conn.space = (cLines[axis].start.y - lines[axis].start.y).toString();
+				conn.value = p1[1] - p2[1];
+				conn.space = (-conn.value).toString();
 			}
 			this.assembleComponents(conn, accuracy);
 		});
@@ -747,6 +738,7 @@ export class CadConnection {
 	space: string;
 	position: "absolute" | "relative";
 	axis: "x" | "y";
+	value?: number;
 
 	constructor(data: any = {}) {
 		this.ids = Array.isArray(data.ids) ? data.ids : [];

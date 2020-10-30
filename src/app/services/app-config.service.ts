@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, OnDestroy} from "@angular/core";
 import {BehaviorSubject} from "rxjs";
 import {session} from "../app.common";
 import {CadViewerConfig} from "../cad-viewer/cad-viewer";
@@ -47,6 +47,7 @@ export class AppConfigService {
 		}
 		this.config$ = new BehaviorSubject(config);
 		this.config$.subscribe((config) => session.save("config", config));
+		window.addEventListener("unload", () => session.save("config", this.config()));
 	}
 
 	config(): AppConfig;

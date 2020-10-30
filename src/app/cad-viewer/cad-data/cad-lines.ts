@@ -4,7 +4,6 @@ import {CadViewer} from "../cad-viewer";
 import {getVectorFromArray, isBetween} from "./utils";
 import {DEFAULT_TOLERANCE, Point} from "@app/utils";
 import Color from "color";
-import {Nullable} from "@src/app/utils/types";
 
 export type CadLineLike = CadLine | CadArc;
 
@@ -70,7 +69,7 @@ export function findAllAdjacentLines(map: PointsMap, entity: CadLineLike, point:
 			closed = true;
 			break;
 		}
-		let p: Nullable<Point>;
+		let p: Point | undefined;
 		const {start, end} = e;
 		if (start.equals(point, tolerance)) {
 			p = end;

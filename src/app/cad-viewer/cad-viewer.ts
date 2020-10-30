@@ -9,7 +9,6 @@ import {getVectorFromArray} from "./cad-data/utils";
 import {CadStyle, CadStylizer} from "./cad-stylizer";
 import {CadEvents, controls} from "./cad-viewer-controls";
 import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText} from "./draw";
-import {Nullable} from "../utils/types";
 
 export interface CadViewerConfig {
 	width: number; // 宽
@@ -344,7 +343,7 @@ export class CadViewer extends EventEmitter {
 			const parent = entity.parent;
 			if (parent instanceof CadLine || parent instanceof CadArc) {
 				const {lineGongshi, hideLineLength, hideLineGongshi} = this._config;
-				let offset: Nullable<Point>;
+				let offset: Point | undefined;
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
 					entity.font_size = parent.lengthTextSize;

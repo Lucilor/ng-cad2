@@ -1,6 +1,5 @@
 import {Circle, Container, Line, Path, PathArrayAlias, Text} from "@svgdotjs/svg.js";
 import {Angle, Arc, Point} from "@app/utils";
-import {Nullable} from "../utils/types";
 
 export function drawLine(draw: Container, start: Point, end: Point, i = 0) {
 	if (start.equals(end)) {
@@ -110,7 +109,7 @@ export function drawShape(draw: Container, points: Point[], type: "fill" | "stro
 
 export function drawDimension(
 	draw: Container,
-	style: Nullable<1 | 2> = 1,
+	style: 1 | 2 = 1,
 	points: Point[],
 	text: string,
 	axis: "x" | "y",
@@ -123,9 +122,9 @@ export function drawDimension(
 		return [];
 	}
 	const [p1, p2, p3, p4, p5, p6, p7, p8] = points;
-	let l1: Nullable<Line>;
-	let l2: Nullable<Line>;
-	let l3: Nullable<Line>;
+	let l1: Line| null = null;
+	let l2: Line| null = null;
+	let l3: Line| null = null;
 	if (style === 1) {
 		l1 = drawLine(draw, p1, p3, i)?.[0];
 		l2 = drawLine(draw, p3, p4, i + 1)?.[0];
@@ -145,7 +144,7 @@ export function drawDimension(
 	const tri2 = drawShape(draw, [p4, p7, p8], "fill", i + 4)[0];
 	text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
 	const middle = p3.clone().add(p4).divide(2);
-	let textEl: Nullable<Text>;
+	let textEl: Text| null = null;
 	if (axis === "x") {
 		textEl = drawText(draw, text, fontSize, middle, new Point(0.5, 1), fontFamily, false, i + 5)[0];
 	} else if (axis === "y") {

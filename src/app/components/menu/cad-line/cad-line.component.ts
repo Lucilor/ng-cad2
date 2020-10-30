@@ -21,7 +21,6 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {Point} from "@src/app/utils";
-import {Nullable} from "@src/app/utils/types";
 import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
 import Color from "color";
 import {debounce} from "lodash";
@@ -35,8 +34,8 @@ import {openCadLineTiaojianquzhiDialog} from "../../dialogs/cad-line-tjqz/cad-li
 export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy {
 	focusedField = "";
 	editDiabled = false;
-	lineDrawing: Nullable<{start?: Point; end?: Point; entity?: CadLine}>;
-	data: Nullable<CadData>;
+	lineDrawing: {start?: Point; end?: Point; entity?: CadLine} | null = null;
+	data: CadData | null = null;
 	inputErrors: {gongshi: string | false; guanlianbianhuagongshi: string | false} = {
 		gongshi: false,
 		guanlianbianhuagongshi: false

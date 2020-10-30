@@ -15,7 +15,7 @@ import {AppConfig, AppConfigService} from "@src/app/services/app-config.service"
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {CadCollection, CadDataService} from "@src/app/services/cad-data.service";
 import {Line, Point} from "@src/app/utils";
-import {AnyObject, Nullable} from "@src/app/utils/types";
+import {AnyObject} from "@src/app/utils/types";
 import {MatrixExtract} from "@svgdotjs/svg.js";
 import {highlight} from "highlight.js";
 import {differenceWith} from "lodash";
@@ -285,7 +285,7 @@ export class CadConsoleComponent implements OnInit {
 			this.transform({scaleX, scaleY});
 		},
 		man(name: string, list: string) {
-			let data: Nullable<BookData> = null;
+			let data: BookData | null = null;
 			if (list === "true") {
 				const cmdList: {[key: string]: string[]} = {};
 				cmdNames.forEach((v) => {
@@ -642,7 +642,7 @@ export class CadConsoleComponent implements OnInit {
 		const cmd = commands.find((v) => v.name === elCmdTrimed);
 		if (cmd) {
 			for (let i = 0; i < arr.length; i++) {
-				let arg: Nullable<Arg>;
+				let arg: Arg | undefined;
 				let directFirst = false;
 				if (arr[i].startsWith("--")) {
 					const name = arr[i].slice(2);
