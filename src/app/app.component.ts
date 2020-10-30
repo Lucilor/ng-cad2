@@ -1,4 +1,6 @@
 import {Component, OnInit} from "@angular/core";
+import {AppConfigService} from "./services/app-config.service";
+import {AppStatusService} from "./services/app-status.service";
 
 @Component({
 	selector: "app-root",
@@ -6,7 +8,22 @@ import {Component, OnInit} from "@angular/core";
 	styleUrls: ["./app.component.scss"]
 })
 export class AppComponent implements OnInit {
-	constructor() {}
+	title = "ng-cad2";
+	loaderText = "";
 
-	ngOnInit() {}
+	constructor(private status: AppStatusService, private config: AppConfigService) {}
+
+	ngOnInit() {
+		this.status.loaderText$.subscribe((loaderText) => {
+			this.loaderText = loaderText;
+		});
+		const cad = this.status.cad;
+		Reflect.defineProperty(window, "cad", {value: cad});
+		Reflect.defineProperty(window, "config", {value: this.config.config.bind(this.config)});
+		Reflect.defineProperty(window, "data0", {get: () => cad.data.components.data[0]});
+		Reflect.defineProperty(window, "data0Ex", {get: () => cad.data.components.data[0].export()});
+		Reflect.defineProperty(window, "selected", {get: () => cad.selected()});
+		Reflect.defineProperty(window, "selectedArray", {get: () => cad.selected().toArray()});
+		Reflect.defineProperty(window, "selected0", {get: () => cad.selected().toArray()[0]});
+	}
 }

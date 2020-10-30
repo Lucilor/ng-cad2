@@ -1,10 +1,10 @@
-import {CadEntities} from "./cad-entities";
+import {CadArc, CadEntities, CadLine, CadMtext} from "./cad-entities";
 import {CadData} from "./cad-data";
 import {CadViewer} from "../cad-viewer";
 import {getVectorFromArray, isBetween} from "./utils";
 import {DEFAULT_TOLERANCE, Point} from "@app/utils";
-import {CadLine, CadArc, CadMtext} from "./cad-entity";
 import Color from "color";
+import {Nullable} from "@src/app/utils/types";
 
 export type CadLineLike = CadLine | CadArc;
 
@@ -16,8 +16,11 @@ export type PointsMap = {
 	selected: boolean;
 }[];
 
-export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOLERANCE) {
+export function generatePointsMap(entities?: CadEntities, tolerance = DEFAULT_TOLERANCE) {
 	const map: PointsMap = [];
+	if (!entities) {
+		return map;
+	}
 	const addToMap = (point: Point, line: CadLine | CadArc) => {
 		const linesAtPoint = map.find((v) => v.point.distanceTo(point) <= tolerance);
 		if (linesAtPoint) {
@@ -43,7 +46,7 @@ export function generatePointsMap(entities: CadEntities, tolerance = DEFAULT_TOL
 	return map;
 }
 
-export function findAdjacentLines(map: PointsMap, entity: CadLineLike, point?: Point, tolerance = DEFAULT_TOLERANCE): CadLineLike[] {
+export function findAdjacentLines(map: PointsMap, entity: CadLineLike, point: Point, tolerance = DEFAULT_TOLERANCE): CadLineLike[] {
 	if (!point && entity instanceof CadLine) {
 		const adjStart = findAdjacentLines(map, entity, entity.start);
 		const adjEnd = findAdjacentLines(map, entity, entity.end);
@@ -57,7 +60,7 @@ export function findAdjacentLines(map: PointsMap, entity: CadLineLike, point?: P
 	return [];
 }
 
-export function findAllAdjacentLines(map: PointsMap, entity: CadLineLike, point: Point, tolerance = DEFAULT_TOLERANCE, ids = []) {
+export function findAllAdjacentLines(map: PointsMap, entity: CadLineLike, point: Point, tolerance = DEFAULT_TOLERANCE, ids: string[] = []) {
 	const entities: CadLineLike[] = [];
 	let closed = false;
 	ids.push(entity.id);
@@ -67,12 +70,14 @@ export function findAllAdjacentLines(map: PointsMap, entity: CadLineLike, point:
 			closed = true;
 			break;
 		}
-		let p: Point;
+		let p: Nullable<Point>;
 		const {start, end} = e;
 		if (start.equals(point, tolerance)) {
 			p = end;
 		} else if (end.equals(point, tolerance)) {
 			p = start;
+		} else {
+			continue;
 		}
 		entities.push(e);
 		ids.push(e.id);
@@ -137,7 +142,7 @@ export function sortLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 		}
 		return notStart1 - notStart2;
 	});
-	const exclude = [];
+	const exclude: string[] = [];
 	for (const v of arr) {
 		const startLine = v.lines[0];
 		if (exclude.includes(startLine.id)) {
@@ -206,7 +211,7 @@ export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 			const l3 = nextGroup[0];
 			const l4 = nextGroup[nextGroup.length - 1];
 			let minD = Infinity;
-			let errLines: CadLineLike[];
+			let errLines: CadLineLike[] = [];
 			[
 				[l1, l3],
 				[l1, l4],

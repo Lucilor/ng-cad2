@@ -7,6 +7,7 @@ import {paths} from "../app.common";
 })
 export class PathResolveService implements Resolve<{path: string; queryParams: Params}> {
 	constructor() {}
+
 	resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
 		const url = state.url.replace("/", "");
 		let index = -1;
@@ -18,10 +19,10 @@ export class PathResolveService implements Resolve<{path: string; queryParams: P
 		}
 		const typoPath = url.slice(0, index);
 		const threshold = this.getThreshold(typoPath);
-		const dictionary = Object.values(paths).filter(path => Math.abs(path.length - typoPath.length) < threshold);
+		const dictionary = Object.values(paths).filter((path) => Math.abs(path.length - typoPath.length) < threshold);
 
 		if (!dictionary.length) {
-			return null;
+			return {path: "", queryParams: route.queryParams};
 		}
 
 		this.sortByDistances(typoPath, dictionary);

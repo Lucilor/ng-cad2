@@ -1,4 +1,5 @@
 import {Component, Input} from "@angular/core";
+import {SafeUrl} from "@angular/platform-browser";
 import {imgEmpty, imgLoading} from "@app/app.common";
 
 @Component({
@@ -7,9 +8,9 @@ import {imgEmpty, imgLoading} from "@app/app.common";
 	styleUrls: ["./image.component.scss"]
 })
 export class ImageComponent {
-	@Input() width: string;
-	@Input() height: string;
-	@Input() src: string;
+	@Input() width = "";
+	@Input() height = "";
+	@Input() src?: string | SafeUrl = "";
 	loading = true;
 	loadingSrc = imgLoading;
 	emptySrc = imgEmpty;

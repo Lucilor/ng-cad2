@@ -4,7 +4,7 @@ import {Rectangle} from "./geometry/rectangle";
 import {Arc} from "./geometry/arc";
 import {Angle} from "./geometry/angle";
 import {RGB2Index, index2RGB} from "./color";
-import {dataURLtoBlob, RSAEncrypt} from "./misc";
+import {dataURLtoBlob, RSAEncrypt, getDPI, copyToClipboard, downloadFile} from "./misc";
 import {SessionStorage, LocalStorage} from "./storage";
 import {DEFAULT_TOLERANCE} from "./geometry/constants";
 
@@ -18,6 +18,9 @@ export {
 	dataURLtoBlob,
 	RSAEncrypt,
 	RGB2Index,
+	getDPI,
+	copyToClipboard,
+	downloadFile,
 	index2RGB,
 	SessionStorage,
 	LocalStorage

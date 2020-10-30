@@ -1,24 +1,24 @@
 import {Point, Rectangle} from "@app/utils";
-import {CadEntities} from "./cad-data/cad-entities";
-import {CadDimension, CadEntity} from "./cad-data/cad-entity";
+import {Nullable} from "../utils/types";
+import {CadDimension, CadEntities, CadEntity} from "./cad-data/cad-entities";
 import {CadViewer} from "./cad-viewer";
 
-let pointer: {from: Point; to: Point} = null;
-let button: number = null;
-let multiSelector: HTMLDivElement = null;
-let entitiesToDrag: CadEntities = null;
-let entitiesNotToDrag: CadEntities = null;
-let draggingDimension: CadDimension = null;
+let pointer: Nullable<{from: Point; to: Point}>;
+let button: Nullable<number>;
+let multiSelector: Nullable<HTMLDivElement>;
+let entitiesToDrag: Nullable<CadEntities>;
+let entitiesNotToDrag: Nullable<CadEntities>;
+let draggingDimension: Nullable<CadDimension>;
 let needsRender = false;
 
 export interface CadEvents {
 	pointerdown: [PointerEvent, never];
 	pointermove: [PointerEvent, never];
 	pointerup: [PointerEvent, never];
-	click: [PointerEvent, never];
+	click: [MouseEvent, never];
 	wheel: [WheelEvent, never];
 	keydown: [KeyboardEvent, never];
-	entityclick: [PointerEvent, CadEntity];
+	entityclick: [MouseEvent, CadEntity];
 	entitypointerdown: [PointerEvent, CadEntity];
 	entitypointermove: [PointerEvent, CadEntity];
 	entitypointerup: [PointerEvent, CadEntity];
@@ -26,6 +26,7 @@ export interface CadEvents {
 	entitiesunselect: [null, CadEntities];
 	entitiesremove: [null, CadEntities];
 	entitiesadd: [null, CadEntities];
+	render: [null, CadEntities];
 }
 
 function onWheel(this: CadViewer, event: WheelEvent) {
@@ -41,7 +42,7 @@ function onWheel(this: CadViewer, event: WheelEvent) {
 	}
 }
 
-function onClick(this: CadViewer, event: PointerEvent) {
+function onClick(this: CadViewer, event: MouseEvent) {
 	event.preventDefault();
 	this.dom.focus();
 	this.emit("click", event);
@@ -76,7 +77,7 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 			}
 			this.move(translate.x, -translate.y);
 		} else if (button === 0) {
-			if (entitiesToDrag && entityDraggable) {
+			if (entitiesToDrag && entitiesNotToDrag && entityDraggable) {
 				this.moveEntities(entitiesToDrag, entitiesNotToDrag, translate.x, -translate.y);
 				needsRender = true;
 			} else if (draggingDimension) {
@@ -190,7 +191,7 @@ function onKeyDown(this: CadViewer, event: KeyboardEvent) {
 	this.emit("keydown", event);
 }
 
-function onEntityClick(this: CadViewer, event: PointerEvent, entity: CadEntity) {
+function onEntityClick(this: CadViewer, event: MouseEvent, entity: CadEntity) {
 	event.stopImmediatePropagation();
 	const selectMode = this.config("selectMode");
 	if (selectMode === "single" || selectMode === "multiple") {

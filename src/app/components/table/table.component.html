@@ -31,7 +31,7 @@
 				</td>
 			</ng-container>
 
-			<ng-container [matColumnDef]="column.field" *ngFor="let column of columns; let colIdx = index">
+			<ng-container [matColumnDef]="toTypeString(column.field)" *ngFor="let column of columns; let colIdx = index">
 				<th mat-header-cell *matHeaderCellDef mat-sort-header [style.width]="columns[colIdx].width">{{ column.name }}</th>
 				<td
 					mat-cell

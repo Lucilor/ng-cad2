@@ -1,10 +1,11 @@
 import {Circle, Container, Line, Path, PathArrayAlias, Text} from "@svgdotjs/svg.js";
 import {Angle, Arc, Point} from "@app/utils";
+import {Nullable} from "../utils/types";
 
 export function drawLine(draw: Container, start: Point, end: Point, i = 0) {
 	if (start.equals(end)) {
 		draw.remove();
-		return null;
+		return [];
 	}
 	let el = draw.children()[i] as Line;
 	if (el instanceof Line) {
@@ -18,7 +19,7 @@ export function drawLine(draw: Container, start: Point, end: Point, i = 0) {
 export function drawCircle(draw: Container, center: Point, radius: number, i = 0) {
 	if (radius <= 0) {
 		draw.remove();
-		return null;
+		return [];
 	}
 	let el = draw.children()[i] as Circle;
 	if (el instanceof Line) {
@@ -32,7 +33,7 @@ export function drawCircle(draw: Container, center: Point, radius: number, i = 0
 export function drawArc(draw: Container, center: Point, radius: number, startAngle: number, endAngle: number, clockwise: boolean, i = 0) {
 	if (radius <= 0) {
 		draw.remove();
-		return null;
+		return [];
 	}
 	const l0 = Math.PI * 2 * radius;
 	const arc = new Arc(new Point(center.x, center.y), radius, new Angle(startAngle, "deg"), new Angle(endAngle, "deg"), clockwise);
@@ -64,7 +65,7 @@ export function drawText(
 ) {
 	if (!text || !(size > 0)) {
 		draw.remove();
-		return null;
+		return [];
 	}
 	let el = draw.children()[i] as Text;
 	if (el instanceof Text) {
@@ -109,22 +110,22 @@ export function drawShape(draw: Container, points: Point[], type: "fill" | "stro
 
 export function drawDimension(
 	draw: Container,
-	style = 1 | 2,
+	style: Nullable<1 | 2> = 1,
 	points: Point[],
 	text: string,
 	axis: "x" | "y",
-	fontSize: number,
+	fontSize?: number,
 	fontFamily?: string,
 	i = 0
 ) {
-	if (points.length < 8 || !(fontSize > 0)) {
+	if (points.length < 8 || !fontSize || fontSize < 0) {
 		draw.remove();
-		return null;
+		return [];
 	}
 	const [p1, p2, p3, p4, p5, p6, p7, p8] = points;
-	let l1: Line;
-	let l2: Line;
-	let l3: Line;
+	let l1: Nullable<Line>;
+	let l2: Nullable<Line>;
+	let l3: Nullable<Line>;
 	if (style === 1) {
 		l1 = drawLine(draw, p1, p3, i)?.[0];
 		l2 = drawLine(draw, p3, p4, i + 1)?.[0];
@@ -144,11 +145,14 @@ export function drawDimension(
 	const tri2 = drawShape(draw, [p4, p7, p8], "fill", i + 4)[0];
 	text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
 	const middle = p3.clone().add(p4).divide(2);
-	let textEl: Text;
+	let textEl: Nullable<Text>;
 	if (axis === "x") {
 		textEl = drawText(draw, text, fontSize, middle, new Point(0.5, 1), fontFamily, false, i + 5)[0];
 	} else if (axis === "y") {
 		textEl = drawText(draw, text, fontSize, middle, new Point(1, 0.5), fontFamily, true, i + 5)[0];
+	}
+	if (!l1 || !l2 || !l3 || !textEl) {
+		return [];
 	}
 	return [l1, l2, l3, tri1, tri2, textEl];
 }

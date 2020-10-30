@@ -1,7 +1,7 @@
 import {Point} from "./point";
 import {Angle} from "./angle";
 import {Line} from "./line";
-import {Matrix, MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
+import {MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
 
 export class Arc {
 	center: Point;
@@ -12,11 +12,12 @@ export class Arc {
 
 	constructor(center = new Point(), radius?: number, start?: Angle | Point, end?: Angle | Point, clockwise = true) {
 		this.center = center;
-		this.radius = radius;
+		this.radius = radius || 0;
 		this.clockwise = clockwise;
 		if (start instanceof Angle) {
 			this.startAngle = start;
 		} else if (start instanceof Point) {
+			this.startAngle = new Angle();
 			this.startPoint = start;
 		} else {
 			this.startAngle = new Angle(0);
@@ -24,6 +25,7 @@ export class Arc {
 		if (end instanceof Angle) {
 			this.endAngle = end;
 		} else if (end instanceof Point) {
+			this.endAngle = new Angle();
 			this.endPoint = end;
 		} else {
 			this.endAngle = new Angle(Math.PI * 2);

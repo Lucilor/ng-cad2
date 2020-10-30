@@ -262,8 +262,7 @@ export function index2RGB<K extends keyof ColorMap>(index: number, type: K): Col
 	const rgb = list[index] || [0, 0, 0];
 	if (type === "number") {
 		return (rgb[0] * 16 ** 4 + rgb[1] * 16 ** 2 + rgb[2]) as ColorMap[K];
-	}
-	if (type === "string") {
+	} else if (type === "string") {
 		let rgbStr = "#";
 		for (const num of rgb) {
 			rgbStr += num.toString(16).padStart(2, "0");
@@ -276,7 +275,7 @@ export function index2RGB<K extends keyof ColorMap>(index: number, type: K): Col
 		// }
 		return rgbStr as ColorMap[K];
 	}
-	return null;
+	return "" as ColorMap[K];
 }
 
 export function RGB2Index(rgb: number | string) {

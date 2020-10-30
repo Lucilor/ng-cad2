@@ -1,33 +1,30 @@
-import {Component, OnInit, OnDestroy, Input, Injector} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
-import {getCadGongshiText, getPointsFromMap} from "@app/app.common";
-import {CadData, CadOption, CadBaseLine, CadJointPoint} from "@app/cad-viewer/cad-data/cad-data";
-import {CadEntity, CadLine} from "@app/cad-viewer/cad-data/cad-entity";
-import {generatePointsMap} from "@app/cad-viewer/cad-data/cad-lines";
-import {CadPointsAction, CadStatusAction} from "@app/store/actions";
-import {getCurrCads, getCurrCadsData, getCadStatus, getCadPoints} from "@app/store/selectors";
-import {openCadListDialog} from "../../cad-list/cad-list.component";
-import {openMessageDialog} from "../../message/message.component";
-import {openCadOptionsDialog} from "../cad-options/cad-options.component";
-import {MenuComponent} from "../menu.component";
+import {CadBaseLine, CadData, CadJointPoint, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadEntity, CadLine} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {getCadGongshiText} from "@src/app/cad.utils";
+import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
+import {MessageService} from "@src/app/modules/message/services/message.service";
+import {AppStatusService, CadStatus} from "@src/app/services/app-status.service";
+import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
+import {openCadOptionsDialog} from "../../dialogs/cad-options/cad-options.component";
 
 @Component({
 	selector: "app-cad-info",
 	templateUrl: "./cad-info.component.html",
 	styleUrls: ["./cad-info.component.scss"]
 })
-export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy {
-	@Input() formulas: string[] = [];
-	cadsData: CadData[];
+export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy {
+	cadsData: CadData[] = [];
 	lengths: string[] = [];
-	baseLineIndex = -1;
-	jointPointIndex = -1;
 	editDisabled = true;
 
-	onEntityClick = (async (_event: PointerEvent, entity: CadEntity) => {
-		const {name, index} = await this.getObservableOnce(getCadStatus);
-		const data = (await this.getCurrCadsData())[0];
-		if (name === "selectBaseline") {
+	onEntityClick = ((_event: MouseEvent, entity?: CadEntity) => {
+		const {name, index} = this.status.cadStatus$.getValue();
+		const data = this.status.getFlatSelectedCads()[0];
+		if (name === "selectBaseline" && typeof index === "number") {
 			if (entity instanceof CadLine) {
 				const baseLine = data.baseLines[index];
 				if (entity.isHorizontal()) {
@@ -40,21 +37,19 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 				data.getAllEntities().forEach((e) => {
 					e.selected = [baseLine.idX, baseLine.idY].includes(e.originalId);
 				});
-				this.cad.render();
+				this.status.cad.render();
 			}
 		}
 	}).bind(this);
 
-	constructor(injector: Injector) {
-		super(injector);
+	constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
+		super();
 	}
 
 	ngOnInit() {
-		super.ngOnInit();
-		const store = this.store;
-		this.getObservable(getCurrCads).subscribe((currCads) => {
-			this.cadsData = getCurrCadsData(this.cad.data, currCads);
-			const ids = this.cad.data.components.data.map((v) => v.id);
+		this.subscribe(this.status.selectedCads$, () => {
+			this.cadsData = this.status.getFlatSelectedCads();
+			const ids = this.status.cad.data.components.data.map((v) => v.id);
 			if (this.cadsData.length === 1 && ids.includes(this.cadsData[0].id)) {
 				this.editDisabled = false;
 			} else {
@@ -65,35 +60,29 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 			this.updateLengths(this.cadsData);
 		});
-		this.getObservable(getCadStatus).subscribe(({name, index}) => {
-			if (name === "normal") {
-				this.baseLineIndex = -1;
-			}
-			if (name === "selectJointpoint") {
-				this.jointPointIndex = index;
-				const points = getPointsFromMap(this.cad, generatePointsMap(this.cadsData[0].getAllEntities()));
-				store.dispatch<CadPointsAction>({type: "set cad points", points});
-			} else if (this.jointPointIndex > -1) {
-				this.jointPointIndex = -1;
-				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
+		this.subscribe(this.status.cadStatus$, (cadStatus) => {
+			const {name, index} = cadStatus;
+			if (name === "selectJointpoint" && typeof index === "number") {
+				this.status.setCadPoints(generatePointsMap(this.cadsData[0].getAllEntities()));
+			} else {
+				this.status.setCadPoints([]);
 			}
 		});
-		this.cad.on("entityclick", this.onEntityClick);
-		this.getObservable(getCadPoints).subscribe(async (points) => {
-			const point = points.filter((v) => v.active)[0];
-			const {name} = await this.getObservableOnce(getCadStatus);
+		this.subscribe(this.status.cadPoints$, (cadPoints) => {
+			const point = cadPoints.filter((v) => v.active)[0];
+			const {name} = this.status.cadStatus$.getValue();
 			if (name !== "selectJointpoint" || !point) {
 				return;
 			}
-			const jointPoint = this.cadsData[0].jointPoints[this.jointPointIndex];
+			const jointPoint = this.cadsData[0].jointPoints[this.status.cadStatus$.getValue().index];
 			jointPoint.valueX = point.x;
 			jointPoint.valueY = point.y;
 		});
+		this.status.cad.on("entityclick", this.onEntityClick);
 	}
 
 	ngOnDestroy() {
-		super.ngOnDestroy();
-		this.cad.off("entityclick", this.onEntityClick);
+		this.status.cad.off("entityclick", this.onEntityClick);
 	}
 
 	updateLengths(cadsData: CadData[]) {
@@ -109,37 +98,26 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async selectOptions(option: CadOption | string) {
-		const data = (await this.getCurrCadsData())[0];
+		const data = this.status.getFlatSelectedCads()[0];
 		if (option instanceof CadOption) {
 			const checkedItems = option.value.split(",");
-			const ref = openCadOptionsDialog(this.dialog, {data: {data, name: option.name, checkedItems}});
-			ref.afterClosed().subscribe((v) => {
-				if (Array.isArray(v)) {
-					option.value = v.join(",");
-				}
-			});
+			const result = await openCadOptionsDialog(this.dialog, {data: {data, name: option.name, checkedItems}});
+			if (Array.isArray(result)) {
+				option.value = result.join(",");
+			}
 		} else if (option === "huajian") {
 			const checkedItems = data.huajian.split(",");
-			const ref = openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems}});
-			ref.afterClosed().subscribe((v) => {
-				if (Array.isArray(v)) {
-					data.huajian = v.join(",");
-				}
-			});
+			const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems}});
+			if (Array.isArray(result)) {
+				data.huajian = result.join(",");
+			}
 		} else if (option === "bancai") {
 			const checkedItems = data.morenkailiaobancai.split(",");
-			const ref = openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems}});
-			ref.afterClosed().subscribe((v) => {
-				if (Array.isArray(v)) {
-					data.morenkailiaobancai = v.join(",");
-				}
-			});
+			const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems}});
+			if (Array.isArray(result)) {
+				data.morenkailiaobancai = result.join(",");
+			}
 		}
-	}
-
-	async confirmRemove() {
-		const ref = openMessageDialog(this.dialog, {data: {type: "confirm", content: "是否确定删除？"}});
-		return ref.afterClosed().toPromise();
 	}
 
 	addCondition(data: CadData, index: number) {
@@ -147,7 +125,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async removeCondition(data: CadData, index: number) {
-		if (await this.confirmRemove()) {
+		if (await this.message.confirm("是否确定删除？")) {
 			const arr = data.conditions;
 			if (arr.length === 1) {
 				arr[0] = "";
@@ -162,7 +140,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async removeOption(data: CadData, index: number) {
-		if (await this.confirmRemove()) {
+		if (await this.message.confirm("是否确定删除？")) {
 			const arr = data.options;
 			if (arr.length === 1) {
 				arr[0] = new CadOption();
@@ -172,12 +150,20 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 		}
 	}
 
+	getItemColor(name: CadStatus["name"], index: number) {
+		const cadStatus = this.status.cadStatus();
+		if (name === cadStatus.name && index === cadStatus.index) {
+			return "accent";
+		}
+		return "primary";
+	}
+
 	addBaseLine(data: CadData, index: number) {
 		data.baseLines.splice(index + 1, 0, new CadBaseLine());
 	}
 
 	async removeBaseLine(data: CadData, index: number) {
-		if (await this.confirmRemove()) {
+		if (await this.message.confirm("是否确定删除？")) {
 			const arr = data.baseLines;
 			if (arr.length === 1) {
 				arr[0] = new CadBaseLine();
@@ -188,11 +174,10 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	selectBaseLine(index: number) {
-		const {store} = this;
-		if (this.getItemColor(index, "baseLine") === "primary") {
-			store.dispatch<CadStatusAction>({type: "set cad status", name: "selectBaseline", index});
+		if (this.getItemColor("selectBaseline", index) === "primary") {
+			this.status.cadStatus({name: "selectBaseline", index});
 		} else {
-			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+			this.status.cadStatus({name: "normal"});
 		}
 	}
 
@@ -201,7 +186,7 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	async removeJointPoint(data: CadData, index: number) {
-		if (await this.confirmRemove()) {
+		if (await this.message.confirm("是否确定删除？")) {
 			const arr = data.jointPoints;
 			if (arr.length === 1) {
 				arr[0] = new CadJointPoint();
@@ -212,43 +197,33 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	selectJointPoint(index: number) {
-		const {store} = this;
-		if (this.getItemColor(index, "jointPoint") === "primary") {
-			store.dispatch<CadStatusAction>({type: "set cad status", name: "selectJointpoint", index});
+		if (this.getItemColor("selectJointpoint", index) === "primary") {
+			this.status.cadStatus({name: "selectJointpoint", index});
 		} else {
-			store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+			this.status.cadStatus({name: "normal"});
 		}
-	}
-
-	getItemColor(index: number, type: "baseLine" | "jointPoint") {
-		if (type === "baseLine" && index === this.baseLineIndex) {
-			return "accent";
-		}
-		if (type === "jointPoint" && index === this.jointPointIndex) {
-			return "accent";
-		}
-		return "primary";
 	}
 
 	updateCadGongshi(data: CadData) {
 		const mtext = data.entities.mtext.find((e) => (e.info.isCadGongshi = true));
-		mtext.text = getCadGongshiText(data);
-		this.cad.render(mtext);
+		if (mtext) {
+			mtext.text = getCadGongshiText(data);
+			this.status.cad.render(mtext);
+		}
 	}
 
 	async selectKailiaomuban(data: CadData) {
 		const checkedItems = [new CadData({id: data.kailiaomuban})];
-		const ref = openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
-		const result = await ref.afterClosed().toPromise();
+		const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
 		if (result?.length) {
 			data.kailiaomuban = result[0].id;
 		}
 	}
 
-	async offset(event: MatSelectChange) {
+	offset(event: MatSelectChange) {
 		const value: CadData["bancaihoudufangxiang"] = event.value;
-		const data = (await this.getCurrCadsData())[0];
-		const cad = this.cad;
+		const data = this.status.getFlatSelectedCads()[0];
+		const cad = this.status.cad;
 		data.bancaihoudufangxiang = value;
 		let direction = 0;
 		if (value === "gt0") {
@@ -287,8 +262,4 @@ export class CadInfoComponent extends MenuComponent implements OnInit, OnDestroy
 			}
 		}, blinkInterval * 2);
 	}
-
-	saveStatus() {}
-
-	loadStatus() {}
 }

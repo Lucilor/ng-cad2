@@ -1,49 +1,25 @@
-import {ComponentFixture, TestBed, waitForAsync} from "@angular/core/testing";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {SubCadsComponent} from "./sub-cads.component";
-import {HttpClientTestingModule} from "@angular/common/http/testing";
-import {MatDialogModule} from "@angular/material/dialog";
-import {MatSnackBarModule} from "@angular/material/snack-bar";
-import {provideMockStore} from "@ngrx/store/testing";
-import {initialState} from "@app/store/state";
-import {MatMenuModule} from "@angular/material/menu";
-import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
-import {MatExpansionModule} from "@angular/material/expansion";
-import {MatButtonModule} from "@angular/material/button";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {RouterTestingModule} from "@angular/router/testing";
+import { SubCadsComponent } from './sub-cads.component';
 
-describe("SubCadsComponent", () => {
-	let component: SubCadsComponent;
-	let fixture: ComponentFixture<SubCadsComponent>;
+describe('SubCadsComponent', () => {
+  let component: SubCadsComponent;
+  let fixture: ComponentFixture<SubCadsComponent>;
 
-	beforeEach(waitForAsync(() => {
-		TestBed.configureTestingModule({
-			declarations: [SubCadsComponent],
-			imports: [
-				HttpClientTestingModule,
-				MatDialogModule,
-				MatSnackBarModule,
-				MatMenuModule,
-				MatSlideToggleModule,
-				PerfectScrollbarModule,
-				MatExpansionModule,
-				MatButtonModule,
-				BrowserAnimationsModule,
-				RouterTestingModule
-			],
-			providers: [provideMockStore({initialState})]
-		}).compileComponents();
-	}));
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ SubCadsComponent ]
+    })
+    .compileComponents();
+  });
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(SubCadsComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
-	});
+  beforeEach(() => {
+    fixture = TestBed.createComponent(SubCadsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-	it("should create", () => {
-		expect(component).toBeTruthy();
-	});
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

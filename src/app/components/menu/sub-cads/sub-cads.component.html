@@ -25,6 +25,8 @@
 						class="cad-image"
 						*ngFor="let item of cads; let i = index"
 						(contextmenu)="onContextMenu($event, item.data, 'cads')"
+						[matTooltip]="item.data.name"
+						[matTooltipPosition]="'above'"
 					>
 						<mat-checkbox
 							[checked]="item.checked"
@@ -123,7 +125,7 @@
 	></div>
 	<mat-menu #contextMenu="matMenu">
 		<ng-template matMenuContent>
-			<ng-container *ngIf="contextMenuCad.field === 'cads'">
+			<ng-container *ngIf="contextMenuCad?.field === 'cads'">
 				<button mat-menu-item (click)="editChildren('partners')">编辑关联</button>
 				<button mat-menu-item (click)="editChildren('components')">编辑装配</button>
 				<button mat-menu-item (click)="uploadDxf(true)">上传dxf文件(主CAD)</button>

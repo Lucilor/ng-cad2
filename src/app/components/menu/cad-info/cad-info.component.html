@@ -25,8 +25,7 @@
 					<input
 						matInput
 						type="text"
-						[value]="cad.options[i].name"
-						(change)="cad.options[i].name = $event.target.value"
+						[(ngModel)]="cad.options[i].name"
 						name="optionKey"
 					/>
 				</mat-form-field>
@@ -35,8 +34,7 @@
 					<input
 						matInput
 						type="text"
-						[value]="cad.options[i].value"
-						(change)="cad.options[i].value = $event.target.value"
+						[(ngModel)]="cad.options[i].value"
 						placeholder="选项"
 						name="optionValue"
 					/>
@@ -53,8 +51,7 @@
 					<input
 						matInput
 						type="text"
-						[value]="cad.conditions[i]"
-						(change)="cad.conditions[i] = $event.target.value"
+						[(ngModel)]="cad.conditions[i]"
 						name="condition"
 					/>
 					<mat-icon matSuffix color="primary" (click)="addCondition(cad, i)">add_circle</mat-icon>
@@ -64,10 +61,10 @@
 		</div>
 		<div class="form-item-group hint">
 			<div *ngFor="let b of cad.baseLines; let i = index">
-				<mat-form-field [color]="getItemColor(i, 'baseLine')">
+				<mat-form-field [color]="getItemColor('selectBaseline', i)">
 					<mat-label>基准</mat-label>
 					<input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
-					<mat-icon matSuffix [color]="getItemColor(i, 'baseLine')" (click)="selectBaseLine(i)">link</mat-icon>
+					<mat-icon matSuffix [color]="getItemColor('selectBaseline', i)" (click)="selectBaseLine(i)">link</mat-icon>
 					<mat-icon matSuffix color="primary" (click)="addBaseLine(cad, i)">add_circle</mat-icon>
 					<mat-icon matSuffix color="primary" (click)="removeBaseLine(cad, i)">remove_circle</mat-icon>
 					<mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>
@@ -76,10 +73,10 @@
 		</div>
 		<div class="form-item-group hint">
 			<div *ngFor="let j of cad.jointPoints; let i = index">
-				<mat-form-field [color]="getItemColor(i, 'jointPoint')">
+				<mat-form-field [color]="getItemColor('selectJointpoint', i)">
 					<mat-label>连接点</mat-label>
 					<input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />
-					<mat-icon matSuffix color="primary" [color]="getItemColor(i, 'jointPoint')" (click)="selectJointPoint(i)">
+					<mat-icon matSuffix color="primary" [color]="getItemColor('selectJointpoint', i)" (click)="selectJointPoint(i)">
 						link
 					</mat-icon>
 					<mat-icon matSuffix color="primary" (click)="addJointPoint(cad, i)">add_circle</mat-icon>
@@ -94,16 +91,10 @@
 				<input
 					matInput
 					type="text"
-					[matAutocomplete]="auto"
 					[(ngModel)]="cad.zhankaikuan"
 					name="zhankaikuan"
 					(change)="updateCadGongshi(cad)"
 				/>
-				<mat-autocomplete #auto="matAutocomplete" (optionSelected)="updateCadGongshi(cad)">
-					<mat-option *ngFor="let str of formulas" [value]="str">
-						{{ str }}
-					</mat-option>
-				</mat-autocomplete>
 			</mat-form-field>
 			<mat-form-field>
 				<mat-label>展开</mat-label>

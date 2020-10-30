@@ -1,0 +1,11 @@
+<div #consoleOuter class="console-outter" @console *ngIf="visible">
+	<div #consoleInner class="console-inner" (click)="setSelection()">
+		<div #contentEl contenteditable spellcheck="false" class="content hide-text" (input)="update()" (keydown)="onKeyDown($event)"></div>
+		<div #contentEl2 class="content" style="transform: translateY(-100%);">
+			<span class="cmd-correct" [innerHTML]="content.correct"></span>
+			<span class="cmd-agrs" [innerHTML]="content.args"></span>
+			<span class="cmd-wrong" [innerHTML]="content.wrong"></span>
+			<span class="cmd-hint" [innerHTML]="content.hint"></span>
+		</div>
+	</div>
+</div>

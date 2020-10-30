@@ -1,9 +1,9 @@
 import {Point} from "@app/utils";
+import {AnyObject, Nullable} from "@src/app/utils/types";
 import {Matrix, MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
 import {uniqWith, intersection, cloneDeep} from "lodash";
 import {v4} from "uuid";
-import {CadEntities} from "./cad-entities";
-import {CadLine, CadDimension, CadCircle} from "./cad-entity";
+import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
 import {CadLayer} from "./cad-layer";
 import {mergeArray, separateArray, getVectorFromArray, isLinesParallel} from "./utils";
 
@@ -34,11 +34,11 @@ export class CadData {
 	morenkailiaobancai: string;
 	suanliaochuli: "算料+显示展开+开料" | "算料+开料" | "算料+显示展开" | "算料";
 	showKuandubiaozhu: boolean;
-	info: {[key: string]: any};
+	info: AnyObject;
 	bancaihoudufangxiang: "none" | "gt0" | "lt0";
 	readonly visible: boolean;
 
-	constructor(data: any = {}) {
+	constructor(data: AnyObject = {}) {
 		if (typeof data !== "object") {
 			throw new Error("Invalid data.");
 		}
@@ -104,13 +104,13 @@ export class CadData {
 		this.updateDimensions();
 	}
 
-	export() {
+	export(): AnyObject {
 		this.updateBaseLines();
-		const exLayers = {};
+		const exLayers: AnyObject = {};
 		this.layers.forEach((v) => {
 			exLayers[v.id] = v.export();
 		});
-		const exOptions = {};
+		const exOptions: AnyObject = {};
 		this.options.forEach((v) => {
 			if (v.name) {
 				exOptions[v.name] = v.value;
@@ -175,7 +175,7 @@ export class CadData {
 		return result;
 	}
 
-	findChild(id: string): CadData {
+	findChild(id: string): Nullable<CadData> {
 		const children = [...this.partners, ...this.components.data];
 		for (const data of children) {
 			if (data.id === id) {
@@ -291,7 +291,7 @@ export class CadData {
 	}
 
 	addPartner(partner: CadData) {
-		let translate: Point;
+		let translate: Nullable<Point>;
 		for (const p1 of this.jointPoints) {
 			for (const p2 of partner.jointPoints) {
 				if (p1.name === p2.name) {
@@ -395,8 +395,8 @@ export class CadData {
 	assembleComponents(connection: CadConnection, accuracy = 1) {
 		const {ids, lines, space, position} = connection;
 		const components = this.components;
-		let c1: CadData;
-		let c2: CadData;
+		let c1: Nullable<CadData>;
+		let c2: Nullable<CadData>;
 		for (const c of components.data) {
 			if (c.id === ids[0] || c.id === ids[0]) {
 				c1 = c;
@@ -419,10 +419,10 @@ export class CadData {
 			c2 = c1;
 			c1 = new CadData();
 			c1.entities = this.entities;
-			lines.unshift(lines.pop());
-			ids.unshift(ids.pop());
+			lines.unshift(lines.pop() as string);
+			ids.unshift(ids.pop() as string);
 		}
-		let axis: "x" | "y";
+		let axis: Nullable<"x" | "y">;
 		const getLine = (e: CadCircle, l: CadLine) => {
 			const result = new CadLine();
 			result.start = e.center.clone();
@@ -442,22 +442,22 @@ export class CadData {
 				throw new Error("未找到对应实体");
 			}
 			const spaceNum = Number(space);
-			let l1: CadLine;
-			let l2: CadLine;
+			let l1: Nullable<CadLine>;
+			let l2: Nullable<CadLine>;
 			if (e1 instanceof CadLine) {
 				l1 = e1;
 			}
 			if (e2 instanceof CadLine) {
 				l2 = e2;
 			}
-			if (!l1 && !l2) {
-				throw new Error("至少需要一条直线");
-			}
-			if (!l1) {
+			if (!l1 && l2) {
 				l1 = getLine(e1 as CadCircle, l2);
 			}
-			if (!l2) {
+			if (!l2 && l1) {
 				l2 = getLine(e2 as CadCircle, l1);
+			}
+			if (!l1 || !l2) {
+				throw new Error("至少需要一条直线");
 			}
 			if (isLinesParallel([l1, l2], accuracy)) {
 				if (l1.isVertical(accuracy)) {
@@ -500,12 +500,15 @@ export class CadData {
 			}
 			const l1 = e1;
 			const l2 = e1;
-			let l3: CadLine;
+			let l3: Nullable<CadLine>;
 			if (e3 instanceof CadLine) {
 				l3 = e3;
 			}
 			if (e3 instanceof CadCircle) {
 				l3 = getLine(e3, l1);
+			}
+			if (!l3) {
+				throw new Error("缺少第三条线");
 			}
 			if (!isLinesParallel([l1, l2, l3], accuracy)) {
 				throw new Error("三条线必须相互平行");
@@ -538,10 +541,13 @@ export class CadData {
 			}
 		}
 
-		const toRemove = [];
+		const toRemove: number[] = [];
 		const connectedToC1: string[] = [];
 		const connectedToC2: string[] = [];
-		components.connections.forEach((conn) => {
+		if (!c1 || !c2) {
+			throw new Error("计算出错");
+		}
+		for (const conn of components.connections) {
 			if (conn.ids[0] === c1.id) {
 				connectedToC1.push(conn.ids[1]);
 			}
@@ -554,11 +560,15 @@ export class CadData {
 			if (conn.ids[1] === c2.id) {
 				connectedToC2.push(conn.ids[0]);
 			}
-		});
+		}
+		if (!axis) {
+			throw new Error("无法计算方向");
+		}
 		connection.axis = axis;
 		connection.space = connection.space ? connection.space : "0";
 		const connectedToBoth = intersection(connectedToC1, connectedToC2);
-		components.connections.forEach((conn, i) => {
+		for (let i = 0; i < components.connections.length; i++) {
+			const conn = components.connections[i];
 			const arr = intersection(conn.ids, [c1.id, c2.id, this.id]);
 			if (conn.ids.includes(c2.id) && intersection(conn.ids, connectedToBoth).length) {
 				toRemove.push(i);
@@ -566,7 +576,7 @@ export class CadData {
 			if (arr.length === 2 && conn.axis === axis) {
 				toRemove.push(i);
 			}
-		});
+		}
 		components.connections = components.connections.filter((v, i) => !toRemove.includes(i));
 		this.moveComponent(c2, translate, c1);
 		components.connections.push(cloneDeep(connection));
@@ -583,7 +593,7 @@ export class CadData {
 	}
 
 	moveComponent(curr: CadData, translate: Point, prev?: CadData) {
-		const map: object = {};
+		const map: AnyObject = {};
 		this.components.connections.forEach((conn) => {
 			if (conn.ids.includes(curr.id)) {
 				conn.ids.forEach((id) => {
@@ -632,8 +642,8 @@ export class CadData {
 
 	directAssemble(component: CadData, accuracy = 1) {
 		const findLines = (entities: CadEntities): {[key: string]: CadLine} => {
-			let hLine: CadLine;
-			let vLine: CadLine;
+			let hLine: Nullable<CadLine>;
+			let vLine: Nullable<CadLine>;
 			for (const l of entities.line) {
 				if (l.length <= accuracy) {
 					continue;
@@ -747,7 +757,7 @@ export class CadConnection {
 		this.axis = data.axis || "x";
 	}
 
-	export() {
+	export(): AnyObject {
 		return {
 			ids: this.ids,
 			names: this.names,
@@ -761,7 +771,7 @@ export class CadConnection {
 export class CadComponents {
 	data: CadData[];
 	connections: CadConnection[];
-	constructor(data: any = {}) {
+	constructor(data: AnyObject = {}) {
 		if (typeof data !== "object") {
 			throw new Error("Invalid data.");
 		}
@@ -778,6 +788,9 @@ export class CadComponents {
 	transform(matrix: MatrixExtract | MatrixTransformParam) {
 		const m = new Matrix(matrix);
 		const {scaleX, scaleY} = m.decompose();
+		if (scaleX === undefined || scaleY === undefined) {
+			return;
+		}
 		this.connections.forEach((v) => {
 			if ((scaleX < 0 && v.axis === "x") || (scaleY && v.axis === "y")) {
 				const space = -Number(v.space);
@@ -789,10 +802,11 @@ export class CadComponents {
 		this.data.forEach((v) => v.transform(matrix));
 	}
 
-	export() {
-		const result = {data: [], connections: []};
-		this.data.forEach((v) => result.data.push(v.export()));
-		this.connections.forEach((v) => result.connections.push(v.export()));
-		return result;
+	export(): AnyObject {
+		const data: any[] = [];
+		const connections: any[] = [];
+		this.data.forEach((v) => data.push(v.export()));
+		this.connections.forEach((v) => connections.push(v.export()));
+		return {data, connections};
 	}
 }

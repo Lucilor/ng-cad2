@@ -1,38 +1,45 @@
-import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
-import {CadViewerConfig} from "@app/cad-viewer/cad-viewer";
-import {generatePointsMap, validateLines, setLinesLength, autoFixLine, CadLineLike, validColors} from "@app/cad-viewer/cad-data/cad-lines";
-import {Point} from "@app/utils";
-import {MatSelectChange} from "@angular/material/select";
-import {linewidth2lineweight, lineweight2linewidth} from "@app/cad-viewer/cad-data/utils";
-import {MenuComponent} from "../menu.component";
-import {CadPointsAction, CommandAction} from "@app/store/actions";
-import {getCadPoints, getCadStatus, getCurrCads, getCurrCadsData} from "@app/store/selectors";
-import {takeUntil} from "rxjs/operators";
-import {CadData} from "@app/cad-viewer/cad-data/cad-data";
-import {State} from "@app/store/state";
+import {Component, OnInit, OnDestroy} from "@angular/core";
 import {ErrorStateMatcher} from "@angular/material/core";
-import Color from "color";
-import {CadLine, CadArc, CadMtext} from "@app/cad-viewer/cad-data/cad-entity";
-import {throttle} from "lodash";
-import {getPointsFromMap, globalVars} from "@app/app.common";
-import {openCadLineTiaojianquzhiDialog} from "../cad-line-tiaojianquzhi/cad-line-tiaojianquzhi.component";
-import {openMessageDialog} from "../../message/message.component";
+import {MatDialog} from "@angular/material/dialog";
+import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadLine, CadArc, CadMtext} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {
+	CadLineLike,
+	validColors,
+	setLinesLength,
+	generatePointsMap,
+	validateLines,
+	autoFixLine
+} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
+import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
+import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
+import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
+import {MessageService} from "@src/app/modules/message/services/message.service";
+import {AppConfigService} from "@src/app/services/app-config.service";
+import {AppStatusService} from "@src/app/services/app-status.service";
+import {Point} from "@src/app/utils";
+import {Nullable} from "@src/app/utils/types";
+import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
+import Color from "color";
+import {debounce} from "lodash";
+import {openCadLineTiaojianquzhiDialog} from "../../dialogs/cad-line-tjqz/cad-line-tjqz.component";
 
 @Component({
 	selector: "app-cad-line",
 	templateUrl: "./cad-line.component.html",
 	styleUrls: ["./cad-line.component.scss"]
 })
-export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy {
+export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy {
 	focusedField = "";
-	editDiabled = true;
-	lineDrawing: {start: Point; end: Point; entity?: CadLine};
-	data: CadData;
-	cadStatusName: State["cadStatus"]["name"];
-	inputErrors: {gongshi: string; guanlianbianhuagongshi: string} = {
-		gongshi: null,
-		guanlianbianhuagongshi: null
+	editDiabled = false;
+	lineDrawing: Nullable<{start?: Point; end?: Point; entity?: CadLine}>;
+	data: Nullable<CadData>;
+	inputErrors: {gongshi: string | false; guanlianbianhuagongshi: string | false} = {
+		gongshi: false,
+		guanlianbianhuagongshi: false
 	};
 	gongshiMatcher: ErrorStateMatcher = {
 		isErrorState: () => {
@@ -46,10 +53,15 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	};
 	selected: CadLineLike[] = [];
 
+	get cadStatusName() {
+		return this.status.cadStatus("name");
+	}
+
 	readonly selectableColors = {a: validColors};
 
-	onPointerMove = (async ({clientX, clientY, shiftKey}: MouseEvent) => {
-		const {cad, lineDrawing} = this;
+	private onPointerMove = (async ({clientX, clientY, shiftKey}: MouseEvent) => {
+		const {lineDrawing} = this;
+		const cad = this.status.cad;
 		if (!lineDrawing?.start) {
 			return;
 		}
@@ -69,82 +81,83 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		} else {
 			entity = new CadLine({...lineDrawing});
 			lineDrawing.entity = entity;
-			this.data.entities.add(entity);
-			this.cad.render(entity);
+			this.data?.entities.add(entity);
+			cad.render(entity);
 			entity.opacity = 0.6;
 			entity.selectable = false;
 		}
 		cad.render(entity);
 	}).bind(this);
 
-	onClick = (() => {
-		const {store, lineDrawing, cad} = this;
+	private onClick = (() => {
+		const {lineDrawing} = this;
+		const cad = this.status.cad;
 		const entity = lineDrawing?.entity;
 		if (!entity) {
 			return;
 		}
-		setLinesLength(this.cad.data, [entity], Math.round(entity.length));
+		setLinesLength(cad.data, [entity], Math.round(entity.length));
 		cad.render(entity);
 		// this.lineDrawing.entity=null
 		entity.opacity = 1;
 		entity.selectable = true;
-		this.lineDrawing = {start: null, end: null};
-		const points = getPointsFromMap(cad, generatePointsMap(this.data.getAllEntities()));
-		store.dispatch<CadPointsAction>({type: "set cad points", points});
+		this.lineDrawing = {};
+		this.status.setCadPoints(generatePointsMap(this.data?.getAllEntities()));
 	}).bind(this);
 
-	onEntitiesChange = (() => {
-		const {line, arc} = this.cad.selected();
+	private onEntitiesChange = (() => {
+		const {line, arc} = this.status.cad.selected();
 		const selected = [...line, ...arc];
 		this.selected = selected;
 		selected.forEach((e) => {
 			if (e instanceof CadLine) {
-				["gongshi", "guanlianbianhuagongshi"].forEach((v) => this.validateLineText(v, e[v]));
+				["gongshi", "guanlianbianhuagongshi"].forEach((v) => this.validateLineText(v, e[v as keyof CadLine] as string));
 			}
 		});
 		if (selected.length < 1) {
 			this.editDiabled = true;
 		} else {
-			const cads = this.cad.data.components.data;
+			const cads = this.status.cad.data.components.data;
 			const ids: string[] = [];
 			cads.forEach((v) => v.entities.forEach((vv) => ids.push(vv.id)));
 			this.editDiabled = !selected.every((e) => ids.includes(e.id));
 		}
 	}).bind(this);
 
-	constructor(injector: Injector) {
-		super(injector);
+	constructor(
+		private status: AppStatusService,
+		private config: AppConfigService,
+		private console: CadConsoleService,
+		private dialog: MatDialog,
+		private message: MessageService
+	) {
+		super();
 	}
 
 	ngOnInit() {
-		super.ngOnInit();
-		const cad = this.cad;
+		const cad = this.status.cad;
 
-		this.getObservable(getCurrCads).subscribe((currCads) => {
-			const cads = getCurrCadsData(this.cad.data, currCads);
-			if (cads.length === 1) {
-				this.data = cads[0];
-			} else {
-				this.data = null;
-			}
+		this.subscribe(this.status.selectedCads$, () => {
+			const cads = this.status.getFlatSelectedCads();
+			this.data = cads.length === 1 ? cads[0] : null;
 		});
 
 		let prevSelectMode: CadViewerConfig["selectMode"];
-		this.getObservable(getCadStatus).subscribe(({name}) => {
-			const {cad, store, data} = this;
-			this.cadStatusName = name;
+		this.subscribe(this.status.cadStatus$, (cadStatus) => {
+			const name = cadStatus.name;
+			const {data} = this;
+			const cad = this.status.cad;
 			if (name === "drawLine") {
-				const points = getPointsFromMap(cad, generatePointsMap(data.getAllEntities()));
-				store.dispatch<CadPointsAction>({type: "set cad points", points});
+				this.status.setCadPoints(generatePointsMap(data?.getAllEntities()));
 				cad.traverse((e) => {
 					e.info.prevSelectable = e.selectable;
 					e.selectable = false;
 				});
 				prevSelectMode = cad.config("selectMode");
 				cad.config("selectMode", "none");
-				this.lineDrawing = {start: null, end: null};
+				this.lineDrawing = {};
 			} else if (this.lineDrawing) {
-				store.dispatch<CadPointsAction>({type: "set cad points", points: []});
+				this.status.setCadPoints([]);
 				cad.remove(this.lineDrawing.entity);
 				cad.traverse((e) => {
 					e.selectable = e.info.prevSelectable ?? true;
@@ -157,19 +170,19 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 				this.lineDrawing = null;
 			}
 		});
-		const cadPoints = this.store.select(getCadPoints);
-		cadPoints.pipe(takeUntil(this.destroyed)).subscribe(async (points) => {
-			const index = points.findIndex((v) => v.active);
-			const point = points[index];
-			const {name} = await this.getObservableOnce(getCadStatus);
+		this.subscribe(this.status.cadPoints$, (cadPoints) => {
+			const index = cadPoints.findIndex((v) => v.active);
+			const point = cadPoints[index];
+			const name = this.status.cadStatus("name");
 			if (!point || name !== "drawLine") {
 				return;
 			}
 			const start = cad.getWorldPoint(point.x, point.y);
-			this.lineDrawing = {start, end: null};
-			this.store.dispatch<CadPointsAction>({type: "set cad points", points: []});
+			this.lineDrawing = {start};
+			this.status.setCadPoints([]);
 		});
 
+		this.onEntitiesChange();
 		cad.on("pointermove", this.onPointerMove);
 		cad.on("click", this.onClick);
 		cad.on("entitiesselect", this.onEntitiesChange);
@@ -180,7 +193,7 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 
 	ngOnDestroy() {
 		super.ngOnDestroy();
-		const cad = this.cad;
+		const cad = this.status.cad;
 		cad.off("pointermove", this.onPointerMove);
 		cad.off("click", this.onClick);
 		cad.off("entitiesselect", this.onEntitiesChange);
@@ -202,8 +215,9 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		return "";
 	}
 
-	setLineLength(event: InputEvent) {
-		const {selected, cad} = this;
+	setLineLength(event: Event) {
+		const {selected} = this;
+		const cad = this.status.cad;
 		const lines = selected.filter((v) => v instanceof CadLine) as CadLine[];
 		setLinesLength(cad.data, lines, Number((event.target as HTMLInputElement).value));
 		if (cad.config("validateLines")) {
@@ -226,19 +240,19 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		return "#ffffff";
 	}
 
-	setLineColor(event: MatSelectChange) {
-		const color = parseInt(event.value.slice(1, 7), 16);
+	setLineColor(event: ColorPickerEventArgs) {
+		const color = parseInt(event.currentValue.hex.slice(1, 7), 16);
 		this.selected.forEach((e) => (e.color = new Color(color)));
-		this.cad.render();
+		this.status.cad.render();
 	}
 
 	getLineText(field: string) {
 		const lines = this.selected;
 		if (lines.length === 1) {
-			return lines[0][field] as string;
+			return (lines as any)[0][field] as string;
 		}
 		if (lines.length) {
-			const texts = Array.from(new Set(lines.map((l) => l[field] as string)));
+			const texts = Array.from(new Set(lines.map((l: any) => l[field] as string)));
 			if (texts.length === 1) {
 				return texts[0];
 			}
@@ -248,8 +262,8 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	}
 
 	// eslint-disable-next-line @typescript-eslint/member-ordering
-	setLineText = throttle((event: InputEvent | MatSelectChange | Event, field: string) => {
-		let value: string;
+	setLineText = debounce((event: InputEvent | MatSelectChange | Event, field: string) => {
+		let value = "";
 		if (event instanceof MatSelectChange) {
 			value = event.value;
 		} else if (event instanceof InputEvent || event instanceof Event) {
@@ -259,19 +273,19 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 			this.selected.forEach((e) => {
 				if (field === "lengthTextSize") {
 					e[field] = Number(value);
-					this.cad.render(e);
+					this.status.cad.render(e);
 				} else {
 					if (e instanceof CadLine) {
 						if (field === "zidingzhankaichang") {
 							e[field] = Number(value);
 						} else {
-							e[field] = value;
+							(e as any)[field] = value;
 							if (field === "gongshi") {
 								const gongshiText = e.children.find((c) => c.info.isGongshiText);
 								if (gongshiText instanceof CadMtext) {
 									gongshiText.text = value;
 								}
-								this.cad.render(e);
+								this.status.cad.render(e);
 							}
 						}
 					}
@@ -282,21 +296,21 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 
 	validateLineText(field: string, value: string) {
 		if (field === "gongshi") {
-			if (globalVars.collection === "cad" && value.match(/[-+*/()（）]/)) {
+			if (this.config.config("collection") === "cad" && value.match(/[-+*/()（）]/)) {
 				this.inputErrors.gongshi = "不能使用四则运算";
 				return false;
 			} else if (value.includes("变化值")) {
 				this.inputErrors.gongshi = "公式不能包含变化值";
 				return false;
 			} else {
-				this.inputErrors.gongshi = null;
+				this.inputErrors.gongshi = false;
 			}
 		} else if (field === "guanlianbianhuagongshi") {
 			if (value && !value.includes("变化值")) {
 				this.inputErrors.guanlianbianhuagongshi = "关联变化公式必须包含变化值";
 				return false;
 			} else {
-				this.inputErrors.guanlianbianhuagongshi = null;
+				this.inputErrors.guanlianbianhuagongshi = false;
 			}
 		}
 		return true;
@@ -317,23 +331,24 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 		return "";
 	}
 
-	setLinewidth(event: InputEvent) {
+	setLinewidth(event: Event) {
 		this.selected.forEach((entity) => {
 			const width = Number((event.target as HTMLInputElement).value);
 			entity.linewidth = lineweight2linewidth(width);
 		});
-		this.cad.render();
+		this.status.cad.render();
 	}
 
 	drawLine() {
-		this.store.dispatch<CommandAction>({type: "execute", command: {name: "draw-line", args: []}});
+		this.console.execute("draw-line");
 	}
 
 	autoFix() {
-		const {selected, cad} = this;
+		const {selected} = this;
+		const cad = this.status.cad;
 		selected.forEach((e) => {
 			if (e instanceof CadLine) {
-				autoFixLine(this.cad, e);
+				autoFixLine(cad, e);
 			}
 		});
 		if (cad.config("validateLines")) {
@@ -345,9 +360,9 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 	async editTiaojianquzhi() {
 		const lines = this.selected.filter((v) => v instanceof CadLine) as CadLine[];
 		if (lines.length < 1) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "请先选中一条直线"}});
+			this.message.alert("请先选中一条直线");
 		} else if (lines.length > 1) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "无法同时编辑多根线的条件取值"}});
+			this.message.alert("无法同时编辑多根线的条件取值");
 		} else {
 			openCadLineTiaojianquzhiDialog(this.dialog, {data: lines[0]});
 		}
@@ -359,6 +374,6 @@ export class CadLineComponent extends MenuComponent implements OnInit, OnDestroy
 
 	setHideLength(event: MatSlideToggleChange) {
 		this.selected.forEach((v) => (v.hideLength = event.checked));
-		this.cad.render(this.selected);
+		this.status.cad.render(this.selected);
 	}
 }

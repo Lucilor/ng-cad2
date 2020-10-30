@@ -1,38 +1,39 @@
-import {Component, OnInit, OnDestroy, Injector} from "@angular/core";
+import {Component, OnInit, OnDestroy} from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
-import {CadEntities} from "@app/cad-viewer/cad-data/cad-entities";
-import {CadLine, CadDimension} from "@app/cad-viewer/cad-data/cad-entity";
+import {CadDimension, CadEntities, CadLine} from "@app/cad-viewer/cad-data/cad-entities";
 import {CadViewerConfig} from "@app/cad-viewer/cad-viewer";
-import {CadStatusAction} from "@app/store/actions";
-import {getCadStatus} from "@app/store/selectors";
+import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
+import {AppStatusService} from "@src/app/services/app-status.service";
+import {Nullable} from "@src/app/utils/types";
 import Color from "color";
-import {throttle} from "lodash";
-import {openCadDimensionDialog} from "../cad-dimension-form/cad-dimension-form.component";
-import {MenuComponent} from "../menu.component";
+import {debounce} from "lodash";
+import {openCadDimensionFormDialog} from "../../dialogs/cad-dimension-form/cad-dimension-form.component";
 
 @Component({
 	selector: "app-cad-dimension",
 	templateUrl: "./cad-dimension.component.html",
 	styleUrls: ["./cad-dimension.component.scss"]
 })
-export class CadDimensionComponent extends MenuComponent implements OnInit, OnDestroy {
+export class CadDimensionComponent extends Subscribed() implements OnInit, OnDestroy {
 	dimNameFocus = -1;
-	dimLineSelecting: number = null;
-	prevConfig: CadViewerConfig = null;
+	dimLineSelecting = -1;
+	prevConfig: Nullable<CadViewerConfig> = null;
+	dimensions: CadDimension[] = [];
 
-	get dimensions() {
-		return this.cad.data.getAllEntities().dimension;
-	}
+	private updateDimensions = (() => {
+		this.dimensions = this.status.cad.data.getAllEntities().dimension;
+	}).bind(this);
 
-	onEntitiesClick = (async (_event: PointerEvent, entities: CadEntities) => {
-		const cad = this.cad;
+	onEntitiesClick = ((_event: null, entities?: CadEntities) => {
+		const cad = this.status.cad;
 		const data = cad.data.components.data;
-		const {name, index} = await this.getObservableOnce(getCadStatus);
+		const {name, index} = this.status.cadStatus();
 		const dimensions = this.dimensions;
-		const entity = entities.line[0];
+		const entity = entities?.line[0];
 		if (name === "editDimension" && entity) {
-			let thatData: CadData;
-			let thatIndex: number;
+			let thatData: Nullable<CadData>;
+			let thatIndex = -1;
 			cad.data.components.data.some((d, i) => {
 				if (d.findEntity(entity.id)) {
 					thatData = d;
@@ -41,6 +42,9 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				}
 				return false;
 			});
+			if (thatIndex < 0 || !thatData) {
+				return;
+			}
 			for (const d of cad.data.components.data) {
 				if (d.findEntity(entity.id)) {
 					thatData = d;
@@ -56,7 +60,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 					newIndex += data[i].entities.dimension.length;
 				}
 				newIndex += thatData.entities.dimension.push(dimension) - 1;
-				this.store.dispatch<CadStatusAction>({type: "set cad status", index: newIndex});
+				this.status.cadStatus("index", newIndex);
 			}
 			if (!dimension.entity1.id) {
 				dimension.entity1 = {id: entity.originalId, location: "start"};
@@ -87,14 +91,14 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 		}
 	}).bind(this);
 
-	constructor(injector: Injector) {
-		super(injector);
+	constructor(private status: AppStatusService, private dialog: MatDialog) {
+		super();
 	}
 
 	ngOnInit() {
-		super.ngOnInit();
-		this.getObservable(getCadStatus).subscribe(({name, index}) => {
-			const cad = this.cad;
+		this.subscribe(this.status.cadStatus$, (cadStatus) => {
+			const {name, index} = cadStatus;
+			const cad = this.status.cad;
 			if (name === "editDimension") {
 				const dimension = this.dimensions[index];
 				this.updateDimLines(dimension);
@@ -111,8 +115,8 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 					this.prevConfig = cad.config();
 					cad.config({hideLineLength: true, lineGongshi: 0, selectMode: "single"});
 				}
-			} else if (this.dimLineSelecting !== null) {
-				this.dimLineSelecting = null;
+			} else if (this.dimLineSelecting >= 0) {
+				this.dimLineSelecting = -1;
 				cad.traverse((e) => {
 					if (!(e instanceof CadLine)) {
 						e.selectable = e.info.prevSelectable ?? true;
@@ -127,22 +131,30 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 				}
 			}
 		});
-		this.cad.on("entitiesselect", this.onEntitiesClick);
+		
+		this.updateDimensions();
+		const cad = this.status.cad;
+		cad.on("entitiesselect", this.onEntitiesClick);
+		cad.on("entitiesadd", this.updateDimensions);
+		cad.on("entitiesremove", this.updateDimensions);
+		cad.on("render", this.updateDimensions);
 	}
 
 	ngOnDestroy() {
 		super.ngOnDestroy();
-		this.cad.off("entitiesselect", this.onEntitiesClick);
+		const cad = this.status.cad;
+		cad.off("entitiesselect", this.onEntitiesClick);
+		cad.off("entitiesadd", this.updateDimensions);
+		cad.off("entitiesremove", this.updateDimensions);
+		cad.off("render", this.updateDimensions);
 	}
 
-	editDimension(i: number) {
-		const {cad, dimensions: data} = this;
-		const ref = openCadDimensionDialog(this.dialog, {data: {data: data[i]}, disableClose: true});
-		ref.afterClosed().subscribe((dimension) => {
-			if (dimension) {
-				cad.render();
-			}
-		});
+	async editDimension(i: number) {
+		const dimensions = this.dimensions;
+		const dimension = await openCadDimensionFormDialog(this.dialog, {data: {data: dimensions[i]}, disableClose: true});
+		if (dimension) {
+			this.status.cad.render();
+		}
 	}
 
 	getDimensionName(dimension: CadDimension, index: number) {
@@ -154,23 +166,23 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	}
 
 	// eslint-disable-next-line @typescript-eslint/member-ordering
-	setDimensionName = throttle((event: InputEvent, dimension: CadDimension) => {
+	setDimensionName = debounce((event: Event, dimension: CadDimension) => {
 		const str = (event.target as HTMLInputElement).value;
 		dimension.mingzi = str;
-		this.cad.render(dimension);
+		this.status.cad.render(dimension);
 	}, 500);
 
-	async isSelectingDimLine(i: number) {
-		const {name, index} = await this.getObservableOnce(getCadStatus);
+	isSelectingDimLine(i: number) {
+		const {name, index} = this.status.cadStatus();
 		return name === "editDimension" && index === i;
 	}
 
 	async selectDimLine(index: number) {
-		const cadStatus = await this.getObservableOnce(getCadStatus);
+		const cadStatus = this.status.cadStatus();
 		if (cadStatus.name === "editDimension" && cadStatus.index === index) {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+			this.status.cadStatus("name", "normal");
 		} else {
-			this.store.dispatch<CadStatusAction>({type: "set cad status", name: "editDimension", index});
+			this.status.cadStatus({name: "editDimension", index});
 		}
 	}
 
@@ -179,7 +191,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 	}
 
 	removeDimension(index: number) {
-		this.cad.remove(this.dimensions[index]);
+		this.status.cad.remove(this.dimensions[index]);
 	}
 
 	updateDimLines(dimension?: CadDimension) {
@@ -187,7 +199,7 @@ export class CadDimensionComponent extends MenuComponent implements OnInit, OnDe
 			return;
 		}
 		const {entity1, entity2} = dimension;
-		this.cad
+		this.status.cad
 			.traverse((e) => {
 				if (e instanceof CadLine) {
 					e.selectable = true;

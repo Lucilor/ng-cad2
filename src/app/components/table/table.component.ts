@@ -1,36 +1,35 @@
 import {SelectionModel} from "@angular/cdk/collections";
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
-import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatSort} from "@angular/material/sort";
 import {MatTable, MatTableDataSource} from "@angular/material/table";
-import {downloadFile} from "@src/app/app.common";
-import {cloneDeep, throttle} from "lodash";
-import {openMessageDialog} from "../message/message.component";
+import {MessageService} from "@src/app/modules/message/services/message.service";
+import {downloadFile} from "@src/app/utils";
+import {cloneDeep, debounce} from "lodash";
 
-export interface ColumnInfoBase {
-	field: string;
+export interface ColumnInfoBase<T> {
+	field: keyof T;
 	name: string;
 	width?: string;
 	editable?: boolean;
 }
 
-export interface ColumnInfoNormal extends ColumnInfoBase {
+export interface ColumnInfoNormal<T> extends ColumnInfoBase<T> {
 	type: "string" | "number" | "boolean" | "checkbox";
 }
 
-export interface ColumnInfoSelect extends ColumnInfoBase {
+export interface ColumnInfoSelect<T> extends ColumnInfoBase<T> {
 	type: "select";
 	options: string[];
 }
 
-export interface ColumnInfoButton extends ColumnInfoBase {
+export interface ColumnInfoButton<T> extends ColumnInfoBase<T> {
 	type: "button";
 	buttons: {name: string; event: string}[];
 }
 
-export type ColumnInfo = ColumnInfoNormal | ColumnInfoSelect | ColumnInfoButton;
+export type ColumnInfo<T> = ColumnInfoNormal<T> | ColumnInfoSelect<T> | ColumnInfoButton<T>;
 
 export type TableErrorState = {rows: number[]; msg: string}[];
 
@@ -38,14 +37,14 @@ export type TableValidator<T> = (data: MatTableDataSource<T>) => TableErrorState
 
 export interface RowButtonEvent<T> {
 	name: string;
-	field: string;
+	field: keyof T;
 	item: T;
 	colIdx: number;
 	rowIdx: number;
 }
 
 export interface CellEvent<T> {
-	field: string;
+	field: keyof T;
 	item: T;
 	colIdx: number;
 	rowIdx: number;
@@ -57,37 +56,40 @@ export interface CellEvent<T> {
 	styleUrls: ["./table.component.scss"]
 })
 export class TableComponent<T> implements OnInit, AfterViewInit {
-	@Input() data: MatTableDataSource<T>;
-	@Input() columns: ColumnInfo[];
-	@Input() newItem: T;
-	@Input() title: string;
+	@Input() data = new MatTableDataSource<T>();
+	@Input() columns: ColumnInfo<T>[] = [];
+	@Input() newItem?: T;
+	@Input() title = "";
 	@Input() checkBoxSize = 40;
-	@Input() editable: string | boolean;
-	@Input() validator: TableValidator<T>;
+	@Input() editable: string | boolean = true;
+	@Input() validator?: TableValidator<T>;
 	@Output() rowButtonClick = new EventEmitter<RowButtonEvent<T>>();
 	@Output() cellFocus = new EventEmitter<CellEvent<T>>();
 	@Output() cellBlur = new EventEmitter<CellEvent<T>>();
 	@Output() cellChange = new EventEmitter<CellEvent<T>>();
 	selection = new SelectionModel<T>(true, []);
-	columnFields: string[];
-	@ViewChild(MatTable) table: MatTable<T>;
-	@ViewChild(MatSort) sort: MatSort;
-	@ViewChild("input", {read: ElementRef}) input: ElementRef<HTMLInputElement>;
-	errorState: TableErrorState;
+	columnFields: (keyof T | "select")[] = [];
+	@ViewChild(MatTable) table?: MatTable<T>;
+	@ViewChild(MatSort) sort?: MatSort;
+	@ViewChild("input", {read: ElementRef}) input?: ElementRef<HTMLInputElement>;
+	errorState: TableErrorState = [];
 
 	editing: {colIdx: number; rowIdx: number; value: string};
 
-	constructor(private dialog: MatDialog) {}
+	constructor(private message: MessageService) {
+		this.editing = {colIdx: -1, rowIdx: -1, value: ""};
+	}
 
 	ngOnInit() {
 		this.columnFields = ["select", ...this.columns.map((v) => v.field)];
-		this.editing = {colIdx: -1, rowIdx: -1, value: ""};
 		this.validate();
 	}
 
 	ngAfterViewInit() {
-		this.data.sort = this.sort;
-		this.input.nativeElement.onchange = this.onInputChange.bind(this);
+		if (this.input) {
+			this.input.nativeElement.onchange = this.onInputChange.bind(this);
+		}
+		this.data.sort = this.sort || null;
 	}
 
 	isAllSelected() {
@@ -107,6 +109,10 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	}
 
 	addItem(index?: number) {
+		if (!this.newItem) {
+			console.warn("no newItem to add");
+			return;
+		}
 		if (typeof index !== "number") {
 			index = Infinity;
 		}
@@ -136,18 +142,18 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/member-ordering
-	setCellValue = throttle((event: InputEvent | MatSelectChange | MatSlideToggleChange, colIdx: number, rowIdx: number, item: T) => {
+	setCellValue = debounce((event: Event | MatSelectChange | MatSlideToggleChange, colIdx: number, rowIdx: number, item: T) => {
 		const {field, type} = this.columns[colIdx];
 		if (event instanceof MatSelectChange) {
 			item[field] = event.value;
 		} else if (event instanceof MatSlideToggleChange) {
-			item[field] = event.checked;
+			item[field] = event.checked as any;
 		} else {
 			const value = (event.target as HTMLInputElement).value;
 			if (type === "number") {
-				item[field] = Number(value);
+				item[field] = Number(value) as any;
 			} else {
-				item[field] = value;
+				item[field] = value as any;
 			}
 		}
 		this.validate();
@@ -164,7 +170,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 		this.cellBlur.emit({field, item, colIdx, rowIdx});
 	}
 
-	onRowButtonClick(name: string, field: string, item: T, colIdx: number, rowIdx: number) {
+	onRowButtonClick(name: string, field: keyof T, item: T, colIdx: number, rowIdx: number) {
 		this.rowButtonClick.emit({name, field, item, colIdx, rowIdx});
 	}
 
@@ -173,26 +179,29 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 	}
 
 	import() {
-		this.input.nativeElement.click();
+		this.input?.nativeElement.click();
 	}
 
 	async onInputChange() {
-		const file = this.input.nativeElement.files[0];
+		if (!this.input) {
+			return;
+		}
+		const file = this.input.nativeElement.files?.[0];
 		if (!file) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "没有选择文件"}});
+			this.message.alert("没有选择文件");
 			return;
 		}
 		const text = await file.text();
 		try {
 			this.data.data = JSON.parse(text);
 		} catch (error) {
-			openMessageDialog(this.dialog, {data: {type: "alert", content: "读取文件失败"}});
+			this.message.alert("读取文件失败");
 		} finally {
 			this.input.nativeElement.value = "";
 		}
 	}
 
-	isColumnEditable(column: ColumnInfo) {
+	isColumnEditable(column: ColumnInfo<T>) {
 		const {type, editable} = column;
 		if (type === "button") {
 			return true;
@@ -200,12 +209,18 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 		return (typeof this.editable === "string" || this.editable) && editable;
 	}
 
-	getColumnOptions(column: ColumnInfoSelect) {
-		return column.options;
+	getColumnOptions(column: ColumnInfo<T>) {
+		if (column.type === "select") {
+			return column.options;
+		}
+		return [];
 	}
 
-	getColumnButtons(column: ColumnInfoButton) {
-		return column.buttons;
+	getColumnButtons(column: ColumnInfo<T>) {
+		if (column.type === "button") {
+			return column.buttons;
+		}
+		return [];
 	}
 
 	validate() {
@@ -223,5 +238,9 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 			}
 		}
 		return true;
+	}
+
+	toTypeString(str: any) {
+		return str as string;
 	}
 }

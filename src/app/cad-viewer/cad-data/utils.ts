@@ -1,5 +1,5 @@
 import {Point} from "@app/utils";
-import {CadLine} from "./cad-entity";
+import {CadLine} from "./cad-entities";
 
 export function getVectorFromArray(data: number[] | Point, defaultVal = new Point()) {
 	if (data instanceof Point) {
@@ -28,8 +28,8 @@ export function isLinesParallel(lines: CadLine[], accurary = 0) {
 
 export function mergeArray<T>(arr1: T[], arr2: T[], field?: string) {
 	if (field) {
-		const keys = arr1.map((v) => v[field]);
-		arr2.forEach((v) => {
+		const keys: string[] = arr1.map((v: any) => v[field]);
+		arr2.forEach((v: any) => {
 			const idx = keys.indexOf(v[field]);
 			if (idx === -1) {
 				arr1.push(v);
@@ -45,8 +45,8 @@ export function mergeArray<T>(arr1: T[], arr2: T[], field?: string) {
 
 export function separateArray<T>(arr1: T[], arr2: T[], field?: string) {
 	if (field) {
-		const keys = arr2.map((v) => v[field]);
-		arr1 = arr1.filter((v) => !keys.includes(v[field]));
+		const keys = arr2.map((v: any) => v[field]);
+		arr1 = arr1.filter((v: any) => !keys.includes(v[field]));
 	} else {
 		arr1 = arr1.filter((v) => !arr2.includes(v));
 	}

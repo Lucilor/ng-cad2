@@ -1,5 +1,6 @@
 import {Matrix, MatrixExtract, MatrixTransformParam, Point as P} from "@svgdotjs/svg.js";
 import {Line} from "..";
+import {Nullable} from "../types";
 import {DEFAULT_TOLERANCE} from "./constants";
 
 export class Point {
@@ -18,6 +19,8 @@ export class Point {
 		} else if (typeof x?.x === "number" && typeof x?.y === "number") {
 			this.x = x.x;
 			this.y = x.y;
+		} else {
+			this.x = this.y = 0;
 		}
 	}
 
@@ -87,8 +90,11 @@ export class Point {
 		return new Point(this.x, this.y);
 	}
 
-	copy({x, y}: Point) {
-		return this.set(x, y);
+	copy(point: Nullable<Point>) {
+		if (!point) {
+			return this;
+		}
+		return this.set(point.x, point.y);
 	}
 
 	flip(vertical = false, horizontal = false, anchor = new Point(0)) {

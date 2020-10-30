@@ -1,7 +1,7 @@
 <form [class.not-allowed]="selected.length < 1">
 	<div class="not-allowed-area" *ngIf="selected.length < 1"></div>
 	<button hidden></button>
-	<div class="form-item length">
+	<div class="form-item text">
 		<mat-form-field>
 			<mat-label>内容</mat-label>
 			<textarea
@@ -35,7 +35,7 @@
 			<input matInput ejs-colorpicker type="color" [enableOpacity]="false" [value]="getColor()" (change)="setColor($event)" />
 		</mat-form-field>
 	</div>
-	<div class="form-item font-size">
+	<div class="form-item font-anchor">
 		<mat-form-field floatLabel="always">
 			<mat-label>锚点</mat-label>
 			<input matInput type="text" placeholder="请选择锚点" [value]="getAnchor()" name="anchor" readonly />

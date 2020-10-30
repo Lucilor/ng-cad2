@@ -3,19 +3,19 @@ import {EventEmitter} from "events";
 import {cloneDeep} from "lodash";
 import {Point} from "@app/utils";
 import {CadData} from "./cad-data/cad-data";
-import {CadEntities} from "./cad-data/cad-entities";
-import {CadEntity, CadArc, CadCircle, CadDimension, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entity";
+import {CadArc, CadCircle, CadDimension, CadEntities, CadEntity, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entities";
 import {CadType} from "./cad-data/cad-types";
 import {getVectorFromArray} from "./cad-data/utils";
 import {CadStyle, CadStylizer} from "./cad-stylizer";
 import {CadEvents, controls} from "./cad-viewer-controls";
 import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText} from "./draw";
+import {Nullable} from "../utils/types";
 
 export interface CadViewerConfig {
 	width: number; // 宽
 	height: number; // 高
 	backgroundColor: string; // 背景颜色, 写法与css相同
-	padding: number[] | number; // 内容居中时的内边距, 写法与css相同
+	padding: number[]; // 内容居中时的内边距, 写法与css相同
 	reverseSimilarColor: boolean; // 实体颜色与背景颜色相近时是否反相
 	validateLines: boolean; // 是否验证线段
 	selectMode: "none" | "single" | "multiple"; // 实体选取模式
@@ -26,15 +26,15 @@ export interface CadViewerConfig {
 	hideLineLength: boolean; // 是否隐藏线长度(即使lineLength>0)
 	hideLineGongshi: boolean; // 是否隐藏线公式(即使lineGongshi>0)
 	minLinewidth: number; // 所有线的最小宽度(调大以便选中)
-	fontFamily: string;
+	fontFamily: string; // 设置字体
 }
 
-function getConfigProxy(config?: Partial<CadViewerConfig>) {
+function getConfigProxy(config: Partial<CadViewerConfig> = {}) {
 	const defalutConfig: CadViewerConfig = {
 		width: 300,
 		height: 150,
 		backgroundColor: "white",
-		padding: 0,
+		padding: [0],
 		reverseSimilarColor: true,
 		validateLines: false,
 		selectMode: "multiple",
@@ -49,7 +49,7 @@ function getConfigProxy(config?: Partial<CadViewerConfig>) {
 	};
 	for (const key in config) {
 		if (key in defalutConfig) {
-			defalutConfig[key] = config[key];
+			(defalutConfig as any)[key] = config[key as keyof CadViewerConfig];
 		}
 	}
 	return new Proxy(defalutConfig, {
@@ -70,7 +70,7 @@ function getConfigProxy(config?: Partial<CadViewerConfig>) {
 				}
 			}
 			if (key in target) {
-				target[key] = value;
+				(target as any)[key] = value;
 				return true;
 			}
 			return false;
@@ -85,7 +85,7 @@ export class CadViewer extends EventEmitter {
 	stylizer: CadStylizer;
 	private _config: CadViewerConfig;
 
-	constructor(data: CadData, config: Partial<CadViewerConfig> = {}) {
+	constructor(data = new CadData(), config: Partial<CadViewerConfig> = {}) {
 		super();
 		this.data = data;
 
@@ -139,7 +139,7 @@ export class CadViewer extends EventEmitter {
 		let needsSetBg = false;
 		let needsRender = false;
 		for (const key in config) {
-			const success = Reflect.set(this._config, key, config[key]);
+			const success = Reflect.set(this._config, key, config[key as keyof CadViewerConfig]);
 			if (success) {
 				switch (key as keyof CadViewerConfig) {
 					case "width":
@@ -158,7 +158,7 @@ export class CadViewer extends EventEmitter {
 						needsRender = true;
 						break;
 					case "fontFamily":
-						this.dom.style.fontFamily = config.fontFamily;
+						this.dom.style.fontFamily = config.fontFamily as string;
 						break;
 					case "selectMode":
 						if (config.selectMode === "none") {
@@ -243,12 +243,12 @@ export class CadViewer extends EventEmitter {
 
 	resize(width?: number, height?: number) {
 		const {draw, _config} = this;
-		if (width > 0) {
+		if (width && width > 0) {
 			_config.width = width;
 		} else {
 			width = _config.width;
 		}
-		if (height > 0) {
+		if (height && height > 0) {
 			_config.height = height;
 		} else {
 			height = _config.height;
@@ -270,7 +270,7 @@ export class CadViewer extends EventEmitter {
 		return this.render();
 	}
 
-	drawEntity(entity: CadEntity, style: CadStyle = {}) {
+	drawEntity(entity: CadEntity, style: Partial<CadStyle> = {}) {
 		const {draw, stylizer} = this;
 		const {color, linewidth, fontSize, fontFamily} = stylizer.get(entity, style);
 		if (!entity.visible) {
@@ -299,12 +299,12 @@ export class CadViewer extends EventEmitter {
 				controls.onEntityPointerUp.call(this, event, entity);
 			};
 		}
-		if (entity.needsTransform) {
+		if (entity.needsTransform && entity.el) {
 			entity.transform(entity.el.transform());
 			entity.el.transform({});
 			entity.needsTransform = false;
 		}
-		let drawResult: Element[];
+		let drawResult: Element[] = [];
 		if (entity instanceof CadArc) {
 			const {center, radius, start_angle, end_angle, clockwise} = entity;
 			drawResult = drawArc(el, center, radius, start_angle, end_angle, clockwise);
@@ -328,14 +328,14 @@ export class CadViewer extends EventEmitter {
 		} else if (entity instanceof CadHatch) {
 			const {paths} = entity;
 			drawResult = [];
-			paths.forEach((path) => {
+			for (const path of paths) {
 				const {edges, vertices} = path;
 				const edgePoints = edges.map((v) => v.start);
 				drawResult = drawResult.concat(drawShape(el, edgePoints, "fill", 0));
 				drawResult = drawResult.concat(drawShape(el, vertices, "fill", drawResult.length));
-			});
+			}
 			if (!drawResult.length) {
-				drawResult = null;
+				drawResult = [];
 			}
 		} else if (entity instanceof CadLine) {
 			const {start, end} = entity;
@@ -344,7 +344,7 @@ export class CadViewer extends EventEmitter {
 			const parent = entity.parent;
 			if (parent instanceof CadLine || parent instanceof CadArc) {
 				const {lineGongshi, hideLineLength, hideLineGongshi} = this._config;
-				let offset: Point;
+				let offset: Nullable<Point>;
 				if (entity.info.isLengthText) {
 					entity.text = Math.round(parent.length).toString();
 					entity.font_size = parent.lengthTextSize;
@@ -442,7 +442,7 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	render(entities?: CadEntity | CadEntities | CadEntity[], style: CadStyle = {}) {
+	render(entities?: CadEntity | CadEntities | CadEntity[], style: Partial<CadStyle> = {}) {
 		if (!entities) {
 			entities = this.data.getAllEntities();
 		}
@@ -454,6 +454,7 @@ export class CadViewer extends EventEmitter {
 		}
 		entities.dimension.forEach((e) => (e.visible = !this._config.hideDimensions));
 		entities.forEach((e) => this.drawEntity(e, style));
+		this.emit("render", null, entities);
 		return this;
 	}
 
@@ -486,14 +487,14 @@ export class CadViewer extends EventEmitter {
 	}
 
 	selected() {
-		return this.data.getAllEntities().filter((e) => e.selected, true);
+		return this.data.getAllEntities().filter((e) => !!e.selected, true);
 	}
 
 	unselected() {
 		return this.data.getAllEntities().filter((e) => !e.selected, true);
 	}
 
-	select(entities: CadEntities | CadEntity | CadEntity[]): this {
+	select(entities?: CadEntities | CadEntity | CadEntity[]): this {
 		if (!entities) {
 			return this;
 		} else if (entities instanceof CadEntity) {
@@ -506,7 +507,7 @@ export class CadViewer extends EventEmitter {
 		return this;
 	}
 
-	unselect(entities: CadEntities | CadEntity | CadEntity[]): this {
+	unselect(entities?: CadEntities | CadEntity | CadEntity[]): this {
 		if (!entities) {
 			return this;
 		} else if (entities instanceof CadEntity) {
@@ -528,7 +529,7 @@ export class CadViewer extends EventEmitter {
 		return this.unselect(this.data.getAllEntities());
 	}
 
-	remove(entities: CadEntities | CadEntity | CadEntity[]): this {
+	remove(entities?: CadEntities | CadEntity | CadEntity[]): this {
 		if (!entities) {
 			return this;
 		} else if (entities instanceof CadEntity) {
@@ -556,11 +557,12 @@ export class CadViewer extends EventEmitter {
 			});
 			this.data.separate(data);
 			this.emit("entitiesremove", null, entities);
+			this.render();
 		}
 		return this;
 	}
 
-	add(entities: CadEntities | CadEntity | CadEntity[]): this {
+	add(entities?: CadEntities | CadEntity | CadEntity[]): this {
 		if (!entities) {
 			return this;
 		} else if (entities instanceof CadEntity) {
@@ -598,13 +600,13 @@ export class CadViewer extends EventEmitter {
 	}
 
 	emit<K extends keyof CadEvents>(type: K, event: CadEvents[K][0], entities?: CadEvents[K][1]): boolean;
-	emit(type: string | symbol, ...args: any[]): boolean;
+	// emit(type: string | symbol, ...args: any[]): boolean;
 	emit<K extends keyof CadEvents>(type: K, event: CadEvents[K][0], entities?: CadEvents[K][1]) {
 		return super.emit(type, event, entities);
 	}
 
 	on<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1]) => void): this;
-	on(type: string | symbol, listener: (...args: any[]) => void): this;
+	// on(type: string | symbol, listener: (...args: any[]) => void): this;
 	on<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1]) => void) {
 		return super.on(type, listener);
 	}
@@ -631,7 +633,7 @@ export class CadViewer extends EventEmitter {
 				canvas.width = img.width;
 				canvas.height = img.height;
 				const ctx = canvas.getContext("2d");
-				ctx.drawImage(img, 0, 0);
+				ctx?.drawImage(img, 0, 0);
 				resolve(canvas);
 			};
 		});
@@ -645,7 +647,6 @@ export class CadViewer extends EventEmitter {
 	destroy() {
 		this.data = new CadData();
 		this.dom.remove();
-		this.dom = null;
 		return this;
 	}
 

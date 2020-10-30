@@ -1,18 +1,19 @@
-import {Component, OnInit, Injector, OnDestroy} from "@angular/core";
-import {CadStatusAction, CommandAction, ConfigAction} from "@app/store/actions";
-import {MenuComponent} from "../menu.component";
-import {openMessageDialog} from "../../message/message.component";
-import {getCadStatus, getConfig} from "@app/store/selectors";
-import {CadMtext, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer/cad-data/cad-entity";
+import {Component, OnDestroy, OnInit} from "@angular/core";
+import {CadMtext, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {CadLineLike} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {CadStatusMap, cadStatusMap} from "@src/app/store/state";
+import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
+import {MessageService} from "@src/app/modules/message/services/message.service";
+import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
+import {AppStatusService, cadStatusNameMap, CadStatusNameMap} from "@src/app/services/app-status.service";
+import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
+import {ValueOf} from "@src/app/utils/types";
 
 @Component({
 	selector: "app-toolbar",
 	templateUrl: "./toolbar.component.html",
 	styleUrls: ["./toolbar.component.scss"]
 })
-export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy {
+export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy {
 	openLock = false;
 	keyMap: {[key: string]: () => void} = {
 		s: () => this.save(),
@@ -25,69 +26,69 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 		h: () => this.splitCad(),
 		p: () => this.printCad()
 	};
-	showCadGongshis = true;
-	lastUrl: string = null;
-	statusName: CadStatusMap[keyof CadStatusMap];
+	statusName: ValueOf<CadStatusNameMap> = "普通";
 
 	get isStatusNormal() {
-		return this.statusName == "普通";
+		return this.statusName === "普通";
 	}
 
-	constructor(injector: Injector) {
-		super(injector);
-	}
-
-	async ngOnInit() {
-		super.ngOnInit();
-		window.addEventListener("keydown", (event) => {
-			const {key, ctrlKey} = event;
-			if (ctrlKey && this.keyMap[key]) {
-				event.preventDefault();
-				this.clickBtn(key);
+	onKeyDown = ((event: KeyboardEvent) => {
+		const {key, ctrlKey} = event;
+		if (ctrlKey && this.keyMap[key]) {
+			event.preventDefault();
+			this.clickBtn(key);
+		} else if (key === "Escape") {
+			event.preventDefault();
+			const name = this.statusName;
+			if (name !== "普通") {
+				this.backToNormal();
 			}
-		});
-		if (this.showCadGongshis !== (await this.getObservableOnce(getConfig)).showCadGongshis) {
-			this.toggleShowCadGongshis();
 		}
-		this.getObservable(getCadStatus).subscribe((status) => {
-			this.statusName = cadStatusMap[status.name];
-		});
+	}).bind(this);
+
+	constructor(
+		private consoleService: CadConsoleService,
+		private message: MessageService,
+		private config: AppConfigService,
+		private status: AppStatusService
+	) {
+		super();
+	}
+
+	ngOnInit() {
+		window.addEventListener("keydown", this.onKeyDown);
+		this.subscribe(this.status.cadStatus$, ({name}) => (this.statusName = cadStatusNameMap[name]));
 	}
 
 	ngOnDestroy() {
 		super.ngOnDestroy();
+		window.removeEventListener("keydown", this.onKeyDown);
+	}
+
+	getConfig(key: keyof AppConfig) {
+		return this.config.config(key);
 	}
 
 	clickBtn(key: string) {
 		this.keyMap[key]?.();
 	}
 
-	open(collection: string) {
-		this.store.dispatch<CommandAction>({type: "execute", command: {name: "open", args: [{name: "collection", value: collection}]}});
+	save() {
+		this.consoleService.execute("save");
 	}
 
-	async save() {
-		this.store.dispatch<CommandAction>({type: "execute", command: {name: "save", args: []}});
+	open(collection: string) {
+		this.consoleService.execute("open", {collection});
 	}
 
 	flip(vertical: boolean, horizontal: boolean) {
-		this.store.dispatch<CommandAction>({
-			type: "execute",
-			command: {
-				name: "flip",
-				args: [
-					{name: "horizontal", value: horizontal ? "true" : "false"},
-					{name: "vertical", value: vertical ? "true" : "false"}
-				]
-			}
-		});
+		this.consoleService.execute("flip", {vertical: vertical ? "true" : "false", horizontal: horizontal ? "true" : "false"});
 	}
 
 	async rotate(clockwise?: boolean) {
 		let angle = 0;
 		if (clockwise === undefined) {
-			const ref = openMessageDialog(this.dialog, {data: {type: "prompt", title: "输入角度", promptData: {type: "number"}}});
-			const input = await ref.afterClosed().toPromise();
+			const input = await this.message.prompt({type: "number", placeholder: "输入角度"});
 			if (input === false) {
 				return;
 			}
@@ -99,94 +100,77 @@ export class ToolbarComponent extends MenuComponent implements OnInit, OnDestroy
 				angle = -90;
 			}
 		}
-		this.store.dispatch<CommandAction>({
-			type: "execute",
-			command: {name: "rotate", args: [{name: "degrees", value: angle.toString()}]}
-		});
+		this.consoleService.execute("rotate", {degrees: angle.toString()});
 	}
 
 	showManual() {
-		this.store.dispatch<CommandAction>({type: "execute", command: {name: "man", args: []}});
+		this.consoleService.execute("man");
 	}
 
-	async assembleCads() {
-		this.store.dispatch<CommandAction>({type: "execute", command: {name: "assemble", args: []}});
+	assembleCads() {
+		this.consoleService.execute("assemble");
 	}
 
-	async splitCad() {
-		this.store.dispatch<CommandAction>({type: "execute", command: {name: "split", args: []}});
+	splitCad() {
+		this.consoleService.execute("split");
 	}
 
-	async toggleShowDimensions() {
-		const hideDimensions = !(await this.getObservableOnce(getConfig)).hideDimensions;
-		this.store.dispatch<ConfigAction>({type: "set config", config: {hideDimensions}});
+	toggleShowDimensions() {
+		this.config.config("hideDimensions", !this.config.config("hideDimensions"));
 	}
 
 	toggleShowCadGongshis() {
-		this.showCadGongshis = !this.showCadGongshis;
-		const cad = this.cad;
-		cad.data.getAllEntities().mtext.forEach((e) => {
-			if (e.info.isCadGongshi) {
-				e.visible = this.showCadGongshis;
-			}
-		});
-		cad.render();
-		this.store.dispatch<ConfigAction>({type: "set config", config: {showCadGongshis: this.showCadGongshis}});
+		this.config.config("showCadGongshis", !this.config.config("showCadGongshis"));
 	}
 
 	toggleValidateLines() {
-		const validateLines = !this.cad.config("validateLines");
-		this.store.dispatch<ConfigAction>({type: "set config", config: {validateLines}});
+		this.config.config("validateLines", !this.config.config("validateLines"));
 	}
 
 	toggleShowLineLength() {
-		const hideLineLength = !this.cad.config("hideLineLength");
-		this.store.dispatch<ConfigAction>({type: "set config", config: {hideLineLength}});
-	}
-
-	async setShowGongshi() {
-		const ref = openMessageDialog(this.dialog, {
-			data: {
-				type: "prompt",
-				title: "公式字体大小",
-				promptData: {type: "number", hint: "若小于等于0则不显示", value: this.cad.config("lineGongshi").toString()}
-			}
-		});
-		const num = Number(await ref.afterClosed().toPromise());
-		this.store.dispatch<ConfigAction>({type: "set config", config: {lineGongshi: num}});
+		this.config.config("hideLineLength", !this.config.config("hideLineLength"));
 	}
 
 	toggleShowLineGongshi() {
-		const hideLineGongshi = !this.cad.config("hideLineGongshi");
-		this.store.dispatch<ConfigAction>({type: "set config", config: {hideLineGongshi}});
+		this.config.config("hideLineGongshi", !this.config.config("hideLineGongshi"));
 	}
 
-	printCad() {
-		this.store.dispatch<CommandAction>({type: "execute", command: {name: "print", args: []}});
-	}
-
-	fillet(radius?: number) {
-		this.store.dispatch<CommandAction>({
-			type: "execute",
-			command: {name: "fillet", args: [{name: "radius", value: radius ? radius.toString() : "0"}]}
-		});
+	async setShowGongshi() {
+		const num = Number(
+			await this.message.prompt({
+				type: "number",
+				hint: "若小于等于0则不显示",
+				value: this.config.config("lineGongshi").toString(),
+				placeholder: "公式字体大小"
+			})
+		);
+		this.config.config("lineGongshi", num);
 	}
 
 	resetLineLength() {
-		if (this.cad.config("hideLineLength")) {
+		const cad = this.status.cad;
+		if (cad.config("hideLineLength")) {
 			return;
 		}
-		this.cad.traverse((e) => {
+		cad.traverse((e) => {
 			if (e instanceof CadMtext && e.info.isLengthText) {
 				(e.parent as CadLineLike).lengthTextSize = DEFAULT_LENGTH_TEXT_SIZE;
 				e.remove();
 			}
 		}, true);
-		this.generateLineTexts();
-		this.cad.render().render();
+		this.status.generateLineTexts();
+		cad.render().render();
+	}
+
+	printCad() {
+		this.consoleService.execute("print");
+	}
+
+	fillet(radius?: number) {
+		this.consoleService.execute("fillet", {radius: radius ? radius.toString() : "0"});
 	}
 
 	backToNormal() {
-		this.store.dispatch<CadStatusAction>({type: "set cad status", name: "normal"});
+		this.status.cadStatus("name", "normal");
 	}
 }

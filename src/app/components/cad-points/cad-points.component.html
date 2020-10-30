@@ -1,0 +1,8 @@
+<div
+	*ngFor="let p of points$ | async; let i = index"
+	class="point"
+	[class.active]="p.active"
+	[style.left.px]="p.x"
+	[style.top.px]="p.y"
+	(click)="onPointClick(i)"
+></div>

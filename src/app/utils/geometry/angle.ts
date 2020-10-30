@@ -24,11 +24,10 @@ export class Angle {
 	}
 
 	constrain() {
-		let limit: number;
+		let limit = 0;
 		if (this.unit === "rad") {
 			limit = Math.PI * 2;
-		}
-		if (this.unit === "deg") {
+		} else if (this.unit === "deg") {
 			limit = 360;
 		}
 		while (this._value < 0) {

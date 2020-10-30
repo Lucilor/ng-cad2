@@ -1,7 +1,8 @@
+import {AnyObject} from "@src/app/utils/types";
 import {Line, Point, Rectangle} from "@src/app/utils";
 import {CadData, CadOption} from "./cad-data";
-import {CadLine, CadMtext, CadArc, CadCircle} from "./cad-entity";
 import {sortLines} from "./cad-lines";
+import {CadLine, CadMtext, CadArc, CadCircle} from "./cad-entities";
 
 export function splitCad(data: CadData) {
 	const lines = data.entities.line.filter((v) => v.color.rgbNumber() === 0x00ff00);
@@ -67,16 +68,16 @@ export function splitCad(data: CadData) {
 		v.entities.mtext.some((e) => {
 			if (e.text.startsWith("CAD信息")) {
 				const arr = e.text.split("\n").slice(1);
-				const obj = {};
+				const obj: AnyObject = {};
 				arr.forEach((str) => {
 					const [key, value] = str.split(/:|：/);
 					obj[key] = value;
-					const key2 = fields[key] as any;
+					const key2 = fields[key];
 					if (key2) {
 						if (typeof v[key2] === "string") {
-							v[key2] = value;
+							(v[key2] as string) = value;
 						} else if (Array.isArray(v[key2])) {
-							v[key2] = value.split(/,|，/);
+							(v[key2] as string[]) = value.split(/,|，/);
 						} else {
 							throw Error("CAD信息有错");
 						}

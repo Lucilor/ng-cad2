@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild} from "@angular/core";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {Point} from "@src/app/utils";
+import {Nullable} from "@src/app/utils/types";
 import {clamp} from "lodash";
 
 export interface AnchorEvent {
@@ -19,11 +20,11 @@ export class AnchorSelectorComponent implements AfterViewInit, OnDestroy {
 	@Input() backgroundSize = 100;
 	@Output() anchorChange = new EventEmitter<AnchorEvent>();
 	@Output() anchorChangeEnd = new EventEmitter<AnchorEvent>();
-	@ViewChild("pointer", {read: ElementRef}) pointer: ElementRef<HTMLDivElement>;
-	@ViewChild("background", {read: ElementRef}) background: ElementRef<HTMLDivElement>;
+	@ViewChild("pointer", {read: ElementRef}) pointer?: ElementRef<HTMLDivElement>;
+	@ViewChild("background", {read: ElementRef}) background?: ElementRef<HTMLDivElement>;
 
 	dragging = false;
-	pointerPosition: Point = null;
+	pointerPosition: Nullable<Point> = null;
 
 	get left() {
 		return this.x * this.backgroundSize + "px";
@@ -33,13 +34,13 @@ export class AnchorSelectorComponent implements AfterViewInit, OnDestroy {
 	}
 
 	onDragStarted = ((event: PointerEvent) => {
-		if (event.target === this.pointer.nativeElement) {
+		if (event.target === this.pointer?.nativeElement) {
 			this.dragging = true;
 		}
 	}).bind(this);
 
 	onDragMoved = ((event: PointerEvent) => {
-		if (this.dragging) {
+		if (this.dragging && this.background) {
 			const {clientX, clientY} = event;
 			const rect = this.background.nativeElement.getBoundingClientRect();
 			const backgroundSize = this.backgroundSize;
@@ -76,7 +77,7 @@ export class AnchorSelectorComponent implements AfterViewInit, OnDestroy {
 		window.removeEventListener("pointerleave", this.onDragEnded);
 	}
 
-	onInputChange(event: InputEvent | MatAutocompleteSelectedEvent, axis: "x" | "y") {
+	onInputChange(event: Event | MatAutocompleteSelectedEvent, axis: "x" | "y") {
 		let value: number;
 		if (event instanceof MatAutocompleteSelectedEvent) {
 			value = Number(event.option.value);

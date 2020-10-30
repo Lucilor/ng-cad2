@@ -1,14 +1,15 @@
 import {CadViewer} from "./cad-viewer";
-import {CadDimension, CadEntity, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entity";
 import Color from "color";
+import {Nullable} from "../utils/types";
+import {CadEntity, CadMtext, CadDimension, CadLine, CadHatch} from "./cad-data/cad-entities";
 
 export interface CadStyle {
-	color?: string;
-	linewidth?: number;
-	fontSize?: number;
-	opacity?: number;
-	fontStyle?: string;
-	fontFamily?: string;
+	color: string;
+	linewidth: number;
+	fontSize: number;
+	opacity: number;
+	fontStyle: string;
+	fontFamily: string;
 }
 
 export class CadStylizer {
@@ -17,18 +18,25 @@ export class CadStylizer {
 		this.cad = cad;
 	}
 
-	get(entity: CadEntity, params: CadStyle = {}) {
+	get(entity: CadEntity, params: Partial<CadStyle> = {}) {
 		const cad = this.cad;
-		const result: CadStyle = {fontStyle: "normal"};
+		const result: CadStyle = {
+			color: "white",
+			linewidth: 1,
+			fontSize: 16,
+			opacity: 1,
+			fontStyle: "normal",
+			fontFamily: ""
+		};
 		let color = new Color(params.color || entity?.color || 0);
-		if (params.linewidth > 0) {
+		if (params.linewidth && params.linewidth > 0) {
 			result.linewidth = params.linewidth;
 		} else if (entity.linewidth > 0) {
 			result.linewidth = entity.linewidth;
 		} else {
 			result.linewidth = 1;
 		}
-		let eFontSize: number = null;
+		let eFontSize: Nullable<number>;
 		if (entity instanceof CadMtext || entity instanceof CadDimension) {
 			eFontSize = entity.font_size;
 		}

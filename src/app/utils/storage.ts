@@ -1,20 +1,24 @@
+import {AnyObject} from "./types";
+
 class CustomStorage {
 	private _field: string;
 	storage: Storage;
+
 	constructor(type: "local" | "session", field: string) {
 		if (type === "local") {
 			this.storage = localStorage;
-		}
-		if (type === "session") {
+		} else if (type === "session") {
+			this.storage = sessionStorage;
+		} else {
 			this.storage = sessionStorage;
 		}
 		this._field = field;
 	}
 
 	save(key: string, value: any) {
-		let data = {};
+		let data: AnyObject = {};
 		try {
-			data = JSON.parse(this.storage.getItem(this._field)) || {};
+			data = JSON.parse(this.storage.getItem(this._field) || "{}");
 		} catch (error) {}
 		data[key] = JSON.stringify(value);
 		this.storage.setItem(this._field, JSON.stringify(data));
@@ -23,7 +27,7 @@ class CustomStorage {
 	load(key: string) {
 		let data = null;
 		try {
-			data = JSON.parse(this.storage.getItem(this._field));
+			data = JSON.parse(this.storage.getItem(this._field) || "null");
 		} catch (error) {
 			return null;
 		}
@@ -41,7 +45,7 @@ class CustomStorage {
 	remove(key: string) {
 		let data = null;
 		try {
-			data = JSON.parse(this.storage.getItem(this._field));
+			data = JSON.parse(this.storage.getItem(this._field) || "");
 		} catch (error) {}
 		if (data && data[key]) {
 			delete data[key];

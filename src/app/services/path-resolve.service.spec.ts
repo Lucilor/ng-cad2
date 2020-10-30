@@ -3,10 +3,14 @@ import {TestBed} from "@angular/core/testing";
 import {PathResolveService} from "./path-resolve.service";
 
 describe("PathResolveService", () => {
-	beforeEach(() => TestBed.configureTestingModule({}));
+	let service: PathResolveService;
+
+	beforeEach(() => {
+		TestBed.configureTestingModule({});
+		service = TestBed.inject(PathResolveService);
+	});
 
 	it("should be created", () => {
-		const service: PathResolveService = TestBed.inject(PathResolveService);
 		expect(service).toBeTruthy();
 	});
 });
