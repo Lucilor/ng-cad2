@@ -1,8 +1,8 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
-import {CadDimension, CadEntities, CadLine} from "@app/cad-viewer/cad-data/cad-entities";
-import {CadViewerConfig} from "@app/cad-viewer/cad-viewer";
+import {CadDimension, CadLine} from "@app/cad-viewer/cad-data/cad-entities";
+import {CadEventCallBack} from "@src/app/cad-viewer/cad-viewer-controls";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
@@ -27,12 +27,12 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 		this.dimensions = this.status.cad.data.getAllEntities().dimension;
 	}).bind(this);
 
-	onEntitiesClick = ((_event: null, entities?: CadEntities) => {
+	onEntitiesSelect = (((_event, {entities}) => {
 		const cad = this.status.cad;
 		const data = cad.data.components.data;
 		const {name, index} = this.status.cadStatus();
 		const dimensions = this.dimensions;
-		const entity = entities?.line[0];
+		const entity = entities.line[0];
 		if (name === "editDimension" && entity) {
 			let thatData: CadData | undefined;
 			let thatIndex = -1;
@@ -80,7 +80,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 			if (e1 instanceof CadLine && e2 instanceof CadLine) {
 				const slope1 = e1.slope;
 				const slope2 = e2.slope;
-				// default axis: x
+				// * default axis: x
 				if (Math.abs(slope1 - slope2) <= 1) {
 					if (Math.abs(slope1) <= 1) {
 						dimension.axis = "y";
@@ -90,8 +90,9 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 				}
 			}
 			this.focus(dimension);
+			cad.render(dimension);
 		}
-	}).bind(this);
+	}) as CadEventCallBack<"entitiesselect">).bind(this);
 
 	constructor(private status: AppStatusService, private dialog: MatDialog, private config: AppConfigService) {
 		super();
@@ -100,14 +101,12 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 	ngOnInit() {
 		this.subscribe(this.status.cadStatus$, (cadStatus) => {
 			const {name, index} = cadStatus;
-			const cad = this.status.cad;
 			if (name === "editDimension") {
 				const dimension = this.dimensions[index];
-				this.focus(dimension);
 				this.dimLineSelecting = index;
 				if (!this.prevConfig) {
 					this.prevConfig = this.config.config();
-					cad.config({hideLineLength: true, lineGongshi: 0, selectMode: "single"});
+					this.config.config({hideLineLength: true, lineGongshi: 0, selectMode: "single"});
 				}
 				if (!this.prevSelectedCads) {
 					this.prevSelectedCads = this.status.selectedCads$.getValue();
@@ -117,9 +116,9 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 					this.prevDisabledCadTypes = this.status.disabledCadTypes$.getValue();
 					this.status.disabledCadTypes$.next(["cads", "partners", "components"]);
 				}
+				this.focus(dimension);
 			} else if (this.dimLineSelecting >= 0) {
 				this.dimLineSelecting = -1;
-				this.blur();
 				if (this.prevConfig) {
 					this.config.config(this.prevConfig);
 					this.prevConfig = null;
@@ -132,12 +131,13 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 					this.status.disabledCadTypes$.next(this.prevDisabledCadTypes);
 					this.prevDisabledCadTypes = null;
 				}
+				this.blur();
 			}
 		});
 
 		this.updateDimensions();
 		const cad = this.status.cad;
-		cad.on("entitiesselect", this.onEntitiesClick);
+		cad.on("entitiesselect", this.onEntitiesSelect);
 		cad.on("entitiesadd", this.updateDimensions);
 		cad.on("entitiesremove", this.updateDimensions);
 		cad.on("render", this.updateDimensions);
@@ -146,7 +146,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 	ngOnDestroy() {
 		super.ngOnDestroy();
 		const cad = this.status.cad;
-		cad.off("entitiesselect", this.onEntitiesClick);
+		cad.off("entitiesselect", this.onEntitiesSelect);
 		cad.off("entitiesadd", this.updateDimensions);
 		cad.off("entitiesremove", this.updateDimensions);
 		cad.off("render", this.updateDimensions);

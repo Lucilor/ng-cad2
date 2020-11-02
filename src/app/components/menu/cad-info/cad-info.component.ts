@@ -4,12 +4,14 @@ import {MatSelectChange} from "@angular/material/select";
 import {CadBaseLine, CadData, CadJointPoint, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
 import {CadEntity, CadLine} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {generatePointsMap} from "@src/app/cad-viewer/cad-data/cad-lines";
+import {CadEventCallBack} from "@src/app/cad-viewer/cad-viewer-controls";
 import {getCadGongshiText} from "@src/app/cad.utils";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService, CadStatus} from "@src/app/services/app-status.service";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "../../dialogs/cad-options/cad-options.component";
+import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
 
 @Component({
 	selector: "app-cad-info",
@@ -21,7 +23,7 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
 	lengths: string[] = [];
 	editDisabled = true;
 
-	onEntityClick = ((_event: MouseEvent, entity?: CadEntity) => {
+	onEntityClick = (((_event, {entity}) => {
 		const {name, index} = this.status.cadStatus$.getValue();
 		const data = this.status.getFlatSelectedCads()[0];
 		if (name === "selectBaseline" && typeof index === "number") {
@@ -40,7 +42,7 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
 				this.status.cad.render();
 			}
 		}
-	}).bind(this);
+	}) as CadEventCallBack<"entityclick">).bind(this);
 
 	constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
 		super();
@@ -261,5 +263,12 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
 				cad.remove(entities);
 			}
 		}, blinkInterval * 2);
+	}
+
+	async editAttributes(data: CadData) {
+		const result = await openJsonEditorDialog(this.dialog, {data: {json: data.attributes}});
+		if (result) {
+			data.attributes = result;
+		}
 	}
 }

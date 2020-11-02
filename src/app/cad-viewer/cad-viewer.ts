@@ -7,7 +7,7 @@ import {CadArc, CadCircle, CadDimension, CadEntities, CadEntity, CadHatch, CadLi
 import {CadType} from "./cad-data/cad-types";
 import {getVectorFromArray} from "./cad-data/utils";
 import {CadStyle, CadStylizer} from "./cad-stylizer";
-import {CadEvents, controls} from "./cad-viewer-controls";
+import {CadEventCallBack, CadEvents, controls} from "./cad-viewer-controls";
 import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText} from "./draw";
 
 export interface CadViewerConfig {
@@ -138,7 +138,8 @@ export class CadViewer extends EventEmitter {
 		let needsSetBg = false;
 		let needsRender = false;
 		for (const key in config) {
-			const success = Reflect.set(this._config, key, config[key as keyof CadViewerConfig]);
+			const newValue = config[key as keyof CadViewerConfig];
+			const success = Reflect.set(this._config, key, newValue);
 			if (success) {
 				switch (key as keyof CadViewerConfig) {
 					case "width":
@@ -266,7 +267,6 @@ export class CadViewer extends EventEmitter {
 			this._config.backgroundColor = color;
 		}
 		this.draw.css("background-color", color.toString());
-		return this.render();
 	}
 
 	drawEntity(entity: CadEntity, style: Partial<CadStyle> = {}) {
@@ -298,12 +298,8 @@ export class CadViewer extends EventEmitter {
 				controls.onEntityPointerUp.call(this, event, entity);
 			};
 		}
-		if (entity.needsTransform && entity.el) {
-			entity.transform(entity.el.transform());
-			entity.el.transform({});
-			entity.needsTransform = false;
-		}
-		let drawResult: Element[] = [];
+		entity.update();
+		let drawResult: (Element | null)[] = [];
 		if (entity instanceof CadArc) {
 			const {center, radius, start_angle, end_angle, clockwise} = entity;
 			drawResult = drawArc(el, center, radius, start_angle, end_angle, clockwise);
@@ -353,7 +349,10 @@ export class CadViewer extends EventEmitter {
 					}
 					offset = getVectorFromArray(entity.info.offset);
 				} else if (entity.info.isGongshiText) {
-					entity.text = parent.gongshi;
+					entity.text = "";
+					if (parent.gongshi) {
+						entity.text = `${parent.mingzi}=${parent.gongshi}`;
+					}
 					entity.font_size = lineGongshi;
 					offset = getVectorFromArray(entity.info.offset);
 					if (hideLineGongshi) {
@@ -371,10 +370,11 @@ export class CadViewer extends EventEmitter {
 				}
 
 				const rect = entity.el?.node?.getBoundingClientRect();
-				if (rect && rect.width && rect.height) {
+				const zoom = this.zoom();
+				if (rect && rect.width && rect.height && isFinite(zoom)) {
 					// * 计算文字尺寸
 					const {width, height} = rect;
-					const size = new Point(width, height).divide(this.zoom());
+					const size = new Point(width, height).divide(zoom);
 					entity.info.size = size.toArray();
 
 					// * 重新计算锚点
@@ -422,7 +422,7 @@ export class CadViewer extends EventEmitter {
 			}
 			drawResult = drawText(el, text, fontSize, insert.clone().add(offset), anchor, fontFamily);
 		}
-		if (!drawResult) {
+		if (!drawResult || drawResult.length < 1) {
 			entity.el?.remove();
 			entity.el = null;
 			return this;
@@ -451,9 +451,11 @@ export class CadViewer extends EventEmitter {
 		if (Array.isArray(entities)) {
 			entities = new CadEntities().fromArray(entities);
 		}
-		entities.dimension.forEach((e) => (e.visible = !this._config.hideDimensions));
-		entities.forEach((e) => this.drawEntity(e, style));
-		this.emit("render", null, entities);
+		if (entities.length) {
+			entities.dimension.forEach((e) => (e.visible = !this._config.hideDimensions));
+			entities.forEach((e) => this.drawEntity(e, style));
+			this.emit("render", null, {entities});
+		}
 		return this;
 	}
 
@@ -468,19 +470,21 @@ export class CadViewer extends EventEmitter {
 		for (let i = 0; i < padding.length; i++) {
 			padding[i] /= scale;
 		}
-		let outterWidth = width + padding[1] + padding[3];
-		let outterHeight = height + padding[0] + padding[2];
+		let outerWidth2 = width + padding[1] + padding[3];
+		let outerHeight2 = height + padding[0] + padding[2];
 		const ratio = outerWidth / outerHeight;
-		if (ratio > outterWidth / outterHeight) {
-			outterWidth = outterHeight * ratio;
-			width = outterWidth - padding[1] - padding[3];
+		if (ratio > outerWidth2 / outerHeight2) {
+			outerWidth2 = outerHeight2 * ratio;
+			width = outerWidth2 - padding[1] - padding[3];
 		} else {
-			outterHeight = outterWidth / ratio;
-			height = outterHeight - padding[0] - padding[2];
+			outerHeight2 = outerWidth2 / ratio;
+			height = outerHeight2 - padding[0] - padding[2];
 		}
 		x = x - width / 2 - padding[3];
 		y = y - height / 2 - padding[2];
-		this.draw.viewbox(x, y, outterWidth, outterHeight);
+		outerWidth2 = Math.max(0, outerWidth2);
+		outerHeight2 = Math.max(0, outerHeight2);
+		this.draw.viewbox(x, y, outerWidth2, outerHeight2);
 		this.draw.transform({a: 1, b: 0, c: 0, d: -1, e: 0, f: 0});
 		return this;
 	}
@@ -501,8 +505,10 @@ export class CadViewer extends EventEmitter {
 		} else if (Array.isArray(entities)) {
 			return this.select(new CadEntities().fromArray(entities));
 		}
-		entities.forEach((e) => (e.selected = true));
-		this.emit("entitiesselect", null, entities);
+		if (entities.length) {
+			entities.forEach((e) => (e.selected = true));
+			this.emit("entitiesselect", null, {entities});
+		}
 		return this;
 	}
 
@@ -515,8 +521,10 @@ export class CadViewer extends EventEmitter {
 		if (Array.isArray(entities)) {
 			return this.unselect(new CadEntities().fromArray(entities));
 		}
-		entities.forEach((e) => (e.selected = false));
-		this.emit("entitiesunselect", null, entities);
+		if (entities.length) {
+			entities.forEach((e) => (e.selected = false));
+			this.emit("entitiesunselect", null, {entities});
+		}
 		return this;
 	}
 
@@ -555,7 +563,7 @@ export class CadViewer extends EventEmitter {
 				}
 			});
 			this.data.separate(data);
-			this.emit("entitiesremove", null, entities);
+			this.emit("entitiesremove", null, {entities});
 			this.render();
 		}
 		return this;
@@ -571,7 +579,7 @@ export class CadViewer extends EventEmitter {
 			return this.add(new CadEntities().fromArray(entities));
 		}
 		if (entities instanceof CadEntities) {
-			this.emit("entitiesadd", null, entities);
+			this.emit("entitiesadd", null, {entities});
 			entities.forEach((e) => this.data.entities.add(e));
 			this.render(entities);
 		}
@@ -598,22 +606,17 @@ export class CadViewer extends EventEmitter {
 		return result;
 	}
 
-	emit<K extends keyof CadEvents>(type: K, event: CadEvents[K][0], entities?: CadEvents[K][1]): boolean;
-	// emit(type: string | symbol, ...args: any[]): boolean;
-	emit<K extends keyof CadEvents>(type: K, event: CadEvents[K][0], entities?: CadEvents[K][1]) {
-		return super.emit(type, event, entities);
+	emit<T extends keyof CadEvents>(type: T, event: CadEvents[T][0], params: CadEvents[T][1]): boolean;
+	emit<T extends keyof CadEvents>(type: T, event: CadEvents[T][0], params: CadEvents[T][1]) {
+		return super.emit(type, event, params);
 	}
 
-	on<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1]) => void): this;
-	// on(type: string | symbol, listener: (...args: any[]) => void): this;
-	on<K extends keyof CadEvents>(type: K, listener: (event: CadEvents[K][0], entity?: CadEvents[K][1]) => void) {
+	on<T extends keyof CadEvents>(type: T, listener: CadEventCallBack<T>): this;
+	on<T extends keyof CadEvents>(type: T, listener: CadEventCallBack<T>) {
 		return super.on(type, listener);
 	}
 
-	off<K extends keyof CadEvents>(
-		type: K,
-		listener: (event: CadEvents[K][0], entity?: CadEvents[K][1], object?: CadEvents[K][2]) => void
-	) {
+	off<T extends keyof CadEvents>(type: T, listener: CadEventCallBack<T>) {
 		return super.off(type, listener);
 	}
 
@@ -667,21 +670,24 @@ export class CadViewer extends EventEmitter {
 	}
 
 	// ? move entities efficiently
+	// * call render() after moving
 	moveEntities(toMove: CadEntities, notToMove: CadEntities, x: number, y: number) {
 		const move = (es: CadEntities, x: number, y: number) => {
 			es.forEach((e) => {
 				e.el?.translate(x, y);
-				e.needsTransform = true;
+				e.needsUpdate = true;
 				if (e.children.length) {
 					move(e.children, x, y);
 				}
 			});
 		};
 		if (toMove.length <= notToMove.length) {
-			move(toMove, x, y);
+			toMove.transform({translate: [x, y]});
+			// move(toMove, x, y);
 		} else {
 			this.move(x, y);
-			move(notToMove, -x, -y);
+			notToMove.transform({translate: [-x, -y]});
+			// move(notToMove, -x, -y);
 		}
 	}
 }

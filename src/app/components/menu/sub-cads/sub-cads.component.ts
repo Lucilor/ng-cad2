@@ -46,7 +46,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 	@ViewChild("dxfInut", {read: ElementRef}) dxfInut?: ElementRef<HTMLElement>;
 	contextMenuCad?: {field: SelectedCadType; data: CadData};
 	private _prevId = "";
-	private lastPointer?: Point;
+	private lastPointer: Point | null = null;
 	private entitiesToMove?: CadEntities;
 	private entitiesNotToMove?: CadEntities;
 	private updateListLock = false;
@@ -138,18 +138,12 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 		const pointer = new Point(clientX, clientY);
 		const translate = this.lastPointer.sub(pointer).divide(cad.zoom());
 		translate.x = -translate.x;
-		if (name === "assemble") {
-			if (selectedCads.components.length) {
-				const parent = cad.data.findChild(selectedCads.cads[0]);
-				const data = cad.data.findChildren(selectedCads.components);
-				if (parent) {
-					data.forEach((v) => parent.moveComponent(v, translate));
-				}
-			} else {
-				const data = cad.data.findChildren(selectedCads.cads);
-				data.forEach((v) => v.transform({translate: translate.toArray()}));
+		if (name === "assemble" && selectedCads.components.length) {
+			const parent = cad.data.findChild(selectedCads.cads[0]);
+			const data = cad.data.findChildren(selectedCads.components);
+			if (parent) {
+				data.forEach((v) => parent.moveComponent(v, translate));
 			}
-			cad.render();
 		} else if (this.entitiesToMove && this.entitiesNotToMove) {
 			cad.moveEntities(this.entitiesToMove, this.entitiesNotToMove, translate.x, translate.y);
 		}
@@ -157,7 +151,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 	}).bind(this);
 
 	private onPointerUp = (() => {
-		delete this.lastPointer;
+		if (this.lastPointer) {
+			this.lastPointer = null;
+			this.status.cad.render();
+		}
 	}).bind(this);
 
 	constructor(
@@ -173,9 +170,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 	}
 
 	ngOnInit() {
-		this.subscribe(this.status.openCad$, () => {
-			this.updateList();
-		});
+		this.updateList();
+		this.subscribe(this.status.openCad$, () => this.updateList());
 		this.subscribe(this.status.selectedCads$, () => this.getSelectedCads());
 		this.subscribe(this.status.cadStatus$, async (cadStatus) => {
 			if (cadStatus.name === "split") {
@@ -185,7 +181,15 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 					if (v.id === id) {
 						data = v;
 					} else {
-						v.hide();
+						v.getAllEntities().forEach((e) => {
+							if (typeof e.info.prevVisible === "boolean") {
+								e.visible = e.info.prevVisible;
+								delete e.info.prevVisible;
+							} else {
+								e.info.prevVisible = e.visible;
+								e.visible = false;
+							}
+						}, true);
 					}
 				}
 				if (!data) {
@@ -210,7 +214,18 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 				}
 				return;
 			} else if (this._prevId) {
-				this.status.cad.data.components.data.forEach((v) => v.show());
+				this.status.cad.data.components.data.forEach((v) => {
+					v.getAllEntities().forEach((e) => {
+						if (typeof e.info.prevVisible === "boolean") {
+							e.visible = e.info.prevVisible;
+							delete e.info.prevVisible;
+						} else {
+							e.info.prevVisible = e.visible;
+							e.visible = true;
+						}
+					}, true);
+					return this;
+				});
 				if (this.prevConfig) {
 					this.config.config(this.prevConfig);
 					this.prevConfig = null;
@@ -338,7 +353,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
 	getSelectedCads() {
 		const {cads, partners, components, fullCads} = this.status.selectedCads$.getValue();
-		console.warn(cads);
 		for (const v of this.cads) {
 			let checked = false;
 			let indeterminate = false;
@@ -368,7 +382,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 			this.blur();
 			this.config.config("dragAxis", "");
 			this.cads.forEach((v) => {
-				v.data.show();
 				if (cads.includes(v.data.id)) {
 					this.focus(v.data.entities);
 				}
@@ -514,7 +527,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 		}
 		const data = this.contextMenuCad.data;
 		const content = `确定要上传<span style="color:red">${file.name}</span>并替换<span style="color:red">${data.name}</span>的数据吗？`;
-		const yes = await this.message.alert(content);
+		const yes = await this.message.confirm(content);
 		if (yes) {
 			const resData = await this.dataService.uploadDxf(file);
 			if (resData) {
@@ -532,8 +545,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 					data.partners = resData.partners;
 					data.components = resData.components;
 				}
-				this.updateList();
-				this.status.cad.reset();
+				this.status.openCad();
 			}
 		}
 		input.value = "";
@@ -556,14 +568,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 		}
 		let data = this.contextMenuCad.data.clone();
 		removeCadGongshi(data);
-		const ref = openJsonEditorDialog(this.dialog, {data: {json: data.export()}});
-		const result = await ref.afterClosed().toPromise();
+		const result = await openJsonEditorDialog(this.dialog, {data: {json: data.export()}});
 		if (result) {
-			data = new CadData(result);
-			addCadGongshi(data);
 			this.contextMenuCad.data.copy(data);
-			this.updateList();
-			this.status.cad.reset();
+			this.status.openCad();
 		}
 	}
 
@@ -644,36 +652,5 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 		if (cads && cads[0]) {
 			this.dataService.replaceData(data, cads[0].id);
 		}
-	}
-
-	updateCads() {
-		const {cads, partners, components} = this.status.selectedCads$.getValue();
-		const cad = this.status.cad;
-		const count = cads.length + partners.length + components.length;
-		console.log(count);
-		if (count === 0) {
-			this.focus();
-			this.config.config("dragAxis", "xy");
-		} else {
-			this.blur();
-			this.config.config("dragAxis", "");
-			this.cads.forEach((v) => {
-				v.data.show();
-				if (cads.includes(v.data.id)) {
-					this.focus(v.data.entities);
-				}
-			});
-			this.partners.forEach((v) => {
-				if (partners.includes(v.data.id)) {
-					this.focus(v.data.getAllEntities());
-				}
-			});
-			this.components.forEach((v) => {
-				if (components.includes(v.data.id)) {
-					this.focus(v.data.getAllEntities());
-				}
-			});
-		}
-		cad.render();
 	}
 }

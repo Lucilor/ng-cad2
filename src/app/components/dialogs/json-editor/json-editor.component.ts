@@ -52,6 +52,7 @@ export class JsonEditorComponent implements OnInit {
 	}
 }
 
-export function openJsonEditorDialog(dialog: MatDialog, config: MatDialogConfig<JsonEditorData>) {
-	return dialog.open<JsonEditorComponent, JsonEditorData, any>(JsonEditorComponent, config);
+export async function openJsonEditorDialog(dialog: MatDialog, config: MatDialogConfig<JsonEditorData>) {
+	const ref =  dialog.open<JsonEditorComponent, JsonEditorData, any>(JsonEditorComponent, config);
+	return await ref.afterClosed().toPromise();
 }

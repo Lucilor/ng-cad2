@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 import {difference} from "lodash";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";
@@ -54,8 +54,6 @@ export interface Loader {
 
 export type CadPoints = {x: number; y: number; active: boolean}[];
 
-const history: any[] = [];
-
 @Injectable({
 	providedIn: "root"
 })
@@ -82,22 +80,41 @@ export class AppStatusService {
 		private config: AppConfigService,
 		private loaderService: NgxUiLoaderService,
 		private dataService: CadDataService,
-		private route: ActivatedRoute
+		private route: ActivatedRoute,
+		private router: Router
 	) {
-		this.config.config$.subscribe((config) => {
+		this.config.configChange$.subscribe(({newVal}) => {
 			const cad = this.cad;
-			cad.config(config);
-			const {showCadGongshis} = config;
-			cad.data.getAllEntities().mtext.forEach((e) => {
-				if (e.info.isCadGongshi) {
-					e.visible = showCadGongshis;
-				}
-			});
-			cad.render();
+			cad.config(newVal);
+			const {showCadGongshis} = newVal;
+			if (typeof showCadGongshis === "boolean") {
+				const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
+				cadGongshis.forEach((e) => (e.visible = showCadGongshis));
+				cad.render(cadGongshis);
+			}
 		});
-		(async () => {
-			this.route.queryParams.subscribe(async (queryParams) => {
-				const {id, collection} = queryParams;
+
+		const sub = this.router.events.subscribe(async (event) => {
+			if (!(event instanceof NavigationEnd)) {
+				return;
+			}
+			sub.unsubscribe();
+			let cachedData: any = null;
+			let params: any = null;
+			try {
+				cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data") || "null");
+				params = JSON.parse(sessionStorage.getItem("params") || "{}");
+			} catch (error) {
+				console.warn(error);
+			}
+			if (cachedData) {
+				if (!Array.isArray(cachedData)) {
+					cachedData = [cachedData];
+				}
+				const data: CadData[] = cachedData.map((v: any) => new CadData(v));
+				this.openCad(data, params.collection ?? "cad");
+			} else {
+				const {id, collection} = this.route.snapshot.queryParams;
 				const params: Partial<GetCadParams> = {};
 				if (id && collection) {
 					this.config.config("collection", collection);
@@ -110,8 +127,8 @@ export class AppStatusService {
 				}
 				const result = await this.dataService.getCad(params);
 				this.openCad(result.cads);
-			});
-		})();
+			}
+		});
 	}
 
 	clearSelectedCads() {
@@ -165,7 +182,7 @@ export class AppStatusService {
 			cad.data.info.算料单 = data.some((v) => v.info.算料单);
 			data.forEach((v) => {
 				setCadData(v);
-				addCadGongshi(v);
+				addCadGongshi(v, this.config.config("showCadGongshis"));
 			});
 			this.clearSelectedCads();
 		} else {
@@ -180,9 +197,9 @@ export class AppStatusService {
 			data.forEach((v) => validateLines(v));
 		}
 		this.generateLineTexts();
-		cad.reset();
 		this.config.config({cadIds: data.map((v) => v.id), collection});
 		this.openCad$.next();
+		cad.reset();
 		setTimeout(() => cad.center(), 1000);
 	}
 

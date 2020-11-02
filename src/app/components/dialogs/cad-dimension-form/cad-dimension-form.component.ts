@@ -32,7 +32,8 @@ export class CadDimensionFormComponent {
 			distance: dimension.distance,
 			fontSize: dimension.font_size,
 			cad1: new FormControl({value: dimension.cad1 || " ", disabled: true}),
-			cad2: new FormControl({value: dimension.cad2 || " ", disabled: true})
+			cad2: new FormControl({value: dimension.cad2 || " ", disabled: true}),
+			quzhifanwei: dimension.quzhifanwei
 		});
 	}
 
@@ -48,6 +49,7 @@ export class CadDimensionFormComponent {
 			dimension.distance = value.distance;
 			dimension.font_size = value.fontSize;
 			dimension.ref = value.ref;
+			dimension.quzhifanwei = value.quzhifanwei;
 			this.dialogRef.close(dimension);
 		} else {
 			this.form.controls.qujian.updateValueAndValidity();

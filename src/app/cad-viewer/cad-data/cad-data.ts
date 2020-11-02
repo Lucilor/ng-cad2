@@ -35,8 +35,8 @@ export class CadData {
 	suanliaochuli: "算料+显示展开+开料" | "算料+开料" | "算料+显示展开" | "算料";
 	showKuandubiaozhu: boolean;
 	info: AnyObject;
+	attributes: AnyObject;
 	bancaihoudufangxiang: "none" | "gt0" | "lt0";
-	readonly visible: boolean;
 
 	constructor(data: AnyObject = {}) {
 		if (typeof data !== "object") {
@@ -84,7 +84,6 @@ export class CadData {
 		this.updatePartners();
 		this.components = new CadComponents(data.components ?? {});
 		this.updateComponents();
-		this.visible = data.visible === false ? false : true;
 		this.zhankaikuan = data.zhankaikuan ?? "ceil(总长)+0";
 		this.zhankaigao = data.zhankaigao ?? "";
 		this.shuliang = data.shuliang ?? "1";
@@ -100,6 +99,7 @@ export class CadData {
 		this.suanliaochuli = data.suanliaochuli ?? "算料+显示展开+开料";
 		this.showKuandubiaozhu = data.showKuandubiaozhu ?? false;
 		this.info = data.info ?? {};
+		this.attributes = data.attributes ?? {};
 		this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
 		this.updateDimensions();
 	}
@@ -360,7 +360,6 @@ export class CadData {
 			try {
 				this.assembleComponents(c);
 			} catch (error) {
-				// TODO: warn error
 				// console.warn(error);
 			}
 		});
@@ -590,7 +589,6 @@ export class CadData {
 		}
 		components.connections = components.connections.filter((v, i) => !toRemove.includes(i));
 		this.moveComponent(c2, translate, c1);
-		c2.transform({translate: translate.toArray()});
 		components.connections.push(cloneDeep(connection));
 
 		return this;
@@ -642,16 +640,6 @@ export class CadData {
 		}
 	}
 
-	show() {
-		this.getAllEntities().forEach((e) => (e.visible = true), true);
-		return this;
-	}
-
-	hide() {
-		this.getAllEntities().forEach((e) => (e.visible = false), true);
-		return this;
-	}
-
 	directAssemble(component: CadData, accuracy = 1) {
 		["x", "y"].forEach((axis) => {
 			const conn = new CadConnection({axis, position: "absolute"});
@@ -661,7 +649,6 @@ export class CadData {
 			const rect2 = component.getBoundingRect();
 			const p1 = [rect1.left, rect1.top];
 			const p2 = [rect2.left, rect2.top];
-			console.log(rect1, rect2);
 			if (axis === "x") {
 				conn.value = p1[0] - p2[0];
 				conn.space = (-conn.value).toString();
@@ -738,7 +725,7 @@ export class CadConnection {
 	space: string;
 	position: "absolute" | "relative";
 	axis: "x" | "y";
-	value?: number;
+	value: number;
 
 	constructor(data: any = {}) {
 		this.ids = Array.isArray(data.ids) ? data.ids : [];
@@ -747,6 +734,7 @@ export class CadConnection {
 		this.space = data.space || "0";
 		this.position = data.position || "absolute";
 		this.axis = data.axis || "x";
+		this.value = data.value ?? 0;
 	}
 
 	export(): AnyObject {
@@ -756,7 +744,8 @@ export class CadConnection {
 			lines: this.lines,
 			space: this.space,
 			position: this.position,
-			axis: this.axis
+			axis: this.axis,
+			value: this.value
 		};
 	}
 }

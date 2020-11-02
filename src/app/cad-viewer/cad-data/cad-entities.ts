@@ -24,7 +24,7 @@ export abstract class CadEntity {
 	parent?: CadEntity;
 	children: CadEntities;
 	el?: G | null;
-	needsTransform = false;
+	needsUpdate = false;
 
 	get scale() {
 		if (this.el) {
@@ -152,13 +152,29 @@ export abstract class CadEntity {
 		this.opacity = data.opacity ?? 1;
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam, _parent?: CadEntity) {
-		this.children.forEach((e) => e.transform(matrix, this));
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, _parent?: CadEntity) {
+		if (this.el) {
+			const oldMatrix = new Matrix(this.el.transform());
+			this.el.transform(oldMatrix.transform(matrix));
+		}
+		if (!alter) {
+			this.needsUpdate = true;
+		}
+		this.children.forEach((e) => e.transform(matrix, alter, this));
 		return this;
+	}
+
+	update() {
+		if (this.needsUpdate && this.el) {
+			this.transform(this.el.transform(), true);
+			this.needsUpdate = false;
+			this.el.transform({});
+		}
 	}
 
 	export(): AnyObject {
 		this._indexColor = RGB2Index(this.color.hex());
+		this.update();
 		return {
 			id: this.id,
 			originalId: this.originalId,
@@ -210,6 +226,7 @@ export class CadArc extends CadEntity {
 	start_angle: number;
 	end_angle: number;
 	clockwise: boolean;
+	mingzi = "";
 	gongshi = "";
 	hideLength: boolean;
 	lengthTextSize: number;
@@ -243,17 +260,19 @@ export class CadArc extends CadEntity {
 		this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam) {
-		super.transform(matrix, this);
-		const curve = this.curve;
-		curve.transform(matrix);
-		this.center = curve.center;
-		this.radius = curve.radius;
-		this.start_angle = curve.startAngle.deg;
-		this.end_angle = curve.endAngle.deg;
-		const {scaleX, scaleY} = matrix;
-		if (scaleX && scaleY && scaleX * scaleY < 0) {
-			this.clockwise = !this.clockwise;
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+		super.transform(matrix, false, parent);
+		if (alter) {
+			const curve = this.curve;
+			curve.transform(matrix);
+			this.center = curve.center;
+			this.radius = curve.radius;
+			this.start_angle = curve.startAngle.deg;
+			this.end_angle = curve.endAngle.deg;
+			const {scaleX, scaleY} = matrix;
+			if (scaleX && scaleY && scaleX * scaleY < 0) {
+				this.clockwise = !this.clockwise;
+			}
 		}
 		return this;
 	}
@@ -299,9 +318,11 @@ export class CadCircle extends CadEntity {
 		this.radius = data.radius ?? 0;
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam) {
-		super.transform(matrix);
-		this.center.transform(matrix);
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+		super.transform(matrix, alter, parent);
+		if (alter) {
+			this.center.transform(matrix);
+		}
 		return this;
 	}
 
@@ -341,6 +362,7 @@ export class CadDimension extends CadEntity {
 	mingzi: string;
 	qujian: string;
 	ref?: "entity1" | "entity2" | "minX" | "maxX" | "minY" | "maxY" | "minLength" | "maxLength";
+	quzhifanwei: string;
 
 	private _renderStyle: 1 | 2 = 1;
 	get renderStyle() {
@@ -379,10 +401,11 @@ export class CadDimension extends CadEntity {
 		this.qujian = data.qujian ?? "";
 		this.ref = data.ref ?? "entity1";
 		this.renderStyle = data.renderStyle ?? 1;
+		this.quzhifanwei = data.quzhifanwei ?? "";
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam) {
-		super.transform(matrix);
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+		super.transform(matrix, alter, parent);
 		return this;
 	}
 
@@ -400,7 +423,8 @@ export class CadDimension extends CadEntity {
 			mingzi: this.mingzi,
 			qujian: this.qujian,
 			ref: this.ref,
-			renderStyle: this.renderStyle
+			renderStyle: this.renderStyle,
+			quzhifanwei: this.quzhifanwei
 		};
 	}
 
@@ -463,15 +487,17 @@ export class CadHatch extends CadEntity {
 		return {...super.export(), paths};
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam) {
-		super.transform(matrix);
-		this.paths.forEach((path) => {
-			path.edges.forEach((edge) => {
-				edge.start.transform(matrix);
-				edge.end.transform(matrix);
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+		super.transform(matrix, alter, parent);
+		if (alter) {
+			this.paths.forEach((path) => {
+				path.edges.forEach((edge) => {
+					edge.start.transform(matrix);
+					edge.end.transform(matrix);
+				});
+				path.vertices.forEach((vertice) => vertice.transform(matrix));
 			});
-			path.vertices.forEach((vertice) => vertice.transform(matrix));
-		});
+		}
 		return this;
 	}
 
@@ -560,10 +586,12 @@ export class CadLine extends CadEntity {
 		this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam) {
-		super.transform(matrix);
-		this.start.transform(matrix);
-		this.end.transform(matrix);
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+		super.transform(matrix, alter, parent);
+		if (alter) {
+			this.start.transform(matrix);
+			this.end.transform(matrix);
+		}
 		return this;
 	}
 
@@ -640,17 +668,19 @@ export class CadMtext extends CadEntity {
 		};
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam, parent?: CadEntity) {
-		super.transform(matrix);
-		this.insert.transform(matrix);
-		const m = new Matrix(matrix);
-		if (this.info.isLengthText || this.info.isGongshiText) {
-			if (!Array.isArray(this.info.offset)) {
-				this.info.offset = [0, 0];
-			}
-			if (!parent) {
-				this.info.offset[0] += m.e;
-				this.info.offset[1] += m.f;
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+		super.transform(matrix, alter, parent);
+		if (alter) {
+			this.insert.transform(matrix);
+			const m = new Matrix(matrix);
+			if (this.info.isLengthText || this.info.isGongshiText) {
+				if (!Array.isArray(this.info.offset)) {
+					this.info.offset = [0, 0];
+				}
+				if (!parent) {
+					this.info.offset[0] += m.e;
+					this.info.offset[1] += m.f;
+				}
 			}
 		}
 		return this;
@@ -776,8 +806,8 @@ export class CadEntities {
 		return new CadEntities(this, [], resetIds);
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam) {
-		this.forEach((e) => e.transform(matrix));
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false) {
+		this.forEach((e) => e.transform(matrix, alter));
 	}
 
 	forEachType(callback: (array: CadEntity[], type: CadTypeKey, TYPE: CadType) => void) {

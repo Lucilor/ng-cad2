@@ -72,7 +72,7 @@ export class CadDataService extends HttpService {
 		}
 	}
 
-	async getYuanshicadwenjian(params: Partial<GetCadParams>){
+	async getYuanshicadwenjian(params: Partial<GetCadParams>) {
 		const response = await this.request<any[]>("peijian/cad/getYuanshicadwenjian", "POST", params);
 		const result: {cads: any[]; total: number} = {cads: [], total: 0};
 		if (response && response.data) {
@@ -101,7 +101,7 @@ export class CadDataService extends HttpService {
 		const result = await this.request<any>("peijian/cad/downloadDxf", "POST", {cadData: data.export()});
 		const host = this.baseURL === "/api" ? "//localhost" : origin;
 		if (result) {
-			open(host + "localhost/" + result.data.path);
+			open(host + "/" + result.data.path);
 		}
 	}
 

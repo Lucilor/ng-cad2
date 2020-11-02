@@ -15,7 +15,8 @@ export interface AppConfig extends CadViewerConfig {
 	providedIn: "root"
 })
 export class AppConfigService {
-	config$: BehaviorSubject<AppConfig>;
+	private config$: BehaviorSubject<AppConfig>;
+	configChange$: BehaviorSubject<{oldVal: AppConfig; newVal: Partial<AppConfig>}>;
 
 	constructor() {
 		let config: AppConfig = {
@@ -46,6 +47,7 @@ export class AppConfigService {
 			config = {...config, ...cachedConfig};
 		}
 		this.config$ = new BehaviorSubject(config);
+		this.configChange$ = new BehaviorSubject({oldVal: config, newVal: config as Partial<AppConfig>});
 		this.config$.subscribe((config) => session.save("config", config));
 		window.addEventListener("unload", () => session.save("config", this.config()));
 	}
@@ -55,17 +57,20 @@ export class AppConfigService {
 	config(config: Partial<AppConfig>): void;
 	config<T extends keyof AppConfig>(key: T, value: AppConfig[T]): void;
 	config<T extends keyof AppConfig>(key?: T | Partial<AppConfig>, value?: AppConfig[T]) {
+		const oldVal = this.config$.getValue();
 		if (typeof key === "string") {
 			if (value !== undefined) {
-				const obj: Partial<AppConfig> = {};
-				obj[key] = value;
-				this.config$.next({...this.config$.getValue(), ...obj});
+				const newVal: Partial<AppConfig> = {};
+				newVal[key] = value;
+				this.configChange$.next({oldVal, newVal});
+				this.config$.next({...oldVal, ...newVal});
 				return;
 			} else {
 				return this.config$.getValue()[key];
 			}
 		} else if (typeof key === "object") {
-			this.config$.next({...this.config$.getValue(), ...key});
+			this.configChange$.next({oldVal, newVal: key});
+			this.config$.next({...oldVal, ...key});
 			return;
 		} else {
 			return this.config$.getValue();

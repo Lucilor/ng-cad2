@@ -49,7 +49,7 @@ export class HttpService {
 				response = await this.http.get<Response<T>>(url).toPromise();
 			}
 			if (method === "POST") {
-				let files: File[];
+				let files: File[] = [];
 				for (const key in data) {
 					const value = data[key];
 					if (value instanceof FileList) {
@@ -69,6 +69,7 @@ export class HttpService {
 						formData.append(key, data[key]);
 					}
 				}
+				files.forEach((v, i) => formData.append("file" + i, v));
 				response = await this.http.post<Response<T>>(url, formData).toPromise();
 			}
 			if (!response) {

@@ -10,23 +10,26 @@ let entitiesNotToDrag: CadEntities | null = null;
 let draggingDimension: CadDimension | null = null;
 let needsRender = false;
 
+type EntityObj = {entity: CadEntity};
+type EntitiesObj = {entities: CadEntities};
 export interface CadEvents {
-	pointerdown: [PointerEvent, never];
-	pointermove: [PointerEvent, never];
-	pointerup: [PointerEvent, never];
-	click: [MouseEvent, never];
-	wheel: [WheelEvent, never];
-	keydown: [KeyboardEvent, never];
-	entityclick: [MouseEvent, CadEntity];
-	entitypointerdown: [PointerEvent, CadEntity];
-	entitypointermove: [PointerEvent, CadEntity];
-	entitypointerup: [PointerEvent, CadEntity];
-	entitiesselect: [null, CadEntities];
-	entitiesunselect: [null, CadEntities];
-	entitiesremove: [null, CadEntities];
-	entitiesadd: [null, CadEntities];
-	render: [null, CadEntities];
+	pointerdown: [PointerEvent, {}];
+	pointermove: [PointerEvent, {}];
+	pointerup: [PointerEvent, {}];
+	click: [MouseEvent, {}];
+	wheel: [WheelEvent, {}];
+	keydown: [KeyboardEvent, {}];
+	entityclick: [MouseEvent, EntityObj];
+	entitypointerdown: [PointerEvent, EntityObj];
+	entitypointermove: [PointerEvent, EntityObj];
+	entitypointerup: [PointerEvent, EntityObj];
+	entitiesselect: [null, EntitiesObj];
+	entitiesunselect: [null, EntitiesObj];
+	entitiesremove: [null, EntitiesObj];
+	entitiesadd: [null, EntitiesObj];
+	render: [null, EntitiesObj];
 }
+export type CadEventCallBack<T extends keyof CadEvents> = (event: CadEvents[T][0], params: CadEvents[T][1]) => void;
 
 function onWheel(this: CadViewer, event: WheelEvent) {
 	event.preventDefault();
@@ -44,7 +47,7 @@ function onWheel(this: CadViewer, event: WheelEvent) {
 function onClick(this: CadViewer, event: MouseEvent) {
 	event.preventDefault();
 	this.dom.focus();
-	this.emit("click", event);
+	this.emit("click", event, {});
 }
 
 function onPointerDown(this: CadViewer, event: PointerEvent) {
@@ -57,7 +60,7 @@ function onPointerDown(this: CadViewer, event: PointerEvent) {
 		multiSelector.remove();
 		multiSelector = null;
 	}
-	this.emit("pointerdown", event);
+	this.emit("pointerdown", event, {});
 }
 
 function onPointerMove(this: CadViewer, event: PointerEvent) {
@@ -133,7 +136,7 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
 		}
 		to.set(clientX, clientY);
 	}
-	this.emit("pointermove", event);
+	this.emit("pointermove", event, {});
 }
 
 function onPointerUp(this: CadViewer, event: PointerEvent) {
@@ -141,7 +144,7 @@ function onPointerUp(this: CadViewer, event: PointerEvent) {
 	if (pointer) {
 		const {from, to} = pointer;
 		if (from.distanceTo(to) < 1) {
-			this.emit("click", event);
+			this.emit("click", event, {});
 		} else if (multiSelector) {
 			const rect = new Rectangle(from, to).justify();
 			const toSelect = Array<CadEntity>();
@@ -172,7 +175,7 @@ function onPointerUp(this: CadViewer, event: PointerEvent) {
 		this.render();
 	}
 	entitiesToDrag = entitiesNotToDrag = draggingDimension = null;
-	this.emit("pointerup", event);
+	this.emit("pointerup", event, {});
 }
 
 function onKeyDown(this: CadViewer, event: KeyboardEvent) {
@@ -187,7 +190,7 @@ function onKeyDown(this: CadViewer, event: KeyboardEvent) {
 		this.remove(this.selected());
 		event.preventDefault();
 	}
-	this.emit("keydown", event);
+	this.emit("keydown", event, {});
 }
 
 function onEntityClick(this: CadViewer, event: MouseEvent, entity: CadEntity) {
@@ -203,7 +206,7 @@ function onEntityClick(this: CadViewer, event: MouseEvent, entity: CadEntity) {
 			this.select(entity);
 		}
 	}
-	this.emit("entityclick", event, entity);
+	this.emit("entityclick", event, {entity});
 	this.dom.focus();
 }
 
@@ -216,15 +219,15 @@ function onEntityPointerDown(this: CadViewer, event: PointerEvent, entity: CadEn
 			entitiesNotToDrag = this.unselected();
 		}
 	}
-	this.emit("entitypointerdown", event, entity);
+	this.emit("entitypointerdown", event, {entity});
 }
 
 function onEntityPointerMove(this: CadViewer, event: PointerEvent, entity: CadEntity) {
-	this.emit("entitypointermove", event, entity);
+	this.emit("entitypointermove", event, {entity});
 }
 
 function onEntityPointerUp(this: CadViewer, event: PointerEvent, entity: CadEntity) {
-	this.emit("entitypointerup", event, entity);
+	this.emit("entitypointerup", event, {entity});
 }
 
 export const controls = {

@@ -181,6 +181,11 @@
 				<mat-option [value]="'none'">不指定</mat-option>
 			</mat-select>
 		</mat-form-field>
+		<mat-form-field>
+			<mat-label>自定义属性</mat-label>
+			<input matInput type="text" disabled name="attributes" />
+			<mat-icon matSuffix color="primary" (click)="editAttributes(cad)">list</mat-icon>
+		</mat-form-field>
 	</form>
 </div>
 <app-cad-points></app-cad-points>

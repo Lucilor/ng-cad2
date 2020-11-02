@@ -2,10 +2,6 @@ import {Circle, Container, Line, Path, PathArrayAlias, Text} from "@svgdotjs/svg
 import {Angle, Arc, Point} from "@app/utils";
 
 export function drawLine(draw: Container, start: Point, end: Point, i = 0) {
-	if (start.equals(end)) {
-		draw.remove();
-		return [];
-	}
 	let el = draw.children()[i] as Line;
 	if (el instanceof Line) {
 		el.plot(start.x, start.y, end.x, end.y);
@@ -16,10 +12,6 @@ export function drawLine(draw: Container, start: Point, end: Point, i = 0) {
 }
 
 export function drawCircle(draw: Container, center: Point, radius: number, i = 0) {
-	if (radius <= 0) {
-		draw.remove();
-		return [];
-	}
 	let el = draw.children()[i] as Circle;
 	if (el instanceof Line) {
 		el.size(radius).center(center.x, center.y);
@@ -30,10 +22,6 @@ export function drawCircle(draw: Container, center: Point, radius: number, i = 0
 }
 
 export function drawArc(draw: Container, center: Point, radius: number, startAngle: number, endAngle: number, clockwise: boolean, i = 0) {
-	if (radius <= 0) {
-		draw.remove();
-		return [];
-	}
 	const l0 = Math.PI * 2 * radius;
 	const arc = new Arc(new Point(center.x, center.y), radius, new Angle(startAngle, "deg"), new Angle(endAngle, "deg"), clockwise);
 	const isLargeArc = arc.length / l0 > 0.5 ? 1 : 0;

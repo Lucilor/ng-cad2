@@ -148,8 +148,7 @@ export class CadConsoleComponent implements OnInit {
 		},
 		async config() {
 			const config = this.config.config();
-			const ref = openJsonEditorDialog(this.dialog, {data: {json: config}});
-			const result = (await ref.afterClosed().toPromise()) as AppConfig;
+			const result = await openJsonEditorDialog(this.dialog, {data: {json: config}});
 			if (result) {
 				this.config.config(result);
 			}
@@ -795,7 +794,6 @@ export class CadConsoleComponent implements OnInit {
 	private async transform(matrix: MatrixExtract, rotateDimension = false) {
 		const cad = this.status.cad;
 		const seleted = cad.selected();
-		console.log(matrix);
 		if (seleted.length) {
 			const {x, y} = seleted.getBoundingRect();
 			seleted.transform({...matrix, origin: [x, y]});
@@ -813,7 +811,7 @@ export class CadConsoleComponent implements OnInit {
 					});
 				}
 				removeCadGongshi(data);
-				addCadGongshi(data);
+				addCadGongshi(data, this.config.config("showCadGongshis"));
 			};
 			const selectedCads = this.status.getFlatSelectedCads();
 			if (selectedCads.length) {

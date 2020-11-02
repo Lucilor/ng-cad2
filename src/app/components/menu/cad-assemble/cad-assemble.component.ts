@@ -1,9 +1,8 @@
-import {Component, OnInit, OnDestroy, Injector, Output, EventEmitter} from "@angular/core";
+import {Component, OnInit, OnDestroy, Output, EventEmitter} from "@angular/core";
 import {CadConnection, CadData} from "@app/cad-viewer/cad-data/cad-data";
-import {CadEntity} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {CadEventCallBack} from "@src/app/cad-viewer/cad-viewer-controls";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 
 @Component({
@@ -25,7 +24,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
 		return this.data.components.connections;
 	}
 
-	private onEntityClick = ((_event: MouseEvent, entity?: CadEntity) => {
+	private onEntityClick = (((_event, {entity}) => {
 		const name = this.status.cadStatus("name");
 		if (name !== "assemble" || !entity) {
 			return;
@@ -112,9 +111,9 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
 				break;
 			}
 		}
-	}).bind(this);
+	}) as CadEventCallBack<"entityclick">).bind(this);
 
-	private onEntitiesSelect = (() => {
+	private onEntitiesSelect = ((() => {
 		const {name, index} = this.status.cadStatus();
 		if (name !== "assemble") {
 			return;
@@ -134,7 +133,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
 				}
 			}
 		});
-	}).bind(this);
+	}) as CadEventCallBack<"entitiesselect">).bind(this);
 
 	constructor(private status: AppStatusService, private message: MessageService) {
 		super();

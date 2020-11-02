@@ -264,11 +264,11 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 			} else {
 				theta -= Math.PI / 2;
 			}
-			const offset = new Point(Math.cos(theta), Math.sin(theta));
-			const outer = line.middle.clone().add(offset);
-			const inner = line.middle.clone().sub(offset);
+			const offsetMid = new Point(Math.cos(theta), Math.sin(theta));
+			const outer = line.middle.clone().add(offsetMid);
+			const inner = line.middle.clone().sub(offsetMid);
 			const anchor = new Point(0.5, 0.5);
-			let {x, y} = offset;
+			let {x, y} = offsetMid;
 			if (Math.abs(x) > Math.abs(y)) {
 				y = 0;
 			} else {
@@ -289,52 +289,35 @@ export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEF
 				}
 			}
 
-			const {hideLineLength, lineGongshi} = cad.config();
 			let lengthText = line.children.find((c) => c.info.isLengthText) as CadMtext;
-			if (hideLineLength) {
-				line.removeChild(lengthText);
+			if (!(lengthText instanceof CadMtext)) {
+				lengthText = new CadMtext();
+				lengthText.info.isLengthText = true;
+				lengthText.info.offset = [0, 0];
+				line.addChild(lengthText);
+				if (anchor.x === 0) {
+					lengthText.info.offset[0] += 5;
+				} else if (anchor.x === 1) {
+					lengthText.info.offset[0] -= 5;
+				}
+			}
+			const offset = getVectorFromArray(lengthText.info.offset);
+			lengthText.insert.copy(offset.add(outer));
+			if (Array.isArray(lengthText.info.anchorOverwrite)) {
+				lengthText.anchor.copy(getVectorFromArray(lengthText.info.anchorOverwrite));
 			} else {
-				if (!(lengthText instanceof CadMtext)) {
-					lengthText = new CadMtext();
-					lengthText.info.isLengthText = true;
-					lengthText.info.offset = [0, 0];
-					line.addChild(lengthText);
-					if (anchor.x === 0) {
-						lengthText.info.offset[0] += 5;
-					} else if (anchor.x === 1) {
-						lengthText.info.offset[0] -= 5;
-					}
-				}
-				const offset = getVectorFromArray(lengthText.info.offset);
-				lengthText.insert.copy(offset.add(outer));
-				lengthText.text = Math.round(line.length).toString();
-				lengthText.font_size = line.lengthTextSize;
-				if (Array.isArray(lengthText.info.anchorOverwrite)) {
-					lengthText.anchor.copy(getVectorFromArray(lengthText.info.anchorOverwrite));
-				} else {
-					lengthText.anchor.copy(anchor);
-				}
+				lengthText.anchor.copy(anchor);
 			}
 
 			let gongshiText = line.children.find((c) => c.info.isGongshiText) as CadMtext;
-			if (lineGongshi) {
-				if (!(gongshiText instanceof CadMtext)) {
-					gongshiText = new CadMtext();
-					gongshiText.info.isGongshiText = true;
-					gongshiText.info.offset = [0, 0];
-					line.addChild(gongshiText);
-					gongshiText.insert.copy(inner);
-				}
-				if (line instanceof CadLine && line.mingzi) {
-					gongshiText.text = `${line.mingzi}=${line.gongshi}`;
-				} else {
-					gongshiText.text = "=" + line.gongshi;
-				}
-				gongshiText.font_size = lineGongshi;
-				gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
-			} else {
-				line.removeChild(gongshiText);
+			if (!(gongshiText instanceof CadMtext)) {
+				gongshiText = new CadMtext();
+				gongshiText.info.isGongshiText = true;
+				gongshiText.info.offset = [0, 0];
+				line.addChild(gongshiText);
+				gongshiText.insert.copy(inner);
 			}
+			gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
 		});
 	});
 }
