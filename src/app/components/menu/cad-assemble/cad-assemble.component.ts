@@ -11,7 +11,6 @@ import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services
 	styleUrls: ["./cad-assemble.component.scss"]
 })
 export class CadAssembleComponent extends Subscribed() implements OnInit, OnDestroy {
-	@Output() selectComponent = new EventEmitter<string>();
 	options = {space: "0", position: "absolute"};
 	ids: string[] = [];
 	names: string[] = [];
@@ -128,7 +127,13 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
 			const entities = v.getAllEntities().toArray();
 			for (const e of entities) {
 				if (selected.includes(e.id)) {
-					this.selectComponent.emit(v.id);
+					const selectedCads = this.status.selectedCads$.getValue();
+					if (selectedCads.components.includes(v.id)) {
+						selectedCads.components = selectedCads.components.filter((vv) => vv !== v.id);
+					} else {
+						selectedCads.components.push(v.id);
+					}
+					this.status.selectedCads$.next(selectedCads);
 					break;
 				}
 			}

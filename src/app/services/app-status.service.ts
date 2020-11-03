@@ -114,11 +114,16 @@ export class AppStatusService {
 				const data: CadData[] = cachedData.map((v: any) => new CadData(v));
 				this.openCad(data, params.collection ?? "cad");
 			} else {
-				const {id, collection} = this.route.snapshot.queryParams;
+				const {id, ids, collection} = this.route.snapshot.queryParams;
 				const params: Partial<GetCadParams> = {};
-				if (id && collection) {
+				if ((id || ids) && collection) {
 					this.config.config("collection", collection);
-					params.id = id;
+					if (id) {
+						params.id = id;
+					}
+					if (ids) {
+						params.ids = ids.split(",");
+					}
 					params.collection = collection;
 				} else {
 					const {cadIds, collection} = this.config.config();

@@ -272,7 +272,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
 	private focus(entities = this.status.cad.data.getAllEntities()) {
 		entities.forEach((e) => {
-			e.selectable = !e.info.isCadGongshi && !(e instanceof CadHatch);
+			// e.selectable = !e.info.isCadGongshi && !(e instanceof CadHatch);
 			e.selected = false;
 			e.opacity = 1;
 		});
@@ -280,7 +280,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
 	private blur(entities = this.status.cad.data.getAllEntities()) {
 		entities.forEach((e) => {
-			e.selectable = false;
+			// e.selectable = false;
 			e.selected = false;
 			e.opacity = 0.3;
 		});
@@ -359,8 +359,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 			if (cads.includes(v.data.id)) {
 				if (fullCads.includes(v.data.id)) {
 					checked = true;
-				} else {
 					indeterminate = false;
+				} else {
+					checked = false;
+					indeterminate = true;
 				}
 			}
 			v.checked = checked;
