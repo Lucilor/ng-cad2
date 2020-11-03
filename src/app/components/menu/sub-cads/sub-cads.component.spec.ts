@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import { SubCadsComponent } from './sub-cads.component';
+import {SubCadsComponent} from "./sub-cads.component";
 
-describe('SubCadsComponent', () => {
+describe("SubCadsComponent", () => {
   let component: SubCadsComponent;
   let fixture: ComponentFixture<SubCadsComponent>;
 
@@ -19,7 +19,7 @@ describe('SubCadsComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

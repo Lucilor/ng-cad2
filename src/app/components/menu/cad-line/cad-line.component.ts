@@ -4,7 +4,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadLine, CadArc, CadMtext} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {CadLine, CadArc} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {
 	CadLineLike,
 	validColors,

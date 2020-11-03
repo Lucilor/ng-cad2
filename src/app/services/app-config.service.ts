@@ -1,4 +1,4 @@
-import {Injectable, OnDestroy} from "@angular/core";
+import {Injectable} from "@angular/core";
 import {BehaviorSubject} from "rxjs";
 import {session} from "../app.common";
 import {CadViewerConfig} from "../cad-viewer/cad-viewer";

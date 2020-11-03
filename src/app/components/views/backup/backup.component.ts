@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Injector} from "@angular/core";
+import {AfterViewInit, Component} from "@angular/core";
 import {DomSanitizer} from "@angular/platform-browser";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
 import {getCadPreview} from "@src/app/cad.utils";

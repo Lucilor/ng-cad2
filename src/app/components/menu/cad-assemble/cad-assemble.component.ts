@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, Output, EventEmitter} from "@angular/core";
+import {Component, OnInit, OnDestroy} from "@angular/core";
 import {CadConnection, CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {CadEventCallBack} from "@src/app/cad-viewer/cad-viewer-controls";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";

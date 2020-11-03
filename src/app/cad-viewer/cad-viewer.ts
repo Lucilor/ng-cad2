@@ -672,22 +672,11 @@ export class CadViewer extends EventEmitter {
 	// ? move entities efficiently
 	// * call render() after moving
 	moveEntities(toMove: CadEntities, notToMove: CadEntities, x: number, y: number) {
-		const move = (es: CadEntities, x: number, y: number) => {
-			es.forEach((e) => {
-				e.el?.translate(x, y);
-				e.needsUpdate = true;
-				if (e.children.length) {
-					move(e.children, x, y);
-				}
-			});
-		};
 		if (toMove.length <= notToMove.length) {
 			toMove.transform({translate: [x, y]});
-			// move(toMove, x, y);
 		} else {
 			this.move(x, y);
 			notToMove.transform({translate: [-x, -y]});
-			// move(notToMove, -x, -y);
 		}
 	}
 }

@@ -1,5 +1,4 @@
 import {Component, OnInit} from "@angular/core";
-import {environment} from "@src/environments/environment";
 import {AppConfigService} from "./services/app-config.service";
 import {AppStatusService} from "./services/app-status.service";
 

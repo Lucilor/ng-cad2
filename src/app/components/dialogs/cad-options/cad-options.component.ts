@@ -1,4 +1,4 @@
-import {Component, Inject, ViewChild, AfterViewInit, Injector} from "@angular/core";
+import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";

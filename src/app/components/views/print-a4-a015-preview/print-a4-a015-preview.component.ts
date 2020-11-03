@@ -1,4 +1,4 @@
-import {Component, ChangeDetectorRef, OnDestroy, AfterViewInit, Injector} from "@angular/core";
+import {Component, ChangeDetectorRef, OnDestroy, AfterViewInit} from "@angular/core";
 import {CadViewer} from "@app/cad-viewer/cad-viewer";
 import {CadData} from "@app/cad-viewer/cad-data/cad-data";
 import {timeout} from "@app/app.common";

@@ -43,7 +43,7 @@ export class ImportComponent implements OnInit {
 			const total = cads.length;
 			const now = new Date().getTime();
 			for (let i = 0; i < total; i++) {
-				let result = await this.dataService.setCad({
+				const result = await this.dataService.setCad({
 					collection: "cad",
 					cadData: cads[i],
 					force: this.force,

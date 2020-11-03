@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
-import { CadPointsComponent } from './cad-points.component';
+import {CadPointsComponent} from "./cad-points.component";
 
-describe('CadPointsComponent', () => {
+describe("CadPointsComponent", () => {
   let component: CadPointsComponent;
   let fixture: ComponentFixture<CadPointsComponent>;
 
@@ -19,7 +19,7 @@ describe('CadPointsComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

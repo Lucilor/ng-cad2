@@ -11,7 +11,7 @@ import {openCadListDialog} from "@src/app/components/dialogs/cad-list/cad-list.c
 import {openJsonEditorDialog} from "@src/app/components/dialogs/json-editor/json-editor.component";
 import {BookData} from "@src/app/modules/message/components/message/message-types";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
+import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {CadCollection, CadDataService} from "@src/app/services/cad-data.service";
 import {Line, Point} from "@src/app/utils";

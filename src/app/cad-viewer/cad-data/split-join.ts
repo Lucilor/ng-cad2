@@ -13,8 +13,8 @@ export function splitCad(data: CadData) {
 	const rects: Rectangle[] = [];
 	const sorted = sortLines(dumpData);
 	sorted.forEach((lines) => {
-		let min = new Point(Infinity, Infinity);
-		let max = new Point(-Infinity, -Infinity);
+		const min = new Point(Infinity, Infinity);
+		const max = new Point(-Infinity, -Infinity);
 		lines.forEach(({start, end}) => {
 			min.x = Math.min(min.x, start.x, end.x);
 			min.y = Math.min(min.y, start.y, end.y);
@@ -65,8 +65,10 @@ export function splitCad(data: CadData) {
 		显示宽度标注: "showKuandubiaozhu"
 	};
 	result.forEach((v) => {
-		v.entities.mtext.some((e) => {
+		let toRemove = -1;
+		v.entities.mtext.some((e,i) => {
 			if (e.text.startsWith("CAD信息")) {
+				toRemove = i;
 				const arr = e.text.split("\n").slice(1);
 				const obj: AnyObject = {};
 				arr.forEach((str) => {
@@ -89,11 +91,14 @@ export function splitCad(data: CadData) {
 			}
 			return false;
 		});
+		if (toRemove>=0) {
+			
+		}
 	});
 	return result;
 }
 
-export function joinCad(cads: CadData[]) {
+export function joinCad(_cads: CadData[]) {
 	const result = new CadData();
 	return result;
 }

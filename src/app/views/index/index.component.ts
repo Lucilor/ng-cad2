@@ -92,7 +92,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements AfterVi
 	}
 
 	private _setCadPadding(show: boolean, i: number) {
-		let padding = this.config.config("padding");
+		const padding = this.config.config("padding");
 		if (show) {
 			padding[i] += this.menuPadding[i];
 		} else {

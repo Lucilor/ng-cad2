@@ -6,15 +6,16 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {DomSanitizer} from "@angular/platform-browser";
 import {timeout} from "@src/app/app.common";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadEntities, CadHatch} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {addCadGongshi, getCadPreview, removeCadGongshi} from "@src/app/cad.utils";
+import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {getCadPreview, removeCadGongshi} from "@src/app/cad.utils";
 import {ContextMenu} from "@src/app/mixins/ContextMenu.mixin";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService, CadStatus, SelectedCadType, SelectedCads} from "@src/app/services/app-status.service";
+import {AppStatusService, CadStatus, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {CadCollection, CadDataService} from "@src/app/services/cad-data.service";
 import {copyToClipboard, Point, RSAEncrypt} from "@src/app/utils";
+import {concat, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
 
@@ -172,7 +173,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 	ngOnInit() {
 		this.updateList();
 		this.subscribe(this.status.openCad$, () => this.updateList());
-		this.subscribe(this.status.selectedCads$, () => this.getSelectedCads());
+		this.subscribe(this.status.selectedCads$, () => this.setSelectedCads());
 		this.subscribe(this.status.cadStatus$, async (cadStatus) => {
 			if (cadStatus.name === "split") {
 				const id = this.status.selectedCads$.getValue().cads[0];
@@ -289,69 +290,103 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 	toggleMultiSelect() {
 		this.multiSelect = !this.multiSelect;
 		if (!this.multiSelect) {
-			this.unselectAll();
+			const selectedCads = this.status.selectedCads$.getValue();
+			const arr = selectedCads.cads.concat(selectedCads.partners, selectedCads.components);
+			if (arr.length > 1) {
+				if (selectedCads.cads.length >= 1) {
+					selectedCads.cads = [selectedCads.cads[0]];
+					selectedCads.partners = [];
+					selectedCads.components = [];
+				} else if (selectedCads.partners.length >= 1) {
+					selectedCads.partners = [selectedCads.partners[0]];
+					selectedCads.components = [];
+				} else {
+					selectedCads.components = [selectedCads.components[0]];
+				}
+			}
+			this.status.selectedCads$.next(selectedCads);
 		}
 	}
 
-	selectAll(field: SelectedCadType = "cads", sync = true) {
-		this[field].forEach((_v, i) => this.clickCad(field, i, true, false));
-		if (sync) {
-			this.setSelectedCads();
+	selectAll(field: SelectedCadType = "cads") {
+		const selectedCads = this.status.selectedCads$.getValue();
+		selectedCads[field] = this[field].map((v) => v.data.id);
+		if (field === "cads") {
+			selectedCads.fullCads = selectedCads.cads.slice();
+			selectedCads.partners = concat(selectedCads.partners, ...this.cads.map((v) => v.data.partners.map((v) => v.id)));
+			selectedCads.components = concat(selectedCads.components, ...this.cads.map((v) => v.data.components.data.map((v) => v.id)));
 		}
+		this.status.selectedCads$.next(selectedCads);
 	}
 
-	unselectAll(field: SelectedCadType = "cads", sync = true) {
-		this[field].forEach((_v, i) => this.clickCad(field, i, false, false));
-		if (sync) {
-			this.setSelectedCads();
+	unselectAll(field: SelectedCadType = "cads") {
+		const selectedCads = this.status.selectedCads$.getValue();
+		selectedCads[field] = [];
+		if (field === "cads") {
+			selectedCads.fullCads = [];
+			selectedCads.partners = [];
+			selectedCads.components = [];
 		}
+		this.status.selectedCads$.next(selectedCads);
 	}
 
-	clickCad(field: SelectedCadType, index: number, event?: MatCheckboxChange | boolean | null, sync = true) {
+	clickCad(field: SelectedCadType, index: number, event?: MatCheckboxChange | boolean | null) {
 		if (this.disabled.includes(field)) {
 			return;
 		}
-		const cad = this[field][index];
+		const node = this[field][index];
+		const id = node.data.id;
+		let selectedCads: SelectedCads;
+		if (this.multiSelect) {
+			selectedCads = this.status.selectedCads$.getValue();
+		} else {
+			selectedCads = {cads: [], fullCads: [], components: [], partners: []};
+		}
 		let checked: boolean;
 		if (event instanceof MatCheckboxChange) {
 			checked = event.checked;
 		} else if (typeof event === "boolean") {
 			checked = event;
 		} else {
-			checked = !cad.checked;
+			checked = !node.checked;
 		}
-		if (checked) {
-			cad.indeterminate = false;
-			if (!this.multiSelect) {
-				this.unselectAll("cads", false);
-			}
-		}
-		cad.checked = checked;
 		if (field === "cads") {
-			[...this.partners, ...this.components]
-				.filter((v) => v.parent === cad.data.id)
-				.forEach((v) => {
-					v.checked = checked;
-				});
+			const partners = node.data.partners.map((v) => v.id);
+			const components = node.data.components.data.map((v) => v.id);
+			if (checked) {
+				selectedCads.cads.push(id);
+				selectedCads.fullCads.push(id);
+				selectedCads.partners = selectedCads.partners.concat(partners);
+				selectedCads.components = selectedCads.components.concat(components);
+			} else {
+				pull(selectedCads.cads, id);
+				pull(selectedCads.fullCads, id);
+				pullAll(selectedCads.partners, partners);
+				pullAll(selectedCads.components, components);
+			}
 		} else {
-			const parent = this.cads.find((v) => v.data.id === cad.parent);
-			if (parent) {
-				if (parent.checked && !checked) {
-					parent.checked = false;
-					parent.indeterminate = true;
-				}
-				if (parent.indeterminate && checked) {
-					parent.checked = true;
-					parent.indeterminate = false;
+			const parentId = node.parent || "";
+			if (selectedCads.cads.includes(parentId)) {
+				if (selectedCads.fullCads.includes(parentId)) {
+					if (!checked) {
+						pull(selectedCads.fullCads, parentId);
+					}
+				} else {
+					if (checked) {
+						selectedCads.fullCads.push(parentId);
+					}
 				}
 			}
+			if (checked) {
+				selectedCads[field].push(id);
+			} else {
+				pull(selectedCads[field], id);
+			}
 		}
-		if (sync) {
-			this.setSelectedCads();
-		}
+		this.status.selectedCads$.next(selectedCads);
 	}
 
-	getSelectedCads() {
+	setSelectedCads() {
 		const {cads, partners, components, fullCads} = this.status.selectedCads$.getValue();
 		for (const v of this.cads) {
 			let checked = false;
@@ -402,30 +437,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 		cad.render();
 	}
 
-	setSelectedCads() {
-		const selectedCads: SelectedCads = {cads: [], partners: [], components: [], fullCads: []};
-		for (const v of this.cads) {
-			if (v.checked || v.indeterminate) {
-				selectedCads.cads.push(v.data.id);
-			}
-			if (v.checked) {
-				selectedCads.fullCads.push(v.data.id);
-			}
-		}
-		for (const v of this.partners) {
-			if (v.checked) {
-				selectedCads.partners.push(v.data.id);
-			}
-		}
-		for (const v of this.components) {
-			if (v.checked || v.indeterminate) {
-				selectedCads.components.push(v.data.id);
-			}
-		}
-		this.status.selectedCads$.next(selectedCads);
-	}
-
-	async updateList(list?: CadData[], sync = true) {
+	async updateList(list?: CadData[]) {
 		if (this.updateListLock) {
 			return;
 		}
@@ -451,9 +463,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 		}
 		if (this.cads.length) {
 			this.clickCad("cads", 0);
-		}
-		if (sync) {
-			this.setSelectedCads();
 		}
 		this.updateListLock = false;
 	}
@@ -568,7 +577,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 		if (!this.contextMenuCad) {
 			return;
 		}
-		let data = this.contextMenuCad.data.clone();
+		const data = this.contextMenuCad.data.clone();
 		removeCadGongshi(data);
 		const result = await openJsonEditorDialog(this.dialog, {data: {json: data.export()}});
 		if (result) {
@@ -627,7 +636,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 				}
 				this.updateList();
 				cad.reset();
-				this.setSelectedCads();
 			}
 		}
 	}
