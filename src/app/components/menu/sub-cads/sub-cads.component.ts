@@ -6,7 +6,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {DomSanitizer} from "@angular/platform-browser";
 import {timeout} from "@src/app/app.common";
 import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadEntities} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {CadEntities, CadHatch} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {getCadPreview, removeCadGongshi} from "@src/app/cad.utils";
 import {ContextMenu} from "@src/app/mixins/ContextMenu.mixin";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
@@ -273,7 +273,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
 	private focus(entities = this.status.cad.data.getAllEntities()) {
 		entities.forEach((e) => {
-			// e.selectable = !e.info.isCadGongshi && !(e instanceof CadHatch);
+			e.selectable = !e.info.isCadGongshi && !(e instanceof CadHatch);
 			e.selected = false;
 			e.opacity = 1;
 		});
@@ -281,7 +281,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
 	private blur(entities = this.status.cad.data.getAllEntities()) {
 		entities.forEach((e) => {
-			// e.selectable = false;
+			e.selectable = !e.info.isCadGongshi && !(e instanceof CadHatch);
 			e.selected = false;
 			e.opacity = 0.3;
 		});
