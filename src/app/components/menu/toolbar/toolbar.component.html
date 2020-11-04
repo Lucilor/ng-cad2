@@ -1,5 +1,6 @@
 <button mat-button [matMenuTriggerFor]="file">文件</button>
 <mat-menu #file="matMenu">
+	<button mat-menu-item (click)="clickBtn('q')">新建<span class="shortcut">Ctrl + Q</span></button>
 	<button mat-menu-item [matMenuTriggerFor]="openType">打开</button>
 	<button mat-menu-item (click)="clickBtn('s')">保存<span class="shortcut">Ctrl + S</span></button>
 	<button mat-menu-item (click)="clickBtn('p')">打印<span class="shortcut">Ctrl + P</span></button>

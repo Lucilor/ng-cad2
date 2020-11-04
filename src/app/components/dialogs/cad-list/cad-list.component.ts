@@ -5,6 +5,7 @@ import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, imgEmpty} from "@src/app/app.common";
 import {CadData, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
 import {getCadPreview} from "@src/app/cad.utils";
+import {MessageService} from "@src/app/modules/message/services/message.service";
 import {CadCollection, CadDataService, GetCadParams} from "@src/app/services/cad-data.service";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject} from "rxjs";
@@ -49,7 +50,8 @@ export class CadListComponent implements AfterViewInit {
 		private sanitizer: DomSanitizer,
 		private loader: NgxUiLoaderService,
 		private dataService: CadDataService,
-		private dialog: MatDialog
+		private dialog: MatDialog,
+		private message: MessageService
 	) {}
 
 	async ngAfterViewInit() {
@@ -220,6 +222,22 @@ export class CadListComponent implements AfterViewInit {
 
 	close() {
 		this.dialogRef.close();
+	}
+
+	async remove() {
+		this.syncCheckedItems();
+		const count = this.checkedItems.length;
+		if (count < 1) {
+			this.message.alert("没有选择CAD");
+			return;
+		}
+		if (await this.message.confirm(`确定要删除这${count}个CAD吗？`)) {
+			await this.dataService.removeCads(
+				this.data.collection,
+				this.checkedItems.map((v) => v.id)
+			);
+			this.search();
+		}
 	}
 }
 

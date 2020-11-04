@@ -495,11 +495,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 			const cad = this.status.cad;
 			cads = cads.map((v) => v.clone(true));
 			if (type === "partners") {
-				data.partners = cads;
+				data.partners = [];
 				cads.forEach((v) => data.addPartner(v));
 			}
 			if (type === "components") {
-				data.components.data = cads;
+				data.components.data = [];
 				cads.forEach((v) => data.addComponent(v));
 			}
 			cad.data.updatePartners().updateComponents();

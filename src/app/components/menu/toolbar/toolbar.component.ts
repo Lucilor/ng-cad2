@@ -24,7 +24,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 		5: () => this.open("5"),
 		g: () => this.assembleCads(),
 		h: () => this.splitCad(),
-		p: () => this.printCad()
+		p: () => this.printCad(),
+		q: () => this.newCad()
 	};
 	statusName: ValueOf<CadStatusNameMap> = "普通";
 
@@ -47,7 +48,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 	}).bind(this);
 
 	constructor(
-		private consoleService: CadConsoleService,
+		private console: CadConsoleService,
 		private message: MessageService,
 		private config: AppConfigService,
 		private status: AppStatusService
@@ -74,15 +75,15 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 	}
 
 	save() {
-		this.consoleService.execute("save");
+		this.console.execute("save");
 	}
 
 	open(collection: string) {
-		this.consoleService.execute("open", {collection});
+		this.console.execute("open", {collection});
 	}
 
 	flip(vertical: boolean, horizontal: boolean) {
-		this.consoleService.execute("flip", {vertical: vertical ? "true" : "false", horizontal: horizontal ? "true" : "false"});
+		this.console.execute("flip", {vertical: vertical ? "true" : "false", horizontal: horizontal ? "true" : "false"});
 	}
 
 	async rotate(clockwise?: boolean) {
@@ -100,19 +101,19 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 				angle = -90;
 			}
 		}
-		this.consoleService.execute("rotate", {degrees: angle.toString()});
+		this.console.execute("rotate", {degrees: angle.toString()});
 	}
 
 	showManual() {
-		this.consoleService.execute("man");
+		this.console.execute("man");
 	}
 
 	assembleCads() {
-		this.consoleService.execute("assemble");
+		this.console.execute("assemble");
 	}
 
 	splitCad() {
-		this.consoleService.execute("split");
+		this.console.execute("split");
 	}
 
 	toggleShowDimensions() {
@@ -163,14 +164,18 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 	}
 
 	printCad() {
-		this.consoleService.execute("print");
+		this.console.execute("print");
 	}
 
 	fillet(radius?: number) {
-		this.consoleService.execute("fillet", {radius: radius ? radius.toString() : "0"});
+		this.console.execute("fillet", {radius: radius ? radius.toString() : "0"});
 	}
 
 	backToNormal() {
 		this.status.cadStatus("name", "normal");
+	}
+
+	newCad() {
+		this.console.execute("new-cad");
 	}
 }

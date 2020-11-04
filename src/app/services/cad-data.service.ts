@@ -182,4 +182,8 @@ export class CadDataService extends HttpService {
 			return [];
 		}
 	}
+
+	async removeCads(collection: string, ids: string[]) {
+		await this.request<never>("peijian/cad/removeCad", "POST", {collection, ids});
+	}
 }

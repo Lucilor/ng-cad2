@@ -75,6 +75,7 @@ interface CadViewerConfig {
 		],
 		desc: "查看控制台帮助手册"
 	},
+	{name: "new-cad", args: [], desc: "创建一个空白CAD"},
 	{
 		name: "open",
 		args: [
@@ -372,6 +373,10 @@ export class CadConsoleComponent implements OnInit {
 				},
 				width: "80vw"
 			});
+		},
+		newCad() {
+			const data = this.status.cad.data.components.data;
+			this.status.openCad([...data, new CadData()]);
 		},
 		async open(collectionArg: string) {
 			if (this.openLock) {
