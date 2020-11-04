@@ -198,11 +198,15 @@ export class AppStatusService {
 			collection = this.config.config("collection");
 		}
 		document.title = data.map((v) => v.name).join(", ");
+		let hideLineLength: boolean;
 		if (collection === "cad") {
 			data.forEach((v) => validateLines(v));
+			hideLineLength = false;
+		} else {
+			hideLineLength = true;
 		}
+		this.config.config({cadIds: data.map((v) => v.id), collection, hideLineLength});
 		this.generateLineTexts();
-		this.config.config({cadIds: data.map((v) => v.id), collection});
 		this.openCad$.next();
 		cad.reset();
 		setTimeout(() => cad.center(), 1000);
@@ -229,10 +233,10 @@ export class AppStatusService {
 		const cad = this.cad;
 		if (this.config.config("collection") === "CADmuban") {
 			cad.data.components.data.forEach((v) => {
-				v.components.data.forEach((vv) => generateLineTexts(cad, vv));
+				v.components.data.forEach((vv) => generateLineTexts(vv));
 			});
 		} else {
-			cad.data.components.data.forEach((v) => generateLineTexts(cad, v));
+			cad.data.components.data.forEach((v) => generateLineTexts(v));
 		}
 	}
 

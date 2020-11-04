@@ -40,7 +40,8 @@
 				"object-curly-spacing": ["error", "never"],
 				"no-var": "error",
 				"prefer-const": "warn",
-				"no-unused-vars": ["warn", {"argsIgnorePattern": "."}]
+				"no-unused-vars": ["warn", {"argsIgnorePattern": "."}],
+				"eqeqeq": "warn"
 			}
 		},
 

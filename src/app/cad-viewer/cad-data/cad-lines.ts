@@ -231,7 +231,7 @@ export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	return result;
 }
 
-export function generateLineTexts(cad: CadViewer, data: CadData, tolerance = DEFAULT_TOLERANCE) {
+export function generateLineTexts(data: CadData, tolerance = DEFAULT_TOLERANCE) {
 	const lines = sortLines(data, tolerance);
 	lines.forEach((group) => {
 		let cp = 0;

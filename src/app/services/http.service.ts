@@ -78,11 +78,11 @@ export class HttpService {
 			if (!response) {
 				throw new Error("请求错误");
 			}
-			if (typeof response.msg === "string" && response.msg) {
-				this.snackBar.open(response.msg);
-			}
 			if (this.strict) {
 				if (response.code === 0) {
+					if (typeof response.msg === "string" && response.msg) {
+						this.snackBar.open(response.msg);
+					}
 					return response;
 				} else {
 					throw new Error(response.msg);

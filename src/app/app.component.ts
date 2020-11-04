@@ -27,10 +27,6 @@ export class AppComponent implements OnInit {
 		Reflect.defineProperty(window, "selectedArray", {get: () => cad.selected().toArray()});
 		Reflect.defineProperty(window, "selected0", {get: () => cad.selected().toArray()[0]});
 
-		if (this.config.config("collection") === "CADmuban") {
-			this.config.config("hideLineLength", true);
-		}
-
 		// let lastRenderTime = 0;
 		// cad.on("render", (_event, {entities}) => {
 		// 	if (!environment.production) {

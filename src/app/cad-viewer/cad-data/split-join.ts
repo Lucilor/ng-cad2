@@ -66,7 +66,7 @@ export function splitCad(data: CadData) {
 	};
 	result.forEach((v) => {
 		let toRemove = -1;
-		v.entities.mtext.some((e,i) => {
+		v.entities.mtext.some((e, i) => {
 			if (e.text.startsWith("CAD信息")) {
 				toRemove = i;
 				const arr = e.text.split("\n").slice(1);
@@ -91,8 +91,8 @@ export function splitCad(data: CadData) {
 			}
 			return false;
 		});
-		if (toRemove>=0) {
-			
+		if (toRemove >= 0) {
+			v.entities.mtext.splice(toRemove, 1);
 		}
 	});
 	return result;

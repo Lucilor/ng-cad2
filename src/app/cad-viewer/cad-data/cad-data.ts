@@ -148,14 +148,14 @@ export class CadData {
 		};
 	}
 
-	getAllEntities(mode = 0b111) {
+	getAllEntities() {
 		const result = new CadEntities();
 		result.merge(this.entities);
 		this.partners.forEach((p) => {
-			result.merge(p.getAllEntities(mode));
+			result.merge(p.getAllEntities());
 		});
 		this.components.data.forEach((c) => {
-			result.merge(c.getAllEntities(mode));
+			result.merge(c.getAllEntities());
 		});
 		return result;
 	}
