@@ -40,7 +40,7 @@ export class CadData {
 
 	constructor(data: AnyObject = {}) {
 		if (typeof data !== "object") {
-			throw new Error("Invalid data.");
+			data = {};
 		}
 		this.id = data.id || v4();
 		this.name = data.name ?? "";

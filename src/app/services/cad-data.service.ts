@@ -1,5 +1,4 @@
 import {Injectable, Injector} from "@angular/core";
-import {ActivatedRoute} from "@angular/router";
 import {CadData, CadOption} from "../cad-viewer/cad-data/cad-data";
 import {AnyObject} from "../utils/types";
 import {HttpService} from "./http.service";
@@ -38,7 +37,7 @@ export type CadSearchData = {
 	providedIn: "root"
 })
 export class CadDataService extends HttpService {
-	constructor(injector: Injector, private route: ActivatedRoute) {
+	constructor(injector: Injector) {
 		super(injector);
 		this.baseURL = localStorage.getItem("baseURL") || "/api";
 	}

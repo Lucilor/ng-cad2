@@ -1,5 +1,6 @@
 import {HttpClient} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import {Response} from "../app.common";
 import {MessageService} from "../modules/message/services/message.service";
 import {RSAEncrypt} from "../utils";
@@ -13,12 +14,14 @@ export class HttpService {
 	loaderId = "master";
 	message: MessageService;
 	http: HttpClient;
+	snackBar: MatSnackBar;
 	baseURL = "";
 	strict = true;
 
 	constructor(injector: Injector) {
 		this.message = injector.get(MessageService);
 		this.http = injector.get(HttpClient);
+		this.snackBar = injector.get(MatSnackBar);
 	}
 
 	protected alert(content: any) {
@@ -74,6 +77,9 @@ export class HttpService {
 			}
 			if (!response) {
 				throw new Error("请求错误");
+			}
+			if (typeof response.msg === "string" && response.msg) {
+				this.snackBar.open(response.msg);
 			}
 			if (this.strict) {
 				if (response.code === 0) {
