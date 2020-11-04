@@ -17,6 +17,10 @@
 
 		tr {
 			display: flex;
+			transition: 0.3s;
+			&:hover {
+				background-color: #eaeaea;
+			}
 		}
 		th {
 			border-top: 1px solid rgba(0, 0, 0, 0.12);
@@ -29,6 +33,7 @@
 			align-items: center;
 			height: 100%;
 			border-left: 1px solid rgba(0, 0, 0, 0.12);
+			box-sizing: border-box;
 			&:last-of-type {
 				border-right: 1px solid rgba(0, 0, 0, 0.12);
 			}
@@ -78,4 +83,11 @@
 	background-color: #ffcece;
 	color: gray;
 	padding: 5px 10px;
+	display: flex;
+	align-items: center;
+
+	.mat-icon {
+		color: red;
+		margin-right: 5px;
+	}
 }

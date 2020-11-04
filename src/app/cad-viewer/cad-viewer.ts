@@ -349,9 +349,10 @@ export class CadViewer extends EventEmitter {
 					}
 					offset = getVectorFromArray(entity.info.offset);
 				} else if (entity.info.isGongshiText) {
-					entity.text = "";
 					if (parent.gongshi) {
 						entity.text = `${parent.mingzi}=${parent.gongshi}`;
+					} else {
+						entity.text = parent.mingzi;
 					}
 					entity.font_size = lineGongshi;
 					offset = getVectorFromArray(entity.info.offset);

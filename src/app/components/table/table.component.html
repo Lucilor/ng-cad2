@@ -6,9 +6,9 @@
 		<button mat-raised-button color="primary" (click)="export()">导出</button>
 		<button mat-raised-button color="primary" (click)="import()">导入</button>
 	</div>
-	<div class="error-msg" *ngIf="errorState.length">
-		<div>错误:</div>
-		<div *ngFor="let item of errorState">{{ item.msg }}</div>
+	<div class="error-msg" *ngFor="let item of errorState">
+		<mat-icon>error</mat-icon>
+		<div>{{ item.msg }}</div>
 	</div>
 	<perfect-scrollbar class="table-body">
 		<mat-table [dataSource]="data" matSort>
