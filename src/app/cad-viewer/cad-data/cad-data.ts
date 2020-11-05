@@ -238,10 +238,10 @@ export class CadData {
 		return this;
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam) {
-		this.entities.transform(matrix);
-		this.partners.forEach((v) => v.transform(matrix));
-		this.components.transform(matrix);
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false) {
+		this.entities.transform(matrix, alter);
+		this.partners.forEach((v) => v.transform(matrix, alter));
+		this.components.transform(matrix, alter);
 		this.baseLines.forEach((v) => {
 			const point = new Point(v.valueX, v.valueY);
 			point.transform(matrix);
@@ -336,8 +336,7 @@ export class CadData {
 			const translate = new Point(rect1.x - rect2.x, rect1.y - rect2.y);
 			if (Math.abs(translate.x) > 1500 || Math.abs(translate.y) > 1500) {
 				translate.x += (rect1.width + rect2.width) / 2 + 15;
-				// offset1[1] += (rect1.height - rect2.height) / 2;
-				component.transform({translate});
+				component.transform({translate}, true);
 			}
 		}
 		const data = this.components.data;
@@ -766,7 +765,7 @@ export class CadComponents {
 		}
 	}
 
-	transform(matrix: MatrixExtract | MatrixTransformParam) {
+	transform(matrix: MatrixExtract | MatrixTransformParam, alter = false) {
 		const m = new Matrix(matrix);
 		const {scaleX, scaleY} = m.decompose();
 		if (scaleX === undefined || scaleY === undefined) {
@@ -780,7 +779,7 @@ export class CadComponents {
 				}
 			}
 		});
-		this.data.forEach((v) => v.transform(matrix));
+		this.data.forEach((v) => v.transform(matrix, alter));
 	}
 
 	export(): AnyObject {

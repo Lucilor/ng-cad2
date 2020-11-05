@@ -59,7 +59,7 @@ export abstract class CadEntity {
 						if (this instanceof CadDimension) {
 							if (this.renderStyle === 1) {
 								c.css("stroke-dasharray", "20, 7");
-							} else if (this.renderStyle === 2 && i == 2) {
+							} else if (this.renderStyle === 2 && i === 2) {
 								c.css("stroke-dasharray", "20, 7");
 							}
 						} else {

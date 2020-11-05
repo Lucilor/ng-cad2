@@ -208,6 +208,7 @@ export class AppStatusService {
 		this.config.config({cadIds: data.map((v) => v.id), collection, hideLineLength});
 		this.generateLineTexts();
 		this.openCad$.next();
+		cad.data.updatePartners().updateComponents();
 		cad.reset();
 		setTimeout(() => cad.center(), 1000);
 	}
