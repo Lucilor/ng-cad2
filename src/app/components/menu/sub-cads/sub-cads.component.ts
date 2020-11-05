@@ -14,7 +14,7 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, CadStatus, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {CadCollection, CadDataService} from "@src/app/services/cad-data.service";
-import {copyToClipboard, Point, RSAEncrypt} from "@src/app/utils";
+import {copyToClipboard, Point} from "@src/app/utils";
 import {concat, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
@@ -193,11 +193,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 						}, true);
 					}
 				}
-				if (!data) {
-					return;
-				}
 				this._prevId = id;
-				if (this.config.config("collection") === "p_yuanshicadwenjian") {
+				if (data && this.config.config("collection") === "p_yuanshicadwenjian") {
 					data.components.data = [];
 				}
 				if (!this.prevConfig) {
@@ -208,11 +205,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 					this.prevDisabledCadTypes = this.status.disabledCadTypes$.getValue();
 					this.status.disabledCadTypes$.next(["partners", "components"]);
 				}
-				this.updateList([]);
-				for (const v of data.components.data) {
-					const node = await this._getCadNode(v);
-					this.cads.push(node);
-				}
+				this.updateList();
 				return;
 			} else if (this._prevId) {
 				this.status.cad.data.components.data.forEach((v) => {
@@ -443,8 +436,13 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 		}
 		this.updateListLock = true;
 		const cad = this.status.cad;
+		const statusName = this.status.cadStatus("name");
 		if (!list) {
-			list = cad.data.components.data;
+			if (statusName === "split") {
+				list = cad.data.components.data.find((v) => v.id === this._prevId)?.components.data || [];
+			} else {
+				list = cad.data.components.data;
+			}
 		}
 		this.cads = [];
 		this.partners = [];
@@ -461,6 +459,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 				this.components.push(node);
 			}
 		}
+		this.status.clearSelectedCads();
 		if (this.cads.length) {
 			this.clickCad("cads", 0);
 		}
@@ -581,7 +580,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 		removeCadGongshi(data);
 		const result = await openJsonEditorDialog(this.dialog, {data: {json: data.export()}});
 		if (result) {
-			this.contextMenuCad.data.copy(data);
+			this.contextMenuCad.data.copy(new CadData(result));
 			this.status.openCad();
 		}
 	}
@@ -603,6 +602,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 				}
 			}
 			this.cads = this.cads.filter((v) => !v.checked);
+			this.status.clearSelectedCads();
 			cad.render();
 		} else {
 			const data = cad.data;
@@ -649,7 +649,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 			ids = selected.partners.concat(selected.components).map((v) => v.id);
 		}
 		if (ids.length) {
-			open("index?data=" + RSAEncrypt({ids}));
+			open(`index?ids=${ids.join(",")}&collection=cad`);
 		}
 	}
 

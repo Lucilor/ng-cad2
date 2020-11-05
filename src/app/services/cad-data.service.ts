@@ -57,6 +57,7 @@ export class CadDataService extends HttpService {
 		const result: {cads: CadData[]; total: number} = {cads: [], total: 0};
 		if (response && response.data) {
 			response.data.forEach((d) => result.cads.push(new CadData(d)));
+			result.total = response.count || 0;
 		}
 		return result;
 	}
@@ -76,6 +77,7 @@ export class CadDataService extends HttpService {
 		const result: {cads: any[]; total: number} = {cads: [], total: 0};
 		if (response && response.data) {
 			result.cads = response.data;
+			result.total = response.count || 0;
 		}
 		return result;
 	}

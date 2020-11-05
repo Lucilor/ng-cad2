@@ -51,8 +51,7 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
 	ngOnInit() {
 		this.subscribe(this.status.selectedCads$, () => {
 			this.cadsData = this.status.getFlatSelectedCads();
-			const ids = this.status.cad.data.components.data.map((v) => v.id);
-			if (this.cadsData.length === 1 && ids.includes(this.cadsData[0].id)) {
+			if (this.cadsData.length === 1) {
 				this.editDisabled = false;
 			} else {
 				this.editDisabled = true;
