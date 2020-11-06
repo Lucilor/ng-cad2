@@ -5,7 +5,7 @@ import {Point} from "@app/utils";
 import {CadData} from "./cad-data/cad-data";
 import {CadArc, CadCircle, CadDimension, CadEntities, CadEntity, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entities";
 import {CadType} from "./cad-data/cad-types";
-import {getVectorFromArray} from "./cad-data/utils";
+import {getVectorFromArray, isBetween} from "./cad-data/utils";
 import {CadStyle, CadStylizer} from "./cad-stylizer";
 import {CadEventCallBack, CadEvents, controls} from "./cad-viewer-controls";
 import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText} from "./draw";
@@ -370,12 +370,9 @@ export class CadViewer extends EventEmitter {
 					entity.insert.copy(offset.add(middle));
 				}
 
-				const rect = entity.el?.node?.getBoundingClientRect();
-				const zoom = this.zoom();
-				if (rect && rect.width && rect.height && isFinite(zoom)) {
+				if (entity.el) {
 					// * 计算文字尺寸
-					const {width, height} = rect;
-					const size = new Point(width, height).divide(zoom);
+					const size = new Point(entity.el.width(), entity.el.height());
 					entity.info.size = size.toArray();
 
 					// * 重新计算锚点
@@ -410,7 +407,8 @@ export class CadViewer extends EventEmitter {
 					}
 				}
 			}
-			const {text, insert, anchor} = entity;
+			const {insert, anchor} = entity;
+			let text = entity.text;
 			const offset = new Point(0, 0);
 			// * 算料单特殊逻辑
 			if (this.data.info.算料单) {
@@ -421,6 +419,40 @@ export class CadViewer extends EventEmitter {
 					offset.y = offsetYfactor * fontSize;
 				}
 			}
+
+			// * 自动换行
+			if (text.match(/花件信息/)) {
+				let lines = this.data.getAllEntities().line;
+				lines = lines.filter((e) => e.isVertical() && isBetween(insert.y, e.minY, e.maxY) && insert.x < e.start.x);
+				let dMin = Infinity;
+				for (const e of lines) {
+					const d = e.start.x - insert.x - 1;
+					if (dMin > d) {
+						dMin = d;
+					}
+				}
+				if (el.width() > dMin) {
+					const originalText = text.replace(/\n/g, "");
+					const wrappedText: string[] = [];
+					let start = 0;
+					let end = 1;
+					const tmpEl = new G();
+					while (end < originalText.length) {
+						const tmpText = originalText.slice(start, end);
+						drawText(tmpEl, tmpText, fontSize, insert.clone().add(offset), anchor, fontFamily);
+						if (tmpEl.width() < dMin) {
+							end++;
+						} else {
+							wrappedText.push(originalText.slice(start, end - 1));
+							start = end;
+							end = start + 1;
+						}
+					}
+					tmpEl.remove();
+					text = entity.text = wrappedText.join("\n");
+				}
+			}
+
 			drawResult = drawText(el, text, fontSize, insert.clone().add(offset), anchor, fontFamily);
 		}
 		if (!drawResult || drawResult.length < 1) {
