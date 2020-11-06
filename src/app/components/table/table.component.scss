@@ -18,7 +18,8 @@
 		tr {
 			display: flex;
 			transition: 0.3s;
-			&:hover {
+			&:hover,
+			&.active {
 				background-color: #eaeaea;
 			}
 		}

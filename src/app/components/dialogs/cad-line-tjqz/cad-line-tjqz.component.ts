@@ -6,11 +6,8 @@ import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-conso
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {cloneDeep} from "lodash";
-import {ColumnInfo, TableComponent, TableValidator, TableErrorState, RowButtonEvent, CellEvent} from "../../table/table.component";
-import {
-	CadLineTjqzSelectData,
-	openCadLineTiaojianquzhiSelectDialog
-} from "../cad-line-tjqz-select/cad-line-tjqz-select.component";
+import {ColumnInfo, TableComponent, TableValidator, TableErrorState, CellEvent, RowEvent, ItemGetter} from "../../table/table.component";
+import {CadLineTjqzSelectData, openCadLineTiaojianquzhiSelectDialog} from "../cad-line-tjqz-select/cad-line-tjqz-select.component";
 
 type RawData = CadLine;
 type RawDataLeft = RawData["tiaojianquzhi"][0];
@@ -26,10 +23,9 @@ export class CadLineTjqzComponent implements OnInit {
 	columnsLeft: ColumnInfo<RawDataLeft>[] = [
 		{field: "key", name: "名字", type: "string", editable: true},
 		{field: "level", name: "优先级", type: "number", editable: true},
-		{field: "type", name: "类型", type: "select", options: ["选择", "数值"], editable: true},
-		{field: "data", name: "数据", type: "button", buttons: [{name: "编辑", event: "edit"}]}
+		{field: "type", name: "类型", type: "select", options: ["选择", "数值"], editable: true}
 	];
-	newItemLeft: RawDataLeft = {key: "", level: 1, type: "数值", data: []};
+	activeRowsLeft: number[] = [];
 
 	dataRight: MatTableDataSource<RawDataRight>;
 	columnsRight: ColumnInfo<RawDataRight>[] = [
@@ -41,8 +37,9 @@ export class CadLineTjqzComponent implements OnInit {
 
 	@ViewChild("tableLeft") tableLeft?: TableComponent<RawDataLeft>;
 	loaderId = "cadLineTiaojianquzhiSavingCad";
-	// openSelection: CadLineTiaojianquzhiSelectData = [];
 	openSelection = -1;
+
+	newItemLeft: ItemGetter<RawDataLeft> = (rowIdx: number) => ({key: "", level: rowIdx + 1, type: "数值", data: []});
 
 	validatorLeft: TableValidator<RawDataLeft> = (data) => {
 		const result: TableErrorState = [];
@@ -108,19 +105,18 @@ export class CadLineTjqzComponent implements OnInit {
 		this.openSelection = type === "选择" ? rowIdx : -1;
 	}
 
-	onRowButtonClick(event: RowButtonEvent<RawDataLeft>) {
-		const {name, item, rowIdx} = event;
-		if (name === "edit") {
-			this.dataRight.data = item.data;
-			this.setOpenSelection(item, rowIdx);
-		}
+	onRowClick(event: RowEvent<RawDataLeft>) {
+		const {item, rowIdx} = event;
+		this.dataRight.data = item.data;
+		this.setOpenSelection(item, rowIdx);
+		this.activeRowsLeft = [rowIdx];
 	}
 
 	onCellChange(event: CellEvent<RawDataLeft>) {
 		this.setOpenSelection(event.item, event.rowIdx);
 	}
 
-	async onCellFocus(event: CellEvent<RawDataRight>) {
+	async onCellFocusRight(event: CellEvent<RawDataRight>) {
 		if (event.field === "name" && this.openSelection > -1) {
 			const keys = this.dataLeft.data[this.openSelection].key.split(/,|，/).filter((v) => v);
 			const values = event.item.name.split(/,|，/);

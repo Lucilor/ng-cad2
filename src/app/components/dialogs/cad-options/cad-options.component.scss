@@ -1,6 +1,11 @@
+:host {
+	width: calc(80vw - 48px);
+	height: calc(80vh - 24px);
+	display: flex;
+	flex-direction: column;
+}
+
 .checkbox-group {
-	height: 100%;
-	width: 70vw;
 	overflow: auto;
 	display: flex;
 	flex-wrap: wrap;
@@ -18,4 +23,9 @@
 		display: block;
 		cursor: pointer;
 	}
+}
+
+.content {
+	height: 0;
+	flex: 1 1 0;
 }

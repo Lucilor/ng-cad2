@@ -50,6 +50,13 @@ export interface CellEvent<T> {
 	rowIdx: number;
 }
 
+export interface RowEvent<T> {
+	item: T;
+	rowIdx: number;
+}
+
+export type ItemGetter<T> = (rowIdx: number) => T;
+
 @Component({
 	selector: "app-table",
 	templateUrl: "./table.component.html",
@@ -58,15 +65,19 @@ export interface CellEvent<T> {
 export class TableComponent<T> implements OnInit, AfterViewInit {
 	@Input() data = new MatTableDataSource<T>();
 	@Input() columns: ColumnInfo<T>[] = [];
-	@Input() newItem?: T;
+	@Input() newItem?: T | ItemGetter<T>;
 	@Input() title = "";
 	@Input() checkBoxSize = 40;
 	@Input() editable: string | boolean = true;
 	@Input() validator?: TableValidator<T>;
+	@Input() activeRows?: number[];
+
 	@Output() rowButtonClick = new EventEmitter<RowButtonEvent<T>>();
 	@Output() cellFocus = new EventEmitter<CellEvent<T>>();
 	@Output() cellBlur = new EventEmitter<CellEvent<T>>();
 	@Output() cellChange = new EventEmitter<CellEvent<T>>();
+	@Output() rowClick = new EventEmitter<RowEvent<T>>();
+
 	selection = new SelectionModel<T>(true, []);
 	columnFields: (keyof T | "select")[] = [];
 	@ViewChild(MatTable) table?: MatTable<T>;
@@ -108,17 +119,24 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 		}
 	}
 
-	addItem(index?: number) {
-		if (!this.newItem) {
+	addItem(rowIdx?: number) {
+		const {newItem, data} = this;
+		if (!newItem) {
 			console.warn("no newItem to add");
 			return;
 		}
-		if (typeof index !== "number") {
-			index = Infinity;
+		if (typeof rowIdx !== "number") {
+			rowIdx = data.data.length;
 		}
-		const {data: dataSource, newItem} = this;
-		dataSource.data.splice(index, 0, cloneDeep(newItem));
-		dataSource._updateChangeSubscription();
+		if (typeof newItem === "function") {
+			const result = (newItem as ItemGetter<T>)(rowIdx);
+			if (result) {
+				data.data.splice(rowIdx, 0, cloneDeep(result));
+			}
+		} else {
+			data.data.splice(rowIdx, 0, cloneDeep(newItem));
+		}
+		data._updateChangeSubscription();
 		this.validate();
 	}
 
@@ -172,6 +190,10 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 
 	onRowButtonClick(name: string, field: keyof T, item: T, colIdx: number, rowIdx: number) {
 		this.rowButtonClick.emit({name, field, item, colIdx, rowIdx});
+	}
+
+	onRowClick(item: T, rowIdx: number) {
+		this.rowClick.emit({item, rowIdx});
 	}
 
 	export() {

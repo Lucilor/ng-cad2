@@ -15,8 +15,9 @@
 		[newItem]="newItemLeft"
 		[validator]="validatorLeft"
 		[editable]="true"
-		(rowButtonClick)="onRowButtonClick($event)"
+		[activeRows]="activeRowsLeft"
 		(cellChange)="onCellChange($event)"
+		(rowClick)="onRowClick($event)"
 	></app-table>
 	<div class="divider"></div>
 	<app-table
@@ -25,6 +26,6 @@
 		[columns]="columnsRight"
 		[newItem]="newItemRight"
 		[editable] = "true"
-		(cellFocus)="onCellFocus($event)"
+		(cellFocus)="onCellFocusRight($event)"
 	></app-table>
 </div>

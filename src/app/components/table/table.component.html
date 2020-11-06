@@ -21,11 +21,11 @@
 					>
 					</mat-checkbox>
 				</th>
-				<td mat-cell *matCellDef="let row" [style.width.px]="checkBoxSize">
+				<td mat-cell *matCellDef="let item; let rowIdx = index" [style.width.px]="checkBoxSize" (click)="onRowClick(item, rowIdx)">
 					<mat-checkbox
 						(click)="$event.stopPropagation()"
-						(change)="$event ? selection.toggle(row) : null"
-						[checked]="selection.isSelected(row)"
+						(change)="$event ? selection.toggle(item) : null"
+						[checked]="selection.isSelected(item)"
 					>
 					</mat-checkbox>
 				</td>
@@ -38,6 +38,7 @@
 					*matCellDef="let item; let rowIdx = index"
 					[style.width]="columns[colIdx].width"
 					[class.error]="!isVaild(rowIdx)"
+					(click)="onRowClick(item, rowIdx)"
 				>
 					<ng-container *ngIf="isColumnEditable(column); else notEditable" [ngSwitch]="column.type">
 						<input
@@ -88,7 +89,7 @@
 			</ng-container>
 
 			<tr mat-header-row *matHeaderRowDef="columnFields; sticky: true"></tr>
-			<tr mat-row *matRowDef="let row; columns: columnFields"></tr>
+			<tr [class.active]="activeRows?.includes(i)" mat-row *matRowDef="let row; columns: columnFields; let i = index"></tr>
 		</mat-table>
 	</perfect-scrollbar>
 </div>
