@@ -1,86 +1,86 @@
 .menu {
-	z-index: 10;
-	position: absolute;
-	background-color: rgba(255, 255, 255, 0.9);
-	box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.4);
+    z-index: 10;
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.4);
 
-	$offset-top: 40px;
-	$offset-bottom: 40px;
+    $offset-top: 40px;
+    $offset-bottom: 40px;
 
-	&.top {
-		width: 100vw;
-		border-radius: 0;
-		padding: 0 10px;
-		top: 0;
-		background-color: #fafafa;
-	}
+    &.top {
+        width: 100vw;
+        border-radius: 0;
+        padding: 0 10px;
+        top: 0;
+        background-color: #fafafa;
+    }
 
-	&.bottom {
-		width: 100vw;
-		bottom: 0;
-		height: 20px;
-		line-height: 22px;
-	}
+    &.bottom {
+        width: 100vw;
+        bottom: 0;
+        height: 20px;
+        line-height: 22px;
+    }
 
-	&.left {
-		top: $offset-top;
-		height: calc(100vh - #{$offset-top} - #{$offset-bottom});
-		width: 200px;
-		padding: 10px;
-		flex-direction: column;
-		left: 0;
-	}
+    &.left {
+        top: $offset-top;
+        height: calc(100vh - #{$offset-top} - #{$offset-bottom});
+        width: 200px;
+        padding: 10px;
+        flex-direction: column;
+        left: 0;
+    }
 
-	&.right {
-		top: $offset-top;
-		height: calc(100vh - #{$offset-top} - #{$offset-bottom});
-		width: 250px;
-		padding: 10px;
-		flex-direction: column;
-		right: 0;
-	}
+    &.right {
+        top: $offset-top;
+        height: calc(100vh - #{$offset-top} - #{$offset-bottom});
+        width: 250px;
+        padding: 10px;
+        flex-direction: column;
+        right: 0;
+    }
 
-	&.accent {
-		background-color: #ffcefc;
-	}
+    &.accent {
+        background-color: #ffcefc;
+    }
 }
 
 ::ng-deep .mat-tab-label,
 ::ng-deep .mat-tab-label-active {
-	min-width: 44px !important;
-	padding: 3px !important;
-	margin: 3px !important;
+    min-width: 44px !important;
+    padding: 3px !important;
+    margin: 3px !important;
 }
 ::ng-deep .mat-tab-body-content {
-	padding: 10px 0;
+    padding: 10px 0;
+
+    perfect-scrollbar {
+        height: calc(100vh - 300px);
+    }
 }
 
 .menu-icon {
-	background-color: white;
-	transition: 0.3s;
-	&.left {
-		float: right;
-		&.closed {
-			transform: translateX(45px);
-		}
-	}
-	&.right {
-		&.closed {
-			transform: translateX(-45px);
-		}
-	}
-}
-
-perfect-scrollbar {
-	max-height: calc(100% - 40px);
+    background-color: white;
+    transition: 0.3s;
+    &.left {
+        float: right;
+        &.closed {
+            transform: translateX(45px);
+        }
+    }
+    &.right {
+        &.closed {
+            transform: translateX(-45px);
+        }
+    }
 }
 
 .cad-status {
-	user-select: none;
-	width: 100%;
-	text-align: center;
+    user-select: none;
+    width: 100%;
+    text-align: center;
 }
 
 ::ng-deep .mat-form-field-suffix {
-	top: 8px;
+    top: 8px;
 }
