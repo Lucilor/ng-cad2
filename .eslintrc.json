@@ -41,7 +41,8 @@
 				"no-var": "error",
 				"prefer-const": "warn",
 				"no-unused-vars": ["warn", {"argsIgnorePattern": "."}],
-				"eqeqeq": "warn"
+				"eqeqeq": "warn",
+				"indent": ["error", 4]
 			}
 		},
 

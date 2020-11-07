@@ -3,9 +3,9 @@ import {SafeUrl} from "@angular/platform-browser";
 import {imgEmpty, imgLoading} from "@app/app.common";
 
 @Component({
-	selector: "app-image",
-	templateUrl: "./image.component.html",
-	styleUrls: ["./image.component.scss"]
+    selector: "app-image",
+    templateUrl: "./image.component.html",
+    styleUrls: ["./image.component.scss"]
 })
 export class ImageComponent {
 	@Input() width = "";
@@ -18,11 +18,11 @@ export class ImageComponent {
 	constructor() {}
 
 	onLoad() {
-		this.loading = false;
+	    this.loading = false;
 	}
 
 	onError() {
-		this.loading = false;
-		this.src = this.emptySrc;
+	    this.loading = false;
+	    this.src = this.emptySrc;
 	}
 }

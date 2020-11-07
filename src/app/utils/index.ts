@@ -9,19 +9,19 @@ import {SessionStorage, LocalStorage} from "./storage";
 import {DEFAULT_TOLERANCE} from "./geometry/constants";
 
 export {
-	Point,
-	Line,
-	Rectangle,
-	Angle,
-	Arc,
-	DEFAULT_TOLERANCE,
-	dataURLtoBlob,
-	RSAEncrypt,
-	RGB2Index,
-	getDPI,
-	copyToClipboard,
-	downloadFile,
-	index2RGB,
-	SessionStorage,
-	LocalStorage
+    Point,
+    Line,
+    Rectangle,
+    Angle,
+    Arc,
+    DEFAULT_TOLERANCE,
+    dataURLtoBlob,
+    RSAEncrypt,
+    RGB2Index,
+    getDPI,
+    copyToClipboard,
+    downloadFile,
+    index2RGB,
+    SessionStorage,
+    LocalStorage
 };

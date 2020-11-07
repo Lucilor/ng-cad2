@@ -8,12 +8,12 @@ export const imgEmpty = "assets/images/empty.jpg";
 export const imgLoading = "assets/images/loading.gif";
 
 export const paths = {
-	index: "index",
-	"print-cad": "print-cad",
-	test: "test",
-	printA4A015Preview: "printA4A015Preview",
-	import: "import",
-	backup: "backup"
+    index: "index",
+    "print-cad": "print-cad",
+    test: "test",
+    printA4A015Preview: "printA4A015Preview",
+    import: "import",
+    backup: "backup"
 };
 
 export interface Response<T> {
@@ -24,8 +24,10 @@ export interface Response<T> {
 	importance?: number;
 }
 
+export type CadCollection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";
+
 export async function timeout(time = 0) {
-	return new Promise<never>((r) => setTimeout(() => r(), time));
+    return new Promise<never>((r) => setTimeout(() => r(), time));
 }
 
 // export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {

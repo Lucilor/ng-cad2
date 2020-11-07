@@ -5,69 +5,69 @@ class CustomStorage {
 	storage: Storage;
 
 	constructor(type: "local" | "session", field: string) {
-		if (type === "local") {
-			this.storage = localStorage;
-		} else if (type === "session") {
-			this.storage = sessionStorage;
-		} else {
-			this.storage = sessionStorage;
-		}
-		this._field = field;
+	    if (type === "local") {
+	        this.storage = localStorage;
+	    } else if (type === "session") {
+	        this.storage = sessionStorage;
+	    } else {
+	        this.storage = sessionStorage;
+	    }
+	    this._field = field;
 	}
 
 	save(key: string, value: any) {
-		let data: AnyObject = {};
-		try {
-			data = JSON.parse(this.storage.getItem(this._field) || "{}");
-		} catch (error) {}
-		data[key] = JSON.stringify(value);
-		this.storage.setItem(this._field, JSON.stringify(data));
+	    let data: AnyObject = {};
+	    try {
+	        data = JSON.parse(this.storage.getItem(this._field) || "{}");
+	    } catch (error) {}
+	    data[key] = JSON.stringify(value);
+	    this.storage.setItem(this._field, JSON.stringify(data));
 	}
 
 	load(key: string) {
-		let data = null;
-		try {
-			data = JSON.parse(this.storage.getItem(this._field) || "null");
-		} catch (error) {
-			return null;
-		}
-		if (data && data[key]) {
-			try {
-				return JSON.parse(data[key]);
-			} catch (error) {
-				console.warn(`JSON parse error: loading from storage: ${data[key]}.`);
-				return null;
-			}
-		}
-		return null;
+	    let data = null;
+	    try {
+	        data = JSON.parse(this.storage.getItem(this._field) || "null");
+	    } catch (error) {
+	        return null;
+	    }
+	    if (data && data[key]) {
+	        try {
+	            return JSON.parse(data[key]);
+	        } catch (error) {
+	            console.warn(`JSON parse error: loading from storage: ${data[key]}.`);
+	            return null;
+	        }
+	    }
+	    return null;
 	}
 
 	remove(key: string) {
-		let data = null;
-		try {
-			data = JSON.parse(this.storage.getItem(this._field) || "");
-		} catch (error) {}
-		if (data && data[key]) {
-			delete data[key];
-			this.storage.setItem(this._field, JSON.stringify(data));
-		}
+	    let data = null;
+	    try {
+	        data = JSON.parse(this.storage.getItem(this._field) || "");
+	    } catch (error) {}
+	    if (data && data[key]) {
+	        delete data[key];
+	        this.storage.setItem(this._field, JSON.stringify(data));
+	    }
 	}
 
 	clear() {
-		this.storage.setItem(this._field, "");
+	    this.storage.setItem(this._field, "");
 	}
 }
 
 export class LocalStorage extends CustomStorage {
-	constructor(field: string) {
-		super("local", field);
-	}
+    constructor(field: string) {
+        super("local", field);
+    }
 }
 
 export class SessionStorage extends CustomStorage {
-	constructor(field: string) {
-		super("session", field);
-	}
+    constructor(field: string) {
+        super("session", field);
+    }
 }
 
 // export const local = new LocalStorage("cad-data");

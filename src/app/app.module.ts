@@ -22,7 +22,6 @@ import {MatRadioModule} from "@angular/material/radio";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS} from "@angular/material/snack-bar";
-import {MatSortModule} from "@angular/material/sort";
 import {MatTableModule} from "@angular/material/table";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatTooltipModule} from "@angular/material/tooltip";
@@ -31,10 +30,12 @@ import {SatPopoverModule} from "@ncstate/sat-popover";
 import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
 import {NgJsonEditorModule} from "ang-jsoneditor";
 import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
-import {NgxUiLoaderHttpModule, NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
+import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
 
 import {CadConsoleModule} from "@app/modules/cad-console/cad-console.module";
+import {HttpModule} from "./modules/http/http.module";
 import {MessageModule} from "@app/modules/message/message.module";
+import {TableModule} from "@app/modules/table/table.module";
 
 import {IndexComponent} from "./views/index/index.component";
 import {PageNotFoundComponent} from "./views/page-not-found/page-not-found.component";
@@ -49,7 +50,6 @@ import {ImageComponent} from "./components/image/image.component";
 import {CadPointsComponent} from "./components/cad-points/cad-points.component";
 import {CadLineComponent} from "./components/menu/cad-line/cad-line.component";
 import {CadLineTjqzComponent} from "./components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
-import {TableComponent} from "./components/table/table.component";
 import {CadLineTjqzSelectComponent} from "./components/dialogs/cad-line-tjqz-select/cad-line-tjqz-select.component";
 import {CadMtextComponent} from "./components/menu/cad-mtext/cad-mtext.component";
 import {AnchorSelectorComponent} from "./components/anchor-selector/anchor-selector.component";
@@ -70,93 +70,92 @@ export class MyMatPaginatorIntl extends MatPaginatorIntl {
 	lastPageLabel = "尾页";
 
 	getRangeLabel = (page: number, pageSize: number, length: number) => {
-		const totalPage = Math.ceil(length / pageSize);
-		return `第${page + 1}页，共${totalPage}页`;
+	    const totalPage = Math.ceil(length / pageSize);
+	    return `第${page + 1}页，共${totalPage}页`;
 	};
 }
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
-	wheelPropagation: true
+    wheelPropagation: true
 };
 
 @NgModule({
-	declarations: [
-		AppComponent,
-		IndexComponent,
-		PageNotFoundComponent,
-		ToolbarComponent,
-		JsonEditorComponent,
-		CadSearchFormComponent,
-		CadListComponent,
-		SubCadsComponent,
-		CadInfoComponent,
-		CadOptionsComponent,
-		ImageComponent,
-		CadPointsComponent,
-		CadLineComponent,
-		CadLineTjqzComponent,
-		TableComponent,
-		CadLineTjqzSelectComponent,
-		CadMtextComponent,
-		AnchorSelectorComponent,
-		CadDimensionComponent,
-		CadDimensionFormComponent,
-		ImportComponent,
-		BackupComponent,
-		PrintCadComponent,
-		PrintA4A015PreviewComponent,
-		CadAssembleComponent
-	],
-	imports: [
-		HttpClientModule,
-		FormsModule,
-		ReactiveFormsModule,
-		BrowserModule,
-		AppRoutingModule,
-		BrowserAnimationsModule,
-		MatAutocompleteModule,
-		MatButtonModule,
-		MatCardModule,
-		MatCheckboxModule,
-		MatDialogModule,
-		MatExpansionModule,
-		MatFormFieldModule,
-		MatIconModule,
-		MatInputModule,
-		MatListModule,
-		MatMenuModule,
-		MatPaginatorModule,
-		MatRadioModule,
-		MatSelectModule,
-		MatSlideToggleModule,
-		MatSnackBarModule,
-		MatSortModule,
-		MatTableModule,
-		MatTabsModule,
-		MatTooltipModule,
-		SatPopoverModule,
-		ColorPickerModule,
-		NgJsonEditorModule,
-		PerfectScrollbarModule,
-		NgxUiLoaderModule.forRoot({
-			fgsColor: "#2196f3",
-			bgsColor: "#2196f3",
-			pbColor: "#2196f3",
-			fgsType: SPINNER.threeStrings,
-			bgsType: SPINNER.ballScaleMultiple
-		}),
-		NgxUiLoaderHttpModule,
-		CadConsoleModule,
-		MessageModule
-	],
-	providers: [
-		{
-			provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-			useValue: {duration: 3000, verticalPosition: "top", panelClass: ["mat-toolbar", "mat-primary"]}
-		},
-		{provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
-		{provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG}
-	],
-	bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        IndexComponent,
+        PageNotFoundComponent,
+        ToolbarComponent,
+        JsonEditorComponent,
+        CadSearchFormComponent,
+        CadListComponent,
+        SubCadsComponent,
+        CadInfoComponent,
+        CadOptionsComponent,
+        ImageComponent,
+        CadPointsComponent,
+        CadLineComponent,
+        CadLineTjqzComponent,
+        CadLineTjqzSelectComponent,
+        CadMtextComponent,
+        AnchorSelectorComponent,
+        CadDimensionComponent,
+        CadDimensionFormComponent,
+        ImportComponent,
+        BackupComponent,
+        PrintCadComponent,
+        PrintA4A015PreviewComponent,
+        CadAssembleComponent
+    ],
+    imports: [
+        HttpClientModule,
+        FormsModule,
+        ReactiveFormsModule,
+        BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatCardModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatMenuModule,
+        MatPaginatorModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatSnackBarModule,
+        MatTableModule,
+        MatTabsModule,
+        MatTooltipModule,
+        SatPopoverModule,
+        ColorPickerModule,
+        NgJsonEditorModule,
+        PerfectScrollbarModule,
+        NgxUiLoaderModule.forRoot({
+            fgsColor: "#2196f3",
+            bgsColor: "#2196f3",
+            pbColor: "#2196f3",
+            fgsType: SPINNER.threeStrings,
+            bgsType: SPINNER.ballScaleMultiple
+        }),
+        CadConsoleModule,
+        HttpModule,
+        MessageModule,
+        TableModule
+    ],
+    providers: [
+        {
+            provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+            useValue: {duration: 3000, verticalPosition: "top", panelClass: ["mat-toolbar", "mat-primary"]}
+        },
+        {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
+        {provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG}
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {}

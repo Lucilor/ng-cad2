@@ -4,7 +4,7 @@ import {ValuedCommand} from "../cad-command-types";
 import {CadConsoleModule} from "../cad-console.module";
 
 @Injectable({
-	providedIn: CadConsoleModule
+    providedIn: CadConsoleModule
 })
 export class CadConsoleService {
 	command = new BehaviorSubject<ValuedCommand>({name: "", args: []});
@@ -12,10 +12,10 @@ export class CadConsoleService {
 	constructor() {}
 
 	execute(name: string, argsObj: {[key: string]: string} = {}) {
-		const args: ValuedCommand["args"] = [];
-		for (const key in argsObj) {
-			args.push({name: key, value: argsObj[key]});
-		}
-		this.command.next({name, args});
+	    const args: ValuedCommand["args"] = [];
+	    for (const key in argsObj) {
+	        args.push({name: key, value: argsObj[key]});
+	    }
+	    this.command.next({name, args});
 	}
 }
