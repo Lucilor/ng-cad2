@@ -13,26 +13,29 @@ let needsRender = false;
 type EntityObj = {entity: CadEntity};
 type EntitiesObj = {entities: CadEntities};
 export interface CadEvents {
-	pointerdown: [PointerEvent, {}];
-	pointermove: [PointerEvent, {}];
-	pointerup: [PointerEvent, {}];
-	click: [MouseEvent, {}];
-	wheel: [WheelEvent, {}];
-	keydown: [KeyboardEvent, {}];
-	entityclick: [MouseEvent, EntityObj];
-	entitypointerdown: [PointerEvent, EntityObj];
-	entitypointermove: [PointerEvent, EntityObj];
-	entitypointerup: [PointerEvent, EntityObj];
-	entitiesselect: [null, EntitiesObj];
-	entitiesunselect: [null, EntitiesObj];
-	entitiesremove: [null, EntitiesObj];
-	entitiesadd: [null, EntitiesObj];
-	render: [null, EntitiesObj];
+    pointerdown: [PointerEvent, {}];
+    pointermove: [PointerEvent, {}];
+    pointerup: [PointerEvent, {}];
+    click: [MouseEvent, {}];
+    wheel: [WheelEvent, {}];
+    keydown: [KeyboardEvent, {}];
+    entityclick: [MouseEvent, EntityObj];
+    entitypointerdown: [PointerEvent, EntityObj];
+    entitypointermove: [PointerEvent, EntityObj];
+    entitypointerup: [PointerEvent, EntityObj];
+    entitiesselect: [null, EntitiesObj];
+    entitiesunselect: [null, EntitiesObj];
+    entitiesremove: [null, EntitiesObj];
+    entitiesadd: [null, EntitiesObj];
+    render: [null, EntitiesObj];
 }
 export type CadEventCallBack<T extends keyof CadEvents> = (event: CadEvents[T][0], params: CadEvents[T][1]) => void;
 
 function onWheel(this: CadViewer, event: WheelEvent) {
     event.preventDefault();
+    if (!this.config("enableZoom")) {
+        return;
+    }
     const step = 0.1;
     const {deltaY, clientX, clientY} = event;
     const {x, y} = this.getWorldPoint(clientX, clientY);

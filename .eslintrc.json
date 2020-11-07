@@ -42,7 +42,7 @@
 				"prefer-const": "warn",
 				"no-unused-vars": ["warn", {"argsIgnorePattern": "."}],
 				"eqeqeq": "warn",
-				"indent": ["error", 4]
+				"indent": ["error", 4, {"SwitchCase": 1}]
 			}
 		},
 
