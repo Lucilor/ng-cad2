@@ -73,7 +73,7 @@ export async function printCads(dataArr: CadData[], config: Partial<CadViewerCon
     return url;
 }
 
-export function addCadGongshi(data: CadData, visible: boolean, ignoreTop = true) {
+export function addCadGongshi(data: CadData, visible: boolean, ignoreTop: boolean) {
     removeCadGongshi(data);
     if (!ignoreTop) {
         const mtext = new CadMtext();
@@ -83,7 +83,7 @@ export function addCadGongshi(data: CadData, visible: boolean, ignoreTop = true)
         mtext.selectable = false;
         mtext.anchor.set(0, 0);
         mtext.info.isCadGongshi = true;
-        mtext.visible = visible
+        mtext.visible = visible;
         data.entities.add(mtext);
     }
     data.partners.forEach((d) => addCadGongshi(d, visible, false));

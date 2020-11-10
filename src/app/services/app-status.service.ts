@@ -191,20 +191,20 @@ export class AppStatusService {
 
     openCad(data?: CadData[], collection?: CadCollection) {
         const cad = this.cad;
+        if (!collection) {
+            collection = this.config.config("collection");
+        }
         if (data) {
             cad.data.components.data = data;
             cad.data.info.算料单 = data.some((v) => v.info.算料单);
             data.forEach((v) => {
                 setCadData(v);
-                addCadGongshi(v, this.config.config("showCadGongshis"));
+                addCadGongshi(v, this.config.config("showCadGongshis"), collection === "CADmuban");
             });
             this.clearSelectedCads();
         } else {
             data = cad.data.components.data;
             this.refreshSelectedCads();
-        }
-        if (!collection) {
-            collection = this.config.config("collection");
         }
         document.title = data.map((v) => v.name).join(", ");
         let hideLineLength: boolean;

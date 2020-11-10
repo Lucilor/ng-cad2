@@ -822,7 +822,7 @@ export class CadConsoleComponent implements OnInit {
                     });
                 }
                 removeCadGongshi(data);
-                addCadGongshi(data, this.config.config("showCadGongshis"));
+                addCadGongshi(data, this.config.config("showCadGongshis"), this.config.config("collection") === "CADmuban");
             };
             const selectedCads = this.status.getFlatSelectedCads();
             if (selectedCads.length) {
