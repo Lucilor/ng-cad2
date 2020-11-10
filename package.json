@@ -31,7 +31,7 @@
     "jsoneditor": "^9.1.2",
     "lodash": "^4.17.20",
     "ngx-perfect-scrollbar": "^10.0.1",
-    "ngx-ui-loader": "^9.1.1",
+    "ngx-ui-loader": "^10.0.0",
     "pdfmake": "^0.1.68",
     "rxjs": "~6.6.3",
     "tslib": "^2.0.3",
