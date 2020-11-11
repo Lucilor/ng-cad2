@@ -189,7 +189,7 @@ export class AppStatusService {
         }
     }
 
-    openCad(data?: CadData[], collection?: CadCollection) {
+    async openCad(data?: CadData[], collection?: CadCollection) {
         const cad = this.cad;
         if (!collection) {
             collection = this.config.config("collection");
@@ -219,7 +219,9 @@ export class AppStatusService {
         this.openCad$.next();
         cad.data.updatePartners().updateComponents();
         cad.reset();
-        setTimeout(() => cad.center(), 1000);
+        cad.center();
+        await cad.render();
+        cad.center();
     }
 
     startLoader(config: {id?: string; text?: string} = {}) {

@@ -9,6 +9,7 @@ import {getVectorFromArray, isBetween} from "./cad-data/utils";
 import {CadStyle, CadStylizer} from "./cad-stylizer";
 import {CadEventCallBack, CadEvents, controls} from "./cad-viewer-controls";
 import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText} from "./draw";
+import {timeout} from "../app.common";
 
 export interface CadViewerConfig {
     width: number; // 宽
@@ -27,6 +28,7 @@ export interface CadViewerConfig {
     minLinewidth: number; // 所有线的最小宽度(调大以便选中)
     fontFamily: string; // 设置字体
     enableZoom: boolean; // 是否启用缩放
+    renderStep: number; // 渲染时每次渲染的实体个数
 }
 
 function getConfigProxy(config: Partial<CadViewerConfig> = {}) {
@@ -46,7 +48,8 @@ function getConfigProxy(config: Partial<CadViewerConfig> = {}) {
         hideLineGongshi: false,
         minLinewidth: 1,
         fontFamily: "微软雅黑",
-        enableZoom: true
+        enableZoom: true,
+        renderStep: 10
     };
     for (const key in config) {
         if (key in defalutConfig) {
@@ -187,7 +190,7 @@ export class CadViewer extends EventEmitter {
 
     appendTo(container: HTMLElement) {
         container.appendChild(this.dom);
-        return this.render();
+        return this;
     }
 
     width(): number;
@@ -284,9 +287,9 @@ export class CadViewer extends EventEmitter {
         }
         let el = entity.el;
         if (!el) {
-            const typeLayer = draw.find(`[type="${entity.type}"]`)[0] as G;
+            let typeLayer = draw.find(`[type="${entity.type}"]`)[0] as G;
             if (!typeLayer) {
-                draw.group().attr("type", entity.type);
+                typeLayer = draw.group().attr("type", entity.type);
             }
             el = typeLayer.group().addClass("selectable");
             entity.el = el;
@@ -479,7 +482,7 @@ export class CadViewer extends EventEmitter {
         return this;
     }
 
-    render(entities?: CadEntity | CadEntities | CadEntity[], style: Partial<CadStyle> = {}) {
+    async render(entities?: CadEntity | CadEntities | CadEntity[], style: Partial<CadStyle> = {}) {
         if (!entities) {
             entities = this.data.getAllEntities();
         }
@@ -490,8 +493,14 @@ export class CadViewer extends EventEmitter {
             entities = new CadEntities().fromArray(entities);
         }
         if (entities.length) {
-            entities.dimension.forEach((e) => (e.visible = !this._config.hideDimensions));
-            entities.forEach((e) => this.drawEntity(e, style));
+            const entitiesArr = entities.toArray();
+            const step = this.config("renderStep");
+            for (let i = 0; i < entitiesArr.length; i += step) {
+                const tmpEntities = new CadEntities().fromArray(entitiesArr.slice(i, i + step));
+                tmpEntities.dimension.forEach((e) => (e.visible = !this._config.hideDimensions));
+                tmpEntities.forEach((e) => this.drawEntity(e, style));
+                await timeout();
+            }
             this.emit("render", null, {entities});
         }
         return this;
@@ -692,10 +701,6 @@ export class CadViewer extends EventEmitter {
 
     reset(data?: CadData) {
         this.draw.clear();
-        const types: CadType[] = ["DIMENSION", "HATCH", "MTEXT", "CIRCLE", "ARC", "LINE"];
-        types.forEach((t) => {
-            this.draw.group().attr("type", t);
-        });
         if (data instanceof CadData) {
             this.data = data;
         }
@@ -704,7 +709,7 @@ export class CadViewer extends EventEmitter {
             e.children.forEach((c) => (c.el = null));
         });
         this.dom.focus();
-        return this.render().center();
+        return this;
     }
 
     // ? move entities efficiently

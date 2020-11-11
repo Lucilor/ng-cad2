@@ -59,7 +59,7 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
 	                });
 	                document.body.appendChild(cad.dom);
 	                cad.data.transform({scaleY: -1});
-	                cad.render().center();
+	                (await cad.render()).center();
 	                await timeout(0);
 	                card.cadImg = this.sanitizer.bypassSecurityTrustUrl(cad.toBase64());
 	                cad.destroy();

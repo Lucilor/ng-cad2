@@ -1,6 +1,5 @@
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {timeout} from "./app.common";
 import {CadBaseLine, CadData, CadJointPoint, CadOption} from "./cad-viewer/cad-data/cad-data";
 import {CadDimension, CadEntities, CadMtext} from "./cad-viewer/cad-data/cad-entities";
 import {CadViewer, CadViewerConfig} from "./cad-viewer/cad-viewer";
@@ -13,7 +12,7 @@ export async function getCadPreview(data: CadData, width = 300, height = 150, pa
     data2.entities.mtext = [];
     const cad = new CadViewer(data2, {width, height, padding, backgroundColor: "black", hideLineLength: true, hideLineGongshi: true});
     cad.appendTo(document.body);
-    await timeout(0);
+    await cad.render();
     const src = cad.toBase64();
     cad.destroy();
     return src;
@@ -53,7 +52,7 @@ export async function printCads(dataArr: CadData[], config: Partial<CadViewerCon
             hideLineGongshi: true
         }).appendTo(document.body);
         cadPrint.select(cadPrint.data.getAllEntities().dimension);
-        await timeout(0);
+        await cadPrint.render();
         const src = (await cadPrint.toCanvas()).toDataURL();
         cadPrint.destroy();
         imgs.push(src);

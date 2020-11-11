@@ -49,6 +49,7 @@ interface CadViewerConfig {
     minLinewidth: number; // 所有线的最小宽度(调大以便选中)
     fontFamily: string; // 设置字体
     enableZoom: boolean; // 是否启用缩放
+    renderStep: number; // 渲染时每次渲染的实体个数
 	showCadGongshis: boolean; // 是否显示CAD公式
 	infoTabIndex: number; // 右侧菜单当前选中的tab
 	cadIds: string[]; // 已打开CAD的ids
