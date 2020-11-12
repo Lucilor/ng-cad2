@@ -1,178 +1,183 @@
 <div class="btn-group">
-	<button
-		mat-raised-button
-		[style.z-index]="data ? '1' : '0'"
-		[color]="cadStatusName === 'drawLine' ? 'accent' : 'primary'"
-		(click)="drawLine()"
-	>
-		画线
-	</button>
-	<button mat-raised-button color="primary" (click)="autoFix()">修正</button>
+    <button
+        mat-raised-button
+        [style.z-index]="data ? '1' : '0'"
+        [color]="cadStatusName === 'drawLine' ? 'accent' : 'primary'"
+        (click)="drawLine()"
+    >
+        画线
+    </button>
+    <button mat-raised-button color="primary" (click)="autoFix()">修正</button>
 </div>
 <form [class.not-allowed]="editDiabled">
-	<button hidden></button>
-	<div class="form-item length">
-		<mat-form-field>
-			<mat-label>长度</mat-label>
-			<input matInput type="number" [ngModel]="getLineLength()" (change)="setLineLength($event)" name="lineLength" />
-		</mat-form-field>
-	</div>
-	<div class="form-item hideLength">
-		<mat-form-field floatLabel="always">
-			<mat-label>是否隐藏线长</mat-label>
-			<mat-slide-toggle [ngModel]="getHideLength()" (change)="setHideLength($event)" name="hideLength"></mat-slide-toggle>
-			<input matInput hidden />
-		</mat-form-field>
-	</div>
-	<div class="form-item lengthTextSize">
-		<mat-form-field>
-			<mat-label>线长字体大小</mat-label>
-			<input
-				matInput
-				type="text"
-				[ngModel]="getLineText('lengthTextSize')"
-				(change)="setLineText($event, 'lengthTextSize')"
-				name="lengthTextSize"
-			/>
-		</mat-form-field>
-	</div>
-	<div class="form-item color">
-		<mat-form-field>
-			<mat-label>颜色</mat-label>
-			<input
-				matInput
-				ejs-colorpicker
-				type="color"
-				[showButtons]="false"
-				[mode]="'Palette'"
-				[modeSwitcher]="false"
-				[presetColors]="selectableColors"
-				[enableOpacity]="false"
-				[value]="getCssColor()"
-				(change)="setLineColor($event)"
-			/>
-		</mat-form-field>
-	</div>
-	<div class="form-item linewidth">
-		<mat-form-field>
-			<mat-label>线宽</mat-label>
-			<input matInput type="text" [ngModel]="getLinewidth()" (change)="setLinewidth($event)" name="linewidth" />
-		</mat-form-field>
-	</div>
-	<div class="form-item mingzi">
-		<mat-form-field>
-			<mat-label>名字</mat-label>
-			<input
-				matInput
-				type="text"
-				[ngModel]="getLineText('mingzi')"
-				(input)="setLineText($event, 'mingzi')"
-				(focus)="focusedField = 'mingzi'"
-				(blur)="focusedField = ''"
-				name="lineMingzi"
-			/>
-		</mat-form-field>
-	</div>
-	<div class="form-item qujian">
-		<mat-form-field>
-			<mat-label>区间</mat-label>
-			<input
-				matInput
-				type="text"
-				[ngModel]="getLineText('qujian')"
-				(input)="setLineText($event, 'qujian')"
-				(focus)="focusedField = 'qujian'"
-				(blur)="focusedField = ''"
-				name="lineQujian"
-			/>
-		</mat-form-field>
-	</div>
-	<div class="form-item gongshi">
-		<mat-form-field>
-			<mat-label>公式</mat-label>
-			<input
-				matInput
-				type="text"
-				[ngModel]="getLineText('gongshi')"
-				(input)="setLineText($event, 'gongshi')"
-				(focus)="focusedField = 'gongshi'"
-				(blur)="focusedField = ''"
-				name="lineGongshi"
-				[errorStateMatcher]="gongshiMatcher"
-			/>
-			<mat-error>{{ inputErrors.gongshi }}</mat-error>
-		</mat-form-field>
-	</div>
-	<div class="form-item guanlianbianhuagongshi">
-		<mat-form-field>
-			<mat-label>关联变化公式</mat-label>
-			<input
-				matInput
-				type="text"
-				[ngModel]="getLineText('guanlianbianhuagongshi')"
-				(input)="setLineText($event, 'guanlianbianhuagongshi')"
-				(focus)="focusedField = 'guanlianbianhuagongshi'"
-				(blur)="focusedField = ''"
-				name="guanlianbianhuagongshi"
-				[errorStateMatcher]="guanlianbianhuagongshiMatcher"
-			/>
-			<mat-error>{{ inputErrors.guanlianbianhuagongshi }}</mat-error>
-		</mat-form-field>
-	</div>
-	<div class="form-item kongwei">
-		<mat-form-field>
-			<mat-label>孔位</mat-label>
-			<input
-				matInput
-				type="text"
-				[ngModel]="getLineText('kongwei')"
-				(input)="setLineText($event, 'kongwei')"
-				(focus)="focusedField = 'kongwei'"
-				(blur)="focusedField = ''"
-				name="kongwei"
-			/>
-		</mat-form-field>
-	</div>
-	<div class="form-item nextZhewan">
-		<mat-form-field>
-			<mat-label>下一个折弯标线</mat-label>
-			<mat-select name="nextZhewan" [ngModel]="getLineText('nextZhewan')" (selectionChange)="setLineText($event, 'nextZhewan')">
-				<mat-option value="自动">自动</mat-option>
-				<mat-option value="无">无</mat-option>
-				<mat-option value="1mm">1mm</mat-option>
-				<mat-option value="6mm">6mm</mat-option>
-			</mat-select>
-		</mat-form-field>
-	</div>
-	<div class="form-item zidingzhankaichang">
-		<mat-form-field>
-			<mat-label>指定展开长</mat-label>
-			<input
-				matInput
-				type="text"
-				name="zidingzhankaichang"
-				[ngModel]="getLineText('zidingzhankaichang')"
-				(input)="setLineText($event, 'zidingzhankaichang')"
-			/>
-		</mat-form-field>
-	</div>
-	<div class="form-item tiaojianquzhi">
-		<mat-form-field>
-			<mat-label>条件取值</mat-label>
-			<input matInput type="text" disabled />
-			<mat-icon matSuffix color="primary" (click)="editTiaojianquzhi()">list</mat-icon>
-		</mat-form-field>
-	</div>
-	<div class="form-item zhewanOffset">
-		<mat-form-field>
-			<mat-label>折弯标记偏移</mat-label>
-			<input
-				matInput
-				type="text"
-				name="zhewanOffset"
-				[ngModel]="getLineText('zhewanOffset')"
-				(input)="setLineText($event, 'zhewanOffset')"
-			/>
-		</mat-form-field>
-	</div>
+    <button hidden></button>
+    <div class="form-item length">
+        <mat-form-field>
+            <mat-label>长度</mat-label>
+            <input matInput type="number" [ngModel]="getLineLength()" (change)="setLineLength($event)" name="lineLength" />
+        </mat-form-field>
+    </div>
+    <div class="form-item hideLength">
+        <mat-form-field floatLabel="always">
+            <mat-label>是否隐藏线长</mat-label>
+            <mat-slide-toggle [ngModel]="getHideLength()" (change)="setHideLength($event)" name="hideLength"></mat-slide-toggle>
+            <input matInput hidden />
+        </mat-form-field>
+    </div>
+    <div class="form-item lengthTextSize">
+        <mat-form-field>
+            <mat-label>线长字体大小</mat-label>
+            <input
+                matInput
+                type="text"
+                [ngModel]="getLineText('lengthTextSize')"
+                (change)="setLineText($event, 'lengthTextSize')"
+                name="lengthTextSize"
+            />
+        </mat-form-field>
+    </div>
+    <div class="form-item color">
+        <mat-form-field>
+            <mat-label>颜色</mat-label>
+            <input
+                matInput
+                [value]="colorText"
+                [style]="{color: colorValue, backgroundColor: colorBg, transition: '0.3s'}"
+                [satPopoverAnchor]="popover"
+                (click)="popover.toggle()"
+                readonly
+            />
+            <sat-popover #popover [yAlign]="'below'" [hasBackdrop]="true" [autoFocus]="false">
+                <color-circle
+                    [width]="202"
+                    [circleSpacing]="10"
+                    [color]="colorValue"
+                    [colors]="selectableColors"
+                    (onChangeComplete)="setLineColor($event)"
+                ></color-circle>
+            </sat-popover>
+        </mat-form-field>
+    </div>
+    <div class="form-item linewidth">
+        <mat-form-field>
+            <mat-label>线宽</mat-label>
+            <input matInput type="text" [ngModel]="getLinewidth()" (change)="setLinewidth($event)" name="linewidth" />
+        </mat-form-field>
+    </div>
+    <div class="form-item mingzi">
+        <mat-form-field>
+            <mat-label>名字</mat-label>
+            <input
+                matInput
+                type="text"
+                [ngModel]="getLineText('mingzi')"
+                (input)="setLineText($event, 'mingzi')"
+                (focus)="focusedField = 'mingzi'"
+                (blur)="focusedField = ''"
+                name="lineMingzi"
+            />
+        </mat-form-field>
+    </div>
+    <div class="form-item qujian">
+        <mat-form-field>
+            <mat-label>区间</mat-label>
+            <input
+                matInput
+                type="text"
+                [ngModel]="getLineText('qujian')"
+                (input)="setLineText($event, 'qujian')"
+                (focus)="focusedField = 'qujian'"
+                (blur)="focusedField = ''"
+                name="lineQujian"
+            />
+        </mat-form-field>
+    </div>
+    <div class="form-item gongshi">
+        <mat-form-field>
+            <mat-label>公式</mat-label>
+            <input
+                matInput
+                type="text"
+                [ngModel]="getLineText('gongshi')"
+                (input)="setLineText($event, 'gongshi')"
+                (focus)="focusedField = 'gongshi'"
+                (blur)="focusedField = ''"
+                name="lineGongshi"
+                [errorStateMatcher]="gongshiMatcher"
+            />
+            <mat-error>{{ inputErrors.gongshi }}</mat-error>
+        </mat-form-field>
+    </div>
+    <div class="form-item guanlianbianhuagongshi">
+        <mat-form-field>
+            <mat-label>关联变化公式</mat-label>
+            <input
+                matInput
+                type="text"
+                [ngModel]="getLineText('guanlianbianhuagongshi')"
+                (input)="setLineText($event, 'guanlianbianhuagongshi')"
+                (focus)="focusedField = 'guanlianbianhuagongshi'"
+                (blur)="focusedField = ''"
+                name="guanlianbianhuagongshi"
+                [errorStateMatcher]="guanlianbianhuagongshiMatcher"
+            />
+            <mat-error>{{ inputErrors.guanlianbianhuagongshi }}</mat-error>
+        </mat-form-field>
+    </div>
+    <div class="form-item kongwei">
+        <mat-form-field>
+            <mat-label>孔位</mat-label>
+            <input
+                matInput
+                type="text"
+                [ngModel]="getLineText('kongwei')"
+                (input)="setLineText($event, 'kongwei')"
+                (focus)="focusedField = 'kongwei'"
+                (blur)="focusedField = ''"
+                name="kongwei"
+            />
+        </mat-form-field>
+    </div>
+    <div class="form-item nextZhewan">
+        <mat-form-field>
+            <mat-label>下一个折弯标线</mat-label>
+            <mat-select name="nextZhewan" [ngModel]="getLineText('nextZhewan')" (selectionChange)="setLineText($event, 'nextZhewan')">
+                <mat-option value="自动">自动</mat-option>
+                <mat-option value="无">无</mat-option>
+                <mat-option value="1mm">1mm</mat-option>
+                <mat-option value="6mm">6mm</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="form-item zidingzhankaichang">
+        <mat-form-field>
+            <mat-label>指定展开长</mat-label>
+            <input
+                matInput
+                type="text"
+                name="zidingzhankaichang"
+                [ngModel]="getLineText('zidingzhankaichang')"
+                (input)="setLineText($event, 'zidingzhankaichang')"
+            />
+        </mat-form-field>
+    </div>
+    <div class="form-item tiaojianquzhi">
+        <mat-form-field>
+            <mat-label>条件取值</mat-label>
+            <input matInput type="text" disabled />
+            <mat-icon matSuffix color="primary" (click)="editTiaojianquzhi()">list</mat-icon>
+        </mat-form-field>
+    </div>
+    <div class="form-item zhewanOffset">
+        <mat-form-field>
+            <mat-label>折弯标记偏移</mat-label>
+            <input
+                matInput
+                type="text"
+                name="zhewanOffset"
+                [ngModel]="getLineText('zhewanOffset')"
+                (input)="setLineText($event, 'zhewanOffset')"
+            />
+        </mat-form-field>
+    </div>
 </form>

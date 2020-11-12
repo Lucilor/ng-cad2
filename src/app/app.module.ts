@@ -26,8 +26,9 @@ import {MatTableModule} from "@angular/material/table";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatTooltipModule} from "@angular/material/tooltip";
 
+import {ColorChromeModule} from "ngx-color/chrome";
+import {ColorCircleModule} from "ngx-color/circle";
 import {SatPopoverModule} from "@ncstate/sat-popover";
-import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
 import {NgJsonEditorModule} from "ang-jsoneditor";
 import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
@@ -63,16 +64,16 @@ import {CadAssembleComponent} from "./components/menu/cad-assemble/cad-assemble.
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
-	itemsPerPageLabel = "每页条数";
-	previousPageLabel = "上一页";
-	nextPageLabel = "下一页";
-	firstPageLabel = "首页";
-	lastPageLabel = "尾页";
+    itemsPerPageLabel = "每页条数";
+    previousPageLabel = "上一页";
+    nextPageLabel = "下一页";
+    firstPageLabel = "首页";
+    lastPageLabel = "尾页";
 
-	getRangeLabel = (page: number, pageSize: number, length: number) => {
-	    const totalPage = Math.ceil(length / pageSize);
-	    return `第${page + 1}页，共${totalPage}页`;
-	};
+    getRangeLabel = (page: number, pageSize: number, length: number) => {
+        const totalPage = Math.ceil(length / pageSize);
+        return `第${page + 1}页，共${totalPage}页`;
+    };
 }
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
@@ -132,8 +133,9 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         MatTableModule,
         MatTabsModule,
         MatTooltipModule,
+        ColorChromeModule,
+        ColorCircleModule,
         SatPopoverModule,
-        ColorPickerModule,
         NgJsonEditorModule,
         PerfectScrollbarModule,
         NgxUiLoaderModule.forRoot({

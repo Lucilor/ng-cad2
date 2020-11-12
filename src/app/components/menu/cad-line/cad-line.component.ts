@@ -21,9 +21,9 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {Point} from "@src/app/utils";
-import {ColorPickerEventArgs} from "@syncfusion/ej2-angular-inputs";
 import Color from "color";
 import {debounce} from "lodash";
+import {ColorEvent} from "ngx-color";
 import {openCadLineTiaojianquzhiDialog} from "../../dialogs/cad-line-tjqz/cad-line-tjqz.component";
 
 @Component({
@@ -56,7 +56,29 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         return this.status.cadStatus("name");
     }
 
-    readonly selectableColors = {a: validColors};
+    private _colorText = "";
+    colorValue = ""
+    colorBg = "";
+    get colorText() {
+        return this._colorText;
+    }
+    set colorText(value) {
+        this._colorText = value.toUpperCase();
+        try {
+            const c = new Color(value);
+            if (c.isLight()) {
+                this.colorBg = "black";
+            } else {
+                this.colorBg = "white";
+            }
+            this.colorValue = value;
+        } catch (error) {
+            this.colorValue = "black";
+            this.colorBg = "white";
+        }
+    }
+
+    readonly selectableColors = validColors;
 
     private onPointerMove = (async ({clientX, clientY, shiftKey}: MouseEvent) => {
         const {lineDrawing} = this;
@@ -121,6 +143,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             cads.forEach((v) => v.entities.forEach((vv) => ids.push(vv.id)));
             this.editDiabled = !selected.every((e) => ids.includes(e.id));
         }
+        this.colorText = this.getCssColor();
     }).bind(this);
 
     constructor(
@@ -234,14 +257,17 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             const strs = Array.from(new Set(lines.map((l) => l.color.hex())));
             if (strs.length === 1) {
                 return strs[0];
+            } else {
+                return "多个值";
             }
         }
-        return "#ffffff";
+        return "";
     }
 
-    setLineColor(event: ColorPickerEventArgs) {
-        const color = parseInt(event.currentValue.hex.slice(1, 7), 16);
-        this.selected.forEach((e) => (e.color = new Color(color)));
+    setLineColor(event: ColorEvent) {
+        const value = event.color.hex;
+        this.colorText = value;
+        this.selected.forEach((e) => (e.color = new Color(value)));
         this.status.cad.render();
     }
 

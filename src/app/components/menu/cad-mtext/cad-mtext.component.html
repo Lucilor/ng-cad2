@@ -1,57 +1,66 @@
 <form [class.not-allowed]="selected.length < 1">
-	<div class="not-allowed-area" *ngIf="selected.length < 1"></div>
-	<button hidden></button>
-	<div class="form-item text">
-		<mat-form-field>
-			<mat-label>内容</mat-label>
-			<textarea
-				matInput
-				cdkTextareaAutosize
-				[cdkAutosizeMaxRows]="5"
-				[ngModel]="getInfo('text')"
-				(input)="setInfo('text', $event)"
-				placeholder="请输入内容"
-				name="mtext"
-			></textarea>
-		</mat-form-field>
-	</div>
-	<div class="form-item font-size">
-		<mat-form-field>
-			<mat-label>字体大小</mat-label>
-			<input
-				matInput
-				type="number"
-				min="0"
-				[ngModel]="getInfo('font_size')"
-				(change)="setInfo('font_size', $event)"
-				placeholder="请输入字体大小"
-				name="font_size"
-			/>
-		</mat-form-field>
-	</div>
-	<div class="form-item color">
-		<mat-form-field>
-			<mat-label>颜色</mat-label>
-			<input matInput ejs-colorpicker type="color" [enableOpacity]="false" [value]="getColor()" (change)="setColor($event)" />
-		</mat-form-field>
-	</div>
-	<div class="form-item font-anchor">
-		<mat-form-field floatLabel="always">
-			<mat-label>锚点</mat-label>
-			<input matInput type="text" placeholder="请选择锚点" [value]="getAnchor()" name="anchor" readonly />
-			<mat-icon color="primary" matSuffix [satPopoverAnchor]="popover" (click)="popover.toggle()">list</mat-icon>
-		</mat-form-field>
-	</div>
+    <div class="not-allowed-area" *ngIf="selected.length < 1"></div>
+    <button hidden></button>
+    <div class="form-item text">
+        <mat-form-field>
+            <mat-label>内容</mat-label>
+            <textarea
+                matInput
+                cdkTextareaAutosize
+                [cdkAutosizeMaxRows]="5"
+                [ngModel]="getInfo('text')"
+                (input)="setInfo('text', $event)"
+                placeholder="请输入内容"
+                name="mtext"
+            ></textarea>
+        </mat-form-field>
+    </div>
+    <div class="form-item font-size">
+        <mat-form-field>
+            <mat-label>字体大小</mat-label>
+            <input
+                matInput
+                type="number"
+                min="0"
+                [ngModel]="getInfo('font_size')"
+                (change)="setInfo('font_size', $event)"
+                placeholder="请输入字体大小"
+                name="font_size"
+            />
+        </mat-form-field>
+    </div>
+    <div class="form-item color">
+        <mat-form-field>
+            <mat-label>颜色</mat-label>
+            <input
+                matInput
+                [value]="colorText"
+                [style]="{color: colorValue, backgroundColor: colorBg, transition: '0.3s'}"
+                [satPopoverAnchor]="popoverColor"
+				(click)="popoverColor.toggle()"
+				readonly
+            />
+            <sat-popover #popoverColor [yAlign]="'above'" [hasBackdrop]="true" [autoFocus]="false">
+                <color-chrome [color]="colorValue" (onChangeComplete)="setColor($event)"></color-chrome>
+            </sat-popover>
+        </mat-form-field>
+    </div>
+    <div class="form-item font-anchor">
+        <mat-form-field floatLabel="always">
+            <mat-label>锚点</mat-label>
+            <input matInput type="text" placeholder="请选择锚点" [value]="getAnchor()" name="anchor" readonly />
+            <mat-icon color="primary" matSuffix [satPopoverAnchor]="popoverAnchor" (click)="popoverAnchor.toggle()">list</mat-icon>
+            <sat-popover #popoverAnchor [yAlign]="'above'" [hasBackdrop]="true" [autoFocus]="false">
+                <app-anchor-selector [x]="currAnchor.x" [y]="currAnchor.y" (anchorChangeEnd)="setAnchor($event)"></app-anchor-selector>
+            </sat-popover>
+        </mat-form-field>
+    </div>
 </form>
 
 <span *ngIf="!data" style="color: #888888"> 若要添加或复制文本， </span>
 <div class="btn-group only-one-cad">
-	<ng-container *ngIf="data">
-		<button mat-raised-button color="primary" (click)="addMtext()">添加文本</button>
-		<button mat-raised-button color="primary" (click)="cloneMtexts()">复制文本</button>
-	</ng-container>
+    <ng-container *ngIf="data">
+        <button mat-raised-button color="primary" (click)="addMtext()">添加文本</button>
+        <button mat-raised-button color="primary" (click)="cloneMtexts()">复制文本</button>
+    </ng-container>
 </div>
-
-<sat-popover #popover [verticalAlign]="'above'" [hasBackdrop]="true" [autoFocus]="false">
-	<app-anchor-selector [x]="currAnchor.x" [y]="currAnchor.y" (anchorChangeEnd)="setAnchor($event)"></app-anchor-selector>
-</sat-popover>
