@@ -6,9 +6,11 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {SatPopoverModule} from "@ncstate/sat-popover";
 import {CadConsoleModule} from "@src/app/modules/cad-console/cad-console.module";
 import {HttpModule} from "@src/app/modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
+import {ColorCircleModule} from "ngx-color/circle";
 
 import {CadLineComponent} from "./cad-line.component";
 
@@ -27,10 +29,11 @@ describe("CadLineComponent", () => {
                 MatInputModule,
                 MatSelectModule,
                 MatSlideToggleModule,
+                SatPopoverModule,
                 CadConsoleModule,
                 HttpModule,
                 MessageModule,
-                // ColorPickerModule
+                ColorCircleModule
             ]
         }).compileComponents();
     });

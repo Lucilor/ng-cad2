@@ -7,6 +7,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {SatPopoverModule} from "@ncstate/sat-popover";
 import {HttpModule} from "@src/app/modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
+import {ColorChromeModule} from "ngx-color/chrome";
 import {AnchorSelectorComponent} from "../../anchor-selector/anchor-selector.component";
 
 import {CadMtextComponent} from "./cad-mtext.component";
@@ -27,7 +28,7 @@ describe("CadMtextComponent", () => {
                 SatPopoverModule,
                 HttpModule,
                 MessageModule,
-                // ColorPickerModule
+                ColorChromeModule
             ]
         }).compileComponents();
     });
