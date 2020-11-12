@@ -9,7 +9,6 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {CadConsoleModule} from "@src/app/modules/cad-console/cad-console.module";
 import {HttpModule} from "@src/app/modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
-import {ColorPickerModule} from "@syncfusion/ej2-angular-inputs";
 
 import {CadLineComponent} from "./cad-line.component";
 
@@ -31,7 +30,7 @@ describe("CadLineComponent", () => {
                 CadConsoleModule,
                 HttpModule,
                 MessageModule,
-                ColorPickerModule
+                // ColorPickerModule
             ]
         }).compileComponents();
     });
