@@ -3,7 +3,7 @@ import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from "@angula
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, imgEmpty, CadCollection} from "@src/app/app.common";
-import {CadData, CadOption} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadData, CadOption} from "@src/app/cad-viewer";
 import {getCadPreview} from "@src/app/cad.utils";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";

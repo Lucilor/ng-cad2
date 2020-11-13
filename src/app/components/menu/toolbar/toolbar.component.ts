@@ -1,12 +1,11 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
-import {CadMtext, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer/cad-data/cad-entities";
-import {CadLineLike} from "@src/app/cad-viewer/cad-data/cad-lines";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, cadStatusNameMap, CadStatusNameMap} from "@src/app/services/app-status.service";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
-import {ValueOf} from "@src/app/utils/types";
+import {ValueOf} from "@src/app/utils";
+import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer";
 
 @Component({
     selector: "app-toolbar",

@@ -33,10 +33,10 @@ import {NgJsonEditorModule} from "ang-jsoneditor";
 import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
 
-import {CadConsoleModule} from "@app/modules/cad-console/cad-console.module";
+import {CadConsoleModule} from "@src/app/modules/cad-console/cad-console.module";
 import {HttpModule} from "./modules/http/http.module";
-import {MessageModule} from "@app/modules/message/message.module";
-import {TableModule} from "@app/modules/table/table.module";
+import {MessageModule} from "@src/app/modules/message/message.module";
+import {TableModule} from "@src/app/modules/table/table.module";
 
 import {IndexComponent} from "./views/index/index.component";
 import {PageNotFoundComponent} from "./views/page-not-found/page-not-found.component";

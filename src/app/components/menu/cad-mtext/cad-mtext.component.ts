@@ -1,6 +1,5 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadData} from "@app/cad-viewer/cad-data/cad-data";
-import {CadEntity, CadMtext} from "@src/app/cad-viewer/cad-data/cad-entities";
+import {CadData, CadMtext, CadEntity} from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {Point} from "@src/app/utils";

@@ -1,5 +1,4 @@
-import {AnyObject} from "@src/app/utils/types";
-import {Line, Point, Rectangle} from "@src/app/utils";
+import {AnyObject, Line, Point, Rectangle} from "@src/app/utils";
 import {CadData, CadOption} from "./cad-data";
 import {sortLines} from "./cad-lines";
 import {CadLine, CadMtext, CadArc, CadCircle} from "./cad-entities";

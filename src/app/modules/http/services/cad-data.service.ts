@@ -1,35 +1,35 @@
 import {Injectable, Injector} from "@angular/core";
 import {CadCollection} from "@src/app/app.common";
-import {CadOption, CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {AnyObject} from "@src/app/utils/types";
+import {CadOption, CadData} from "@src/app/cad-viewer";
+import {AnyObject} from "@src/app/utils";
 import {HttpService} from "./http.service";
 
 export interface GetCadParams {
-	collection: CadCollection;
-	id: string;
-	ids: string[];
-	page: number;
-	limit: number;
-	search: AnyObject;
-	qiliao: boolean;
-	options: CadOption[];
-	optionsMatchType: "and" | "or";
+    collection: CadCollection;
+    id: string;
+    ids: string[];
+    page: number;
+    limit: number;
+    search: AnyObject;
+    qiliao: boolean;
+    options: CadOption[];
+    optionsMatchType: "and" | "or";
 }
 
 export interface SetCadParams {
-	collection: CadCollection;
-	cadData: CadData;
-	force: boolean;
-	time?: number;
+    collection: CadCollection;
+    cadData: CadData;
+    force: boolean;
+    time?: number;
 }
 
 export type CadSearchData = {
-	title: string;
-	items: {
-		value: string;
-		label: string;
-		options: {value: string; label: string}[];
-	}[];
+    title: string;
+    items: {
+        value: string;
+        label: string;
+        options: {value: string; label: string}[];
+    }[];
 }[];
 
 @Injectable({

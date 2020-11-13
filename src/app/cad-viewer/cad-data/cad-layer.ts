@@ -1,4 +1,4 @@
-import {index2RGB, RGB2Index} from "@app/utils";
+import {index2RGB, RGB2Index} from "@src/app/utils";
 import {lineweight2linewidth, linewidth2lineweight} from "./utils";
 import Color from "color";
 import {v4} from "uuid";

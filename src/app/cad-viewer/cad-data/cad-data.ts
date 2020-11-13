@@ -1,5 +1,4 @@
-import {Point} from "@app/utils";
-import {AnyObject} from "@src/app/utils/types";
+import {AnyObject, Point} from "@src/app/utils";
 import {Matrix, MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
 import {uniqWith, intersection, cloneDeep} from "lodash";
 import {v4} from "uuid";

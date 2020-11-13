@@ -1,8 +1,6 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {CadData} from "@app/cad-viewer/cad-data/cad-data";
-import {CadDimension, CadLine} from "@app/cad-viewer/cad-data/cad-entities";
-import {CadEventCallBack} from "@src/app/cad-viewer/cad-viewer-controls";
+import {CadDimension, CadData, CadLine, CadEventCallBack} from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";

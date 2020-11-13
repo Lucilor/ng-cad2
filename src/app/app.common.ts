@@ -1,4 +1,4 @@
-import {SessionStorage, LocalStorage} from "@app/utils";
+import {SessionStorage, LocalStorage} from "@src/app/utils";
 
 export const projectName = "NgCad";
 export const session = new SessionStorage(projectName);
@@ -25,10 +25,6 @@ export interface Response<T> {
 }
 
 export type CadCollection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";
-
-export async function timeout(time = 0) {
-    return new Promise<never>((r) => setTimeout(() => r(), time));
-}
 
 // export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
 // 	return map.map((v) => {

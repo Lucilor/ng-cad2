@@ -1,6 +1,6 @@
 import {Component, Inject} from "@angular/core";
 import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
+import {CadData} from "@src/app/cad-viewer";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {cloneDeep} from "lodash";
 import {openCadOptionsDialog} from "../cad-options/cad-options.component";

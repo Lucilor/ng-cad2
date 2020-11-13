@@ -3,18 +3,20 @@ import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
-import {CadData} from "@src/app/cad-viewer/cad-data/cad-data";
-import {CadLine, CadArc} from "@src/app/cad-viewer/cad-data/cad-entities";
 import {
+    CadLine,
+    CadData,
     CadLineLike,
     validColors,
     setLinesLength,
     generatePointsMap,
+    CadViewerConfig,
+    CadArc,
     validateLines,
+    linewidth2lineweight,
+    lineweight2linewidth,
     autoFixLine
-} from "@src/app/cad-viewer/cad-data/cad-lines";
-import {linewidth2lineweight, lineweight2linewidth} from "@src/app/cad-viewer/cad-data/utils";
-import {CadViewerConfig} from "@src/app/cad-viewer/cad-viewer";
+} from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
@@ -57,7 +59,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     private _colorText = "";
-    colorValue = ""
+    colorValue = "";
     colorBg = "";
     get colorText() {
         return this._colorText;

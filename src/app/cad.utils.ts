@@ -1,8 +1,16 @@
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {CadBaseLine, CadData, CadJointPoint, CadOption} from "./cad-viewer/cad-data/cad-data";
-import {CadDimension, CadEntities, CadMtext} from "./cad-viewer/cad-data/cad-entities";
-import {CadViewer, CadViewerConfig} from "./cad-viewer/cad-viewer";
+import {
+    CadData,
+    CadEntities,
+    CadViewer,
+    CadViewerConfig,
+    CadDimension,
+    CadMtext,
+    CadOption,
+    CadBaseLine,
+    CadJointPoint
+} from "./cad-viewer";
 import {getDPI, Point} from "./utils";
 
 export async function getCadPreview(data: CadData, width = 300, height = 150, padding = [10]) {

@@ -1,6 +1,6 @@
 import {Component, Input} from "@angular/core";
 import {SafeUrl} from "@angular/platform-browser";
-import {imgEmpty, imgLoading} from "@app/app.common";
+import {imgEmpty, imgLoading} from "@src/app/app.common";
 
 @Component({
     selector: "app-image",

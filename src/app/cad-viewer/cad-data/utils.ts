@@ -1,4 +1,4 @@
-import {Point} from "@app/utils";
+import {Point} from "@src/app/utils";
 import {CadLine} from "./cad-entities";
 
 export function getVectorFromArray(data: number[] | Point, defaultVal = new Point()) {

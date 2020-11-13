@@ -1,7 +1,7 @@
 import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
-import {CadData} from "@app/cad-viewer/cad-data/cad-data";
+import {CadData} from "@src/app/cad-viewer";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
 

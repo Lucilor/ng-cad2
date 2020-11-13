@@ -1,5 +1,5 @@
 import {Circle, Container, Line, Path, PathArrayAlias, Text} from "@svgdotjs/svg.js";
-import {Angle, Arc, Point} from "@app/utils";
+import {Angle, Arc, Point} from "@src/app/utils";
 
 export function drawLine(draw: Container, start: Point, end: Point, i = 0) {
     let el = draw.children()[i] as Line;
