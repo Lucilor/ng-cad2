@@ -103,6 +103,31 @@ export class CadData {
         this.updateDimensions();
     }
 
+    copy(data: CadData) {
+        this.name = data.name;
+        this.type = data.type;
+        this.separate(this).merge(data);
+        this.parent = data.parent;
+        this.zhankaikuan = data.zhankaikuan;
+        this.zhankaigao = data.zhankaigao;
+        this.shuliang = data.shuliang;
+        this.shuliangbeishu = data.shuliangbeishu;
+        this.huajian = data.huajian;
+        this.mubanfangda = data.mubanfangda;
+        this.kailiaomuban = data.kailiaomuban;
+        this.kailiaoshibaokeng = data.kailiaoshibaokeng;
+        this.bianxingfangshi = data.bianxingfangshi;
+        this.bancaiwenlifangxiang = data.bancaiwenlifangxiang;
+        this.kailiaopaibanfangshi = data.kailiaopaibanfangshi;
+        this.morenkailiaobancai = data.morenkailiaobancai;
+        this.suanliaochuli = data.suanliaochuli;
+        this.showKuandubiaozhu = data.showKuandubiaozhu;
+        this.info = cloneDeep(data.info);
+        this.attributes = cloneDeep(data.attributes);
+        this.bancaihoudufangxiang = data.bancaihoudufangxiang;
+        this.updatePartners().updateDimensions();
+    }
+
     export(): AnyObject {
         this.updateBaseLines();
         const exLayers: AnyObject = {};
@@ -202,10 +227,6 @@ export class CadData {
             data.components.data = data.components.data.map((v) => v.clone(true));
         }
         return data;
-    }
-
-    copy(data: CadData) {
-        this.separate(this).merge(data.clone());
     }
 
     merge(data: CadData) {
@@ -586,7 +607,7 @@ export class CadData {
             }
         }
         components.connections = components.connections.filter((v, i) => !toRemove.includes(i));
-        this.moveComponent(c2, translate, c1);
+        this.moveComponent(c2, translate, c1, true);
         components.connections.push(cloneDeep(connection));
 
         return this;
@@ -600,7 +621,7 @@ export class CadData {
         });
     }
 
-    moveComponent(curr: CadData, translate: Point, prev?: CadData) {
+    moveComponent(curr: CadData, translate: Point, prev?: CadData, alter = false) {
         const map: AnyObject = {};
         this.components.connections.forEach((conn) => {
             if (conn.ids.includes(curr.id)) {
@@ -622,7 +643,7 @@ export class CadData {
                 });
             }
         });
-        curr.transform({translate}, true);
+        curr.transform({translate}, alter);
         for (const id in map) {
             const next = this.components.data.find((v) => v.id === id);
             if (next) {
@@ -633,7 +654,7 @@ export class CadData {
                 if (map[id].y === undefined) {
                     newTranslate.y = 0;
                 }
-                this.moveComponent(next, newTranslate, curr);
+                this.moveComponent(next, newTranslate, curr, alter);
             }
         }
     }

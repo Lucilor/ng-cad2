@@ -18,9 +18,17 @@ export async function getCadPreview(data: CadData, width = 300, height = 150, pa
     data2.entities = new CadEntities(data.getAllEntities().export());
     data2.entities.dimension = [];
     data2.entities.mtext = [];
-    const cad = new CadViewer(data2, {width, height, padding, backgroundColor: "black", hideLineLength: true, hideLineGongshi: true});
+    const cad = new CadViewer(new CadData(), {
+        width,
+        height,
+        padding,
+        backgroundColor: "black",
+        hideLineLength: true,
+        hideLineGongshi: true
+    });
     cad.appendTo(document.body);
-    await cad.render();
+    cad.data = data2;
+    (await cad.render()).center();
     const src = cad.toBase64();
     cad.destroy();
     return src;
