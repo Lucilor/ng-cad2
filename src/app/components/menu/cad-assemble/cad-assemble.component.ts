@@ -47,27 +47,27 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                             if (found2) {
                                 found2.selected = false;
                             }
-                            lines[prev] = found.originalId;
+                            lines[prev] = found.id;
                         } else {
                             ids.push(component.id);
                             names.push(component.name);
-                            lines.push(found.originalId);
+                            lines.push(found.id);
                         }
                     }
                     if (position === "relative") {
                         if (prev > -1) {
                             if (prev === 0) {
-                                lines.push(found.originalId);
+                                lines.push(found.id);
                                 if (lines.length > 2) {
                                     lines.shift();
                                 }
                             } else {
-                                lines[prev] = found.originalId;
+                                lines[prev] = found.id;
                             }
                         } else {
                             ids.push(component.id);
                             names.push(component.name);
-                            lines.push(found.originalId);
+                            lines.push(found.id);
                         }
                         lines.forEach((l) => {
                             const e = data.findEntity(l);

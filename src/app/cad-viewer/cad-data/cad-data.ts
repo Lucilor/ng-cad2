@@ -403,6 +403,35 @@ export class CadData {
             }
         });
         this.entities.dimension = tmp;
+
+        const children = [...this.partners, ...this.components.data];
+        this.entities.dimension.forEach((e) => {
+            let cad1Changed = false;
+            let cad2Changed = false;
+            if (this.entities.find(e.entity1.id)) {
+                e.cad1 = this.name;
+                cad1Changed = true;
+            }
+            if (this.entities.find(e.entity2.id)) {
+                e.cad2 = this.name;
+                cad2Changed = true;
+            }
+            if (!(cad1Changed && cad2Changed)) {
+                for (const child of children) {
+                    if (!cad1Changed && child.findEntity(e.entity1.id)) {
+                        e.cad1 = child.name;
+                        cad1Changed = true;
+                        break;
+                    }
+                    if (!cad2Changed && child.findEntity(e.entity2.id)) {
+                        e.cad2 = child.name;
+                        cad2Changed = true;
+                        break;
+                    }
+                }
+            }
+        });
+
         this.partners.forEach((v) => v.updateDimensions(this.entities.dimension));
         this.components.data.forEach((v) => v.updateDimensions(this.entities.dimension));
         return this;

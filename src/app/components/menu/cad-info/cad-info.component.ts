@@ -27,14 +27,14 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
             if (entity instanceof CadLine) {
                 const baseLine = data.baseLines[index];
                 if (entity.isHorizontal()) {
-                    baseLine.idY = entity.selected ? entity.originalId : "";
+                    baseLine.idY = entity.selected ? entity.id : "";
                 }
                 if (entity.isVertical()) {
-                    baseLine.idX = entity.selected ? entity.originalId : "";
+                    baseLine.idX = entity.selected ? entity.id : "";
                 }
                 data.updateBaseLines();
                 data.getAllEntities().forEach((e) => {
-                    e.selected = [baseLine.idX, baseLine.idY].includes(e.originalId);
+                    e.selected = [baseLine.idX, baseLine.idY].includes(e.id);
                 });
                 this.status.cad.render();
             }

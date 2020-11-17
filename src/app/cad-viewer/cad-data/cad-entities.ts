@@ -11,7 +11,6 @@ export const DEFAULT_LENGTH_TEXT_SIZE = 24;
 
 export abstract class CadEntity {
     id: string;
-    originalId: string;
     type: CadType = "";
     layer: string;
     color: Color;
@@ -103,7 +102,6 @@ export abstract class CadEntity {
         } else {
             this.id = v4();
         }
-        this.originalId = data.originalId ?? this.id;
         this.layer = data.layer ?? "0";
         this.color = new Color();
         if (typeof data.color === "number") {
@@ -176,7 +174,6 @@ export abstract class CadEntity {
         this.update();
         return {
             id: this.id,
-            originalId: this.originalId,
             layer: this.layer,
             type: this.type,
             color: this._indexColor,
@@ -434,7 +431,7 @@ export class CadDimension extends CadEntity {
     equals(dimension: CadDimension) {
         const aIds = [this.entity1.id, this.entity2.id];
         const bIds = [dimension.entity1.id, dimension.entity2.id];
-        return intersection(aIds, bIds).length === 2 || this.id === dimension.id || this.originalId === dimension.originalId;
+        return intersection(aIds, bIds).length === 2 || this.id === dimension.id;
     }
 }
 
@@ -718,6 +715,8 @@ export function getCadEntity<T extends CadEntity>(data: any = {}, layers: CadLay
     return entity as T;
 }
 
+export type AnyCadEntity = CadLine & CadMtext & CadDimension & CadArc & CadCircle & CadHatch;
+
 export class CadEntities {
     line: CadLine[] = [];
     circle: CadCircle[] = [];
@@ -736,14 +735,39 @@ export class CadEntities {
         if (typeof data !== "object") {
             throw new Error("Invalid data.");
         }
+        const idMap: {[key: string]: string} = {};
         cadTypesKey.forEach((key) => {
-            const group = data[key];
+            const group: CadEntity[] | AnyObject = data[key];
             if (Array.isArray(group)) {
-                group.forEach((v) => this[key].push(v.clone(resetIds)));
+                group.forEach((e) => {
+                    const eNew = e.clone(resetIds) as AnyCadEntity;
+                    this[key].push(eNew);
+                    if (resetIds) {
+                        idMap[e.id] = eNew.id;
+                    }
+                });
             } else if (typeof group === "object") {
-                Object.values(group).forEach((v) => this[key].push(getCadEntity(v, layers, resetIds)));
+                Object.values(group).forEach((e) => {
+                    const eNew = getCadEntity(e, layers, resetIds) as AnyCadEntity;
+                    this[key].push(eNew);
+                    if (resetIds) {
+                        idMap[e.id] = eNew.id;
+                    }
+                });
             }
         });
+        if (resetIds) {
+            this.dimension.forEach((e) => {
+                const e1Id = idMap[e.entity1.id];
+                const e2Id = idMap[e.entity2.id];
+                if (e1Id) {
+                    e.entity1.id = e1Id;
+                }
+                if (e2Id) {
+                    e.entity2.id = e2Id;
+                }
+            });
+        }
     }
 
     merge(entities: CadEntities) {
@@ -768,7 +792,7 @@ export class CadEntities {
             for (let i = 0; i < this[key].length; i++) {
                 const e = this[key][i];
                 if (typeof callback === "string") {
-                    if (e.id === callback || e.originalId === callback) {
+                    if (e.id === callback) {
                         return e;
                     }
                 } else {

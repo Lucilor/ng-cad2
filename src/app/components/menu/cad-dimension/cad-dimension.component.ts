@@ -63,14 +63,14 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                 this.status.cadStatus("index", newIndex);
             }
             if (!dimension.entity1.id) {
-                dimension.entity1 = {id: entity.originalId, location: "start"};
+                dimension.entity1 = {id: entity.id, location: "start"};
                 dimension.cad1 = thatData.name;
             } else if (!dimension.entity2.id) {
-                dimension.entity2 = {id: entity.originalId, location: "end"};
+                dimension.entity2 = {id: entity.id, location: "end"};
                 dimension.cad2 = thatData.name;
             } else {
                 dimension.entity1 = dimension.entity2;
-                dimension.entity2 = {id: entity.originalId, location: "end"};
+                dimension.entity2 = {id: entity.id, location: "end"};
                 dimension.cad2 = thatData.name;
             }
             const e1 = cad.data.findEntity(dimension.entity1.id);
@@ -203,7 +203,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
         this.status.cad.traverse((e) => {
             if (e instanceof CadLine) {
                 e.selectable = true;
-                e.selected = [entity1?.id, entity2?.id].includes(e.originalId);
+                e.selected = [entity1?.id, entity2?.id].includes(e.id);
                 e.opacity = 1;
             } else if (e.id === dimension.id) {
                 e.opacity = 1;
