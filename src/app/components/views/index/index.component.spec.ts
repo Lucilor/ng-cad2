@@ -10,7 +10,6 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatTabsModule} from "@angular/material/tabs";
-import {SatPopoverModule} from "@ncstate/sat-popover";
 import {AnchorSelectorComponent} from "@src/app/components/anchor-selector/anchor-selector.component";
 import {CadPointsComponent} from "@src/app/components/cad-points/cad-points.component";
 import {CadDimensionComponent} from "@src/app/components/menu/cad-dimension/cad-dimension.component";
@@ -58,7 +57,6 @@ describe("IndexComponent", () => {
                 MatSelectModule,
                 MatSlideToggleModule,
                 MatTabsModule,
-                SatPopoverModule,
                 CadConsoleModule,
                 HttpModule,
                 MessageModule,

@@ -28,7 +28,6 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
-import {SatPopoverModule} from "@ncstate/sat-popover";
 import {NgJsonEditorModule} from "ang-jsoneditor";
 import {PerfectScrollbarModule, PerfectScrollbarConfigInterface, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
@@ -135,7 +134,6 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         MatTooltipModule,
         ColorChromeModule,
         ColorCircleModule,
-        SatPopoverModule,
         NgJsonEditorModule,
         PerfectScrollbarModule,
         NgxUiLoaderModule.forRoot({

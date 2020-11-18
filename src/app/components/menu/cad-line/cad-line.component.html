@@ -43,19 +43,19 @@
                 matInput
                 [value]="colorText"
                 [style]="{color: colorValue, backgroundColor: colorBg, transition: '0.3s'}"
-                [satPopoverAnchor]="popover"
-                (click)="popover.toggle()"
+                [matMenuTriggerFor]="colorPicker"
                 readonly
             />
-            <sat-popover #popover [yAlign]="'below'" [hasBackdrop]="true" [autoFocus]="false">
+            <mat-menu #colorPicker="matMenu">
                 <color-circle
                     [width]="202"
                     [circleSpacing]="10"
                     [color]="colorValue"
                     [colors]="selectableColors"
                     (onChangeComplete)="setLineColor($event)"
+                    (click)="$event.stopPropagation()"
                 ></color-circle>
-            </sat-popover>
+            </mat-menu>
         </mat-form-field>
     </div>
     <div class="form-item linewidth">

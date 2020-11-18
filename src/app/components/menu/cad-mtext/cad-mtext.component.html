@@ -36,23 +36,27 @@
                 matInput
                 [value]="colorText"
                 [style]="{color: colorValue, backgroundColor: colorBg, transition: '0.3s'}"
-                [satPopoverAnchor]="popoverColor"
-				(click)="popoverColor.toggle()"
-				readonly
+                [matMenuTriggerFor]="colorPicker"
+                readonly
             />
-            <sat-popover #popoverColor [yAlign]="'above'" [hasBackdrop]="true" [autoFocus]="false">
-                <color-chrome [color]="colorValue" (onChangeComplete)="setColor($event)"></color-chrome>
-            </sat-popover>
+            <mat-menu #colorPicker="matMenu">
+                <color-chrome [color]="colorValue" (onChangeComplete)="setColor($event)" (click)="$event.stopPropagation()"></color-chrome
+            ></mat-menu>
         </mat-form-field>
     </div>
     <div class="form-item font-anchor">
         <mat-form-field floatLabel="always">
             <mat-label>锚点</mat-label>
             <input matInput type="text" placeholder="请选择锚点" [value]="getAnchor()" name="anchor" readonly />
-            <mat-icon color="primary" matSuffix [satPopoverAnchor]="popoverAnchor" (click)="popoverAnchor.toggle()">list</mat-icon>
-            <sat-popover #popoverAnchor [yAlign]="'above'" [hasBackdrop]="true" [autoFocus]="false">
-                <app-anchor-selector [x]="currAnchor.x" [y]="currAnchor.y" (anchorChangeEnd)="setAnchor($event)"></app-anchor-selector>
-            </sat-popover>
+            <mat-icon color="primary" matSuffix [matMenuTriggerFor]="anchor">list</mat-icon>
+            <mat-menu #anchor="matMenu">
+                <app-anchor-selector
+                    [x]="currAnchor.x"
+                    [y]="currAnchor.y"
+                    (anchorChangeEnd)="setAnchor($event)"
+                    (click)="$event.stopPropagation()"
+                ></app-anchor-selector>
+            </mat-menu>
         </mat-form-field>
     </div>
 </form>
