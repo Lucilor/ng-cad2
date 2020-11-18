@@ -10,10 +10,12 @@ export type CadLineLike = CadLine | CadArc;
 export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00"];
 
 export type PointsMap = {
-	point: Point;
-	lines: CadLineLike[];
-	selected: boolean;
+    point: Point;
+    lines: CadLineLike[];
+    selected: boolean;
 }[];
+
+export const LINE_LIMIT = [0.01, 0.7];
 
 export function generatePointsMap(entities?: CadEntities, tolerance = DEFAULT_TOLERANCE) {
     const map: PointsMap = [];
@@ -181,12 +183,13 @@ export function validateLines(data: CadData, tolerance = DEFAULT_TOLERANCE) {
     const lines = sortLines(data, tolerance);
     const result = {valid: true, errMsg: "", lines};
     const validColorsNum = validColors.map((v) => new Color(v).rgbNumber());
+    const [min, max] = LINE_LIMIT;
     lines.forEach((v) =>
         v.forEach((vv) => {
             const {start, end, color} = vv;
             const dx = Math.abs(start.x - end.x);
             const dy = Math.abs(start.y - end.y);
-            if (isBetween(dx) || isBetween(dy)) {
+            if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
                 vv.info.errors = ["斜率不符合要求"];
             } else {
                 vv.info.errors = [];
@@ -326,11 +329,12 @@ export function autoFixLine(cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
     const {start, end} = line;
     const dx = start.x - end.x;
     const dy = start.y - end.y;
+    const [min, max] = LINE_LIMIT;
     const translate = new Point();
-    if (isBetween(Math.abs(dx))) {
+    if (isBetween(Math.abs(dx), min, max)) {
         translate.x = dx;
     }
-    if (isBetween(Math.abs(dy))) {
+    if (isBetween(Math.abs(dy), min, max)) {
         translate.y = dy;
     }
     const map = generatePointsMap(cad.data.getAllEntities(), tolerance);

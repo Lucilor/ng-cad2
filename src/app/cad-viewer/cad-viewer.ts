@@ -346,7 +346,10 @@ export class CadViewer extends EventEmitter {
                 const {lineGongshi, hideLineLength, hideLineGongshi} = this._config;
                 let offset: Point | undefined;
                 if (entity.info.isLengthText) {
-                    entity.text = Math.round(parent.length).toString();
+                    entity.text = parent.length.toFixed(1);
+                    if (entity.text.endsWith(".0")) {
+                        entity.text = entity.text.slice(0, -2);
+                    }
                     entity.font_size = parent.lengthTextSize;
                     if (hideLineLength || parent.hideLength) {
                         el.remove();

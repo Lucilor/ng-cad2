@@ -96,6 +96,7 @@ export function addCadGongshi(data: CadData, visible: boolean, ignoreTop: boolea
         mtext.text = getCadGongshiText(data);
         mtext.insert = new Point(left, bottom - 10);
         mtext.selectable = false;
+        mtext.font_size = 16;
         mtext.anchor.set(0, 0);
         mtext.info.isCadGongshi = true;
         mtext.visible = visible;

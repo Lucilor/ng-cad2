@@ -243,13 +243,13 @@ export class AppStatusService {
 
     generateLineTexts() {
         const cad = this.cad;
-        if (this.config.config("collection") === "CADmuban") {
-            cad.data.components.data.forEach((v) => {
-                v.components.data.forEach((vv) => generateLineTexts(vv));
-            });
-        } else {
+        // if (this.config.config("collection") === "CADmuban") {
+        //     cad.data.components.data.forEach((v) => {
+        //         v.components.data.forEach((vv) => generateLineTexts(vv));
+        //     });
+        // } else {
             cad.data.components.data.forEach((v) => generateLineTexts(v));
-        }
+        // }
     }
 
     setCadPoints(map: PointsMap) {

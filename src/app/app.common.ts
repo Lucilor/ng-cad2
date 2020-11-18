@@ -17,11 +17,11 @@ export const paths = {
 };
 
 export interface Response<T> {
-	code: number;
-	msg?: string;
-	data?: T;
-	count?: number;
-	importance?: number;
+    code: number;
+    msg?: string;
+    data?: T;
+    count?: number;
+    importance?: number;
 }
 
 export type CadCollection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";

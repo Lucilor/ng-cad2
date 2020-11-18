@@ -38,8 +38,8 @@ import {HttpModule} from "./modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
 import {TableModule} from "@src/app/modules/table/table.module";
 
-import {IndexComponent} from "./views/index/index.component";
-import {PageNotFoundComponent} from "./views/page-not-found/page-not-found.component";
+import {IndexComponent} from "./components/views/index/index.component";
+import {PageNotFoundComponent} from "./components/views/page-not-found/page-not-found.component";
 import {ToolbarComponent} from "./components/menu/toolbar/toolbar.component";
 import {JsonEditorComponent} from "./components/dialogs/json-editor/json-editor.component";
 import {CadSearchFormComponent} from "./components/dialogs/cad-search-form/cad-search-form.component";
