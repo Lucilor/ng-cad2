@@ -4,9 +4,11 @@ import {cloneDeep} from "lodash";
 import {Point, timeout} from "@src/app/utils";
 import {getVectorFromArray, isBetween} from "./cad-data/utils";
 import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText} from "./draw";
-import {CadData, CadType, CadEntity, CadArc, CadCircle, CadDimension, CadHatch, CadLine, CadMtext, CadEntities} from ".";
 import {CadStylizer, CadStyle} from "./cad-stylizer";
 import {controls, CadEvents, CadEventCallBack} from "./cad-viewer-controls";
+import {CadData} from "./cad-data/cad-data";
+import {CadType} from "./cad-data/cad-types";
+import {CadArc, CadCircle, CadDimension, CadEntities, CadEntity, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entities";
 
 export interface CadViewerConfig {
     width: number; // 宽

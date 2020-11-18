@@ -1,5 +1,6 @@
 import Color from "color";
-import {CadViewer, CadEntity, CadMtext, CadDimension, CadLine, CadHatch} from ".";
+import {CadDimension, CadEntity, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entities";
+import {CadViewer} from "./cad-viewer";
 
 export interface CadStyle {
     color: string;
