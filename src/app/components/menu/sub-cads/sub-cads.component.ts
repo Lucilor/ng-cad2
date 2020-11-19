@@ -491,7 +491,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         });
         if (Array.isArray(cads)) {
             const cad = this.status.cad;
-            cads = cads.map((v) => v.clone(true));
+            cads = cads.map((v) => v.clone());
             if (type === "partners") {
                 data.partners = [];
                 cads.forEach((v) => data.addPartner(v));
@@ -501,7 +501,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 cads.forEach((v) => data.addComponent(v));
             }
             cad.data.updatePartners().updateComponents();
-            await this.updateList();
+            this.updateList();
             cad.reset();
         }
     }

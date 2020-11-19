@@ -162,6 +162,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                     this.prevSelectedCads = this.status.selectedCads$.getValue();
                     this.status.selectedCads$.next({cads: [data.id], partners: [], components: [], fullCads: [data.id]});
                 }
+                this.status.cad.data.updateComponents();
             } else {
                 if (this.prevDisabledCadTypes) {
                     this.status.disabledCadTypes$.next(this.prevDisabledCadTypes);

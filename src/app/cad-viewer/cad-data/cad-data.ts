@@ -372,6 +372,21 @@ export class CadData {
     updateComponents() {
         const data = this.components.data.slice();
         const connections = this.components.connections.slice();
+        connections.forEach((v) => {
+            const [id1, id2] = v.ids;
+            const child1 = this.findChild(id1);
+            const child2 = this.findChild(id2);
+            if (this.id === id1) {
+                v.names[0] = this.name;
+            } else if (child1) {
+                v.names[0] = child1.name;
+            }
+            if (this.id === id2) {
+                v.names[1] = this.name;
+            } else if (child2) {
+                v.names[1] = child2.name;
+            }
+        });
         this.components.data.length = 0;
         this.components.connections.length = 0;
         data.forEach((v) => this.addComponent(v));
