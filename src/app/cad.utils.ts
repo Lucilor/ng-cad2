@@ -104,6 +104,7 @@ export function addCadGongshi(data: CadData, visible: boolean, ignoreTop: boolea
     }
     data.partners.forEach((d) => addCadGongshi(d, visible, false));
     data.components.data.forEach((d) => addCadGongshi(d, visible, false));
+    return data;
 }
 
 export function removeCadGongshi(data: CadData) {
@@ -116,6 +117,7 @@ export function removeCadGongshi(data: CadData) {
     });
     data.partners.forEach((d) => removeCadGongshi(d));
     data.components.data.forEach((d) => removeCadGongshi(d));
+    return data;
 }
 
 export function getCadGongshiText(data: CadData) {

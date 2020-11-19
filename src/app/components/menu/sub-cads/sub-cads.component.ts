@@ -14,7 +14,7 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, CadStatus, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {copyToClipboard, Point} from "@src/app/utils";
-import {concat, pull, pullAll} from "lodash";
+import {concat, differenceWith, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
 
@@ -486,19 +486,36 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             checkedItems = [...data.components.data];
         }
         const qiliao = type === "components" && this.config.config("collection") === "qiliaozuhe";
-        let cads = await openCadListDialog(this.dialog, {
+        const cads = await openCadListDialog(this.dialog, {
             data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
         });
+        const shouldReplace = (cad1: CadData, cad2: CadData) => {
+            return (
+                cad1.name === cad2.name &&
+                differenceWith(cad1.options, cad2.options, (a, b) => {
+                    return a.equals(b);
+                }).length === 0
+            );
+        };
         if (Array.isArray(cads)) {
             const cad = this.status.cad;
-            cads = cads.map((v) => v.clone());
+            let childrens: CadData[] | undefined;
             if (type === "partners") {
-                data.partners = [];
-                cads.forEach((v) => data.addPartner(v));
+                childrens = data.partners;
+            } else if (type === "components") {
+                childrens = data.components.data;
             }
-            if (type === "components") {
-                data.components.data = [];
-                cads.forEach((v) => data.addComponent(v));
+            if (childrens) {
+                for (let i = 0; i < cads.length; i++) {
+                    for (let j = 0; j < childrens.length; j++) {
+                        if (shouldReplace(childrens[j], cads[i])) {
+                            childrens[j] = cads[i];
+                            break;
+                        } else if (j === childrens.length - 1) {
+                            childrens.push(cads[i]);
+                        }
+                    }
+                }
             }
             cad.data.updatePartners().updateComponents();
             this.updateList();

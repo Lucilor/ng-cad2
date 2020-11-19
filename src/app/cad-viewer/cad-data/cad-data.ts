@@ -770,6 +770,7 @@ export class CadJointPoint {
 export class CadOption {
     name: string;
     value: string;
+
     constructor(name: string | CadOption = "", value = "") {
         if (name instanceof CadOption) {
             this.name = name.name;
@@ -778,6 +779,10 @@ export class CadOption {
             this.name = name;
             this.value = value;
         }
+    }
+
+    equals(option: CadOption) {
+        return this.name === option.name && this.value === option.value;
     }
 }
 

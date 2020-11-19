@@ -482,7 +482,6 @@ export class CadConsoleComponent implements OnInit {
                 status.cadStatus({name: "normal"});
             } else {
                 if (cad.config("validateLines")) {
-                    data.forEach((v) => removeCadGongshi(v));
                     const validateResults = this.status.validate();
                     if (validateResults.some((v) => !v.valid)) {
                         const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
@@ -491,6 +490,7 @@ export class CadConsoleComponent implements OnInit {
                         }
                     }
                 }
+                data.forEach((v) => removeCadGongshi(v));
                 const total = data.length;
                 status.startLoader({id: loaderId, text: `正在保存CAD(0/${total})`});
                 const now = new Date().getTime();

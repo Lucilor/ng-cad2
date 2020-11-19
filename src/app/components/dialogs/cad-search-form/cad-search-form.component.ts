@@ -47,7 +47,7 @@ export class CadSearchFormComponent implements OnInit {
         for (const name in this.form) {
             if (this.form[name].length) {
                 const value = this.form[name].join(",");
-                result.push({name, value});
+                result.push(new CadOption(name, value));
             }
         }
         this.dialogRef.close(result);

@@ -34,19 +34,35 @@ export abstract class CadEntity {
         }
         return NaN;
     }
+
+    private _selectable?: boolean;
     get selectable() {
-        return this.el?.hasClass("selectable");
+        if (this.el) {
+            return this.el.hasClass("selectable");
+        } else {
+            return typeof this._selectable === "boolean" ? this._selectable : false;
+        }
     }
     set selectable(value) {
-        if (value) {
-            this.el?.addClass("selectable");
+        if (this.el) {
+            if (value) {
+                this.el.addClass("selectable");
+            } else {
+                this.el.removeClass("selectable");
+            }
         } else {
-            this.el?.removeClass("selectable");
+            this._selectable = value;
         }
         this.children.forEach((c) => (c.selectable = value));
     }
+
+    private _selected?: boolean;
     get selected() {
-        return this.el?.hasClass("selected") && this.selectable;
+        if (this.el) {
+            return this.el.hasClass("selected") && this.selectable;
+        } else {
+            return typeof this._selected === "boolean" ? this._selected : false;
+        }
     }
     set selected(value) {
         if (this.el) {
@@ -79,6 +95,8 @@ export abstract class CadEntity {
                     c.css("fill", "");
                 });
             }
+        } else {
+            this._selected = value;
         }
         this.children.forEach((c) => (c.selected = value));
     }
@@ -162,10 +180,20 @@ export abstract class CadEntity {
     }
 
     update() {
-        if (this.needsUpdate && this.el) {
-            this.transform(this.el.transform(), true);
-            this.needsUpdate = false;
-            this.el.transform({});
+        if (this.el) {
+            if (typeof this._selectable === "boolean") {
+                this.selectable = this._selectable;
+                delete this._selectable;
+            }
+            if (typeof this._selected === "boolean") {
+                this.selected = this._selected;
+                delete this._selected;
+            }
+            if (this.needsUpdate) {
+                this.transform(this.el.transform(), true);
+                this.needsUpdate = false;
+                this.el.transform({});
+            }
         }
     }
 

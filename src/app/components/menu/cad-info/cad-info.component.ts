@@ -203,7 +203,7 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     updateCadGongshi(data: CadData) {
-        const mtext = data.entities.mtext.find((e) => (e.info.isCadGongshi = true));
+        const mtext = data.entities.mtext.find((e) => (e.info.isCadGongshi));
         if (mtext) {
             mtext.text = getCadGongshiText(data);
             this.status.cad.render(mtext);

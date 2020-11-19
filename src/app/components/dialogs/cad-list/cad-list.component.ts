@@ -216,7 +216,8 @@ export class CadListComponent implements AfterViewInit {
             this.dialogRef.close(result.cads);
         } else {
             this.syncCheckedItems();
-            this.dialogRef.close(this.checkedItems.map((v) => v.clone()));
+            const result = await this.dataService.getCad({ids: this.checkedItems.map((v) => v.id)});
+            this.dialogRef.close(result.cads);
         }
     }
 
