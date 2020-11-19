@@ -1,14 +1,14 @@
-import {SVG, Svg, CoordinateXY, Element, G} from "@svgdotjs/svg.js";
+import {Svg, SVG, CoordinateXY, Element, G} from "@svgdotjs/svg.js";
 import {EventEmitter} from "events";
 import {cloneDeep} from "lodash";
-import {Point, timeout} from "@src/app/utils";
-import {getVectorFromArray, isBetween} from "./cad-data/utils";
-import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText} from "./draw";
-import {CadStylizer, CadStyle} from "./cad-stylizer";
-import {controls, CadEvents, CadEventCallBack} from "./cad-viewer-controls";
+import {Point, timeout} from "../utils";
 import {CadData} from "./cad-data/cad-data";
-import {CadType} from "./cad-data/cad-types";
 import {CadArc, CadCircle, CadDimension, CadEntities, CadEntity, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entities";
+import {CadType} from "./cad-data/cad-types";
+import {getVectorFromArray, isBetween} from "./cad-data/utils";
+import {CadStyle, CadStylizer} from "./cad-stylizer";
+import {CadEventCallBack, CadEvents, controls} from "./cad-viewer-controls";
+import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText} from "./draw";
 
 export interface CadViewerConfig {
     width: number; // 宽

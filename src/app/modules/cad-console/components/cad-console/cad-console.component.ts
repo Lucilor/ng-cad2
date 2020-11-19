@@ -3,7 +3,7 @@ import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {CadCollection} from "@src/app/app.common";
-import {CadArc, CadData, validateLines} from "@src/app/cad-viewer";
+import {CadArc, CadData} from "@src/app/cad-viewer";
 import {removeCadGongshi, addCadGongshi, printCads} from "@src/app/cad.utils";
 import {openCadListDialog} from "@src/app/components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@src/app/components/dialogs/json-editor/json-editor.component";
@@ -274,7 +274,7 @@ export class CadConsoleComponent implements OnInit {
                 data.entities.add(cadArc);
             }
             if (cad.config("validateLines")) {
-                validateLines(cad.data);
+                this.status.validate();
             }
             cad.unselectAll().render();
         },
@@ -482,16 +482,10 @@ export class CadConsoleComponent implements OnInit {
                 status.cadStatus({name: "normal"});
             } else {
                 if (cad.config("validateLines")) {
-                    const validateResult: ReturnType<typeof validateLines>[] = [];
-                    data.forEach((v) => {
-                        removeCadGongshi(v);
-                        if (collection === "cad") {
-                            validateResult.push(validateLines(v));
-                        }
-                    });
-                    cad.render();
-                    if (validateResult.some((v) => !v.valid)) {
-                        const yes = await message.alert("当前打开的CAD存在错误，是否继续保存？");
+                    data.forEach((v) => removeCadGongshi(v));
+                    const validateResults = this.status.validate();
+                    if (validateResults.some((v) => !v.valid)) {
+                        const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
                         if (!yes) {
                             return;
                         }

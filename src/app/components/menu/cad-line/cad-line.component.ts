@@ -12,7 +12,6 @@ import {
     generatePointsMap,
     CadViewerConfig,
     CadArc,
-    validateLines,
     linewidth2lineweight,
     lineweight2linewidth,
     autoFixLine
@@ -245,7 +244,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         const lines = selected.filter((v) => v instanceof CadLine) as CadLine[];
         setLinesLength(cad.data, lines, Number((event.target as HTMLInputElement).value));
         if (cad.config("validateLines")) {
-            validateLines(cad.data);
+            this.status.validate();
         }
         cad.render();
     }
@@ -375,7 +374,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             }
         });
         if (cad.config("validateLines")) {
-            validateLines(cad.data);
+            this.status.validate();
         }
         cad.render();
     }

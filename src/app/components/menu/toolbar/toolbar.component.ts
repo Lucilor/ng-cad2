@@ -6,6 +6,7 @@ import {AppStatusService, cadStatusNameMap, CadStatusNameMap} from "@src/app/ser
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {ValueOf} from "@src/app/utils";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer";
+import {flatMap} from "lodash";
 
 @Component({
     selector: "app-toolbar",
@@ -124,7 +125,14 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     toggleValidateLines() {
-        this.config.config("validateLines", !this.config.config("validateLines"));
+        const value = !this.config.config("validateLines");
+        this.config.config("validateLines", value);
+        if (value) {
+            const errMsg = flatMap(this.status.validate().map((v) => v.errMsg));
+            if (errMsg.length) {
+                this.message.alert(errMsg.join("<br />"));
+            }
+        }
     }
 
     toggleShowLineLength() {

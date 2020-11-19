@@ -5,7 +5,7 @@ import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";
 import {CadCollection} from "../app.common";
 import {CadData} from "../cad-viewer/cad-data/cad-data";
-import {generateLineTexts, PointsMap, validateLines} from "../cad-viewer/cad-data/cad-lines";
+import {generateLineTexts, PointsMap, validateLines, ValidateResult} from "../cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "../cad-viewer/cad-viewer";
 import {setCadData, addCadGongshi} from "../cad.utils";
 import {CadDataService, GetCadParams} from "../modules/http/services/cad-data.service";
@@ -242,14 +242,7 @@ export class AppStatusService {
     }
 
     generateLineTexts() {
-        const cad = this.cad;
-        // if (this.config.config("collection") === "CADmuban") {
-        //     cad.data.components.data.forEach((v) => {
-        //         v.components.data.forEach((vv) => generateLineTexts(vv));
-        //     });
-        // } else {
-            cad.data.components.data.forEach((v) => generateLineTexts(v));
-        // }
+        this.cad.data.components.data.forEach((v) => generateLineTexts(v));
     }
 
     setCadPoints(map: PointsMap) {
@@ -274,5 +267,14 @@ export class AppStatusService {
         i = clamp(i, 0, points.length - 1);
         points.splice(i, 1);
         this.cadPoints$.next(points);
+    }
+
+    validate() {
+        const results:ValidateResult[] = [];
+        this.cad.data.components.data.forEach((v) => {
+            results.push(validateLines(v));
+        });
+        this.cad.render();
+        return results;
     }
 }
