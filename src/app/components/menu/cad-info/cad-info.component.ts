@@ -203,7 +203,7 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     updateCadGongshi(data: CadData) {
-        const mtext = data.entities.mtext.find((e) => (e.info.isCadGongshi));
+        const mtext = data.entities.mtext.find((e) => e.info.isCadGongshi);
         if (mtext) {
             mtext.text = getCadGongshiText(data);
             this.status.cad.render(mtext);
@@ -266,5 +266,9 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
         if (result) {
             data.attributes = result;
         }
+    }
+
+    setValue(event: Event, obj: any, field: any) {
+        obj[field] = (event.target as HTMLInputElement).value;
     }
 }

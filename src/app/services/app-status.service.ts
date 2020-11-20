@@ -216,12 +216,12 @@ export class AppStatusService {
         }
         this.config.config({cadIds: data.map((v) => v.id), collection, hideLineLength});
         this.generateLineTexts();
-        this.openCad$.next();
         cad.data.updatePartners().updateComponents();
         cad.reset();
         cad.center();
         await cad.render();
         cad.center();
+        this.openCad$.next();
     }
 
     startLoader(config: {id?: string; text?: string} = {}) {

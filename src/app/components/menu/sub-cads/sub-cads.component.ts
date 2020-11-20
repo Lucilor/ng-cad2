@@ -651,8 +651,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                         parent.components.data = parent.components.data.filter((v) => !c.includes(v.id));
                     }
                 }
-                this.updateList();
-                cad.reset();
+                this.status.openCad();
             }
         }
     }

@@ -1,191 +1,188 @@
 <div [class.not-allowed]="editDisabled">
-	<form *ngFor="let cad of cadsData; let i = index" [class.add-divider]="i < cadsData.length - 1">
-		<button hidden></button>
-		<mat-form-field>
-			<mat-label>总长</mat-label>
-			<input matInput type="text" [value]="lengths[i]" readonly />
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>名字</mat-label>
-			<input matInput type="text" [(ngModel)]="cad.name" name="name" />
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>花件</mat-label>
-			<input matInput type="text" [(ngModel)]="cad.huajian" name="huajian" />
-			<mat-icon matSuffix color="primary" (click)="selectOptions('huajian')">list</mat-icon>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>分类</mat-label>
-			<input matInput type="text" [(ngModel)]="cad.type" name="type" />
-		</mat-form-field>
-		<div class="form-item-group options">
-			<div *ngFor="let o of cad.options; let i = index">
-				<mat-form-field>
-					<mat-label>选项-键</mat-label>
-					<input
-						matInput
-						type="text"
-						[(ngModel)]="cad.options[i].name"
-						name="optionKey"
-					/>
-				</mat-form-field>
-				<mat-form-field>
-					<mat-label>选项-值</mat-label>
-					<input
-						matInput
-						type="text"
-						[(ngModel)]="cad.options[i].value"
-						placeholder="选项"
-						name="optionValue"
-					/>
-					<mat-icon matSuffix color="primary" (click)="selectOptions(o)">list</mat-icon>
-					<mat-icon matSuffix color="primary" (click)="addOption(cad, i)">add_circle</mat-icon>
-					<mat-icon matSuffix color="primary" (click)="removeOption(cad, i)">remove_circle</mat-icon>
-				</mat-form-field>
-			</div>
-		</div>
-		<div class="form-item-group">
-			<div *ngFor="let c of cad.conditions; let i = index">
-				<mat-form-field>
-					<mat-label>条件</mat-label>
-					<input
-						matInput
-						type="text"
-						[(ngModel)]="cad.conditions[i]"
-						name="condition"
-					/>
-					<mat-icon matSuffix color="primary" (click)="addCondition(cad, i)">add_circle</mat-icon>
-					<mat-icon matSuffix color="primary" (click)="removeCondition(cad, i)">remove_circle</mat-icon>
-				</mat-form-field>
-			</div>
-		</div>
-		<div class="form-item-group hint">
-			<div *ngFor="let b of cad.baseLines; let i = index">
-				<mat-form-field [color]="getItemColor('selectBaseline', i)">
-					<mat-label>基准</mat-label>
-					<input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
-					<mat-icon matSuffix [color]="getItemColor('selectBaseline', i)" (click)="selectBaseLine(i)">link</mat-icon>
-					<mat-icon matSuffix color="primary" (click)="addBaseLine(cad, i)">add_circle</mat-icon>
-					<mat-icon matSuffix color="primary" (click)="removeBaseLine(cad, i)">remove_circle</mat-icon>
-					<mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>
-				</mat-form-field>
-			</div>
-		</div>
-		<div class="form-item-group hint">
-			<div *ngFor="let j of cad.jointPoints; let i = index">
-				<mat-form-field [color]="getItemColor('selectJointpoint', i)">
-					<mat-label>连接点</mat-label>
-					<input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />
-					<mat-icon matSuffix color="primary" [color]="getItemColor('selectJointpoint', i)" (click)="selectJointPoint(i)">
-						link
-					</mat-icon>
-					<mat-icon matSuffix color="primary" (click)="addJointPoint(cad, i)">add_circle</mat-icon>
-					<mat-icon matSuffix color="primary" (click)="removeJointPoint(cad, i)">remove_circle</mat-icon>
-					<mat-hint [align]="'start'">x:{{ j.valueX?.toFixed(2) }}, y:{{ j.valueY?.toFixed(2) }}</mat-hint>
-				</mat-form-field>
-			</div>
-		</div>
-		<div class="form-item-group">
-			<mat-form-field>
-				<mat-label>展开</mat-label>
-				<input
-					matInput
-					type="text"
-					[(ngModel)]="cad.zhankaikuan"
-					name="zhankaikuan"
-					(change)="updateCadGongshi(cad)"
-				/>
-			</mat-form-field>
-			<mat-form-field>
-				<mat-label>展开</mat-label>
-				<input matInput type="text" [(ngModel)]="cad.zhankaigao" name="zhankaigao" (change)="updateCadGongshi(cad)" />
-			</mat-form-field>
-		</div>
-		<mat-form-field>
-			<mat-label>数量</mat-label>
-			<input matInput type="text" [(ngModel)]="cad.shuliang" name="shuliang" (change)="updateCadGongshi(cad)" />
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>数量倍数</mat-label>
-			<input matInput type="text" [(ngModel)]="cad.shuliangbeishu" name="shuliangbeishu" (change)="updateCadGongshi(cad)" />
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>模板放大</mat-label>
-			<mat-select [(ngModel)]="cad.mubanfangda" name="mubanfangda">
-				<mat-option [value]="true">是</mat-option>
-				<mat-option [value]="false">否</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>开料模板</mat-label>
-			<input matInput type="text" [(ngModel)]="cad.kailiaomuban" name="kailiaomuban" />
-			<mat-icon matSuffix color="primary" (click)="selectKailiaomuban(cad)">list</mat-icon>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>开料时刨坑</mat-label>
-			<mat-select [(ngModel)]="cad.kailiaoshibaokeng" name="kailiaoshibaokeng">
-				<mat-option [value]="true">是</mat-option>
-				<mat-option [value]="false">否</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>变形方式</mat-label>
-			<mat-select [(ngModel)]="cad.bianxingfangshi" name="bianxingfangshi">
-				<mat-option [value]="'自由'">自由</mat-option>
-				<mat-option [value]="'高比例变形'">高比例变形</mat-option>
-				<mat-option [value]="'宽比例变形'">宽比例变形</mat-option>
-				<mat-option [value]="'宽高比例变形'">宽高比例变形</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>板材纹理方向</mat-label>
-			<mat-select [(ngModel)]="cad.bancaiwenlifangxiang" name="bancaiwenlifangxiang">
-				<mat-option [value]="'垂直'">垂直</mat-option>
-				<mat-option [value]="'水平'">水平</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>开料排版方式</mat-label>
-			<mat-select [(ngModel)]="cad.kailiaopaibanfangshi" name="kailiaopaibanfangshi">
-				<mat-option [value]="'自动排版'">自动排版</mat-option>
-				<mat-option [value]="'不排版'">不排版</mat-option>
-				<mat-option [value]="'必须排版'">必须排版</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>默认开料板材</mat-label>
-			<input matInput type="text" [(ngModel)]="cad.morenkailiaobancai" name="morenkailiaobancai" />
-			<mat-icon matSuffix color="primary" (click)="selectOptions('bancai')">list</mat-icon>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>算料处理</mat-label>
-			<mat-select [(ngModel)]="cad.suanliaochuli" name="suanliaochuli">
-				<mat-option [value]="'算料+显示展开+开料'">算料+显示展开+开料</mat-option>
-				<mat-option [value]="'算料+开料'">算料+开料</mat-option>
-				<mat-option [value]="'算料+显示展开'">算料+显示展开</mat-option>
-				<mat-option [value]="'算料'">算料</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>显示宽度标注</mat-label>
-			<mat-select [(ngModel)]="cad.showKuandubiaozhu" name="showKuandubiaozhu">
-				<mat-option [value]="true">是</mat-option>
-				<mat-option [value]="false">否</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>板材厚度方向</mat-label>
-			<mat-select [ngModel]="cad.bancaihoudufangxiang" name="bancaihoudufangxiang" (selectionChange)="offset($event)">
-				<mat-option [value]="'gt0'">方向1</mat-option>
-				<mat-option [value]="'lt0'">方向2</mat-option>
-				<mat-option [value]="'none'">不指定</mat-option>
-			</mat-select>
-		</mat-form-field>
-		<mat-form-field>
-			<mat-label>自定义属性</mat-label>
-			<input matInput type="text" disabled name="attributes" />
-			<mat-icon matSuffix color="primary" (click)="editAttributes(cad)">list</mat-icon>
-		</mat-form-field>
-	</form>
+    <form *ngFor="let cad of cadsData; let i = index" [class.add-divider]="i < cadsData.length - 1">
+        <button hidden></button>
+        <mat-form-field>
+            <mat-label>总长</mat-label>
+            <input matInput type="text" [value]="lengths[i]" readonly />
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>名字</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.name" name="name" />
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>花件</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.huajian" name="huajian" />
+            <mat-icon matSuffix color="primary" (click)="selectOptions('huajian')">list</mat-icon>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>分类</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.type" name="type" />
+        </mat-form-field>
+        <div class="form-item-group options">
+            <div *ngFor="let o of cad.options; let j = index">
+                <mat-form-field>
+                    <mat-label>选项-键</mat-label>
+                    <input
+                        matInput
+                        type="text"
+                        [value]="cad.options[j].name"
+                        (input)="setValue($event, cad.options[j], 'name')"
+                        name="optionKey"
+                    />
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>选项-值</mat-label>
+                    <input
+                        matInput
+                        type="text"
+                        [value]="cad.options[j].value"
+                        (input)="setValue($event, cad.options[j], 'value')"
+                        placeholder="选项"
+                        name="optionValue"
+                    />
+                    <mat-icon matSuffix color="primary" (click)="selectOptions(o)">list</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="addOption(cad, j)">add_circle</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="removeOption(cad, j)">remove_circle</mat-icon>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="form-item-group">
+            <div *ngFor="let c of cad.conditions; let j = index">
+                <mat-form-field>
+                    <mat-label>条件</mat-label>
+                    <input
+                        matInput
+                        type="text"
+                        [value]="cad.conditions[j]"
+                        (input)="setValue($event, cad.conditions, j)"
+                        name="condition"
+                    />
+                    <mat-icon matSuffix color="primary" (click)="addCondition(cad, j)">add_circle</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="removeCondition(cad, j)">remove_circle</mat-icon>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="form-item-group hint">
+            <div *ngFor="let b of cad.baseLines; let i = index">
+                <mat-form-field [color]="getItemColor('selectBaseline', i)">
+                    <mat-label>基准</mat-label>
+                    <input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
+                    <mat-icon matSuffix [color]="getItemColor('selectBaseline', i)" (click)="selectBaseLine(i)">link</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="addBaseLine(cad, i)">add_circle</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="removeBaseLine(cad, i)">remove_circle</mat-icon>
+                    <mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="form-item-group hint">
+            <div *ngFor="let j of cad.jointPoints; let i = index">
+                <mat-form-field [color]="getItemColor('selectJointpoint', i)">
+                    <mat-label>连接点</mat-label>
+                    <input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />
+                    <mat-icon matSuffix color="primary" [color]="getItemColor('selectJointpoint', i)" (click)="selectJointPoint(i)">
+                        link
+                    </mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="addJointPoint(cad, i)">add_circle</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="removeJointPoint(cad, i)">remove_circle</mat-icon>
+                    <mat-hint [align]="'start'">x:{{ j.valueX?.toFixed(2) }}, y:{{ j.valueY?.toFixed(2) }}</mat-hint>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="form-item-group">
+            <mat-form-field>
+                <mat-label>展开</mat-label>
+                <input matInput type="text" [(ngModel)]="cad.zhankaikuan" name="zhankaikuan" (change)="updateCadGongshi(cad)" />
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>展开</mat-label>
+                <input matInput type="text" [(ngModel)]="cad.zhankaigao" name="zhankaigao" (change)="updateCadGongshi(cad)" />
+            </mat-form-field>
+        </div>
+        <mat-form-field>
+            <mat-label>数量</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.shuliang" name="shuliang" (change)="updateCadGongshi(cad)" />
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>数量倍数</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.shuliangbeishu" name="shuliangbeishu" (change)="updateCadGongshi(cad)" />
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>模板放大</mat-label>
+            <mat-select [(ngModel)]="cad.mubanfangda" name="mubanfangda">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>开料模板</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.kailiaomuban" name="kailiaomuban" />
+            <mat-icon matSuffix color="primary" (click)="selectKailiaomuban(cad)">list</mat-icon>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>开料时刨坑</mat-label>
+            <mat-select [(ngModel)]="cad.kailiaoshibaokeng" name="kailiaoshibaokeng">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>变形方式</mat-label>
+            <mat-select [(ngModel)]="cad.bianxingfangshi" name="bianxingfangshi">
+                <mat-option [value]="'自由'">自由</mat-option>
+                <mat-option [value]="'高比例变形'">高比例变形</mat-option>
+                <mat-option [value]="'宽比例变形'">宽比例变形</mat-option>
+                <mat-option [value]="'宽高比例变形'">宽高比例变形</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>板材纹理方向</mat-label>
+            <mat-select [(ngModel)]="cad.bancaiwenlifangxiang" name="bancaiwenlifangxiang">
+                <mat-option [value]="'垂直'">垂直</mat-option>
+                <mat-option [value]="'水平'">水平</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>开料排版方式</mat-label>
+            <mat-select [(ngModel)]="cad.kailiaopaibanfangshi" name="kailiaopaibanfangshi">
+                <mat-option [value]="'自动排版'">自动排版</mat-option>
+                <mat-option [value]="'不排版'">不排版</mat-option>
+                <mat-option [value]="'必须排版'">必须排版</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>默认开料板材</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.morenkailiaobancai" name="morenkailiaobancai" />
+            <mat-icon matSuffix color="primary" (click)="selectOptions('bancai')">list</mat-icon>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>算料处理</mat-label>
+            <mat-select [(ngModel)]="cad.suanliaochuli" name="suanliaochuli">
+                <mat-option [value]="'算料+显示展开+开料'">算料+显示展开+开料</mat-option>
+                <mat-option [value]="'算料+开料'">算料+开料</mat-option>
+                <mat-option [value]="'算料+显示展开'">算料+显示展开</mat-option>
+                <mat-option [value]="'算料'">算料</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>显示宽度标注</mat-label>
+            <mat-select [(ngModel)]="cad.showKuandubiaozhu" name="showKuandubiaozhu">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>板材厚度方向</mat-label>
+            <mat-select [ngModel]="cad.bancaihoudufangxiang" name="bancaihoudufangxiang" (selectionChange)="offset($event)">
+                <mat-option [value]="'gt0'">方向1</mat-option>
+                <mat-option [value]="'lt0'">方向2</mat-option>
+                <mat-option [value]="'none'">不指定</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>自定义属性</mat-label>
+            <input matInput type="text" disabled name="attributes" />
+            <mat-icon matSuffix color="primary" (click)="editAttributes(cad)">list</mat-icon>
+        </mat-form-field>
+    </form>
 </div>
 <app-cad-points></app-cad-points>

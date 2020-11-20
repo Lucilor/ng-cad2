@@ -4,6 +4,7 @@ import {NgxUiLoaderService} from "ngx-ui-loader";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {CadViewer, CadData} from "@src/app/cad-viewer";
 import {timeout} from "@src/app/utils";
+import {ActivatedRoute} from "@angular/router";
 
 export type PreviewData = {
     CAD?: any;
@@ -31,7 +32,8 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
         private cd: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
         private dataService: CadDataService,
-        private loader: NgxUiLoaderService
+        private loader: NgxUiLoaderService,
+        private route: ActivatedRoute
     ) {}
 
     async ngAfterViewInit() {
@@ -39,7 +41,8 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
         document.title = "订单配件标签";
         document.body.style.overflowX = "hidden";
         document.body.style.overflowY = "auto";
-        const response = await this.dataService.request<PreviewData>("order/printCode/printA4A015Preview", "GET");
+        const data = this.route.snapshot.queryParams.data;
+        const response = await this.dataService.request<PreviewData>("order/printCode/printA4A015Preview", "POST", {data}, false);
         if (response?.data) {
             this.data = response.data;
         }
