@@ -507,13 +507,17 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             }
             if (childrens) {
                 for (let i = 0; i < cads.length; i++) {
-                    for (let j = 0; j < childrens.length; j++) {
-                        if (shouldReplace(childrens[j], cads[i])) {
-                            childrens[j] = cads[i];
-                            break;
-                        } else if (j === childrens.length - 1) {
-                            childrens.push(cads[i]);
+                    if (childrens.length) {
+                        for (let j = 0; j < childrens.length; j++) {
+                            if (shouldReplace(childrens[j], cads[i])) {
+                                childrens[j] = cads[i];
+                                break;
+                            } else if (j === childrens.length - 1) {
+                                childrens.push(cads[i]);
+                            }
                         }
+                    } else {
+                        childrens.push(cads[i]);
                     }
                 }
             }
