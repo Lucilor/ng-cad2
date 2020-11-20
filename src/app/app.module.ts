@@ -37,8 +37,6 @@ import {HttpModule} from "./modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
 import {TableModule} from "@src/app/modules/table/table.module";
 
-import {IndexComponent} from "./components/views/index/index.component";
-import {PageNotFoundComponent} from "./components/views/page-not-found/page-not-found.component";
 import {ToolbarComponent} from "./components/menu/toolbar/toolbar.component";
 import {JsonEditorComponent} from "./components/dialogs/json-editor/json-editor.component";
 import {CadSearchFormComponent} from "./components/dialogs/cad-search-form/cad-search-form.component";
@@ -55,11 +53,13 @@ import {CadMtextComponent} from "./components/menu/cad-mtext/cad-mtext.component
 import {AnchorSelectorComponent} from "./components/anchor-selector/anchor-selector.component";
 import {CadDimensionComponent} from "./components/menu/cad-dimension/cad-dimension.component";
 import {CadDimensionFormComponent} from "./components/dialogs/cad-dimension-form/cad-dimension-form.component";
-import {ImportComponent} from "./components/views/import/import.component";
-import {BackupComponent} from "./components/views/backup/backup.component";
-import {PrintCadComponent} from "./components/views/print/print-cad.component";
-import {PrintA4A015PreviewComponent} from "./components/views/print-a4-a015-preview/print-a4-a015-preview.component";
 import {CadAssembleComponent} from "./components/menu/cad-assemble/cad-assemble.component";
+import {BackupComponent} from "./views/backup/backup.component";
+import {ImportComponent} from "./views/import/import.component";
+import {IndexComponent} from "./views/index/index.component";
+import {PageNotFoundComponent} from "./views/page-not-found/page-not-found.component";
+import {PrintA4A015PreviewComponent} from "./views/print-a4-a015-preview/print-a4-a015-preview.component";
+import {PrintCadComponent} from "./views/print/print-cad.component";
 
 @Injectable()
 export class MyMatPaginatorIntl extends MatPaginatorIntl {
