@@ -100,11 +100,21 @@ export abstract class CadEntity {
         }
         this.children.forEach((c) => (c.selected = value));
     }
+
+    private _opacity?: number;
     get opacity() {
-        return Number(this.el?.css("opacity") ?? 1);
+        if (this.el) {
+            return Number(this.el.css("opacity") ?? 1);
+        } else {
+            return typeof this._opacity === "number" ? this._opacity : 0;
+        }
     }
     set opacity(value) {
-        this.el?.css("opacity", value);
+        if (this.el) {
+            this.el.css("opacity", value);
+        } else {
+            this._opacity = value;
+        }
         this.children.forEach((c) => (c.opacity = value));
     }
 
@@ -188,6 +198,10 @@ export abstract class CadEntity {
             if (typeof this._selected === "boolean") {
                 this.selected = this._selected;
                 delete this._selected;
+            }
+            if (typeof this._opacity === "number") {
+                this.opacity = this._opacity;
+                delete this._opacity;
             }
             if (this.needsUpdate) {
                 this.transform(this.el.transform(), true);

@@ -33,7 +33,7 @@
 </form>
 
 <div class="content" [ngSwitch]="data.selectMode">
-    <perfect-scrollbar *ngSwitchCase="'single'" ngxUiLoaderBlurred [loaderId]="loaderId">
+    <perfect-scrollbar *ngSwitchCase="'single'">
         <mat-radio-group class="add-empty-msg" [value]="checkedIndex.getValue()" (change)="checkedIndex.next($event.value)">
             <div
                 class="data-container"
@@ -57,7 +57,7 @@
         </mat-radio-group>
     </perfect-scrollbar>
 
-    <perfect-scrollbar *ngSwitchCase="'multiple'" ngxUiLoaderBlurred [loaderId]="loaderId">
+    <perfect-scrollbar *ngSwitchCase="'multiple'">
         <div class="checkbox-group add-empty-msg">
             <div
                 class="data-container"
@@ -81,7 +81,7 @@
         </div>
     </perfect-scrollbar>
 
-    <perfect-scrollbar *ngSwitchCase="'table'" ngxUiLoaderBlurred [loaderId]="'cadList'">
+    <perfect-scrollbar *ngSwitchCase="'table'">
         <table mat-table [dataSource]="tableData">
             <ng-container matColumnDef="select">
                 <th mat-header-cell *matHeaderCellDef></th>
@@ -111,7 +111,7 @@
         </table>
     </perfect-scrollbar>
 
-    <ngx-ui-loader [loaderId]="loaderId" [text]="loadingText"></ngx-ui-loader>
+    <ngx-ui-loader [loaderId]="'cadList'" [text]="'正在加载CAD'"></ngx-ui-loader>
 </div>
 
 <mat-paginator
@@ -124,6 +124,9 @@
 ></mat-paginator>
 
 <div mat-dialog-actions>
-    <button mat-raised-button color="primary" (click)="submit()">确定</button>
+    <button mat-raised-button color="primary" (click)="submit()">
+        <ngx-ui-loader [loaderId]="'submitLoader'" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+        确定
+    </button>
     <button mat-raised-button color="primary" (click)="close()">取消</button>
 </div>

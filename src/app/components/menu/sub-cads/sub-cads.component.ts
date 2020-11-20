@@ -498,7 +498,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             );
         };
         if (Array.isArray(cads)) {
-            const cad = this.status.cad;
             let childrens: CadData[] | undefined;
             if (type === "partners") {
                 childrens = data.partners;
@@ -521,9 +520,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     }
                 }
             }
-            cad.data.updatePartners().updateComponents();
-            this.updateList();
-            cad.reset();
+            this.status.openCad();
         }
     }
 

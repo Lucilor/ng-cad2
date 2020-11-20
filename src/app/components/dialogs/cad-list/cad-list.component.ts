@@ -7,7 +7,7 @@ import {CadData, CadOption} from "@src/app/cad-viewer";
 import {getCadPreview} from "@src/app/cad.utils";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {NgxUiLoaderService} from "ngx-ui-loader";
+import {AppStatusService} from "@src/app/services/app-status.service";
 import {BehaviorSubject} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 
@@ -40,15 +40,13 @@ export class CadListComponent implements AfterViewInit {
     checkedItems: CadData[] = [];
     checkedColumns: any[] = [];
     checkedInOtherPages = false;
-    loaderId = "cadList";
-    loadingText = "";
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
 
     constructor(
         public dialogRef: MatDialogRef<CadListComponent, CadData[]>,
         @Inject(MAT_DIALOG_DATA) public data: CadListData,
         private sanitizer: DomSanitizer,
-        private loader: NgxUiLoaderService,
+        private status: AppStatusService,
         private dataService: CadDataService,
         private dialog: MatDialog,
         private message: MessageService
@@ -119,9 +117,9 @@ export class CadListComponent implements AfterViewInit {
         const collection = this.data.collection;
         const params: Partial<GetCadParams> = {collection, page, limit, search: this.searchForm};
         if (this.data.selectMode === "table") {
-            this.loader.startLoader(this.loaderId);
+            this.status.startLoader({id: "cadList"});
             const result = await this.dataService.getYuanshicadwenjian(params);
-            this.loader.stopLoader(this.loaderId);
+            this.status.stopLoader();
             this.length = result.total;
             this.pageData.length = 0;
             this.tableData = result.cads;
@@ -130,9 +128,9 @@ export class CadListComponent implements AfterViewInit {
             params.qiliao = this.data.qiliao;
             params.options = options;
             params.optionsMatchType = matchType;
-            this.loader.startLoader(this.loaderId);
+            this.status.startLoader({id: "cadList"});
             const result = await this.dataService.getCad(params);
-            this.loader.stopLoader(this.loaderId);
+            this.status.stopLoader();
             this.length = result.total;
             this.pageData.length = 0;
             result.cads.forEach(async (d, i) => {
@@ -212,11 +210,15 @@ export class CadListComponent implements AfterViewInit {
 
     async submit() {
         if (this.data.selectMode === "table") {
+            this.status.startLoader({id: "submitLoader"});
             const result = await this.dataService.getCad({id: this.checkedColumns[0].vid, collection: "p_yuanshicadwenjian"});
+            this.status.stopLoader();
             this.dialogRef.close(result.cads);
         } else {
             this.syncCheckedItems();
-            const result = await this.dataService.getCad({ids: this.checkedItems.map((v) => v.id)});
+            this.status.startLoader({id: "submitLoader"});
+            const result = await this.dataService.getCad({ids: this.checkedItems.map((v) => v.id), collection: this.data.collection});
+            this.status.stopLoader();
             this.dialogRef.close(result.cads);
         }
     }
