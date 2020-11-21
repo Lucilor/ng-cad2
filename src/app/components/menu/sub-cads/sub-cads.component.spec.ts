@@ -3,7 +3,6 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {HttpModule} from "@src/app/modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
@@ -21,7 +20,6 @@ describe("SubCadsComponent", () => {
                 MatDialogModule,
                 MatExpansionModule,
                 MatMenuModule,
-                MatSnackBarModule,
                 MatSlideToggleModule,
                 HttpModule,
                 MessageModule,

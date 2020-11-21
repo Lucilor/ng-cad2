@@ -2,7 +2,6 @@ import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {MatSnackBar} from "@angular/material/snack-bar";
 import {DomSanitizer} from "@angular/platform-browser";
 import {CadCollection, imgLoading} from "@src/app/app.common";
 import {CadData, CadEntities, CadHatch} from "@src/app/cad-viewer";
@@ -103,7 +102,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             try {
                 data.directAssemble(split);
             } catch (error) {
-                this.snackBar.open("快速装配失败: " + (error as Error).message);
+                this.message.snack("快速装配失败: " + (error as Error).message);
             }
         }
     }).bind(this);
@@ -159,7 +158,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
     constructor(
         private sanitizer: DomSanitizer,
-        private snackBar: MatSnackBar,
         private config: AppConfigService,
         private status: AppStatusService,
         private dialog: MatDialog,
@@ -599,7 +597,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const data = this.contextMenuCad.data.clone();
         removeCadGongshi(data);
         copyToClipboard(JSON.stringify(data.export()));
-        this.snackBar.open("内容已复制");
+        this.message.snack("内容已复制");
         console.log(data);
     }
 

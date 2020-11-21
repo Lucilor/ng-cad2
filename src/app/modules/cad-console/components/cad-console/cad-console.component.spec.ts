@@ -1,5 +1,4 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
-import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {HttpModule} from "@src/app/modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
 
@@ -12,7 +11,7 @@ describe("CadConsoleComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [CadConsoleComponent],
-            imports: [MatSnackBarModule, HttpModule, MessageModule]
+            imports: [HttpModule, MessageModule]
         }).compileComponents();
     });
 

@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import {MatDialog, MatDialogConfig} from "@angular/material/dialog";
+import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {BookData, MessageData, PromptData} from "../components/message/message-types";
 import {MessageComponent} from "../components/message/message.component";
 import {MessageModule} from "../message.module";
@@ -8,7 +9,7 @@ import {MessageModule} from "../message.module";
     providedIn: MessageModule
 })
 export class MessageService {
-    constructor(private dialog: MatDialog) {}
+    constructor(private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
     async open(config: MatDialogConfig<MessageData>) {
         const ref = this.dialog.open<MessageComponent, MessageData, boolean | string>(MessageComponent, config);
@@ -29,5 +30,9 @@ export class MessageService {
 
     async book(bookData: BookData, content?: string, title?: string) {
         return await this.open({data: {type: "book", bookData, content, title}});
+    }
+
+    snack(message: string, action?: string, config?: MatSnackBarConfig) {
+        this.snackBar.open(message, action, config);
     }
 }

@@ -80,7 +80,7 @@ export class HttpService {
             if (this.strict) {
                 if (response.code === 0) {
                     if (typeof response.msg === "string" && response.msg) {
-                        this.snackBar.open(response.msg);
+                        this.message.snack(response.msg);
                     }
                     return response;
                 } else {

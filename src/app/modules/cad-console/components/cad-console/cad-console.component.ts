@@ -1,7 +1,6 @@
 import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {MatSnackBar} from "@angular/material/snack-bar";
 import {CadCollection} from "@src/app/app.common";
 import {CadArc, CadData} from "@src/app/cad-viewer";
 import {removeCadGongshi, addCadGongshi, printCads} from "@src/app/cad.utils";
@@ -507,9 +506,9 @@ export class CadConsoleComponent implements OnInit {
             }
             if (result.length) {
                 status.openCad(result);
-                this.snackBar.open("保存成功");
+                this.message.snack("保存成功");
             } else {
-                this.snackBar.open(`${skipped.join(", ")}保存失败`);
+                this.message.snack(`${skipped.join(", ")}保存失败`);
             }
             dataService.silent = silent;
             return result;
@@ -526,7 +525,7 @@ export class CadConsoleComponent implements OnInit {
             }
         },
         test(qwer: string, asdf: string) {
-            this.snackBar.open(`qwer=${qwer}, asdf=${asdf}`);
+            this.message.snack(`qwer=${qwer}, asdf=${asdf}`);
         }
     };
 
@@ -535,7 +534,6 @@ export class CadConsoleComponent implements OnInit {
     }
 
     constructor(
-        private snackBar: MatSnackBar,
         private status: AppStatusService,
         private config: AppConfigService,
         private message: MessageService,
@@ -711,7 +709,7 @@ export class CadConsoleComponent implements OnInit {
         if (currCmd.name) {
             this.execute(currCmd);
         } else {
-            this.snackBar.open("无效命令");
+            this.message.snack("无效命令");
         }
         const prevCmd = history[0];
         if (prevCmd !== el.textContent) {
@@ -763,7 +761,7 @@ export class CadConsoleComponent implements OnInit {
             try {
                 this.executor[arr.join("")].apply(this, argsValue);
             } catch (error) {
-                this.snackBar.open("执行命令时出错");
+                this.message.snack("执行命令时出错");
                 console.warn(error);
             }
         } else {
