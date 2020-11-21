@@ -50,6 +50,19 @@ export class Arc {
         const {startAngle, endAngle, clockwise} = this;
         let start = startAngle.rad;
         let end = endAngle.rad;
+        // if (clockwise) {
+        //     if (start > end) {
+        //         return new Angle(start - end, "deg");
+        //     } else {
+        //         return new Angle(360 - (end - start), "deg");
+        //     }
+        // } else {
+        //     if (start > end) {
+        //         return new Angle(360 - (start - end), "deg");
+        //     } else {
+        //         return new Angle(end - start, "deg");
+        //     }
+        // }
         if (clockwise) {
             while (end > start) {
                 end -= Math.PI * 2;
