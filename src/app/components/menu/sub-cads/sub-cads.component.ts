@@ -505,10 +505,13 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 childrens = data.components.data;
             }
             if (childrens) {
+                const positions: {[key: string]: number[]} = {};
                 for (let i = 0; i < cads.length; i++) {
                     if (childrens.length) {
                         for (let j = 0; j < childrens.length; j++) {
                             if (shouldReplace(childrens[j], cads[i])) {
+                                const {x, y} = removeCadGongshi(childrens[j]).getBoundingRect();
+                                positions[childrens[j].id] = [x, y];
                                 childrens[j] = cads[i];
                                 break;
                             } else if (j === childrens.length - 1) {
@@ -519,8 +522,19 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                         childrens.push(cads[i]);
                     }
                 }
+                if (type === "components") {
+                    data.updateComponents();
+                    childrens.forEach((v) => {
+                        if (v.id in positions) {
+                            const {x: x1, y: y1} = v.getBoundingRect();
+                            const [x2, y2] = positions[v.id];
+                            console.log([x2 - x1, y2 - y1]);
+                            v.transform({translate: [x2 - x1, y2 - y1]}, true);
+                        }
+                    });
+                }
+                await this.status.openCad();
             }
-            this.status.openCad();
         }
     }
 

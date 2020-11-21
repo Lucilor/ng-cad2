@@ -196,16 +196,16 @@ export class AppStatusService {
         }
         if (data) {
             cad.data.components.data = data;
-            cad.data.info.算料单 = data.some((v) => v.info.算料单);
-            data.forEach((v) => {
-                setCadData(v);
-                addCadGongshi(v, this.config.config("showCadGongshis"), collection === "CADmuban");
-            });
             this.clearSelectedCads();
         } else {
             data = cad.data.components.data;
             this.refreshSelectedCads();
         }
+        cad.data.info.算料单 = data.some((v) => v.info.算料单);
+        data.forEach((v) => {
+            setCadData(v);
+            addCadGongshi(v, this.config.config("showCadGongshis"), collection === "CADmuban");
+        });
         document.title = data.map((v) => v.name).join(", ");
         let hideLineLength: boolean;
         if (collection === "cad") {
@@ -270,7 +270,7 @@ export class AppStatusService {
     }
 
     validate() {
-        const results:ValidateResult[] = [];
+        const results: ValidateResult[] = [];
         this.cad.data.components.data.forEach((v) => {
             results.push(validateLines(v));
         });
