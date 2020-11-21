@@ -97,7 +97,11 @@ export class CadData {
         this.morenkailiaobancai = data.morenkailiaobancai ?? "";
         this.suanliaochuli = data.suanliaochuli ?? "算料+显示展开+开料";
         this.showKuandubiaozhu = data.showKuandubiaozhu ?? false;
-        this.info = data.info ?? {};
+        if (typeof data.info === "object" && !Array.isArray(data.info)) {
+            this.info = cloneDeep(data.info);
+        } else {
+            this.info = {};
+        }
         this.attributes = data.attributes ?? {};
         this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
         this.updateDimensions();

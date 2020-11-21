@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {CadConsoleComponent} from "@src/app/modules/cad-console/components/cad-console/cad-console.component";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
@@ -9,6 +9,9 @@ import {trigger, state, style, transition, animate} from "@angular/animations";
 import {ContextMenu} from "@src/app/mixins/ContextMenu.mixin";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
+import {ActivatedRoute} from "@angular/router";
+import {CadData} from "@src/app/cad-viewer";
+import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
 
 @Component({
     selector: "app-index",
@@ -37,7 +40,7 @@ import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
         ])
     ]
 })
-export class IndexComponent extends ContextMenu(Subscribed()) implements AfterViewInit, OnDestroy {
+export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit, AfterViewInit, OnDestroy {
     menuPadding = [40, 270, 20, 220];
     shownMenus: ("cadInfo" | "entityInfo" | "cadAssemble")[] = ["cadInfo", "entityInfo"];
     showTopMenu = true;
@@ -67,8 +70,64 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements AfterVi
 
     private resize = debounce(() => this.config.config({width: innerWidth, height: innerHeight}), 500).bind(this);
 
-    constructor(private config: AppConfigService, private status: AppStatusService, private console: CadConsoleService) {
+    constructor(
+        private config: AppConfigService,
+        private status: AppStatusService,
+        private console: CadConsoleService,
+        private dataService: CadDataService,
+        private route: ActivatedRoute
+    ) {
         super();
+    }
+
+    async ngOnInit() {
+        const cad = this.status.cad;
+        Reflect.defineProperty(window, "cad", {value: cad});
+        Reflect.defineProperty(window, "config", {value: this.config.config.bind(this.config)});
+        Reflect.defineProperty(window, "status", {value: this.status});
+        Reflect.defineProperty(window, "data0", {get: () => cad.data.components.data[0]});
+        Reflect.defineProperty(window, "data0Ex", {get: () => cad.data.components.data[0].export()});
+        Reflect.defineProperty(window, "selected", {get: () => cad.selected()});
+        Reflect.defineProperty(window, "selectedArray", {get: () => cad.selected().toArray()});
+        Reflect.defineProperty(window, "selected0", {get: () => cad.selected().toArray()[0]});
+        this.status.openCad$.subscribe(() => {
+            document.title = cad.data.components.data.map((v) => v.name).join(",");
+        });
+
+        let cachedData: any = null;
+        let params: any = null;
+        try {
+            cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data") || "null");
+            params = JSON.parse(sessionStorage.getItem("params") || "{}");
+        } catch (error) {
+            console.warn(error);
+        }
+        if (cachedData) {
+            if (!Array.isArray(cachedData)) {
+                cachedData = [cachedData];
+            }
+            const data: CadData[] = cachedData.map((v: any) => new CadData(v));
+            this.status.openCad(data, params.collection ?? "cad");
+        } else {
+            const {id, ids, collection} = this.route.snapshot.queryParams;
+            const params: Partial<GetCadParams> = {};
+            if ((id || ids) && collection) {
+                this.config.config("collection", collection);
+                if (id) {
+                    params.id = id;
+                }
+                if (ids) {
+                    params.ids = ids.split(",");
+                }
+                params.collection = collection;
+            } else {
+                const {cadIds, collection} = this.config.config();
+                params.ids = cadIds;
+                params.collection = collection;
+            }
+            const result = await this.dataService.getCad(params);
+            this.status.openCad(result.cads);
+        }
     }
 
     ngAfterViewInit() {

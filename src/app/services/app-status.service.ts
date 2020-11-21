@@ -1,5 +1,4 @@
 import {Injectable} from "@angular/core";
-import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 import {clamp, difference} from "lodash";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";
@@ -8,9 +7,8 @@ import {CadData} from "../cad-viewer/cad-data/cad-data";
 import {generateLineTexts, PointsMap, validateLines, ValidateResult} from "../cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "../cad-viewer/cad-viewer";
 import {setCadData, addCadGongshi} from "../cad.utils";
-import {CadDataService, GetCadParams} from "../modules/http/services/cad-data.service";
 import {AnyObject} from "../utils/types";
-import {AppConfigService} from "./app-config.service";
+import {AppConfig, AppConfigService} from "./app-config.service";
 
 export type CadStatusNameMap = {
     normal: "普通";
@@ -77,13 +75,7 @@ export class AppStatusService {
     openCad$ = new Subject();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
 
-    constructor(
-        private config: AppConfigService,
-        private loaderService: NgxUiLoaderService,
-        private dataService: CadDataService,
-        private route: ActivatedRoute,
-        private router: Router
-    ) {
+    constructor(private config: AppConfigService, private loaderService: NgxUiLoaderService) {
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
             cad.config(newVal);
@@ -92,47 +84,6 @@ export class AppStatusService {
                 const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
                 cadGongshis.forEach((e) => (e.visible = showCadGongshis));
                 cad.render(cadGongshis);
-            }
-        });
-
-        const sub = this.router.events.subscribe(async (event) => {
-            if (!(event instanceof NavigationEnd)) {
-                return;
-            }
-            sub.unsubscribe();
-            let cachedData: any = null;
-            let params: any = null;
-            try {
-                cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data") || "null");
-                params = JSON.parse(sessionStorage.getItem("params") || "{}");
-            } catch (error) {
-                console.warn(error);
-            }
-            if (cachedData) {
-                if (!Array.isArray(cachedData)) {
-                    cachedData = [cachedData];
-                }
-                const data: CadData[] = cachedData.map((v: any) => new CadData(v));
-                this.openCad(data, params.collection ?? "cad");
-            } else {
-                const {id, ids, collection} = this.route.snapshot.queryParams;
-                const params: Partial<GetCadParams> = {};
-                if ((id || ids) && collection) {
-                    this.config.config("collection", collection);
-                    if (id) {
-                        params.id = id;
-                    }
-                    if (ids) {
-                        params.ids = ids.split(",");
-                    }
-                    params.collection = collection;
-                } else {
-                    const {cadIds, collection} = this.config.config();
-                    params.ids = cadIds;
-                    params.collection = collection;
-                }
-                const result = await this.dataService.getCad(params);
-                this.openCad(result.cads);
             }
         });
 
@@ -201,20 +152,26 @@ export class AppStatusService {
             data = cad.data.components.data;
             this.refreshSelectedCads();
         }
+        const config: Partial<AppConfig> = {};
+        config.cadIds = data.map((v) => v.id);
         cad.data.info.算料单 = data.some((v) => v.info.算料单);
+        if (cad.data.info.算料单) {
+            config.hideLineGongshi = true;
+        } else {
+            config.hideLineGongshi = false;
+        }
         data.forEach((v) => {
             setCadData(v);
             addCadGongshi(v, this.config.config("showCadGongshis"), collection === "CADmuban");
         });
         document.title = data.map((v) => v.name).join(", ");
-        let hideLineLength: boolean;
         if (collection === "cad") {
             data.forEach((v) => validateLines(v));
-            hideLineLength = false;
+            config.hideLineLength = false;
         } else {
-            hideLineLength = true;
+            config.hideLineLength = true;
         }
-        this.config.config({cadIds: data.map((v) => v.id), collection, hideLineLength});
+        this.config.config(config);
         this.generateLineTexts();
         cad.data.updatePartners().updateComponents();
         cad.reset();
