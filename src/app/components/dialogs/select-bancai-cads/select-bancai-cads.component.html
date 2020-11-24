@@ -1,0 +1,14 @@
+<h2 *ngIf="bancai" mat-dialog-title>{{ bancai.mingzi }}({{ bancai.guige?.join(" × ") }})</h2>
+<div mat-dialog-content>
+    <div *ngFor="let cad of data.cads">
+        <mat-checkbox [(ngModel)]="cad.checked">
+            {{ cad.name }}
+            <span *ngIf="cad.oversized" style="color: red">(尺寸超出规格)</span>
+        </mat-checkbox>
+    </div>
+</div>
+<div mat-dialog-actions>
+    <button mat-raised-button color="primary" (click)="autoCheck()">自动选择</button>
+    <button mat-raised-button color="primary" (click)="submit()" [disabled]="checkedCads.length < 1">移到新板材</button>
+    <button mat-raised-button color="primary" (click)="close()">关闭</button>
+</div>

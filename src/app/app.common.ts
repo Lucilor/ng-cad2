@@ -13,7 +13,8 @@ export const paths = {
     test: "test",
     printA4A015Preview: "printA4A015Preview",
     import: "import",
-    backup: "backup"
+    backup: "backup",
+    "select-bancai": "select-bancai"
 };
 
 export interface Response<T> {

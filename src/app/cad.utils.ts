@@ -67,8 +67,8 @@ export async function printCads(dataArr: CadData[], config: Partial<CadViewerCon
             hideLineLength: true,
             hideLineGongshi: true
         }).appendTo(document.body);
-        cadPrint.select(cadPrint.data.getAllEntities().dimension);
         await cadPrint.render();
+        cadPrint.select(cadPrint.data.getAllEntities().dimension);
         const src = (await cadPrint.toCanvas()).toDataURL();
         cadPrint.destroy();
         imgs.push(src);
@@ -94,7 +94,7 @@ export function addCadGongshi(data: CadData, visible: boolean, ignoreTop: boolea
         const mtext = new CadMtext();
         const {left, bottom} = data.getBoundingRect();
         mtext.text = getCadGongshiText(data);
-        mtext.insert = new Point(left, bottom - 10);
+        mtext.insert = new Point(left, bottom - 30);
         mtext.selectable = false;
         mtext.font_size = 16;
         mtext.anchor.set(0, 0);

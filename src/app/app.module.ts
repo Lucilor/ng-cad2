@@ -1,6 +1,6 @@
 import {HttpClientModule} from "@angular/common/http";
 import {Injectable, NgModule} from "@angular/core";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {BrowserModule} from "@angular/platform-browser";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AppRoutingModule} from "./app-routing.module";
@@ -60,9 +60,12 @@ import {IndexComponent} from "./views/index/index.component";
 import {PageNotFoundComponent} from "./views/page-not-found/page-not-found.component";
 import {PrintA4A015PreviewComponent} from "./views/print-a4-a015-preview/print-a4-a015-preview.component";
 import {PrintCadComponent} from "./views/print/print-cad.component";
+import {SelectBancaiComponent} from "./views/select-bancai/select-bancai.component";
+import {SelectBancaiCadsComponent} from "./components/dialogs/select-bancai-cads/select-bancai-cads.component";
+import {ErrorStateMatcher} from "@angular/material/core";
 
 @Injectable()
-export class MyMatPaginatorIntl extends MatPaginatorIntl {
+class MyMatPaginatorIntl extends MatPaginatorIntl {
     itemsPerPageLabel = "每页条数";
     previousPageLabel = "上一页";
     nextPageLabel = "下一页";
@@ -78,6 +81,12 @@ export class MyMatPaginatorIntl extends MatPaginatorIntl {
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     wheelPropagation: true
 };
+
+class MyErrorStateMatcher implements ErrorStateMatcher {
+    isErrorState(control: FormControl | null) {
+        return !!control?.invalid;
+    }
+}
 
 @NgModule({
     declarations: [
@@ -104,7 +113,9 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         BackupComponent,
         PrintCadComponent,
         PrintA4A015PreviewComponent,
-        CadAssembleComponent
+        CadAssembleComponent,
+        SelectBancaiComponent,
+        SelectBancaiCadsComponent
     ],
     imports: [
         HttpClientModule,
@@ -154,7 +165,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
             useValue: {duration: 3000, verticalPosition: "top", panelClass: ["mat-toolbar", "mat-primary"]}
         },
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
-        {provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG}
+        {provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG},
+        {provide: ErrorStateMatcher, useClass: MyErrorStateMatcher}
     ],
     bootstrap: [AppComponent]
 })

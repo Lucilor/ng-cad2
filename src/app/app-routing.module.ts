@@ -8,6 +8,7 @@ import {IndexComponent} from "./views/index/index.component";
 import {PageNotFoundComponent} from "./views/page-not-found/page-not-found.component";
 import {PrintA4A015PreviewComponent} from "./views/print-a4-a015-preview/print-a4-a015-preview.component";
 import {PrintCadComponent} from "./views/print/print-cad.component";
+import {SelectBancaiComponent} from "./views/select-bancai/select-bancai.component";
 
 const routes: Routes = [
     {path: "", pathMatch: "full", redirectTo: paths.index},
@@ -17,6 +18,7 @@ const routes: Routes = [
     {path: paths.printA4A015Preview, component: PrintA4A015PreviewComponent},
     {path: paths.import, component: ImportComponent},
     {path: paths.backup, component: BackupComponent},
+    {path: paths["select-bancai"], component: SelectBancaiComponent},
     {path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
 ];
 

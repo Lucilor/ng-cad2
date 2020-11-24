@@ -32,6 +32,20 @@ export type CadSearchData = {
     }[];
 }[];
 
+export interface BancaiList {
+    mingzi: string;
+    cailiaoList: string[];
+    houduList: number[];
+    guigeList: number[][];
+}
+export interface BancaiCad {
+    id: string;
+    name: string;
+    width: number;
+    height: number;
+    bancai: {mingzi: string; cailiao: string | null; houdu: number | null; guige: number[] | null};
+}
+
 @Injectable({
     providedIn: "root"
 })
@@ -40,16 +54,6 @@ export class CadDataService extends HttpService {
         super(injector);
         this.baseURL = localStorage.getItem("baseURL") || "/api";
     }
-
-    // async request<T>(url: string, method: "GET" | "POST", data?: AnyObject) {
-    // 	const queryParams = this.route.snapshot.queryParams;
-    // 	const encode = encodeURIComponent(queryParams.encode ?? "");
-    // 	if (encode) {
-    // 		url += "/" + encode;
-    // 	}
-    // 	console.log(queryParams);
-    // 	return super.request<T>(url, method, data);
-    // }
 
     async getCad(params: Partial<GetCadParams>) {
         const response = await this.request<any[]>("peijian/cad/getCad", "POST", params);
@@ -185,5 +189,21 @@ export class CadDataService extends HttpService {
 
     async removeCads(collection: string, ids: string[]) {
         await this.request<never>("peijian/cad/removeCad", "POST", {collection, ids});
+    }
+
+    async getBancais(codes: string[]) {
+        const response = await this.request<{bancaiList: BancaiList[]; bancaiCads: BancaiCad[]}>("order/order/getBancais", "POST", {codes});
+        if (response?.data) {
+            return response.data;
+        }
+        return null;
+    }
+
+    async jiguangkailiaopaiban(codes: string[], bancaiCads: BancaiCad[]) {
+        const response = await this.request<string>("order/order/jiguangkailiaopaiban", "POST", {codes, bancaiCads});
+        if (response?.data) {
+            return response.data;
+        }
+        return null;
     }
 }

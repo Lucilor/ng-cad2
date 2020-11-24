@@ -1,0 +1,19 @@
+:host {
+    display: flex;
+    flex-direction: column;
+}
+
+.bancai {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 10px;
+
+    > *:not(:last-child) {
+        margin-right: 5px;
+    }
+}
+
+.bancais:empty {
+    height: 300px;
+}
