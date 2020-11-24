@@ -1,5 +1,6 @@
 import {AfterViewInit, Component} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
+import {CadData} from "@src/app/cad-viewer";
 import {printCads} from "@src/app/cad.utils";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
@@ -24,17 +25,20 @@ export class PrintCadComponent implements AfterViewInit {
 
     async ngAfterViewInit() {
         await timeout(0);
-        const codes = this.route.snapshot.queryParams.codes;
-        if (!codes) {
-            this.message.alert("缺少订单号");
+        const queryParams = {...this.route.snapshot.queryParams};
+        const action = queryParams.action;
+        delete queryParams.action;
+        if (!action) {
+            this.message.alert("缺少action");
             return;
         }
         this.loader.startLoader(this.loaderId);
         this.loaderText = "正在获取数据...";
-        const dataArr = await this.dataService.getSuanliaodan(codes.split(","));
-        if (dataArr.length) {
+        const response = await this.dataService.request<CadData[]>(action, "POST", queryParams, false);
+        const data = response?.data;
+        if (data) {
             this.loaderText = "正在打印CAD...";
-            const url = await printCads(dataArr);
+            const url = await printCads(data);
             location.href = url;
             // window.open(url);
         }
