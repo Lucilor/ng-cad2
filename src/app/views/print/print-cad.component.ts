@@ -35,7 +35,7 @@ export class PrintCadComponent implements AfterViewInit {
         this.loader.startLoader(this.loaderId);
         this.loaderText = "正在获取数据...";
         const response = await this.dataService.request<CadData[]>(action, "POST", queryParams, false);
-        const data = response?.data;
+        const data = response?.data?.map(v=>new CadData(v));
         if (data) {
             this.loaderText = "正在打印CAD...";
             const url = await printCads(data);
