@@ -36,6 +36,7 @@ export class CadData {
     info: AnyObject;
     attributes: AnyObject;
     bancaihoudufangxiang: "none" | "gt0" | "lt0";
+    zhankai: [string, string, number, number][];
 
     constructor(data: AnyObject = {}) {
         if (typeof data !== "object") {
@@ -104,6 +105,7 @@ export class CadData {
         }
         this.attributes = data.attributes ?? {};
         this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
+        this.zhankai = Array.isArray(data.zhankai) ? data.zhanka : [["", "", 1, 1]];
         this.updateDimensions();
     }
 
