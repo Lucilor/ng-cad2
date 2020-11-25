@@ -35,7 +35,7 @@ export class AppConfigService {
             minLinewidth: 2,
             fontFamily: "微软雅黑",
             enableZoom: true,
-            renderStep: 10,
+            renderStep: 10000,
             showCadGongshis: true,
             infoTabIndex: 0,
             cadIds: [],

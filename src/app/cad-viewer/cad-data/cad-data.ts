@@ -105,7 +105,7 @@ export class CadData {
         }
         this.attributes = data.attributes ?? {};
         this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
-        this.zhankai = Array.isArray(data.zhankai) ? data.zhankai : [["", "", 1, 1, ""]];
+        this.zhankai = Array.isArray(data.zhankai) ? data.zhankai : [];
         this.updateDimensions();
     }
 

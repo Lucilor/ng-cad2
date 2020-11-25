@@ -65,7 +65,8 @@ export async function printCads(dataArr: CadData[], config: Partial<CadViewerCon
             padding: [18 * scale],
             minLinewidth: 4,
             hideLineLength: true,
-            hideLineGongshi: true
+            hideLineGongshi: true,
+            renderStep: Infinity
         }).appendTo(document.body);
         await cadPrint.render();
         cadPrint.select(cadPrint.data.getAllEntities().dimension);

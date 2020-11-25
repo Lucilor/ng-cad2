@@ -1,4 +1,5 @@
 import {SessionStorage, LocalStorage} from "@src/app/utils";
+import {environment} from "@src/environments/environment";
 
 export const projectName = "NgCad";
 export const session = new SessionStorage(projectName);
@@ -26,6 +27,20 @@ export interface Response<T> {
 }
 
 export type CadCollection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";
+
+export function logTime(content: string, start: number, fractionDigits = 2) {
+    if (environment.production) {
+        return;
+    }
+    const time = (performance.now() - start) / 1000;
+    let str = "";
+    if (typeof fractionDigits === "number") {
+        str = time.toFixed(fractionDigits);
+    } else {
+        str = time.toString();
+    }
+    console.log(`%c[DEBUG] ${content}: ${str}s`, "color:deeppink");
+}
 
 // export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
 // 	return map.map((v) => {
