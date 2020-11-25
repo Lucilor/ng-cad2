@@ -366,6 +366,14 @@ export class CadViewer extends EventEmitter {
                     }
                     entity.font_size = lineGongshi;
                     offset = getVectorFromArray(entity.info.offset);
+                } else if (entity.info.isBianhuazhiText) {
+                    if (parent instanceof CadLine && parent.guanlianbianhuagongshi) {
+                        entity.text = `变化值=${parent.guanlianbianhuagongshi}`;
+                    } else {
+                        entity.text = "";
+                    }
+                    entity.font_size = lineGongshi - 3;
+                    offset = getVectorFromArray(entity.info.offset);
                     if (hideLineGongshi) {
                         el.remove();
                         entity.el = null;

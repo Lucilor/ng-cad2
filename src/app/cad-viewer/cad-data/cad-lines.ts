@@ -325,6 +325,16 @@ export function generateLineTexts(data: CadData, tolerance = DEFAULT_TOLERANCE) 
                 gongshiText.insert.copy(inner);
             }
             gongshiText.anchor.set(1 - anchor.x, 1 - anchor.y);
+
+            let bianhuazhiText = line.children.find((c) => c.info.isBianhuazhiText) as CadMtext;
+            if (!(bianhuazhiText instanceof CadMtext)) {
+                bianhuazhiText = new CadMtext();
+                bianhuazhiText.info.isBianhuazhiText = true;
+                bianhuazhiText.info.offset = [0, 0];
+                line.addChild(bianhuazhiText);
+                bianhuazhiText.insert.copy(outer);
+            }
+            bianhuazhiText.anchor.copy(anchor);
         });
     });
 }
