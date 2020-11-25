@@ -1,4 +1,5 @@
 import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
+import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {CadData} from "@src/app/cad-viewer";
@@ -9,6 +10,7 @@ interface CadOptionsData {
     data: CadData;
     name: string;
     checkedItems: string[];
+    multi?: boolean;
 }
 
 @Component({
@@ -35,9 +37,11 @@ export class CadOptionsComponent implements AfterViewInit {
         if (!this.data.data) {
             this.data.data = new CadData();
         }
+        this.data.multi = this.data.multi !== false;
     }
 
     async ngAfterViewInit() {
+        console.log(this);
         await this.paginator?.initialized.toPromise();
         this.getData(1);
     }
@@ -79,6 +83,17 @@ export class CadOptionsComponent implements AfterViewInit {
             this.pageData.push({value: v.name, img: v.img, checked: this.data.checkedItems.includes(v.name)});
         });
         return data;
+    }
+
+    onCheckboxChange(item: CadOptionsComponent["pageData"][0], event?: MatCheckboxChange) {
+        if (!this.data.multi) {
+            this.pageData.forEach((v) => (v.checked = false));
+        }
+        if (event) {
+            item.checked = event.checked;
+        } else {
+            item.checked = !item.checked;
+        }
     }
 }
 

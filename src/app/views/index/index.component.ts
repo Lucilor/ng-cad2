@@ -109,7 +109,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             const data: CadData[] = cachedData.map((v: any) => new CadData(v));
             this.status.openCad(data, params.collection ?? "cad");
         } else {
-            const {id, ids, collection} = this.route.snapshot.queryParams;
+            const {id, ids, collection, project} = this.route.snapshot.queryParams;
             const params: Partial<GetCadParams> = {};
             if ((id || ids) && collection) {
                 this.config.config("collection", collection);
@@ -124,6 +124,9 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
                 const {cadIds, collection} = this.config.config();
                 params.ids = cadIds;
                 params.collection = collection;
+            }
+            if (project) {
+                this.dataService.baseURL = this.dataService.baseURL.replace(/(?<=n\/)([^\/]*)/, project);
             }
             const result = await this.dataService.getCad(params);
             this.status.openCad(result.cads);

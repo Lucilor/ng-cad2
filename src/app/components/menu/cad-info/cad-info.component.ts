@@ -111,7 +111,7 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
             }
         } else if (option === "bancai") {
             const checkedItems = data.morenkailiaobancai.split(",");
-            const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems}});
+            const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems, multi: false}});
             if (Array.isArray(result)) {
                 data.morenkailiaobancai = result.join(",");
             }
