@@ -36,7 +36,7 @@ export class CadData {
     info: AnyObject;
     attributes: AnyObject;
     bancaihoudufangxiang: "none" | "gt0" | "lt0";
-    zhankai: [string, string, number, number][];
+    zhankai: (number | string)[][];
 
     constructor(data: AnyObject = {}) {
         if (typeof data !== "object") {
@@ -105,7 +105,7 @@ export class CadData {
         }
         this.attributes = data.attributes ?? {};
         this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
-        this.zhankai = Array.isArray(data.zhankai) ? data.zhanka : [["", "", 1, 1]];
+        this.zhankai = Array.isArray(data.zhankai) ? data.zhankai : [["", "", 1, 1, ""]];
         this.updateDimensions();
     }
 
@@ -131,6 +131,7 @@ export class CadData {
         this.info = cloneDeep(data.info);
         this.attributes = cloneDeep(data.attributes);
         this.bancaihoudufangxiang = data.bancaihoudufangxiang;
+        this.zhankai = cloneDeep(data.zhankai);
         this.updatePartners().updateDimensions();
     }
 
@@ -174,7 +175,8 @@ export class CadData {
             suanliaochuli: this.suanliaochuli,
             showKuandubiaozhu: this.showKuandubiaozhu,
             info: this.info,
-            bancaihoudufangxiang: this.bancaihoudufangxiang
+            bancaihoudufangxiang: this.bancaihoudufangxiang,
+            zhankai: cloneDeep(this.zhankai)
         };
     }
 
