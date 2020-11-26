@@ -126,7 +126,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
                 params.collection = collection;
             }
             if (project) {
-                this.dataService.baseURL = this.dataService.baseURL.replace(/(?<=n\/)([^\/]*)/, project);
+                this.dataService.baseURL = this.dataService.baseURL.replace(/(?<=\/n\/)([^\/]*)/, project);
             }
             const result = await this.dataService.getCad(params);
             this.status.openCad(result.cads);
