@@ -675,6 +675,7 @@ export class CadMtext extends CadEntity {
     text: string;
     anchor: Point;
     fontFamily: string;
+    fontWeight: string;
 
     constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
         super(data, layers, resetId);
@@ -683,6 +684,7 @@ export class CadMtext extends CadEntity {
         this.text = data.text ?? "";
         this.anchor = getVectorFromArray(data.anchor);
         this.fontFamily = data.fontFamily ?? "";
+        this.fontWeight = data.fontWeight ?? "normal";
         if (this.text.includes("     ")) {
             this.font_size = 36;
             this.insert.y += 11;

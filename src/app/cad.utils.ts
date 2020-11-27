@@ -55,6 +55,8 @@ export async function printCads(dataArr: CadData[], config: Partial<CadViewerCon
             e.color = new Color(0);
             if (e instanceof CadDimension) {
                 e.renderStyle = 2;
+            } else if (e instanceof CadMtext && e.fontFamily === "仿宋") {
+                e.fontWeight = "bolder";
             }
         }, true);
         const cadPrint = new CadViewer(data, {
@@ -69,6 +71,19 @@ export async function printCads(dataArr: CadData[], config: Partial<CadViewerCon
             renderStep: Infinity
         }).appendTo(document.body);
         await cadPrint.render();
+        cadPrint.draw.find("[type='DIMENSION']").forEach((el) => {
+            el.children().forEach((el) => {
+                if (el.node.tagName === "text") {
+                    return;
+                }
+                if (el.hasClass("stroke")) {
+                    el.stroke("grey");
+                }
+                if (el.hasClass("fill")) {
+                    el.fill("grey");
+                }
+            });
+        });
         cadPrint.select(cadPrint.data.getAllEntities().dimension);
         const src = (await cadPrint.toCanvas()).toDataURL();
         cadPrint.destroy();

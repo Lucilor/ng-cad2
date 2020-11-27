@@ -48,24 +48,25 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this.data = response.data;
-        this.data.forEach((v) => {
+        this.data.forEach((v, i) => {
             const toAdd: PreviewData[0] = [];
             v.forEach((vv) => {
                 const calcZhankai = vv.CAD?.calcZhankai;
                 const zhankai = vv.CAD?.zhankai;
                 if (Array.isArray(calcZhankai)) {
-                    for (let i = 0; i < calcZhankai.length; i++) {
+                    for (let j = 0; j < calcZhankai.length; j++) {
                         const clone = cloneDeep(vv);
-                        clone.CAD.calcW = calcZhankai[i][0];
-                        clone.CAD.calcH = calcZhankai[i][1];
-                        clone.CAD.num = zhankai[i][2];
-                        if (zhankai[i][4]) {
-                            clone.CAD.peihe = zhankai[i][4];
+                        clone.CAD.calcW = calcZhankai[j][0];
+                        clone.CAD.calcH = calcZhankai[j][1];
+                        clone.CAD.num = zhankai[j][2];
+                        if (zhankai[j][4]) {
+                            clone.CAD.peihe = zhankai[j][4];
                         }
                         toAdd.push(clone);
                     }
                 }
             });
+            this.data[i] = v.concat(toAdd);
         });
         const total = this.data.reduce((total, v) => total + v.length, 0);
         let done = 0;

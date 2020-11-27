@@ -44,6 +44,7 @@ interface CadViewerConfig {
     hideLineGongshi: boolean; // 是否隐藏线公式(即使lineGongshi>0)
     minLinewidth: number; // 所有线的最小宽度(调大以便选中)
     fontFamily: string; // 设置字体
+    fontWeight: string; // 设置字体粗细
     enableZoom: boolean; // 是否启用缩放
     renderStep: number; // 渲染时每次渲染的实体个数
 	showCadGongshis: boolean; // 是否显示CAD公式

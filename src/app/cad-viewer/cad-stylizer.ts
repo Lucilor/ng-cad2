@@ -9,6 +9,7 @@ export interface CadStyle {
     opacity: number;
     fontStyle: string;
     fontFamily: string;
+    fontWeight: string;
 }
 
 export class CadStylizer {
@@ -25,7 +26,8 @@ export class CadStylizer {
             fontSize: 16,
             opacity: 1,
             fontStyle: "normal",
-            fontFamily: ""
+            fontFamily: "",
+            fontWeight: ""
         };
         let color = new Color(params.color || entity?.color || 0);
         if (params.linewidth && params.linewidth > 0) {
@@ -64,6 +66,11 @@ export class CadStylizer {
         result.fontFamily = cad.config("fontFamily");
         if (entity instanceof CadMtext && entity.fontFamily) {
             result.fontFamily = entity.fontFamily;
+        }
+
+        result.fontWeight = cad.config("fontWeight");
+        if (entity instanceof CadMtext && entity.fontWeight) {
+            result.fontWeight = entity.fontWeight;
         }
         return result;
     }

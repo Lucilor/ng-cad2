@@ -34,6 +34,7 @@ export class AppConfigService {
             hideLineGongshi: false,
             minLinewidth: 2,
             fontFamily: "微软雅黑",
+            fontWeight: "normal",
             enableZoom: true,
             renderStep: 10000,
             showCadGongshis: true,
