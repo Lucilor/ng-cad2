@@ -41,7 +41,7 @@ export class PrintCadComponent implements AfterViewInit {
         logTime("请求数据用时", t1);
         const data = response?.data?.map((v) => new CadData(v));
         if (data) {
-            this.loaderText = "正在打印CAD...";
+            this.loaderText = "正在打开算料单...";
             const t2 = performance.now();
             const url = await printCads(data);
             logTime("打印用时", t2);

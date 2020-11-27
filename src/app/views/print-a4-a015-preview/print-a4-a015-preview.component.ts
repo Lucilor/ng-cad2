@@ -5,6 +5,7 @@ import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {CadViewer, CadData} from "@src/app/cad-viewer";
 import {timeout} from "@src/app/utils";
 import {ActivatedRoute} from "@angular/router";
+import {cloneDeep} from "lodash";
 
 export type PreviewData = {
     CAD?: any;
@@ -43,9 +44,29 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
         document.body.style.overflowY = "auto";
         const data = this.route.snapshot.queryParams.data;
         const response = await this.dataService.request<PreviewData>("order/printCode/printA4A015Preview", "POST", {data}, false);
-        if (response?.data) {
-            this.data = response.data;
+        if (!response?.data) {
+            return;
         }
+        this.data = response.data;
+        this.data.forEach((v) => {
+            const toAdd: PreviewData[0] = [];
+            v.forEach((vv) => {
+                const calcZhankai = vv.CAD?.calcZhankai;
+                const zhankai = vv.CAD?.zhankai;
+                if (Array.isArray(calcZhankai)) {
+                    for (let i = 0; i < calcZhankai.length; i++) {
+                        const clone = cloneDeep(vv);
+                        clone.CAD.calcW = calcZhankai[i][0];
+                        clone.CAD.calcH = calcZhankai[i][1];
+                        clone.CAD.num = zhankai[i][2];
+                        if (zhankai[i][4]) {
+                            clone.CAD.peihe = zhankai[i][4];
+                        }
+                        toAdd.push(clone);
+                    }
+                }
+            });
+        });
         const total = this.data.reduce((total, v) => total + v.length, 0);
         let done = 0;
         this.loader.startLoader(this.loaderId);
