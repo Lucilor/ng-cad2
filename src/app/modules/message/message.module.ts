@@ -10,7 +10,7 @@ import {MatInputModule} from "@angular/material/input";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 
 import {MessageComponent} from "./components/message/message.component";
-import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS} from "@angular/material/snack-bar";
 
 @NgModule({
     declarations: [MessageComponent],
@@ -25,6 +25,12 @@ import {MatSnackBarModule} from "@angular/material/snack-bar";
         MatSnackBarModule,
         PerfectScrollbarModule
     ],
-    providers: [{provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {maxWidth: "unset"}}]
+    providers: [
+        {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {maxWidth: "unset"}},
+        {
+            provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+            useValue: {duration: 3000, verticalPosition: "top", panelClass: ["mat-toolbar", "mat-primary"]}
+        }
+    ]
 })
 export class MessageModule {}

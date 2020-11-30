@@ -21,7 +21,6 @@ import {MatPaginatorModule, MatPaginatorIntl} from "@angular/material/paginator"
 import {MatRadioModule} from "@angular/material/radio";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS} from "@angular/material/snack-bar";
 import {MatTableModule} from "@angular/material/table";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatTooltipModule} from "@angular/material/tooltip";
@@ -139,7 +138,6 @@ class MyErrorStateMatcher implements ErrorStateMatcher {
         MatRadioModule,
         MatSelectModule,
         MatSlideToggleModule,
-        MatSnackBarModule,
         MatTableModule,
         MatTabsModule,
         MatTooltipModule,
@@ -160,10 +158,6 @@ class MyErrorStateMatcher implements ErrorStateMatcher {
         TableModule
     ],
     providers: [
-        {
-            provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-            useValue: {duration: 3000, verticalPosition: "top", panelClass: ["mat-toolbar", "mat-primary"]}
-        },
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
         {provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG},
         {provide: ErrorStateMatcher, useClass: MyErrorStateMatcher}
