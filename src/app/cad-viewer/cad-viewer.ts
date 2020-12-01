@@ -10,6 +10,8 @@ import {CadStyle, CadStylizer} from "./cad-stylizer";
 import {CadEventCallBack, CadEvents, controls} from "./cad-viewer-controls";
 import {drawArc, drawCircle, drawDimension, drawLine, drawShape, drawText, FontStyle} from "./draw";
 
+const typesOrder: CadType[] = ["DIMENSION", "HATCH", "MTEXT", "CIRCLE", "ARC", "LINE"];
+
 export interface CadViewerConfig {
     width: number; // 宽
     height: number; // 高
@@ -116,10 +118,7 @@ export class CadViewer extends EventEmitter {
         dom.focus();
 
         this._config = getConfigProxy();
-        const types: CadType[] = ["DIMENSION", "HATCH", "MTEXT", "CIRCLE", "ARC", "LINE"];
-        types.forEach((t) => {
-            this.draw.group().attr("type", t);
-        });
+        typesOrder.forEach((t) => this.draw.group().attr("group", t));
         this.config({...this._config, ...config}).center();
     }
 
@@ -714,6 +713,7 @@ export class CadViewer extends EventEmitter {
 
     reset(data?: CadData) {
         this.draw.clear();
+        typesOrder.forEach((t) => this.draw.group().attr("group", t));
         if (data instanceof CadData) {
             this.data = data;
         }
