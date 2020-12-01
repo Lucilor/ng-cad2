@@ -10,12 +10,12 @@ export const imgLoading = "assets/images/loading.gif";
 
 export const paths = {
     index: "index",
-    "print-cad": "print-cad",
+    printCad: "print-cad",
     test: "test",
     printA4A015Preview: "printA4A015Preview",
     import: "import",
     backup: "backup",
-    "select-bancai": "select-bancai"
+    selectBancai: "select-bancai"
 };
 
 export interface Response<T> {
