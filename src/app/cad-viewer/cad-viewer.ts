@@ -66,8 +66,6 @@ function getConfigProxy(config: Partial<CadViewerConfig> = {}) {
                     value = [value, value, value, value];
                 } else if (!Array.isArray(value) || value.length === 0) {
                     value = [0, 0, 0, 0];
-                } else if (value.length === 0) {
-                    value = [0, 0, 0, 0];
                 } else if (value.length === 1) {
                     value = [value[0], value[0], value[0], value[0]];
                 } else if (value.length === 2) {
