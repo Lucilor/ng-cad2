@@ -524,15 +524,16 @@ export class CadData {
                 if (!l2 && l1) {
                     l2 = getLine(e2 as CadCircle, l1);
                 }
-            } else {
             }
             if (!l1 || !l2) {
                 if (typeof value === "number") {
+                    const rect1 = c1.getBoundingRect();
+                    const rect2 = c2.getBoundingRect();
                     axis = connection.axis;
                     if (axis === "x") {
-                        translate.x = value + spaceNum;
+                        translate.x = rect1.left - value - rect2.left;
                     } else if (axis === "y") {
-                        translate.y = value + spaceNum;
+                        translate.y = rect1.top - value - rect2.top;
                     }
                 } else {
                     throw new Error("未找到对应直线");
@@ -722,11 +723,9 @@ export class CadData {
             const p2 = [rect2.left, rect2.top];
             if (axis === "x") {
                 conn.value = p1[0] - p2[0];
-                conn.space = (-conn.value).toString();
             }
             if (axis === "y") {
                 conn.value = p1[1] - p2[1];
-                conn.space = (-conn.value).toString();
             }
             this.assembleComponents(conn, accuracy);
         });
