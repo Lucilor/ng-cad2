@@ -43,7 +43,6 @@ import {CadListComponent} from "./components/dialogs/cad-list/cad-list.component
 import {SubCadsComponent} from "./components/menu/sub-cads/sub-cads.component";
 import {CadInfoComponent} from "./components/menu/cad-info/cad-info.component";
 import {CadOptionsComponent} from "./components/dialogs/cad-options/cad-options.component";
-import {ImageComponent} from "./components/image/image.component";
 import {CadPointsComponent} from "./components/cad-points/cad-points.component";
 import {CadLineComponent} from "./components/menu/cad-line/cad-line.component";
 import {CadLineTjqzComponent} from "./components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
@@ -62,6 +61,7 @@ import {PrintCadComponent} from "./views/print/print-cad.component";
 import {SelectBancaiComponent} from "./views/select-bancai/select-bancai.component";
 import {SelectBancaiCadsComponent} from "./components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {ErrorStateMatcher} from "@angular/material/core";
+import {ImageModule} from "./modules/image/image.module";
 
 @Injectable()
 class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -99,7 +99,6 @@ class MyErrorStateMatcher implements ErrorStateMatcher {
         SubCadsComponent,
         CadInfoComponent,
         CadOptionsComponent,
-        ImageComponent,
         CadPointsComponent,
         CadLineComponent,
         CadLineTjqzComponent,
@@ -123,6 +122,7 @@ class MyErrorStateMatcher implements ErrorStateMatcher {
         BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,
+        ImageModule,
         MatAutocompleteModule,
         MatButtonModule,
         MatCardModule,

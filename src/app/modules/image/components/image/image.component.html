@@ -1,0 +1,10 @@
+<div [class.small-pic]="bigPic" (click)="showBigPic()">
+    <div *ngIf="loading">
+        <img [src]="loadingSrc" />
+    </div>
+    <img [src]="src" [ngStyle]="{visibility: loading ? 'hidden' : ''}" (load)="onLoad()" (error)="onError()" />
+</div>
+
+<div class="big-pic" *ngIf="bigPic" style="display: none" #bigPic (click)="hideBigPic()">
+    <img [src]="src" *ngIf="bigPicVisible" @toggle />
+</div>
