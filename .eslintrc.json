@@ -36,7 +36,7 @@
                  */
                 "@angular-eslint/directive-selector": ["error", {"type": "attribute", "prefix": "app", "style": "camelCase"}],
                 "@angular-eslint/component-selector": ["error", {"type": "element", "prefix": "app", "style": "kebab-case"}],
-                "@typescript-eslint/indent": ["error", 4, {"SwitchCase": 1, "FunctionDeclaration": {"parameters": "off", "body": "off"}}],
+                "@typescript-eslint/indent": ["error", 4, {"SwitchCase": 1}],
                 "quotes": ["error", "double", {"allowTemplateLiterals": true}],
                 "object-curly-spacing": ["error", "never"],
                 "no-var": "error",
