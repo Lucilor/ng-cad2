@@ -178,11 +178,11 @@ export abstract class CadEntity {
     }
 
     transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, _parent?: CadEntity) {
-        if (this.el) {
-            const oldMatrix = new Matrix(this.el.transform());
-            this.el.transform(oldMatrix.transform(matrix));
-        }
         if (!alter) {
+            if (this.el) {
+                const oldMatrix = new Matrix(this.el.transform());
+                this.el.transform(oldMatrix.transform(matrix));
+            }
             this.needsUpdate = true;
         }
         this.children.forEach((e) => e.transform(matrix, alter, this));

@@ -662,7 +662,6 @@ export class CadData {
         components.connections = components.connections.filter((v, i) => !toRemove.includes(i));
         this.moveComponent(c2, translate, c1, true);
         components.connections.push(cloneDeep(connection));
-
         return this;
     }
 

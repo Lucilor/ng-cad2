@@ -111,9 +111,9 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         }
     }) as CadEventCallBack<"entityclick">).bind(this);
 
-    private onEntitiesSelect = ((() => {
+    private onEntitiesSelect = (((_event, obj) => {
         const {name, index} = this.status.cadStatus();
-        if (name !== "assemble") {
+        if (name !== "assemble" || obj.entities.length < 2) {
             return;
         }
         const cad = this.status.cad;
@@ -122,6 +122,9 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
             .selected()
             .toArray()
             .map((e) => e.id);
+        if (selected.length < 2) {
+            return;
+        }
         data.components.data.forEach((v) => {
             const entities = v.getAllEntities().toArray();
             for (const e of entities) {
