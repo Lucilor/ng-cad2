@@ -153,12 +153,18 @@ export class AppStatusService {
             this.refreshSelectedCads();
         }
         const config: Partial<AppConfig> = {};
+        const sessionConfig = this.config.sessionConfig;
         config.cadIds = data.map((v) => v.id);
         cad.data.info.算料单 = data.some((v) => v.info.算料单);
-        if (cad.data.info.算料单) {
-            config.hideLineGongshi = true;
+        if (typeof sessionConfig.hideLineGongshi === "boolean") {
+            config.hideLineGongshi = sessionConfig.hideLineGongshi;
         } else {
-            config.hideLineGongshi = false;
+            config.hideLineGongshi = !!cad.data.info.算料单;
+        }
+        if (typeof sessionConfig.hideLineLength === "boolean") {
+            config.hideLineLength = sessionConfig.hideLineLength;
+        } else {
+            config.hideLineLength = collection !== "cad";
         }
         data.forEach((v) => {
             setCadData(v);
@@ -167,9 +173,6 @@ export class AppStatusService {
         document.title = data.map((v) => v.name).join(", ");
         if (collection === "cad") {
             data.forEach((v) => validateLines(v));
-            config.hideLineLength = false;
-        } else {
-            config.hideLineLength = true;
         }
         this.config.config(config);
         this.generateLineTexts();

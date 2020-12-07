@@ -1,8 +1,9 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadData, CadConnection, CadEventCallBack} from "@src/app/cad-viewer";
+import {CadData, CadConnection, CadEventCallBack, CadEntity} from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
+import {difference} from "lodash";
 
 @Component({
     selector: "app-cad-assemble",
@@ -22,7 +23,43 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         return this.data.components.connections;
     }
 
-    private onEntityClick = (((_event, {entity}) => {
+    private _onEntitiesSelect = (((_event, obj) => {
+        const {name, index} = this.status.cadStatus();
+        if (name !== "assemble" || obj.entities.length < 2) {
+            return;
+        }
+        const cad = this.status.cad;
+        const data = cad.data.components.data[index];
+        const selected = cad.selected().toArray();
+        const ids = selected.map((e) => e.id);
+        const count = selected.length;
+        if (count === 1) {
+            this._selectEntity(selected[0]);
+        } else if (count > 1) {
+            data.components.data.forEach((v) => {
+                const entities = v.getAllEntities().toArray();
+                for (const e of entities) {
+                    if (ids.includes(e.id)) {
+                        const selectedCads = this.status.selectedCads$.getValue();
+                        if (selectedCads.components.includes(v.id)) {
+                            selectedCads.components = selectedCads.components.filter((vv) => vv !== v.id);
+                        } else {
+                            selectedCads.components.push(v.id);
+                        }
+                        this.status.selectedCads$.next(selectedCads);
+                        break;
+                    }
+                }
+            });
+        }
+    }) as CadEventCallBack<"entitiesselect">).bind(this);
+
+    private _onEntitiesUnselect = (((_event, obj) => {
+        const ids = obj.entities.toArray().map((v) => v.id);
+        this.lines = difference(this.lines, ids);
+    }) as CadEventCallBack<"entitiesunselect">).bind(this);
+
+    private _selectEntity(entity: CadEntity) {
         const name = this.status.cadStatus("name");
         if (name !== "assemble" || !entity) {
             return;
@@ -109,38 +146,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                 break;
             }
         }
-    }) as CadEventCallBack<"entityclick">).bind(this);
-
-    private onEntitiesSelect = (((_event, obj) => {
-        const {name, index} = this.status.cadStatus();
-        if (name !== "assemble" || obj.entities.length < 2) {
-            return;
-        }
-        const cad = this.status.cad;
-        const data = cad.data.components.data[index];
-        const selected = cad
-            .selected()
-            .toArray()
-            .map((e) => e.id);
-        if (selected.length < 2) {
-            return;
-        }
-        data.components.data.forEach((v) => {
-            const entities = v.getAllEntities().toArray();
-            for (const e of entities) {
-                if (selected.includes(e.id)) {
-                    const selectedCads = this.status.selectedCads$.getValue();
-                    if (selectedCads.components.includes(v.id)) {
-                        selectedCads.components = selectedCads.components.filter((vv) => vv !== v.id);
-                    } else {
-                        selectedCads.components.push(v.id);
-                    }
-                    this.status.selectedCads$.next(selectedCads);
-                    break;
-                }
-            }
-        });
-    }) as CadEventCallBack<"entitiesselect">).bind(this);
+    }
 
     constructor(private status: AppStatusService, private message: MessageService) {
         super();
@@ -179,15 +185,15 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         });
 
         const cad = this.status.cad;
-        cad.on("entityclick", this.onEntityClick);
-        cad.on("entitiesselect", this.onEntitiesSelect);
+        cad.on("entitiesselect", this._onEntitiesSelect);
+        cad.on("entitiesunselect", this._onEntitiesUnselect);
     }
 
     ngOnDestroy() {
         super.ngOnDestroy();
         const cad = this.status.cad;
-        cad.off("entityclick", this.onEntityClick);
-        cad.off("entitiesselect", this.onEntitiesSelect);
+        cad.off("entitiesselect", this._onEntitiesSelect);
+        cad.off("entitiesunselect", this._onEntitiesUnselect);
     }
 
     clearConnections() {

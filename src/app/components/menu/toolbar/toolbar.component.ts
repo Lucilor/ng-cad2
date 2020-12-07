@@ -28,9 +28,14 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         q: () => this.newCad()
     };
     statusName: ValueOf<CadStatusNameMap> = "普通";
+    statusWithoutEsc: ValueOf<CadStatusNameMap>[] = ["普通", "装配"];
 
     get isStatusNormal() {
         return this.statusName === "普通";
+    }
+
+    get canEsc() {
+        return !this.statusWithoutEsc.includes(this.statusName);
     }
 
     onKeyDown = ((event: KeyboardEvent) => {
@@ -41,7 +46,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         } else if (key === "Escape") {
             event.preventDefault();
             const name = this.statusName;
-            if (name !== "普通") {
+            if (!this.statusWithoutEsc.includes(name)) {
                 this.backToNormal();
             }
         }

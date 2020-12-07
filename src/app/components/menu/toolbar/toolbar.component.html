@@ -61,4 +61,7 @@
 </button>
 <button mat-button (click)="resetLineLength()" [disabled]="!isStatusNormal">重置线长</button>
 
-<button mat-raised-button color="accent" (click)="backToNormal()" *ngIf="!isStatusNormal">退出{{ statusName }}(Esc)</button>
+<button mat-raised-button color="accent" (click)="backToNormal()" *ngIf="!isStatusNormal">
+	退出{{ statusName }}
+	<span *ngIf="canEsc">(Esc)</span>
+</button>

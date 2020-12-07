@@ -17,6 +17,10 @@ export class AppConfigService {
     private config$: BehaviorSubject<AppConfig>;
     configChange$: BehaviorSubject<{oldVal: AppConfig; newVal: Partial<AppConfig>}>;
 
+    get sessionConfig() {
+        return (session.load("config") || {}) as Partial<AppConfig>;
+    }
+
     constructor() {
         let config: AppConfig = {
             width: innerWidth,
@@ -42,12 +46,10 @@ export class AppConfigService {
             cadIds: [],
             collection: "cad"
         };
-        const cachedConfig = session.load("config") as Partial<AppConfig>;
-        if (cachedConfig) {
-            delete cachedConfig.width;
-            delete cachedConfig.height;
-            config = {...config, ...cachedConfig};
-        }
+        const sessionConfig = this.sessionConfig;
+        delete sessionConfig.width;
+        delete sessionConfig.height;
+        config = {...config, ...sessionConfig};
         this.config$ = new BehaviorSubject(config);
         this.configChange$ = new BehaviorSubject({oldVal: config, newVal: config as Partial<AppConfig>});
         this.config$.subscribe((config) => session.save("config", config));
