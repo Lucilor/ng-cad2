@@ -28,7 +28,7 @@
     "jsencrypt": "^3.0.0-rc.1",
     "jsoneditor": "^7.0.2",
     "lodash": "^4.17.20",
-    "ngx-color": "^6.1.0",
+    "ngx-color": "^6.2.0",
     "ngx-perfect-scrollbar": "^10.0.1",
     "ngx-ui-loader": "^10.0.0",
     "pdfmake": "^0.1.68",
