@@ -74,6 +74,6 @@ export function downloadFile(content: string, filename: string) {
     document.body.removeChild(link);
 }
 
-export async function timeout<T = undefined>(time = 0, value?: T) {
-    return new Promise<T>((resolve) => setTimeout(() => resolve(value), time));
+export async function timeout<T>(time = 0, value?: T) {
+    return new Promise<T | undefined>((resolve) => setTimeout(() => resolve(value), time));
 }

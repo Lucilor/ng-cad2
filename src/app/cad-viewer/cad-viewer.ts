@@ -313,7 +313,6 @@ export class CadViewer extends EventEmitter {
                 controls.onEntityPointerUp.call(this, event, entity);
             };
         }
-        entity.update();
         let drawResult: (Element | null)[] = [];
         if (entity instanceof CadArc) {
             const {center, radius, start_angle, end_angle, clockwise} = entity;
@@ -496,6 +495,7 @@ export class CadViewer extends EventEmitter {
                 c.attr("vector-effect", "non-scaling-stroke");
             }
         });
+        entity.update();
         entity.children.forEach((c) => this.drawEntity(c, style));
         return this;
     }
