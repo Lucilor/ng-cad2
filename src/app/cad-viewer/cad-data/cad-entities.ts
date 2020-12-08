@@ -544,8 +544,7 @@ export class CadHatch extends CadEntity {
     }
 
     equals(entity: CadHatch) {
-        // TODO: not yet implemented
-        return false;
+        return JSON.stringify(this.export()) === JSON.stringify(entity.export());
     }
 }
 
