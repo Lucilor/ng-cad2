@@ -3,7 +3,7 @@ import {MatDialogRef, MatDialogConfig, MatDialog} from "@angular/material/dialog
 import {CadOption} from "@src/app/cad-viewer";
 import {CadSearchData, CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {timeout} from "@src/app/utils";
+import {ObjectOf, timeout} from "@src/app/utils";
 
 @Component({
     selector: "app-cad-search-form",
@@ -12,7 +12,7 @@ import {timeout} from "@src/app/utils";
 })
 export class CadSearchFormComponent implements OnInit {
     data: CadSearchData = [];
-    form: {[key: string]: string[]} = {};
+    form: ObjectOf<string[]> = {};
     additional: CadSearchData[0] = {title: "自由选择", items: []};
 
     constructor(

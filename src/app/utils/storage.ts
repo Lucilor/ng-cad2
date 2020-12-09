@@ -1,61 +1,61 @@
-import {AnyObject} from "./types";
+import {ObjectOf} from "./types";
 
 class CustomStorage {
-	private _field: string;
-	storage: Storage;
+    private _field: string;
+    storage: Storage;
 
-	constructor(type: "local" | "session", field: string) {
-	    if (type === "local") {
-	        this.storage = localStorage;
-	    } else if (type === "session") {
-	        this.storage = sessionStorage;
-	    } else {
-	        this.storage = sessionStorage;
-	    }
-	    this._field = field;
-	}
+    constructor(type: "local" | "session", field: string) {
+        if (type === "local") {
+            this.storage = localStorage;
+        } else if (type === "session") {
+            this.storage = sessionStorage;
+        } else {
+            this.storage = sessionStorage;
+        }
+        this._field = field;
+    }
 
-	save(key: string, value: any) {
-	    let data: AnyObject = {};
-	    try {
-	        data = JSON.parse(this.storage.getItem(this._field) || "{}");
-	    } catch (error) {}
-	    data[key] = JSON.stringify(value);
-	    this.storage.setItem(this._field, JSON.stringify(data));
-	}
+    save(key: string, value: any) {
+        let data: ObjectOf<any> = {};
+        try {
+            data = JSON.parse(this.storage.getItem(this._field) || "{}");
+        } catch (error) {}
+        data[key] = JSON.stringify(value);
+        this.storage.setItem(this._field, JSON.stringify(data));
+    }
 
-	load(key: string) {
-	    let data = null;
-	    try {
-	        data = JSON.parse(this.storage.getItem(this._field) || "null");
-	    } catch (error) {
-	        return null;
-	    }
-	    if (data && data[key]) {
-	        try {
-	            return JSON.parse(data[key]);
-	        } catch (error) {
-	            console.warn(`JSON parse error: loading from storage: ${data[key]}.`);
-	            return null;
-	        }
-	    }
-	    return null;
-	}
+    load(key: string) {
+        let data = null;
+        try {
+            data = JSON.parse(this.storage.getItem(this._field) || "null");
+        } catch (error) {
+            return null;
+        }
+        if (data && data[key]) {
+            try {
+                return JSON.parse(data[key]);
+            } catch (error) {
+                console.warn(`JSON parse error: loading from storage: ${data[key]}.`);
+                return null;
+            }
+        }
+        return null;
+    }
 
-	remove(key: string) {
-	    let data = null;
-	    try {
-	        data = JSON.parse(this.storage.getItem(this._field) || "");
-	    } catch (error) {}
-	    if (data && data[key]) {
-	        delete data[key];
-	        this.storage.setItem(this._field, JSON.stringify(data));
-	    }
-	}
+    remove(key: string) {
+        let data = null;
+        try {
+            data = JSON.parse(this.storage.getItem(this._field) || "");
+        } catch (error) {}
+        if (data && data[key]) {
+            delete data[key];
+            this.storage.setItem(this._field, JSON.stringify(data));
+        }
+    }
 
-	clear() {
-	    this.storage.setItem(this._field, "");
-	}
+    clear() {
+        this.storage.setItem(this._field, "");
+    }
 }
 
 export class LocalStorage extends CustomStorage {

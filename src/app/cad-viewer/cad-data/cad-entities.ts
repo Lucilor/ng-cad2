@@ -1,4 +1,4 @@
-import {Angle, AnyObject, Arc, index2RGB, Line, Point, Rectangle, RGB2Index} from "@src/app/utils";
+import {Angle, Arc, index2RGB, Line, ObjectOf, Point, Rectangle, RGB2Index} from "@src/app/utils";
 import {G, Matrix, MatrixExtract, MatrixTransformParam, Svg} from "@svgdotjs/svg.js";
 import Color from "color";
 import {cloneDeep, intersection} from "lodash";
@@ -15,7 +15,7 @@ export abstract class CadEntity {
     layer: string;
     color: Color;
     linewidth: number;
-    info: AnyObject;
+    info: ObjectOf<any>;
     _indexColor: number | null;
     _lineweight: number;
     parent?: CadEntity;
@@ -231,7 +231,7 @@ export abstract class CadEntity {
         }
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         this._indexColor = RGB2Index(this.color.hex());
         this.update();
         return {
@@ -335,7 +335,7 @@ export class CadArc extends CadEntity {
         return this;
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         return {
             ...super.export(),
             center: this.center.toArray(),
@@ -384,7 +384,7 @@ export class CadCircle extends CadEntity {
         return this;
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         return {
             ...super.export(),
             center: this.center.toArray(),
@@ -467,7 +467,7 @@ export class CadDimension extends CadEntity {
         return this;
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         return {
             ...super.export(),
             dimstyle: this.dimstyle,
@@ -507,7 +507,7 @@ export class CadHatch extends CadEntity {
         vertices: Point[];
     }[];
 
-    constructor(data: AnyObject = {}, layers: CadLayer[] = [], resetId = false) {
+    constructor(data: ObjectOf<any> = {}, layers: CadLayer[] = [], resetId = false) {
         super(data, layers, resetId);
         this.type = "HATCH";
         this.bgcolor = Array.isArray(data.bgcolor) ? data.bgcolor : [0, 0, 0];
@@ -533,7 +533,7 @@ export class CadHatch extends CadEntity {
         }
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         const paths: any[] = [];
         this.paths.forEach((path) => {
             const edges: any[] = [];
@@ -652,7 +652,7 @@ export class CadLine extends CadEntity {
         return this;
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         return {
             ...super.export(),
             start: this.start.toArray(),
@@ -715,7 +715,7 @@ export class CadMtext extends CadEntity {
         }
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         const anchor = this.anchor.toArray();
         return {
             ...super.export(),
@@ -798,9 +798,9 @@ export class CadEntities {
         if (typeof data !== "object") {
             throw new Error("Invalid data.");
         }
-        const idMap: {[key: string]: string} = {};
+        const idMap: ObjectOf<string> = {};
         cadTypesKey.forEach((key) => {
-            const group: CadEntity[] | AnyObject = data[key];
+            const group: CadEntity[] | ObjectOf<any> = data[key];
             if (Array.isArray(group)) {
                 group.forEach((e) => {
                     const eNew = e.clone(resetIds) as AnyCadEntity;
@@ -873,7 +873,7 @@ export class CadEntities {
     }
 
     export() {
-        const result: AnyObject = {line: {}, circle: {}, arc: {}, mtext: {}, dimension: {}, hatch: {}};
+        const result: ObjectOf<any> = {line: {}, circle: {}, arc: {}, mtext: {}, dimension: {}, hatch: {}};
         for (const key of cadTypesKey) {
             this[key].forEach((e: CadEntity) => {
                 if (e instanceof CadDimension) {

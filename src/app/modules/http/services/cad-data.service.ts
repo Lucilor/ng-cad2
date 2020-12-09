@@ -1,7 +1,7 @@
 import {Injectable, Injector} from "@angular/core";
 import {CadCollection} from "@src/app/app.common";
 import {CadOption, CadData} from "@src/app/cad-viewer";
-import {AnyObject} from "@src/app/utils";
+import {ObjectOf} from "@src/app/utils";
 import {HttpService} from "./http.service";
 
 export interface GetCadParams {
@@ -10,7 +10,7 @@ export interface GetCadParams {
     ids: string[];
     page: number;
     limit: number;
-    search: AnyObject;
+    search: ObjectOf<any>;
     qiliao: boolean;
     options: CadOption[];
     optionsMatchType: "and" | "or";

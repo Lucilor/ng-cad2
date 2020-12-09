@@ -7,7 +7,7 @@ import {CadData} from "../cad-viewer/cad-data/cad-data";
 import {generateLineTexts, PointsMap, validateLines, ValidateResult} from "../cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "../cad-viewer/cad-viewer";
 import {setCadData, addCadGongshi} from "../cad.utils";
-import {AnyObject} from "../utils/types";
+import {ObjectOf} from "../utils/types";
 import {AppConfig, AppConfigService} from "./app-config.service";
 
 export type CadStatusNameMap = {
@@ -33,7 +33,7 @@ export const cadStatusNameMap: CadStatusNameMap = {
 export interface CadStatus {
     name: keyof CadStatusNameMap;
     index: number;
-    extra: AnyObject;
+    extra: ObjectOf<any>;
 }
 
 export interface SelectedCads {

@@ -1,4 +1,4 @@
-import {AnyObject, Point} from "@src/app/utils";
+import {ObjectOf, Point} from "@src/app/utils";
 import {Matrix, MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
 import {uniqWith, intersection, cloneDeep} from "lodash";
 import {v4} from "uuid";
@@ -33,12 +33,12 @@ export class CadData {
     morenkailiaobancai: string;
     suanliaochuli: "算料+显示展开+开料" | "算料+开料" | "算料+显示展开" | "算料";
     showKuandubiaozhu: boolean;
-    info: AnyObject;
-    attributes: AnyObject;
+    info: ObjectOf<any>;
+    attributes: ObjectOf<any>;
     bancaihoudufangxiang: "none" | "gt0" | "lt0";
     zhankai: (number | string)[][];
 
-    constructor(data: AnyObject = {}) {
+    constructor(data: ObjectOf<any> = {}) {
         if (typeof data !== "object") {
             data = {};
         }
@@ -135,13 +135,13 @@ export class CadData {
         this.updatePartners().updateDimensions();
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         this.updateBaseLines();
-        const exLayers: AnyObject = {};
+        const exLayers: ObjectOf<any> = {};
         this.layers.forEach((v) => {
             exLayers[v.id] = v.export();
         });
-        const exOptions: AnyObject = {};
+        const exOptions: ObjectOf<any> = {};
         this.options.forEach((v) => {
             if (v.name) {
                 exOptions[v.name] = v.value;
@@ -672,7 +672,7 @@ export class CadData {
     }
 
     moveComponent(curr: CadData, translate: Point, prev?: CadData, alter = false) {
-        const map: AnyObject = {};
+        const map: ObjectOf<any> = {};
         this.components.connections.forEach((conn) => {
             if (conn.ids.includes(curr.id)) {
                 conn.ids.forEach((id) => {
@@ -809,7 +809,7 @@ export class CadConnection {
         this.value = data.value ?? 0;
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         return {
             ids: this.ids,
             names: this.names,
@@ -824,7 +824,7 @@ export class CadConnection {
 export class CadComponents {
     data: CadData[];
     connections: CadConnection[];
-    constructor(data: AnyObject = {}) {
+    constructor(data: ObjectOf<any> = {}) {
         if (typeof data !== "object") {
             throw new Error("Invalid data.");
         }
@@ -855,7 +855,7 @@ export class CadComponents {
         this.data.forEach((v) => v.transform(matrix, alter));
     }
 
-    export(): AnyObject {
+    export(): ObjectOf<any> {
         const data: any[] = [];
         const connections: any[] = [];
         this.data.forEach((v) => data.push(v.export()));

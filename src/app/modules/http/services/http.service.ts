@@ -2,7 +2,7 @@ import {HttpClient} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Response} from "@src/app/app.common";
-import {AnyObject, RSAEncrypt} from "@src/app/utils";
+import {ObjectOf, RSAEncrypt} from "@src/app/utils";
 import {MessageService} from "../../message/services/message.service";
 
 @Injectable({
@@ -30,7 +30,7 @@ export class HttpService {
         }
     }
 
-    async request<T>(url: string, method: "GET" | "POST", data?: AnyObject, encrypt = true) {
+    async request<T>(url: string, method: "GET" | "POST", data?: ObjectOf<any>, encrypt = true) {
         if (!url.startsWith("http")) {
             url = `${this.baseURL}/${url}`;
         }

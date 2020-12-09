@@ -1,6 +1,7 @@
 import {Point} from "./point";
 import {DEFAULT_TOLERANCE} from "./constants";
 import {Angle} from "./angle";
+import {ObjectOf} from "../types";
 
 export class Line {
     start: Point;
@@ -71,7 +72,7 @@ export class Line {
 
     get expression() {
         const slope = this.slope;
-        const result: {[key: string]: number} = {a: 0, b: 0, c: 0};
+        const result: ObjectOf<number> = {a: 0, b: 0, c: 0};
         if (isFinite(slope)) {
             result.a = slope;
             result.b = -1;

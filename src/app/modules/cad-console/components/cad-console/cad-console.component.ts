@@ -11,7 +11,7 @@ import {BookData} from "@src/app/modules/message/components/message/message-type
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
-import {AnyObject, Line, Point, timeout} from "@src/app/utils";
+import {Line, ObjectOf, Point, timeout} from "@src/app/utils";
 import {MatrixExtract} from "@svgdotjs/svg.js";
 import {highlight} from "highlight.js";
 import {differenceWith} from "lodash";
@@ -134,7 +134,7 @@ export class CadConsoleComponent implements OnInit {
     @ViewChild("consoleInner", {read: ElementRef}) consoleInner?: ElementRef<HTMLDivElement>;
     @ViewChild("contentEl", {read: ElementRef}) contentEl?: ElementRef<HTMLDivElement>;
 
-    private executor: {[key: string]: (this: CadConsoleComponent, ...args: string[]) => any} = {
+    private executor: ObjectOf<(this: CadConsoleComponent, ...args: string[]) => any> = {
         async assemble() {
             const name = this.status.cadStatus$.getValue().name;
             if (name === "assemble") {
@@ -286,7 +286,7 @@ export class CadConsoleComponent implements OnInit {
         man(name: string, list: string) {
             let data: BookData | null = null;
             if (list === "true") {
-                const cmdList: {[key: string]: string[]} = {};
+                const cmdList: ObjectOf<string[]> = {};
                 cmdNames.forEach((v) => {
                     if (cmdList[v[0]]) {
                         cmdList[v[0]].push(v);
@@ -743,7 +743,7 @@ export class CadConsoleComponent implements OnInit {
     execute(cmd: ValuedCommand) {
         this.historyOffset = -1;
         const {name, args} = cmd;
-        const values: AnyObject = {};
+        const values: ObjectOf<any> = {};
         args.forEach((v) => (values[v.name] = v.value));
         const args2 = commands.find((v) => v.name === name)?.args;
         if (!args2) {

@@ -1,6 +1,7 @@
 import Color from "color";
+import {ObjectOf} from "./types";
 
-const list: {[key: string]: number[]} = {
+const list: ObjectOf<number[]> = {
     1: [255, 0, 0],
     2: [255, 255, 0],
     3: [0, 255, 0],
@@ -290,6 +291,6 @@ export function RGB2Index(rgb: number | string) {
 }
 
 interface ColorMap {
-	string: string;
-	number: number;
+    string: string;
+    number: number;
 }

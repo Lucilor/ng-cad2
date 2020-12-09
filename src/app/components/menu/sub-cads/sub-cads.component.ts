@@ -12,7 +12,7 @@ import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, CadStatus, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
-import {copyToClipboard, Point} from "@src/app/utils";
+import {copyToClipboard, ObjectOf, Point} from "@src/app/utils";
 import {concat, differenceWith, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
@@ -503,7 +503,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 childrens = data.components.data;
             }
             if (childrens) {
-                const positions: {[key: string]: number[]} = {};
+                const positions: ObjectOf<number[]> = {};
                 for (let i = 0; i < cads.length; i++) {
                     if (childrens.length) {
                         for (let j = 0; j < childrens.length; j++) {
@@ -637,7 +637,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             const data = cad.data;
             data.components.data = data.components.data.filter((v) => !checkedIds.includes(v.id));
             this.config.config({cadIds: data.components.data.map((v) => v.id)});
-            const toRemove: {[key: string]: {p: string[]; c: string[]}} = {};
+            const toRemove: ObjectOf<{p: string[]; c: string[]}> = {};
             this.partners.forEach((v) => {
                 if (v.parent && !checkedIds.includes(v.parent) && v.checked) {
                     if (!toRemove[v.parent]) {

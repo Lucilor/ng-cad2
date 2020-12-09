@@ -4,7 +4,7 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, cadStatusNameMap, CadStatusNameMap} from "@src/app/services/app-status.service";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
-import {ValueOf} from "@src/app/utils";
+import {ObjectOf, ValueOf} from "@src/app/utils";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer";
 import {flatMap} from "lodash";
 
@@ -15,7 +15,7 @@ import {flatMap} from "lodash";
 })
 export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy {
     openLock = false;
-    keyMap: {[key: string]: () => void} = {
+    keyMap: ObjectOf<() => void> = {
         s: () => this.save(),
         1: () => this.open("1"),
         2: () => this.open("2"),

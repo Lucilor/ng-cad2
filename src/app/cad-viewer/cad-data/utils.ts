@@ -1,4 +1,4 @@
-import {Point} from "@src/app/utils";
+import {ObjectOf, Point} from "@src/app/utils";
 import {CadLine} from "./cad-entities";
 
 export function getVectorFromArray(data: number[] | Point, defaultVal = new Point()) {
@@ -55,7 +55,7 @@ export function separateArray<T>(arr1: T[], arr2: T[], field?: string) {
 
 export const isBetween = (n: number, min: number, max: number) => n > min && n < max;
 
-export type Expressions = {[key: string]: string};
+export type Expressions = ObjectOf<string>;
 
 export class ExpressionsParser {
     expressions: Expressions;

@@ -6,6 +6,7 @@ import {ActivatedRoute} from "@angular/router";
 import {openSelectBancaiCadsDialog} from "@src/app/components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {BancaiList, BancaiCad, CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
+import {ObjectOf} from "@src/app/utils";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
 const houduPattern = /^[0-9]+([.]{1}[0-9]+){0,1}$/;
@@ -24,7 +25,7 @@ export interface BancaiCadExtend extends BancaiCad {
 export class SelectBancaiComponent implements OnInit {
     sortedCads: BancaiCadExtend[][] = [];
     bancaiForms: FormGroup[] = [];
-    bancaiList: {[key: string]: BancaiList} = {};
+    bancaiList: ObjectOf<BancaiList> = {};
     formIdx = -1;
     codes: string[] = [];
 
@@ -254,14 +255,16 @@ export class SelectBancaiComponent implements OnInit {
     }
 
     async submit() {
-        const bancaiCads: BancaiCad[] = this.sortedCads.map((group) =>
-            group.map((v) => {
-                const clone = {...v} as Partial<BancaiCadExtend>;
-                delete clone.checked;
-                delete clone.oversized;
-                return clone as BancaiCad;
-            })
-        ).flat();
+        const bancaiCads: BancaiCad[] = this.sortedCads
+            .map((group) =>
+                group.map((v) => {
+                    const clone = {...v} as Partial<BancaiCadExtend>;
+                    delete clone.checked;
+                    delete clone.oversized;
+                    return clone as BancaiCad;
+                })
+            )
+            .flat();
         console.log(bancaiCads);
         this.loader.startLoader("submitLoader");
         const result = await this.dataService.jiguangkailiaopaiban(this.codes, bancaiCads);

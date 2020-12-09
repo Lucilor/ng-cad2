@@ -8,6 +8,7 @@ import {getCadPreview} from "@src/app/cad.utils";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
+import {ObjectOf} from "@src/app/utils";
 import {BehaviorSubject} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 
@@ -34,7 +35,7 @@ export class CadListComponent implements AfterViewInit {
     width = 300;
     height = 150;
     searchField = "选项";
-    searchForm: {[key: string]: string} = {};
+    searchForm: ObjectOf<string> = {};
     searchNameInput = "";
     checkedIndex = new BehaviorSubject<number>(-1);
     checkedItems: CadData[] = [];

@@ -1,4 +1,4 @@
-import {AnyObject, Line, Point, Rectangle} from "@src/app/utils";
+import {Line, ObjectOf, Point, Rectangle} from "@src/app/utils";
 import {CadData, CadOption} from "./cad-data";
 import {sortLines} from "./cad-lines";
 import {CadLine, CadMtext, CadArc, CadCircle} from "./cad-entities";
@@ -46,7 +46,7 @@ export function splitCad(data: CadData) {
         });
     });
 
-    const fields: {[key: string]: keyof CadData} = {
+    const fields: ObjectOf<keyof CadData> = {
         名字: "name",
         分类: "type",
         条件: "conditions",
@@ -69,7 +69,7 @@ export function splitCad(data: CadData) {
             if (e.text.startsWith("CAD信息")) {
                 toRemove = i;
                 const arr = e.text.split("\n").slice(1);
-                const obj: AnyObject = {};
+                const obj: ObjectOf<any> = {};
                 arr.forEach((str) => {
                     const [key, value] = str.split(/:|：/);
                     obj[key] = value;
