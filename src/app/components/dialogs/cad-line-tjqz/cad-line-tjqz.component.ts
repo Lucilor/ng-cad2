@@ -11,7 +11,8 @@ import {
     TableValidator,
     TableErrorState,
     RowEvent,
-    CellEvent
+    CellEvent,
+    DataTransformer
 } from "@src/app/modules/table/components/table/table.component";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {cloneDeep} from "lodash";
@@ -48,6 +49,17 @@ export class CadLineTjqzComponent {
     openSelection = -1;
 
     newItemLeft: ItemGetter<RawDataLeft> = (rowIdx: number) => ({key: "", level: rowIdx + 1, type: "数值", data: []});
+
+    dataTransformerLeft: DataTransformer<RawDataLeft> = (type, data) => {
+        if (type === "import") {
+            let maxLevel = -Infinity;
+            this.dataLeft.data.forEach((v) => (maxLevel = Math.max(maxLevel, v.level)));
+            data.forEach((v) => {
+                v.level = ++maxLevel;
+            });
+        }
+        return data;
+    };
 
     validatorLeft: TableValidator<RawDataLeft> = (data) => {
         const result: TableErrorState = [];

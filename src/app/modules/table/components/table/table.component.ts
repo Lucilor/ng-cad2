@@ -57,6 +57,8 @@ export interface RowEvent<T> {
 
 export type ItemGetter<T> = (rowIdx: number) => T;
 
+export type DataTransformer<T> = (type: "import" | "export", data: T[]) => any;
+
 @Component({
     selector: "app-table",
     templateUrl: "./table.component.html",
@@ -71,6 +73,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
     @Input() editable: string | boolean = true;
     @Input() validator?: TableValidator<T>;
     @Input() activeRows?: number[];
+    @Input() dataTransformer?: DataTransformer<T>;
 
     @Output() rowButtonClick = new EventEmitter<RowButtonEvent<T>>();
     @Output() cellFocus = new EventEmitter<CellEvent<T>>();
@@ -197,7 +200,14 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
     }
 
     export() {
-        downloadFile(JSON.stringify(this.data.data), (this.title ?? "table") + ".json");
+        let selected = this.selection.selected;
+        if (selected.length < 1) {
+            selected = this.data.data;
+        }
+        if (typeof this.dataTransformer === "function") {
+            selected = this.dataTransformer("export", selected);
+        }
+        downloadFile(JSON.stringify(selected), (this.title ?? "table") + ".json");
     }
 
     import() {
@@ -214,13 +224,28 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
             return;
         }
         const text = await file.text();
+        let data: T[] | undefined;
         try {
-            this.data.data = JSON.parse(text);
+            data = JSON.parse(text);
         } catch (error) {
             this.message.alert("读取文件失败");
         } finally {
             this.input.nativeElement.value = "";
         }
+        if (Array.isArray(data)) {
+            if (typeof this.dataTransformer === "function") {
+                data = this.dataTransformer("import", data);
+            }
+            if (Array.isArray(data)) {
+                this.data.data = this.data.data.concat(data);
+            } else {
+                this.message.alert("数据格式错误");
+            }
+        } else {
+            this.message.alert("数据格式错误");
+        }
+
+        this.validate();
     }
 
     isColumnEditable(column: ColumnInfo<T>) {
