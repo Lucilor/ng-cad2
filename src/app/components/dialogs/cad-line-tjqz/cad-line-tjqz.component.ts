@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild, Inject} from "@angular/core";
+import {Component, ViewChild, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {MatTableDataSource} from "@angular/material/table";
 import {CadLine} from "@src/app/cad-viewer";
@@ -26,7 +26,7 @@ type RawDataRight = RawDataLeft["data"][0];
     templateUrl: "./cad-line-tjqz.component.html",
     styleUrls: ["./cad-line-tjqz.component.scss"]
 })
-export class CadLineTjqzComponent implements OnInit {
+export class CadLineTjqzComponent {
     dataLeft: MatTableDataSource<RawDataLeft>;
     columnsLeft: ColumnInfo<RawDataLeft>[] = [
         {field: "key", name: "名字", type: "string", editable: true},
@@ -83,8 +83,6 @@ export class CadLineTjqzComponent implements OnInit {
         this.dataLeft = new MatTableDataSource(cloneDeep(data.tiaojianquzhi));
         this.dataRight = new MatTableDataSource<RawDataRight>([]);
     }
-
-    ngOnInit() {}
 
     submit() {
         if (this.tableLeft?.errorState.length) {
