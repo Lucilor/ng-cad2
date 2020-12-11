@@ -1,5 +1,4 @@
-import {ObjectOf, Point} from "@src/app/utils";
-import {Matrix, MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
+import {Matrix, MatrixLike, ObjectOf, Point} from "@src/app/utils";
 import {uniqWith, intersection, cloneDeep} from "lodash";
 import {v4} from "uuid";
 import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
@@ -266,7 +265,7 @@ export class CadData {
         return this;
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false) {
+    transform(matrix: MatrixLike, alter = false) {
         this.entities.transform(matrix, alter);
         this.partners.forEach((v) => v.transform(matrix, alter));
         this.components.transform(matrix, alter);
@@ -299,6 +298,7 @@ export class CadData {
                 }
             }
         });
+        return this;
     }
 
     updateBaseLines() {
@@ -838,9 +838,9 @@ export class CadComponents {
         }
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false) {
+    transform(matrix: MatrixLike, alter = false) {
         const m = new Matrix(matrix);
-        const {scaleX, scaleY} = m.decompose();
+        const [scaleX, scaleY] = m.scale();
         if (scaleX === undefined || scaleY === undefined) {
             return;
         }

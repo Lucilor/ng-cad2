@@ -11,8 +11,7 @@ import {BookData} from "@src/app/modules/message/components/message/message-type
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
-import {Line, ObjectOf, Point, timeout} from "@src/app/utils";
-import {MatrixExtract} from "@svgdotjs/svg.js";
+import {Angle, Line, MatrixLike, ObjectOf, Point, timeout} from "@src/app/utils";
 import {highlight} from "highlight.js";
 import {differenceWith} from "lodash";
 import {Command, ValuedCommand, Arg} from "../../cad-command-types";
@@ -281,7 +280,7 @@ export class CadConsoleComponent implements OnInit {
         flip(horizontal: string, vertival: string) {
             const scaleX = horizontal === "true" ? -1 : 1;
             const scaleY = vertival === "true" ? -1 : 1;
-            this.transform({scaleX, scaleY});
+            this.transform({scale: [scaleX, scaleY]});
         },
         man(name: string, list: string) {
             let data: BookData | null = null;
@@ -437,7 +436,7 @@ export class CadConsoleComponent implements OnInit {
         rotate(degreesArg: string) {
             const degrees = Number(degreesArg);
             const rotateDimension = Math.round(degrees / 90) % 2 !== 0;
-            this.transform({rotate: degrees}, rotateDimension);
+            this.transform({rotate: new Angle(degrees, "deg").rad}, rotateDimension);
         },
         async save() {
             const {dataService, status, message} = this;
@@ -793,16 +792,16 @@ export class CadConsoleComponent implements OnInit {
         return selected.indices[0];
     }
 
-    private async transform(matrix: MatrixExtract, rotateDimension = false) {
+    private async transform(matrix: MatrixLike, rotateDimension = false) {
         const cad = this.status.cad;
         const seleted = cad.selected();
         if (seleted.length) {
             const {x, y} = seleted.getBoundingRect();
-            seleted.transform({...matrix, origin: [x, y]});
+            seleted.transform({...matrix, origin: [x, y]}, true);
         } else {
             const t = (data: CadData) => {
                 const {x, y} = data.getBoundingRect();
-                data.transform({...matrix, origin: [x, y]});
+                data.transform({...matrix, origin: [x, y]}, true);
                 if (rotateDimension) {
                     data.getAllEntities().dimension.forEach((d) => {
                         if (d.axis === "x") {

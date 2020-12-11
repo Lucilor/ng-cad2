@@ -2,6 +2,7 @@ export * from "./geometry/angle";
 export * from "./geometry/arc";
 export * from "./geometry/constants";
 export * from "./geometry/line";
+export * from "./geometry/matrix";
 export * from "./geometry/point";
 export * from "./geometry/rectangle";
 export * from "./color";

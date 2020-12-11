@@ -1,6 +1,6 @@
-import {Matrix, MatrixExtract, MatrixTransformParam, Point as P} from "@svgdotjs/svg.js";
 import {Line} from "..";
 import {DEFAULT_TOLERANCE} from "./constants";
+import {Matrix, MatrixLike} from "./matrix";
 
 export class Point {
     x: number;
@@ -134,8 +134,20 @@ export class Point {
         return this.x * point.y - this.y * point.x;
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam) {
-        const p = new P(this.x, this.y).transform(new Matrix(matrix));
-        return this.set(p.x, p.y);
+    transform(matrix: MatrixLike) {
+        matrix = new Matrix(matrix);
+        const {a, d, e, f, origin} = matrix;
+        const angle = matrix.rotate();
+        const anchor = new Point(origin);
+        if (angle) {
+            this.rotate(angle, anchor);
+            this.x += e;
+            this.y += f;
+        } else {
+            const distance = this.clone().sub(anchor).multiply(a, d);
+            this.x = anchor.x + distance.x + e;
+            this.y = anchor.y + distance.y + f;
+        }
+        return this;
     }
 }

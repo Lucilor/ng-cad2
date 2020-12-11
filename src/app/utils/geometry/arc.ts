@@ -1,7 +1,7 @@
 import {Point} from "./point";
 import {Angle} from "./angle";
 import {Line} from "./line";
-import {MatrixExtract, MatrixTransformParam} from "@svgdotjs/svg.js";
+import {MatrixLike} from "./matrix";
 
 export class Arc {
     center: Point;
@@ -113,7 +113,7 @@ export class Arc {
         return this.center.clone().add(offset);
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam) {
+    transform(matrix: MatrixLike) {
         const start = this.getPoint(0).transform(matrix);
         const end = this.getPoint(1).transform(matrix);
         this.center.transform(matrix);

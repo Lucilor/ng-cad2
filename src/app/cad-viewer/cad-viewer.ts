@@ -292,6 +292,7 @@ export class CadViewer extends EventEmitter {
             entity.el = null;
             return this;
         }
+        entity.update();
         let el = entity.el;
         if (!el) {
             let typeLayer = draw.find(`[group="${entity.type}"]`)[0] as G;

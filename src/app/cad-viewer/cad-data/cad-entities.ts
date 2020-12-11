@@ -1,5 +1,5 @@
-import {Angle, Arc, index2RGB, Line, ObjectOf, Point, Rectangle, RGB2Index} from "@src/app/utils";
-import {G, Matrix, MatrixExtract, MatrixTransformParam, Svg} from "@svgdotjs/svg.js";
+import {Angle, Arc, index2RGB, Line, Matrix, MatrixLike, ObjectOf, Point, Rectangle, RGB2Index} from "@src/app/utils";
+import {G, Matrix as Matrix2, Svg} from "@svgdotjs/svg.js";
 import Color from "color";
 import {cloneDeep, intersection} from "lodash";
 import {v4} from "uuid";
@@ -193,11 +193,12 @@ export abstract class CadEntity {
         this.opacity = data.opacity ?? 1;
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, _parent?: CadEntity) {
+    transform(matrix: MatrixLike, alter = false, _parent?: CadEntity) {
+        this.el?.attr("stroke", "red");
         if (!alter) {
             if (this.el) {
-                const oldMatrix = new Matrix(this.el.transform());
-                this.el.transform(oldMatrix.transform(matrix));
+                const oldMatrix = new Matrix2(this.el.transform());
+                this.el.transform(oldMatrix.transform(new Matrix(matrix)));
             }
             this.needsUpdate = true;
         }
@@ -224,7 +225,7 @@ export abstract class CadEntity {
                 delete this._visible;
             }
             if (this.needsUpdate) {
-                this.transform(this.el.transform(), true);
+                this.transform(new Matrix2(this.el.transform()).decompose(), true);
                 this.needsUpdate = false;
                 this.el.transform({});
             }
@@ -318,7 +319,8 @@ export class CadArc extends CadEntity {
         this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+    transform(matrix: MatrixLike, alter = false, parent?: CadEntity) {
+        matrix = new Matrix(matrix);
         super.transform(matrix, false, parent);
         if (alter) {
             const curve = this.curve;
@@ -327,7 +329,7 @@ export class CadArc extends CadEntity {
             this.radius = curve.radius;
             this.start_angle = curve.startAngle.deg;
             this.end_angle = curve.endAngle.deg;
-            const {scaleX, scaleY} = matrix;
+            const [scaleX, scaleY] = matrix.scale();
             if (scaleX && scaleY && scaleX * scaleY < 0) {
                 this.clockwise = !this.clockwise;
             }
@@ -376,7 +378,7 @@ export class CadCircle extends CadEntity {
         this.radius = data.radius ?? 0;
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+    transform(matrix: Matrix, alter = false, parent?: CadEntity) {
         super.transform(matrix, alter, parent);
         if (alter) {
             this.center.transform(matrix);
@@ -462,7 +464,7 @@ export class CadDimension extends CadEntity {
         this.quzhifanwei = data.quzhifanwei ?? "";
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+    transform(matrix: Matrix, alter = false, parent?: CadEntity) {
         super.transform(matrix, alter, parent);
         return this;
     }
@@ -545,7 +547,7 @@ export class CadHatch extends CadEntity {
         return {...super.export(), paths};
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+    transform(matrix: Matrix, alter = false, parent?: CadEntity) {
         super.transform(matrix, alter, parent);
         if (alter) {
             this.paths.forEach((path) => {
@@ -643,7 +645,7 @@ export class CadLine extends CadEntity {
         this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+    transform(matrix: MatrixLike, alter = false, parent?: CadEntity) {
         super.transform(matrix, alter, parent);
         if (alter) {
             this.start.transform(matrix);
@@ -727,7 +729,7 @@ export class CadMtext extends CadEntity {
         };
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false, parent?: CadEntity) {
+    transform(matrix: Matrix, alter = false, parent?: CadEntity) {
         super.transform(matrix, alter, parent);
         if (alter) {
             this.insert.transform(matrix);
@@ -892,7 +894,7 @@ export class CadEntities {
         return new CadEntities(this, [], resetIds);
     }
 
-    transform(matrix: MatrixExtract | MatrixTransformParam, alter = false) {
+    transform(matrix: MatrixLike, alter = false) {
         this.forEach((e) => e.transform(matrix, alter));
     }
 
