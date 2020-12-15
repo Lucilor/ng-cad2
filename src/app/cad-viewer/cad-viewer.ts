@@ -1,6 +1,7 @@
 import {Svg, SVG, CoordinateXY, Element, G} from "@svgdotjs/svg.js";
 import {EventEmitter} from "events";
 import {cloneDeep} from "lodash";
+import {toFixedTrim} from "../app.common";
 import {Point, timeout} from "../utils";
 import {CadData} from "./cad-data/cad-data";
 import {CadArc, CadCircle, CadDimension, CadEntities, CadEntity, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entities";
@@ -357,10 +358,7 @@ export class CadViewer extends EventEmitter {
                 const {lineGongshi, hideLineLength, hideLineGongshi} = this._config;
                 let foundOffset: Point | undefined;
                 if (entity.info.isLengthText) {
-                    entity.text = parent.length.toFixed(1);
-                    if (entity.text.endsWith(".0")) {
-                        entity.text = entity.text.slice(0, -2);
-                    }
+                    entity.text = toFixedTrim(parent.length);
                     entity.font_size = parent.lengthTextSize;
                     if (hideLineLength || parent.hideLength) {
                         el.remove();

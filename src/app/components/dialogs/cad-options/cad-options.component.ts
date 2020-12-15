@@ -42,7 +42,6 @@ export class CadOptionsComponent implements AfterViewInit {
     }
 
     async ngAfterViewInit() {
-        console.log(this);
         await this.paginator?.initialized.toPromise();
         this.getData(1);
     }

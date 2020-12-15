@@ -42,6 +42,11 @@ export const logTime = (content: string, start: number, fractionDigits = 2) => {
     console.log(`%c[DEBUG] ${content}: ${str}s`, "color:deeppink");
 };
 
+export const toFixedTrim = (num: number, fractionDigits?: number | undefined) => {
+    const str = num.toFixed(fractionDigits);
+    return str.replace(/\.[1-9]*0+/, "");
+};
+
 // export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
 // 	return map.map((v) => {
 // 		const {x, y} = cad.getScreenPoint(v.point.x, v.point.y);

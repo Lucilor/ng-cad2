@@ -1,5 +1,6 @@
 import {Circle, Container, Line, Path, PathArrayAlias, Text} from "@svgdotjs/svg.js";
 import {Angle, Arc, Point} from "@src/app/utils";
+import { toFixedTrim } from '../app.common';
 
 export interface FontStyle {
     size: number;
@@ -137,7 +138,7 @@ export const drawDimension = (
     }
     const tri1 = drawShape(draw, [p3, p5, p6], "fill", i + 3)[0];
     const tri2 = drawShape(draw, [p4, p7, p8], "fill", i + 4)[0];
-    text = text.replace("<>", p3.distanceTo(p4).toFixed(2));
+    text = text.replace("<>", toFixedTrim(p3.distanceTo(p4)));
     const middle = p3.clone().add(p4).divide(2);
     let textEl: Text | null = null;
     if (axis === "x") {
