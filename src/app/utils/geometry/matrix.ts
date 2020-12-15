@@ -51,8 +51,10 @@ export class Matrix {
     f = 0;
     origin = [0, 0];
 
-    constructor(source: MatrixLike) {
-        this.compose(source);
+    constructor(source?: MatrixLike) {
+        if (source) {
+            this.compose(source);
+        }
     }
 
     compose(source: MatrixLike) {
