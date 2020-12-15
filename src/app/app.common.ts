@@ -28,7 +28,7 @@ export interface Response<T> {
 
 export type CadCollection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";
 
-export function logTime(content: string, start: number, fractionDigits = 2) {
+export const logTime = (content: string, start: number, fractionDigits = 2) => {
     if (environment.production) {
         return;
     }
@@ -40,7 +40,7 @@ export function logTime(content: string, start: number, fractionDigits = 2) {
         str = time.toString();
     }
     console.log(`%c[DEBUG] ${content}: ${str}s`, "color:deeppink");
-}
+};
 
 // export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
 // 	return map.map((v) => {

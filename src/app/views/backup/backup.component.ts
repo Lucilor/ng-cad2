@@ -33,14 +33,14 @@ export class BackupComponent implements AfterViewInit {
         this.data = result
             .sort((a, b) => b.time - a.time)
             .map((v) => {
-                const result: BackupComponent["data"][0] = {id: v.time, title: new Date(v.time).toLocaleString(), cads: []};
+                const result2: BackupComponent["data"][0] = {id: v.time, title: new Date(v.time).toLocaleString(), cads: []};
                 v.cads
                     .sort((a, b) => (a.name > b.name ? 1 : -1))
                     .forEach(async (data) => {
                         const img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data, 200, 100)) as string;
-                        result.cads.push({img, data, checked: false});
+                        result2.cads.push({img, data, checked: false});
                     });
-                return result;
+                return result2;
             });
     }
 
@@ -52,9 +52,9 @@ export class BackupComponent implements AfterViewInit {
         const total = cads.length;
         this.loaderText = `正在恢复备份(0/${total})`;
         this.loader.startLoader(this.loaderId);
-        for (let i = 0; i < total; i++) {
-            await this.dataService.setCad({collection: "cad", cadData: cads[i], force: true});
-            this.loaderText = `正在恢复备份(${i + 1}/${total})`;
+        for (let j = 0; j < total; j++) {
+            await this.dataService.setCad({collection: "cad", cadData: cads[j], force: true});
+            this.loaderText = `正在恢复备份(${j + 1}/${total})`;
         }
         this.loader.stopLoader(this.loaderId);
     }

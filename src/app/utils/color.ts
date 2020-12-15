@@ -259,11 +259,11 @@ const list: ObjectOf<number[]> = {
     255: [255, 255, 255]
 };
 
-export function index2RGB<K extends keyof ColorMap>(index: number, type: K): ColorMap[K] {
+export const index2RGB = <K extends keyof ColorMap>(index: number, type: K): ColorMap[K] => {
     const rgb = list[index] || [0, 0, 0];
-    if (type === "number") {
+    if (type === "num") {
         return (rgb[0] * 16 ** 4 + rgb[1] * 16 ** 2 + rgb[2]) as ColorMap[K];
-    } else if (type === "string") {
+    } else if (type === "str") {
         let rgbStr = "#";
         for (const num of rgb) {
             rgbStr += num.toString(16).padStart(2, "0");
@@ -277,9 +277,9 @@ export function index2RGB<K extends keyof ColorMap>(index: number, type: K): Col
         return rgbStr as ColorMap[K];
     }
     return "" as ColorMap[K];
-}
+};
 
-export function RGB2Index(rgb: number | string) {
+export const RGB2Index = (rgb: number | string) => {
     const color = Color(rgb);
     for (const index in list) {
         const rgbArr = list[index];
@@ -288,9 +288,9 @@ export function RGB2Index(rgb: number | string) {
         }
     }
     return null;
-}
+};
 
 interface ColorMap {
-    string: string;
-    number: number;
+    str: string;
+    num: number;
 }

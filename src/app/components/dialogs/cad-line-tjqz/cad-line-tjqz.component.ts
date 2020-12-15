@@ -1,5 +1,5 @@
 import {Component, ViewChild, Inject} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {MatTableDataSource} from "@angular/material/table";
 import {CadLine} from "@src/app/cad-viewer";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
@@ -8,15 +8,16 @@ import {
     ColumnInfo,
     TableComponent,
     ItemGetter,
+    DataTransformer,
     TableValidator,
     TableErrorState,
     RowEvent,
-    CellEvent,
-    DataTransformer
+    CellEvent
 } from "@src/app/modules/table/components/table/table.component";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {cloneDeep} from "lodash";
-import {CadLineTjqzSelectData, openCadLineTiaojianquzhiSelectDialog} from "../cad-line-tjqz-select/cad-line-tjqz-select.component";
+import {CadLineTjqzSelectData, openCadLineTjqzSelectDialog} from "../cad-line-tjqz-select/cad-line-tjqz-select.component";
+import {getOpenDialogFunc} from "../dialog.common";
 
 type RawData = CadLine;
 type RawDataLeft = RawData["tiaojianquzhi"][0];
@@ -138,12 +139,9 @@ export class CadLineTjqzComponent {
         if (event.field === "name" && this.openSelection > -1) {
             const keys = this.dataLeft.data[this.openSelection].key.split(/,|，/).filter((v) => v);
             const values = event.item.name.split(/,|，/);
-            const data: CadLineTjqzSelectData = keys.map((v, i) => {
-                return {key: v, value: values[i] ?? ""};
-            });
+            const data: CadLineTjqzSelectData = keys.map((v, i) => ({key: v, value: values[i] ?? ""}));
             if (data.length) {
-                const ref = openCadLineTiaojianquzhiSelectDialog(this.dialog, {data});
-                const result = await ref.afterClosed().toPromise();
+                const result = await openCadLineTjqzSelectDialog(this.dialog, {data});
                 if (result) {
                     this.dataRight.data[event.rowIdx].name = result.map((v) => v.value).join(",");
                 }
@@ -152,6 +150,4 @@ export class CadLineTjqzComponent {
     }
 }
 
-export function openCadLineTiaojianquzhiDialog(dialog: MatDialog, config: MatDialogConfig<RawData>) {
-    return dialog.open<CadLineTjqzComponent, RawData, RawData>(CadLineTjqzComponent, config);
-}
+export const openCadLineTiaojianquzhiDialog = getOpenDialogFunc<CadLineTjqzComponent, RawData, RawData>(CadLineTjqzComponent);

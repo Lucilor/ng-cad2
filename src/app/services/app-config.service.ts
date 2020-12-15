@@ -22,7 +22,7 @@ export class AppConfigService {
     }
 
     constructor() {
-        let config: AppConfig = {
+        let defaultConfig: AppConfig = {
             width: innerWidth,
             height: innerHeight,
             backgroundColor: "black",
@@ -49,9 +49,9 @@ export class AppConfigService {
         const sessionConfig = this.sessionConfig;
         delete sessionConfig.width;
         delete sessionConfig.height;
-        config = {...config, ...sessionConfig};
-        this.config$ = new BehaviorSubject(config);
-        this.configChange$ = new BehaviorSubject({oldVal: config, newVal: config as Partial<AppConfig>});
+        defaultConfig = {...defaultConfig, ...sessionConfig};
+        this.config$ = new BehaviorSubject(defaultConfig);
+        this.configChange$ = new BehaviorSubject({oldVal: defaultConfig, newVal: defaultConfig as Partial<AppConfig>});
         this.config$.subscribe((config) => session.save("config", config));
         window.addEventListener("unload", () => session.save("config", this.config()));
     }

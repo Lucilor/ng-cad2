@@ -1,7 +1,8 @@
 import {Inject, ViewChild} from "@angular/core";
 import {Component, OnInit} from "@angular/core";
-import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {JsonEditorComponent as JsonEditorComponent2, JsonEditorOptions} from "ang-jsoneditor";
+import {getOpenDialogFunc} from "../dialog.common";
 
 export interface JsonEditorData {
     json?: any;
@@ -52,7 +53,4 @@ export class JsonEditorComponent implements OnInit {
     }
 }
 
-export async function openJsonEditorDialog(dialog: MatDialog, config: MatDialogConfig<JsonEditorData>) {
-    const ref = dialog.open<JsonEditorComponent, JsonEditorData, any>(JsonEditorComponent, config);
-    return await ref.afterClosed().toPromise();
-}
+export const openJsonEditorDialog = getOpenDialogFunc<JsonEditorComponent, JsonEditorData, any>(JsonEditorComponent);

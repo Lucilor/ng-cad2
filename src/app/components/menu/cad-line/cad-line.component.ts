@@ -42,14 +42,10 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         guanlianbianhuagongshi: false
     };
     gongshiMatcher: ErrorStateMatcher = {
-        isErrorState: () => {
-            return !!this.inputErrors.gongshi;
-        }
+        isErrorState: () => !!this.inputErrors.gongshi
     };
     guanlianbianhuagongshiMatcher: ErrorStateMatcher = {
-        isErrorState: () => {
-            return !!this.inputErrors.guanlianbianhuagongshi;
-        }
+        isErrorState: () => !!this.inputErrors.guanlianbianhuagongshi
     };
     selected: CadLineLike[] = [];
 
@@ -158,8 +154,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     ngOnInit() {
-        const cad = this.status.cad;
-
+        let cad = this.status.cad;
         this.subscribe(this.status.selectedCads$, () => {
             const cads = this.status.getFlatSelectedCads();
             this.data = cads.length === 1 ? cads[0] : null;
@@ -169,7 +164,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         this.subscribe(this.status.cadStatus$, (cadStatus) => {
             const name = cadStatus.name;
             const {data} = this;
-            const cad = this.status.cad;
+            cad = this.status.cad;
             if (name === "drawLine") {
                 this.status.setCadPoints(generatePointsMap(data?.getAllEntities()));
                 cad.traverse((e) => {
@@ -306,7 +301,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                             e[field] = Number(value);
                         } else {
                             (e as any)[field] = value;
-                            if (["mingzi", "gongshi" ,"guanlianbianhuagongshi"].includes(field)) {
+                            if (["mingzi", "gongshi", "guanlianbianhuagongshi"].includes(field)) {
                                 this.status.cad.render(e);
                             }
                         }

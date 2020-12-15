@@ -1,5 +1,6 @@
 import {XOR} from "@src/app/utils";
 
+/* eslint-disable @typescript-eslint/indent */
 export type Desc =
     | string
     | {
@@ -7,6 +8,7 @@ export type Desc =
           sub?: Desc[];
           next?: Desc;
       };
+/* eslint-enable @typescript-eslint/indent */
 
 interface ArgBase {
     name: string;

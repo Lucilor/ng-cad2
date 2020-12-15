@@ -151,9 +151,7 @@ export class CadDataService extends HttpService {
         const response = await this.request<any>("peijian/cad/getOptions", "POST", postData);
         if (response) {
             return {
-                data: response.data.map((v: any) => {
-                    return {name: v.mingzi, img: `${origin}/filepath/${v.xiaotu}`};
-                }),
+                data: response.data.map((v: any) => ({name: v.mingzi, img: `${origin}/filepath/${v.xiaotu}`})),
                 count: response.count || 0
             };
         }

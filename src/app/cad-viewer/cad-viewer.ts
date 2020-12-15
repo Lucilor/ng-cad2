@@ -33,7 +33,7 @@ export interface CadViewerConfig {
     renderStep: number; // 渲染时每次渲染的实体个数
 }
 
-function getConfigProxy(config: Partial<CadViewerConfig> = {}) {
+const getConfigProxy = (config: Partial<CadViewerConfig> = {}) => {
     const defalutConfig: CadViewerConfig = {
         width: 300,
         height: 150,
@@ -60,7 +60,7 @@ function getConfigProxy(config: Partial<CadViewerConfig> = {}) {
         }
     }
     return new Proxy(defalutConfig, {
-        set(target, key, value) {
+        set: (target, key, value) => {
             if (key === "padding") {
                 if (typeof value === "number") {
                     value = [value, value, value, value];
@@ -81,7 +81,7 @@ function getConfigProxy(config: Partial<CadViewerConfig> = {}) {
             return false;
         }
     });
-}
+};
 
 export class CadViewer extends EventEmitter {
     data: CadData;
@@ -352,9 +352,10 @@ export class CadViewer extends EventEmitter {
             drawResult = drawLine(el, start, end);
         } else if (entity instanceof CadMtext) {
             const parent = entity.parent;
+            const {insert, anchor} = entity;
             if (parent instanceof CadLine || parent instanceof CadArc) {
                 const {lineGongshi, hideLineLength, hideLineGongshi} = this._config;
-                let offset: Point | undefined;
+                let foundOffset: Point | undefined;
                 if (entity.info.isLengthText) {
                     entity.text = parent.length.toFixed(1);
                     if (entity.text.endsWith(".0")) {
@@ -365,7 +366,7 @@ export class CadViewer extends EventEmitter {
                         el.remove();
                         entity.el = null;
                     }
-                    offset = getVectorFromArray(entity.info.offset);
+                    foundOffset = getVectorFromArray(entity.info.offset);
                 } else if (entity.info.isGongshiText) {
                     if (parent.gongshi) {
                         entity.text = `${parent.mingzi}=${parent.gongshi}`;
@@ -373,7 +374,7 @@ export class CadViewer extends EventEmitter {
                         entity.text = parent.mingzi;
                     }
                     entity.font_size = lineGongshi;
-                    offset = getVectorFromArray(entity.info.offset);
+                    foundOffset = getVectorFromArray(entity.info.offset);
                 } else if (entity.info.isBianhuazhiText) {
                     if (parent instanceof CadLine && parent.guanlianbianhuagongshi) {
                         entity.text = `变化值=${parent.guanlianbianhuagongshi}`;
@@ -381,19 +382,19 @@ export class CadViewer extends EventEmitter {
                         entity.text = "";
                     }
                     entity.font_size = lineGongshi - 3;
-                    offset = getVectorFromArray(entity.info.offset);
+                    foundOffset = getVectorFromArray(entity.info.offset);
                     if (hideLineGongshi) {
                         el.remove();
                         entity.el = null;
                     }
                 }
                 const middle = parent.middle;
-                if (offset) {
-                    if (Math.abs(offset.x) >= 60 || Math.abs(offset.y) >= 60) {
-                        offset.set(0, 0);
-                        entity.info.offset = offset.toArray();
+                if (foundOffset) {
+                    if (Math.abs(foundOffset.x) >= 60 || Math.abs(foundOffset.y) >= 60) {
+                        foundOffset.set(0, 0);
+                        entity.info.offset = foundOffset.toArray();
                     }
-                    entity.insert.copy(offset.add(middle));
+                    entity.insert.copy(foundOffset.add(middle));
                 }
 
                 if (entity.el && entity.el.width()) {
@@ -402,7 +403,6 @@ export class CadViewer extends EventEmitter {
                     entity.info.size = size.toArray();
 
                     // * 重新计算锚点
-                    const {insert, anchor} = entity;
                     const x = insert.x - anchor.x * size.x;
                     const y = insert.y + anchor.y * size.y;
                     const points = [
@@ -426,14 +426,13 @@ export class CadViewer extends EventEmitter {
                     });
                     if (index >= 0) {
                         entity.anchor.copy(points[index][1]);
-                        const offset = points[index][0].clone().sub(middle);
-                        entity.info.offset = offset.toArray();
+                        const offset2 = points[index][0].clone().sub(middle);
+                        entity.info.offset = offset2.toArray();
                         entity.info.anchorOverwrite = entity.anchor.toArray();
-                        entity.insert.copy(offset.add(middle));
+                        entity.insert.copy(offset2.add(middle));
                     }
                 }
             }
-            const {insert, anchor} = entity;
             let text = entity.text;
             const offset = new Point(0, 0);
             // * 算料单特殊逻辑

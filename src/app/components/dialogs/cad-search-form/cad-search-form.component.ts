@@ -1,9 +1,10 @@
 import {Component, OnInit} from "@angular/core";
-import {MatDialogRef, MatDialogConfig, MatDialog} from "@angular/material/dialog";
+import {MatDialogRef} from "@angular/material/dialog";
 import {CadOption} from "@src/app/cad-viewer";
 import {CadSearchData, CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {ObjectOf, timeout} from "@src/app/utils";
+import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
     selector: "app-cad-search-form",
@@ -63,6 +64,5 @@ export class CadSearchFormComponent implements OnInit {
     }
 }
 
-export function openCadSearchFormDialog(dialog: MatDialog, config: MatDialogConfig<CadSearchData>) {
-    return dialog.open<CadSearchFormComponent, CadSearchData, CadOption[]>(CadSearchFormComponent, config);
-}
+export const openCadSearchFormDialog = getOpenDialogFunc<CadSearchFormComponent, CadSearchData, CadOption[]>(CadSearchFormComponent);
+

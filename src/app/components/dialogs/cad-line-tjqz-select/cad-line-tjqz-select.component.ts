@@ -1,9 +1,10 @@
 import {Component, Inject} from "@angular/core";
-import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadData} from "@src/app/cad-viewer";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {cloneDeep} from "lodash";
 import {openCadOptionsDialog} from "../cad-options/cad-options.component";
+import {getOpenDialogFunc} from "../dialog.common";
 
 export type CadLineTjqzSelectData = {key: string; value: string}[];
 
@@ -50,6 +51,5 @@ export class CadLineTjqzSelectComponent {
     }
 }
 
-export function openCadLineTiaojianquzhiSelectDialog(dialog: MatDialog, config: MatDialogConfig<CadLineTjqzSelectData>) {
-    return dialog.open<CadLineTjqzSelectComponent, CadLineTjqzSelectData, CadLineTjqzSelectData>(CadLineTjqzSelectComponent, config);
-}
+type T = CadLineTjqzSelectComponent;
+export const openCadLineTjqzSelectDialog = getOpenDialogFunc<T, CadLineTjqzSelectData, CadLineTjqzSelectData>(CadLineTjqzSelectComponent);

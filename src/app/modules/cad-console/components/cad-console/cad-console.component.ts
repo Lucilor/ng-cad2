@@ -220,7 +220,7 @@ export class CadConsoleComponent implements OnInit {
                 startAngle = endAngle - 180;
             } else {
                 if (radius === undefined) {
-                    const radius = Number(await this.message.prompt({type: "number", placeholder: "请输入圆角半径"}));
+                    radius = Number(await this.message.prompt({type: "number", placeholder: "请输入圆角半径"}));
                     if (!(radius > 0)) {
                         this.message.alert("请输入大于零的数字");
                         return;

@@ -412,9 +412,7 @@ export class CadData {
 
     updateDimensions(parentDimensions?: CadDimension[]) {
         if (Array.isArray(parentDimensions)) {
-            this.entities.dimension = this.entities.dimension.filter((v) => {
-                return parentDimensions.every((vv) => !v.equals(vv));
-            });
+            this.entities.dimension = this.entities.dimension.filter((v) => parentDimensions.every((vv) => !v.equals(vv)));
         }
         this.entities.dimension = uniqWith(this.entities.dimension, (a, b) => a.equals(b));
         const tmp = this.entities.dimension;

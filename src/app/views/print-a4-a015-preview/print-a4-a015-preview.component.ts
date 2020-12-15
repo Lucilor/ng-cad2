@@ -8,6 +8,7 @@ import {ActivatedRoute} from "@angular/router";
 import {cloneDeep} from "lodash";
 
 export type PreviewData = {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     CAD?: any;
     code: string;
     codeText?: string;
@@ -68,7 +69,7 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
             });
             this.data[i] = v.concat(toAdd);
         });
-        const total = this.data.reduce((total, v) => total + v.length, 0);
+        const total = this.data.reduce((sum, v) => sum + v.length, 0);
         let done = 0;
         this.loader.startLoader(this.loaderId);
         this.loadingText = `0 / ${total}`;

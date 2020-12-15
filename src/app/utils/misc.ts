@@ -11,7 +11,7 @@ ZyOT2GCZPEv6TnMvmWLpIk9QpjrSEkn5E11YlCN9g5ekk31RbVdb9GkxNzz8iLzM
 VwIDAQAB
 -----END PUBLIC KEY-----
 `;
-export function RSAEncrypt(data: any, publicKey = defaultPublicKey, separator = "&&&&&") {
+export const RSAEncrypt = (data: any, publicKey = defaultPublicKey, separator = "&&&&&") => {
     const jsEncrypt = new JSEncrypt();
     jsEncrypt.setPublicKey(publicKey);
     let plainText = JSON.stringify(data);
@@ -25,9 +25,9 @@ export function RSAEncrypt(data: any, publicKey = defaultPublicKey, separator = 
         plainText = plainText.slice(limit);
     }
     return encodeURIComponent(result.join(separator));
-}
+};
 
-export function dataURLtoBlob(dataURL: string) {
+export const dataURLtoBlob = (dataURL: string) => {
     const arr = dataURL.split(",");
     const mime = arr[0].match(/:(.*?);/)?.[1];
     const bstr = atob(arr[1]);
@@ -37,9 +37,9 @@ export function dataURLtoBlob(dataURL: string) {
         u8arr[n] = bstr.charCodeAt(n);
     }
     return new Blob([u8arr], {type: mime});
-}
+};
 
-export function getDPI() {
+export const getDPI = () => {
     const result = Array<number>();
     const tmpNode = document.createElement("div");
     tmpNode.style.cssText = "width:1in;height:1in;position:absolute;left:0px;top:0px;z-index:99;visibility:hidden";
@@ -48,9 +48,9 @@ export function getDPI() {
     result[1] = tmpNode.offsetHeight;
     tmpNode.remove();
     return result;
-}
+};
 
-export function copyToClipboard(str: string) {
+export const copyToClipboard = (str: string) => {
     const el = document.createElement("textarea");
     el.value = str;
     el.setAttribute("readonly", "");
@@ -60,9 +60,9 @@ export function copyToClipboard(str: string) {
     el.select();
     document.execCommand("copy");
     document.body.removeChild(el);
-}
+};
 
-export function downloadFile(content: string, filename: string) {
+export const downloadFile = (content: string, filename: string) => {
     const link = document.createElement("a");
     link.download = filename;
     link.style.display = "none";
@@ -72,8 +72,6 @@ export function downloadFile(content: string, filename: string) {
     link.click();
     URL.revokeObjectURL(link.href);
     document.body.removeChild(link);
-}
+};
 
-export async function timeout<T>(time = 0, value?: T) {
-    return new Promise<T | undefined>((resolve) => setTimeout(() => resolve(value), time));
-}
+export const timeout = <T>(time = 0, value?: T) => new Promise<T | undefined>((resolve) => setTimeout(() => resolve(value), time));

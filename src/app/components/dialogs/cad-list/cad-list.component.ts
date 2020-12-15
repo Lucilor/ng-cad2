@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, Inject, ViewChild} from "@angular/core";
-import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, imgEmpty, CadCollection} from "@src/app/app.common";
@@ -11,6 +11,7 @@ import {AppStatusService} from "@src/app/services/app-status.service";
 import {ObjectOf} from "@src/app/utils";
 import {BehaviorSubject} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
+import {getOpenDialogFunc} from "../dialog.common";
 
 export interface CadListData {
     selectMode: "single" | "multiple" | "table";
@@ -173,8 +174,7 @@ export class CadListComponent implements AfterViewInit {
         if (!this.paginator) {
             return;
         }
-        const ref = openCadSearchFormDialog(this.dialog, {});
-        const result = await ref.afterClosed().toPromise();
+        const result = await openCadSearchFormDialog(this.dialog, {});
         if (result) {
             this.paginator.pageIndex = 0;
             this.getData(this.paginator.pageIndex + 1, result);
@@ -245,7 +245,4 @@ export class CadListComponent implements AfterViewInit {
     }
 }
 
-export async function openCadListDialog(dialog: MatDialog, config: MatDialogConfig<CadListData>) {
-    const ref = dialog.open<CadListComponent, CadListData, CadData[]>(CadListComponent, config);
-    return await ref.afterClosed().toPromise();
-}
+export const openCadListDialog = getOpenDialogFunc<CadListComponent, CadListData, CadData[]>(CadListComponent);

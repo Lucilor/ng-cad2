@@ -1,6 +1,7 @@
 import {Component, Inject} from "@angular/core";
-import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {BancaiCadExtend} from "@src/app/views/select-bancai/select-bancai.component";
+import {getOpenDialogFunc} from "../dialog.common";
 
 export interface SelectBancaiCadsData {
     cads: BancaiCadExtend[];
@@ -42,7 +43,6 @@ export class SelectBancaiCadsComponent {
     }
 }
 
-export async function openSelectBancaiCadsDialog(dialog: MatDialog, config: MatDialogConfig<SelectBancaiCadsData>) {
-    const ref = dialog.open<SelectBancaiCadsComponent, SelectBancaiCadsData, string[]>(SelectBancaiCadsComponent, config);
-    return await ref.afterClosed().toPromise();
-}
+export const openSelectBancaiCadsDialog = getOpenDialogFunc<SelectBancaiCadsComponent, SelectBancaiCadsData, string[]>(
+    SelectBancaiCadsComponent
+);

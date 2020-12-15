@@ -160,11 +160,11 @@ export class Line {
     }
 }
 
-function solveLinearEqXY(a1: number, b1: number, c1: number, a2: number, b2: number, c2: number) {
+const solveLinearEqXY = (a1: number, b1: number, c1: number, a2: number, b2: number, c2: number) => {
     const k = a1 * b2 - a2 * b1;
     if (k === 0) {
         return null;
     } else {
         return new Point(b2 * c1 - b1 * c2, a1 * c2 - a2 * c1).divide(k);
     }
-}
+};

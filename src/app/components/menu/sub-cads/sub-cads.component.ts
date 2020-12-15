@@ -303,8 +303,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         selectedCads[field] = this[field].map((v) => v.data.id);
         if (field === "cads") {
             selectedCads.fullCads = selectedCads.cads.slice();
-            selectedCads.partners = concat(selectedCads.partners, ...this.cads.map((v) => v.data.partners.map((v) => v.id)));
-            selectedCads.components = concat(selectedCads.components, ...this.cads.map((v) => v.data.components.data.map((v) => v.id)));
+            selectedCads.partners = concat(selectedCads.partners, ...this.cads.map((v) => v.data.partners.map((vv) => vv.id)));
+            selectedCads.components = concat(selectedCads.components, ...this.cads.map((v) => v.data.components.data.map((vv) => vv.id)));
         }
         this.status.selectedCads$.next(selectedCads);
     }
@@ -448,12 +448,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             const node = this._getCadNode(d);
             this.cads.push(node);
             for (const dd of d.partners) {
-                const node = this._getCadNode(dd, d.id);
-                this.partners.push(node);
+                this.partners.push(this._getCadNode(dd, d.id));
             }
             for (const dd of d.components.data) {
-                const node = this._getCadNode(dd, d.id);
-                this.components.push(node);
+                this.components.push(this._getCadNode(dd, d.id));
             }
         }
         this.status.clearSelectedCads();
@@ -487,14 +485,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const cads = await openCadListDialog(this.dialog, {
             data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
         });
-        const shouldReplace = (cad1: CadData, cad2: CadData) => {
-            return (
-                cad1.name === cad2.name &&
-                differenceWith(cad1.options, cad2.options, (a, b) => {
-                    return a.equals(b);
-                }).length === 0
-            );
-        };
+        const shouldReplace = (cad1: CadData, cad2: CadData) =>
+            cad1.name === cad2.name && differenceWith(cad1.options, cad2.options, (a, b) => a.equals(b)).length === 0;
         if (Array.isArray(cads)) {
             let childrens: CadData[] | undefined;
             if (type === "partners") {
@@ -504,20 +496,20 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             }
             if (childrens) {
                 const positions: ObjectOf<number[]> = {};
-                for (let i = 0; i < cads.length; i++) {
+                for (const cad of cads) {
                     if (childrens.length) {
-                        for (let j = 0; j < childrens.length; j++) {
-                            if (shouldReplace(childrens[j], cads[i])) {
-                                const {x, y} = removeCadGongshi(childrens[j]).getBoundingRect();
-                                positions[childrens[j].id] = [x, y];
-                                childrens[j] = cads[i];
+                        for (let i = 0; i < childrens.length; i++) {
+                            if (shouldReplace(childrens[i], cad)) {
+                                const {x, y} = removeCadGongshi(childrens[i]).getBoundingRect();
+                                positions[childrens[i].id] = [x, y];
+                                childrens[i] = cad;
                                 break;
-                            } else if (j === childrens.length - 1) {
-                                childrens.push(cads[i]);
+                            } else if (i === childrens.length - 1) {
+                                childrens.push(cad);
                             }
                         }
                     } else {
-                        childrens.push(cads[i]);
+                        childrens.push(cad);
                     }
                 }
                 if (type === "components") {

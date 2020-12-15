@@ -13,7 +13,7 @@ import {
 } from "./cad-viewer";
 import {getDPI, Point} from "./utils";
 
-export async function getCadPreview(data: CadData, width = 300, height = 150, padding = [10]) {
+export const getCadPreview = async (data: CadData, width = 300, height = 150, padding = [10]) => {
     const data2 = new CadData();
     data2.entities = new CadEntities(data.getAllEntities().export());
     data2.entities.dimension = [];
@@ -32,9 +32,9 @@ export async function getCadPreview(data: CadData, width = 300, height = 150, pa
     const src = cad.toBase64();
     cad.destroy();
     return src;
-}
+};
 
-export async function printCads(dataArr: CadData[], config: Partial<CadViewerConfig> = {}) {
+export const printCads = async (dataArr: CadData[], config: Partial<CadViewerConfig> = {}) => {
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
         console.warn("Unable to get screen dpi.Assuming dpi = 96.");
@@ -72,15 +72,15 @@ export async function printCads(dataArr: CadData[], config: Partial<CadViewerCon
         }).appendTo(document.body);
         await cadPrint.render();
         cadPrint.draw.find("[type='DIMENSION']").forEach((el) => {
-            el.children().forEach((el) => {
-                if (el.node.tagName === "text") {
+            el.children().forEach((child) => {
+                if (child.node.tagName === "text") {
                     return;
                 }
-                if (el.hasClass("stroke")) {
-                    el.stroke("grey");
+                if (child.hasClass("stroke")) {
+                    child.stroke("grey");
                 }
-                if (el.hasClass("fill")) {
-                    el.fill("grey");
+                if (child.hasClass("fill")) {
+                    child.fill("grey");
                 }
             });
         });
@@ -102,9 +102,9 @@ export async function printCads(dataArr: CadData[], config: Partial<CadViewerCon
         pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
     });
     return url;
-}
+};
 
-export function addCadGongshi(data: CadData, visible: boolean, ignoreTop: boolean) {
+export const addCadGongshi = (data: CadData, visible: boolean, ignoreTop: boolean) => {
     removeCadGongshi(data);
     if (!ignoreTop) {
         const mtext = new CadMtext();
@@ -121,9 +121,9 @@ export function addCadGongshi(data: CadData, visible: boolean, ignoreTop: boolea
     data.partners.forEach((d) => addCadGongshi(d, visible, false));
     data.components.data.forEach((d) => addCadGongshi(d, visible, false));
     return data;
-}
+};
 
-export function removeCadGongshi(data: CadData) {
+export const removeCadGongshi = (data: CadData) => {
     data.entities.mtext = data.entities.mtext.filter((e) => {
         if (e.info.isCadGongshi) {
             e.el?.remove();
@@ -134,18 +134,18 @@ export function removeCadGongshi(data: CadData) {
     data.partners.forEach((d) => removeCadGongshi(d));
     data.components.data.forEach((d) => removeCadGongshi(d));
     return data;
-}
+};
 
-export function getCadGongshiText(data: CadData) {
+export const getCadGongshiText = (data: CadData) => {
     const {zhankaikuan, zhankaigao, shuliang, shuliangbeishu} = data;
     let text = `${zhankaikuan} × ${zhankaigao} = ${shuliang}`;
     if (Number(shuliangbeishu) > 1) {
         text += " × " + shuliangbeishu;
     }
     return text;
-}
+};
 
-export function setCadData(data: CadData) {
+export const setCadData = (data: CadData) => {
     if (data.options.length < 1) {
         data.options.push(new CadOption());
     }
@@ -161,4 +161,4 @@ export function setCadData(data: CadData) {
     data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
     data.partners.forEach((v) => setCadData(v));
     data.components.data.forEach((v) => setCadData(v));
-}
+};

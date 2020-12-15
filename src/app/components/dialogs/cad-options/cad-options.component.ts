@@ -1,10 +1,11 @@
 import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
-import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {CadData} from "@src/app/cad-viewer";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
+import {getOpenDialogFunc} from "../dialog.common";
 
 interface CadOptionsData {
     data: CadData;
@@ -97,7 +98,4 @@ export class CadOptionsComponent implements AfterViewInit {
     }
 }
 
-export async function openCadOptionsDialog(dialog: MatDialog, config: MatDialogConfig<CadOptionsData>) {
-    const ref = dialog.open<CadOptionsComponent, CadOptionsData, string[]>(CadOptionsComponent, config);
-    return await ref.afterClosed().toPromise();
-}
+export const openCadOptionsDialog = getOpenDialogFunc<CadOptionsComponent, CadOptionsData, string[]>(CadOptionsComponent);

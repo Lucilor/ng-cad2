@@ -26,7 +26,12 @@
                 "project": ["tsconfig.*?.json", "e2e/tsconfig.json"],
                 "createDefaultProgram": true
             },
-            "extends": ["plugin:@angular-eslint/recommended"],
+            "extends": [
+                "plugin:@angular-eslint/recommended",
+                "plugin:@angular-eslint/ng-cli-compat",
+                "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
+                "plugin:@angular-eslint/template/process-inline-templates"
+            ],
             "rules": {
                 /**
                  * Any TypeScript related rules you wish to use/reconfigure over and above the
@@ -37,13 +42,18 @@
                 "@angular-eslint/directive-selector": ["error", {"type": "attribute", "prefix": "app", "style": "camelCase"}],
                 "@angular-eslint/component-selector": ["error", {"type": "element", "prefix": "app", "style": "kebab-case"}],
                 "@typescript-eslint/indent": ["error", 4, {"SwitchCase": 1}],
-                "quotes": ["error", "double", {"allowTemplateLiterals": true}],
-                "object-curly-spacing": ["error", "never"],
-                "no-var": "error",
-                "prefer-const": "warn",
+                "@typescript-eslint/naming-convention": [
+                    "error",
+                    {
+                        "selector": "default",
+                        "format": ["camelCase", "PascalCase", "snake_case", "UPPER_CASE"],
+                        "leadingUnderscore": "allowSingleOrDouble"
+                    }
+                ],
+                "@typescript-eslint/quotes": ["error", "double", {"allowTemplateLiterals": true}],
                 "no-unused-vars": ["warn", {"argsIgnorePattern": "."}],
-                "eqeqeq": "warn",
-                "no-dupe-else-if": "error"
+                "guard-for-in": "off",
+                "no-underscore-dangle": "off"
             }
         },
 
@@ -57,7 +67,7 @@
          * below.
          */
         {
-            "files": ["*.component.html"],
+            "files": ["*.component.html", "index.html"],
             "extends": ["plugin:@angular-eslint/template/recommended"],
             "rules": {
                 /**

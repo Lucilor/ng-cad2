@@ -103,8 +103,6 @@ export class SelectBancaiComponent implements OnInit {
         );
     }
 
-    updateSortedCads(bancaiCad: FormGroup): void;
-    updateSortedCads(bancaiCads: BancaiCad[]): void;
     updateSortedCads(bancaiCads: FormGroup | BancaiCad[]) {
         const sortedCads = this.sortedCads;
         if (Array.isArray(bancaiCads)) {
@@ -159,11 +157,10 @@ export class SelectBancaiComponent implements OnInit {
                 }
             });
             bancaiCads.get("oversized")?.setValue(group.some((v) => v.oversized));
-            const duplicateIdx = sortedCads.findIndex((v, i) => {
-                return i !== this.formIdx && this.isBancaiDuplicate(v[0].bancai, group[0].bancai);
-            });
+            const duplicateIdx = sortedCads.findIndex((v, i) => i !== this.formIdx && this.isBancaiDuplicate(v[0].bancai, group[0].bancai));
             if (duplicateIdx >= 0) {
-                sortedCads[duplicateIdx];
+                // FIXME: duplicateIdx;
+                // sortedCads[duplicateIdx];
                 this.message.snack("板材信息相同, 已合并");
             }
         }

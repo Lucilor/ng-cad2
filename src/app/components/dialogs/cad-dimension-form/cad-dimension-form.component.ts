@@ -1,7 +1,8 @@
 import {Component, Inject} from "@angular/core";
 import {FormGroup, FormBuilder, FormControl, ValidatorFn, AbstractControl} from "@angular/forms";
-import {MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadDimension} from "@src/app/cad-viewer";
+import {getOpenDialogFunc} from "../dialog.common";
 
 interface CadDimensionData {
     data: CadDimension;
@@ -96,7 +97,6 @@ export class CadDimensionFormComponent {
     }
 }
 
-export async function openCadDimensionFormDialog(dialog: MatDialog, config: MatDialogConfig<CadDimensionData>) {
-    const ref = dialog.open<CadDimensionFormComponent, CadDimensionData, CadDimension>(CadDimensionFormComponent, config);
-    return await ref.afterClosed().toPromise();
-}
+export const openCadDimensionFormDialog = getOpenDialogFunc<CadDimensionFormComponent, CadDimensionData, CadDimension>(
+    CadDimensionFormComponent
+);

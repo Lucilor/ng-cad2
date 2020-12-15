@@ -151,12 +151,12 @@ export abstract class CadEntity {
         if (typeof data.color === "number") {
             this._indexColor = data.color;
             if (data.color === 256) {
-                const layer = layers.find((layer) => layer.name === this.layer);
+                const layer = layers.find((l) => l.name === this.layer);
                 if (layer) {
                     this.color = new Color(layer.color);
                 }
             } else {
-                this.color = new Color(index2RGB(data.color, "number"));
+                this.color = new Color(index2RGB(data.color, "num"));
             }
         } else {
             if (data.color instanceof Color) {
@@ -171,7 +171,7 @@ export abstract class CadEntity {
             if (data.lineweight >= 0) {
                 this.linewidth = lineweight2linewidth(data.lineweight);
             } else if (data.lineweight === -1) {
-                const layer = layers.find((layer) => layer.name === this.layer);
+                const layer = layers.find((l) => l.name === this.layer);
                 if (layer) {
                     this.linewidth = layer.linewidth;
                 }
@@ -761,7 +761,7 @@ export class CadMtext extends CadEntity {
     }
 }
 
-export function getCadEntity<T extends CadEntity>(data: any = {}, layers: CadLayer[] = [], resetId = false) {
+export const getCadEntity = <T extends CadEntity>(data: any = {}, layers: CadLayer[] = [], resetId = false) => {
     let entity: CadEntity | undefined;
     const type = data.type as CadType;
     if (type === "ARC") {
@@ -778,7 +778,7 @@ export function getCadEntity<T extends CadEntity>(data: any = {}, layers: CadLay
         entity = new CadMtext(data, layers, resetId);
     }
     return entity as T;
-}
+};
 
 export type AnyCadEntity = CadLine & CadMtext & CadDimension & CadArc & CadCircle & CadHatch;
 
@@ -935,7 +935,7 @@ export class CadEntities {
     }
 
     fromArray(array: CadEntity[]) {
-        this.forEachType((array) => (array.length = 0));
+        this.forEachType((group) => (group.length = 0));
         array.forEach((e) => this.add(e));
         return this;
     }
@@ -1077,7 +1077,7 @@ export class CadEntities {
             }
         }
         if (distance2 !== undefined) {
-            [p3, p4].forEach((p) => (p.y = distance2));
+            [p3, p4].forEach((pn) => (pn.y = distance2));
         }
 
         const p5 = p3.clone();

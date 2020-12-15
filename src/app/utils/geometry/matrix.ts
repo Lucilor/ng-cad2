@@ -21,7 +21,7 @@ type MatrixKey = "a" | "b" | "c" | "d" | "e" | "f";
 const matrixKeys: MatrixKey[] = ["a", "b", "c", "d", "e", "f"];
 const matrixValues: Record<MatrixKey, number> = {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0};
 
-function getPoint(source?: PointLike, defaultValue = 0) {
+const getPoint = (source?: PointLike, defaultValue = 0) => {
     let x = defaultValue;
     let y = defaultValue;
     if (typeof source === "number") {
@@ -40,7 +40,7 @@ function getPoint(source?: PointLike, defaultValue = 0) {
         y = 0;
     }
     return [x, y];
-}
+};
 
 export class Matrix {
     a = 1;
