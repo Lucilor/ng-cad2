@@ -1,6 +1,6 @@
 import {Circle, Container, Line, Path, PathArrayAlias, Text} from "@svgdotjs/svg.js";
 import {Angle, Arc, Point} from "@src/app/utils";
-import { toFixedTrim } from '../app.common';
+import {toFixedTrim} from "../app.common";
 
 export interface FontStyle {
     size: number;
