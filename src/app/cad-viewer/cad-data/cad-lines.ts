@@ -1,7 +1,7 @@
 import {CadArc, CadEntities, CadLine, CadMtext} from "./cad-entities";
 import {CadData} from "./cad-data";
 import {CadViewer} from "../cad-viewer";
-import {getVectorFromArray, isBetween} from "./utils";
+import {getVectorFromArray, isBetween} from "../utils";
 import {DEFAULT_TOLERANCE, Point} from "@src/app/utils";
 
 export type CadLineLike = CadLine | CadArc;

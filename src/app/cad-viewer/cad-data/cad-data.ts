@@ -3,7 +3,7 @@ import {uniqWith, intersection, cloneDeep} from "lodash";
 import {v4} from "uuid";
 import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
 import {CadLayer} from "./cad-layer";
-import {mergeArray, separateArray, getVectorFromArray, isLinesParallel} from "./utils";
+import {mergeArray, separateArray, getVectorFromArray, isLinesParallel} from "../utils";
 
 export class CadData {
     entities: CadEntities;

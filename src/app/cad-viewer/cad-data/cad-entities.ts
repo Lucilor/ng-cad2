@@ -5,7 +5,7 @@ import {cloneDeep, intersection} from "lodash";
 import {v4} from "uuid";
 import {CadLayer} from "./cad-layer";
 import {cadTypesKey, CadTypeKey, CadType, cadTypes} from "./cad-types";
-import {getVectorFromArray, lineweight2linewidth, linewidth2lineweight, mergeArray, separateArray} from "./utils";
+import {getVectorFromArray, lineweight2linewidth, linewidth2lineweight, mergeArray, separateArray} from "../utils";
 
 export const DEFAULT_LENGTH_TEXT_SIZE = 24;
 
