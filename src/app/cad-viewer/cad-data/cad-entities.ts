@@ -225,7 +225,11 @@ export abstract class CadEntity {
                 delete this._visible;
             }
             if (this.needsUpdate) {
-                this.transform(new Matrix2(this.el.transform()).decompose(), true);
+                const newMatrix = new Matrix2(this.el.transform()).decompose();
+                if (typeof newMatrix.rotate === "number") {
+                    newMatrix.rotate = new Angle(newMatrix.rotate, "deg").rad;
+                }
+                this.transform(newMatrix, true);
                 this.needsUpdate = false;
                 this.el.transform({});
             }
