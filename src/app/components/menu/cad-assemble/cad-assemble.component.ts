@@ -25,7 +25,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
 
     private _onEntitiesSelect = (((_event, obj) => {
         const {name, index} = this.status.cadStatus();
-        if (name !== "assemble" || obj.entities.length < 2) {
+        if (name !== "assemble") {
             return;
         }
         const cad = this.status.cad;
@@ -33,8 +33,8 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         const selected = cad.selected().toArray();
         const ids = selected.map((e) => e.id);
         const count = selected.length;
-        if (count === 1) {
-            this._selectEntity(selected[0]);
+        if (obj.entities.length === 1) {
+            this._selectEntity(obj.entities.toArray()[0]);
         } else if (count > 1) {
             data.components.data.forEach((v) => {
                 const entities = v.getAllEntities().toArray();
@@ -116,6 +116,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                     if ((lines.length === 2 && position === "absolute") || (lines.length === 3 && position === "relative")) {
                         try {
                             data.assembleComponents(new CadConnection({ids, names, lines, space, position}));
+                            cad.render();
                         } catch (error) {
                             this.message.alert(error.message);
                         } finally {
@@ -142,7 +143,6 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                         lines.splice(prev, 1);
                     }
                 }
-                cad.render();
                 break;
             }
         }
