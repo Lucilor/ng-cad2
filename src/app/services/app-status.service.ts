@@ -202,7 +202,16 @@ export class AppStatusService {
     }
 
     generateLineTexts() {
-        this.cad.data.components.data.forEach((v) => generateLineTexts(v));
+        if (this.config.config("collection") === "CADmuban") {
+            this.cad.data.components.data.forEach((v) => {
+                v.entities.line.forEach((e) => {
+                    e.children.mtext = e.children.mtext.filter((mt) => !mt.info.isLengthText && !mt.info.isGongshiText);
+                });
+                v.components.data.forEach((vv) => generateLineTexts(vv));
+            });
+        } else {
+            this.cad.data.components.data.forEach((v) => generateLineTexts(v));
+        }
     }
 
     setCadPoints(map: PointsMap) {
