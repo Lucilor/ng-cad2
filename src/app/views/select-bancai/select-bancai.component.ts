@@ -181,6 +181,7 @@ export class SelectBancaiComponent implements OnInit {
             });
             bancaiForms.push(form);
             form.updateValueAndValidity();
+            form.markAllAsTouched();
             this.cd.detectChanges();
         });
     }
@@ -262,7 +263,6 @@ export class SelectBancaiComponent implements OnInit {
                 })
             )
             .flat();
-        console.log(bancaiCads);
         this.loader.startLoader("submitLoader");
         const result = await this.dataService.jiguangkailiaopaiban(this.codes, bancaiCads);
         this.loader.stopLoader("submitLoader");

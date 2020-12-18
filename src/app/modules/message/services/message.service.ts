@@ -16,20 +16,20 @@ export class MessageService {
         return await ref.afterClosed().toPromise();
     }
 
-    async alert(content: string, title?: string) {
-        return await this.open({data: {type: "alert", content, title}});
+    async alert(content: string, title?: string, cancelable = true) {
+        return await this.open({data: {type: "alert", content, title, cancelable}});
     }
 
-    async confirm(content: string, title?: string) {
-        return await this.open({data: {type: "confirm", content, title}});
+    async confirm(content: string, title?: string, cancelable = true) {
+        return await this.open({data: {type: "confirm", content, title, cancelable}});
     }
 
-    async prompt(promptData?: PromptData, content?: string, title?: string) {
-        return await this.open({data: {type: "prompt", promptData, content, title}});
+    async prompt(promptData?: PromptData, content?: string, title?: string, cancelable = true) {
+        return await this.open({data: {type: "prompt", promptData, content, title, cancelable}});
     }
 
-    async book(bookData: BookData, content?: string, title?: string) {
-        return await this.open({data: {type: "book", bookData, content, title}});
+    async book(bookData: BookData, content?: string, title?: string, cancelable = true) {
+        return await this.open({data: {type: "book", bookData, content, title, cancelable}});
     }
 
     snack(message: string, action?: string, config?: MatSnackBarConfig) {

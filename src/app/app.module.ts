@@ -1,6 +1,6 @@
 import {HttpClientModule} from "@angular/common/http";
 import {Injectable, NgModule} from "@angular/core";
-import {FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {BrowserModule} from "@angular/platform-browser";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AppRoutingModule} from "./app-routing.module";
@@ -60,7 +60,6 @@ import {PrintA4A015PreviewComponent} from "./views/print-a4-a015-preview/print-a
 import {PrintCadComponent} from "./views/print/print-cad.component";
 import {SelectBancaiComponent} from "./views/select-bancai/select-bancai.component";
 import {SelectBancaiCadsComponent} from "./components/dialogs/select-bancai-cads/select-bancai-cads.component";
-import {ErrorStateMatcher} from "@angular/material/core";
 import {ImageModule} from "./modules/image/image.module";
 
 @Injectable()
@@ -80,12 +79,6 @@ class MyMatPaginatorIntl extends MatPaginatorIntl {
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     wheelPropagation: true
 };
-
-class MyErrorStateMatcher implements ErrorStateMatcher {
-    isErrorState(control: FormControl | null) {
-        return !!control?.invalid;
-    }
-}
 
 @NgModule({
     declarations: [
@@ -159,8 +152,7 @@ class MyErrorStateMatcher implements ErrorStateMatcher {
     ],
     providers: [
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
-        {provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG},
-        {provide: ErrorStateMatcher, useClass: MyErrorStateMatcher}
+        {provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG}
     ],
     bootstrap: [AppComponent]
 })

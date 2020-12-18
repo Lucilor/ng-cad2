@@ -1,29 +1,30 @@
 <h1 mat-dialog-title [innerHTML]="titleHTML"></h1>
 <h2 mat-dialog-title [innerHTML]="subTitleHTML"></h2>
 <div mat-dialog-content>
-	<perfect-scrollbar>
-		<div [innerHTML]="contentHTML"></div>
-		<mat-form-field *ngIf="data.type === 'prompt'">
-			<input matInput [type]="promptData.type || ''" [placeholder]="promptData.placeholder || ''" [(ngModel)]="input" />
-			<mat-hint>{{ promptData.hint || "" }}</mat-hint>
-		</mat-form-field>
-	</perfect-scrollbar>
+    <perfect-scrollbar>
+        <div [innerHTML]="contentHTML"></div>
+        <mat-form-field *ngIf="data.type === 'prompt'">
+            <input matInput [formControl]="input" [type]="promptData.type || ''" [placeholder]="promptData.placeholder || ''" />
+            <mat-hint>{{ promptData.hint || "" }}</mat-hint>
+            <mat-error *ngIf="this.input.invalid">{{ getErrorText() }}</mat-error>
+        </mat-form-field>
+    </perfect-scrollbar>
 </div>
 <div mat-dialog-actions style="justify-content: center" [ngSwitch]="data.type">
-	<ng-container *ngSwitchCase="'alert'">
-		<button mat-raised-button (click)="cancle()" cdkFocusInitial>好的</button>
-	</ng-container>
-	<ng-container *ngSwitchCase="'confirm'">
-		<button mat-raised-button (click)="submit()">当然</button>
-		<button mat-raised-button (click)="cancle()" cdkFocusInitial>算了</button>
-	</ng-container>
-	<ng-container *ngSwitchCase="'prompt'">
-		<button mat-raised-button (click)="submit()" cdkFocusInitial>确定</button>
-		<button mat-raised-button (click)="cancle()">取消</button>
-	</ng-container>
-	<ng-container *ngSwitchCase="'book'">
-		<button mat-raised-button (click)="setPage(page - 1)" [disabled]="page <= minPage">上一页</button>
-		<button mat-raised-button (click)="setPage(page + 1)" [disabled]="page >= maxPage">下一页</button>
-		<button mat-raised-button (click)="cancle()">退出</button>
-	</ng-container>
+    <ng-container *ngSwitchCase="'alert'">
+        <button mat-raised-button (click)="cancle()" cdkFocusInitial>好的</button>
+    </ng-container>
+    <ng-container *ngSwitchCase="'confirm'">
+        <button mat-raised-button (click)="submit()">当然</button>
+        <button mat-raised-button (click)="cancle()" cdkFocusInitial>算了</button>
+    </ng-container>
+    <ng-container *ngSwitchCase="'prompt'">
+        <button mat-raised-button (click)="submit()" cdkFocusInitial>确定</button>
+        <button mat-raised-button (click)="cancle()" [disabled]="data.cancelable === false">取消</button>
+    </ng-container>
+    <ng-container *ngSwitchCase="'book'">
+        <button mat-raised-button (click)="setPage(page - 1)" [disabled]="page <= minPage">上一页</button>
+        <button mat-raised-button (click)="setPage(page + 1)" [disabled]="page >= maxPage">下一页</button>
+        <button mat-raised-button (click)="cancle()">退出</button>
+    </ng-container>
 </div>

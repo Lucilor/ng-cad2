@@ -1,5 +1,6 @@
 import {HttpErrorResponse} from "@angular/common/http";
 import {Component, OnInit, Inject} from "@angular/core";
+import {FormControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
 import {clamp} from "lodash";
@@ -11,7 +12,7 @@ import {MessageData, PromptData} from "./message-types";
     styleUrls: ["./message.component.scss"]
 })
 export class MessageComponent implements OnInit {
-    input = "";
+    input = new FormControl();
     titleHTML: SafeHtml = "";
     subTitleHTML: SafeHtml = "";
     contentHTML: SafeHtml = "";
@@ -79,11 +80,14 @@ export class MessageComponent implements OnInit {
                 ...{
                     type: "text",
                     hint: "",
+                    errorText: "",
                     value: "",
-                    placeholder: "请输入"
+                    placeholder: "请输入",
+                    validators: null
                 },
                 ...data.promptData
             };
+            this.input = new FormControl(data.promptData.value, data.promptData.validators);
         }
         if (data.type === "book") {
             if (!data.bookData) {
@@ -93,17 +97,43 @@ export class MessageComponent implements OnInit {
         }
     }
 
+    getErrorText() {
+        const errorText = this.promptData.errorText;
+        if (this.input.invalid) {
+            if (typeof errorText === "string") {
+                return errorText;
+            } else if (typeof errorText === "string") {
+                const keys = Object.keys(this.input.errors || {});
+                return errorText[keys[0]] || "";
+            }
+        }
+        return "";
+    }
+
     submit() {
         if (this.data.type === "confirm") {
             this.dialogRef.close(true);
         } else if (this.data.type === "prompt") {
-            this.dialogRef.close(this.input);
+            if (this.input.untouched) {
+                this.input.markAsTouched();
+            }
+            if (this.input.valid) {
+                this.dialogRef.close(this.input.value);
+            }
         } else {
             this.cancle();
         }
     }
 
     cancle() {
+        if (this.data.type === "prompt") {
+            if (this.input.untouched) {
+                this.input.markAsTouched();
+            }
+            if (this.input.invalid) {
+                return;
+            }
+        }
         this.dialogRef.close(false);
     }
 

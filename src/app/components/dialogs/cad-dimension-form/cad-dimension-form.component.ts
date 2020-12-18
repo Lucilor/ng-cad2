@@ -39,6 +39,9 @@ export class CadDimensionFormComponent {
     }
 
     submit() {
+        if (this.form.untouched) {
+            this.form.markAllAsTouched();
+        }
         if (this.form.valid) {
             const value = this.form.value;
             const dimension = this.dimension;
