@@ -35,7 +35,7 @@ import {openCadLineTiaojianquzhiDialog} from "../../dialogs/cad-line-tjqz/cad-li
 export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy {
     focusedField = "";
     editDiabled = false;
-    lineDrawing: {start?: Point; end?: Point; entity?: CadLine} | null = null;
+    lineDrawing: {start?: Point; end?: Point; entity?: CadLine} = {};
     data: CadData | null = null;
     inputErrors: {gongshi: string | false; guanlianbianhuagongshi: string | false} = {
         gongshi: false,
@@ -80,7 +80,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     private onPointerMove = (async ({clientX, clientY, shiftKey}: MouseEvent) => {
         const {lineDrawing} = this;
         const cad = this.status.cad;
-        if (!lineDrawing?.start) {
+        if (!lineDrawing.start) {
             return;
         }
         lineDrawing.end = cad.getWorldPoint(clientX, clientY);
@@ -107,20 +107,16 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         cad.render(entity);
     }).bind(this);
 
-    private onClick = ((event: MouseEvent) => {
+    private onClick = ((_event: MouseEvent) => {
         const {lineDrawing} = this;
         const cad = this.status.cad;
-        const entity = lineDrawing?.entity;
+        const entity = lineDrawing.entity;
         if (!entity) {
             // this.status.addCadPoint({x: event.clientX, y: event.clientY, active: true});
             return;
         }
         setLinesLength(cad.data, [entity], Math.round(entity.length));
-        cad.render(entity);
-        entity.opacity = 1;
-        entity.selectable = true;
-        this.lineDrawing = {};
-        this.status.setCadPoints(generatePointsMap(this.data?.getAllEntities()));
+        this.addLineDrawing();
     }).bind(this);
 
     private onEntitiesChange = (() => {
@@ -174,7 +170,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 prevSelectMode = cad.config("selectMode");
                 cad.config("selectMode", "none");
                 this.lineDrawing = {};
-            } else if (this.lineDrawing) {
+            } else {
                 this.status.setCadPoints([]);
                 cad.remove(this.lineDrawing.entity);
                 cad.traverse((e) => {
@@ -182,21 +178,30 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     delete e.info.prevSelectable;
                 });
                 cad.config("selectMode", prevSelectMode);
-                if (this.lineDrawing?.entity) {
+                if (this.lineDrawing.entity) {
                     this.lineDrawing.entity.selectable = true;
                 }
-                this.lineDrawing = null;
+                this.lineDrawing = {};
             }
         });
         this.subscribe(this.status.cadPoints$, (cadPoints) => {
-            const index = cadPoints.findIndex((v) => v.active);
-            const point = cadPoints[index];
+            const activePoints = cadPoints.filter((v) => v.active);
             const name = this.status.cadStatus("name");
-            if (!point || name !== "drawLine") {
+            if (!activePoints.length || name !== "drawLine") {
                 return;
             }
-            const start = cad.getWorldPoint(point.x, point.y);
-            this.lineDrawing = {start};
+            const worldPoints = activePoints.map((v) => cad.getWorldPoint(v.x, v.y));
+            const entity = this.lineDrawing.entity;
+            if (activePoints.length === 1) {
+                this.lineDrawing = {start: worldPoints[0]};
+            } else if (entity) {
+                if (worldPoints[0].equals(entity.start)) {
+                    entity.end.copy(worldPoints[1]);
+                } else {
+                    entity.end.copy(worldPoints[0]);
+                }
+                this.addLineDrawing();
+            }
             // this.status.setCadPoints([]);
         });
 
@@ -358,6 +363,18 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
 
     drawLine() {
         this.console.execute("draw-line");
+    }
+
+    addLineDrawing() {
+        const entity = this.lineDrawing.entity;
+        if (!entity) {
+            return;
+        }
+        this.status.cad.render(entity);
+        entity.opacity = 1;
+        entity.selectable = true;
+        this.lineDrawing = {};
+        this.status.setCadPoints(generatePointsMap(this.data?.getAllEntities()));
     }
 
     autoFix() {
