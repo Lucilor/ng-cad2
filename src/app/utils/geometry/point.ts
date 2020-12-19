@@ -112,7 +112,7 @@ export class Point {
         const {x: x1, y: y1} = anchor;
         const {x: x2, y: y2} = this;
         const theta = Math.atan2(y2 - y1, x2 - x1) + angle;
-        const length = Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+        const length = Math.hypot(x1 - x2, y1 - y2);
         const d = new Point(Math.cos(theta), Math.sin(theta)).multiply(length);
         return this.set(anchor.x + d.x, anchor.y + d.y);
     }
@@ -124,7 +124,7 @@ export class Point {
     distanceTo(point: Point | Line) {
         const {x, y} = this;
         if (point instanceof Point) {
-            return Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2);
+            return Math.hypot(x - point.x, y - point.y);
         } else {
             return point.distanceTo(this);
         }
@@ -149,5 +149,9 @@ export class Point {
             this.y = anchor.y + distance.y + f;
         }
         return this;
+    }
+
+    normalize() {
+        return this.divide(Math.hypot(this.x, this.y));
     }
 }

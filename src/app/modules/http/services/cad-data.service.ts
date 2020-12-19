@@ -66,7 +66,7 @@ export class CadDataService extends HttpService {
     }
 
     async setCad(params: SetCadParams) {
-        const data = {...params, cadData: params.cadData.export(), sync: true};
+        const data = {...params, cadData: params.cadData.export()};
         const response = await this.request<CadData>("peijian/cad/setCad", "POST", data);
         if (response && response.data) {
             return new CadData(response.data);
