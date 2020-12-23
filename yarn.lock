@@ -164,34 +164,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-eslint/builder@npm:0.8.0-beta.6":
-  version: 0.8.0-beta.6
-  resolution: "@angular-eslint/builder@npm:0.8.0-beta.6"
+"@angular-eslint/builder@npm:0.8.0-beta.7":
+  version: 0.8.0-beta.7
+  resolution: "@angular-eslint/builder@npm:0.8.0-beta.7"
   peerDependencies:
     "@angular-devkit/architect": ~0.1001.4 || ~0.1100.1
     eslint: "*"
     typescript: "*"
-  checksum: 60d08feac75e054394406a42fa7f1c00f188e7ae5437029352e708b378c75c63fc97024538bd8219b4a2cc701781933f1612d888f6d8053747c811beec290d58
+  checksum: 2d531e650528dd1dda917d5df8cf2c68397cc89adc19d1c16445c07958656ac749615436669c2850454a914f3bc2410971e49a0807decbda13f9b4d0adbd9fb0
   languageName: node
   linkType: hard
 
-"@angular-eslint/eslint-plugin-template@npm:0.8.0-beta.6, @angular-eslint/eslint-plugin-template@npm:^0.8.0-beta.6":
-  version: 0.8.0-beta.6
-  resolution: "@angular-eslint/eslint-plugin-template@npm:0.8.0-beta.6"
+"@angular-eslint/eslint-plugin-template@npm:0.8.0-beta.7, @angular-eslint/eslint-plugin-template@npm:^0.8.0-beta.7":
+  version: 0.8.0-beta.7
+  resolution: "@angular-eslint/eslint-plugin-template@npm:0.8.0-beta.7"
   dependencies:
     "@typescript-eslint/experimental-utils": 4.3.0
     aria-query: ^4.2.2
+    axobject-query: ^2.2.0
   peerDependencies:
     "@angular-eslint/template-parser": "*"
     eslint: "*"
     typescript: "*"
-  checksum: a886197e55998def8e35b5423759373b3888fd9e8559e3152ba52ab0c6a792309d445f75badc49f3fabcd2d340d11a1fb4140bd3bce69f24a74947019ae99c17
+  checksum: f0779e7bd94e548c16643baff660295f1017fc306aa94386626cd1564038e952888ee711bbf498dbd46365074dfd2851d2651fcb5d7244878c3a35403e9aaa81
   languageName: node
   linkType: hard
 
-"@angular-eslint/eslint-plugin@npm:0.8.0-beta.6, @angular-eslint/eslint-plugin@npm:^0.8.0-beta.6":
-  version: 0.8.0-beta.6
-  resolution: "@angular-eslint/eslint-plugin@npm:0.8.0-beta.6"
+"@angular-eslint/eslint-plugin@npm:0.8.0-beta.7, @angular-eslint/eslint-plugin@npm:^0.8.0-beta.7":
+  version: 0.8.0-beta.7
+  resolution: "@angular-eslint/eslint-plugin@npm:0.8.0-beta.7"
   dependencies:
     "@typescript-eslint/experimental-utils": 4.3.0
   peerDependencies:
@@ -200,34 +201,34 @@ __metadata:
     eslint-plugin-jsdoc: "*"
     eslint-plugin-prefer-arrow: "*"
     typescript: "*"
-  checksum: 9c9afe77bee36b67ff74314db87113a386b9240ae63efed16092f692eead4654efe45f86bb6e718cdc25727965050a1889ec375d305cd3c72b3954fdcab168ff
+  checksum: f56763a018c63392470ccf552c819ddddca29cfd4abeded0fb1b63a1710f1a1795702f5fefd4b8c273ec05c2db9de4f8311778dcdeda59a7407081fcaeffff01
   languageName: node
   linkType: hard
 
-"@angular-eslint/schematics@npm:^0.8.0-beta.6":
-  version: 0.8.0-beta.6
-  resolution: "@angular-eslint/schematics@npm:0.8.0-beta.6"
+"@angular-eslint/schematics@npm:^0.8.0-beta.7":
+  version: 0.8.0-beta.7
+  resolution: "@angular-eslint/schematics@npm:0.8.0-beta.7"
   dependencies:
-    "@angular-eslint/eslint-plugin": ^0.8.0-beta.6
-    "@angular-eslint/eslint-plugin-template": ^0.8.0-beta.6
+    "@angular-eslint/eslint-plugin": ^0.8.0-beta.7
+    "@angular-eslint/eslint-plugin-template": ^0.8.0-beta.7
     strip-json-comments: 3.1.1
     tslint-to-eslint-config: 2.0.1
   peerDependencies:
     "@angular-devkit/schematics": "*"
-  checksum: 0803c051687f12995ec93b30939a85fd91bf3df1ece74f980c3cddd6389fd8cb11d0a19d44c36cac334c5b8f7bd91bbdf1a6ce7bf7a4787213c76dbfc7d46e3d
+  checksum: 376a9ba4f3a0a5449d7081b98134dc0caed9fab39e43f418710243c1bb2cbbaf3dfa677ae1fe00e13e7065e809221dbb9f1708a19c0f1db8f57c1f537cc67295
   languageName: node
   linkType: hard
 
-"@angular-eslint/template-parser@npm:0.8.0-beta.6":
-  version: 0.8.0-beta.6
-  resolution: "@angular-eslint/template-parser@npm:0.8.0-beta.6"
+"@angular-eslint/template-parser@npm:0.8.0-beta.7":
+  version: 0.8.0-beta.7
+  resolution: "@angular-eslint/template-parser@npm:0.8.0-beta.7"
   dependencies:
     eslint-scope: ^5.1.0
   peerDependencies:
     "@angular/compiler": "*"
     eslint: "*"
     typescript: "*"
-  checksum: 5512c9708e7499159698bd6154f036f693e09e6416e17c7928b1e69ffed801e8e96862b3b6fb1489b57d3121aeab9a28bd04cb7b04fb32adfb3eccc2320af91b
+  checksum: 082463a3c5210cb1414061a27805de4c433c6f3fc7e9d7dac22ced7f1e86a5010cfbbfb9845b89a193ef362b3fa4a04ad202b0b297f392be736bf2908ddabd40
   languageName: node
   linkType: hard
 
@@ -2903,6 +2904,13 @@ __metadata:
   version: 1.11.0
   resolution: "aws4@npm:1.11.0"
   checksum: d30dce2b73839974894d8283a06c53e8374b74d643d3b08340d84c364e01158be011fcfd1a88f8462be946d69055313a3038202f2eafd155b039aaab3549ba21
+  languageName: node
+  linkType: hard
+
+"axobject-query@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "axobject-query@npm:2.2.0"
+  checksum: c963a3ba9f30a402c32c6addf7798e6cf3471228d78b5c54bdd11f18d2b3da1bafe874bc6add142b93bf0ee0cb6a6fb3e48a992dea38ec2f5a52697498db3ac1
   languageName: node
   linkType: hard
 
@@ -8820,11 +8828,11 @@ fsevents@~2.1.2:
   resolution: "ng-cad2@workspace:."
   dependencies:
     "@angular-devkit/build-angular": ^0.1100.5
-    "@angular-eslint/builder": 0.8.0-beta.6
-    "@angular-eslint/eslint-plugin": 0.8.0-beta.6
-    "@angular-eslint/eslint-plugin-template": 0.8.0-beta.6
-    "@angular-eslint/schematics": ^0.8.0-beta.6
-    "@angular-eslint/template-parser": 0.8.0-beta.6
+    "@angular-eslint/builder": 0.8.0-beta.7
+    "@angular-eslint/eslint-plugin": 0.8.0-beta.7
+    "@angular-eslint/eslint-plugin-template": 0.8.0-beta.7
+    "@angular-eslint/schematics": ^0.8.0-beta.7
+    "@angular-eslint/template-parser": 0.8.0-beta.7
     "@angular/animations": ~11.0.5
     "@angular/cdk": ^11.0.3
     "@angular/cli": ~11.0.5
