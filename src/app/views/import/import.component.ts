@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component} from "@angular/core";
 import {splitCad} from "@src/app/cad-viewer";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
@@ -9,17 +9,13 @@ import {NgxUiLoaderService} from "ngx-ui-loader";
     templateUrl: "./import.component.html",
     styleUrls: ["./import.component.scss"]
 })
-export class ImportComponent implements OnInit {
+export class ImportComponent {
     loaderId = "importLoader";
     loaderText = "";
     msg = "";
     force = false;
 
     constructor(private message: MessageService, private loader: NgxUiLoaderService, private dataService: CadDataService) {}
-
-    ngOnInit() {
-        document.title = "导入CAD";
-    }
 
     async importDxf(event: Event) {
         if (this.force) {

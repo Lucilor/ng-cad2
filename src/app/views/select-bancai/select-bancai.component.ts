@@ -53,7 +53,6 @@ export class SelectBancaiComponent implements OnInit {
     ) {}
 
     async ngOnInit() {
-        document.title = "激光开料排版";
         const queryParams = this.route.snapshot.queryParams;
         if (queryParams.codes) {
             this.loader.startLoader("bancaiLoader");

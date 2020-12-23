@@ -40,7 +40,6 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
 
     async ngAfterViewInit() {
         Object.assign(window, {app: this});
-        document.title = "订单配件标签";
         document.body.style.overflowX = "hidden";
         document.body.style.overflowY = "auto";
         const data = this.route.snapshot.queryParams.data;

@@ -24,7 +24,6 @@ export class BackupComponent implements AfterViewInit {
     ) {}
 
     async ngAfterViewInit() {
-        document.title = "恢复备份";
         const result = await this.dataService.getBackupCads();
         if (!result) {
             this.message.alert("获取数据失败");

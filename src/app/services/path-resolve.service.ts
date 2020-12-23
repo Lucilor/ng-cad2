@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Params} from "@angular/router";
-import {paths} from "../app.common";
+import {routesInfo} from "../app.common";
 
 @Injectable({
     providedIn: "root"
@@ -9,7 +9,7 @@ export class PathResolveService implements Resolve<{path: string; queryParams: P
     constructor() {}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        const url = state.url.replace("/", "");
+        const url = state.url.replace(/^\//, "");
         let index = -1;
         for (let i = 0; i < url.length; i++) {
             if (["#", "?"].includes(url[i])) {
@@ -19,7 +19,9 @@ export class PathResolveService implements Resolve<{path: string; queryParams: P
         }
         const typoPath = url.slice(0, index);
         const threshold = this.getThreshold(typoPath);
-        const dictionary = Object.values(paths).filter((path) => Math.abs(path.length - typoPath.length) < threshold);
+        const dictionary = Object.values(routesInfo)
+            .filter((routeInfo) => Math.abs(routeInfo.path.length - typoPath.length) < threshold)
+            .map((v) => v.path);
 
         if (!dictionary.length) {
             return {path: "", queryParams: route.queryParams};

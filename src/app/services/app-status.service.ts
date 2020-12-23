@@ -170,7 +170,6 @@ export class AppStatusService {
             setCadData(v);
             addCadGongshi(v, this.config.config("showCadGongshis"), collection === "CADmuban");
         });
-        document.title = data.map((v) => v.name).join(", ");
         if (collection === "cad") {
             data.forEach((v) => validateLines(v));
         }

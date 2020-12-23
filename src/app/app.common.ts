@@ -1,21 +1,20 @@
-import {SessionStorage, LocalStorage} from "@src/app/utils";
+import {SessionStorage, LocalStorage, ObjectOf} from "@src/app/utils";
 import {environment} from "@src/environments/environment";
 
-export const projectName = "NgCad";
+export const projectName = "NgCad2";
 export const session = new SessionStorage(projectName);
 export const local = new LocalStorage(projectName);
 
 export const imgEmpty = "assets/images/empty.jpg";
 export const imgLoading = "assets/images/loading.gif";
 
-export const paths = {
-    index: "index",
-    printCad: "print-cad",
-    test: "test",
-    printA4A015Preview: "printA4A015Preview",
-    import: "import",
-    backup: "backup",
-    selectBancai: "select-bancai"
+export const routesInfo: ObjectOf<{path: string; title: string}> = {
+    index: {path: "index", title: ""},
+    printCad: {path: "print-cad", title: "打印CAD"},
+    printA4A015Preview: {path: "printA4A015Preview", title: "订单配件标签"},
+    import: {path: "import", title: "导入CAD",},
+    backup: {path: "backup", title: "备份CAD"},
+    selectBancai: {path: "select-bancai", title: "激光开料排版"}
 };
 
 export interface Response<T> {

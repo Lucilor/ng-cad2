@@ -91,7 +91,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         Reflect.defineProperty(window, "selectedArray", {get: () => cad.selected().toArray()});
         Reflect.defineProperty(window, "selected0", {get: () => cad.selected().toArray()[0]});
         this.status.openCad$.subscribe(() => {
-            document.title = cad.data.components.data.map((v) => v.name).join(",");
+            document.title = cad.data.components.data.map((v) => v.name).join(",") || "未选择CAD";
         });
 
         let cachedData: any = null;

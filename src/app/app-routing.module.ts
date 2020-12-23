@@ -1,6 +1,6 @@
 import {NgModule} from "@angular/core";
 import {Routes, RouterModule} from "@angular/router";
-import {paths} from "./app.common";
+import {routesInfo} from "./app.common";
 import {PathResolveService} from "./services/path-resolve.service";
 import {BackupComponent} from "./views/backup/backup.component";
 import {ImportComponent} from "./views/import/import.component";
@@ -11,14 +11,13 @@ import {PrintCadComponent} from "./views/print/print-cad.component";
 import {SelectBancaiComponent} from "./views/select-bancai/select-bancai.component";
 
 const routes: Routes = [
-    {path: "", pathMatch: "full", redirectTo: paths.index},
-    {path: paths.index, component: IndexComponent},
-    {path: paths.printCad, component: PrintCadComponent},
-    // {path: paths.test, component: TestComponent},
-    {path: paths.printA4A015Preview, component: PrintA4A015PreviewComponent},
-    {path: paths.import, component: ImportComponent},
-    {path: paths.backup, component: BackupComponent},
-    {path: paths.selectBancai, component: SelectBancaiComponent},
+    {path: "", pathMatch: "full", redirectTo: routesInfo.index.path},
+    {path: routesInfo.index.path, component: IndexComponent},
+    {path: routesInfo.printCad.path, component: PrintCadComponent},
+    {path: routesInfo.printA4A015Preview.path, component: PrintA4A015PreviewComponent},
+    {path: routesInfo.import.path, component: ImportComponent},
+    {path: routesInfo.backup.path, component: BackupComponent},
+    {path: routesInfo.selectBancai.path, component: SelectBancaiComponent},
     {path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
 ];
 
