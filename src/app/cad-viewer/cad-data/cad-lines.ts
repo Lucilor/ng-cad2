@@ -4,7 +4,7 @@ import {CadViewer} from "../cad-viewer";
 import {getVectorFromArray, isBetween} from "../utils";
 import {DEFAULT_TOLERANCE, Point} from "@src/app/utils";
 
-export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00"];
+export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"];
 
 export type PointsMap = {
     point: Point;
