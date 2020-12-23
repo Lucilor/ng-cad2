@@ -144,9 +144,21 @@
             <mat-select name="nextZhewan" [ngModel]="getLineText('nextZhewan')" (selectionChange)="setLineText($event, 'nextZhewan')">
                 <mat-option value="自动">自动</mat-option>
                 <mat-option value="无">无</mat-option>
-                <mat-option value="1mm">1mm</mat-option>
+                <mat-option value="2mm">2mm</mat-option>
                 <mat-option value="6mm">6mm</mat-option>
             </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="form-item zhewanOffset">
+        <mat-form-field>
+            <mat-label>折弯标记偏移</mat-label>
+            <input
+                matInput
+                type="text"
+                name="zhewanOffset"
+                [ngModel]="getLineText('zhewanOffset')"
+                (input)="setLineText($event, 'zhewanOffset')"
+            />
         </mat-form-field>
     </div>
     <div class="form-item zidingzhankaichang">
@@ -166,18 +178,6 @@
             <mat-label>条件取值</mat-label>
             <input matInput type="text" disabled />
             <mat-icon matSuffix color="primary" (click)="editTiaojianquzhi()">list</mat-icon>
-        </mat-form-field>
-    </div>
-    <div class="form-item zhewanOffset">
-        <mat-form-field>
-            <mat-label>折弯标记偏移</mat-label>
-            <input
-                matInput
-                type="text"
-                name="zhewanOffset"
-                [ngModel]="getLineText('zhewanOffset')"
-                (input)="setLineText($event, 'zhewanOffset')"
-            />
         </mat-form-field>
     </div>
 </form>

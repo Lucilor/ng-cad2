@@ -283,7 +283,39 @@ export abstract class CadEntity {
     // abstract getBoundingRect(): Rectangle;
 }
 
-export class CadArc extends CadEntity {
+export abstract class CadLineLike extends CadEntity {
+    abstract get start(): Point;
+    abstract get end(): Point;
+    abstract get middle(): Point;
+    abstract get length(): number;
+    hideLength: boolean;
+    lengthTextSize: number;
+    nextZhewan: "自动" | "无" | "1mm" | "6mm";
+    zhewanOffset: number;
+    zidingzhankaichang: number;
+
+    constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
+        super(data, layers, resetId);
+        this.hideLength = data.hideLength === true;
+        this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
+        this.nextZhewan = data.nextZhewan ?? "自动";
+        this.zhewanOffset = data.zhewanOffset ?? 0;
+        this.zidingzhankaichang = data.zidingzhankaichang ?? -1;
+    }
+
+    export(): ObjectOf<any> {
+        return {
+            ...super.export(),
+            hideLength: this.hideLength,
+            lengthTextSize: this.lengthTextSize,
+            nextZhewan: this.nextZhewan,
+            zhewanOffset: this.zhewanOffset,
+            zidingzhankaichang: this.zidingzhankaichang
+        };
+    }
+}
+
+export class CadArc extends CadLineLike {
     center: Point;
     radius: number;
     start_angle: number;
@@ -291,8 +323,6 @@ export class CadArc extends CadEntity {
     clockwise: boolean;
     mingzi = "";
     gongshi = "";
-    hideLength: boolean;
-    lengthTextSize: number;
 
     get start() {
         return this.curve.getPoint(0);
@@ -319,8 +349,6 @@ export class CadArc extends CadEntity {
         this.start_angle = data.start_angle ?? 0;
         this.end_angle = data.end_angle ?? 0;
         this.clockwise = data.clockwise ?? false;
-        this.hideLength = data.hideLength === true;
-        this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
     }
 
     transform(matrix: MatrixLike, alter = false, parent?: CadEntity) {
@@ -348,9 +376,7 @@ export class CadArc extends CadEntity {
             radius: this.radius,
             start_angle: this.start_angle,
             end_angle: this.end_angle,
-            clockwise: this.clockwise,
-            hideLength: this.hideLength,
-            lengthTextSize: this.lengthTextSize
+            clockwise: this.clockwise
         };
     }
 
@@ -574,7 +600,7 @@ export class CadHatch extends CadEntity {
     }
 }
 
-export class CadLine extends CadEntity {
+export class CadLine extends CadLineLike {
     start: Point;
     end: Point;
     mingzi: string;
@@ -582,8 +608,6 @@ export class CadLine extends CadEntity {
     gongshi: string;
     guanlianbianhuagongshi: string;
     kongwei: string;
-    nextZhewan: "自动" | "无" | "1mm" | "6mm";
-    zidingzhankaichang: number;
     tiaojianquzhi: {
         key: string;
         level: number;
@@ -594,9 +618,6 @@ export class CadLine extends CadEntity {
             input: boolean;
         }[];
     }[];
-    zhewanOffset: number;
-    hideLength: boolean;
-    lengthTextSize: number;
 
     get curve() {
         return new Line(this.start, this.end);
@@ -636,17 +657,12 @@ export class CadLine extends CadEntity {
         this.gongshi = data.gongshi ?? "";
         this.guanlianbianhuagongshi = data.guanlianbianhuagongshi ?? "";
         this.kongwei = data.kongwei ?? "";
-        this.nextZhewan = data.nextZhewan ?? "自动";
-        this.zidingzhankaichang = data.zidingzhankaichang ?? -1;
         this.tiaojianquzhi = data.tiaojianquzhi ?? [];
-        this.zhewanOffset = data.zhewanOffset ?? 0;
         this.tiaojianquzhi.forEach((v) => {
             if ((v.type as any) === "选项") {
                 v.type = "选择";
             }
         });
-        this.hideLength = data.hideLength === true;
-        this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
     }
 
     transform(matrix: MatrixLike, alter = false, parent?: CadEntity) {
@@ -668,12 +684,7 @@ export class CadLine extends CadEntity {
             gongshi: this.gongshi,
             guanlianbianhuagongshi: this.guanlianbianhuagongshi,
             kongwei: this.kongwei,
-            nextZhewan: this.nextZhewan,
-            zidingzhankaichang: this.zidingzhankaichang,
-            tiaojianquzhi: this.tiaojianquzhi,
-            zhewanOffset: this.zhewanOffset,
-            hideLength: this.hideLength,
-            lengthTextSize: this.lengthTextSize
+            tiaojianquzhi: this.tiaojianquzhi
         };
     }
 

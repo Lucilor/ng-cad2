@@ -301,7 +301,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     e[field] = Number(value);
                     this.status.cad.render(e);
                 } else {
-                    if (e instanceof CadLine) {
+                    if (e instanceof CadLineLike) {
                         if (field === "zidingzhankaichang") {
                             e[field] = Number(value);
                         } else {
