@@ -154,10 +154,22 @@
             <mat-label>折弯标记偏移</mat-label>
             <input
                 matInput
-                type="text"
+                type="number"
                 name="zhewanOffset"
                 [ngModel]="getLineText('zhewanOffset')"
                 (input)="setLineText($event, 'zhewanOffset')"
+            />
+        </mat-form-field>
+    </div>
+    <div class="form-item zhewanValue">
+        <mat-form-field>
+            <mat-label>指定折弯标记位置</mat-label>
+            <input
+                matInput
+                type="number"
+                name="zhewanValue"
+                [ngModel]="getLineText('zhewanValue')"
+                (input)="setLineText($event, 'zhewanValue')"
             />
         </mat-form-field>
     </div>
@@ -166,7 +178,7 @@
             <mat-label>指定展开长</mat-label>
             <input
                 matInput
-                type="text"
+                type="number"
                 name="zidingzhankaichang"
                 [ngModel]="getLineText('zidingzhankaichang')"
                 (input)="setLineText($event, 'zidingzhankaichang')"

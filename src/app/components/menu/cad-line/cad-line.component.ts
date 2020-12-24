@@ -289,34 +289,30 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
 
     // eslint-disable-next-line @typescript-eslint/member-ordering
     setLineText = debounce((event: InputEvent | MatSelectChange | Event, field: string) => {
-        let value = "";
+        let value: number | string = "";
         if (event instanceof MatSelectChange) {
             value = event.value;
         } else if (event instanceof InputEvent || event instanceof Event) {
+            const target = event.target as HTMLInputElement;
+            if (target.type === "number") {
+                value = Number(target.value);
+            } else {
+                value = target.value;
+            }
             value = (event.target as HTMLInputElement).value;
         }
         if (this.validateLineText(field, value)) {
             this.selected.forEach((e) => {
-                if (field === "lengthTextSize") {
-                    e[field] = Number(value);
+                (e as any)[field] = value;
+                if (["mingzi", "gongshi", "guanlianbianhuagongshi", "lengthTextSize"].includes(field)) {
                     this.status.cad.render(e);
-                } else {
-                    if (e instanceof CadLineLike) {
-                        if (field === "zidingzhankaichang") {
-                            e[field] = Number(value);
-                        } else {
-                            (e as any)[field] = value;
-                            if (["mingzi", "gongshi", "guanlianbianhuagongshi"].includes(field)) {
-                                this.status.cad.render(e);
-                            }
-                        }
-                    }
                 }
             });
         }
     }, 500);
 
-    validateLineText(field: string, value: string) {
+    validateLineText(field: string, value: string | number) {
+        value = value.toString();
         if (field === "gongshi") {
             if (this.config.config("collection") === "cad" && value.match(/[-+*/()（）]/)) {
                 this.inputErrors.gongshi = "不能使用四则运算";
