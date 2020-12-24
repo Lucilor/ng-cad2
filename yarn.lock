@@ -1832,10 +1832,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.165":
-  version: 4.14.165
-  resolution: "@types/lodash@npm:4.14.165"
-  checksum: 525bfc34b0b591cc957125a961c70e63e5ad8b23cbd89b7594a5ea74823285b6d96993a7eec506e26b379ee52dc9dcd3a894ff210be4c97bccb536e62361dbc8
+"@types/lodash@npm:^4.14.166":
+  version: 4.14.166
+  resolution: "@types/lodash@npm:4.14.166"
+  checksum: e8ce1ef9980f494d1da0bd3ac16ba0046b5c1097ff5c9446eb1bd167871d2e8edd2e8e8344a1dbb0134a1c12c29591cf8f950e083adb7e237d5cfeac228abb7d
   languageName: node
   linkType: hard
 
@@ -1853,10 +1853,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^14.14.14":
-  version: 14.14.14
-  resolution: "@types/node@npm:14.14.14"
-  checksum: dea8d257d49d68c65dafa6ebde9453bb61b67febc92ed8d7e38fce8b95f18d32ccffb3ab37021f9be8d1e5c65cd59cdb7dd8981d9b89b2be103b3012aee09fcf
+"@types/node@npm:^14.14.16":
+  version: 14.14.16
+  resolution: "@types/node@npm:14.14.16"
+  checksum: 220a7496ec73861ad7fb4ae762618bb46ac9d5d5f92f3a2fcebfd1a81a509ff558eface7bcd1d632598a8a28f856a74b324e7165918e8334a59c221cb06d15e3
   languageName: node
   linkType: hard
 
@@ -6616,10 +6616,10 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"highlight.js@npm:^10.4.1":
-  version: 10.4.1
-  resolution: "highlight.js@npm:10.4.1"
-  checksum: 067a8cc822a4bfe3ae9cab8b827a64e059052b27606fcc91f06304b2518e0b8c6ff8875b19f2989ff329f1f07f5989dd52aee67eae005d63c77591ca08e419ec
+"highlight.js@npm:^10.5.0":
+  version: 10.5.0
+  resolution: "highlight.js@npm:10.5.0"
+  checksum: 00cfa96a725a7fe3f2e4f594303cfb69682414c2e6f1d2e3827bc7c738d8402491fcd5d92db2a3bb210d3d674873298d4a0d05cd78e6fe78a1e8137980a92722
   languageName: node
   linkType: hard
 
@@ -8849,8 +8849,8 @@ fsevents@~2.1.2:
     "@types/color": ^3.0.1
     "@types/jasmine": ~3.6.2
     "@types/jasminewd2": ~2.0.8
-    "@types/lodash": ^4.14.165
-    "@types/node": ^14.14.14
+    "@types/lodash": ^4.14.166
+    "@types/node": ^14.14.16
     "@types/pdfmake": ^0.1.16
     "@types/uuid": ^8.3.0
     "@typescript-eslint/eslint-plugin": 4.11.0
@@ -8861,7 +8861,7 @@ fsevents@~2.1.2:
     eslint-plugin-import: 2.22.1
     eslint-plugin-jsdoc: 30.7.9
     eslint-plugin-prefer-arrow: 1.2.2
-    highlight.js: ^10.4.1
+    highlight.js: ^10.5.0
     jasmine-core: ~3.6.0
     jasmine-spec-reporter: ~6.0.0
     jsencrypt: ^3.0.0-rc.1
