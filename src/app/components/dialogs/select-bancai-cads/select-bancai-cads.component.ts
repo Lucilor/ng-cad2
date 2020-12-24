@@ -41,6 +41,22 @@ export class SelectBancaiCadsComponent {
     autoCheck() {
         this.data.cads.forEach((cad) => (cad.checked = cad.oversized));
     }
+
+    selectAll() {
+        this.data.cads.forEach((cad) => (cad.checked = true));
+    }
+
+    unselectAll() {
+        this.data.cads.forEach((cad) => (cad.checked = false));
+    }
+
+    disable() {
+        this.data.cads.forEach((cad) => (cad.disabled = cad.checked));
+    }
+
+    enable() {
+        this.data.cads.forEach((cad) => (cad.disabled = !cad.checked));
+    }
 }
 
 export const openSelectBancaiCadsDialog = getOpenDialogFunc<SelectBancaiCadsComponent, SelectBancaiCadsData, string[]>(

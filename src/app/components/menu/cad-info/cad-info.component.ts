@@ -1,6 +1,7 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
+import {ActivatedRoute} from "@angular/router";
 import {CadData, CadLine, CadEventCallBack, CadOption, CadBaseLine, CadJointPoint, CadEntity, generatePointsMap} from "@src/app/cad-viewer";
 import {getCadGongshiText} from "@src/app/cad.utils";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
@@ -41,7 +42,12 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
         }
     }) as CadEventCallBack<"entityclick">).bind(this);
 
-    constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
+    constructor(
+        private status: AppStatusService,
+        private dialog: MatDialog,
+        private message: MessageService,
+        private route: ActivatedRoute
+    ) {
         super();
     }
 
@@ -207,6 +213,15 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
         if (mtext) {
             mtext.text = getCadGongshiText(data);
             this.status.cad.render(mtext);
+        }
+    }
+
+    openKailiaomuban(data: CadData) {
+        if (data.kailiaomuban) {
+            const params = {...this.route.snapshot.queryParams};
+            params.collection = "kailiaocadmuban";
+            params.id = data.kailiaomuban;
+            open("index?" + new URLSearchParams(params).toString());
         }
     }
 

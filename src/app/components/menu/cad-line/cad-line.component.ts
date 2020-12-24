@@ -300,6 +300,10 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 value = target.value;
             }
         }
+        if (field === "zhewanValue" && value < 0) {
+            this.message.alert("指定折弯标记位置不能小于0");
+            value = 0;
+        }
         if (this.validateLineText(field, value)) {
             this.selected.forEach((e) => {
                 (e as any)[field] = value;

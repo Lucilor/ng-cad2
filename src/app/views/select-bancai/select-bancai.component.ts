@@ -15,6 +15,7 @@ const guigePattern = /^([0-9]+([.]{1}[0-9]+){0,1})[^0-9^.]+([0-9]+([.]{1}[0-9]+)
 export interface BancaiCadExtend extends BancaiCad {
     checked: boolean;
     oversized: boolean;
+    disabled: boolean;
 }
 
 @Component({
@@ -84,7 +85,7 @@ export class SelectBancaiComponent implements OnInit {
     }
 
     getBancaiCadExtend(bancaiCad: BancaiCad) {
-        const result: BancaiCadExtend = {...bancaiCad, checked: false, oversized: false};
+        const result: BancaiCadExtend = {...bancaiCad, checked: false, oversized: false, disabled: false};
         const guige = bancaiCad.bancai.guige;
         if (Array.isArray(guige)) {
             result.oversized = bancaiCad.width > guige[0] || bancaiCad.height > guige[1];
@@ -158,8 +159,10 @@ export class SelectBancaiComponent implements OnInit {
             bancaiCads.get("oversized")?.setValue(group.some((v) => v.oversized));
             const duplicateIdx = sortedCads.findIndex((v, i) => i !== this.formIdx && this.isBancaiDuplicate(v[0].bancai, group[0].bancai));
             if (duplicateIdx >= 0) {
-                // FIXME: duplicateIdx;
-                // sortedCads[duplicateIdx];
+                sortedCads[duplicateIdx] = sortedCads[duplicateIdx].concat(group);
+                sortedCads.splice(this.formIdx, 1);
+                this.bancaiForms.splice(this.formIdx, 1);
+                this.formIdx = -1;
                 this.message.snack("板材信息相同, 已合并");
             }
         }
@@ -254,12 +257,15 @@ export class SelectBancaiComponent implements OnInit {
     async submit() {
         const bancaiCads: BancaiCad[] = this.sortedCads
             .map((group) =>
-                group.map((v) => {
-                    const clone = {...v} as Partial<BancaiCadExtend>;
-                    delete clone.checked;
-                    delete clone.oversized;
-                    return clone as BancaiCad;
-                })
+                group
+                    .filter((v) => !v.disabled)
+                    .map((v) => {
+                        const clone = {...v} as Partial<BancaiCadExtend>;
+                        delete clone.checked;
+                        delete clone.oversized;
+                        delete clone.disabled;
+                        return clone as BancaiCad;
+                    })
             )
             .flat();
         this.loader.startLoader("submitLoader");
