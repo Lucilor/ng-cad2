@@ -142,7 +142,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     constructor(
         private status: AppStatusService,
         private config: AppConfigService,
-        private console: CadConsoleService,
+        private consoleService: CadConsoleService,
         private dialog: MatDialog,
         private message: MessageService
     ) {
@@ -299,7 +299,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             } else {
                 value = target.value;
             }
-            value = (event.target as HTMLInputElement).value;
         }
         if (this.validateLineText(field, value)) {
             this.selected.forEach((e) => {
@@ -358,7 +357,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     drawLine() {
-        this.console.execute("draw-line");
+        this.consoleService.execute("draw-line");
     }
 
     addLineDrawing() {
