@@ -680,7 +680,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const data = this.contextMenuCad.data;
         const cads = await openCadListDialog(this.dialog, {data: {selectMode: "single", options: data.options, collection: "cad"}});
         if (cads && cads[0]) {
-            this.dataService.replaceData(data, cads[0].id);
+            this.dataService.replaceData(data, cads[0].id, this.config.config("collection"));
         }
     }
 }

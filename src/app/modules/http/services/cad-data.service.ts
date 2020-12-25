@@ -66,8 +66,8 @@ export class CadDataService extends HttpService {
     }
 
     async setCad(params: SetCadParams) {
-        const data = {...params, cadData: params.cadData.export()};
-        const response = await this.request<CadData>("peijian/cad/setCad", "POST", data);
+        const data = {...params, cadData: JSON.stringify(params.cadData.export())};
+        const response = await this.request<CadData>("peijian/cad/setCad", "POST", data, false);
         if (response && response.data) {
             return new CadData(response.data);
         } else {
@@ -102,7 +102,7 @@ export class CadDataService extends HttpService {
     }
 
     async downloadDxf(data: CadData) {
-        const result = await this.request<any>("peijian/cad/downloadDxf", "POST", {cadData: data.export()});
+        const result = await this.request<any>("peijian/cad/downloadDxf", "POST", {cadData: JSON.stringify(data.export())}, false);
         const host = this.baseURL === "/api" ? "//localhost" : origin;
         if (result) {
             open(host + "/" + result.data.path);
@@ -117,13 +117,18 @@ export class CadDataService extends HttpService {
         return null;
     }
 
-    async replaceData(source: CadData, target: string, collection?: CadCollection) {
+    async replaceData(source: CadData, target: string, collection: CadCollection) {
         source.sortComponents();
-        const response = await this.request<any>("peijian/cad/replaceCad", "POST", {
-            source: source.export(),
-            target,
-            collection
-        });
+        const response = await this.request<any>(
+            "peijian/cad/replaceCad",
+            "POST",
+            {
+                source: JSON.stringify(source.export()),
+                target,
+                collection
+            },
+            false
+        );
         if (response) {
             return new CadData(response.data);
         }
