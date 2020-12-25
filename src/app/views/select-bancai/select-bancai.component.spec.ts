@@ -1,6 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
-import {RouterModule} from "@angular/router";
+import {RouterTestingModule} from "@angular/router/testing";
 import {HttpModule} from "@src/app/modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
@@ -14,7 +14,7 @@ describe("SelectBancaiComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [SelectBancaiComponent],
-            imports: [HttpModule, MatAutocompleteModule, MessageModule, NgxUiLoaderModule, PerfectScrollbarModule, RouterModule.forRoot([])]
+            imports: [HttpModule, MatAutocompleteModule, MessageModule, NgxUiLoaderModule, PerfectScrollbarModule, RouterTestingModule]
         }).compileComponents();
     });
 

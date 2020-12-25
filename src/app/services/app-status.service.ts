@@ -7,6 +7,7 @@ import {CadData} from "../cad-viewer/cad-data/cad-data";
 import {generateLineTexts, PointsMap, validateLines, ValidateResult} from "../cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "../cad-viewer/cad-viewer";
 import {setCadData, addCadGongshi} from "../cad.utils";
+import {timeout} from "../utils";
 import {ObjectOf} from "../utils/types";
 import {AppConfig, AppConfigService} from "./app-config.service";
 
@@ -83,14 +84,6 @@ export class AppStatusService {
             const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
             cadGongshis.forEach((e) => (e.visible = showCadGongshis));
             cad.render(cadGongshis);
-        });
-
-        this.cadPoints$.subscribe((cadPoints) => {
-            if (cadPoints.length) {
-                this.config.config("enableZoom", false);
-            } else {
-                this.config.config("enableZoom", true);
-            }
         });
     }
 
@@ -211,11 +204,12 @@ export class AppStatusService {
         }
     }
 
-    setCadPoints(map: PointsMap) {
+    async setCadPoints(map: PointsMap) {
         const points: CadPoints = map.map((v) => {
             const {x, y} = this.cad.getScreenPoint(v.point.x, v.point.y);
             return {x, y, active: false};
         });
+        await timeout(0);
         this.cadPoints$.next(points);
     }
 

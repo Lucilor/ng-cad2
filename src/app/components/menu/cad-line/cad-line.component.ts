@@ -14,7 +14,8 @@ import {
     CadArc,
     linewidth2lineweight,
     lineweight2linewidth,
-    autoFixLine
+    autoFixLine,
+    CadEntities
 } from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
@@ -35,7 +36,7 @@ import {openCadLineTiaojianquzhiDialog} from "../../dialogs/cad-line-tjqz/cad-li
 export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy {
     focusedField = "";
     editDiabled = false;
-    lineDrawing: {start?: Point; end?: Point; entity?: CadLine} = {};
+    lineDrawing: {start?: Point; end?: Point; entity?: CadLine; oldEntity?: CadLine} | null = null;
     data: CadData | null = null;
     inputErrors: {gongshi: string | false; guanlianbianhuagongshi: string | false} = {
         gongshi: false,
@@ -78,45 +79,63 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     readonly selectableColors = validColors;
 
     private onPointerMove = (async ({clientX, clientY, shiftKey}: MouseEvent) => {
-        const {lineDrawing} = this;
+        const lineDrawing = this.lineDrawing;
         const cad = this.status.cad;
-        if (!lineDrawing.start) {
+        if (!lineDrawing) {
             return;
         }
-        lineDrawing.end = cad.getWorldPoint(clientX, clientY);
-        if (shiftKey) {
-            const dx = Math.abs(lineDrawing.start.x - lineDrawing.end.x);
-            const dy = Math.abs(lineDrawing.start.y - lineDrawing.end.y);
-            if (dx < dy) {
-                lineDrawing.end.x = lineDrawing.start.x;
+        let entity = lineDrawing.entity;
+        if (lineDrawing.oldEntity) {
+            if (!entity) {
+                return;
+            }
+            if (lineDrawing.start) {
+                entity.start.copy(cad.getWorldPoint(clientX, clientY));
+            } else if (lineDrawing.end) {
+                entity.end.copy(cad.getWorldPoint(clientX, clientY));
+            }
+        } else {
+            if (!lineDrawing.start) {
+                return;
+            }
+            lineDrawing.end = cad.getWorldPoint(clientX, clientY);
+            if (entity) {
+                entity.end = lineDrawing.end;
             } else {
-                lineDrawing.end.y = lineDrawing.start.y;
+                entity = new CadLine({...lineDrawing});
+                lineDrawing.entity = entity;
+                this.data?.entities.add(entity);
+                cad.render(entity);
+                entity.opacity = 0.6;
+                entity.selectable = false;
             }
         }
-        let entity = lineDrawing.entity;
-        if (entity) {
-            entity.end = lineDrawing.end;
-        } else {
-            entity = new CadLine({...lineDrawing});
-            lineDrawing.entity = entity;
-            this.data?.entities.add(entity);
-            cad.render(entity);
-            entity.opacity = 0.6;
-            entity.selectable = false;
+        if (shiftKey) {
+            const {start, end} = entity;
+            const dx = Math.abs(start.x - end.x);
+            const dy = Math.abs(start.y - end.y);
+            if (dx < dy) {
+                end.x = start.x;
+            } else {
+                end.y = start.y;
+            }
         }
         cad.render(entity);
     }).bind(this);
 
     private onClick = ((_event: MouseEvent) => {
-        const {lineDrawing} = this;
+        const lineDrawing = this.lineDrawing;
         const cad = this.status.cad;
-        const entity = lineDrawing.entity;
-        if (!entity) {
+        const entity = lineDrawing?.entity;
+        if (!lineDrawing || !entity) {
             // this.status.addCadPoint({x: event.clientX, y: event.clientY, active: true});
             return;
         }
-        setLinesLength(cad.data, [entity], Math.round(entity.length));
-        this.addLineDrawing();
+        if (lineDrawing.oldEntity) {
+        } else {
+            setLinesLength(cad.data, [entity], Math.round(entity.length));
+            this.addLineDrawing();
+        }
     }).bind(this);
 
     private onEntitiesChange = (() => {
@@ -139,6 +158,17 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         this.colorText = this.getCssColor();
     }).bind(this);
 
+    private updateCadPoints = (() => {
+        const lineDrawing = this.lineDrawing;
+        if (lineDrawing) {
+            if (lineDrawing.entity && lineDrawing.oldEntity && !lineDrawing.start && !lineDrawing.end) {
+                this.status.setCadPoints(generatePointsMap(new CadEntities().add(lineDrawing.entity)));
+            } else {
+                this.status.setCadPoints(generatePointsMap(this.data?.getAllEntities()));
+            }
+        }
+    }).bind(this);
+
     constructor(
         private status: AppStatusService,
         private config: AppConfigService,
@@ -159,50 +189,91 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         let prevSelectMode: CadViewerConfig["selectMode"];
         this.subscribe(this.status.cadStatus$, (cadStatus) => {
             const name = cadStatus.name;
-            const {data} = this;
             cad = this.status.cad;
             if (name === "drawLine") {
-                this.status.setCadPoints(generatePointsMap(data?.getAllEntities()));
+                const selected = this.selected;
+                const selected0 = selected[0];
+                if (selected.length === 1 && selected0 instanceof CadLine) {
+                    this.lineDrawing = {entity: selected0.clone(true), oldEntity: selected0};
+                } else {
+                    this.lineDrawing = {};
+                }
+                this.updateCadPoints();
+                prevSelectMode = cad.config("selectMode");
+                cad.config("selectMode", "none");
                 cad.traverse((e) => {
                     e.info.prevSelectable = e.selectable;
                     e.selectable = false;
                 });
-                prevSelectMode = cad.config("selectMode");
-                cad.config("selectMode", "none");
-                this.lineDrawing = {};
-            } else {
-                this.status.setCadPoints([]);
-                cad.remove(this.lineDrawing.entity);
+            } else if (this.lineDrawing) {
+                const lineDrawing = this.lineDrawing;
+                if (lineDrawing) {
+                    const {entity, oldEntity} = lineDrawing;
+                    cad.remove(entity);
+                    if (oldEntity) {
+                        oldEntity.opacity = 1;
+                    }
+                }
                 cad.traverse((e) => {
                     e.selectable = e.info.prevSelectable ?? true;
                     delete e.info.prevSelectable;
                 });
                 cad.config("selectMode", prevSelectMode);
-                if (this.lineDrawing.entity) {
-                    this.lineDrawing.entity.selectable = true;
-                }
-                this.lineDrawing = {};
+                this.lineDrawing = null;
+                this.status.setCadPoints([]);
             }
         });
-        this.subscribe(this.status.cadPoints$, (cadPoints) => {
+        this.subscribe(this.status.cadPoints$, async (cadPoints) => {
             const activePoints = cadPoints.filter((v) => v.active);
             const name = this.status.cadStatus("name");
-            if (!activePoints.length || name !== "drawLine") {
+            const lineDrawing = this.lineDrawing;
+            if (!activePoints.length || name !== "drawLine" || !lineDrawing) {
                 return;
             }
             const worldPoints = activePoints.map((v) => cad.getWorldPoint(v.x, v.y));
-            const entity = this.lineDrawing.entity;
-            if (activePoints.length === 1) {
-                this.lineDrawing = {start: worldPoints[0]};
-            } else if (entity) {
-                if (worldPoints[0].equals(entity.start)) {
-                    entity.end.copy(worldPoints[1]);
-                } else {
-                    entity.end.copy(worldPoints[0]);
+            const {entity, oldEntity} = lineDrawing;
+            if (oldEntity) {
+                if (!entity) {
+                    return;
                 }
-                this.addLineDrawing();
+                if (worldPoints.length === 1) {
+                    if (!lineDrawing.start && !lineDrawing.end) {
+                        if (worldPoints[0].equals(entity.start)) {
+                            lineDrawing.start = entity.start;
+                        } else {
+                            lineDrawing.end = entity.end;
+                        }
+                        oldEntity.opacity = 0.6;
+                        this.updateCadPoints();
+                    } else {
+                        if (await this.message.confirm("是否改变线段？")) {
+                            if (lineDrawing.start) {
+                                entity.start.copy(worldPoints[0]);
+                            } else {
+                                entity.end.copy(worldPoints[0]);
+                            }
+                            this.data?.entities.add(entity);
+                            cad.remove(oldEntity).render(entity);
+                            entity.selected = false;
+                            this.drawLine();
+                        } else {
+                            this.updateCadPoints();
+                        }
+                    }
+                }
+            } else {
+                if (worldPoints.length === 1) {
+                    lineDrawing.start = worldPoints[0];
+                } else if (entity) {
+                    if (worldPoints[0].equals(entity.start)) {
+                        entity.end.copy(worldPoints[1]);
+                    } else {
+                        entity.end.copy(worldPoints[0]);
+                    }
+                    this.addLineDrawing();
+                }
+                // this.status.setCadPoints([]);
             }
-            // this.status.setCadPoints([]);
         });
 
         this.onEntitiesChange();
@@ -212,6 +283,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         cad.on("entitiesunselect", this.onEntitiesChange);
         cad.on("entitiesadd", this.onEntitiesChange);
         cad.on("entitiesremove", this.onEntitiesChange);
+        cad.on("moveEntities", this.updateCadPoints);
+        cad.on("zoom", this.updateCadPoints);
     }
 
     ngOnDestroy() {
@@ -223,6 +296,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         cad.off("entitiesunselect", this.onEntitiesChange);
         cad.off("entitiesadd", this.onEntitiesChange);
         cad.off("entitiesremove", this.onEntitiesChange);
+        cad.off("moveEntities", this.updateCadPoints);
+        cad.off("zoom", this.updateCadPoints);
     }
 
     getLineLength() {
@@ -365,14 +440,17 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     addLineDrawing() {
-        const entity = this.lineDrawing.entity;
-        if (!entity) {
+        const lineDrawing = this.lineDrawing;
+        const entity = lineDrawing?.entity;
+        if (!lineDrawing || !entity) {
             return;
         }
         this.status.cad.render(entity);
         entity.opacity = 1;
         entity.selectable = true;
-        this.lineDrawing = {};
+        delete lineDrawing.entity;
+        delete lineDrawing.start;
+        delete lineDrawing.end;
         this.status.setCadPoints(generatePointsMap(this.data?.getAllEntities()));
     }
 

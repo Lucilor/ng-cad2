@@ -28,11 +28,14 @@ export interface CadEvents {
     entitiesremove: [null, EntitiesObj];
     entitiesadd: [null, EntitiesObj];
     render: [null, EntitiesObj];
+    moveEntities: [null, EntitiesObj];
+    zoom: [null, null];
 }
 export type CadEventCallBack<T extends keyof CadEvents> = (event: CadEvents[T][0], params: CadEvents[T][1]) => void;
 
 function onWheel(this: CadViewer, event: WheelEvent) {
     event.preventDefault();
+    this.emit("wheel", event, null);
     if (!this.config("enableZoom")) {
         return;
     }

@@ -37,13 +37,11 @@ export class ImportComponent {
             this.loaderText = `正在导入dxf数据(0/${cads.length})`;
             const skipped = [];
             const total = cads.length;
-            const now = new Date().getTime();
             for (let i = 0; i < total; i++) {
                 const result = await this.dataService.setCad({
                     collection: "cad",
                     cadData: cads[i],
-                    force: this.force,
-                    time: now
+                    force: this.force
                 });
                 let text = `正在导入dxf数据(${i + 1}/${total})`;
                 if (!result) {

@@ -467,9 +467,8 @@ export class CadConsoleComponent implements OnInit {
                 indices.forEach((v) => (cads = cads.concat(data[v].components.data)));
                 const total = cads.length;
                 status.startLoader({id: loaderId, text: `正在保存CAD(0/${total})`});
-                const now = new Date().getTime();
                 for (let i = 0; i < total; i++) {
-                    const resData = await dataService.setCad({collection, cadData: cads[i], force: true, time: now});
+                    const resData = await dataService.setCad({collection, cadData: cads[i], force: true});
                     if (resData) {
                         result.push(resData);
                     } else {
@@ -492,9 +491,8 @@ export class CadConsoleComponent implements OnInit {
                 data.forEach((v) => removeCadGongshi(v));
                 const total = data.length;
                 status.startLoader({id: loaderId, text: `正在保存CAD(0/${total})`});
-                const now = new Date().getTime();
                 for (let i = 0; i < total; i++) {
-                    const resData = await dataService.setCad({collection, cadData: data[i], force: true, time: now});
+                    const resData = await dataService.setCad({collection, cadData: data[i], force: true});
                     if (resData) {
                         result.push(resData);
                     } else {

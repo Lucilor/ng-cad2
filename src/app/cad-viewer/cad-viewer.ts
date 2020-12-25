@@ -241,6 +241,7 @@ export class CadViewer extends EventEmitter {
         // ? .zoom() method is somehow hidden
         if (typeof level === "number") {
             (this.draw as any).zoom(level, point);
+            this.emit("zoom", null, null);
             return this;
         } else {
             return (this.draw as any).zoom(level, point) as number;
@@ -737,5 +738,6 @@ export class CadViewer extends EventEmitter {
             this.move(x, y);
             notToMove.transform({translate: [-x, -y]});
         }
+        this.emit("moveEntities", null, {entities: toMove});
     }
 }

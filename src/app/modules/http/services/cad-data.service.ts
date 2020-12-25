@@ -20,7 +20,6 @@ export interface SetCadParams {
     collection: CadCollection;
     cadData: CadData;
     force: boolean;
-    time?: number;
 }
 
 export type CadSearchData = {

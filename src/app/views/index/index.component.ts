@@ -58,11 +58,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         return this.status.cad.config("entityDraggable");
     }
     get cadStatusStr() {
-        let result = cadStatusNameMap[this.status.cadStatus$.getValue().name];
-        if (!this.config.config("enableZoom")) {
-            result += "(禁用缩放)";
-        }
-        return result;
+        return cadStatusNameMap[this.status.cadStatus$.getValue().name];
     }
 
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLElement>;
