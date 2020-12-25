@@ -54,7 +54,9 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     get multiSelect() {
         return this.status.cad.config("selectMode") === "multiple";
     }
-
+    get entityDraggable() {
+        return this.status.cad.config("entityDraggable");
+    }
     get cadStatusStr() {
         let result = cadStatusNameMap[this.status.cadStatus$.getValue().name];
         if (!this.config.config("enableZoom")) {
@@ -218,5 +220,9 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         let selectMode = this.config.config("selectMode");
         selectMode = selectMode === "multiple" ? "single" : "multiple";
         this.config.config("selectMode", selectMode);
+    }
+
+    toggleEntityDraggable() {
+        this.config.config("entityDraggable", !this.config.config("entityDraggable"));
     }
 }
