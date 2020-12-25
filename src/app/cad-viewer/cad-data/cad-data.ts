@@ -35,7 +35,7 @@ export class CadData {
     info: ObjectOf<any>;
     attributes: ObjectOf<any>;
     bancaihoudufangxiang: "none" | "gt0" | "lt0";
-    zhankai: (number | string)[][];
+    zhankai: {zhankaikuan: number; zhankaigao: number; shuliang: number; shuliangbeishu: number; name: string; cadmuban: string}[];
 
     constructor(data: ObjectOf<any> = {}) {
         if (typeof data !== "object") {

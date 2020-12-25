@@ -9,6 +9,7 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppStatusService, CadStatus} from "@src/app/services/app-status.service";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "../../dialogs/cad-options/cad-options.component";
+import {openCadZhankaiDialog} from "../../dialogs/cad-zhankai/cad-zhankai.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
 
 @Component({
@@ -288,7 +289,7 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     async editZhankai(data: CadData) {
-        const result = await openJsonEditorDialog(this.dialog, {data: {json: data.zhankai}});
+        const result = await openCadZhankaiDialog(this.dialog, {data: data.zhankai});
         if (result) {
             data.zhankai = result;
         }

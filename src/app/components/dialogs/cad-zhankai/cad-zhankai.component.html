@@ -1,0 +1,58 @@
+<perfect-scrollbar>
+    <mat-accordion>
+        <ng-container *ngFor="let item of data; let i = index">
+            <mat-expansion-panel [expanded]="i === 0">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-checkbox
+                            (click)="onCheckboxChanglick($event)"
+                            [checked]="checkedIndices.has(i)"
+                            (change)="onCheckboxChange($event, i)"
+                        ></mat-checkbox>
+                        <span>名字: {{ item.name }}</span>
+                    </mat-panel-title>
+                    <mat-panel-description>模板: {{ item.cadmuban }}</mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="zhankai-form">
+                    <mat-form-field>
+                        <mat-label>展开宽</mat-label>
+                        <input matInput type="number" [(ngModel)]="item.zhankaikuan" name="zhankaikuan" />
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>展开高</mat-label>
+                        <input matInput type="number" [(ngModel)]="item.zhankaigao" name="zhankaigao" />
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>数量</mat-label>
+                        <input matInput type="number" [(ngModel)]="item.shuliang" name="shuliang" />
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>数量倍数</mat-label>
+                        <input matInput type="number" [(ngModel)]="item.shuliangbeishu" name="shuliangbeishu" />
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>名字</mat-label>
+                        <input matInput type="text" [(ngModel)]="item.name" name="name" />
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>CAD模板</mat-label>
+                        <input matInput type="text" [(ngModel)]="item.cadmuban" name="cadmuban" />
+                        <mat-icon matSuffix color="primary" (click)="openCadmuban(item)">open_in_new</mat-icon>
+                        <mat-icon matSuffix color="primary" (click)="selectCadmuban(item)">list</mat-icon>
+                    </mat-form-field>
+                </div>
+            </mat-expansion-panel>
+        </ng-container>
+    </mat-accordion>
+</perfect-scrollbar>
+<div class="btn-group">
+    <button mat-raised-button color="primary" (click)="addItem()">添加</button>
+    <button mat-raised-button color="primary" (click)="selectAll()">全选</button>
+    <button mat-raised-button color="primary" (click)="unselectAll()">全不选</button>
+    <button mat-raised-button color="primary" (click)="copyItems()">复制</button>
+    <button mat-raised-button color="primary" (click)="removeItems()">删除</button>
+</div>
+<div class="btn-group">
+    <button mat-raised-button color="primary" (click)="submit()">确定</button>
+    <button mat-raised-button color="primary" (click)="cancle()">取消</button>
+</div>

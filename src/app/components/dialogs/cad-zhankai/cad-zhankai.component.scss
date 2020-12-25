@@ -1,0 +1,24 @@
+:host {
+    display: block;
+    width: calc(100vw - 48px);
+    height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+}
+
+.mat-accordion {
+    flex: 1 1 0;
+}
+
+.btn-group {
+    text-align: center;
+}
+
+.zhankai-form {
+    display: flex;
+    flex-wrap: wrap;
+
+    .mat-form-field {
+        width: 50%;
+    }
+}
