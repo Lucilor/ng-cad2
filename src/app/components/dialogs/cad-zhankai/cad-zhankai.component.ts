@@ -37,19 +37,19 @@ export class CadZhankaiComponent {
     }
 
     openCadmuban(item: CadZhankaiData[0]) {
-        if (item.cadmuban) {
+        if (item.kailiaomuban) {
             const params = {...this.route.snapshot.queryParams};
-            params.collection = "CADmuban";
-            params.id = item.cadmuban;
+            params.collection = "kailiaocadmuban";
+            params.id = item.kailiaomuban;
             open("index?" + new URLSearchParams(params).toString());
         }
     }
 
     async selectCadmuban(item: CadZhankaiData[0]) {
-        const checkedItems = [new CadData({id: item.cadmuban})];
-        const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "CADmuban", checkedItems}});
+        const checkedItems = [new CadData({id: item.kailiaomuban})];
+        const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
         if (result?.length) {
-            item.cadmuban = result[0].id;
+            item.kailiaomuban = result[0].id;
         }
     }
 
@@ -66,7 +66,7 @@ export class CadZhankaiComponent {
     }
 
     addItem() {
-        this.data.push({zhankaikuan: 0, zhankaigao: 0, shuliang: 1, shuliangbeishu: 1, name: "", cadmuban: ""});
+        this.data.push({zhankaikuan: "ceil(总长)+0", zhankaigao: "", shuliang: "1", shuliangbeishu: "1", name: "", kailiaomuban: ""});
     }
 
     selectAll() {

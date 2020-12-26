@@ -11,32 +11,32 @@
                         ></mat-checkbox>
                         <span>名字: {{ item.name }}</span>
                     </mat-panel-title>
-                    <mat-panel-description>模板: {{ item.cadmuban }}</mat-panel-description>
+                    <mat-panel-description>模板: {{ item.kailiaomuban }}</mat-panel-description>
                 </mat-expansion-panel-header>
                 <div class="zhankai-form">
                     <mat-form-field>
                         <mat-label>展开宽</mat-label>
-                        <input matInput type="number" [(ngModel)]="item.zhankaikuan" name="zhankaikuan" />
+                        <input matInput type="text" [(ngModel)]="item.zhankaikuan" name="zhankaikuan" />
                     </mat-form-field>
                     <mat-form-field>
                         <mat-label>展开高</mat-label>
-                        <input matInput type="number" [(ngModel)]="item.zhankaigao" name="zhankaigao" />
+                        <input matInput type="text" [(ngModel)]="item.zhankaigao" name="zhankaigao" />
                     </mat-form-field>
                     <mat-form-field>
                         <mat-label>数量</mat-label>
-                        <input matInput type="number" [(ngModel)]="item.shuliang" name="shuliang" />
+                        <input matInput type="text" [(ngModel)]="item.shuliang" name="shuliang" />
                     </mat-form-field>
                     <mat-form-field>
                         <mat-label>数量倍数</mat-label>
-                        <input matInput type="number" [(ngModel)]="item.shuliangbeishu" name="shuliangbeishu" />
+                        <input matInput type="text" [(ngModel)]="item.shuliangbeishu" name="shuliangbeishu" />
                     </mat-form-field>
                     <mat-form-field>
                         <mat-label>名字</mat-label>
                         <input matInput type="text" [(ngModel)]="item.name" name="name" />
                     </mat-form-field>
                     <mat-form-field>
-                        <mat-label>CAD模板</mat-label>
-                        <input matInput type="text" [(ngModel)]="item.cadmuban" name="cadmuban" />
+                        <mat-label>开料CAD模板</mat-label>
+                        <input matInput type="text" [(ngModel)]="item.kailiaomuban" name="kailiaomuban" />
                         <mat-icon matSuffix color="primary" (click)="openCadmuban(item)">open_in_new</mat-icon>
                         <mat-icon matSuffix color="primary" (click)="selectCadmuban(item)">list</mat-icon>
                     </mat-form-field>
