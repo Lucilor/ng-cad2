@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute} from "@angular/router";
-import {CadData, CadLine, CadEventCallBack, CadOption, CadBaseLine, CadJointPoint, CadEntity, generatePointsMap} from "@src/app/cad-viewer";
+import {CadData, CadLine, CadEventCallBack, CadOption, CadBaseLine, CadJointPoint, CadEntity} from "@src/app/cad-viewer";
 import {getCadGongshiText} from "@src/app/cad.utils";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
@@ -68,9 +68,9 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
         this.subscribe(this.status.cadStatus$, (cadStatus) => {
             const {name, index} = cadStatus;
             if (name === "selectJointpoint" && typeof index === "number") {
-                this.status.setCadPoints(generatePointsMap(this.cadsData[0].getAllEntities()));
+                this.status.setCadPoints(this.cadsData[0].getAllEntities());
             } else {
-                this.status.setCadPoints([]);
+                this.status.setCadPoints();
             }
         });
         this.subscribe(this.status.cadPoints$, (cadPoints) => {

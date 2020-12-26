@@ -73,6 +73,7 @@ interface CadViewerConfig {
         ],
         desc: "查看控制台帮助手册"
     },
+    {name: "move-lines", args: [], desc: "进入/退出移线状态"},
     {name: "new-cad", args: [], desc: "创建一个空白CAD"},
     {
         name: "open",
@@ -152,9 +153,8 @@ export class CadConsoleComponent implements OnInit {
                 this.config.config(result);
             }
         },
-        async drawLine() {
-            const {name} = this.status.cadStatus$.getValue();
-            if (name === "drawLine") {
+        drawLine() {
+            if (this.status.cadStatus("name") === "drawLine") {
                 this.status.cadStatus({name: "normal"});
             } else {
                 this.status.cadStatus({name: "drawLine"});
@@ -371,6 +371,13 @@ export class CadConsoleComponent implements OnInit {
                 },
                 width: "80vw"
             });
+        },
+        moveLines() {
+            if (this.status.cadStatus("name") === "moveLines") {
+                this.status.cadStatus("name", "normal");
+            } else {
+                this.status.cadStatus("name", "moveLines");
+            }
         },
         newCad() {
             const data = this.status.cad.data.components.data;

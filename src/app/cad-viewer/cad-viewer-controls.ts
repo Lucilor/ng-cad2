@@ -86,6 +86,18 @@ function onPointerMove(this: CadViewer, event: PointerEvent) {
             this.move(translate.x, -translate.y);
         } else if (button === 0) {
             if (entitiesToDrag && entitiesNotToDrag && entityDraggable) {
+                if (Array.isArray(entityDraggable)) {
+                    const toRemove: CadEntity[] = [];
+                    entitiesToDrag.forEach((e) => {
+                        if (!entityDraggable.includes(e.type)) {
+                            toRemove.push(e);
+                        }
+                    });
+                    for (const e of toRemove) {
+                        entitiesToDrag.remove(e).add(...e.children.toArray());
+                        entitiesNotToDrag.add(e);
+                    }
+                }
                 this.moveEntities(entitiesToDrag, entitiesNotToDrag, translate.x, -translate.y);
                 needsRender = true;
             } else if (draggingDimension) {

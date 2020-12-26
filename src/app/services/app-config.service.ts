@@ -31,7 +31,7 @@ export class AppConfigService {
             padding: [0],
             dragAxis: "xy",
             selectMode: "multiple",
-            entityDraggable: false,
+            entityDraggable: ["MTEXT", "DIMENSION"],
             hideDimensions: false,
             lineGongshi: 8,
             hideLineLength: false,

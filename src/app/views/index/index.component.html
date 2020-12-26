@@ -46,7 +46,7 @@
                 实体{{ multiSelect ? "多选" : "单选" }}
             </mat-slide-toggle>
             <br />
-            <mat-slide-toggle [checked]="entityDraggable" (change)="toggleEntityDraggable()"> 实体拖动 </mat-slide-toggle>
+            <!-- <mat-slide-toggle [checked]="!!entityDraggable" (change)="toggleEntityDraggable()"> 实体拖动 </mat-slide-toggle> -->
             <mat-tab-group #infoTabs dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
                 <mat-tab label="CAD">
                     <perfect-scrollbar>

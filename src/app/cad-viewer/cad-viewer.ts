@@ -21,7 +21,7 @@ export interface CadViewerConfig {
     validateLines: boolean; // 是否验证线段
     selectMode: "none" | "single" | "multiple"; // 实体选取模式
     dragAxis: "" | "x" | "y" | "xy"; // 限制整体内容可向x或y方向拖动
-    entityDraggable: boolean; // 实体是否可拖动
+    entityDraggable: boolean | CadType[]; // 实体是否可拖动
     hideDimensions: boolean; // 是否隐藏标注
     lineGongshi: number; // 显示线公式的字体大小, ≤0时不显示
     hideLineLength: boolean; // 是否隐藏线长度(即使lineLength>0)

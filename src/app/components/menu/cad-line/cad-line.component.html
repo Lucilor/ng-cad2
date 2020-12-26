@@ -7,6 +7,14 @@
     >
         画线
     </button>
+    <button
+        mat-raised-button
+        [style.z-index]="data ? '1' : '0'"
+        [color]="cadStatusName === 'moveLines' ? 'accent' : 'primary'"
+        (click)="moveLines()"
+    >
+        移线
+    </button>
     <button mat-raised-button color="primary" (click)="autoFix()">修正</button>
 </div>
 <form [class.not-allowed]="editDiabled">

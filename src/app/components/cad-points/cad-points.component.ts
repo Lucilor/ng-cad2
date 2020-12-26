@@ -13,7 +13,7 @@ export class CadPointsComponent {
 
     onPointClick(index: number) {
         const points = this.points$.getValue();
-        points[index].active = true;
+        points[index].active = !points[index].active;
         this.points$.next(points);
     }
 }

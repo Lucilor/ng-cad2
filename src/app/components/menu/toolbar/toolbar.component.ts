@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService, cadStatusNameMap, CadStatusNameMap} from "@src/app/services/app-status.service";
+import {AppStatusService, cadStatusNameMap, CadStatusName} from "@src/app/services/app-status.service";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {ObjectOf, ValueOf} from "@src/app/utils";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer";
@@ -27,8 +27,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         p: () => this.printCad(),
         q: () => this.newCad()
     };
-    statusName: ValueOf<CadStatusNameMap> = "普通";
-    statusWithoutEsc: ValueOf<CadStatusNameMap>[] = ["普通", "装配"];
+    statusName: ValueOf<CadStatusName> = "普通";
+    statusWithoutEsc: ValueOf<CadStatusName>[] = ["普通", "装配"];
 
     get isStatusNormal() {
         return this.statusName === "普通";

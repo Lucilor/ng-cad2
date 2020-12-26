@@ -1,38 +1,40 @@
 import {Injectable} from "@angular/core";
-import {clamp, difference} from "lodash";
+import {clamp, difference, differenceWith} from "lodash";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";
 import {CadCollection} from "../app.common";
+import {CadEntities} from "../cad-viewer";
 import {CadData} from "../cad-viewer/cad-data/cad-data";
-import {generateLineTexts, PointsMap, validateLines, ValidateResult} from "../cad-viewer/cad-data/cad-lines";
+import {generateLineTexts, generatePointsMap, PointsMap, validateLines, ValidateResult} from "../cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "../cad-viewer/cad-viewer";
 import {setCadData, addCadGongshi} from "../cad.utils";
 import {timeout} from "../utils";
 import {ObjectOf} from "../utils/types";
 import {AppConfig, AppConfigService} from "./app-config.service";
 
-export type CadStatusNameMap = {
-    normal: "普通";
-    selectBaseline: "选择基准线";
-    selectJointpoint: "选择连接点";
-    assemble: "装配";
-    split: "选取CAD";
-    drawLine: "画线";
-    editDimension: "编辑标注";
-};
+export type CadStatusName =
+    | "normal"
+    | "selectBaseline"
+    | "selectJointpoint"
+    | "assemble"
+    | "split"
+    | "drawLine"
+    | "moveLines"
+    | "editDimension";
 
-export const cadStatusNameMap: CadStatusNameMap = {
+export const cadStatusNameMap: Record<CadStatusName, string> = {
     normal: "普通",
     selectBaseline: "选择基准线",
     selectJointpoint: "选择连接点",
     assemble: "装配",
     split: "选取CAD",
     drawLine: "画线",
+    moveLines: "移线",
     editDimension: "编辑标注"
 };
 
 export interface CadStatus {
-    name: keyof CadStatusNameMap;
+    name: CadStatusName;
     index: number;
     extra: ObjectOf<any>;
 }
@@ -204,13 +206,22 @@ export class AppStatusService {
         }
     }
 
-    async setCadPoints(map: PointsMap) {
-        const points: CadPoints = map.map((v) => {
+    getCadPoints(map?: PointsMap | CadEntities) {
+        if (!map) {
+            return [];
+        }
+        if (map instanceof CadEntities) {
+            map = generatePointsMap(map);
+        }
+        return map.map((v) => {
             const {x, y} = this.cad.getScreenPoint(v.point.x, v.point.y);
             return {x, y, active: false};
         });
+    }
+
+    async setCadPoints(map: PointsMap | CadEntities = [], exclude: CadPoints = []) {
         await timeout(0);
-        this.cadPoints$.next(points);
+        this.cadPoints$.next(differenceWith(this.getCadPoints(map), exclude, (a, b) => a.x === b.x && a.y === b.y));
     }
 
     addCadPoint(point: CadPoints[0], i?: number) {
