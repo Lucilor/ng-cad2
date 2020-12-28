@@ -5,6 +5,15 @@ import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
 import {CadLayer} from "./cad-layer";
 import {mergeArray, separateArray, getVectorFromArray, isLinesParallel} from "../utils";
 
+export const getZhankai = (obj: ObjectOf<any> = {}) => ({
+    zhankaikuan: obj.zhankaikuan || "ceil(总长)+0",
+    zhankaigao: obj.zhankaigao || "",
+    shuliang: obj.shuliang || "1",
+    shuliangbeishu: obj.shuliangbeishu || "1",
+    name: obj.name || "",
+    kailiaomuban: obj.kailiaomuban || ""
+});
+
 export class CadData {
     entities: CadEntities;
     layers: CadLayer[];
@@ -18,10 +27,6 @@ export class CadData {
     parent: string;
     partners: CadData[];
     components: CadComponents;
-    zhankaikuan: string;
-    zhankaigao: string;
-    shuliang: string;
-    shuliangbeishu: string;
     huajian: string;
     mubanfangda: boolean;
     kailiaomuban: string;
@@ -83,10 +88,6 @@ export class CadData {
         this.updatePartners();
         this.components = new CadComponents(data.components ?? {});
         this.updateComponents();
-        this.zhankaikuan = data.zhankaikuan ?? "ceil(总长)+0";
-        this.zhankaigao = data.zhankaigao ?? "";
-        this.shuliang = data.shuliang ?? "1";
-        this.shuliangbeishu = data.shuliangbeishu ?? "1";
         this.huajian = data.huajian ?? "";
         this.mubanfangda = data.mubanfangda ?? true;
         this.kailiaomuban = data.kailiaomuban ?? "";
@@ -104,7 +105,11 @@ export class CadData {
         }
         this.attributes = data.attributes ?? {};
         this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
-        this.zhankai = Array.isArray(data.zhankai) ? data.zhankai : [];
+        if (Array.isArray(data.zhankai) && data.zhankai.length) {
+            this.zhankai = data.zhankai;
+        } else {
+            this.zhankai = [getZhankai()];
+        }
         this.updateDimensions();
     }
 
@@ -113,10 +118,6 @@ export class CadData {
         this.type = data.type;
         this.separate(this).merge(data);
         this.parent = data.parent;
-        this.zhankaikuan = data.zhankaikuan;
-        this.zhankaigao = data.zhankaigao;
-        this.shuliang = data.shuliang;
-        this.shuliangbeishu = data.shuliangbeishu;
         this.huajian = data.huajian;
         this.mubanfangda = data.mubanfangda;
         this.kailiaomuban = data.kailiaomuban;
@@ -159,10 +160,6 @@ export class CadData {
             parent: this.parent,
             partners: this.partners.map((v) => v.export()),
             components: this.components.export(),
-            zhankaikuan: this.zhankaikuan,
-            zhankaigao: this.zhankaigao,
-            shuliang: this.shuliang,
-            shuliangbeishu: this.shuliangbeishu,
             huajian: this.huajian,
             mubanfangda: this.mubanfangda,
             kailiaomuban: this.kailiaomuban,

@@ -2,7 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {CadData} from "@src/app/cad-viewer";
+import {CadData, getZhankai} from "@src/app/cad-viewer";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {cloneDeep} from "lodash";
 import {openCadListDialog} from "../cad-list/cad-list.component";
@@ -66,11 +66,12 @@ export class CadZhankaiComponent {
     }
 
     addItem() {
-        this.data.push({zhankaikuan: "ceil(总长)+0", zhankaigao: "", shuliang: "1", shuliangbeishu: "1", name: "", kailiaomuban: ""});
+        this.data.push(getZhankai());
     }
 
     selectAll() {
         this.data.forEach((_v, i) => this.checkedIndices.add(i));
+        this.checkedIndices.delete(0);
     }
 
     unselectAll() {
@@ -88,7 +89,9 @@ export class CadZhankaiComponent {
 
     removeItems() {
         const indices = this.checkedIndices;
-        if (indices.size) {
+        if (indices.has(0)) {
+            this.message.alert("不能删除第一项");
+        } else if (indices.size) {
             this.data = this.data.filter((_v, i) => !indices.has(i));
             indices.clear();
         } else {

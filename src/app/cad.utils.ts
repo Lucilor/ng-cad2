@@ -137,7 +137,7 @@ export const removeCadGongshi = (data: CadData) => {
 };
 
 export const getCadGongshiText = (data: CadData) => {
-    const {zhankaikuan, zhankaigao, shuliang, shuliangbeishu} = data;
+    const {zhankaikuan, zhankaigao, shuliang, shuliangbeishu} = data.zhankai[0];
     let text = `${zhankaikuan} × ${zhankaigao} = ${shuliang}`;
     if (Number(shuliangbeishu) > 1) {
         text += " × " + shuliangbeishu;

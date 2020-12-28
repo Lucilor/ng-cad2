@@ -20,7 +20,8 @@ export class AppComponent implements OnInit {
         });
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd) {
-                const routeInfo = Object.values(routesInfo).find((v) => event.url.startsWith("/" + v.path));
+                const url = event.urlAfterRedirects;
+                const routeInfo = Object.values(routesInfo).find((v) => url.startsWith("/" + v.path));
                 document.title = routeInfo?.title || projectName;
             }
         });
