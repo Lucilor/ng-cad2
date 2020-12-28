@@ -8875,7 +8875,7 @@ fsevents@~2.1.2:
     ngx-color: ^6.2.0
     ngx-perfect-scrollbar: ^10.0.1
     ngx-ui-loader: ^10.0.0
-    pdfmake: ^0.1.68
+    pdfmake: ^0.1.69
     protractor: ~7.0.0
     rxjs: ~6.6.3
     ts-node: ~9.1.1
@@ -9864,16 +9864,16 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"pdfmake@npm:^0.1.68":
-  version: 0.1.68
-  resolution: "pdfmake@npm:0.1.68"
+"pdfmake@npm:^0.1.69":
+  version: 0.1.69
+  resolution: "pdfmake@npm:0.1.69"
   dependencies:
     iconv-lite: ^0.6.2
     linebreak: ^1.0.2
     pdfkit: ^0.11.0
     svg-to-pdfkit: ^0.1.8
     xmldoc: ^1.1.2
-  checksum: 6aa7bef8a5096c007d5caf9f7d16a53a4faa4f94dfa07fad9a60536bb28ae1ce92be43ccd26e29705fae32a36940dd6962951ee900959b97a96c5cf364380ce1
+  checksum: fb995c29fdbe0e22de6dfb168778a552e859e1877d98a488d7d4bf78950d80cb2fc9a1c4871df0c87d151c1d4c5b304106c34b8a07375cd5d90ea8ebdd0ecfa4
   languageName: node
   linkType: hard
 
