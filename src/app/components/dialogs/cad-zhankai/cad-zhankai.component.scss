@@ -6,19 +6,30 @@
     flex-direction: column;
 }
 
-.mat-accordion {
+.cards {
     flex: 1 1 0;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #5d5d5d;
+
+    .mat-card {
+        width: calc(33.33% - 20px);
+        margin: 10px;
+        box-sizing: border-box;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        .zhankai-form {
+            display: flex;
+            flex-wrap: wrap;
+
+            .mat-form-field {
+                width: 50%;
+                box-sizing: border-box;
+                padding: 5px;
+            }
+        }
+    }
 }
 
 .btn-group {
     text-align: center;
-}
-
-.zhankai-form {
-    display: flex;
-    flex-wrap: wrap;
-
-    .mat-form-field {
-        width: 50%;
-    }
 }
