@@ -22,7 +22,7 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
     lengths: string[] = [];
     editDisabled = true;
 
-    onEntityClick = (((_event, {entity}) => {
+    onEntityClick = (((entity) => {
         const {name, index} = this.status.cadStatus$.getValue();
         const data = this.status.getFlatSelectedCads()[0];
         if (name === "selectBaseline" && typeof index === "number") {

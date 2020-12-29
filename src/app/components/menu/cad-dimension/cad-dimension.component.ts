@@ -25,7 +25,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
         this.dimensions = this.status.cad.data.getAllEntities().dimension;
     }).bind(this);
 
-    onEntitiesSelect = (((_event, {entities}) => {
+    onEntitiesSelect = (((entities) => {
         const cad = this.status.cad;
         const data = cad.data.components.data;
         const {name, index} = this.status.cadStatus();

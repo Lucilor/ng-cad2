@@ -241,7 +241,7 @@ export class CadViewer extends EventEmitter {
         // ? .zoom() method is somehow hidden
         if (typeof level === "number") {
             (this.draw as any).zoom(level, point);
-            this.emit("zoom", null, null);
+            this.emit("zoom");
             return this;
         } else {
             return (this.draw as any).zoom(level, point) as number;
@@ -517,7 +517,7 @@ export class CadViewer extends EventEmitter {
                 tmpEntities.forEach((e) => this.drawEntity(e, style));
                 await timeout();
             }
-            this.emit("render", null, {entities});
+            this.emit("render", entities);
         }
         return this;
     }
@@ -570,7 +570,7 @@ export class CadViewer extends EventEmitter {
         }
         if (entities.length) {
             entities.forEach((e) => (e.selected = true));
-            this.emit("entitiesselect", null, {entities});
+            this.emit("entitiesselect", entities);
         }
         return this;
     }
@@ -586,7 +586,7 @@ export class CadViewer extends EventEmitter {
         }
         if (entities.length) {
             entities.forEach((e) => (e.selected = false));
-            this.emit("entitiesunselect", null, {entities});
+            this.emit("entitiesunselect", entities);
         }
         return this;
     }
@@ -626,7 +626,7 @@ export class CadViewer extends EventEmitter {
                 }
             });
             this.data.separate(data);
-            this.emit("entitiesremove", null, {entities});
+            this.emit("entitiesremove", entities);
             this.render();
         }
         return this;
@@ -642,7 +642,7 @@ export class CadViewer extends EventEmitter {
             return this.add(new CadEntities().fromArray(entities));
         }
         if (entities instanceof CadEntities) {
-            this.emit("entitiesadd", null, {entities});
+            this.emit("entitiesadd", entities);
             entities.forEach((e) => this.data.entities.add(e));
             this.render(entities);
         }
@@ -669,18 +669,16 @@ export class CadViewer extends EventEmitter {
         return result;
     }
 
-    emit<T extends keyof CadEvents>(type: T, event: CadEvents[T][0], params: CadEvents[T][1]): boolean;
-    emit<T extends keyof CadEvents>(type: T, event: CadEvents[T][0], params: CadEvents[T][1]) {
-        return super.emit(type, event, params);
+    emit<T extends keyof CadEvents>(type: T, ...params: CadEvents[T]) {
+        return super.emit(type, ...params);
     }
 
-    on<T extends keyof CadEvents>(type: T, listener: CadEventCallBack<T>): this;
     on<T extends keyof CadEvents>(type: T, listener: CadEventCallBack<T>) {
-        return super.on(type, listener);
+        return super.on(type, listener as (...args: any[]) => void);
     }
 
     off<T extends keyof CadEvents>(type: T, listener: CadEventCallBack<T>) {
-        return super.off(type, listener);
+        return super.off(type, listener as (...args: any[]) => void);
     }
 
     toBase64() {
@@ -738,6 +736,6 @@ export class CadViewer extends EventEmitter {
             this.move(x, y);
             notToMove.transform({translate: [-x, -y]});
         }
-        this.emit("moveEntities", null, {entities: toMove});
+        this.emit("moveEntities", toMove);
     }
 }
