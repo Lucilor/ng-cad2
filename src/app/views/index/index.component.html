@@ -40,7 +40,7 @@
     <mat-accordion multi>
         <mat-expansion-panel expanded *ngIf="shownMenus.includes('entityInfo')">
             <mat-expansion-panel-header>
-                <mat-panel-title>CAD信息</mat-panel-title>
+                <mat-panel-title>CAD信息 (总长: {{cadLength}})</mat-panel-title>
             </mat-expansion-panel-header>
             <mat-slide-toggle [checked]="multiSelect" (change)="toggleMultiSelect()">
                 实体{{ multiSelect ? "多选" : "单选" }}

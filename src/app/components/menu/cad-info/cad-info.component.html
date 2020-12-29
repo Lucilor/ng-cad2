@@ -2,10 +2,6 @@
     <form *ngFor="let cad of cadsData; let i = index" [class.add-divider]="i < cadsData.length - 1">
         <button hidden></button>
         <mat-form-field>
-            <mat-label>总长</mat-label>
-            <input matInput type="text" [value]="lengths[i]" readonly />
-        </mat-form-field>
-        <mat-form-field>
             <mat-label>名字</mat-label>
             <input matInput type="text" [(ngModel)]="cad.name" name="name" />
         </mat-form-field>

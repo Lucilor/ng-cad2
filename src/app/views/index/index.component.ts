@@ -12,6 +12,7 @@ import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
 import {ActivatedRoute} from "@angular/router";
 import {CadData} from "@src/app/cad-viewer";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
+import {CadInfoComponent} from "@src/app/components/menu/cad-info/cad-info.component";
 
 @Component({
     selector: "app-index",
@@ -60,9 +61,13 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     get cadStatusStr() {
         return cadStatusNameMap[this.status.cadStatus$.getValue().name];
     }
+    get cadLength() {
+        return this.infoComponent?.lengths[0] || "0.00";
+    }
 
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLElement>;
     @ViewChild(CadConsoleComponent) consoleComponent?: CadConsoleComponent;
+    @ViewChild(CadInfoComponent) infoComponent?: CadInfoComponent;
     @ViewChild(MatMenuTrigger) contextMenu?: MatMenuTrigger;
     @ViewChild(MatTabGroup) infoTabs?: MatTabGroup;
 
