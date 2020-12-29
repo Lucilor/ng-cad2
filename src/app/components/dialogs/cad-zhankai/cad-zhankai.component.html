@@ -2,6 +2,12 @@
     <div class="cards">
         <mat-card *ngFor="let item of data; let i = index">
             <div class="zhankai-form">
+                <mat-checkbox
+                    style="width: 100%"
+                    (click)="onCheckboxChanglick($event)"
+                    [checked]="checkedIndices.has(i)"
+                    (change)="onCheckboxChange($event, i)"
+                ></mat-checkbox>
                 <mat-form-field style="font-weight: bold; color: #ff5e00">
                     <mat-label>名字</mat-label>
                     <input matInput type="text" [(ngModel)]="item.name" name="name" />
