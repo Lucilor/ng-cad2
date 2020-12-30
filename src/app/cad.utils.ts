@@ -70,7 +70,7 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
             hideLineGongshi: true,
             renderStep: Infinity
         }).appendTo(document.body);
-        await cadPrint.render();
+        (await cadPrint.render()).center();
         cadPrint.draw.find("[type='DIMENSION']").forEach((el) => {
             el.children().forEach((child) => {
                 if (child.node.tagName === "text") {
