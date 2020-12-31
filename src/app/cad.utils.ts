@@ -65,7 +65,6 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
             height: height * scaleY,
             backgroundColor: "white",
             padding: [18 * scale],
-            minLinewidth: 4,
             hideLineLength: true,
             hideLineGongshi: true,
             renderStep: Infinity
