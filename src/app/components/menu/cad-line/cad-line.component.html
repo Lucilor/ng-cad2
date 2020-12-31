@@ -157,6 +157,17 @@
             </mat-select>
         </mat-form-field>
     </div>
+    <div class="form-item betweenZhewan">
+        <mat-form-field>
+            <mat-label>两根线之间的折弯标记</mat-label>
+            <mat-select name="nextZhewan" [ngModel]="getLineText('betweenZhewan')" (selectionChange)="setLineText($event, 'betweenZhewan')">
+                <mat-option value="自动">自动</mat-option>
+                <mat-option value="无">无</mat-option>
+                <mat-option value="2mm">2mm</mat-option>
+                <mat-option value="6mm">6mm</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
     <div class="form-item zhewanOffset">
         <mat-form-field>
             <mat-label>折弯标记偏移</mat-label>

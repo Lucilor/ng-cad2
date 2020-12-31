@@ -291,6 +291,7 @@ export abstract class CadLineLike extends CadEntity {
     hideLength: boolean;
     lengthTextSize: number;
     nextZhewan: "自动" | "无" | "1mm" | "6mm";
+    betweenZhewan: "自动" | "无" | "1mm" | "6mm";
     zhewanOffset: number;
     zhewanValue: number;
     zidingzhankaichang: number;
@@ -300,6 +301,7 @@ export abstract class CadLineLike extends CadEntity {
         this.hideLength = data.hideLength === true;
         this.lengthTextSize = data.lengthTextSize ?? DEFAULT_LENGTH_TEXT_SIZE;
         this.nextZhewan = data.nextZhewan ?? "自动";
+        this.betweenZhewan = data.betweenZhewan ?? "自动";
         this.zhewanOffset = data.zhewanOffset ?? 0;
         this.zhewanValue = data.zhewanValue ?? 0;
         this.zidingzhankaichang = data.zidingzhankaichang ?? -1;
@@ -311,6 +313,7 @@ export abstract class CadLineLike extends CadEntity {
             hideLength: this.hideLength,
             lengthTextSize: this.lengthTextSize,
             nextZhewan: this.nextZhewan,
+            betweenZhewan: this.betweenZhewan,
             zhewanOffset: this.zhewanOffset,
             zhewanValue: this.zhewanValue,
             zidingzhankaichang: this.zidingzhankaichang
