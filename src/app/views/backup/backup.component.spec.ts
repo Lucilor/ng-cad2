@@ -1,5 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
-import {MatExpansionModule} from "@angular/material/expansion";
+import {MatButtonModule} from "@angular/material/button";
+import {MatCardModule} from "@angular/material/card";
 import {HttpModule} from "@src/app/modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
@@ -14,7 +15,7 @@ describe("BackupComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [BackupComponent],
-            imports: [MatExpansionModule, HttpModule, MessageModule, PerfectScrollbarModule, NgxUiLoaderModule]
+            imports: [MatButtonModule, MatCardModule, HttpModule, MessageModule, PerfectScrollbarModule, NgxUiLoaderModule]
         }).compileComponents();
     });
 

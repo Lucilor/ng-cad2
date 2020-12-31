@@ -1,4 +1,4 @@
-import {AfterViewInit, Component} from "@angular/core";
+import {Component} from "@angular/core";
 import {DomSanitizer} from "@angular/platform-browser";
 import {CadData} from "@src/app/cad-viewer";
 import {getCadPreview} from "@src/app/cad.utils";
@@ -11,50 +11,50 @@ import {NgxUiLoaderService} from "ngx-ui-loader";
     templateUrl: "./backup.component.html",
     styleUrls: ["./backup.component.scss"]
 })
-export class BackupComponent implements AfterViewInit {
-    data: {id: number; title: string; cads: {data: CadData; img: string; checked: boolean}[]}[] = [];
+export class BackupComponent {
+    data: {time: number; title: string; data: CadData; img: string}[] = [];
     loaderId = "backupLoader";
     loaderText = "";
+    search = "";
+    limit = 20;
 
     constructor(
         private message: MessageService,
         private loader: NgxUiLoaderService,
         private dataService: CadDataService,
         private sanitizer: DomSanitizer
-    ) {}
+    ) {
+        this.getData();
+    }
 
-    async ngAfterViewInit() {
-        const result = await this.dataService.getBackupCads();
-        if (!result) {
+    async getData() {
+        this.loaderText = "正在获取数据";
+        this.loader.startLoader(this.loaderId);
+        const result = await this.dataService.getBackupCads(this.search, this.limit);
+        this.data = [];
+        if (result) {
+            for (const v of result) {
+                const img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(v.data, 200, 100)) as string;
+                this.data.push({
+                    time: v.time,
+                    title: new Date(v.time).toLocaleString(),
+                    img,
+                    data: v.data
+                });
+            }
+        } else {
             this.message.alert("获取数据失败");
-            return;
         }
-        this.data = result
-            .sort((a, b) => b.time - a.time)
-            .map((v) => {
-                const result2: BackupComponent["data"][0] = {id: v.time, title: new Date(v.time).toLocaleString(), cads: []};
-                v.cads
-                    .sort((a, b) => (a.name > b.name ? 1 : -1))
-                    .forEach(async (data) => {
-                        const img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data, 200, 100)) as string;
-                        result2.cads.push({img, data, checked: false});
-                    });
-                return result2;
-            });
+        this.loader.stopLoader(this.loaderId);
     }
 
     async restore(i: number) {
         if (!(i >= 0)) {
             return;
         }
-        const cads = this.data[i].cads.map((v) => v.data);
-        const total = cads.length;
-        this.loaderText = `正在恢复备份(0/${total})`;
+        this.loaderText = `正在恢复备份`;
         this.loader.startLoader(this.loaderId);
-        for (let j = 0; j < total; j++) {
-            await this.dataService.setCad({collection: "cad", cadData: cads[j], force: true});
-            this.loaderText = `正在恢复备份(${j + 1}/${total})`;
-        }
+        await this.dataService.setCad({collection: "cad", cadData: this.data[i].data, force: true});
         this.loader.stopLoader(this.loaderId);
     }
 
@@ -62,11 +62,20 @@ export class BackupComponent implements AfterViewInit {
         if (await this.message.confirm("删除后无法恢复, 是否继续?")) {
             this.loaderText = "正在删除备份";
             this.loader.startLoader(this.loaderId);
-            const result = await this.dataService.removeBackup(this.data[i].id);
+            const result = await this.dataService.removeBackup(this.data[i].data.name, this.data[i].time);
             this.loader.stopLoader(this.loaderId);
             if (result) {
-                this.data.splice(i, 1);
+                this.getData();
             }
         }
+    }
+
+    alertInfo(i: number) {
+        const data = this.data[i].data;
+        const getSpaces = (n: number) => new Array(n).fill("&nbsp;").join("");
+        const optionsStr = data.options.map((v) => `${getSpaces(9)}${v.name}: ${v.value}`).join("<br>");
+        const conditionsStr = data.conditions.map((v) => `${getSpaces(9)}${v}`).join("<br>");
+        const content = [`分类: ${data.type}`, "选项: ", optionsStr, "条件: ", conditionsStr].join("<br>");
+        this.message.alert(content, data.name);
     }
 }

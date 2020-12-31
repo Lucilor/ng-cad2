@@ -1,26 +1,45 @@
+<form>
+    <mat-form-field style="width: 100%">
+        <mat-label>搜索CAD名字</mat-label>
+        <input type="text" matInput [(ngModel)]="search" (change)="getData()" name="name" />
+        <mat-hint>只显示最近的{{ limit }}个数据。通过搜索CAD名字来找到对应的CAD。</mat-hint>
+    </mat-form-field>
+    <button hidden (click)="getData()"></button>
+</form>
 <perfect-scrollbar>
-	<div class="container">
-		<mat-accordion>
-			<mat-expansion-panel *ngFor="let item of data; let i = index">
-				<mat-expansion-panel-header>
-					<mat-panel-title>备份时间: {{ item.title }} </mat-panel-title>
-					<mat-panel-description>{{ item.cads.length }}个CAD</mat-panel-description>
-				</mat-expansion-panel-header>
-				<div class="btn-group">
-					<button mat-raised-button color="primary" (click)="restore(i)">恢复备份</button>
-					<button mat-raised-button color="accent" (click)="remove(i)">删除备份</button>
-				</div>
-				<div class="cads">
-					<div *ngFor="let cad of item.cads; let j = index" class="cad">
-						<div class="cad-name">
-							<!-- <mat-checkbox [(ngModel)]="cad.checked"></mat-checkbox> -->
-							<span>{{ cad.data.name }}</span>
-						</div>
-						<app-image class="cad-preview" [src]="cad.img"></app-image>
-					</div>
-				</div>
-			</mat-expansion-panel>
-		</mat-accordion>
-	</div>
+    <div class="cads">
+        <mat-card class="cad" *ngFor="let item of data; let i = index">
+            <mat-card-header>
+                <mat-card-title>{{ item.data.name }}</mat-card-title>
+                <mat-card-subtitle>{{ item.title }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="cad-preview" (click)="alertInfo(i)">
+                    <app-image [src]="item.img"></app-image>
+                </div>
+                <div class="btn-group">
+                    <button mat-raised-button color="primary" (click)="restore(i)">恢复备份</button>
+                    <button mat-raised-button color="primary" (click)="remove(i)">删除备份</button>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        <!-- <mat-accordion>
+            <mat-expansion-panel *ngFor="let item of data; let i = index">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>备份时间: {{ item.title }} </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="btn-group">
+                    <button mat-raised-button color="primary" (click)="restore(i)">恢复备份</button>
+                    <button mat-raised-button color="accent" (click)="remove(i)">删除备份</button>
+                </div>
+                <div class="cads">
+                    <div class="cad-name">
+                        <span>{{ item.cad.data.name }}</span>
+                    </div>
+                    <app-image class="cad-preview" [src]="item.cad.img"></app-image>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion> -->
+    </div>
 </perfect-scrollbar>
 <ngx-ui-loader [loaderId]="loaderId" [text]="loaderText"></ngx-ui-loader>

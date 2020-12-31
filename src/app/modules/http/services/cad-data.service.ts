@@ -162,20 +162,20 @@ export class CadDataService extends HttpService {
         return {data: [], count: 0};
     }
 
-    async getBackupCads() {
-        const response = await this.request("peijian/cad/getBackupCads", "POST");
+    async getBackupCads(search = "", limit = 20) {
+        const response = await this.request("peijian/cad/getBackupCads", "POST", {search, limit});
         if (response) {
-            const result = response.data as {time: number; cads: CadData[]}[];
+            const result = response.data as {time: number; data: CadData}[];
             result.forEach((v) => {
-                v.cads = v.cads.map((vv) => new CadData(vv));
+                v.data = new CadData(v.data);
             });
             return result;
         }
         return null;
     }
 
-    async removeBackup(time: number) {
-        const response = await this.request("peijian/cad/removeBackup", "POST", {time});
+    async removeBackup(name: string, time: number) {
+        const response = await this.request("peijian/cad/removeBackup", "POST", {name, time});
         return response ? true : false;
     }
 
