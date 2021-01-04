@@ -34,7 +34,7 @@ export const getCadPreview = async (data: CadData, width = 300, height = 150, pa
     return src;
 };
 
-export const printCads = async (dataArr: CadData[], config: Partial<CadViewerConfig> = {}) => {
+export const printCads = async (dataArr: CadData[], config: Partial<CadViewerConfig> = {}, linewidth?: number) => {
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
         console.warn("Unable to get screen dpi.Assuming dpi = 96.");
@@ -49,7 +49,9 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
     const imgs: string[] = [];
     for (const data of dataArr) {
         data.getAllEntities().forEach((e) => {
-            if (e.linewidth >= 0.3) {
+            if (typeof linewidth === "number") {
+                e.linewidth = linewidth *= 3;
+            } else {
                 e.linewidth *= 3;
             }
             e.color = new Color(0);
@@ -67,6 +69,7 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
             padding: [18 * scale],
             hideLineLength: true,
             hideLineGongshi: true,
+            minLinewidth: -Infinity,
             renderStep: Infinity
         }).appendTo(document.body);
         (await cadPrint.render()).center();
