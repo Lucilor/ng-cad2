@@ -167,6 +167,13 @@
             <input matInput type="text" disabled name="zhankai" />
             <mat-icon matSuffix color="primary" (click)="editZhankai(cad)">list</mat-icon>
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>算料单显示板材</mat-label>
+            <mat-select [(ngModel)]="cad.suanliaodanxianshibancai" name="suanliaodanxianshibancai">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
     </form>
 </div>
 <app-cad-points></app-cad-points>

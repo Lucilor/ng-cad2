@@ -41,6 +41,7 @@ export class CadData {
     attributes: ObjectOf<any>;
     bancaihoudufangxiang: "none" | "gt0" | "lt0";
     zhankai: {zhankaikuan: string; zhankaigao: string; shuliang: string; shuliangbeishu: string; name: string; kailiaomuban: string}[];
+    suanliaodanxianshibancai: boolean;
 
     constructor(data: ObjectOf<any> = {}) {
         if (typeof data !== "object") {
@@ -110,6 +111,7 @@ export class CadData {
         } else {
             this.zhankai = [getZhankai()];
         }
+        this.suanliaodanxianshibancai = data.suanliaodanxianshibancai ?? true;
         this.updateDimensions();
     }
 
@@ -132,6 +134,7 @@ export class CadData {
         this.attributes = cloneDeep(data.attributes);
         this.bancaihoudufangxiang = data.bancaihoudufangxiang;
         this.zhankai = cloneDeep(data.zhankai);
+        this.suanliaodanxianshibancai = data.suanliaodanxianshibancai;
         this.updatePartners().updateDimensions();
     }
 
@@ -172,7 +175,8 @@ export class CadData {
             showKuandubiaozhu: this.showKuandubiaozhu,
             info: this.info,
             bancaihoudufangxiang: this.bancaihoudufangxiang,
-            zhankai: cloneDeep(this.zhankai)
+            zhankai: cloneDeep(this.zhankai),
+            suanliaodanxianshibancai: this.suanliaodanxianshibancai
         };
     }
 
