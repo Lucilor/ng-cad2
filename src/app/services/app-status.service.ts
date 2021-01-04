@@ -82,10 +82,12 @@ export class AppStatusService {
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
             cad.config(newVal);
-            const showCadGongshis = !!newVal.showCadGongshis;
-            const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
-            cadGongshis.forEach((e) => (e.visible = showCadGongshis));
-            cad.render(cadGongshis);
+            const showCadGongshis = newVal.showCadGongshis;
+            if (typeof showCadGongshis === "boolean") {
+                const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
+                cadGongshis.forEach((e) => (e.visible = showCadGongshis));
+                cad.render(cadGongshis);
+            }
         });
     }
 
