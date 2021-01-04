@@ -122,7 +122,7 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         const mtext = new CadMtext();
         const {cx, cy} = cad.draw.viewbox();
         mtext.insert.set(cx, cy);
-        mtext.anchor.set(0.5, 0.5);
+        mtext.anchor.set(0, 0);
         mtext.text = "新建文本";
         mtext.selected = true;
         this.data?.entities.mtext.push(mtext);

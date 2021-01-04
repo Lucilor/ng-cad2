@@ -28,6 +28,7 @@ export class CadData {
     partners: CadData[];
     components: CadComponents;
     huajian: string;
+    xinghaohuajian: ObjectOf<string>;
     mubanfangda: boolean;
     kailiaomuban: string;
     kailiaoshibaokeng: boolean;
@@ -90,6 +91,7 @@ export class CadData {
         this.components = new CadComponents(data.components ?? {});
         this.updateComponents();
         this.huajian = data.huajian ?? "";
+        this.xinghaohuajian = data.xinghaohuajian ?? {};
         this.mubanfangda = data.mubanfangda ?? true;
         this.kailiaomuban = data.kailiaomuban ?? "";
         this.kailiaoshibaokeng = data.kailiaoshibaokeng ?? false;
@@ -121,6 +123,7 @@ export class CadData {
         this.separate(this).merge(data);
         this.parent = data.parent;
         this.huajian = data.huajian;
+        this.xinghaohuajian = data.xinghaohuajian;
         this.mubanfangda = data.mubanfangda;
         this.kailiaomuban = data.kailiaomuban;
         this.kailiaoshibaokeng = data.kailiaoshibaokeng;
@@ -164,6 +167,7 @@ export class CadData {
             partners: this.partners.map((v) => v.export()),
             components: this.components.export(),
             huajian: this.huajian,
+            xinghaohuajian: this.xinghaohuajian,
             mubanfangda: this.mubanfangda,
             kailiaomuban: this.kailiaomuban,
             kailiaoshibaokeng: this.kailiaoshibaokeng,
