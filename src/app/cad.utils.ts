@@ -50,7 +50,7 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
     for (const data of dataArr) {
         data.getAllEntities().forEach((e) => {
             if (typeof linewidth === "number") {
-                e.linewidth = linewidth *= 3;
+                e.linewidth = linewidth * 3;
             } else {
                 e.linewidth *= 3;
             }
