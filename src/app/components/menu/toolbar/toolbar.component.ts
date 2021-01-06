@@ -39,11 +39,12 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     onKeyDown = ((event: KeyboardEvent) => {
-        const {key, ctrlKey} = event;
+        const {ctrlKey} = event;
+        const key = event.key.toLowerCase();
         if (ctrlKey && this.keyMap[key]) {
             event.preventDefault();
             this.clickBtn(key);
-        } else if (key === "Escape") {
+        } else if (key === "escape") {
             event.preventDefault();
             const name = this.statusName;
             if (!this.statusWithoutEsc.includes(name)) {
