@@ -33,21 +33,21 @@ export class CadLineTjqzComponent {
     columnsLeft: ColumnInfo<RawDataLeft>[] = [
         {field: "key", name: "名字", type: "string", editable: true},
         {field: "level", name: "优先级", type: "number", editable: true},
-        {field: "type", name: "类型", type: "select", options: ["选择", "数值"], editable: true}
+        {field: "type", name: "类型", type: "select", options: ["选择", "数值", "数值+选择"], editable: true}
     ];
     activeRowsLeft: number[] = [];
 
     dataRight: MatTableDataSource<RawDataRight>;
     columnsRight: ColumnInfo<RawDataRight>[] = [
         {field: "name", name: "选项/范围", type: "string", editable: true},
-        {field: "value", name: "取值", type: "number", editable: true},
+        {field: "value", name: "取值", type: "string", editable: true},
         {field: "input", name: "可以输入修改", type: "boolean", editable: true}
     ];
     newItemRight: RawDataRight = {name: "", value: 0, input: true};
 
     @ViewChild("tableLeft") tableLeft?: TableComponent<RawDataLeft>;
     loaderId = "cadLineTiaojianquzhiSavingCad";
-    openSelection = -1;
+    openSelection = {type: "", index: -1};
 
     newItemLeft: ItemGetter<RawDataLeft> = (rowIdx: number) => ({key: "", level: rowIdx + 1, type: "数值", data: []});
 
@@ -121,7 +121,7 @@ export class CadLineTjqzComponent {
 
     setOpenSelection(item: RawDataLeft, rowIdx: number) {
         const {type} = item;
-        this.openSelection = type === "选择" ? rowIdx : -1;
+        this.openSelection = {type, index: type.includes("选择") ? rowIdx : -1};
     }
 
     onRowClick(event: RowEvent<RawDataLeft>) {
@@ -136,14 +136,31 @@ export class CadLineTjqzComponent {
     }
 
     async onCellFocusRight(event: CellEvent<RawDataRight>) {
-        if (event.field === "name" && this.openSelection > -1) {
-            const keys = this.dataLeft.data[this.openSelection].key.split(/,|，/).filter((v) => v);
+        const {type, index} = this.openSelection;
+        if (event.field === "name" && index > -1) {
+            const keys = this.dataLeft.data[index].key.split(/,|，/).filter((v) => v);
             const values = event.item.name.split(/,|，/);
-            const data: CadLineTjqzSelectData = keys.map((v, i) => ({key: v, value: values[i] ?? ""}));
-            if (data.length) {
+            let data: CadLineTjqzSelectData;
+            if (keys.length) {
+                if (type.includes("数值")) {
+                    const key = keys.shift() as string;
+                    const value = values.shift() ?? "";
+                    data = {
+                        value: {key, value},
+                        options: keys.map((v, i) => ({key: v, value: values[i] ?? ""}))
+                    };
+                } else {
+                    data = {
+                        options: keys.map((v, i) => ({key: v, value: values[i] ?? ""}))
+                    };
+                }
                 const result = await openCadLineTjqzSelectDialog(this.dialog, {data});
                 if (result) {
-                    this.dataRight.data[event.rowIdx].name = result.map((v) => v.value).join(",");
+                    const arr = result.options;
+                    if (result.value) {
+                        arr.unshift(result.value);
+                    }
+                    this.dataRight.data[event.rowIdx].name = arr.map((v) => v.value).join(",");
                 }
             }
         }

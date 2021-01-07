@@ -6,7 +6,7 @@ import {cloneDeep} from "lodash";
 import {openCadOptionsDialog} from "../cad-options/cad-options.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
-export type CadLineTjqzSelectData = {key: string; value: string}[];
+export type CadLineTjqzSelectData = {value?: {key: string; value: string}; options: {key: string; value: string}[]};
 
 @Component({
     selector: "app-cad-line-tjqz-select",
@@ -20,14 +20,10 @@ export class CadLineTjqzSelectComponent {
         private dialog: MatDialog,
         private message: MessageService
     ) {
-        if (Array.isArray(this.data)) {
-            this.data = cloneDeep(this.data);
-        } else {
-            this.data = [];
-        }
+        this.data = cloneDeep(this.data);
     }
 
-    async onListClick(item: CadLineTjqzSelectData[0]) {
+    async onListClick(item: CadLineTjqzSelectData["options"][0]) {
         const name = item.key;
         const checkedItems = item.value.split("*");
         const result = await openCadOptionsDialog(this.dialog, {data: {data: new CadData(), name, checkedItems}});
@@ -37,7 +33,7 @@ export class CadLineTjqzSelectComponent {
     }
 
     submit() {
-        for (const item of this.data) {
+        for (const item of this.data.options) {
             if (!item.value) {
                 this.message.alert("请不要留空！");
                 return;

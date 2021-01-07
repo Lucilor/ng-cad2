@@ -1,5 +1,10 @@
 <form>
-	<mat-form-field *ngFor="let item of data">
+	<mat-form-field *ngIf="data.value">
+		<mat-label>{{data.value.key}}</mat-label>
+		<input matInput type="text" [(ngModel)]="data.value.value" [name]="data.value.key" />
+		<mat-icon matSuffix color="primary">list</mat-icon>
+	</mat-form-field>
+	<mat-form-field *ngFor="let item of data.options">
 		<mat-label>{{item.key}}</mat-label>
 		<input matInput type="text" [(ngModel)]="item.value" [name]="item.key" />
 		<mat-icon matSuffix color="primary" (click)="onListClick(item)">list</mat-icon>

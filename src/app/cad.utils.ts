@@ -9,7 +9,8 @@ import {
     CadMtext,
     CadOption,
     CadBaseLine,
-    CadJointPoint
+    CadJointPoint,
+    CadHatch
 } from "./cad-viewer";
 import {getDPI, Point} from "./utils";
 
@@ -49,7 +50,7 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
     const imgs: string[] = [];
     for (const data of dataArr) {
         data.getAllEntities().forEach((e) => {
-            if (e.linewidth >= 2) {
+            if (e.linewidth >= 2 && !(e instanceof CadHatch)) {
                 if (typeof linewidth === "number") {
                     e.linewidth = linewidth * 3;
                 } else {
