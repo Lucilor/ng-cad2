@@ -1,9 +1,28 @@
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Response} from "@src/app/app.common";
 import {ObjectOf, RSAEncrypt} from "@src/app/utils";
 import {MessageService} from "../../message/services/message.service";
+
+/* eslint-disable @typescript-eslint/indent */
+export interface HttpOptions {
+    headers?:
+        | HttpHeaders
+        | {
+              [header: string]: string | string[];
+          };
+    observe?: "body";
+    params?:
+        | HttpParams
+        | {
+              [param: string]: string | string[];
+          };
+    reportProgress?: boolean;
+    responseType?: "json";
+    withCredentials?: boolean;
+}
+/* eslint-enable @typescript-eslint/indent */
 
 @Injectable({
     providedIn: "root"
@@ -30,7 +49,7 @@ export class HttpService {
         }
     }
 
-    async request<T>(url: string, method: "GET" | "POST", data?: ObjectOf<any>, encrypt = true) {
+    async request<T>(url: string, method: "GET" | "POST", data?: ObjectOf<any>, encrypt = true, options?: HttpOptions) {
         if (!url.startsWith("http")) {
             url = `${this.baseURL}/${url}`;
         }
@@ -50,7 +69,7 @@ export class HttpService {
                         }
                     }
                 }
-                response = await this.http.get<Response<T>>(url).toPromise();
+                response = await this.http.get<Response<T>>(url, options).toPromise();
             }
             if (method === "POST") {
                 let files: File[] = [];
@@ -74,7 +93,7 @@ export class HttpService {
                     }
                 }
                 files.forEach((v, i) => formData.append("file" + i, v));
-                response = await this.http.post<Response<T>>(url, formData).toPromise();
+                response = await this.http.post<Response<T>>(url, formData, options).toPromise();
             }
             if (!response) {
                 throw new Error("请求错误");
@@ -95,5 +114,13 @@ export class HttpService {
             this.alert(error);
             return null;
         }
+    }
+
+    async get<T>(url: string, data?: ObjectOf<any>, encrypt = true, options?: HttpOptions) {
+        return await this.request<T>(url, "GET", data, encrypt, options);
+    }
+
+    async post<T>(url: string, data?: ObjectOf<any>, encrypt = true, options?: HttpOptions) {
+        return await this.request<T>(url, "POST", data, encrypt, options);
     }
 }

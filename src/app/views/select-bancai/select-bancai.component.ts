@@ -29,6 +29,7 @@ export class SelectBancaiComponent implements OnInit {
     bancaiList: ObjectOf<BancaiList> = {};
     formIdx = -1;
     codes: string[] = [];
+    table = "";
 
     get currList(): BancaiList {
         const form = this.bancaiForms[this.formIdx];
@@ -54,10 +55,11 @@ export class SelectBancaiComponent implements OnInit {
     ) {}
 
     async ngOnInit() {
-        const queryParams = this.route.snapshot.queryParams;
-        if (queryParams.codes) {
+        const {codes, table} = this.route.snapshot.queryParams;
+        if (codes && table) {
             this.loader.startLoader("bancaiLoader");
-            this.codes = queryParams.codes.split(",");
+            this.codes = codes.split(",");
+            this.table = table;
             const result = await this.dataService.getBancais(this.codes);
             this.loader.stopLoader("bancaiLoader");
             if (result) {
@@ -269,7 +271,7 @@ export class SelectBancaiComponent implements OnInit {
             )
             .flat();
         this.loader.startLoader("submitLoader");
-        const result = await this.dataService.jiguangkailiaopaiban(this.codes, bancaiCads);
+        const result = await this.dataService.jiguangkailiaopaiban(this.codes, bancaiCads, this.table);
         this.loader.stopLoader("submitLoader");
         if (result) {
             open(result);

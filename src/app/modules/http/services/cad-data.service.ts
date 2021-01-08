@@ -55,7 +55,7 @@ export class CadDataService extends HttpService {
     }
 
     async getCad(params: Partial<GetCadParams>) {
-        const response = await this.request<any[]>("peijian/cad/getCad", "POST", params);
+        const response = await this.post<any[]>("peijian/cad/getCad", params);
         const result: {cads: CadData[]; total: number} = {cads: [], total: 0};
         if (response && response.data) {
             response.data.forEach((d) => result.cads.push(new CadData(d)));
@@ -66,7 +66,7 @@ export class CadDataService extends HttpService {
 
     async setCad(params: SetCadParams) {
         const data = {...params, cadData: JSON.stringify(params.cadData.export())};
-        const response = await this.request<CadData>("peijian/cad/setCad", "POST", data, false);
+        const response = await this.post<CadData>("peijian/cad/setCad", data, false);
         if (response && response.data) {
             return new CadData(response.data);
         } else {
@@ -75,7 +75,7 @@ export class CadDataService extends HttpService {
     }
 
     async getYuanshicadwenjian(params: Partial<GetCadParams>) {
-        const response = await this.request<any[]>("peijian/cad/getYuanshicadwenjian", "POST", params);
+        const response = await this.post<any[]>("peijian/cad/getYuanshicadwenjian", params);
         const result: {cads: any[]; total: number} = {cads: [], total: 0};
         if (response && response.data) {
             result.cads = response.data;
@@ -85,7 +85,7 @@ export class CadDataService extends HttpService {
     }
 
     async getCadSearchForm() {
-        const response = await this.request("peijian/cad/getSearchForm", "GET");
+        const response = await this.get("peijian/cad/getSearchForm");
         if (response) {
             return response.data as CadSearchData;
         }
@@ -93,7 +93,7 @@ export class CadDataService extends HttpService {
     }
 
     async getCadSearchOptions(table: string) {
-        const response = await this.request("peijian/cad/getSearchOptions", "POST", {table});
+        const response = await this.post("peijian/cad/getSearchOptions", {table});
         if (response) {
             return response.data as CadSearchData[0]["items"][0];
         }
@@ -101,7 +101,7 @@ export class CadDataService extends HttpService {
     }
 
     async downloadDxf(data: CadData) {
-        const result = await this.request<any>("peijian/cad/downloadDxf", "POST", {cadData: JSON.stringify(data.export())}, false);
+        const result = await this.post<any>("peijian/cad/downloadDxf", {cadData: JSON.stringify(data.export())}, false);
         const host = this.baseURL === "/api" ? "//localhost" : origin;
         if (result) {
             open(host + "/" + result.data.path);
@@ -109,7 +109,7 @@ export class CadDataService extends HttpService {
     }
 
     async uploadDxf(dxf: File) {
-        const response = await this.request<any>("peijian/cad/uploadDxf", "POST", {dxf});
+        const response = await this.post<any>("peijian/cad/uploadDxf", {dxf});
         if (response) {
             return new CadData(response.data);
         }
@@ -118,9 +118,9 @@ export class CadDataService extends HttpService {
 
     async replaceData(source: CadData, target: string, collection: CadCollection) {
         source.sortComponents();
-        const response = await this.request<any>(
+        const response = await this.post<any>(
             "peijian/cad/replaceCad",
-            "POST",
+
             {
                 source: JSON.stringify(source.export()),
                 target,
@@ -152,7 +152,7 @@ export class CadDataService extends HttpService {
             xuanxiang: exportData.options,
             tiaojian: exportData.conditions
         };
-        const response = await this.request<any>("peijian/cad/getOptions", "POST", postData);
+        const response = await this.post<any>("peijian/cad/getOptions", postData);
         if (response) {
             return {
                 data: response.data.map((v: any) => ({name: v.mingzi, img: `${origin}/filepath/${v.xiaotu}`})),
@@ -163,7 +163,7 @@ export class CadDataService extends HttpService {
     }
 
     async getBackupCads(search = "", limit = 20) {
-        const response = await this.request("peijian/cad/getBackupCads", "POST", {search, limit});
+        const response = await this.post("peijian/cad/getBackupCads", {search, limit});
         if (response) {
             const result = response.data as {time: number; data: CadData}[];
             result.forEach((v) => {
@@ -175,12 +175,12 @@ export class CadDataService extends HttpService {
     }
 
     async removeBackup(name: string, time: number) {
-        const response = await this.request("peijian/cad/removeBackup", "POST", {name, time});
+        const response = await this.post("peijian/cad/removeBackup", {name, time});
         return response ? true : false;
     }
 
     async getSuanliaodan(codes: string[]) {
-        const response = await this.request<any[]>("order/order/suanliaodan", "POST", {codes});
+        const response = await this.post<any[]>("order/order/suanliaodan", {codes});
         if (response?.data) {
             const data: CadData[] = response.data.map((v) => new CadData(v));
             return data;
@@ -190,19 +190,19 @@ export class CadDataService extends HttpService {
     }
 
     async removeCads(collection: string, ids: string[]) {
-        await this.request<never>("peijian/cad/removeCad", "POST", {collection, ids});
+        await this.post<never>("peijian/cad/removeCad", {collection, ids});
     }
 
     async getBancais(codes: string[]) {
-        const response = await this.request<{bancaiList: BancaiList[]; bancaiCads: BancaiCad[]}>("order/order/getBancais", "POST", {codes});
+        const response = await this.post<{bancaiList: BancaiList[]; bancaiCads: BancaiCad[]}>("order/order/getBancais", {codes});
         if (response?.data) {
             return response.data;
         }
         return null;
     }
 
-    async jiguangkailiaopaiban(codes: string[], bancaiCads: BancaiCad[]) {
-        const response = await this.request<string>("order/order/jiguangkailiaopaiban", "POST", {codes, bancaiCads});
+    async jiguangkailiaopaiban(codes: string[], bancaiCads: BancaiCad[], table: string) {
+        const response = await this.post<string>("order/order/jiguangkailiaopaiban", {codes, bancaiCads, table});
         if (response?.data) {
             return response.data;
         }

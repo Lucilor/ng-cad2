@@ -37,7 +37,7 @@ export class PrintCadComponent implements AfterViewInit {
         this.loader.startLoader(this.loaderId);
         this.loaderText = "正在获取数据...";
         const t1 = performance.now();
-        const response = await this.dataService.request<{cads: CadData[]; linewidth: number}>(action, "POST", queryParams, false);
+        const response = await this.dataService.post<{cads: CadData[]; linewidth: number}>(action, queryParams, false);
         logTime("请求数据用时", t1);
         if (response?.data) {
             const data = response.data.cads.map((v) => new CadData(v));
