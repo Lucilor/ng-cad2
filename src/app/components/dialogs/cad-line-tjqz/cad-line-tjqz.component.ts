@@ -8,7 +8,6 @@ import {
     ColumnInfo,
     TableComponent,
     ItemGetter,
-    DataTransformer,
     TableValidator,
     TableErrorState,
     RowEvent,
@@ -51,16 +50,18 @@ export class CadLineTjqzComponent {
 
     newItemLeft: ItemGetter<RawDataLeft> = (rowIdx: number) => ({key: "", level: rowIdx + 1, type: "数值", data: []});
 
-    dataTransformerLeft: DataTransformer<RawDataLeft> = (type, data) => {
-        if (type === "import") {
-            let maxLevel = -Infinity;
-            this.dataLeft.data.forEach((v) => (maxLevel = Math.max(maxLevel, v.level)));
-            data.forEach((v) => {
-                v.level = ++maxLevel;
-            });
-        }
-        return data;
-    };
+    // dataTransformerLeft: DataTransformer<RawDataLeft> = (type, data) => {
+    //     if (type === "import") {
+    //         let maxLevel = -Infinity;
+    //         this.dataLeft.data.forEach((v) => (maxLevel = Math.max(maxLevel, v.level)));
+    //         if (isFinite(maxLevel)) {
+    //             data.forEach((v) => {
+    //                 v.level = ++maxLevel;
+    //             });
+    //         }
+    //     }
+    //     return data;
+    // };
 
     validatorLeft: TableValidator<RawDataLeft> = (data) => {
         const result: TableErrorState = [];
