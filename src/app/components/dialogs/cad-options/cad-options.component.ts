@@ -39,6 +39,7 @@ export class CadOptionsComponent implements AfterViewInit {
             this.data.data = new CadData();
         }
         this.data.multi = this.data.multi !== false;
+        this.checkedItems = this.data.checkedItems.slice();
     }
 
     async ngAfterViewInit() {
@@ -47,7 +48,7 @@ export class CadOptionsComponent implements AfterViewInit {
     }
 
     submit() {
-        this.dialogRef.close(this.pageData.filter((v) => v.checked).map((v) => v.value));
+        this.dialogRef.close(this.checkedItems.filter((v) => v));
     }
 
     close() {
@@ -80,7 +81,7 @@ export class CadOptionsComponent implements AfterViewInit {
         this.length = data.count;
         this.pageData.length = 0;
         data.data.forEach((v) => {
-            this.pageData.push({value: v.name, img: v.img, checked: this.data.checkedItems.includes(v.name)});
+            this.pageData.push({value: v.name, img: v.img, checked: this.checkedItems.includes(v.name)});
         });
         return data;
     }
@@ -93,6 +94,13 @@ export class CadOptionsComponent implements AfterViewInit {
             item.checked = event.checked;
         } else {
             item.checked = !item.checked;
+        }
+        const index = this.checkedItems.findIndex((v) => v === item.value);
+        if (item.checked && index < 0) {
+            this.checkedItems.push(item.value);
+        }
+        if (!item.checked && index >= 0) {
+            this.checkedItems.splice(index, 1);
         }
     }
 }
