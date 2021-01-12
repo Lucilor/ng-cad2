@@ -22,6 +22,9 @@ export abstract class CadEntity {
     children: CadEntities;
     el?: G | null;
     needsUpdate = false;
+    calcBoundingPoints = true;
+    abstract get boundingPoints(): Point[];
+    root?: CadEntities;
 
     get scale() {
         if (this.el) {
@@ -346,6 +349,14 @@ export class CadArc extends CadLineLike {
     get length() {
         return this.curve.length;
     }
+    get boundingPoints() {
+        const curve = this.curve;
+        const result: Point[] = [];
+        if (curve.radius) {
+            result.push(curve.getPoint(0), curve.getPoint(0.5), curve.getPoint(1));
+        }
+        return result;
+    }
 
     constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
         super(data, layers, resetId);
@@ -405,6 +416,12 @@ export class CadCircle extends CadEntity {
     }
     get length() {
         return this.curve.length;
+    }
+    get boundingPoints() {
+        const {center, radius} = this;
+        const p1 = center.clone().add(radius);
+        const p2 = center.clone().sub(radius);
+        return [p1, p2];
     }
 
     constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
@@ -469,6 +486,12 @@ export class CadDimension extends CadEntity {
             this.el?.clear();
         }
         this._renderStyle = value;
+    }
+    get boundingPoints() {
+        if (this.root) {
+            return this.root.getDimensionPoints(this);
+        }
+        return [];
     }
 
     constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
@@ -544,6 +567,10 @@ export class CadHatch extends CadEntity {
         }[];
         vertices: Point[];
     }[];
+
+    get boundingPoints() {
+        return [];
+    }
 
     constructor(data: ObjectOf<any> = {}, layers: CadLayer[] = [], resetId = false) {
         super(data, layers, resetId);
@@ -652,6 +679,9 @@ export class CadLine extends CadLineLike {
     get minY() {
         return Math.min(this.start.y, this.end.y);
     }
+    get boundingPoints() {
+        return [this.start, this.end];
+    }
 
     constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
         super(data, layers, resetId);
@@ -718,6 +748,19 @@ export class CadMtext extends CadEntity {
     anchor: Point;
     fontFamily: string;
     fontWeight: string;
+
+    get boundingPoints() {
+        const rect = this.el?.node?.getBoundingClientRect();
+        const {insert, anchor, scale} = this;
+        if (rect && !isNaN(scale)) {
+            const width = rect.width / scale;
+            const height = rect.height / scale;
+            const x = insert.x - anchor.x * width;
+            const y = insert.y - (1 - anchor.y) * height;
+            return [new Point(x, y), new Point(x + width, y + height)];
+        }
+        return [];
+    }
 
     constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
         super(data, layers, resetId);
@@ -827,6 +870,7 @@ export class CadEntities {
             if (Array.isArray(group)) {
                 group.forEach((e) => {
                     const eNew = e.clone(resetIds) as AnyCadEntity;
+                    eNew.root = this;
                     this[key].push(eNew);
                     if (resetIds) {
                         idMap[e.id] = eNew.id;
@@ -835,6 +879,7 @@ export class CadEntities {
             } else if (typeof group === "object") {
                 Object.values(group).forEach((e) => {
                     const eNew = getCadEntity(e, layers, resetIds) as AnyCadEntity;
+                    eNew.root = this;
                     this[key].push(eNew);
                     if (resetIds) {
                         idMap[e.id] = eNew.id;
@@ -1126,36 +1171,8 @@ export class CadEntities {
     getBoundingRect() {
         const rect = new Rectangle(new Point(Infinity, Infinity), new Point(-Infinity, -Infinity));
         this.forEach((e) => {
-            if (!e.visible) {
-                return;
-            }
-            if (e instanceof CadCircle) {
-                const {center, radius} = e;
-                rect.expand(center.clone().add(radius));
-                rect.expand(center.clone().sub(radius));
-            } else if (e instanceof CadArc) {
-                const curve = e.curve;
-                if (curve.radius) {
-                    rect.expand(curve.getPoint(0));
-                    rect.expand(curve.getPoint(0.5));
-                    rect.expand(curve.getPoint(1));
-                }
-            } else if (e instanceof CadDimension) {
-                this.getDimensionPoints(e).forEach((p) => rect.expand(p));
-            } else if (e instanceof CadLine) {
-                rect.expand(e.start);
-                rect.expand(e.end);
-            } else if (e instanceof CadMtext) {
-                const elRect = e.el?.node?.getBoundingClientRect();
-                const {insert, anchor, scale} = e;
-                if (elRect && !isNaN(scale)) {
-                    const width = elRect.width / scale;
-                    const height = elRect.height / scale;
-                    const x = insert.x - anchor.x * width;
-                    const y = insert.y - (1 - anchor.y) * height;
-                    rect.expand(new Point(x, y));
-                    rect.expand(new Point(x + width, y + height));
-                }
+            if (e.calcBoundingPoints) {
+                e.boundingPoints.forEach((p) => rect.expand(p));
             }
         }, true);
         if (!isFinite(rect.width) || !isFinite(rect.height)) {

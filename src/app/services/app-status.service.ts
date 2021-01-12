@@ -82,12 +82,13 @@ export class AppStatusService {
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
             cad.config(newVal);
-            const showCadGongshis = newVal.showCadGongshis;
-            if (typeof showCadGongshis === "boolean") {
-                const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
-                cadGongshis.forEach((e) => (e.visible = showCadGongshis));
-                cad.render(cadGongshis);
-            }
+            const showCadGongshis = newVal.showCadGongshis ?? this.config.config("showCadGongshis");
+            const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
+            cadGongshis.forEach((e) => {
+                e.visible = showCadGongshis;
+                e.selectable = false;
+            });
+            cad.render(cadGongshis);
         });
     }
 
@@ -137,9 +138,6 @@ export class AppStatusService {
 
     async openCad(data?: CadData[], collection?: CadCollection) {
         const cad = this.cad;
-        if (!collection) {
-            collection = this.config.config("collection");
-        }
         if (data) {
             cad.data.components.data = data;
             this.clearSelectedCads();
@@ -151,6 +149,11 @@ export class AppStatusService {
         const sessionConfig = this.config.sessionConfig;
         config.cadIds = data.map((v) => v.id);
         cad.data.info.算料单 = data.some((v) => v.info.算料单);
+        if (collection) {
+            config.collection = collection;
+        } else {
+            collection = this.config.config("collection");
+        }
         if (typeof sessionConfig.hideLineGongshi === "boolean") {
             config.hideLineGongshi = sessionConfig.hideLineGongshi;
         } else {
@@ -170,11 +173,10 @@ export class AppStatusService {
         }
         this.config.config(config);
         this.generateLineTexts();
-        cad.data.updatePartners().updateComponents();
         cad.reset();
-        cad.center();
-        await cad.render();
-        cad.center();
+        cad.render();
+        cad.data.updatePartners().updateComponents();
+        cad.render().center();
         this.openCad$.next();
     }
 

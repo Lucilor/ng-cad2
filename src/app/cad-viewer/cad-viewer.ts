@@ -1,7 +1,7 @@
 import {Svg, SVG, CoordinateXY, Element, G} from "@svgdotjs/svg.js";
 import {EventEmitter} from "events";
 import {cloneDeep} from "lodash";
-import {Point, timeout} from "../utils";
+import {Point} from "../utils";
 import {CadData} from "./cad-data/cad-data";
 import {CadArc, CadCircle, CadDimension, CadEntities, CadEntity, CadHatch, CadLine, CadMtext} from "./cad-data/cad-entities";
 import {CadType} from "./cad-data/cad-types";
@@ -30,7 +30,6 @@ export interface CadViewerConfig {
     fontFamily: string; // 设置字体
     fontWeight: string; // 设置字体粗细
     enableZoom: boolean; // 是否启用缩放
-    renderStep: number; // 渲染时每次渲染的实体个数
 }
 
 const getConfigProxy = (config: Partial<CadViewerConfig> = {}) => {
@@ -51,8 +50,7 @@ const getConfigProxy = (config: Partial<CadViewerConfig> = {}) => {
         minLinewidth: 1,
         fontFamily: "微软雅黑",
         fontWeight: "normal",
-        enableZoom: true,
-        renderStep: 10
+        enableZoom: true
     };
     for (const key in config) {
         if (key in defalutConfig) {
@@ -498,7 +496,7 @@ export class CadViewer extends EventEmitter {
         return this;
     }
 
-    async render(entities?: CadEntity | CadEntities | CadEntity[], style: Partial<CadStyle> = {}) {
+    render(entities?: CadEntity | CadEntities | CadEntity[], style: Partial<CadStyle> = {}) {
         if (!entities) {
             entities = this.data.getAllEntities();
         }
@@ -509,14 +507,8 @@ export class CadViewer extends EventEmitter {
             entities = new CadEntities().fromArray(entities);
         }
         if (entities.length) {
-            const entitiesArr = entities.toArray();
-            const step = this.config("renderStep");
-            for (let i = 0; i < entitiesArr.length; i += step) {
-                const tmpEntities = new CadEntities().fromArray(entitiesArr.slice(i, i + step));
-                tmpEntities.dimension.forEach((e) => (e.visible = !this._config.hideDimensions));
-                tmpEntities.forEach((e) => this.drawEntity(e, style));
-                await timeout();
-            }
+            entities.dimension.forEach((e) => (e.visible = !this._config.hideDimensions));
+            entities.forEach((e) => this.drawEntity(e, style));
             this.emit("render", entities);
         }
         return this;

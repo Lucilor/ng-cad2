@@ -40,13 +40,13 @@ export class AppConfigService {
             fontFamily: "微软雅黑",
             fontWeight: "normal",
             enableZoom: true,
-            renderStep: 10000,
             showCadGongshis: true,
             infoTabIndex: 0,
             cadIds: [],
             collection: "cad"
         };
         const sessionConfig = this.sessionConfig;
+        console.log(sessionConfig);
         delete sessionConfig.width;
         delete sessionConfig.height;
         defaultConfig = {...defaultConfig, ...sessionConfig};

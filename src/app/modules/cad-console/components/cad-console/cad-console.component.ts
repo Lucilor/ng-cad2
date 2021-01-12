@@ -36,7 +36,7 @@ interface CadViewerConfig {
     validateLines: boolean; // 是否验证线段
     selectMode: "none" | "single" | "multiple"; // 实体选取模式
     dragAxis: "" | "x" | "y" | "xy"; // 限制整体内容可向x或y方向拖动
-    entityDraggable: boolean; // 实体是否可拖动
+    entityDraggable: boolean | CadType[]; // 实体是否可拖动
     hideDimensions: boolean; // 是否隐藏标注
     lineGongshi: number; // 显示线公式的字体大小, ≤0时不显示
     hideLineLength: boolean; // 是否隐藏线长度(即使lineLength>0)
@@ -45,7 +45,6 @@ interface CadViewerConfig {
     fontFamily: string; // 设置字体
     fontWeight: string; // 设置字体粗细
     enableZoom: boolean; // 是否启用缩放
-    renderStep: number; // 渲染时每次渲染的实体个数
 	showCadGongshis: boolean; // 是否显示CAD公式
 	infoTabIndex: number; // 右侧菜单当前选中的tab
 	cadIds: string[]; // 已打开CAD的ids
