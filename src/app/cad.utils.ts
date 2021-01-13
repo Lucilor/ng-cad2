@@ -1,6 +1,16 @@
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {CadData, CadEntities, CadViewer, CadViewerConfig, CadMtext, CadOption, CadBaseLine, CadJointPoint} from "./cad-viewer";
+import {
+    CadData,
+    CadEntities,
+    CadViewer,
+    CadViewerConfig,
+    CadMtext,
+    CadOption,
+    CadBaseLine,
+    CadJointPoint,
+    CadDimension
+} from "./cad-viewer";
 import {getDPI, Point} from "./utils";
 
 export const getCadPreview = async (data: CadData, width = 300, height = 150, padding = [10]) => {
@@ -38,21 +48,15 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
 
     const imgs: string[] = [];
     for (const data of dataArr) {
-        // data.getAllEntities().forEach((e) => {
-        //     if (e.linewidth >= 2 && !(e instanceof CadHatch)) {
-        //         if (typeof linewidth === "number") {
-        //             e.linewidth = linewidth * 3;
-        //         } else {
-        //             e.linewidth *= 3;
-        //         }
-        //     }
-        //     e.color = new Color(0);
-        //     if (e instanceof CadDimension) {
-        //         e.renderStyle = 2;
-        //     } else if (e instanceof CadMtext && e.fontFamily === "仿宋") {
-        //         e.fontWeight = "bolder";
-        //     }
-        // }, true);
+        data.getAllEntities().forEach((e) => {
+            e.color = new Color(0);
+            if (e instanceof CadDimension) {
+                e.renderStyle = 2;
+                e.selected = true;
+            } else if (e instanceof CadMtext && e.fontFamily === "仿宋") {
+                e.fontWeight = "bolder";
+            }
+        }, true);
         const cadPrint = new CadViewer(data, {
             ...config,
             width: width * scaleX,
@@ -64,9 +68,9 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
             minLinewidth: -Infinity
         }).appendTo(document.body);
         cadPrint.center();
-        await cadPrint.render();
+        cadPrint.render();
         data.updatePartners().updateComponents();
-        (await cadPrint.render()).center();
+        cadPrint.render().center();
         cadPrint.draw.find("[type='DIMENSION']").forEach((el) => {
             el.children().forEach((child) => {
                 if (child.node.tagName === "text") {
@@ -80,9 +84,8 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
                 }
             });
         });
-        cadPrint.select(cadPrint.data.getAllEntities().dimension);
         const src = (await cadPrint.toCanvas()).toDataURL();
-        // cadPrint.destroy();
+        cadPrint.destroy();
         imgs.push(src);
     }
 
