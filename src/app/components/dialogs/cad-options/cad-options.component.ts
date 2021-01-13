@@ -39,7 +39,7 @@ export class CadOptionsComponent implements AfterViewInit {
             this.data.data = new CadData();
         }
         this.data.multi = this.data.multi !== false;
-        this.checkedItems = this.data.checkedItems.slice();
+        this.checkedItems = this.data.checkedItems?.slice() || [];
     }
 
     async ngAfterViewInit() {
