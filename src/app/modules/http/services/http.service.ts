@@ -51,7 +51,7 @@ export class HttpService {
 
     async request<T>(url: string, method: "GET" | "POST", data?: ObjectOf<any>, encrypt = true, options?: HttpOptions) {
         if (!url.startsWith("http")) {
-            url = `${this.baseURL}/${url}`;
+            url = `${this.baseURL}${url}`;
         }
         try {
             let response: Response<T> | null = null;
@@ -104,6 +104,13 @@ export class HttpService {
                         this.message.snack(response.msg);
                     }
                     return response;
+                } else if (response.code === -2) {
+                    let baseURL = this.baseURL;
+                    if (baseURL === "/api/") {
+                        baseURL = "https://localhost/n/kgs/index/";
+                    }
+                    location.href = `${baseURL}signUp/index#${encodeURIComponent(location.href)}`;
+                    return null;
                 } else {
                     throw new Error(response.msg);
                 }

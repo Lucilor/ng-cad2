@@ -51,7 +51,7 @@ export interface BancaiCad {
 export class CadDataService extends HttpService {
     constructor(injector: Injector) {
         super(injector);
-        this.baseURL = localStorage.getItem("baseURL") || "/api";
+        this.baseURL = localStorage.getItem("baseURL") || "/api/";
     }
 
     async getCad(params: Partial<GetCadParams>) {
