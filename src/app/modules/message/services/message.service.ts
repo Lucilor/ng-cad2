@@ -32,6 +32,10 @@ export class MessageService {
         return await this.open({data: {type: "book", bookData, content, title, cancelable}});
     }
 
+    async editor(content?: string, title?: string, editable = true, cancelable = true) {
+        return await this.open({data: {type: "editor", editable, content, title, cancelable}});
+    }
+
     snack(message: string, action?: string, config?: MatSnackBarConfig) {
         this.snackBar.open(message, action, config);
     }

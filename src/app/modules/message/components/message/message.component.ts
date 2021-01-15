@@ -3,7 +3,7 @@ import {Component, OnInit, Inject} from "@angular/core";
 import {FormControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
-import {clamp} from "lodash";
+import {clamp, cloneDeep} from "lodash";
 import {MessageData, PromptData} from "./message-types";
 
 @Component({
@@ -36,11 +36,20 @@ export class MessageComponent implements OnInit {
         return 0;
     }
 
+    get editable() {
+        if (this.data.type === "editor") {
+            return this.data.editable;
+        }
+        return false;
+    }
+
     constructor(
         public dialogRef: MatDialogRef<MessageComponent, boolean | string>,
         private sanitizer: DomSanitizer,
         @Inject(MAT_DIALOG_DATA) public data: MessageData
-    ) {}
+    ) {
+        this.data = cloneDeep(this.data);
+    }
 
     ngOnInit() {
         const data = this.data;
@@ -120,6 +129,8 @@ export class MessageComponent implements OnInit {
             if (this.input.valid) {
                 this.dialogRef.close(this.input.value);
             }
+        } else if (this.data.type === "editor") {
+            this.dialogRef.close(this.data.content);
         } else {
             this.cancle();
         }

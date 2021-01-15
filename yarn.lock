@@ -1901,6 +1901,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/quill@npm:^1":
+  version: 1.3.10
+  resolution: "@types/quill@npm:1.3.10"
+  dependencies:
+    parchment: ^1.1.2
+  checksum: 299718d530910e3fbcb7261d371c5e7c2d81d0795968c3fd5345f50e73871b0430c3392a889306ee03c75ce85042242f0d341989295443d19ddb385b6a43a493
+  languageName: node
+  linkType: hard
+
 "@types/selenium-webdriver@npm:^3.0.0":
   version: 3.0.17
   resolution: "@types/selenium-webdriver@npm:3.0.17"
@@ -3782,6 +3791,13 @@ __metadata:
   version: 1.0.4
   resolution: "clone@npm:1.0.4"
   checksum: aaaa58f9906002d9c07630682536cb00581ee02d7a76cfa8573ad59784add4d5d6d4afe894c21899b974044f153f8c5c6419ffc8b1cdde61bf104ad52e3a185d
+  languageName: node
+  linkType: hard
+
+"clone@npm:^2.1.1":
+  version: 2.1.2
+  resolution: "clone@npm:2.1.2"
+  checksum: 85232d66015d2d703dc59812e30049931d97c7815bf70569ae4fb7a66be257f46fcf47040e4e7050966ca195a9e615d59d73ba9e39fc37eedba1a76865f27ab1
   languageName: node
   linkType: hard
 
@@ -5675,6 +5691,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eventemitter3@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "eventemitter3@npm:2.0.3"
+  checksum: ef4875784b1d5e175fb27718e06c73b11fc92a412f56dcb62def92c8bd9eecd533f5444c0e4a17de524da885b51c3fa2330996300f9b83d01ff85b0f5548d0d6
+  languageName: node
+  linkType: hard
+
 "eventemitter3@npm:^4.0.0":
   version: 4.0.7
   resolution: "eventemitter3@npm:4.0.7"
@@ -5812,7 +5835,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"extend@npm:^3.0.0, extend@npm:~3.0.2":
+"extend@npm:^3.0.0, extend@npm:^3.0.2, extend@npm:~3.0.2":
   version: 3.0.2
   resolution: "extend@npm:3.0.2"
   checksum: 1406da1f0c4b00b839497e4cdd0ec4303ce2ae349144b7c28064a5073c93ce8c08da4e8fb1bc5cb459ffcdff30a35fc0fe54344eb88320e70100c1baea6f195c
@@ -5864,6 +5887,13 @@ __metadata:
   version: 3.1.3
   resolution: "fast-deep-equal@npm:3.1.3"
   checksum: 451526766b219503131d11e823eaadd1533080b0be4860e316670b039dcaf31cd1007c2fe036a9b922abba7c040dfad5e942ed79d21f2ff849e50049f36e0fb7
+  languageName: node
+  linkType: hard
+
+"fast-diff@npm:1.1.2":
+  version: 1.1.2
+  resolution: "fast-diff@npm:1.1.2"
+  checksum: da9aec22af75159330ade58076544cf7518f533c2b3c1a0932a28f768908425ab4b6262e51823d7b1fa335060151d3602ad60d09e25d6d5042a93c0e26a01070
   languageName: node
   linkType: hard
 
@@ -8854,6 +8884,7 @@ fsevents@~2.1.2:
     "@types/lodash": ^4.14.167
     "@types/node": ^14.14.21
     "@types/pdfmake": ^0.1.16
+    "@types/quill": ^1
     "@types/uuid": ^8.3.0
     "@typescript-eslint/eslint-plugin": 4.13.0
     "@typescript-eslint/parser": 4.13.0
@@ -8876,9 +8907,11 @@ fsevents@~2.1.2:
     lodash: ^4.17.20
     ngx-color: ^6.2.0
     ngx-perfect-scrollbar: ^10.1.0
+    ngx-quill: ^13.0.1
     ngx-ui-loader: ^10.0.0
     pdfmake: ^0.1.69
     protractor: ~7.0.0
+    quill: ^1.3.7
     rxjs: ~6.6.3
     ts-node: ~9.1.1
     tslib: ^2.1.0
@@ -8913,6 +8946,22 @@ fsevents@~2.1.2:
     "@angular/common": ">=9.0.0"
     "@angular/core": ">=9.0.0"
   checksum: 38ae9c7eedc6dcf1f577b28d5968e4bb75d9fc5b0a066c6eee576feb69a1ccf2e62f2c0fcedd1bc6b8024c137c93abbe4b095860962275a123035b01ef777077
+  languageName: node
+  linkType: hard
+
+"ngx-quill@npm:^13.0.1":
+  version: 13.0.1
+  resolution: "ngx-quill@npm:13.0.1"
+  dependencies:
+    tslib: ^2.0.0
+  peerDependencies:
+    "@angular/common": ^10.0.0 || ^11.0.0
+    "@angular/core": ^10.0.0 || ^11.0.0
+    "@angular/forms": ^10.0.0 || ^11.0.0
+    "@angular/platform-browser": ^10.0.0 || ^11.0.0
+    quill: ^1.3.7
+    rxjs: ^6.5.0
+  checksum: 2d40c5f86769560f548a93f67a377555aa36d19ef09a6efc4d80862e363c3414b467fb2f6832f23692461a8b72fe3ab4bd94ecb3d44617b2189abde1bb3ec917
   languageName: node
   linkType: hard
 
@@ -9620,6 +9669,13 @@ fsevents@~2.1.2:
     inherits: ^2.0.3
     readable-stream: ^2.1.5
   checksum: 65170af2e76b0d9305a1b8143e7aaa7fd0f726a038315fab7b8a92773a446d35623bc56bbac0ee4e6feb6757243c30408e1cd93da499fa44008fa7f9ded0c6c8
+  languageName: node
+  linkType: hard
+
+"parchment@npm:^1.1.2, parchment@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "parchment@npm:1.1.4"
+  checksum: b36d4a8b6d6473ba78a74447980afd7566e578b054808c07dc564248e814c00b98177b615238bb4bc6cda7c25e0987325df89e6c40c6b8f83deb2b60960474a0
   languageName: node
   linkType: hard
 
@@ -10668,6 +10724,31 @@ fsevents@~2.1.2:
   version: 2.2.0
   resolution: "querystringify@npm:2.2.0"
   checksum: 6235036be3aedff7919dfc06b23f759264915c5794c6352d52a917401d40d2b9bb43b1d82e4e5be983e469aa320e06992aefc218192f6fa1d9eba4f54dc4786c
+  languageName: node
+  linkType: hard
+
+"quill-delta@npm:^3.6.2":
+  version: 3.6.3
+  resolution: "quill-delta@npm:3.6.3"
+  dependencies:
+    deep-equal: ^1.0.1
+    extend: ^3.0.2
+    fast-diff: 1.1.2
+  checksum: ac28eab2603326f835a4bc264d25ed462375dea032ca77ed1bded0a1d2f80d925582d9e5e602b22f0f9e62dc5df6a6709b750a365aaef466473ddd0a9eb5eb4a
+  languageName: node
+  linkType: hard
+
+"quill@npm:^1.3.7":
+  version: 1.3.7
+  resolution: "quill@npm:1.3.7"
+  dependencies:
+    clone: ^2.1.1
+    deep-equal: ^1.0.1
+    eventemitter3: ^2.0.3
+    extend: ^3.0.2
+    parchment: ^1.1.4
+    quill-delta: ^3.6.2
+  checksum: 866c28e58d739ab69c3abb0135fd4dcb3bb026e407add1eeac52cf52b11cad8b8afc5972e1326dbbcf5ca9a9f357dba3a1fed567046f061a54e81b1332347309
   languageName: node
   linkType: hard
 

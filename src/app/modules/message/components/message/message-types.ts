@@ -37,4 +37,9 @@ export interface BookMessageData extends BaseMessageData {
     bookData: BookData;
 }
 
-export type MessageData = PlainMessageData | PromptMessageData | BookMessageData;
+export interface EditorMessageData extends BaseMessageData {
+    type: "editor";
+    editable: boolean;
+}
+
+export type MessageData = PlainMessageData | PromptMessageData | BookMessageData | EditorMessageData;
