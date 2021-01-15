@@ -7,10 +7,10 @@ import {getCadGongshiText} from "@src/app/cad.utils";
 import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService, CadStatus} from "@src/app/services/app-status.service";
+import {openCadDataAttrsDialog} from "../../dialogs/cad-data-attrs/cad-data-attrs.component";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "../../dialogs/cad-options/cad-options.component";
 import {openCadZhankaiDialog} from "../../dialogs/cad-zhankai/cad-zhankai.component";
-import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
 
 @Component({
     selector: "app-cad-info",
@@ -278,7 +278,7 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     async editAttributes(data: CadData) {
-        const result = await openJsonEditorDialog(this.dialog, {data: {json: data.attributes}});
+        const result = await openCadDataAttrsDialog(this.dialog, {data: data.attributes});
         if (result) {
             data.attributes = result;
         }

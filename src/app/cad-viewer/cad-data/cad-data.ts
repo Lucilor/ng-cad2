@@ -39,7 +39,7 @@ export class CadData {
     suanliaochuli: "算料+显示展开+开料" | "算料+开料" | "算料+显示展开" | "算料";
     showKuandubiaozhu: boolean;
     info: ObjectOf<any>;
-    attributes: ObjectOf<any>;
+    attributes: ObjectOf<string>;
     bancaihoudufangxiang: "none" | "gt0" | "lt0";
     zhankai: {zhankaikuan: string; zhankaigao: string; shuliang: string; shuliangbeishu: string; name: string; kailiaomuban: string}[];
     suanliaodanxianshibancai: boolean;
@@ -178,6 +178,7 @@ export class CadData {
             suanliaochuli: this.suanliaochuli,
             showKuandubiaozhu: this.showKuandubiaozhu,
             info: this.info,
+            attributes: cloneDeep(this.attributes),
             bancaihoudufangxiang: this.bancaihoudufangxiang,
             zhankai: cloneDeep(this.zhankai),
             suanliaodanxianshibancai: this.suanliaodanxianshibancai

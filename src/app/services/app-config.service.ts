@@ -46,7 +46,6 @@ export class AppConfigService {
             collection: "cad"
         };
         const sessionConfig = this.sessionConfig;
-        console.log(sessionConfig);
         delete sessionConfig.width;
         delete sessionConfig.height;
         defaultConfig = {...defaultConfig, ...sessionConfig};

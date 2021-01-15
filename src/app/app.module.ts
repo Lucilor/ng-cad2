@@ -62,6 +62,7 @@ import {SelectBancaiComponent} from "./views/select-bancai/select-bancai.compone
 import {SelectBancaiCadsComponent} from "./components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {ImageModule} from "./modules/image/image.module";
 import {CadZhankaiComponent} from "./components/dialogs/cad-zhankai/cad-zhankai.component";
+import {CadDataAttrsComponent} from "./components/dialogs/cad-data-attrs/cad-data-attrs.component";
 
 @Injectable()
 class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -108,7 +109,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         CadAssembleComponent,
         SelectBancaiComponent,
         SelectBancaiCadsComponent,
-        CadZhankaiComponent
+        CadZhankaiComponent,
+        CadDataAttrsComponent
     ],
     imports: [
         HttpClientModule,
