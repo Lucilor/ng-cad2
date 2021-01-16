@@ -106,7 +106,7 @@ export class CadData {
         } else {
             this.info = {};
         }
-        this.attributes = data.attributes ?? {};
+        this.attributes = typeof data.attributes === "object" ? data.attributes : {};
         this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
         if (Array.isArray(data.zhankai) && data.zhankai.length) {
             this.zhankai = data.zhankai;

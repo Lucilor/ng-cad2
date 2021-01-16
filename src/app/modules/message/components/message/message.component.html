@@ -1,17 +1,19 @@
 <h1 mat-dialog-title [innerHTML]="titleHTML"></h1>
 <h2 mat-dialog-title [innerHTML]="subTitleHTML"></h2>
 <div mat-dialog-content>
-    <perfect-scrollbar>
-        <quill-editor *ngIf="data.type === 'editor'; else notEditor" [(ngModel)]="data.content" [preserveWhitespace]="true"></quill-editor>
-        <ng-template #notEditor>
+    <ng-container *ngIf="data.type === 'editor'; else notEditor">
+        <quill-editor [(ngModel)]="data.content" [preserveWhitespace]="true"> </quill-editor>
+    </ng-container>
+    <ng-template #notEditor>
+        <perfect-scrollbar>
             <div [innerHTML]="contentHTML"></div>
             <mat-form-field *ngIf="data.type === 'prompt'">
                 <input matInput [formControl]="input" [type]="promptData.type || ''" [placeholder]="promptData.placeholder || ''" />
                 <mat-hint>{{ promptData.hint || "" }}</mat-hint>
                 <mat-error *ngIf="this.input.invalid">{{ getErrorText() }}</mat-error>
             </mat-form-field>
-        </ng-template>
-    </perfect-scrollbar>
+        </perfect-scrollbar>
+    </ng-template>
 </div>
 <div mat-dialog-actions style="justify-content: center" [ngSwitch]="data.type">
     <ng-container *ngSwitchCase="'alert'">

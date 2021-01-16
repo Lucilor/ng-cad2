@@ -1,9 +1,10 @@
 import {HttpErrorResponse} from "@angular/common/http";
-import {Component, OnInit, Inject} from "@angular/core";
+import {Component, OnInit, Inject, ViewChild, OnDestroy} from "@angular/core";
 import {FormControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
-import {clamp, cloneDeep} from "lodash";
+import {clamp, cloneDeep, debounce} from "lodash";
+import {QuillEditorComponent, QuillViewComponent} from "ngx-quill";
 import {MessageData, PromptData} from "./message-types";
 
 @Component({
@@ -11,12 +12,35 @@ import {MessageData, PromptData} from "./message-types";
     templateUrl: "./message.component.html",
     styleUrls: ["./message.component.scss"]
 })
-export class MessageComponent implements OnInit {
+export class MessageComponent implements OnInit, OnDestroy {
     input = new FormControl();
     titleHTML: SafeHtml = "";
     subTitleHTML: SafeHtml = "";
     contentHTML: SafeHtml = "";
     page = 0;
+    @ViewChild(QuillEditorComponent) editor?: QuillViewComponent;
+
+    private get _editorToolbarHeight() {
+        if (this.editor) {
+            const el = this.editor.elementRef.nativeElement as HTMLElement;
+            const toolbar = el.querySelector(".ql-toolbar");
+            if (toolbar) {
+                return toolbar.getBoundingClientRect().height;
+            }
+        }
+        return 0;
+    }
+    private _resizeEditor = debounce(() => {
+        if (this.editor) {
+            const el = this.editor.editorElem;
+            const height = this._editorToolbarHeight;
+            if (height) {
+                el.style.height = `calc(100% - ${height}px)`;
+                return true;
+            }
+        }
+        return false;
+    }, 500).bind(this);
 
     get promptData() {
         let result: PromptData = {};
@@ -104,6 +128,17 @@ export class MessageComponent implements OnInit {
             }
             this.setPage(0);
         }
+
+        const id = window.setInterval(() => {
+            if (this._resizeEditor()) {
+                window.clearInterval(id);
+            }
+        }, 600);
+        window.addEventListener("resize", this._resizeEditor);
+    }
+
+    ngOnDestroy() {
+        window.removeEventListener("resize", this._resizeEditor);
     }
 
     getErrorText() {
