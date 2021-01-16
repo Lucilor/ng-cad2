@@ -3,7 +3,7 @@ import {clamp, difference, differenceWith} from "lodash";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";
 import {CadCollection} from "../app.common";
-import {CadEntities} from "../cad-viewer";
+import {CadEntities, CadLine, CadMtext} from "../cad-viewer";
 import {CadData} from "../cad-viewer/cad-data/cad-data";
 import {generateLineTexts, generatePointsMap, PointsMap, validateLines, ValidateResult} from "../cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "../cad-viewer/cad-viewer";
@@ -11,6 +11,16 @@ import {setCadData, addCadGongshi} from "../cad.utils";
 import {timeout} from "../utils";
 import {ObjectOf} from "../utils/types";
 import {AppConfig, AppConfigService} from "./app-config.service";
+
+const 合型板示意图 = new CadData();
+合型板示意图.entities.add(new CadLine({start: [0, 20], end: [0, -20]}));
+合型板示意图.entities.add(new CadLine({start: [0, 20], end: [8, 20]}));
+合型板示意图.entities.add(new CadLine({start: [0, -20], end: [8, -20]}));
+合型板示意图.entities.add(new CadLine({start: [20, 0], end: [-20, 0]}));
+合型板示意图.entities.add(new CadLine({start: [20, 0], end: [20, 8]}));
+合型板示意图.entities.add(new CadLine({start: [-20, 0], end: [-20, 8]}));
+合型板示意图.entities.add(new CadLine({start: [20, 0], end: [20, 8]}));
+const replaceMap: ObjectOf<CadData> = {合型板示意图};
 
 export type CadStatusName =
     | "normal"
@@ -92,6 +102,17 @@ export class AppStatusService {
         });
     }
 
+    private _replaceText(source: CadData, text: string, data: CadData) {
+        const mtexts = source.getAllEntities().filter((e) => e instanceof CadMtext && e.text === text);
+        mtexts.forEach((mtext) => {
+            const insert = (mtext as CadMtext).insert;
+            const entities = data.getAllEntities().clone();
+            entities.transform({translate: insert.toArray()}, true);
+            source.entities.merge(entities);
+        });
+        source.separate(new CadData({entities: mtexts.export()}));
+    }
+
     clearSelectedCads() {
         this.selectedCads$.next({cads: [], partners: [], components: [], fullCads: []});
     }
@@ -167,6 +188,9 @@ export class AppStatusService {
         data.forEach((v) => {
             setCadData(v);
             addCadGongshi(v, this.config.config("showCadGongshis"), collection === "CADmuban");
+            for (const key in replaceMap) {
+                this._replaceText(v, key, replaceMap[key]);
+            }
         });
         if (collection === "cad") {
             data.forEach((v) => validateLines(v));
