@@ -28,8 +28,8 @@ export class MessageService {
         return await this.open({data: {type: "prompt", promptData, content, title, cancelable}});
     }
 
-    async book(bookData: BookData, content?: string, title?: string, cancelable = true) {
-        return await this.open({data: {type: "book", bookData, content, title, cancelable}});
+    async book(bookData: BookData, title?: string, cancelable = true) {
+        return await this.open({data: {type: "book", bookData, title, cancelable}});
     }
 
     async editor(content?: string, title?: string, editable = true, cancelable = true) {
