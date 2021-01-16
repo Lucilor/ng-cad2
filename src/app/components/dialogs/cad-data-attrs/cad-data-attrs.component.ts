@@ -20,6 +20,13 @@ export class CadDataAttrsComponent {
         for (const key in data) {
             this.list.push({key, value: data[key]});
         }
+        this._checkEmpty();
+    }
+
+    private _checkEmpty() {
+        if (this.list.length < 1) {
+            this.list.push({key: "", value: ""});
+        }
     }
 
     submit() {
@@ -42,6 +49,7 @@ export class CadDataAttrsComponent {
 
     remove(i: number) {
         this.list.splice(i, 1);
+        this._checkEmpty();
     }
 }
 
