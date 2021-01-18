@@ -3928,10 +3928,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"comment-parser@npm:1.0.1":
-  version: 1.0.1
-  resolution: "comment-parser@npm:1.0.1"
-  checksum: dc185a7989ce9558fefbab05c43160fef9f188630a05055b62986de31aeb65f7b94f42c73c12834971dcf8e013ef3f850a893ddacd689624110f37e2714e4224
+"comment-parser@npm:1.1.1":
+  version: 1.1.1
+  resolution: "comment-parser@npm:1.1.1"
+  checksum: 25a9ca5c4f3ccee75c09b7a238f74f3cef4b8c98d018e970856ff6a42e8cbbabf0a03f39b00d63e7e9f13697d1f51dff49ea0278f7bc2a8a28de28d3d7768c23
   languageName: node
   linkType: hard
 
@@ -5467,11 +5467,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:31.0.5":
-  version: 31.0.5
-  resolution: "eslint-plugin-jsdoc@npm:31.0.5"
+"eslint-plugin-jsdoc@npm:31.0.7":
+  version: 31.0.7
+  resolution: "eslint-plugin-jsdoc@npm:31.0.7"
   dependencies:
-    comment-parser: 1.0.1
+    comment-parser: 1.1.1
     debug: ^4.3.1
     jsdoctypeparser: ^9.0.0
     lodash: ^4.17.20
@@ -5480,7 +5480,7 @@ __metadata:
     spdx-expression-parse: ^3.0.1
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0
-  checksum: 919d418624cab6f7239b4886461f1cd49b1bca595ce07b7224a262bb143e2bc69fe89f27dc7dbde09bc6d108365304af35ae5bf7c45a2bf3075b37c4eadd9ea6
+  checksum: 76919af4cd1db7b2076d35bba26fe8ad49a4c7419ca6960f6f754111a519794e09de190206491a57f5d56cc80609890ed12a39665f56ad0d1d62e0357f5a3650
   languageName: node
   linkType: hard
 
@@ -5536,7 +5536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^7.17.0":
+"eslint@npm:^7.18.0":
   version: 7.18.0
   resolution: "eslint@npm:7.18.0"
   dependencies:
@@ -8890,9 +8890,9 @@ fsevents@~2.1.2:
     "@typescript-eslint/parser": 4.13.0
     ang-jsoneditor: ^1.10.4
     color: ^3.1.3
-    eslint: ^7.17.0
+    eslint: ^7.18.0
     eslint-plugin-import: 2.22.1
-    eslint-plugin-jsdoc: 31.0.5
+    eslint-plugin-jsdoc: 31.0.7
     eslint-plugin-prefer-arrow: 1.2.2
     highlight.js: ^10.5.0
     jasmine-core: ~3.6.0
@@ -8909,7 +8909,7 @@ fsevents@~2.1.2:
     ngx-perfect-scrollbar: ^10.1.0
     ngx-quill: ^13.0.1
     ngx-ui-loader: ^10.0.0
-    pdfmake: ^0.1.69
+    pdfmake: ^0.1.70
     protractor: ~7.0.0
     quill: ^1.3.7
     rxjs: ~6.6.3
@@ -9922,16 +9922,16 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"pdfmake@npm:^0.1.69":
-  version: 0.1.69
-  resolution: "pdfmake@npm:0.1.69"
+"pdfmake@npm:^0.1.70":
+  version: 0.1.70
+  resolution: "pdfmake@npm:0.1.70"
   dependencies:
     iconv-lite: ^0.6.2
     linebreak: ^1.0.2
     pdfkit: ^0.11.0
     svg-to-pdfkit: ^0.1.8
     xmldoc: ^1.1.2
-  checksum: fb995c29fdbe0e22de6dfb168778a552e859e1877d98a488d7d4bf78950d80cb2fc9a1c4871df0c87d151c1d4c5b304106c34b8a07375cd5d90ea8ebdd0ecfa4
+  checksum: e7850667818e178be14c39d6041fd43c46ec393d8875fffea184ce9d85d8f764138a513c3639c07b3c15d3261fe6af9f18f9f49e3954ff195734dcbd2fee7544
   languageName: node
   linkType: hard
 
