@@ -53,7 +53,10 @@
                 "@typescript-eslint/quotes": ["error", "double", {"allowTemplateLiterals": true}],
                 "no-unused-vars": ["warn", {"argsIgnorePattern": "."}],
                 "guard-for-in": "off",
-                "no-underscore-dangle": "off"
+                "no-underscore-dangle": "off",
+                "no-console": "off",
+                "no-restricted-syntax": "off",
+                "no-dupe-else-if": "error"
             }
         },
 

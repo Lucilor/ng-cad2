@@ -312,7 +312,7 @@ export const generateLineTexts = (data: CadData, tolerance = DEFAULT_TOLERANCE) 
                 } else if (anchor.x === 1) {
                     lengthText.info.offset[0] -= textOffset;
                 }
-                if (anchor.y === 1) {
+                if (anchor.y === 0) {
                     lengthText.info.offset[1] += textOffset;
                 } else if (anchor.y === 1) {
                     lengthText.info.offset[1] -= textOffset;
