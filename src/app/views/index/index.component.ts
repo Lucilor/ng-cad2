@@ -3,10 +3,10 @@ import {CadConsoleComponent} from "@src/app/modules/cad-console/components/cad-c
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, cadStatusNameMap} from "@src/app/services/app-status.service";
-import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
+import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {debounce} from "lodash";
 import {trigger, state, style, transition, animate} from "@angular/animations";
-import {ContextMenu} from "@src/app/mixins/ContextMenu.mixin";
+import {ContextMenu} from "@src/app/mixins/context-menu.mixin";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
 import {ActivatedRoute} from "@angular/router";

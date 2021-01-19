@@ -3,7 +3,7 @@ import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-conso
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, cadStatusNameMap, CadStatusName} from "@src/app/services/app-status.service";
-import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
+import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {ObjectOf, ValueOf} from "@src/app/utils";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer";
 import {flatMap} from "lodash";

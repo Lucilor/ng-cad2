@@ -146,7 +146,7 @@ export class MessageComponent implements OnInit, OnDestroy {
         if (this.input.invalid) {
             if (typeof errorText === "string") {
                 return errorText;
-            } else if (typeof errorText === "string") {
+            } else if (typeof errorText === "object") {
                 const keys = Object.keys(this.input.errors || {});
                 return errorText[keys[0]] || "";
             }

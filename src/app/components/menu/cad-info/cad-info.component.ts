@@ -4,7 +4,7 @@ import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute} from "@angular/router";
 import {CadData, CadLine, CadEventCallBack, CadOption, CadBaseLine, CadJointPoint, CadEntity} from "@src/app/cad-viewer";
 import {getCadGongshiText} from "@src/app/cad.utils";
-import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
+import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService, CadStatus} from "@src/app/services/app-status.service";
 import {openCadDataAttrsDialog} from "../../dialogs/cad-data-attrs/cad-data-attrs.component";

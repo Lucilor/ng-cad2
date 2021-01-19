@@ -16,7 +16,7 @@ import {
     autoFixLine,
     CadEntities
 } from "@src/app/cad-viewer";
-import {Subscribed} from "@src/app/mixins/Subscribed.mixin";
+import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
