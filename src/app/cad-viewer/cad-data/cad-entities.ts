@@ -651,6 +651,7 @@ export class CadLine extends CadLineLike {
             input: boolean;
         }[];
     }[];
+    shiyongchazhi: string;
 
     get curve() {
         return new Line(this.start, this.end);
@@ -699,6 +700,7 @@ export class CadLine extends CadLineLike {
                 v.type = "选择";
             }
         });
+        this.shiyongchazhi = data.shiyongchazhi ?? "";
     }
 
     transform(matrix: MatrixLike, alter = false, parent?: CadEntity) {
@@ -720,7 +722,8 @@ export class CadLine extends CadLineLike {
             gongshi: this.gongshi,
             guanlianbianhuagongshi: this.guanlianbianhuagongshi,
             kongwei: this.kongwei,
-            tiaojianquzhi: this.tiaojianquzhi
+            tiaojianquzhi: this.tiaojianquzhi,
+            shiyongchazhi: this.shiyongchazhi
         };
     }
 

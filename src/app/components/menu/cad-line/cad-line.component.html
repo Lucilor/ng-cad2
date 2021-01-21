@@ -212,4 +212,18 @@
             <mat-icon matSuffix color="primary" (click)="editTiaojianquzhi()">list</mat-icon>
         </mat-form-field>
     </div>
+    <div class="form-item shiyongchazhi">
+        <mat-form-field>
+            <mat-label>使用差值</mat-label>
+            <input
+                matInput
+                type="text"
+                [ngModel]="getLineText('shiyongchazhi')"
+                (input)="setLineText($event, 'shiyongchazhi')"
+                (focus)="focusedField = 'shiyongchazhi'"
+                (blur)="focusedField = ''"
+                name="shiyongchazhi"
+            />
+        </mat-form-field>
+    </div>
 </form>
