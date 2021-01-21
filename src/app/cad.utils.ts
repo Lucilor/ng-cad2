@@ -49,6 +49,9 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
     const imgs: string[] = [];
     for (const data of dataArr) {
         data.getAllEntities().forEach((e) => {
+            if (e.color.string() === "rgb(128, 128, 128)") {
+                e.opacity = 0;
+            }
             e.color = new Color(0);
             if (e instanceof CadDimension) {
                 e.renderStyle = 2;

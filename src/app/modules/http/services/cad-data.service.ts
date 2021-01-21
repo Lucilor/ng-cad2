@@ -1,7 +1,9 @@
 import {Injectable, Injector} from "@angular/core";
+import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 import {CadCollection} from "@src/app/app.common";
 import {CadOption, CadData} from "@src/app/cad-viewer";
 import {ObjectOf} from "@src/app/utils";
+import {environment} from "@src/environments/environment";
 import {HttpService} from "./http.service";
 
 export interface GetCadParams {
@@ -49,9 +51,25 @@ export interface BancaiCad {
     providedIn: "root"
 })
 export class CadDataService extends HttpService {
-    constructor(injector: Injector) {
+    project = "";
+
+    constructor(injector: Injector, private router: Router, private route: ActivatedRoute) {
         super(injector);
-        this.baseURL = localStorage.getItem("baseURL") || "/api/";
+        this.router.events.subscribe((event) => {
+            if (event instanceof NavigationEnd) {
+                const {project} = route.snapshot.queryParams;
+                if (!project) {
+                    this.message.alert("没有project");
+                    throw new Error("没有project");
+                }
+                this.project = project;
+                if (environment.production) {
+                    this.baseURL = `${origin}/n/${project}/index/`;
+                } else {
+                    this.baseURL = "/api/";
+                }
+            }
+        });
     }
 
     async getCad(params: Partial<GetCadParams>) {
@@ -102,7 +120,7 @@ export class CadDataService extends HttpService {
 
     async downloadDxf(data: CadData) {
         const result = await this.post<any>("peijian/cad/downloadDxf", {cadData: JSON.stringify(data.export())}, false);
-        const host = this.baseURL === "/api" ? "//localhost" : origin;
+        const host = environment.production ? "//localhost" : origin;
         if (result) {
             open(host + "/" + result.data.path);
         }

@@ -3,6 +3,7 @@ import {Injectable, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Response} from "@src/app/app.common";
 import {ObjectOf, RSAEncrypt} from "@src/app/utils";
+import {environment} from "@src/environments/environment";
 import {MessageService} from "../../message/services/message.service";
 
 /* eslint-disable @typescript-eslint/indent */
@@ -105,10 +106,7 @@ export class HttpService {
                     }
                     return response;
                 } else if (response.code === -2) {
-                    let baseURL = this.baseURL;
-                    if (baseURL === "/api/") {
-                        baseURL = "https://localhost/n/kgs/index/";
-                    }
+                    const baseURL = environment.production ? this.baseURL : "https://localhost/n/kgs/index/";
                     location.href = `${baseURL}signUp/index#${encodeURIComponent(location.href)}`;
                     return null;
                 } else {
