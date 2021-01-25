@@ -5,7 +5,7 @@ import {AppConfig, AppConfigService} from "@src/app/services/app-config.service"
 import {AppStatusService, cadStatusNameMap, CadStatusName} from "@src/app/services/app-status.service";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {ObjectOf, ValueOf} from "@src/app/utils";
-import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE} from "@src/app/cad-viewer";
+import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@src/app/cad-viewer";
 import {flatMap} from "lodash";
 
 @Component({
@@ -190,5 +190,20 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
     newCad() {
         this.console.execute("new-cad");
+    }
+
+    setKailiaofangshi() {
+        this.status.getFlatSelectedCads().forEach((cad) => {
+            sortLines(cad).forEach((group) => {
+                const start = group[0];
+                const end = group[group.length - 1];
+                if (start) {
+                    start.kailiaofangshi = "使用线长";
+                }
+                if (end) {
+                    end.kailiaofangshi = "使用线长";
+                }
+            });
+        });
     }
 }

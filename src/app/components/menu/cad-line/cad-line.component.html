@@ -193,15 +193,30 @@
             />
         </mat-form-field>
     </div>
+    <div class="form-item kailiaofangshi">
+        <mat-form-field>
+            <mat-label>开料方式</mat-label>
+            <mat-select
+                name="kailiaofangshi"
+                [ngModel]="getLineText('kailiaofangshi')"
+                (selectionChange)="setLineText($event, 'kailiaofangshi')"
+            >
+                <mat-option value="自动计算">自动计算</mat-option>
+                <mat-option value="使用线长">使用线长</mat-option>
+                <mat-option value="指定长度">指定长度</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
     <div class="form-item zidingzhankaichang">
         <mat-form-field>
             <mat-label>指定展开长</mat-label>
             <input
                 matInput
-                type="number"
+                type="text"
                 name="zidingzhankaichang"
                 [ngModel]="getLineText('zidingzhankaichang')"
                 (input)="setLineText($event, 'zidingzhankaichang')"
+                [disabled]="getLineText('kailiaofangshi') !== '指定长度'"
             />
         </mat-form-field>
     </div>
