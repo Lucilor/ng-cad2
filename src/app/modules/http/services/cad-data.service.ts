@@ -120,7 +120,7 @@ export class CadDataService extends HttpService {
 
     async downloadDxf(data: CadData) {
         const result = await this.post<any>("peijian/cad/downloadDxf", {cadData: JSON.stringify(data.export())}, false);
-        const host = environment.production ? "//localhost" : origin;
+        const host = environment.production ? origin : "//localhost";
         if (result) {
             open(host + "/" + result.data.path);
         }
