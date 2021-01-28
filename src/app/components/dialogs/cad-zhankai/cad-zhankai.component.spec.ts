@@ -6,6 +6,7 @@ import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {RouterTestingModule} from "@angular/router/testing";
 import {CadData, getZhankai} from "@src/app/cad-viewer";
@@ -29,6 +30,7 @@ describe("CadZhankaiComponent", () => {
                 MatFormFieldModule,
                 MatInputModule,
                 MatSelectModule,
+                MatSlideToggleModule,
                 MessageModule,
                 PerfectScrollbarModule,
                 ReactiveFormsModule,

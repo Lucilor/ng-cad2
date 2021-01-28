@@ -7,13 +7,14 @@ import {mergeArray, separateArray, getVectorFromArray, isLinesParallel} from "..
 
 export const getZhankai = (obj: ObjectOf<any> = {}) =>
     ({
-        zhankaikuan: obj.zhankaikuan || "ceil(总长)+0",
-        zhankaigao: obj.zhankaigao || "",
-        shuliang: obj.shuliang || "1",
-        shuliangbeishu: obj.shuliangbeishu || "1",
-        name: obj.name || "",
-        kailiaomuban: obj.kailiaomuban || "",
-        flip: ""
+        zhankaikuan: obj.zhankaikuan ?? "ceil(总长)+0",
+        zhankaigao: obj.zhankaigao ?? "",
+        shuliang: obj.shuliang ?? "1",
+        shuliangbeishu: obj.shuliangbeishu ?? "1",
+        name: obj.name ?? "",
+        kailiaomuban: obj.kailiaomuban ?? "",
+        flip: obj.flip ?? "",
+        kailiao: obj.kailiao === false ? false : true
     } as CadData["zhankai"][0]);
 
 export class CadData {
@@ -51,6 +52,7 @@ export class CadData {
         name: string;
         kailiaomuban: string;
         flip: "" | "v" | "h" | "vh";
+        kailiao: boolean;
     }[];
     suanliaodanxianshibancai: boolean;
 
@@ -119,7 +121,7 @@ export class CadData {
         this.attributes = typeof data.attributes === "object" ? data.attributes : {};
         this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
         if (Array.isArray(data.zhankai) && data.zhankai.length) {
-            this.zhankai = data.zhankai;
+            this.zhankai = data.zhankai.map((v) => getZhankai(v));
         } else {
             this.zhankai = [getZhankai()];
         }

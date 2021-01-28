@@ -43,6 +43,11 @@
                         <mat-option value="vh">垂直水平翻转</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <mat-form-field>
+                    <mat-label>开料</mat-label>
+                    <input type="text" matInput hidden value=" " />
+                    <mat-slide-toggle [checked]="item.kailiao" (change)="item.kailiao = $event.checked"></mat-slide-toggle>
+                </mat-form-field>
             </div>
         </mat-card>
     </div>
