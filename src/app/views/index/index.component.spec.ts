@@ -46,7 +46,11 @@ describe("IndexComponent", () => {
                 AnchorSelectorComponent
             ],
             imports: [
+                CadConsoleModule,
+                ColorChromeModule,
+                ColorCircleModule,
                 FormsModule,
+                HttpModule,
                 MatAutocompleteModule,
                 MatButtonModule,
                 MatCardModule,
@@ -57,11 +61,7 @@ describe("IndexComponent", () => {
                 MatSelectModule,
                 MatSlideToggleModule,
                 MatTabsModule,
-                CadConsoleModule,
-                HttpModule,
                 MessageModule,
-                ColorChromeModule,
-                ColorCircleModule,
                 PerfectScrollbarModule,
                 NgxUiLoaderModule
             ]

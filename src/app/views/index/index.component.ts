@@ -10,9 +10,10 @@ import {ContextMenu} from "@src/app/mixins/context-menu.mixin";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
 import {ActivatedRoute} from "@angular/router";
-import {CadData} from "@src/app/cad-viewer";
+import {CadData, CadEventCallBack} from "@src/app/cad-viewer";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
 import {CadInfoComponent} from "@src/app/components/menu/cad-info/cad-info.component";
+import {MessageService} from "@src/app/modules/message/services/message.service";
 
 @Component({
     selector: "app-index",
@@ -71,14 +72,32 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     @ViewChild(MatMenuTrigger) contextMenu?: MatMenuTrigger;
     @ViewChild(MatTabGroup) infoTabs?: MatTabGroup;
 
-    private resize = debounce(() => this.config.config({width: innerWidth, height: innerHeight}), 500).bind(this);
+    private _resize = debounce(() => this.config.config({width: innerWidth, height: innerHeight}), 500).bind(this);
+    private _onEntitiesCopy: CadEventCallBack<"entitiescopy"> = (entities) => {
+        const cad = this.status.cad;
+        const selectedCads = this.status.getFlatSelectedCads();
+        if (selectedCads.length !== 1) {
+            this.message.alert("请先选择且仅选择一个CAD");
+            cad.entitiesCopied = undefined;
+            return;
+        }
+        entities.forEach((e) => (e.opacity = 0.3));
+        selectedCads[0].entities.merge(entities);
+        cad.unselectAll();
+        cad.render(entities);
+    };
+    private _onEntitiesPaste: CadEventCallBack<"entitiespaste"> = (entities) => {
+        entities.forEach((e) => (e.opacity = 1));
+        this.status.cad.render(entities);
+    };
 
     constructor(
         private config: AppConfigService,
         private status: AppStatusService,
         private console: CadConsoleService,
         private dataService: CadDataService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private message: MessageService
     ) {
         super();
     }
@@ -134,6 +153,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             const result = await this.dataService.getCad(getParams);
             this.status.openCad(result.cads);
         }
+        cad.on("entitiescopy", this._onEntitiesCopy);
+        cad.on("entitiespaste", this._onEntitiesPaste);
     }
 
     ngAfterViewInit() {
@@ -154,12 +175,15 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             this.infoTabs.selectedIndex = this.config.config("infoTabIndex");
         }
 
-        window.addEventListener("resize", this.resize);
+        window.addEventListener("resize", this._resize);
     }
 
     ngOnDestroy() {
         super.ngOnDestroy();
-        window.removeEventListener("resize", this.resize);
+        const cad = this.status.cad;
+        window.removeEventListener("resize", this._resize);
+        cad.off("entitiescopy", this._onEntitiesCopy);
+        cad.off("entitiespaste", this._onEntitiesPaste);
     }
 
     private _setCadPadding(show: boolean, i: number) {

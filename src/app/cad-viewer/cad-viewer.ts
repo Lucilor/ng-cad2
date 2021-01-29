@@ -86,6 +86,7 @@ export class CadViewer extends EventEmitter {
     dom: HTMLDivElement;
     draw: Svg;
     stylizer: CadStylizer;
+    entitiesCopied?: CadEntities;
     private _config: CadViewerConfig;
 
     constructor(data = new CadData(), config: Partial<CadViewerConfig> = {}) {
