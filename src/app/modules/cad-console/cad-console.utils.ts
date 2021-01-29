@@ -1,8 +1,7 @@
+import {getList} from "@src/app/app.common";
 import {highlight} from "highlight.js";
 import {v4} from "uuid";
 import {Desc} from "./cad-command-types";
-
-export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 
 export const getContent = (desc: Desc): string => {
     if (!desc) {

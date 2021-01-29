@@ -7,6 +7,7 @@ import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {ObjectOf, ValueOf} from "@src/app/utils";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@src/app/cad-viewer";
 import {flatMap} from "lodash";
+import {getChangelog, local} from "@src/app/app.common";
 
 @Component({
     selector: "app-toolbar",
@@ -29,6 +30,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     };
     statusName: ValueOf<CadStatusName> = "普通";
     statusWithoutEsc: ValueOf<CadStatusName>[] = ["普通", "装配"];
+    showNew: boolean;
 
     get isStatusNormal() {
         return this.statusName === "普通";
@@ -60,6 +62,14 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         private status: AppStatusService
     ) {
         super();
+        local.save("changelogTimestamp", 0);
+        const timestamp = Number(local.load("changelogTimestamp"));
+        const changelog = getChangelog();
+        if (isNaN(timestamp) || timestamp < changelog[0].timestamp) {
+            this.showNew = true;
+        } else {
+            this.showNew = false;
+        }
     }
 
     ngOnInit() {
@@ -112,6 +122,13 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
     showManual() {
         this.console.execute("man");
+    }
+
+    showChangelog() {
+        const changelog = getChangelog();
+        this.message.book(changelog.map((v) => v.desc).flat(), "更新日志");
+        local.save("changelogTimestamp", changelog[0].timestamp);
+        this.showNew = false;
     }
 
     assembleCads() {

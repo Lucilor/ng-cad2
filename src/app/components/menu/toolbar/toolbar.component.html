@@ -41,7 +41,8 @@
 	<button mat-menu-item (click)="setShowGongshi()">设置公式显示</button>
 </mat-menu>
 
-<button mat-button (click)="showManual()">帮助</button>
+<!-- <button mat-button (click)="showManual()">帮助<span class="super">NEW!</span></button> -->
+<button mat-button (click)="showChangelog()">更新日志<span *ngIf="this.showNew" class="super">NEW!</span></button>
 <button mat-button disabled>|</button>
 
 <button mat-button (click)="toggleShowLineLength()" [disabled]="!isStatusNormal">

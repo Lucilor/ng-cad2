@@ -29,7 +29,7 @@ export class MessageService {
     }
 
     async book(bookData: BookData, title?: string, cancelable = true) {
-        return await this.open({data: {type: "book", bookData, title, cancelable}});
+        return await this.open({data: {type: "book", bookData, title, cancelable}, width: "80vw", height: "65vh"});
     }
 
     async editor(content?: string, title?: string, editable = true, cancelable = true) {

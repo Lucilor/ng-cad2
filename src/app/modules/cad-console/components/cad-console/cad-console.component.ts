@@ -1,7 +1,7 @@
 import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {CadCollection} from "@src/app/app.common";
+import {CadCollection, getList} from "@src/app/app.common";
 import {CadArc, CadData} from "@src/app/cad-viewer";
 import {removeCadGongshi, addCadGongshi, printCads} from "@src/app/cad.utils";
 import {openCadListDialog} from "@src/app/components/dialogs/cad-list/cad-list.component";
@@ -15,7 +15,7 @@ import {Angle, Line, MatrixLike, ObjectOf, Point, timeout} from "@src/app/utils"
 import {highlight} from "highlight.js";
 import {differenceWith} from "lodash";
 import {Command, ValuedCommand, Arg} from "../../cad-command-types";
-import {getBashStyle, getContent, getEmphasized, getList, spaceReplacer} from "../../cad-console.utils";
+import {getBashStyle, getContent, getEmphasized, spaceReplacer} from "../../cad-console.utils";
 
 export const commands: Command[] = [
     {name: "assemble", args: [], desc: "进入/退出装配状态"},
@@ -362,14 +362,7 @@ export class CadConsoleComponent implements OnInit {
                     }
                 ];
             }
-            this.message.open({
-                data: {
-                    type: "book",
-                    title: "帮助手册",
-                    bookData: data
-                },
-                width: "80vw"
-            });
+            this.message.book(data, "帮助手册");
         },
         moveLines() {
             if (this.status.cadStatus("name") === "moveLines") {

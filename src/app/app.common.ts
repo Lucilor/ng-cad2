@@ -1,5 +1,7 @@
 import {SessionStorage, LocalStorage, ObjectOf} from "@src/app/utils";
 import {environment} from "@src/environments/environment";
+import {BookData} from "./modules/message/components/message/message-types";
+import changelog from "./changelog.json";
 
 export const projectName = "NgCad2";
 export const session = new SessionStorage(projectName);
@@ -12,7 +14,7 @@ export const routesInfo: ObjectOf<{path: string; title: string}> = {
     index: {path: "index", title: ""},
     printCad: {path: "print-cad", title: "打印CAD"},
     printA4A015Preview: {path: "printA4A015Preview", title: "订单配件标签"},
-    import: {path: "import", title: "导入CAD",},
+    import: {path: "import", title: "导入CAD"},
     backup: {path: "backup", title: "备份CAD"},
     selectBancai: {path: "select-bancai", title: "激光开料排版"}
 };
@@ -41,9 +43,10 @@ export const logTime = (content: string, start: number, fractionDigits = 2) => {
     console.log(`%c[DEBUG] ${content}: ${str}s`, "color:deeppink");
 };
 
-// export function getPointsFromMap(cad: CadViewer, map: PointsMap): State["cadPoints"] {
-// 	return map.map((v) => {
-// 		const {x, y} = cad.getScreenPoint(v.point.x, v.point.y);
-// 		return {x, y, active: false};
-// 	});
-// }
+export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
+
+export const getChangelog = () =>
+    (changelog as any[]).map((v) => ({
+        timestamp: v.timestamp as number,
+        desc: [{title: v.title, content: getList(v.content)}] as BookData
+    }));
