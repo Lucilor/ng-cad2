@@ -496,13 +496,14 @@ export class CadDimension extends CadEntity {
     ref?: "entity1" | "entity2" | "minX" | "maxX" | "minY" | "maxY" | "minLength" | "maxLength";
     quzhifanwei: string;
 
-    private _renderStyle: 1 | 2 = 1;
+    private _renderStyle: 1 | 2 | 3 = 1;
     get renderStyle() {
         return this._renderStyle;
     }
     set renderStyle(value) {
         if (this._renderStyle !== value) {
-            this.el?.clear();
+            this.el?.remove();
+            this.el = null;
         }
         this._renderStyle = value;
     }
