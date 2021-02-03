@@ -62,7 +62,6 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         private status: AppStatusService
     ) {
         super();
-        local.save("changelogTimestamp", 0);
         const timestamp = Number(local.load("changelogTimestamp"));
         const changelog = getChangelog();
         if (isNaN(timestamp) || timestamp < changelog[0].timestamp) {

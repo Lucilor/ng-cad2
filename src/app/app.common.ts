@@ -45,8 +45,20 @@ export const logTime = (content: string, start: number, fractionDigits = 2) => {
 
 export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 
-export const getChangelog = () =>
-    (changelog as any[]).map((v) => ({
-        timestamp: v.timestamp as number,
-        desc: [{title: v.title, content: getList(v.content)}] as BookData
-    }));
+export const getChangelog = () => {
+    const typeMap: ObjectOf<string> = {
+        feat: "✨新特性",
+        fix: "🐞bug修复",
+        refactor: "🦄代码重构",
+        perf: "🎈体验优化"
+    };
+    return (changelog as any[]).map((v) => {
+        const type = v.type;
+        const data = new Date(v.timestamp);
+        const title = `${data.toLocaleDateString()} 【${typeMap[type]}】`;
+        return {
+            timestamp: v.timestamp as number,
+            desc: [{title, content: getList(v.content)}] as BookData
+        };
+    });
+};

@@ -1,13 +1,19 @@
 import {AfterViewInit, Component} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {logTime} from "@src/app/app.common";
-import {CadData} from "@src/app/cad-viewer";
+import {CadData, CadDimension} from "@src/app/cad-viewer";
 import {printCads} from "@src/app/cad.utils";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {timeout} from "@src/app/utils";
 import {environment} from "@src/environments/environment";
 import {NgxUiLoaderService} from "ngx-ui-loader";
+
+type ResponseData = {
+    cads: CadData[];
+    linewidth: number;
+    renderStyle: CadDimension["renderStyle"];
+};
 
 @Component({
     selector: "app-print-cad",
@@ -37,13 +43,14 @@ export class PrintCadComponent implements AfterViewInit {
         this.loader.startLoader(this.loaderId);
         this.loaderText = "正在获取数据...";
         const t1 = performance.now();
-        const response = await this.dataService.post<{cads: CadData[]; linewidth: number}>(action, queryParams, false);
+        const response = await this.dataService.post<ResponseData>(action, queryParams, false);
         logTime("请求数据用时", t1);
         if (response?.data) {
             const data = response.data.cads.map((v) => new CadData(v));
+            const {linewidth, renderStyle} = response.data;
             this.loaderText = "正在打开算料单...";
             const t2 = performance.now();
-            const url = await printCads(data, {}, response.data.linewidth);
+            const url = await printCads(data, {}, linewidth, renderStyle);
             logTime("打印用时", t2);
             if (environment.production) {
                 location.href = url;

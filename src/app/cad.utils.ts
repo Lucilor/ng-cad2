@@ -34,7 +34,12 @@ export const getCadPreview = async (data: CadData, width = 300, height = 150, pa
     return src;
 };
 
-export const printCads = async (dataArr: CadData[], config: Partial<CadViewerConfig> = {}, linewidth?: number) => {
+export const printCads = async (
+    dataArr: CadData[],
+    config: Partial<CadViewerConfig> = {},
+    linewidth = 1,
+    renderStyle: CadDimension["renderStyle"] = 2
+) => {
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
         console.warn("Unable to get screen dpi.Assuming dpi = 96.");
@@ -53,8 +58,9 @@ export const printCads = async (dataArr: CadData[], config: Partial<CadViewerCon
                 e.opacity = 0;
             }
             e.color = new Color(0);
+            e.linewidth = linewidth;
             if (e instanceof CadDimension) {
-                e.renderStyle = 2;
+                e.renderStyle = renderStyle;
                 e.selected = true;
             } else if (e instanceof CadMtext && e.fontFamily === "仿宋") {
                 e.fontWeight = "bolder";
