@@ -8,15 +8,22 @@
                     [checked]="checkedIndices.has(i)"
                     (change)="onCheckboxChange($event, i)"
                 ></mat-checkbox>
-                <mat-form-field style="font-weight: bold; color: #ff5e00">
+                <mat-form-field style="font-weight: bold; color: #ff5e00; width: 100%">
                     <mat-label>名字</mat-label>
                     <input matInput type="text" [(ngModel)]="item.name" name="name" />
                 </mat-form-field>
+                <br />
                 <mat-form-field>
                     <mat-label>开料CAD模板</mat-label>
                     <input matInput type="text" [(ngModel)]="item.kailiaomuban" name="kailiaomuban" />
-                    <mat-icon matSuffix color="primary" (click)="openCadmuban(item)">open_in_new</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="selectCadmuban(item)">list</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="openCadmuban(item, 'kailiaomuban')">open_in_new</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="selectCadmuban(item, 'kailiaomuban')">list</mat-icon>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>内开模板</mat-label>
+                    <input matInput type="text" [(ngModel)]="item.neikaimuban" name="neikaimuban" />
+                    <mat-icon matSuffix color="primary" (click)="openCadmuban(item, 'neikaimuban')">open_in_new</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="selectCadmuban(item, 'neikaimuban')">list</mat-icon>
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>展开宽</mat-label>

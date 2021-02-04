@@ -36,20 +36,20 @@ export class CadZhankaiComponent {
         this.dialogRef.close();
     }
 
-    openCadmuban(item: CadZhankaiData[0]) {
-        if (item.kailiaomuban) {
+    openCadmuban(item: CadZhankaiData[0], key: "kailiaomuban" | "neikaimuban") {
+        if (item[key]) {
             const params = {...this.route.snapshot.queryParams};
             params.collection = "kailiaocadmuban";
-            params.id = item.kailiaomuban;
+            params.id = item[key];
             open("index?" + new URLSearchParams(params).toString());
         }
     }
 
-    async selectCadmuban(item: CadZhankaiData[0]) {
-        const checkedItems = [new CadData({id: item.kailiaomuban})];
+    async selectCadmuban(item: CadZhankaiData[0], key: "kailiaomuban" | "neikaimuban") {
+        const checkedItems = [new CadData({id: item[key]})];
         const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
         if (result?.length) {
-            item.kailiaomuban = result[0].id;
+            item[key] = result[0].id;
         }
     }
 

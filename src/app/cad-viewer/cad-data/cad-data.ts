@@ -5,17 +5,18 @@ import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
 import {CadLayer} from "./cad-layer";
 import {mergeArray, separateArray, getVectorFromArray, isLinesParallel} from "../utils";
 
-export const getZhankai = (obj: ObjectOf<any> = {}) =>
-    ({
-        zhankaikuan: obj.zhankaikuan ?? "ceil(总长)+0",
-        zhankaigao: obj.zhankaigao ?? "",
-        shuliang: obj.shuliang ?? "1",
-        shuliangbeishu: obj.shuliangbeishu ?? "1",
-        name: obj.name ?? "",
-        kailiaomuban: obj.kailiaomuban ?? "",
-        flip: obj.flip ?? "",
-        kailiao: obj.kailiao === false ? false : true
-    } as CadData["zhankai"][0]);
+export type CadZhankaiItem = CadData["zhankai"][0];
+export const getZhankai = (obj: Partial<CadZhankaiItem> = {}): CadZhankaiItem => ({
+    zhankaikuan: obj.zhankaikuan ?? "ceil(总长)+0",
+    zhankaigao: obj.zhankaigao ?? "",
+    shuliang: obj.shuliang ?? "1",
+    shuliangbeishu: obj.shuliangbeishu ?? "1",
+    kailiaomuban: obj.kailiaomuban ?? "",
+    neikaimuban: obj.neikaimuban ?? "",
+    name: obj.name ?? "",
+    flip: obj.flip ?? "",
+    kailiao: obj.kailiao === false ? false : true
+});
 
 export class CadData {
     entities: CadEntities;
@@ -51,6 +52,7 @@ export class CadData {
         shuliangbeishu: string;
         name: string;
         kailiaomuban: string;
+        neikaimuban: string;
         flip: "" | "v" | "h" | "vh";
         kailiao: boolean;
     }[];
