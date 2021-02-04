@@ -100,12 +100,23 @@ export class HttpService {
                 throw new Error("请求错误");
             }
             if (this.strict) {
-                if (response.code === 0) {
+                const code = response.code;
+                if (code === 0) {
                     if (typeof response.msg === "string" && response.msg) {
                         this.message.snack(response.msg);
                     }
                     return response;
-                } else if (response.code === -2) {
+                } else if (code === 2) {
+                    if (typeof response.msg === "string" && response.msg) {
+                        const data2 = response.data as any;
+                        let msg = response.msg;
+                        if (typeof data2?.name === "string") {
+                            msg += "<br>" + data2.name;
+                        }
+                        this.message.alert(msg);
+                    }
+                    return null;
+                } else if (code === -2) {
                     const baseURL = environment.production ? this.baseURL : "https://localhost/n/kgs/index/";
                     location.href = `${baseURL}signUp/index#${encodeURIComponent(location.href)}`;
                     return null;

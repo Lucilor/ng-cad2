@@ -1,9 +1,10 @@
 [
     {
-        "timestamp": 1612405557130,
+        "timestamp": 1612411481266,
         "content": [
             {"type": "feat", "items": ["外开和内开可以使用不同的开料模板", "cad展开增加属性：内开模板"]},
-            {"type": "fix", "items": ["修复标注显示有时不正确的bug"]}
+            {"type": "fix", "items": ["修复标注显示有时不正确的bug"]},
+            {"type": "perf", "items": ["保存CAD模板错误提示"]}
         ]
     },
     {
