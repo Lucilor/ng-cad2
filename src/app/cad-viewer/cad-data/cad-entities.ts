@@ -291,6 +291,7 @@ export abstract class CadLineLike extends CadEntity {
     abstract get end(): Point;
     abstract get middle(): Point;
     abstract get length(): number;
+    swapped: boolean;
     mingzi: string;
     qujian: string;
     gongshi: string;
@@ -305,6 +306,7 @@ export abstract class CadLineLike extends CadEntity {
 
     constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
         super(data, layers, resetId);
+        this.swapped = data.swapped === true;
         this.mingzi = data.mingzi ?? "";
         this.qujian = data.qujian ?? "";
         this.gongshi = data.gongshi ?? "";
@@ -1092,11 +1094,11 @@ export class CadEntities {
                 throw new Error("Invalid ref: " + ref);
         }
         const getPoint = (e: CadLine, location: CadDimensionEntity["location"]) => {
-            const {start, end, middle} = e.clone();
+            const {start, end, middle, swapped} = e.clone();
             if (location === "start") {
-                return start;
+                return swapped ? end : start;
             } else if (location === "end") {
-                return end;
+                return swapped ? start : end;
             } else if (location === "center") {
                 return middle;
             } else if (location === "min") {
