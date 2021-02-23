@@ -1,5 +1,9 @@
 [
     {
+        "timestamp": 1614062293074,
+        "content": [{"type": "fix", "items": ["修改不兼容的正则表达式"]}]
+    },
+    {
         "timestamp": 1612411481266,
         "content": [
             {"type": "feat", "items": ["外开和内开可以使用不同的开料模板", "cad展开增加属性：内开模板"]},
