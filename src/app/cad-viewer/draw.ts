@@ -1,7 +1,6 @@
-import {Circle, Container, Line, Path, PathArrayAlias, Text} from "@svgdotjs/svg.js";
+import {Circle, Container, Element, Line, Path, PathArrayAlias, Text} from "@svgdotjs/svg.js";
 import {Angle, Arc, Point} from "@src/app/utils";
 import {toFixedTrim} from "./utils";
-import {CadDimension} from "./cad-data/cad-entities";
 
 export interface FontStyle {
     size: number;
@@ -110,7 +109,7 @@ export const drawShape = (draw: Container, points: Point[], type: "fill" | "stro
 
 export const drawDimension = (
     draw: Container,
-    renderStyle: CadDimension["renderStyle"] = 1,
+    renderStyle: number = 1,
     points: Point[],
     text: string,
     fontStyle: FontStyle,
@@ -156,15 +155,5 @@ export const drawDimension = (
     } else if (axis === "y") {
         textEl = drawText(draw, text, fontStyle, middle, new Point(1, 0.5), true, i + 5)[0];
     }
-    if (renderStyle === 3) {
-        if (!l1 || !l2 || !textEl) {
-            return [];
-        }
-        return [l1, l2, textEl];
-    } else {
-        if (!l1 || !l2 || !l3 || !tri1 || !tri2 || !textEl) {
-            return [];
-        }
-        return [l1, l2, l3, tri1, tri2, textEl];
-    }
+    return [l1, l2, l3, tri1, tri2, textEl].filter((v) => v) as Element[];
 };

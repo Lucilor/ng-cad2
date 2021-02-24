@@ -1,10 +1,11 @@
 import {Component, Inject} from "@angular/core";
 import {FormGroup, FormBuilder, FormControl, ValidatorFn, AbstractControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {CadDimension} from "@src/app/cad-viewer";
 import {getOpenDialogFunc} from "../dialog.common";
 
-interface CadDimensionData {
+export interface CadDimensionData {
     data: CadDimension;
 }
 
@@ -34,7 +35,8 @@ export class CadDimensionFormComponent {
             fontSize: dimension.font_size,
             cad1: new FormControl({value: dimension.cad1 || " ", disabled: true}),
             cad2: new FormControl({value: dimension.cad2 || " ", disabled: true}),
-            quzhifanwei: dimension.quzhifanwei
+            quzhifanwei: dimension.quzhifanwei,
+            hideDimLines: dimension.hideDimLines
         });
     }
 
@@ -54,6 +56,7 @@ export class CadDimensionFormComponent {
             dimension.font_size = value.fontSize;
             dimension.ref = value.ref;
             dimension.quzhifanwei = value.quzhifanwei;
+            dimension.hideDimLines = value.hideDimLines;
             this.dialogRef.close(dimension);
         } else {
             this.form.controls.qujian.updateValueAndValidity();
@@ -97,6 +100,14 @@ export class CadDimensionFormComponent {
 
     checkQujian() {
         return this.form.controls.qujian.errors?.qujian;
+    }
+
+    getHideDimLines() {
+        return this.form.controls.hideDimLines.value;
+    }
+
+    setHideDimLines(event: MatSlideToggleChange) {
+        this.form.controls.hideDimLines.setValue(event.checked);
     }
 }
 

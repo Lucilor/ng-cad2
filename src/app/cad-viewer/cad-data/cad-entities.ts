@@ -498,7 +498,7 @@ export class CadDimension extends CadEntity {
     ref?: "entity1" | "entity2" | "minX" | "maxX" | "minY" | "maxY" | "minLength" | "maxLength";
     quzhifanwei: string;
 
-    private _renderStyle: 1 | 2 | 3 = 1;
+    private _renderStyle = 1;
     get renderStyle() {
         return this._renderStyle;
     }
@@ -509,6 +509,19 @@ export class CadDimension extends CadEntity {
         }
         this._renderStyle = value;
     }
+
+    private _hideDimLines = false;
+    get hideDimLines() {
+        return this._hideDimLines;
+    }
+    set hideDimLines(value) {
+        if (this._hideDimLines !== value) {
+            this.el?.remove();
+            this.el = null;
+        }
+        this._hideDimLines = value;
+    }
+
     get boundingPoints() {
         if (this.root) {
             return this.root.getDimensionPoints(this);

@@ -4,11 +4,14 @@ import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {CadDimension} from "@src/app/cad-viewer";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 
-import {CadDimensionFormComponent} from "./cad-dimension-form.component";
+import {CadDimensionData, CadDimensionFormComponent} from "./cad-dimension-form.component";
 
+const data: CadDimensionData = {data: new CadDimension()};
 describe("CadDimensionFormComponent", () => {
     let component: CadDimensionFormComponent;
     let fixture: ComponentFixture<CadDimensionFormComponent>;
@@ -22,12 +25,13 @@ describe("CadDimensionFormComponent", () => {
                 MatInputModule,
                 MatFormFieldModule,
                 MatSelectModule,
+                MatSlideToggleModule,
                 BrowserAnimationsModule,
                 PerfectScrollbarModule
             ],
             providers: [
                 {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: {}}
+                {provide: MAT_DIALOG_DATA, useValue: data}
             ]
         }).compileComponents();
     });
@@ -38,7 +42,7 @@ describe("CadDimensionFormComponent", () => {
         fixture.detectChanges();
     });
 
-    it("should create", () => {
+    fit("should create", () => {
         expect(component).toBeTruthy();
     });
 });
