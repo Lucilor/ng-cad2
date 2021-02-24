@@ -554,8 +554,9 @@ export class CadDimension extends CadEntity {
         this.mingzi = data.mingzi ?? "";
         this.qujian = data.qujian ?? "";
         this.ref = data.ref ?? "entity1";
-        this.renderStyle = data.renderStyle ?? 1;
         this.quzhifanwei = data.quzhifanwei ?? "";
+        this.renderStyle = data.renderStyle ?? 1;
+        this.hideDimLines = data.hideDimLines === true;
     }
 
     transform(matrix: Matrix, alter = false, parent?: CadEntity) {
@@ -577,8 +578,9 @@ export class CadDimension extends CadEntity {
             mingzi: this.mingzi,
             qujian: this.qujian,
             ref: this.ref,
+            quzhifanwei: this.quzhifanwei,
             renderStyle: this.renderStyle,
-            quzhifanwei: this.quzhifanwei
+            hideDimLines: this.hideDimLines
         };
     }
 
