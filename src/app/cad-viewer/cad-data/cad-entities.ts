@@ -1,7 +1,7 @@
 import {Angle, Arc, index2RGB, Line, Matrix, MatrixLike, ObjectOf, Point, Rectangle, RGB2Index} from "@src/app/utils";
 import {G, Matrix as Matrix2, Svg} from "@svgdotjs/svg.js";
 import Color from "color";
-import {cloneDeep, intersection} from "lodash";
+import {cloneDeep} from "lodash";
 import {v4} from "uuid";
 import {CadLayer} from "./cad-layer";
 import {cadTypesKey, CadTypeKey, CadType, cadTypes} from "./cad-types";
@@ -281,7 +281,13 @@ export abstract class CadEntity {
 
     abstract clone(resetId?: boolean): CadEntity;
 
-    abstract equals(entity: CadEntity): boolean;
+    equals(entity: CadEntity) {
+        const info1 = this.export();
+        const info2 = entity.export();
+        delete info1.id;
+        delete info2.id;
+        return JSON.stringify(info1) === JSON.stringify(info2);
+    }
 
     // abstract getBoundingRect(): Rectangle;
 }
@@ -587,12 +593,6 @@ export class CadDimension extends CadEntity {
     clone(resetId = false) {
         return new CadDimension(this, [], resetId);
     }
-
-    equals(dimension: CadDimension) {
-        const aIds = [this.entity1.id, this.entity2.id];
-        const bIds = [dimension.entity1.id, dimension.entity2.id];
-        return intersection(aIds, bIds).length === 2 || this.id === dimension.id;
-    }
 }
 
 export class CadHatch extends CadEntity {
@@ -663,10 +663,6 @@ export class CadHatch extends CadEntity {
 
     clone(resetId = false) {
         return new CadHatch(this, [], resetId);
-    }
-
-    equals(entity: CadHatch) {
-        return JSON.stringify(this.export()) === JSON.stringify(entity.export());
     }
 }
 

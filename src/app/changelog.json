@@ -1,5 +1,9 @@
 [
     {
+        "timestamp": 1614222101937,
+        "content": [{"type": "fix", "items": ["指向相同位置的多个标注只显示一个的问题"]}]
+    },
+    {
         "timestamp": 1614153491990,
         "content": [{"type": "feat", "items": ["标注可以设置隐藏尺寸线"]}]
     },
