@@ -1,13 +1,16 @@
-import {Component, OnDestroy, OnInit} from "@angular/core";
+import {Component, OnInit, OnDestroy} from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
+import {local} from "@src/app/app.common";
+import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@src/app/cad-viewer";
+import changelog from "@src/app/changelog.json";
+import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService, cadStatusNameMap, CadStatusName} from "@src/app/services/app-status.service";
-import {Subscribed} from "@src/app/mixins/subscribed.mixin";
+import {AppConfigService, AppConfig} from "@src/app/services/app-config.service";
+import {CadStatusName, AppStatusService, cadStatusNameMap} from "@src/app/services/app-status.service";
 import {ObjectOf, ValueOf} from "@src/app/utils";
-import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@src/app/cad-viewer";
 import {flatMap} from "lodash";
-import {getChangelog, local} from "@src/app/app.common";
+import {openChangelogDialog} from "../../dialogs/changelog/changelog.component";
 
 @Component({
     selector: "app-toolbar",
@@ -59,11 +62,11 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         private console: CadConsoleService,
         private message: MessageService,
         private config: AppConfigService,
-        private status: AppStatusService
+        private status: AppStatusService,
+        private dialog: MatDialog
     ) {
         super();
         const timestamp = Number(local.load("changelogTimestamp"));
-        const changelog = getChangelog();
         if (isNaN(timestamp) || timestamp < changelog[0].timestamp) {
             this.showNew = true;
         } else {
@@ -124,8 +127,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     showChangelog() {
-        const changelog = getChangelog();
-        this.message.book(changelog.map((v) => v.desc).flat(), "更新日志");
+        openChangelogDialog(this.dialog, {hasBackdrop: true});
         local.save("changelogTimestamp", changelog[0].timestamp);
         this.showNew = false;
     }

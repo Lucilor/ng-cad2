@@ -1,7 +1,10 @@
 [
     {
-        "timestamp": 1614409747315,
-        "content": [{"type": "fix", "items": ["条件取值导入不生效的问题", "其他bugs"]}]
+        "timestamp": 1614419794559,
+        "content": [
+            {"type": "fix", "items": ["条件取值导入不生效的问题", "其他bugs"]},
+            {"type": "perf", "items": ["修改changlog样式"]}
+        ]
     },
     {
         "timestamp": 1614222101937,

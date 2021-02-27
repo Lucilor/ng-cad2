@@ -1,0 +1,14 @@
+<perfect-scrollbar>
+    <ng-container *ngFor="let item of changelog; let i = index">
+        <mat-divider *ngIf="i"></mat-divider>
+        <div class="changelog">
+            <div class="title">{{ item.title }}</div>
+            <div *ngFor="let item2 of item.content">
+                <div class="type">{{ item2.type }}</div>
+                <ul class="items">
+                    <li class="item" *ngFor="let item3 of item2.items">{{ item3 }}</li>
+                </ul>
+            </div>
+        </div>
+    </ng-container>
+</perfect-scrollbar>
