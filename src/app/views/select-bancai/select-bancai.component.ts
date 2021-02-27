@@ -74,6 +74,10 @@ export class SelectBancaiComponent implements OnInit {
                             cad.bancai.houdu = list.houduList[0];
                         }
                         if (!cad.bancai.guige) {
+                            if (!list.guigeList[0]) {
+                                this.message.alert(`${cad.bancai.mingzi}, 没有板材规格`);
+                                throw new Error(`${cad.bancai.mingzi}, 没有板材规格`);
+                            }
                             cad.bancai.guige = list.guigeList[0].slice();
                         }
                     }

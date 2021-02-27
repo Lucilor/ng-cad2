@@ -1,7 +1,7 @@
 [
     {
         "timestamp": 1614409747315,
-        "content": [{"type": "fix", "items": ["条件取值导入不生效的问题"]}]
+        "content": [{"type": "fix", "items": ["条件取值导入不生效的问题", "其他bugs"]}]
     },
     {
         "timestamp": 1614222101937,
