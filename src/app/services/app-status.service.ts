@@ -85,7 +85,7 @@ export class AppStatusService {
     cad = new CadViewer();
     loaderId$ = new BehaviorSubject<string>("master");
     loaderText$ = new BehaviorSubject<string>("");
-    openCad$ = new Subject();
+    openCad$ = new Subject<void>();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
 
     constructor(private config: AppConfigService, private loaderService: NgxUiLoaderService) {

@@ -237,15 +237,15 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
                 data = this.dataTransformer("import", data);
             }
             if (Array.isArray(data)) {
-                this.data.data = this.data.data.concat(data);
+                data.forEach((v) => this.data.data.push(v));
+                this.data._updateChangeSubscription();
+                this.validate();
             } else {
                 this.message.alert("数据格式错误");
             }
         } else {
             this.message.alert("数据格式错误");
         }
-
-        this.validate();
     }
 
     isColumnEditable(column: ColumnInfo<T>) {

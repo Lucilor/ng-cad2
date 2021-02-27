@@ -306,7 +306,9 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             }
         });
 
-        this.onEntitiesChange();
+        this.subscribe(this.status.openCad$, () => {
+            this.onEntitiesChange();
+        });
         cad.on("pointermove", this.onPointerMove);
         cad.on("click", this.onClick);
         cad.on("entitiesselect", this.onEntitiesChange);
