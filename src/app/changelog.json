@@ -1,5 +1,11 @@
 [
     {
+        "timestamp": 1614565674296,
+        "content": [
+            {"type": "feat", "items": ["激光开料排版自动选择最合适的板材规格"]}
+        ]
+    },
+    {
         "timestamp": 1614419794559,
         "content": [
             {"type": "fix", "items": ["条件取值导入不生效的问题", "其他bugs"]},

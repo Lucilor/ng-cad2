@@ -24,6 +24,7 @@ export interface BancaiCadExtend extends BancaiCad {
     styleUrls: ["./select-bancai.component.scss"]
 })
 export class SelectBancaiComponent implements OnInit {
+    autoGuige = true;
     sortedCads: BancaiCadExtend[][] = [];
     bancaiForms: FormGroup[] = [];
     bancaiList: ObjectOf<BancaiList> = {};
@@ -275,7 +276,7 @@ export class SelectBancaiComponent implements OnInit {
             )
             .flat();
         this.loader.startLoader("submitLoader");
-        const result = await this.dataService.jiguangkailiaopaiban(this.codes, bancaiCads, this.table);
+        const result = await this.dataService.jiguangkailiaopaiban(this.codes, bancaiCads, this.table, this.autoGuige);
         this.loader.stopLoader("submitLoader");
         if (result) {
             open(result);

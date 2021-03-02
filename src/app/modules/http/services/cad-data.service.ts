@@ -219,8 +219,8 @@ export class CadDataService extends HttpService {
         return null;
     }
 
-    async jiguangkailiaopaiban(codes: string[], bancaiCads: BancaiCad[], table: string) {
-        const response = await this.post<string>("order/order/jiguangkailiaopaiban", {codes, bancaiCads, table});
+    async jiguangkailiaopaiban(codes: string[], bancaiCads: BancaiCad[], table: string, autoGuige: boolean) {
+        const response = await this.post<string>("order/order/jiguangkailiaopaiban", {codes, bancaiCads, table, autoGuige});
         if (response?.data) {
             return response.data;
         }
