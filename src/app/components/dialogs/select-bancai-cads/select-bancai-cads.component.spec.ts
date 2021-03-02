@@ -1,7 +1,33 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
+import {FormsModule} from "@angular/forms";
+import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {SelectBancaiCadsComponent} from "./select-bancai-cads.component";
+import {SelectBancaiCadsComponent, SelectBancaiCadsData} from "./select-bancai-cads.component";
 
+const data: SelectBancaiCadsData = {
+    cads: [
+        {
+            id: "cad1",
+            name: "cad1",
+            width: 1000,
+            height: 1000,
+            bancai: {mingzi: "baicai1", cailiao: "cailiao1", houdu: 0.5, guige: [2000, 2000]},
+            checked: false,
+            oversized: false,
+            disabled: false
+        },
+        {
+            id: "cad2",
+            name: "cad2",
+            width: 10000,
+            height: 10000,
+            bancai: {mingzi: "baicai2", cailiao: "cailiao2", houdu: 0.8, guige: [2000, 2000]},
+            checked: true,
+            oversized: true,
+            disabled: true
+        }
+    ]
+};
 describe("SelectBancaiCadsComponent", () => {
     let component: SelectBancaiCadsComponent;
     let fixture: ComponentFixture<SelectBancaiCadsComponent>;
@@ -9,9 +35,10 @@ describe("SelectBancaiCadsComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [SelectBancaiCadsComponent],
+            imports: [FormsModule, MatCheckboxModule],
             providers: [
                 {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: {}}
+                {provide: MAT_DIALOG_DATA, useValue: data}
             ]
         }).compileComponents();
     });

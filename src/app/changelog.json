@@ -1,5 +1,11 @@
 [
     {
+        "timestamp": 1614668211528,
+        "content": [
+            {"type": "feat", "items": ["内/外开最后翻转"]}
+        ]
+    },
+    {
         "timestamp": 1614565674296,
         "content": [
             {"type": "feat", "items": ["激光开料排版自动选择最合适的板材规格"]}

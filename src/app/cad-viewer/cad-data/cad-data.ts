@@ -6,7 +6,10 @@ import {CadLayer} from "./cad-layer";
 import {mergeArray, separateArray, getVectorFromArray, isLinesParallel} from "../utils";
 
 export type CadZhankaiItem = CadData["zhankai"][0];
-export const getZhankai = (obj: Partial<CadZhankaiItem> = {}): CadZhankaiItem => ({
+export interface CadZhankaiItemSource extends Partial<CadZhankaiItem> {
+    flip?: "" | "v" | "h" | "vh";
+}
+export const getZhankai = (obj: CadZhankaiItemSource = {}): CadZhankaiItem => ({
     zhankaikuan: obj.zhankaikuan ?? "ceil(总长)+0",
     zhankaigao: obj.zhankaigao ?? "",
     shuliang: obj.shuliang ?? "1",
@@ -14,7 +17,8 @@ export const getZhankai = (obj: Partial<CadZhankaiItem> = {}): CadZhankaiItem =>
     kailiaomuban: obj.kailiaomuban ?? "",
     neikaimuban: obj.neikaimuban ?? "",
     name: obj.name ?? "",
-    flip: obj.flip ?? "",
+    flipWaikai: obj.flip ?? obj.flipWaikai ?? "",
+    flipNeikai: obj.flipNeikai ?? "",
     kailiao: obj.kailiao === false ? false : true
 });
 
@@ -53,7 +57,8 @@ export class CadData {
         name: string;
         kailiaomuban: string;
         neikaimuban: string;
-        flip: "" | "v" | "h" | "vh";
+        flipWaikai: "" | "v" | "h" | "vh";
+        flipNeikai: "" | "v" | "h" | "vh";
         kailiao: boolean;
     }[];
     suanliaodanxianshibancai: boolean;

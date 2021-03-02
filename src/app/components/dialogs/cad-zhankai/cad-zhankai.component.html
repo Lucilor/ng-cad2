@@ -42,8 +42,17 @@
                     <input matInput type="text" [(ngModel)]="item.shuliangbeishu" name="shuliangbeishu" />
                 </mat-form-field>
                 <mat-form-field>
-                    <mat-label>最后翻转</mat-label>
-                    <mat-select [(ngModel)]="item.flip">
+                    <mat-label>外开最后翻转</mat-label>
+                    <mat-select [(ngModel)]="item.flipWaikai">
+                        <mat-option value="">不翻转</mat-option>
+                        <mat-option value="v">垂直翻转</mat-option>
+                        <mat-option value="h">水平翻转</mat-option>
+                        <mat-option value="vh">垂直水平翻转</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>内开最后翻转</mat-label>
+                    <mat-select [(ngModel)]="item.flipNeikai">
                         <mat-option value="">不翻转</mat-option>
                         <mat-option value="v">垂直翻转</mat-option>
                         <mat-option value="h">水平翻转</mat-option>
