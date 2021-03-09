@@ -1,6 +1,6 @@
-import {AfterViewInit, Component} from "@angular/core";
+import {AfterViewInit, Component, OnDestroy} from "@angular/core";
+import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {logTime} from "@src/app/app.common";
 import {CadData, CadDimension} from "@src/app/cad-viewer";
 import {printCads} from "@src/app/cad.utils";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
@@ -20,44 +20,66 @@ type ResponseData = {
     templateUrl: "./print-cad.component.html",
     styleUrls: ["./print-cad.component.scss"]
 })
-export class PrintCadComponent implements AfterViewInit {
+export class PrintCadComponent implements AfterViewInit, OnDestroy {
     loaderId = "printLoader";
     loaderText = "";
+    imgs: SafeUrl[] = [];
+    cads: CadData[] = [];
+    linewidth = 1;
+    renderStyle = 2;
 
     constructor(
         private loader: NgxUiLoaderService,
         private route: ActivatedRoute,
         private dataService: CadDataService,
-        private message: MessageService
+        private message: MessageService,
+        private sanitizer: DomSanitizer
     ) {}
+
+    private _onKeyDown = ((event: KeyboardEvent) => {
+        if (event.ctrlKey && event.key === "p") {
+            event.preventDefault();
+            this.print();
+        }
+    }).bind(this);
 
     async ngAfterViewInit() {
         await timeout(0);
         const queryParams = {...this.route.snapshot.queryParams};
-        const action = queryParams.action;
+        let action = queryParams.action as string;
         delete queryParams.action;
         if (!action) {
             this.message.alert("缺少action");
             return;
         }
+        if (!environment.production) {
+            action = action.replace("https://localhost/n/kgs/index/", "");
+        }
         this.loader.startLoader(this.loaderId);
         this.loaderText = "正在获取数据...";
-        const t1 = performance.now();
         const response = await this.dataService.post<ResponseData>(action, queryParams, false);
-        logTime("请求数据用时", t1);
         if (response?.data) {
-            const data = response.data.cads.map((v) => new CadData(v));
-            const {linewidth, renderStyle} = response.data;
-            this.loaderText = "正在打开算料单...";
-            const t2 = performance.now();
-            const url = await printCads(data, {}, linewidth, renderStyle);
-            logTime("打印用时", t2);
-            if (environment.production) {
-                location.href = url;
-            } else {
-                window.open(url);
-            }
+            this.cads = response.data.cads.map((v) => new CadData(v));
+            this.linewidth = response.data.linewidth;
+            this.renderStyle = response.data.renderStyle;
+            this.imgs = (await printCads(this.cads, {padding: [10, 0]}, this.linewidth, this.renderStyle, false)).map((v) =>
+                this.sanitizer.bypassSecurityTrustUrl(v)
+            );
+        } else {
+            this.message.alert("获取数据失败");
         }
+        this.loader.stopLoader(this.loaderId);
+        window.addEventListener("keydown", this._onKeyDown);
+    }
+
+    ngOnDestroy() {
+        window.removeEventListener("keydown", this._onKeyDown);
+    }
+
+    async print() {
+        this.loader.startLoader(this.loaderId);
+        this.loaderText = "正在打印算料单...";
+        await printCads(this.cads, {}, this.linewidth, this.renderStyle);
         this.loader.stopLoader(this.loaderId);
     }
 }

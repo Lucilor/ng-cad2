@@ -1,33 +1,20 @@
 import Color from "color";
-import {createPdf} from "pdfmake/build/pdfmake";
-import {
-    CadData,
-    CadEntities,
-    CadViewer,
-    CadViewerConfig,
-    CadMtext,
-    CadOption,
-    CadBaseLine,
-    CadJointPoint,
-    CadDimension
-} from "./cad-viewer";
+import printJS from "print-js";
+import {CadData, CadViewer, CadViewerConfig, CadMtext, CadOption, CadBaseLine, CadJointPoint, CadDimension} from "./cad-viewer";
 import {getDPI, Point} from "./utils";
 
-export const getCadPreview = async (data: CadData, width = 300, height = 150, padding = [10]) => {
-    const data2 = new CadData();
-    data2.entities = new CadEntities(data.getAllEntities().export());
-    data2.entities.dimension = [];
-    data2.entities.mtext = [];
+export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}) => {
     const cad = new CadViewer(new CadData(), {
-        width,
-        height,
-        padding,
+        width: 300,
+        height: 150,
+        padding: [10],
         backgroundColor: "black",
         hideLineLength: true,
-        hideLineGongshi: true
+        hideLineGongshi: true,
+        ...config
     });
     cad.appendTo(document.body);
-    cad.data = data2;
+    cad.data = data.clone();
     cad.render().center();
     const src = cad.toBase64();
     cad.destroy();
@@ -38,7 +25,8 @@ export const printCads = async (
     dataArr: CadData[],
     config: Partial<CadViewerConfig> = {},
     linewidth = 1,
-    renderStyle: CadDimension["renderStyle"] = 2
+    renderStyle: CadDimension["renderStyle"] = 2,
+    directPrint = true
 ) => {
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
@@ -49,9 +37,9 @@ export const printCads = async (
     const height = (297 / 25.4) * dpiY * 0.75;
     const scaleX = 300 / dpiX / 0.75;
     const scaleY = 300 / dpiY / 0.75;
-    const scale = Math.sqrt(scaleX * scaleY);
 
     const imgs: string[] = [];
+    dataArr = dataArr.map((v) => v.clone());
     for (const data of dataArr) {
         data.getAllEntities().forEach((e) => {
             if (e.color.string() === "rgb(128, 128, 128)") {
@@ -67,14 +55,14 @@ export const printCads = async (
             }
         }, true);
         const cadPrint = new CadViewer(data, {
-            ...config,
             width: width * scaleX,
             height: height * scaleY,
             backgroundColor: "white",
-            padding: [18 * scale],
+            padding: [5],
             hideLineLength: true,
             hideLineGongshi: true,
-            minLinewidth: -Infinity
+            minLinewidth: 0,
+            ...config
         }).appendTo(document.body);
         cadPrint.center();
         cadPrint.render();
@@ -93,23 +81,13 @@ export const printCads = async (
                 }
             });
         });
-        const src = (await cadPrint.toCanvas()).toDataURL();
+        imgs.push((await cadPrint.toCanvas()).toDataURL());
         cadPrint.destroy();
-        imgs.push(src);
     }
-
-    const pdf = createPdf(
-        {
-            content: imgs.map((image) => ({image, width, height})),
-            pageSize: "A4",
-            pageMargins: 0
-        },
-        {}
-    );
-    const url = await new Promise<string>((resolve) => {
-        pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
-    });
-    return url;
+    if (directPrint) {
+        printJS({printable: imgs, type: "image"});
+    }
+    return imgs;
 };
 
 export const addCadGongshi = (data: CadData, visible: boolean, ignoreTop: boolean) => {

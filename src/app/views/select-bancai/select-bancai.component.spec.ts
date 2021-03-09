@@ -1,4 +1,5 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
+import {FormsModule} from "@angular/forms";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {RouterTestingModule} from "@angular/router/testing";
@@ -16,6 +17,7 @@ describe("SelectBancaiComponent", () => {
         await TestBed.configureTestingModule({
             declarations: [SelectBancaiComponent],
             imports: [
+                FormsModule,
                 HttpModule,
                 MatAutocompleteModule,
                 MatSlideToggleModule,

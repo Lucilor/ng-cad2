@@ -426,10 +426,7 @@ export class CadConsoleComponent implements OnInit {
             await timeout(100);
             const data = cad.data.clone();
             removeCadGongshi(data);
-            const url = await printCads([data], cad.config());
-            window.open(url);
-            URL.revokeObjectURL(this.lastUrl);
-            this.lastUrl = url;
+            await printCads(data.components.data, {...cad.config(), backgroundColor: "white"});
             this.status.stopLoader();
         },
         rotate(degreesArg: string) {

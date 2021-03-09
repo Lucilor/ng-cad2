@@ -34,7 +34,7 @@ export class BackupComponent {
         this.data = [];
         if (result) {
             for (const v of result) {
-                const img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(v.data, 200, 100)) as string;
+                const img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(v.data, {width: 200, height: 100})) as string;
                 this.data.push({
                     time: v.time,
                     title: new Date(v.time).toLocaleString(),

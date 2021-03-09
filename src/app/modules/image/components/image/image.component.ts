@@ -1,5 +1,5 @@
 import {trigger, transition, style, animate} from "@angular/animations";
-import {Component, ElementRef, Input, ViewChild} from "@angular/core";
+import {Component, ElementRef, Input, OnInit, ViewChild} from "@angular/core";
 import {SafeUrl} from "@angular/platform-browser";
 import {timeout} from "@src/app/utils";
 
@@ -25,11 +25,11 @@ export const imgLoading = "assets/images/loading.gif";
         ])
     ]
 })
-export class ImageComponent {
-    @Input() width = "";
-    @Input() height = "";
+export class ImageComponent implements OnInit {
+    @Input() width: string | number = "";
+    @Input() height: string | number = "";
     @Input() src?: string | SafeUrl = "";
-    @Input() bigPic = false;
+    @Input() bigPic: string | boolean = false;
     loading = true;
     loadingSrc = imgLoading;
     emptySrc = imgEmpty;
@@ -38,6 +38,16 @@ export class ImageComponent {
     @ViewChild("bigPic", {read: ElementRef}) bigPicEl?: ElementRef<HTMLDivElement>;
 
     constructor(private elRef: ElementRef) {}
+
+    ngOnInit() {
+        if (typeof this.width === "number") {
+            this.width = this.width + "px";
+        }
+        if (typeof this.height === "number") {
+            this.height = this.height + "px";
+        }
+        this.bigPic = this.bigPic !== undefined && this.bigPic !== null;
+    }
 
     onLoad() {
         this.loading = false;
