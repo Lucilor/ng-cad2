@@ -1,5 +1,5 @@
 import Color from "color";
-import printJS from "print-js";
+import {createPdf} from "pdfmake/build/pdfmake";
 import {CadData, CadViewer, CadViewerConfig, CadMtext, CadOption, CadBaseLine, CadJointPoint, CadDimension} from "./cad-viewer";
 import {getDPI, Point} from "./utils";
 
@@ -37,6 +37,7 @@ export const printCads = async (
     const height = (297 / 25.4) * dpiY * 0.75;
     const scaleX = 300 / dpiX / 0.75;
     const scaleY = 300 / dpiY / 0.75;
+    const scale = Math.sqrt(scaleX * scaleY);
 
     const imgs: string[] = [];
     dataArr = dataArr.map((v) => v.clone());
@@ -58,7 +59,7 @@ export const printCads = async (
             width: width * scaleX,
             height: height * scaleY,
             backgroundColor: "white",
-            padding: [5],
+            padding: [18 * scale],
             hideLineLength: true,
             hideLineGongshi: true,
             minLinewidth: 0,
@@ -84,10 +85,18 @@ export const printCads = async (
         imgs.push((await cadPrint.toCanvas()).toDataURL());
         cadPrint.destroy();
     }
-    if (directPrint) {
-        printJS({printable: imgs, type: "image"});
-    }
-    return imgs;
+    const pdf = createPdf(
+        {
+            content: imgs.map((image) => ({image, width, height})),
+            pageSize: "A4",
+            pageMargins: 0
+        },
+        {}
+    );
+    const url = await new Promise<string>((resolve) => {
+        pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
+    });
+    return url;
 };
 
 export const addCadGongshi = (data: CadData, visible: boolean, ignoreTop: boolean) => {

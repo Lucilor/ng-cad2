@@ -1,10 +1,19 @@
-<div [class.small-pic]="bigPic" (click)="showBigPic()">
+<div class="img-container" [class.small-pic]="bigPic" (click)="showBigPic()">
     <div *ngIf="loading">
         <img [src]="loadingSrc" />
     </div>
-    <img [src]="src" [ngStyle]="{visibility: loading ? 'hidden' : ''}" (load)="onLoad()" (error)="onError()" />
+    <img
+        (wheel)="onWheel($event)"
+        (pointerdown)="onPointerDown($event)"
+        (pointermove)="onPointerMove($event)"
+        (pointerup)="onPointerUp($event)"
+        [src]="src"
+        [ngStyle]="{visibility: loading ? 'hidden' : ''}"
+        (load)="onLoad()"
+        (error)="onError()"
+    />
 </div>
 
-<div class="big-pic" *ngIf="bigPic" style="display: none" #bigPic (click)="hideBigPic()">
+<div #bigPicDiv class="big-pic" *ngIf="bigPic" style="display: none" (click)="hideBigPic()">
     <img [src]="src" *ngIf="bigPicVisible" @toggle />
 </div>

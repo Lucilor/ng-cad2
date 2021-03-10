@@ -8,6 +8,7 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {timeout} from "@src/app/utils";
 import {environment} from "@src/environments/environment";
 import {NgxUiLoaderService} from "ngx-ui-loader";
+import printJS from "print-js";
 
 type ResponseData = {
     cads: CadData[];
@@ -23,7 +24,8 @@ type ResponseData = {
 export class PrintCadComponent implements AfterViewInit, OnDestroy {
     loaderId = "printLoader";
     loaderText = "";
-    imgs: SafeUrl[] = [];
+    pdfUrlRaw?: string;
+    pdfUrl?: SafeUrl;
     cads: CadData[] = [];
     linewidth = 1;
     renderStyle = 2;
@@ -59,12 +61,12 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         this.loaderText = "正在获取数据...";
         const response = await this.dataService.post<ResponseData>(action, queryParams, false);
         if (response?.data) {
+            this.loaderText = "正在生成算料单...";
             this.cads = response.data.cads.map((v) => new CadData(v));
             this.linewidth = response.data.linewidth;
             this.renderStyle = response.data.renderStyle;
-            this.imgs = (await printCads(this.cads, {padding: [10, 0]}, this.linewidth, this.renderStyle, false)).map((v) =>
-                this.sanitizer.bypassSecurityTrustUrl(v)
-            );
+            this.pdfUrlRaw = await printCads(this.cads, {}, this.linewidth, this.renderStyle, false);
+            this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
         } else {
             this.message.alert("获取数据失败");
         }
@@ -77,9 +79,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
 
     async print() {
-        this.loader.startLoader(this.loaderId);
-        this.loaderText = "正在打印算料单...";
-        await printCads(this.cads, {}, this.linewidth, this.renderStyle);
-        this.loader.stopLoader(this.loaderId);
+        printJS({printable: this.pdfUrlRaw, type: "pdf"});
     }
 }

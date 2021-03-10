@@ -1,5 +1,6 @@
 import {trigger, transition, style, animate} from "@angular/animations";
-import {Component, ElementRef, Input, OnInit, ViewChild} from "@angular/core";
+import {coerceBooleanProperty} from "@angular/cdk/coercion";
+import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {SafeUrl} from "@angular/platform-browser";
 import {timeout} from "@src/app/utils";
 
@@ -25,29 +26,31 @@ export const imgLoading = "assets/images/loading.gif";
         ])
     ]
 })
-export class ImageComponent implements OnInit {
-    @Input() width: string | number = "";
-    @Input() height: string | number = "";
-    @Input() src?: string | SafeUrl = "";
-    @Input() bigPic: string | boolean = false;
+export class ImageComponent {
+    @Input() src?: string | SafeUrl;
+    private _bigPic = false;
+    @Input()
+    get bigPic() {
+        return this._bigPic;
+    }
+    set bigPic(value: boolean | string) {
+        this._bigPic = coerceBooleanProperty(value);
+    }
+    private _control = false;
+    @Input()
+    get control() {
+        return this._control;
+    }
+    set control(value: boolean | string) {
+        this._control = coerceBooleanProperty(value);
+    }
     loading = true;
     loadingSrc = imgLoading;
     emptySrc = imgEmpty;
     bigPicVisible = false;
-
-    @ViewChild("bigPic", {read: ElementRef}) bigPicEl?: ElementRef<HTMLDivElement>;
+    @ViewChild("bigPicDiv", {read: ElementRef}) bigPicDiv?: ElementRef<HTMLDivElement>;
 
     constructor(private elRef: ElementRef) {}
-
-    ngOnInit() {
-        if (typeof this.width === "number") {
-            this.width = this.width + "px";
-        }
-        if (typeof this.height === "number") {
-            this.height = this.height + "px";
-        }
-        this.bigPic = this.bigPic !== undefined && this.bigPic !== null;
-    }
 
     onLoad() {
         this.loading = false;
@@ -59,22 +62,72 @@ export class ImageComponent implements OnInit {
     }
 
     async showBigPic() {
-        if (this.bigPic && this.bigPicEl) {
+        if (this.bigPic && this.bigPicDiv) {
             this.bigPicVisible = true;
             await timeout();
-            const el = this.bigPicEl.nativeElement;
+            const el = this.bigPicDiv.nativeElement;
             el.style.display = "flex";
             document.body.append(el);
         }
     }
 
     async hideBigPic() {
-        if (this.bigPic && this.bigPicEl) {
+        if (this.bigPic && this.bigPicDiv) {
             this.bigPicVisible = false;
             await timeout(400);
-            const bpEl = this.bigPicEl.nativeElement;
+            const bpEl = this.bigPicDiv.nativeElement;
             bpEl.style.display = "none";
             this.elRef.nativeElement.append(bpEl);
         }
+    }
+
+    private _getDomMatrix(el: HTMLElement) {
+        return new DOMMatrix(getComputedStyle(el).transform);
+    }
+
+    onWheel(event: WheelEvent) {
+        event.stopPropagation();
+        const img = event.target as HTMLImageElement;
+        const matrix = this._getDomMatrix(img);
+        const scale = event.deltaY < 0 ? 1.1 : 0.9;
+        const {left, top, width, height} = img.getBoundingClientRect();
+        const offsetX = ((event.clientX - left) / width) * 100;
+        const offsetY = ((event.clientY - top) / height) * 100;
+        matrix.scaleSelf(scale);
+        img.style.transform = matrix.toString();
+        img.style.transformOrigin = `${offsetX}% ${offsetY}%`;
+    }
+
+    onPointerDown(event: PointerEvent) {
+        event.stopPropagation();
+        const img = event.target as HTMLImageElement;
+        img.setAttribute("x", event.clientX.toString());
+        img.setAttribute("y", event.clientY.toString());
+        const lastX = 0;
+        const lastY = 0;
+        const matrix = this._getDomMatrix(img);
+        matrix.translateSelf(event.clientX - lastX, event.clientY - lastY);
+    }
+
+    onPointerMove(event: PointerEvent) {
+        event.stopPropagation();
+        const img = event.target as HTMLImageElement;
+        if (!img.hasAttribute("x") || !img.hasAttribute("y")) {
+            return;
+        }
+        const x = parseFloat(img.getAttribute("x") || "0");
+        const y = parseFloat(img.getAttribute("y") || "0");
+        const matrix = this._getDomMatrix(img);
+        matrix.translateSelf(event.clientX - x, event.clientY - y);
+        img.style.transform = matrix.toString();
+        img.setAttribute("x", event.clientX.toString());
+        img.setAttribute("y", event.clientY.toString());
+    }
+
+    onPointerUp(event: PointerEvent) {
+        event.stopPropagation();
+        const img = event.target as HTMLImageElement;
+        img.removeAttribute("x");
+        img.removeAttribute("y");
     }
 }
