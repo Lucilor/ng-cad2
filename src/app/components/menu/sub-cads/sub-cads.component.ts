@@ -168,7 +168,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     ngOnInit() {
-        console.log(this);
         this.updateList();
         this.subscribe(this.status.openCad$, () => this.updateList());
         this.subscribe(this.status.selectedCads$, () => this.setSelectedCads());

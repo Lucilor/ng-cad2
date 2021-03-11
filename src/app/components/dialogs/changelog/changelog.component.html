@@ -1,4 +1,4 @@
-<perfect-scrollbar>
+<perfect-scrollbar (psYReachEnd)="onYReachEnd($event)">
     <ng-container *ngFor="let item of changelog; let i = index">
         <mat-divider *ngIf="i"></mat-divider>
         <div class="changelog">
