@@ -1,5 +1,11 @@
 [
     {
+        "timestamp": 1615435224270,
+        "content": [
+            {"type": "feat", "items": ["CAD增加属性：必须绑定花件(needsHuajian)"]}
+        ]
+    },
+    {
         "timestamp": 1615361919553,
         "content": [
             {"type": "fix", "items": ["打印CAD"]}

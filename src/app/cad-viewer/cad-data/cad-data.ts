@@ -62,6 +62,7 @@ export class CadData {
         kailiao: boolean;
     }[];
     suanliaodanxianshibancai: boolean;
+    needsHuajian: boolean;
 
     constructor(data: ObjectOf<any> = {}) {
         if (typeof data !== "object") {
@@ -133,6 +134,7 @@ export class CadData {
             this.zhankai = [getZhankai()];
         }
         this.suanliaodanxianshibancai = data.suanliaodanxianshibancai ?? true;
+        this.needsHuajian = data.needsHuajian ?? true;
         this.updateDimensions();
     }
 
@@ -157,6 +159,7 @@ export class CadData {
         this.bancaihoudufangxiang = data.bancaihoudufangxiang;
         this.zhankai = cloneDeep(data.zhankai);
         this.suanliaodanxianshibancai = data.suanliaodanxianshibancai;
+        this.needsHuajian = data.needsHuajian;
         this.updatePartners().updateDimensions();
     }
 
@@ -200,7 +203,8 @@ export class CadData {
             attributes: cloneDeep(this.attributes),
             bancaihoudufangxiang: this.bancaihoudufangxiang,
             zhankai: cloneDeep(this.zhankai),
-            suanliaodanxianshibancai: this.suanliaodanxianshibancai
+            suanliaodanxianshibancai: this.suanliaodanxianshibancai,
+            needsHuajian: this.needsHuajian
         };
     }
 
@@ -247,7 +251,7 @@ export class CadData {
     }
 
     clone(resetIds = false) {
-        const data = new CadData(this);
+        const data = new CadData(this.export());
         if (resetIds) {
             this.layers = this.layers.map((v) => {
                 const nv = new CadLayer(v.export());

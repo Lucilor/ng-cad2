@@ -984,7 +984,7 @@ export class CadEntities {
     }
 
     clone(resetIds = false) {
-        return new CadEntities(this, [], resetIds);
+        return new CadEntities(this.export(), [], resetIds);
     }
 
     transform(matrix: MatrixLike, alter = false) {
