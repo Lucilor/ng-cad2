@@ -21,12 +21,16 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
     return src;
 };
 
+/**
+ * A4: (210 × 297)mm²
+ *    =(8.26 × 11.69)in² (1in = 25.4mm)
+ * 	  =(794 × 1123)px² (96dpi)
+ */
 export const printCads = async (
     dataArr: CadData[],
     config: Partial<CadViewerConfig> = {},
     linewidth = 1,
-    renderStyle: CadDimension["renderStyle"] = 2,
-    directPrint = true
+    renderStyle: CadDimension["renderStyle"] = 2
 ) => {
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
@@ -83,6 +87,7 @@ export const printCads = async (
             });
         });
         imgs.push((await cadPrint.toCanvas()).toDataURL());
+        document.body.appendChild(await cadPrint.toCanvas());
         cadPrint.destroy();
     }
     const pdf = createPdf(

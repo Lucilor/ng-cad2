@@ -65,7 +65,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             this.cads = response.data.cads.map((v) => new CadData(v));
             this.linewidth = response.data.linewidth;
             this.renderStyle = response.data.renderStyle;
-            this.pdfUrlRaw = await printCads(this.cads, {}, this.linewidth, this.renderStyle, false);
+            this.pdfUrlRaw = await printCads(this.cads, {}, this.linewidth, this.renderStyle);
             this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
         } else {
             this.message.alert("获取数据失败");

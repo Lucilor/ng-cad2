@@ -14,6 +14,7 @@ import {AppStatusService} from "@src/app/services/app-status.service";
 import {Angle, Line, MatrixLike, ObjectOf, Point, timeout} from "@src/app/utils";
 import {highlight} from "highlight.js";
 import {differenceWith} from "lodash";
+import printJS from "print-js";
 import {Command, ValuedCommand, Arg} from "../../cad-command-types";
 import {getBashStyle, getContent, getEmphasized, spaceReplacer} from "../../cad-console.utils";
 
@@ -416,18 +417,13 @@ export class CadConsoleComponent implements OnInit {
             this.openLock = false;
         },
         async print() {
-            /**
-             * A4: (210 × 297)mm²
-             *    =(8.26 × 11.69)in² (1in = 25.4mm)
-             * 	  =(794 × 1123)px² (96dpi)
-             */
             this.status.startLoader({text: "正在打印..."});
             const cad = this.status.cad;
-            await timeout(100);
             const data = cad.data.clone();
             removeCadGongshi(data);
-            await printCads(data.components.data, {...cad.config(), backgroundColor: "white"});
+            const url = await printCads([data]);
             this.status.stopLoader();
+            printJS({printable: url, type: "pdf"});
         },
         rotate(degreesArg: string) {
             const degrees = Number(degreesArg);

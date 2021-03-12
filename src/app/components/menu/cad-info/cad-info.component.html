@@ -87,12 +87,6 @@
             </mat-select>
         </mat-form-field>
         <mat-form-field>
-            <mat-label>开料模板</mat-label>
-            <input matInput type="text" [(ngModel)]="cad.kailiaomuban" name="kailiaomuban" />
-            <mat-icon matSuffix color="primary" (click)="openKailiaomuban(cad)">open_in_new</mat-icon>
-            <mat-icon matSuffix color="primary" (click)="selectKailiaomuban(cad)">list</mat-icon>
-        </mat-form-field>
-        <mat-form-field>
             <mat-label>开料时刨坑</mat-label>
             <mat-select [(ngModel)]="cad.kailiaoshibaokeng" name="kailiaoshibaokeng">
                 <mat-option [value]="true">是</mat-option>
