@@ -276,10 +276,12 @@ export class SelectBancaiComponent implements OnInit {
             )
             .flat();
         this.loader.startLoader("submitLoader");
-        const result = await this.dataService.jiguangkailiaopaiban(this.codes, bancaiCads, this.table, this.autoGuige);
+        const url = await this.dataService.jiguangkailiaopaiban(this.codes, bancaiCads, this.table, this.autoGuige);
         this.loader.stopLoader("submitLoader");
-        if (result) {
-            open(result);
+        if (url) {
+            if (!open(url)) {
+                this.message.alert(`<p>自动下载被拦截，请点击下列链接下载。</p><a href="${url}" download>下载开料结果</a>`);
+            }
         }
     }
 }

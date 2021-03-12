@@ -1,5 +1,11 @@
 [
     {
+        "timestamp": 1615513373681,
+        "content": [
+            {"type": "perf", "items": ["激光开料排版自动下载被拦截时提供手动下载的链接"]}
+        ]
+    },
+    {
         "timestamp": 1615435224270,
         "content": [
             {"type": "feat", "items": ["CAD增加属性：必须绑定花件(needsHuajian)"]}
