@@ -211,8 +211,8 @@ export class CadDataService extends HttpService {
         await this.post<never>("peijian/cad/removeCad", {collection, ids});
     }
 
-    async getBancais(codes: string[]) {
-        const response = await this.post<{bancaiList: BancaiList[]; bancaiCads: BancaiCad[]}>("order/order/getBancais", {codes});
+    async getBancais(table: string, codes: string[]) {
+        const response = await this.post<{bancaiList: BancaiList[]; bancaiCads: BancaiCad[]}>("order/order/getBancais", {table, codes});
         if (response?.data) {
             return response.data;
         }

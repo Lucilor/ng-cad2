@@ -61,7 +61,7 @@ export class SelectBancaiComponent implements OnInit {
             this.loader.startLoader("bancaiLoader");
             this.codes = codes.split(",");
             this.table = table;
-            const result = await this.dataService.getBancais(this.codes);
+            const result = await this.dataService.getBancais(this.table, this.codes);
             this.loader.stopLoader("bancaiLoader");
             if (result) {
                 result.bancaiCads.forEach((cad) => {
