@@ -2,7 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {CadData, getZhankai} from "@src/app/cad-viewer";
+import {CadCondition, CadData, CadZhankai} from "@src/app/cad-viewer";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {cloneDeep} from "lodash";
 import {openCadListDialog} from "../cad-list/cad-list.component";
@@ -26,6 +26,11 @@ export class CadZhankaiComponent {
         private message: MessageService
     ) {
         this.data = cloneDeep(this.data);
+        this.data.forEach((item) => {
+            if (item.conditions.length <= 0) {
+                item.conditions.push(new CadCondition());
+            }
+        });
     }
 
     submit() {
@@ -66,7 +71,7 @@ export class CadZhankaiComponent {
     }
 
     addItem() {
-        this.data.push(getZhankai());
+        this.data.push(new CadZhankai());
     }
 
     selectAll() {
@@ -96,6 +101,24 @@ export class CadZhankaiComponent {
             indices.clear();
         } else {
             this.message.alert("没有选中");
+        }
+    }
+
+    setCondition(event: Event, condition: CadCondition) {
+        condition.value = (event.target as HTMLInputElement).value;
+    }
+
+    addCondition(conditions: CadCondition[], i: number) {
+        conditions.splice(i + 1, 0, new CadCondition());
+    }
+
+    async removeCondition(conditions: CadCondition[], i: number) {
+        if (await this.message.confirm("是否确定删除？")) {
+            if (conditions.length === 1) {
+                conditions[0] = new CadCondition();
+            } else {
+                conditions.splice(i, 1);
+            }
         }
     }
 }

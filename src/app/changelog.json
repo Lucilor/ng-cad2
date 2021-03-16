@@ -1,15 +1,14 @@
 [
     {
-        "timestamp": 1615863308966,
+        "timestamp": 1615867168980,
         "content": [
-            {"type": "feat", "items": ["选择CAD时可以只显示已选"]}
+            {"type": "feat", "items": ["选择CAD时可以只显示已选", "CAD展开增加属性：条件"]},
+            {"type": "fix", "items": ["输入条件时输入框会失去焦点的问题"]}
         ]
     },
     {
         "timestamp": 1615777546118,
-        "content": [
-            {"type": "fix", "items": ["激光开料排版"]}
-        ]
+        "content": [{"type": "fix", "items": ["激光开料排版"]}]
     },
     {
         "timestamp": 1615513373681,
@@ -20,39 +19,27 @@
     },
     {
         "timestamp": 1615435224270,
-        "content": [
-            {"type": "feat", "items": ["CAD增加属性：必须绑定花件(needsHuajian)"]}
-        ]
+        "content": [{"type": "feat", "items": ["CAD增加属性：必须绑定花件(needsHuajian)"]}]
     },
     {
         "timestamp": 1615361919553,
-        "content": [
-            {"type": "fix", "items": ["打印CAD"]}
-        ]
+        "content": [{"type": "fix", "items": ["打印CAD"]}]
     },
     {
         "timestamp": 1615283956252,
-        "content": [
-            {"type": "perf", "items": ["打印CAD"]}
-        ]
+        "content": [{"type": "perf", "items": ["打印CAD"]}]
     },
     {
         "timestamp": 1614758338769,
-        "content": [
-            {"type": "fix", "items": ["激光开料排版无法滚动的问题"]}
-        ]
+        "content": [{"type": "fix", "items": ["激光开料排版无法滚动的问题"]}]
     },
     {
         "timestamp": 1614668211528,
-        "content": [
-            {"type": "feat", "items": ["内/外开最后翻转"]}
-        ]
+        "content": [{"type": "feat", "items": ["内/外开最后翻转"]}]
     },
     {
         "timestamp": 1614565674296,
-        "content": [
-            {"type": "feat", "items": ["激光开料排版自动选择最合适的板材规格"]}
-        ]
+        "content": [{"type": "feat", "items": ["激光开料排版自动选择最合适的板材规格"]}]
     },
     {
         "timestamp": 1614419794559,

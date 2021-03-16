@@ -25,6 +25,10 @@
                 width: 50%;
                 box-sizing: border-box;
                 padding: 5px;
+
+                &.condition {
+                    width: 100%;
+                }
             }
         }
     }

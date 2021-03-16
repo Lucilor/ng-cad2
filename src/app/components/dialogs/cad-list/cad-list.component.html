@@ -38,48 +38,26 @@
 <div class="content" [ngSwitch]="data.selectMode">
     <perfect-scrollbar *ngSwitchCase="'single'">
         <mat-radio-group class="add-empty-msg" [value]="checkedIndex.getValue()" (change)="checkedIndex.next($event.value)">
-            <div
-                class="data-container"
-                *ngFor="let item of pageData; let i = index"
-                [matTooltip]="item.data.name"
-                [matTooltipPosition]="'above'"
-            >
-                <mat-radio-button class="example-radio-button" [value]="i">
+            <div class="data-container" *ngFor="let item of pageData; let i = index">
+                <mat-radio-button class="example-radio-button" [value]="i" [matTooltip]="item.data.name">
                     {{ item.data.name }}
                 </mat-radio-button>
                 <img [src]="item.img" (click)="checkedIndex.next(i)" />
-                <mat-list class="details">
-                    <mat-divider></mat-divider>
-                    <div matSubheader>选项</div>
-                    <mat-list-item *ngFor="let o of item.data.options">{{ o.name }}: {{ o.value }}</mat-list-item>
-                    <mat-divider></mat-divider>
-                    <div matSubheader>条件</div>
-                    <mat-list-item *ngFor="let c of item.data.conditions">{{ c }}</mat-list-item>
-                </mat-list>
+                <ng-container *ngTemplateOutlet="details; context: {$implicit: item}"></ng-container>
             </div>
         </mat-radio-group>
     </perfect-scrollbar>
 
     <perfect-scrollbar *ngSwitchCase="'multiple'">
         <div class="checkbox-group add-empty-msg">
-            <div
-                class="data-container"
-                *ngFor="let item of pageData; let i = index"
-                [matTooltip]="item.data.name"
-                [matTooltipPosition]="'above'"
-            >
-                <mat-checkbox [(ngModel)]="item.checked">{{ item.data.name }}</mat-checkbox>
+            <div class="data-container" *ngFor="let item of pageData; let i = index">
+                <mat-checkbox [(ngModel)]="item.checked" [matTooltip]="item.data.name">
+                    {{ item.data.name }}
+                </mat-checkbox>
                 <div class="cad-preview">
                     <img [src]="item.img" (click)="item.checked = !item.checked" />
                 </div>
-                <mat-list class="details">
-                    <mat-divider></mat-divider>
-                    <div matSubheader>选项</div>
-                    <mat-list-item *ngFor="let o of item.data.options">{{ o.name }}: {{ o.value }}</mat-list-item>
-                    <mat-divider></mat-divider>
-                    <div matSubheader>条件</div>
-                    <mat-list-item *ngFor="let c of item.data.conditions">{{ c }}</mat-list-item>
-                </mat-list>
+                <ng-container *ngTemplateOutlet="details; context: {$implicit: item}"></ng-container>
             </div>
         </div>
     </perfect-scrollbar>
@@ -133,3 +111,18 @@
     </button>
     <button mat-raised-button color="primary" (click)="close()">取消</button>
 </div>
+
+<ng-template #details let-item>
+    <mat-list class="details">
+        <mat-divider></mat-divider>
+        <div matSubheader>选项</div>
+        <mat-list-item *ngFor="let o of item.data.options" [matTooltip]="o.name + ': ' + o.value">
+            {{ o.name }}: {{ o.value }}
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <div matSubheader>条件</div>
+        <mat-list-item *ngFor="let c of item.data.conditions" [matTooltip]="c.value">
+            {{ c.value }}
+        </mat-list-item>
+    </mat-list>
+</ng-template>

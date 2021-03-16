@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute} from "@angular/router";
-import {CadData, CadLine, CadEventCallBack, CadOption, CadBaseLine, CadJointPoint, CadEntity} from "@src/app/cad-viewer";
+import {CadData, CadLine, CadEventCallBack, CadOption, CadBaseLine, CadJointPoint, CadEntity, CadCondition} from "@src/app/cad-viewer";
 import {getCadGongshiText} from "@src/app/cad.utils";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
@@ -126,14 +126,14 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     addCondition(data: CadData, index: number) {
-        data.conditions.splice(index + 1, 0, "");
+        data.conditions.splice(index + 1, 0, new CadCondition());
     }
 
     async removeCondition(data: CadData, index: number) {
         if (await this.message.confirm("是否确定删除？")) {
             const arr = data.conditions;
             if (arr.length === 1) {
-                arr[0] = "";
+                arr[0] = new CadCondition();
             } else {
                 arr.splice(index, 1);
             }

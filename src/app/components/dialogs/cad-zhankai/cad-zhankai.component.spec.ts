@@ -9,12 +9,12 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {RouterTestingModule} from "@angular/router/testing";
-import {CadData, getZhankai} from "@src/app/cad-viewer";
+import {CadData, CadZhankai} from "@src/app/cad-viewer";
 import {MessageModule} from "@src/app/modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {CadZhankaiComponent} from "./cad-zhankai.component";
 
-const data: CadData["zhankai"] = [getZhankai()];
+const data: CadData["zhankai"] = [new CadZhankai()];
 describe("CadZhankaiComponent", () => {
     let component: CadZhankaiComponent;
     let fixture: ComponentFixture<CadZhankaiComponent>;

@@ -16,8 +16,8 @@
                     <input
                         matInput
                         type="text"
-                        [value]="cad.options[j].name"
-                        (input)="setValue($event, cad.options[j], 'name')"
+                        [value]="o.name"
+                        (input)="setValue($event, o, 'name')"
                         name="optionKey"
                     />
                 </mat-form-field>
@@ -26,8 +26,8 @@
                     <input
                         matInput
                         type="text"
-                        [value]="cad.options[j].value"
-                        (input)="setValue($event, cad.options[j], 'value')"
+                        [value]="o.value"
+                        (input)="setValue($event, o, 'value')"
                         placeholder="选项"
                         name="optionValue"
                     />
@@ -44,8 +44,8 @@
                     <input
                         matInput
                         type="text"
-                        [value]="cad.conditions[j]"
-                        (input)="setValue($event, cad.conditions, j)"
+                        [value]="c.value"
+                        (input)="setValue($event, c, 'value')"
                         name="condition"
                     />
                     <mat-icon matSuffix color="primary" (click)="addCondition(cad, j)">add_circle</mat-icon>

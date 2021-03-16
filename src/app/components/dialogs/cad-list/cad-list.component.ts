@@ -2,6 +2,7 @@ import {AfterViewInit, Component, Inject, ViewChild} from "@angular/core";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS} from "@angular/material/tooltip";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, imgEmpty, CadCollection} from "@src/app/app.common";
 import {CadData, CadOption} from "@src/app/cad-viewer";
@@ -22,10 +23,18 @@ export interface CadListData {
     qiliao?: boolean;
 }
 
+export const customTooltipOptions: MatTooltipDefaultOptions = {
+    showDelay: 500,
+    hideDelay: 0,
+    touchendHideDelay: 0,
+    position: "above"
+};
+
 @Component({
     selector: "app-cad-list",
     templateUrl: "./cad-list.component.html",
-    styleUrls: ["./cad-list.component.scss"]
+    styleUrls: ["./cad-list.component.scss"],
+    providers: [{provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: customTooltipOptions}]
 })
 export class CadListComponent implements AfterViewInit {
     length = 100;

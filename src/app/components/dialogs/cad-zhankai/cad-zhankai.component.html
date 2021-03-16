@@ -64,6 +64,12 @@
                     <input type="text" matInput hidden value=" " />
                     <mat-slide-toggle [checked]="item.kailiao" (change)="item.kailiao = $event.checked"></mat-slide-toggle>
                 </mat-form-field>
+                <mat-form-field *ngFor="let c of item.conditions; let i = index" class="condition">
+                    <mat-label>条件</mat-label>
+                    <input matInput type="text" [value]="c.value" (input)="setCondition($event, c)" />
+                    <mat-icon matSuffix color="primary" (click)="addCondition(item.conditions, i)">add_circle</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="removeCondition(item.conditions, i)">remove_circle</mat-icon>
+                </mat-form-field>
             </div>
         </mat-card>
     </div>
