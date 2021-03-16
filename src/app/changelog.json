@@ -1,5 +1,11 @@
 [
     {
+        "timestamp": 1615863308966,
+        "content": [
+            {"type": "feat", "items": ["选择CAD时可以只显示已选"]}
+        ]
+    },
+    {
         "timestamp": 1615777546118,
         "content": [
             {"type": "fix", "items": ["激光开料排版"]}

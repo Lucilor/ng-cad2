@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, Inject, ViewChild} from "@angular/core";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
+import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, imgEmpty, CadCollection} from "@src/app/app.common";
 import {CadData, CadOption} from "@src/app/cad-viewer";
@@ -42,6 +43,7 @@ export class CadListComponent implements AfterViewInit {
     checkedItems: CadData[] = [];
     checkedColumns: any[] = [];
     checkedInOtherPages = false;
+    showCheckedOnly = false;
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
 
     constructor(
@@ -130,6 +132,9 @@ export class CadListComponent implements AfterViewInit {
             params.qiliao = this.data.qiliao;
             params.options = options;
             params.optionsMatchType = matchType;
+            if (this.showCheckedOnly) {
+                params.ids = this.checkedItems.map((v) => v.id);
+            }
             this.status.startLoader({id: "cadList"});
             const result = await this.dataService.getCad(params);
             this.status.stopLoader();
@@ -242,6 +247,11 @@ export class CadListComponent implements AfterViewInit {
             );
             this.search();
         }
+    }
+
+    toggleShowCheckedOnly(evnet: MatSlideToggleChange) {
+        this.showCheckedOnly = evnet.checked;
+        this.search();
     }
 }
 

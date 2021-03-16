@@ -22,14 +22,17 @@
         <button mat-raised-button color="primary" (click)="advancedSearch()">高级搜索</button>
         <button mat-raised-button color="primary" (click)="remove()">删除</button>
     </div>
-    <mat-checkbox
-        [checked]="allChecked()"
-        [indeterminate]="partiallyChecked()"
-        *ngIf="data.selectMode === 'multiple'"
-        (change)="toggleSelectAll()"
-    >
-        全选<span *ngIf="checkedInOtherPages">(其他页已选)</span>
-    </mat-checkbox>
+    <div class="btn-group">
+        <mat-slide-toggle [checked]="showCheckedOnly" (change)="toggleShowCheckedOnly($event)">只显示已选</mat-slide-toggle>
+        <mat-checkbox
+            [checked]="allChecked()"
+            [indeterminate]="partiallyChecked()"
+            *ngIf="data.selectMode === 'multiple'"
+            (change)="toggleSelectAll()"
+        >
+            全选<span *ngIf="checkedInOtherPages">(其他页已选)</span>
+        </mat-checkbox>
+    </div>
 </form>
 
 <div class="content" [ngSwitch]="data.selectMode">
