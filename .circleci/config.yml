@@ -8,8 +8,6 @@ jobs:
       - checkout
       - restore_cache:
           key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      - run: yarn config unset httpProxy
-      - run: yarn config unset httpsProxy
       - run: yarn install
       - save_cache:
           key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
