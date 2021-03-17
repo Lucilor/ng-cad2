@@ -9,7 +9,8 @@ import {
     CadBaseLine,
     CadJointPoint,
     CadDimension,
-    CadCondition
+    CadCondition,
+    CadZhankai
 } from "./cad-viewer";
 import {getDPI, Point} from "./utils";
 
@@ -147,7 +148,8 @@ export const removeCadGongshi = (data: CadData) => {
 };
 
 export const getCadGongshiText = (data: CadData) => {
-    const {zhankaikuan, zhankaigao, shuliang, shuliangbeishu} = data.zhankai[0];
+    const zhankai = data.zhankai.length > 0 ? data.zhankai[0] : new CadZhankai();
+    const {zhankaikuan, zhankaigao, shuliang, shuliangbeishu} = zhankai;
     let text = `${zhankaikuan} × ${zhankaigao} = ${shuliang}`;
     if (Number(shuliangbeishu) > 1) {
         text += " × " + shuliangbeishu;

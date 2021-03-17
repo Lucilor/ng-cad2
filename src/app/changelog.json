@@ -1,5 +1,11 @@
 [
     {
+        "timestamp": 1615942983219,
+        "content": [
+            {"type": "fix", "items": ["CAD展开相关问题"]}
+        ]
+    },
+    {
         "timestamp": 1615867168980,
         "content": [
             {"type": "feat", "items": ["选择CAD时可以只显示已选", "CAD展开增加属性：条件"]},

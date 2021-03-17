@@ -106,7 +106,7 @@ export class CadData {
         if (Array.isArray(data.zhankai)) {
             this.zhankai = data.zhankai.map((v) => new CadZhankai(v));
         } else {
-            this.zhankai = [];
+            this.zhankai = [new CadZhankai()];
         }
         this.suanliaodanxianshibancai = data.suanliaodanxianshibancai ?? true;
         this.needsHuajian = data.needsHuajian ?? true;
