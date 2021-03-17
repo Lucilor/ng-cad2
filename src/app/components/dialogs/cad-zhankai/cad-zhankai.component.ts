@@ -8,8 +8,6 @@ import {cloneDeep} from "lodash";
 import {openCadListDialog} from "../cad-list/cad-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
-export type CadZhankaiData = CadData["zhankai"];
-
 @Component({
     selector: "app-cad-zhankai",
     templateUrl: "./cad-zhankai.component.html",
@@ -19,7 +17,7 @@ export class CadZhankaiComponent {
     checkedIndices = new Set<number>();
 
     constructor(
-        public dialogRef: MatDialogRef<CadZhankaiComponent, CadZhankaiData>,
+        public dialogRef: MatDialogRef<CadZhankaiComponent, CadZhankai[]>,
         @Inject(MAT_DIALOG_DATA) public data: CadData["zhankai"],
         private route: ActivatedRoute,
         private dialog: MatDialog,
@@ -41,7 +39,7 @@ export class CadZhankaiComponent {
         this.dialogRef.close();
     }
 
-    openCadmuban(item: CadZhankaiData[0], key: "kailiaomuban" | "neikaimuban") {
+    openCadmuban(item: CadZhankai, key: "kailiaomuban" | "neikaimuban") {
         if (item[key]) {
             const params = {...this.route.snapshot.queryParams};
             params.collection = "kailiaocadmuban";
@@ -50,7 +48,7 @@ export class CadZhankaiComponent {
         }
     }
 
-    async selectCadmuban(item: CadZhankaiData[0], key: "kailiaomuban" | "neikaimuban") {
+    async selectCadmuban(item: CadZhankai, key: "kailiaomuban" | "neikaimuban") {
         const checkedItems = [new CadData({id: item[key]})];
         const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
         if (result?.length) {
@@ -123,4 +121,4 @@ export class CadZhankaiComponent {
     }
 }
 
-export const openCadZhankaiDialog = getOpenDialogFunc<CadZhankaiComponent, CadZhankaiData, CadZhankaiData>(CadZhankaiComponent);
+export const openCadZhankaiDialog = getOpenDialogFunc<CadZhankaiComponent, CadZhankai[], CadZhankai[]>(CadZhankaiComponent);

@@ -103,7 +103,7 @@ export class CadData {
         }
         this.attributes = typeof data.attributes === "object" ? data.attributes : {};
         this.bancaihoudufangxiang = data.bancaihoudufangxiang ?? "none";
-        if (Array.isArray(data.zhankai)) {
+        if (Array.isArray(data.zhankai) && data.zhankai.length > 0) {
             this.zhankai = data.zhankai.map((v) => new CadZhankai(v));
         } else {
             this.zhankai = [new CadZhankai()];
@@ -268,6 +268,9 @@ export class CadData {
         this.partners.forEach((v) => v.separate(data));
         this.components.data.forEach((v) => v.separate(data));
         this.zhankai = separateArray(this.zhankai, data.zhankai, "name");
+        if (this.zhankai.length <= 0) {
+            this.zhankai.push(new CadZhankai());
+        }
         return this;
     }
 
