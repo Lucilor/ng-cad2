@@ -3,12 +3,12 @@
         <mat-card *ngFor="let item of data; let i = index">
             <div class="zhankai-form">
                 <mat-checkbox
-                    style="width: 100%"
+                    class="full-width"
                     (click)="onCheckboxChanglick($event)"
                     [checked]="checkedIndices.has(i)"
                     (change)="onCheckboxChange($event, i)"
                 ></mat-checkbox>
-                <mat-form-field style="font-weight: bold; color: #ff5e00; width: 100%">
+                <mat-form-field class="full-width" style="font-weight: bold; color: #ff5e00">
                     <mat-label>名字</mat-label>
                     <input matInput type="text" [(ngModel)]="item.name" name="name" />
                 </mat-form-field>
@@ -59,12 +59,17 @@
                         <mat-option value="vh">垂直水平翻转</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="full-width">
                     <mat-label>开料</mat-label>
                     <input type="text" matInput hidden value=" " />
                     <mat-slide-toggle [checked]="item.kailiao" (change)="item.kailiao = $event.checked"></mat-slide-toggle>
                 </mat-form-field>
-                <mat-form-field *ngFor="let c of item.conditions; let i = index" class="condition">
+                <mat-form-field class="full-width">
+                    <mat-label>开料数量不为1时拆成单个</mat-label>
+                    <input type="text" matInput hidden value=" " />
+                    <mat-slide-toggle [checked]="item.chai" (change)="item.chai = $event.checked"></mat-slide-toggle>
+                </mat-form-field>
+                <mat-form-field *ngFor="let c of item.conditions; let i = index" class="full-width">
                     <mat-label>条件</mat-label>
                     <input matInput type="text" [value]="c.value" (input)="setCondition($event, c)" />
                     <mat-icon matSuffix color="primary" (click)="addCondition(item.conditions, i)">add_circle</mat-icon>

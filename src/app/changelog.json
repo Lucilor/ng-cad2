@@ -1,5 +1,11 @@
 [
     {
+        "timestamp": 1616051318061,
+        "content": [
+            {"type": "feat", "items": ["CAD展开增加属性：开料数量不为1时拆成单个(chai)"]}
+        ]
+    },
+    {
         "timestamp": 1615942983219,
         "content": [
             {"type": "fix", "items": ["CAD展开相关问题"]}

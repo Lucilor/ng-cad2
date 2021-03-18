@@ -1,9 +1,7 @@
 import {Matrix, MatrixLike, ObjectOf, Point} from "@src/app/utils";
-import {uniqWith, intersection, cloneDeep} from "lodash";
+import {cloneDeep, uniqWith, intersection} from "lodash";
 import {v4} from "uuid";
-import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
-import {CadLayer} from "./cad-layer";
-import {mergeArray, separateArray, getVectorFromArray, isLinesParallel} from "../utils";
+import {CadEntities, CadLayer, mergeArray, separateArray, CadLine, getVectorFromArray, CadDimension, CadCircle, isLinesParallel} from "..";
 
 export class CadData {
     entities: CadEntities;
@@ -895,6 +893,7 @@ export class CadZhankai {
     flipNeikai: "" | "v" | "h" | "vh";
     kailiao: boolean;
     conditions: CadCondition[];
+    chai: boolean;
 
     constructor(data: ObjectOf<any> = {}) {
         if (typeof data !== "object") {
@@ -914,6 +913,7 @@ export class CadZhankai {
         if (Array.isArray(data.conditions)) {
             data.conditions.forEach((v: string | CadCondition) => this.conditions.push(new CadCondition(v)));
         }
+        this.chai = data.chai ?? false;
     }
 
     export() {
@@ -928,7 +928,8 @@ export class CadZhankai {
             flipWaikai: this.flipWaikai,
             flipNeikai: this.flipNeikai,
             kailiao: this.kailiao,
-            conditions: this.conditions.map((v) => v.value).filter((v) => v)
+            conditions: this.conditions.map((v) => v.value).filter((v) => v),
+            chai: this.chai
         };
     }
 }
