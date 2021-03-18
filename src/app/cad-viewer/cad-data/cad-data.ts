@@ -132,6 +132,7 @@ export class CadData {
         this.info = cloneDeep(data.info);
         this.attributes = cloneDeep(data.attributes);
         this.bancaihoudufangxiang = data.bancaihoudufangxiang;
+        this.zhankai = data.zhankai.map((v) => new CadZhankai(v));
         this.suanliaodanxianshibancai = data.suanliaodanxianshibancai;
         this.needsHuajian = data.needsHuajian;
         this.updatePartners().updateDimensions();
@@ -250,7 +251,6 @@ export class CadData {
         this.partners = mergeArray(this.partners, data.partners, "id");
         this.components.connections = mergeArray(this.components.connections, data.components.connections);
         this.components.data = mergeArray(this.components.data, data.components.data, "id");
-        this.zhankai = mergeArray(this.zhankai, data.zhankai, "name");
         return this;
     }
 
@@ -267,10 +267,6 @@ export class CadData {
         this.components.data = separateArray(this.components.data, data.components.data, "id");
         this.partners.forEach((v) => v.separate(data));
         this.components.data.forEach((v) => v.separate(data));
-        this.zhankai = separateArray(this.zhankai, data.zhankai, "name");
-        if (this.zhankai.length <= 0) {
-            this.zhankai.push(new CadZhankai());
-        }
         return this;
     }
 
