@@ -5,7 +5,7 @@ import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatSort} from "@angular/material/sort";
 import {MatTable, MatTableDataSource} from "@angular/material/table";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {downloadFile} from "@src/app/utils";
+import {downloadByString} from "@src/app/utils";
 import {cloneDeep, debounce} from "lodash";
 
 export interface ColumnInfoBase<T> {
@@ -207,7 +207,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
         if (typeof this.dataTransformer === "function") {
             selected = this.dataTransformer("export", selected);
         }
-        downloadFile(JSON.stringify(selected), (this.title ?? "table") + ".json");
+        downloadByString(JSON.stringify(selected), (this.title ?? "table") + ".json");
     }
 
     import() {

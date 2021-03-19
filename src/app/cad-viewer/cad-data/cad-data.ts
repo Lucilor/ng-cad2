@@ -1,7 +1,9 @@
 import {Matrix, MatrixLike, ObjectOf, Point} from "@src/app/utils";
 import {cloneDeep, uniqWith, intersection} from "lodash";
 import {v4} from "uuid";
-import {CadEntities, CadLayer, mergeArray, separateArray, CadLine, getVectorFromArray, CadDimension, CadCircle, isLinesParallel} from "..";
+import {getVectorFromArray, isLinesParallel, mergeArray, separateArray} from "../utils";
+import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
+import {CadLayer} from "./cad-layer";
 
 export class CadData {
     entities: CadEntities;

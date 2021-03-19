@@ -62,15 +62,20 @@ export const copyToClipboard = (str: string) => {
     document.body.removeChild(el);
 };
 
-export const downloadFile = (content: string, filename: string) => {
+export const downloadByString = (content: string, filename: string) => {
+    const blob = new Blob([content]);
+    const url = URL.createObjectURL(blob);
+    downloadByUrl(url, filename);
+    URL.revokeObjectURL(url);
+};
+
+export const downloadByUrl = (url: string, filename = "") => {
     const link = document.createElement("a");
     link.download = filename;
     link.style.display = "none";
-    const blob = new Blob([content]);
-    link.href = URL.createObjectURL(blob);
+    link.href = url;
     document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(link.href);
     document.body.removeChild(link);
 };
 
