@@ -10,6 +10,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatTabsModule} from "@angular/material/tabs";
+import {RouterTestingModule} from "@angular/router/testing";
 import {AnchorSelectorComponent} from "@src/app/components/anchor-selector/anchor-selector.component";
 import {CadPointsComponent} from "@src/app/components/cad-points/cad-points.component";
 import {CadDimensionComponent} from "@src/app/components/menu/cad-dimension/cad-dimension.component";
@@ -62,8 +63,9 @@ describe("IndexComponent", () => {
                 MatSlideToggleModule,
                 MatTabsModule,
                 MessageModule,
+                NgxUiLoaderModule,
                 PerfectScrollbarModule,
-                NgxUiLoaderModule
+                RouterTestingModule.withRoutes([{path: "index", component: IndexComponent}])
             ]
         }).compileComponents();
     });

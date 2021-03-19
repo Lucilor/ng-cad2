@@ -1,6 +1,7 @@
 import {NgModule} from "@angular/core";
 import {Routes, RouterModule} from "@angular/router";
 import {routesInfo} from "./app.common";
+import {IndexGuard} from "./guards/index.guard";
 import {PathResolveService} from "./services/path-resolve.service";
 import {BackupComponent} from "./views/backup/backup.component";
 import {ImportComponent} from "./views/import/import.component";
@@ -12,7 +13,7 @@ import {SelectBancaiComponent} from "./views/select-bancai/select-bancai.compone
 
 const routes: Routes = [
     {path: "", pathMatch: "full", redirectTo: routesInfo.index.path},
-    {path: routesInfo.index.path, component: IndexComponent},
+    {path: routesInfo.index.path, component: IndexComponent, canActivate: [IndexGuard]},
     {path: routesInfo.printCad.path, component: PrintCadComponent},
     {path: routesInfo.printA4A015Preview.path, component: PrintA4A015PreviewComponent},
     {path: routesInfo.import.path, component: ImportComponent},

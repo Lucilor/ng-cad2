@@ -1,4 +1,5 @@
 import {Injectable} from "@angular/core";
+import {ActivatedRoute, Router} from "@angular/router";
 import {clamp, difference, differenceWith} from "lodash";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";
@@ -88,7 +89,12 @@ export class AppStatusService {
     openCad$ = new Subject<void>();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
 
-    constructor(private config: AppConfigService, private loaderService: NgxUiLoaderService) {
+    constructor(
+        private config: AppConfigService,
+        private loaderService: NgxUiLoaderService,
+        private route: ActivatedRoute,
+        private router: Router
+    ) {
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
             cad.config(newVal);
@@ -168,13 +174,20 @@ export class AppStatusService {
         }
         const config: Partial<AppConfig> = {};
         const sessionConfig = this.config.sessionConfig;
-        config.cadIds = data.map((v) => v.id);
-        cad.data.info.算料单 = data.some((v) => v.info.算料单);
+        const ids = data.map((v) => v.id);
+        config.cadIds = ids;
         if (collection) {
             config.collection = collection;
         } else {
             collection = this.config.config("collection");
         }
+
+        const {ids2, collection2} = this.route.snapshot.queryParams;
+        if (ids.join(",") !== ids2 || collection !== collection2) {
+            this.router.navigate(["/index"], {queryParams: {ids: ids.join(","), collection}, queryParamsHandling: "merge"});
+        }
+
+        cad.data.info.算料单 = data.some((v) => v.info.算料单);
         if (typeof sessionConfig.hideLineGongshi === "boolean") {
             config.hideLineGongshi = sessionConfig.hideLineGongshi;
         } else {

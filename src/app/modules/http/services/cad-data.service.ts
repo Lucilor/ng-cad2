@@ -57,11 +57,7 @@ export class CadDataService extends HttpService {
         super(injector);
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd) {
-                const {project} = route.snapshot.queryParams;
-                if (!project) {
-                    this.message.alert("没有project");
-                    throw new Error("没有project");
-                }
+                const project = route.snapshot.queryParams.project;
                 this.project = project;
                 if (environment.production) {
                     this.baseURL = `${origin}/n/${project}/index/`;
