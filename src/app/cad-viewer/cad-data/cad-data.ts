@@ -35,6 +35,7 @@ export class CadData {
     zhankai: CadZhankai[];
     suanliaodanxianshibancai: boolean;
     needsHuajian: boolean;
+    kedulibancai: boolean;
 
     constructor(data: ObjectOf<any> = {}) {
         if (typeof data !== "object") {
@@ -110,6 +111,7 @@ export class CadData {
         }
         this.suanliaodanxianshibancai = data.suanliaodanxianshibancai ?? true;
         this.needsHuajian = data.needsHuajian ?? true;
+        this.kedulibancai = data.kedulibancai ?? false;
         this.updateDimensions();
     }
 
@@ -135,6 +137,7 @@ export class CadData {
         this.zhankai = data.zhankai.map((v) => new CadZhankai(v));
         this.suanliaodanxianshibancai = data.suanliaodanxianshibancai;
         this.needsHuajian = data.needsHuajian;
+        this.kedulibancai = data.kedulibancai;
         this.updatePartners().updateDimensions();
         return this;
     }
@@ -180,7 +183,8 @@ export class CadData {
             bancaihoudufangxiang: this.bancaihoudufangxiang,
             zhankai: this.zhankai.map((v) => v.export()),
             suanliaodanxianshibancai: this.suanliaodanxianshibancai,
-            needsHuajian: this.needsHuajian
+            needsHuajian: this.needsHuajian,
+            kedulibancai: this.kedulibancai
         };
     }
 

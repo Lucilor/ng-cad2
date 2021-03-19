@@ -170,6 +170,13 @@
                 <mat-option [value]="false">否</mat-option>
             </mat-select>
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>可独立板材</mat-label>
+            <mat-select [(ngModel)]="cad.kedulibancai" name="kedulibancai">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
     </form>
 </div>
 <app-cad-points></app-cad-points>

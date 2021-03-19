@@ -1,5 +1,11 @@
 [
     {
+        "timestamp": 1616123181002,
+        "content": [
+            {"type": "feat", "items": ["CAD增加属性：可独立板材(kedulibancai)"]}
+        ]
+    },
+    {
         "timestamp": 1616051318061,
         "content": [
             {"type": "feat", "items": ["CAD展开增加属性：开料数量不为1时拆成单个(chai)"]}
