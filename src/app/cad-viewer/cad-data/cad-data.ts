@@ -6,38 +6,43 @@ import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
 import {CadLayer} from "./cad-layer";
 
 export class CadData {
-    entities: CadEntities;
-    layers: CadLayer[];
-    id: string;
-    name: string;
-    type: string;
-    conditions: CadCondition[];
-    options: CadOption[];
-    baseLines: CadBaseLine[];
-    jointPoints: CadJointPoint[];
-    parent: string;
-    partners: CadData[];
-    components: CadComponents;
-    huajian: string;
-    xinghaohuajian: ObjectOf<string>;
-    mubanfangda: boolean;
-    kailiaomuban: string;
-    kailiaoshibaokeng: boolean;
-    bianxingfangshi: "自由" | "高比例变形" | "宽比例变形" | "宽高比例变形";
-    bancaiwenlifangxiang: "垂直" | "水平";
-    kailiaopaibanfangshi: "自动排版" | "不排版" | "必须排版";
-    morenkailiaobancai: string;
-    suanliaochuli: "算料+显示展开+开料" | "算料+开料" | "算料+显示展开" | "算料";
-    showKuandubiaozhu: boolean;
-    info: ObjectOf<any>;
-    attributes: ObjectOf<string>;
-    bancaihoudufangxiang: "none" | "gt0" | "lt0";
-    zhankai: CadZhankai[];
-    suanliaodanxianshibancai: boolean;
-    needsHuajian: boolean;
-    kedulibancai: boolean;
+    entities = new CadEntities();
+    layers: CadLayer[] = [];
+    id = "";
+    name = "";
+    type = "";
+    conditions: CadCondition[] = [];
+    options: CadOption[] = [];
+    baseLines: CadBaseLine[] = [];
+    jointPoints: CadJointPoint[] = [];
+    parent = "";
+    partners: CadData[] = [];
+    components = new CadComponents();
+    huajian = "";
+    xinghaohuajian: ObjectOf<string> = {};
+    mubanfangda = true;
+    kailiaomuban = "";
+    kailiaoshibaokeng = false;
+    bianxingfangshi: "自由" | "高比例变形" | "宽比例变形" | "宽高比例变形" = "自由";
+    bancaiwenlifangxiang: "垂直" | "水平" = "垂直";
+    kailiaopaibanfangshi: "自动排版" | "不排版" | "必须排版" = "自动排版";
+    morenkailiaobancai = "";
+    suanliaochuli: "算料+显示展开+开料" | "算料+开料" | "算料+显示展开" | "算料" = "算料+显示展开+开料";
+    showKuandubiaozhu = false;
+    info: ObjectOf<any> = {};
+    attributes: ObjectOf<string> = {};
+    bancaihoudufangxiang: "none" | "gt0" | "lt0" = "none";
+    zhankai: CadZhankai[] = [];
+    suanliaodanxianshibancai = true;
+    needsHuajian = true;
+    kedulibancai = false;
+    shuangxiangzhewan = false;
 
-    constructor(data: ObjectOf<any> = {}) {
+    constructor(data?: ObjectOf<any>) {
+        this.init(data);
+    }
+
+    init(data?: ObjectOf<any>) {
         if (typeof data !== "object") {
             data = {};
         }
@@ -112,34 +117,13 @@ export class CadData {
         this.suanliaodanxianshibancai = data.suanliaodanxianshibancai ?? true;
         this.needsHuajian = data.needsHuajian ?? true;
         this.kedulibancai = data.kedulibancai ?? false;
+        this.shuangxiangzhewan = data.shuangxiangzhewan ?? false;
         this.updateDimensions();
+        return this;
     }
 
     copy(data: CadData) {
-        this.name = data.name;
-        this.type = data.type;
-        this.separate(this).merge(data);
-        this.parent = data.parent;
-        this.huajian = data.huajian;
-        this.xinghaohuajian = data.xinghaohuajian;
-        this.mubanfangda = data.mubanfangda;
-        this.kailiaomuban = data.kailiaomuban;
-        this.kailiaoshibaokeng = data.kailiaoshibaokeng;
-        this.bianxingfangshi = data.bianxingfangshi;
-        this.bancaiwenlifangxiang = data.bancaiwenlifangxiang;
-        this.kailiaopaibanfangshi = data.kailiaopaibanfangshi;
-        this.morenkailiaobancai = data.morenkailiaobancai;
-        this.suanliaochuli = data.suanliaochuli;
-        this.showKuandubiaozhu = data.showKuandubiaozhu;
-        this.info = cloneDeep(data.info);
-        this.attributes = cloneDeep(data.attributes);
-        this.bancaihoudufangxiang = data.bancaihoudufangxiang;
-        this.zhankai = data.zhankai.map((v) => new CadZhankai(v));
-        this.suanliaodanxianshibancai = data.suanliaodanxianshibancai;
-        this.needsHuajian = data.needsHuajian;
-        this.kedulibancai = data.kedulibancai;
-        this.updatePartners().updateDimensions();
-        return this;
+        return this.init(data);
     }
 
     export(): ObjectOf<any> {
@@ -184,7 +168,8 @@ export class CadData {
             zhankai: this.zhankai.map((v) => v.export()),
             suanliaodanxianshibancai: this.suanliaodanxianshibancai,
             needsHuajian: this.needsHuajian,
-            kedulibancai: this.kedulibancai
+            kedulibancai: this.kedulibancai,
+            shuangxiangzhewan: this.shuangxiangzhewan
         };
     }
 

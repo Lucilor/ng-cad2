@@ -1,21 +1,15 @@
 [
     {
-        "timestamp": 1616123181002,
-        "content": [
-            {"type": "feat", "items": ["CAD增加属性：可独立板材(kedulibancai)"]}
-        ]
+        "timestamp": 1616142828288,
+        "content": [{"type": "feat", "items": ["CAD增加属性：可独立板材(kedulibancai)", "CAD增加属性：双向折弯(shuangxiangzhewan)"]}]
     },
     {
         "timestamp": 1616051318061,
-        "content": [
-            {"type": "feat", "items": ["CAD展开增加属性：开料数量不为1时拆成单个(chai)"]}
-        ]
+        "content": [{"type": "feat", "items": ["CAD展开增加属性：开料数量不为1时拆成单个(chai)"]}]
     },
     {
         "timestamp": 1615942983219,
-        "content": [
-            {"type": "fix", "items": ["CAD展开相关问题"]}
-        ]
+        "content": [{"type": "fix", "items": ["CAD展开相关问题"]}]
     },
     {
         "timestamp": 1615867168980,

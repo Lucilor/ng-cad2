@@ -177,6 +177,13 @@
                 <mat-option [value]="false">否</mat-option>
             </mat-select>
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>双向折弯</mat-label>
+            <mat-select [(ngModel)]="cad.shuangxiangzhewan" name="shuangxiangzhewan">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
     </form>
 </div>
 <app-cad-points></app-cad-points>
