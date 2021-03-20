@@ -16,7 +16,7 @@
             "request": "launch",
             "version": "stable",
             "name": "Launch Edge against localhost",
-            "url": "http://localhost:4200",
+            "url": "https://localhost:4200",
             "webRoot": "${workspaceFolder}"
         }
     ]

@@ -1,7 +1,7 @@
 {
-	"/api": {
-		"target": "https://localhost/n/kgs/index",
-		"pathRewrite": {"^/api" : ""},
+	"/n": {
+		"target": "https://localhost/n",
+		"pathRewrite": {"^/n" : ""},
 		"secure": false,
 		"changeOrigin": true,
 		"logLevel": "debug"

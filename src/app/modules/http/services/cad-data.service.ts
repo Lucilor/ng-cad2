@@ -1,5 +1,4 @@
 import {Injectable, Injector} from "@angular/core";
-import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 import {CadCollection} from "@src/app/app.common";
 import {CadOption, CadData} from "@src/app/cad-viewer";
 import {ObjectOf} from "@src/app/utils";
@@ -51,21 +50,17 @@ export interface BancaiCad {
     providedIn: "root"
 })
 export class CadDataService extends HttpService {
-    project = "";
+    _project = "";
+    get project() {
+        return this._project;
+    }
+    set project(value: string) {
+        this._project = value;
+        this.baseURL = `${origin}/n/${value}/index/`;
+    }
 
-    constructor(injector: Injector, private router: Router, private route: ActivatedRoute) {
+    constructor(injector: Injector) {
         super(injector);
-        this.router.events.subscribe((event) => {
-            if (event instanceof NavigationEnd) {
-                const project = route.snapshot.queryParams.project;
-                this.project = project;
-                if (environment.production) {
-                    this.baseURL = `${origin}/n/${project}/index/`;
-                } else {
-                    this.baseURL = "/api/";
-                }
-            }
-        });
     }
 
     async getCad(params: Partial<GetCadParams>) {
