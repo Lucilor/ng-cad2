@@ -3,7 +3,7 @@ import {Injectable, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Response} from "@src/app/app.common";
 import {ObjectOf, RSAEncrypt} from "@src/app/utils";
-import { environment } from "@src/environments/environment";
+import {environment} from "@src/environments/environment";
 import {MessageService} from "../../message/services/message.service";
 
 /* eslint-disable @typescript-eslint/indent */
@@ -67,7 +67,9 @@ export class HttpService {
                     } else {
                         const queryArr: string[] = [];
                         for (const key in data) {
-                            queryArr.push(`${key}=${data[key]}`);
+                            if (data[key] !== undefined) {
+                                queryArr.push(`${key}=${data[key]}`);
+                            }
                         }
                         if (queryArr.length) {
                             url += `?${queryArr.join("&")}`;
@@ -94,7 +96,11 @@ export class HttpService {
                     formData.append("data", RSAEncrypt(data));
                 } else {
                     for (const key in data) {
-                        formData.append(key, data[key]);
+                        let value = data[key];
+                        if (typeof value !== "string") {
+                            value = JSON.stringify(value);
+                        }
+                        formData.append(key, value);
                     }
                 }
                 files.forEach((v, i) => formData.append("file" + i, v));

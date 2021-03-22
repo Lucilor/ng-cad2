@@ -1,9 +1,9 @@
 import {ChangeDetectorRef, Component, Input} from "@angular/core";
 import {MatDialogRef} from "@angular/material/dialog";
 import {routesInfo} from "@src/app/app.common";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
+import {CadDataService, Changelog} from "@src/app/modules/http/services/cad-data.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
-import {Changelog, changelogTypes} from "@src/app/views/changelog-admin/changelog-admin.component";
+import {changelogTypes} from "@src/app/views/changelog-admin/changelog-admin.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
@@ -38,13 +38,11 @@ export class ChangelogComponent {
         }
         const page = this.currentPage + 1;
         this.loading = true;
-        const response = await this.dataService.get<Changelog>("ngcad/getChangelog", {page, pageSize}, false);
+        const {changelog, count} = await this.dataService.getChangelog(page, pageSize);
         this.loading = false;
-        if (response?.data) {
-            this.changelog = this.changelog.concat(response.data);
-            this.maxPage = Math.ceil((response.count || 0) / pageSize);
-            this.currentPage++;
-        }
+        this.changelog = changelog;
+        this.maxPage = Math.ceil((count || 0) / pageSize);
+        this.currentPage++;
     }
 
     getTitle(timeStamp: number) {

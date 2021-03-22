@@ -1,15 +1,10 @@
 import {MatDatetimePickerInputEvent} from "@angular-material-components/datetime-picker";
-import {ChangeDetectorRef, Component, OnInit} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {routesInfo} from "@src/app/app.common";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
+import {CadDataService, Changelog} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {ObjectOf} from "@src/app/utils";
-
-export type Changelog = {
-    timeStamp: number;
-    content: {type: string; items: string[]}[];
-}[];
 
 export const changelogTypes: ObjectOf<string> = {
     feat: "✨新特性",
@@ -33,19 +28,12 @@ export class ChangelogAdminComponent implements OnInit {
     }
     routesInfo = routesInfo;
 
-    constructor(
-        private dataService: CadDataService,
-        private message: MessageService,
-        private cd: ChangeDetectorRef,
-        private status: AppStatusService
-    ) {}
+    constructor(private dataService: CadDataService, private message: MessageService, private status: AppStatusService) {}
 
     ngOnInit() {
         (async () => {
-            const response = await this.dataService.get<Changelog>("ngcad/getChangelog");
-            if (response?.data) {
-                this.changelog = response.data;
-            }
+            const {changelog} = await this.dataService.getChangelog();
+            this.changelog = changelog;
         })();
     }
 
@@ -104,7 +92,7 @@ export class ChangelogAdminComponent implements OnInit {
 
     async submit() {
         this.status.startLoader();
-        await this.dataService.post("ngcad/setChangelog", {changelog: this.changelog});
+        await this.dataService.setChangelog(this.changelog);
         this.status.stopLoader();
     }
 

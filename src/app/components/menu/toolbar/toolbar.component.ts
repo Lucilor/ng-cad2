@@ -9,7 +9,6 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfigService, AppConfig} from "@src/app/services/app-config.service";
 import {CadStatusName, AppStatusService, cadStatusNameMap} from "@src/app/services/app-status.service";
 import {ObjectOf, ValueOf} from "@src/app/utils";
-import {Changelog} from "@src/app/views/changelog-admin/changelog-admin.component";
 import {flatMap} from "lodash";
 import {openChangelogDialog} from "../../dialogs/changelog/changelog.component";
 
@@ -70,12 +69,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         super();
         (async () => {
             const timeStamp = Number(local.load("changelogTimestamp"));
-            const response = await this.dataService.get<Changelog>("ngcad/getChangelog", {page: 1, size: 1}, false);
-            if (response?.data) {
-                const changelog = response.data;
-                window.console.log(changelog, timeStamp);
-                this.showNew = timeStamp < changelog[0].timeStamp;
-            }
+            const {changelog} = await this.dataService.getChangelog(1, 1);
+            this.showNew = timeStamp < changelog[0].timeStamp;
         })();
     }
 

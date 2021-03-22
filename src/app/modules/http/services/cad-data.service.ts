@@ -46,6 +46,11 @@ export interface BancaiCad {
     bancai: {mingzi: string; cailiao: string | null; houdu: number | null; guige: number[] | null};
 }
 
+export type Changelog = {
+    timeStamp: number;
+    content: {type: string; items: string[]}[];
+}[];
+
 @Injectable({
     providedIn: "root"
 })
@@ -209,5 +214,19 @@ export class CadDataService extends HttpService {
             return response.data;
         }
         return null;
+    }
+
+    async getChangelog(page?: number, pageSize?: number) {
+        const response = await this.get<Changelog>("ngcad/getChangelog", {page, pageSize}, false);
+        if (response?.data) {
+            return {changelog: response.data, count: response.count};
+        } else {
+            return {changelog: [], count: 0};
+        }
+    }
+
+    async setChangelog(changelog: Changelog) {
+        const response = await this.post("ngcad/setChangelog", {changelog}, false);
+        return response && response.code === 0;
     }
 }
