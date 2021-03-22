@@ -2,13 +2,14 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {local} from "@src/app/app.common";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@src/app/cad-viewer";
-import changelog from "@src/app/changelog.json";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
+import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@src/app/services/app-config.service";
 import {CadStatusName, AppStatusService, cadStatusNameMap} from "@src/app/services/app-status.service";
 import {ObjectOf, ValueOf} from "@src/app/utils";
+import {Changelog} from "@src/app/views/changelog-admin/changelog-admin.component";
 import {flatMap} from "lodash";
 import {openChangelogDialog} from "../../dialogs/changelog/changelog.component";
 
@@ -33,7 +34,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     };
     statusName: ValueOf<CadStatusName> = "普通";
     statusWithoutEsc: ValueOf<CadStatusName>[] = ["普通", "装配"];
-    showNew: boolean;
+    showNew = false;
 
     get isStatusNormal() {
         return this.statusName === "普通";
@@ -63,15 +64,19 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         private message: MessageService,
         private config: AppConfigService,
         private status: AppStatusService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private dataService: CadDataService
     ) {
         super();
-        const timestamp = Number(local.load("changelogTimestamp"));
-        if (isNaN(timestamp) || timestamp < changelog[0].timestamp) {
-            this.showNew = true;
-        } else {
-            this.showNew = false;
-        }
+        (async () => {
+            const timeStamp = Number(local.load("changelogTimestamp"));
+            const response = await this.dataService.get<Changelog>("ngcad/getChangelog", {page: 1, size: 1}, false);
+            if (response?.data) {
+                const changelog = response.data;
+                window.console.log(changelog, timeStamp);
+                this.showNew = timeStamp < changelog[0].timeStamp;
+            }
+        })();
     }
 
     ngOnInit() {
@@ -128,7 +133,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
     showChangelog() {
         openChangelogDialog(this.dialog, {hasBackdrop: true});
-        local.save("changelogTimestamp", changelog[0].timestamp);
+        local.save("changelogTimestamp", new Date().getTime());
         this.showNew = false;
     }
 

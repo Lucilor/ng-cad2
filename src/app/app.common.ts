@@ -1,4 +1,4 @@
-import {SessionStorage, LocalStorage, ObjectOf} from "@src/app/utils";
+import {SessionStorage, LocalStorage} from "@src/app/utils";
 import {environment} from "@src/environments/environment";
 
 export const projectName = "NgCad2";
@@ -8,8 +8,8 @@ export const local = new LocalStorage(projectName);
 export const imgEmpty = "assets/images/empty.jpg";
 export const imgLoading = "assets/images/loading.gif";
 
-export const routesInfo: ObjectOf<{path: string; title: string}> = {
-    index: {path: "index", title: ""},
+export const routesInfo = {
+    index: {path: "index", title: "首页"},
     printCad: {path: "print-cad", title: "打印CAD"},
     printA4A015Preview: {path: "printA4A015Preview", title: "订单配件标签"},
     import: {path: "import", title: "导入CAD"},

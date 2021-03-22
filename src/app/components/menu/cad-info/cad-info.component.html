@@ -13,13 +13,7 @@
             <div *ngFor="let o of cad.options; let j = index">
                 <mat-form-field>
                     <mat-label>选项-键</mat-label>
-                    <input
-                        matInput
-                        type="text"
-                        [value]="o.name"
-                        (input)="setValue($event, o, 'name')"
-                        name="optionKey"
-                    />
+                    <input matInput type="text" [value]="o.name" (input)="setValue($event, o, 'name')" name="optionKey" />
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>选项-值</mat-label>
@@ -31,9 +25,11 @@
                         placeholder="选项"
                         name="optionValue"
                     />
-                    <mat-icon matSuffix color="primary" (click)="selectOptions(o)">list</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="addOption(cad, j)">add_circle</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="removeOption(cad, j)">remove_circle</mat-icon>
+                    <div matSuffix style="display: flex">
+                        <mat-icon color="primary" (click)="selectOptions(o)">list</mat-icon>
+                        <mat-icon color="primary" (click)="addOption(cad, j)">add_circle</mat-icon>
+                        <mat-icon color="primary" (click)="removeOption(cad, j)">remove_circle</mat-icon>
+                    </div>
                 </mat-form-field>
             </div>
         </div>
@@ -41,15 +37,11 @@
             <div *ngFor="let c of cad.conditions; let j = index">
                 <mat-form-field>
                     <mat-label>条件</mat-label>
-                    <input
-                        matInput
-                        type="text"
-                        [value]="c.value"
-                        (input)="setValue($event, c, 'value')"
-                        name="condition"
-                    />
-                    <mat-icon matSuffix color="primary" (click)="addCondition(cad, j)">add_circle</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="removeCondition(cad, j)">remove_circle</mat-icon>
+                    <input matInput type="text" [value]="c.value" (input)="setValue($event, c, 'value')" name="condition" />
+                    <div matSuffix style="display: flex">
+                        <mat-icon color="primary" (click)="addCondition(cad, j)">add_circle</mat-icon>
+                        <mat-icon color="primary" (click)="removeCondition(cad, j)">remove_circle</mat-icon>
+                    </div>
                 </mat-form-field>
             </div>
         </div>
@@ -58,9 +50,11 @@
                 <mat-form-field [color]="getItemColor('selectBaseline', i)">
                     <mat-label>基准</mat-label>
                     <input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
-                    <mat-icon matSuffix [color]="getItemColor('selectBaseline', i)" (click)="selectBaseLine(i)">link</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="addBaseLine(cad, i)">add_circle</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="removeBaseLine(cad, i)">remove_circle</mat-icon>
+                    <div matSuffix style="display: flex">
+                        <mat-icon [color]="getItemColor('selectBaseline', i)" (click)="selectBaseLine(i)">link</mat-icon>
+                        <mat-icon color="primary" (click)="addBaseLine(cad, i)">add_circle</mat-icon>
+                        <mat-icon color="primary" (click)="removeBaseLine(cad, i)">remove_circle</mat-icon>
+                    </div>
                     <mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>
                 </mat-form-field>
             </div>
@@ -70,11 +64,13 @@
                 <mat-form-field [color]="getItemColor('selectJointpoint', i)">
                     <mat-label>连接点</mat-label>
                     <input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />
-                    <mat-icon matSuffix color="primary" [color]="getItemColor('selectJointpoint', i)" (click)="selectJointPoint(i)">
-                        link
-                    </mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="addJointPoint(cad, i)">add_circle</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="removeJointPoint(cad, i)">remove_circle</mat-icon>
+                    <div matSuffix style="display: flex">
+                        <mat-icon color="primary" [color]="getItemColor('selectJointpoint', i)" (click)="selectJointPoint(i)">
+                            link
+                        </mat-icon>
+                        <mat-icon color="primary" (click)="addJointPoint(cad, i)">add_circle</mat-icon>
+                        <mat-icon color="primary" (click)="removeJointPoint(cad, i)">remove_circle</mat-icon>
+                    </div>
                     <mat-hint [align]="'start'">x:{{ j.valueX?.toFixed(2) }}, y:{{ j.valueY?.toFixed(2) }}</mat-hint>
                 </mat-form-field>
             </div>

@@ -244,6 +244,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@angular-material-components/datetime-picker@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@angular-material-components/datetime-picker@npm:5.1.0"
+  dependencies:
+    tslib: ^2.0.0
+  peerDependencies:
+    "@angular/cdk": ^11.1.0
+    "@angular/common": ^11.1.0
+    "@angular/core": ^11.1.0
+    "@angular/forms": ^11.1.0
+    "@angular/material": ^11.1.0
+    "@angular/platform-browser": ^11.1.0
+  checksum: 964821f1a2b943a2334ee4e5350a7b00d3efcdc2ad9c21cd1d78c7f59f7ee70f6fe6d6acff0770f78e22b52266b833ac82f0b14745653da9231d2833b07efc15
+  languageName: node
+  linkType: hard
+
 "@angular/animations@npm:~11.2.6":
   version: 11.2.6
   resolution: "@angular/animations@npm:11.2.6"
@@ -9217,6 +9233,7 @@ fsevents@~2.3.1:
     "@angular-eslint/eslint-plugin-template": ^2.0.2
     "@angular-eslint/schematics": ^2.0.2
     "@angular-eslint/template-parser": ^2.0.2
+    "@angular-material-components/datetime-picker": ^5.1.0
     "@angular/animations": ~11.2.6
     "@angular/cdk": ^11.2.5
     "@angular/cli": ~11.2.5

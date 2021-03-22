@@ -9,6 +9,7 @@ import {CadData} from "../cad-viewer/cad-data/cad-data";
 import {generateLineTexts, generatePointsMap, PointsMap, validateLines, ValidateResult} from "../cad-viewer/cad-data/cad-lines";
 import {CadViewer} from "../cad-viewer/cad-viewer";
 import {setCadData, addCadGongshi} from "../cad.utils";
+import {CadDataService} from "../modules/http/services/cad-data.service";
 import {timeout} from "../utils";
 import {ObjectOf} from "../utils/types";
 import {AppConfig, AppConfigService} from "./app-config.service";
@@ -88,12 +89,15 @@ export class AppStatusService {
     loaderText$ = new BehaviorSubject<string>("");
     openCad$ = new Subject<void>();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
+    project = "";
+    isAdmin = false;
 
     constructor(
         private config: AppConfigService,
         private loaderService: NgxUiLoaderService,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private dataService: CadDataService
     ) {
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
@@ -106,6 +110,9 @@ export class AppStatusService {
             });
             cad.render(cadGongshis);
         });
+        this.route.queryParams.subscribe(async (queryParams) => {
+            this.setProject(queryParams.project);
+        });
     }
 
     private _replaceText(source: CadData, text: string, data: CadData) {
@@ -117,6 +124,15 @@ export class AppStatusService {
             source.entities.merge(entities);
         });
         source.separate(new CadData({entities: mtexts.export()}));
+    }
+
+    async setProject(project: string) {
+        if (project && project !== this.project) {
+            this.project = project;
+            this.dataService.baseURL = `${origin}/n/${project}/index/`;
+            const response = await this.dataService.get("user/user/isAdmin");
+            this.isAdmin = !!response?.data;
+        }
     }
 
     clearSelectedCads() {

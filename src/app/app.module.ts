@@ -10,9 +10,10 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatButtonModule} from "@angular/material/button";
 import {MatCardModule} from "@angular/material/card";
 import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatFormFieldDefaultOptions, MatFormFieldModule, MAT_FORM_FIELD_DEFAULT_OPTIONS} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatListModule} from "@angular/material/list";
@@ -25,6 +26,7 @@ import {MatTableModule} from "@angular/material/table";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatTooltipModule} from "@angular/material/tooltip";
 
+import {NgxMatDatetimePickerModule, NgxMatNativeDateModule, NgxMatTimepickerModule} from "@angular-material-components/datetime-picker";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {NgJsonEditorModule} from "ang-jsoneditor";
@@ -65,6 +67,7 @@ import {CadZhankaiComponent} from "./components/dialogs/cad-zhankai/cad-zhankai.
 import {CadDataAttrsComponent} from "./components/dialogs/cad-data-attrs/cad-data-attrs.component";
 import {ChangelogComponent} from "./components/dialogs/changelog/changelog.component";
 import {MatDividerModule} from "@angular/material/divider";
+import {ChangelogAdminComponent} from "./views/changelog-admin/changelog-admin.component";
 
 @Injectable()
 class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -80,8 +83,12 @@ class MyMatPaginatorIntl extends MatPaginatorIntl {
     };
 }
 
-const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
+const perfectScrollbarConfig: PerfectScrollbarConfigInterface = {
     wheelPropagation: true
+};
+
+const matFormFieldOptions: MatFormFieldDefaultOptions = {
+    appearance: "standard"
 };
 
 @NgModule({
@@ -113,7 +120,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         SelectBancaiCadsComponent,
         CadZhankaiComponent,
         CadDataAttrsComponent,
-        ChangelogComponent
+        ChangelogComponent,
+        ChangelogAdminComponent
     ],
     imports: [
         HttpClientModule,
@@ -127,6 +135,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         MatButtonModule,
         MatCardModule,
         MatCheckboxModule,
+        MatDatepickerModule,
         MatDialogModule,
         MatDividerModule,
         MatExpansionModule,
@@ -145,6 +154,9 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         ColorChromeModule,
         ColorCircleModule,
         NgJsonEditorModule,
+        NgxMatDatetimePickerModule,
+        NgxMatTimepickerModule,
+        NgxMatNativeDateModule,
         PerfectScrollbarModule,
         NgxUiLoaderModule.forRoot({
             fgsColor: "#2196f3",
@@ -160,7 +172,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     ],
     providers: [
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
-        {provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG}
+        {provide: PERFECT_SCROLLBAR_CONFIG, useValue: perfectScrollbarConfig},
+        {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matFormFieldOptions}
     ],
     bootstrap: [AppComponent]
 })

@@ -1,27 +1,24 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
-import {MatDialogRef} from "@angular/material/dialog";
-import {MatDividerModule} from "@angular/material/divider";
 import {RouterTestingModule} from "@angular/router/testing";
 import {HttpModule} from "@src/app/modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 
-import {ChangelogComponent} from "./changelog.component";
+import {ChangelogAdminComponent} from "./changelog-admin.component";
 
-describe("ChangelogComponent", () => {
-    let component: ChangelogComponent;
-    let fixture: ComponentFixture<ChangelogComponent>;
+describe("ChangelogAdminComponent", () => {
+    let component: ChangelogAdminComponent;
+    let fixture: ComponentFixture<ChangelogAdminComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ChangelogComponent],
-            imports: [HttpModule, MatDividerModule, MessageModule, PerfectScrollbarModule, RouterTestingModule],
-            providers: [{provide: MatDialogRef, useValue: {}}]
+            declarations: [ChangelogAdminComponent],
+            imports: [HttpModule, MessageModule, PerfectScrollbarModule, RouterTestingModule]
         }).compileComponents();
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(ChangelogComponent);
+        fixture = TestBed.createComponent(ChangelogAdminComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

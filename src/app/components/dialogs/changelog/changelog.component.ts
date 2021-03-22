@@ -1,47 +1,67 @@
 import {ChangeDetectorRef, Component, Input} from "@angular/core";
 import {MatDialogRef} from "@angular/material/dialog";
-import changelog from "@src/app/changelog.json";
-import {ObjectOf} from "@src/app/utils";
-import {PerfectScrollbarEvent} from "ngx-perfect-scrollbar/lib/perfect-scrollbar.interfaces";
+import {routesInfo} from "@src/app/app.common";
+import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
+import {AppStatusService} from "@src/app/services/app-status.service";
+import {Changelog, changelogTypes} from "@src/app/views/changelog-admin/changelog-admin.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
-const typeMap: ObjectOf<string> = {
-    feat: "✨新特性",
-    fix: "🐞bug修复",
-    refactor: "🦄代码重构",
-    perf: "🎈体验优化"
-};
-
-type Changelog = {
-    title: string;
-    content: {type: string; items: string[]}[];
-}[];
 @Component({
     selector: "app-changelog",
     templateUrl: "./changelog.component.html",
     styleUrls: ["./changelog.component.scss"]
 })
 export class ChangelogComponent {
-    // * fake infinite scroll
-    @Input() logsPerPage = 10;
-    changelogAll: Changelog = changelog.map((v) => ({
-        title: new Date(v.timestamp).toLocaleDateString(),
-        content: v.content.map((vv) => ({type: typeMap[vv.type], items: vv.items}))
-    }));
+    @Input() pageSize = 10;
     changelog: Changelog = [];
     currentPage = 0;
-
-    constructor(private cd: ChangeDetectorRef, public dialogRef: MatDialogRef<ChangelogComponent, void>) {
-        this.setPage(0);
+    maxPage = 1;
+    loading = false;
+    routesInfo = routesInfo;
+    get isAdmin() {
+        return this.status.isAdmin;
     }
 
-    private setPage(page: number) {
-        this.changelog = this.changelogAll.slice(0, (page + 1) * this.logsPerPage);
+    constructor(
+        private cd: ChangeDetectorRef,
+        public dialogRef: MatDialogRef<ChangelogComponent, void>,
+        private dataService: CadDataService,
+        private status: AppStatusService
+    ) {
+        this.nextPage();
     }
 
-    onYReachEnd(event: PerfectScrollbarEvent) {
-        this.setPage(++this.currentPage);
+    private async nextPage() {
+        const {pageSize, maxPage} = this;
+        if (this.currentPage > maxPage) {
+            return;
+        }
+        const page = this.currentPage + 1;
+        this.loading = true;
+        const response = await this.dataService.get<Changelog>("ngcad/getChangelog", {page, pageSize}, false);
+        this.loading = false;
+        if (response?.data) {
+            this.changelog = this.changelog.concat(response.data);
+            this.maxPage = Math.ceil((response.count || 0) / pageSize);
+            this.currentPage++;
+        }
+    }
+
+    getTitle(timeStamp: number) {
+        return new Date(timeStamp).toLocaleDateString();
+    }
+
+    getType(key: string) {
+        return changelogTypes[key];
+    }
+
+    onYReachEnd() {
+        this.nextPage();
         this.cd.detectChanges();
+    }
+
+    close() {
+        this.dialogRef.close();
     }
 }
 

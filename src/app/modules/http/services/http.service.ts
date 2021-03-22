@@ -1,9 +1,9 @@
-import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Response} from "@src/app/app.common";
 import {ObjectOf, RSAEncrypt} from "@src/app/utils";
-import {environment} from "@src/environments/environment";
+import { environment } from "@src/environments/environment";
 import {MessageService} from "../../message/services/message.service";
 
 /* eslint-disable @typescript-eslint/indent */
@@ -45,7 +45,11 @@ export class HttpService {
 
     protected alert(content: any) {
         if (!this.silent) {
-            this.message.alert(content);
+            if (content instanceof HttpErrorResponse) {
+                this.message.alert(content.message);
+            } else {
+                this.message.alert(content);
+            }
             console.log(content);
         }
     }

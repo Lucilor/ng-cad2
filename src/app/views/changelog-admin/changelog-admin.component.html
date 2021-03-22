@@ -1,0 +1,66 @@
+<div class="btn-group">
+    <button mat-raised-button color="primary" (click)="submit()">提交</button>
+    <button mat-raised-button color="primary" [routerLink]="'/' + routesInfo.index.path" queryParamsHandling="merge">返回</button>
+</div>
+<perfect-scrollbar (psYReachEnd)="onYReachEnd()">
+    <div class="list">
+        <div class="changelog" *ngFor="let v of changelogPaged; let i = index">
+            <mat-form-field>
+                <mat-label>更新日期</mat-label>
+                <input matInput [ngxMatDatetimePicker]="picker" [value]="getDate(v.timeStamp)" (dateChange)="onDateChange($event, i)" />
+                <div matSuffix style="display: flex">
+                    <mat-icon color="primary" style="height: 40px; line-height: 40px" (click)="setTime(i)">autorenew</mat-icon>
+                    <mat-datepicker-toggle [for]="$any(picker)">
+                        <mat-icon color="primary" matDatepickerToggleIcon>book_online</mat-icon>
+                    </mat-datepicker-toggle>
+                </div>
+                <ngx-mat-datetime-picker #picker [showSeconds]="true">
+                    <ng-template>
+                        <span>OK</span>
+                    </ng-template>
+                </ngx-mat-datetime-picker>
+            </mat-form-field>
+            <div *ngFor="let w of v.content; let j = index" class="content">
+                <mat-form-field>
+                    <mat-label>更新类型</mat-label>
+                    <mat-select [(ngModel)]="w.type">
+                        <mat-option *ngFor="let key of changelogTypeKeys" [value]="key">
+                            {{ key }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <div class="items">
+                    <div class="item" *ngFor="let item of w.items; let k = index; trackBy: trackByIdx">
+                        <mat-form-field>
+                            <input type="text" matInput placeholder="更新内容" [(ngModel)]="w.items[k]" />
+                        </mat-form-field>
+                        <div class="btn-group">
+                            <button mat-icon-button color="primary" (click)="addItem(i, j, k)">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                            <button mat-icon-button color="primary" (click)="removeItem(i, j, k)">
+                                <mat-icon>remove</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button mat-icon-button color="primary" (click)="addContent(i, j)">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                    <button mat-icon-button color="primary" (click)="removeContent(i, j)">
+                        <mat-icon>remove</mat-icon>
+                    </button>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button mat-icon-button color="primary" (click)="addChangelog(i)">
+                    <mat-icon>add</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="removeChangelog(i)">
+                    <mat-icon>remove</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+</perfect-scrollbar>

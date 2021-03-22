@@ -50,15 +50,6 @@ export interface BancaiCad {
     providedIn: "root"
 })
 export class CadDataService extends HttpService {
-    _project = "";
-    get project() {
-        return this._project;
-    }
-    set project(value: string) {
-        this._project = value;
-        this.baseURL = `${origin}/n/${value}/index/`;
-    }
-
     constructor(injector: Injector) {
         super(injector);
     }

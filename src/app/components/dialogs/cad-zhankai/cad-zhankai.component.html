@@ -16,14 +16,18 @@
                 <mat-form-field>
                     <mat-label>开料CAD模板</mat-label>
                     <input matInput type="text" [(ngModel)]="item.kailiaomuban" name="kailiaomuban" />
-                    <mat-icon matSuffix color="primary" (click)="openCadmuban(item, 'kailiaomuban')">open_in_new</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="selectCadmuban(item, 'kailiaomuban')">list</mat-icon>
+                    <div matSuffix style="display: flex">
+                        <mat-icon color="primary" (click)="openCadmuban(item, 'kailiaomuban')">open_in_new</mat-icon>
+                        <mat-icon color="primary" (click)="selectCadmuban(item, 'kailiaomuban')">list</mat-icon>
+                    </div>
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>内开模板</mat-label>
                     <input matInput type="text" [(ngModel)]="item.neikaimuban" name="neikaimuban" />
-                    <mat-icon matSuffix color="primary" (click)="openCadmuban(item, 'neikaimuban')">open_in_new</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="selectCadmuban(item, 'neikaimuban')">list</mat-icon>
+                    <div matSuffix style="display: flex">
+                        <mat-icon matSuffix color="primary" (click)="openCadmuban(item, 'neikaimuban')">open_in_new</mat-icon>
+                        <mat-icon matSuffix color="primary" (click)="selectCadmuban(item, 'neikaimuban')">list</mat-icon>
+                    </div>
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>展开宽</mat-label>
@@ -54,8 +58,10 @@
                 <mat-form-field *ngFor="let c of item.conditions; let j = index" class="full-width">
                     <mat-label>条件</mat-label>
                     <input matInput type="text" [value]="c.value" (input)="setCondition($event, c)" />
-                    <mat-icon matSuffix color="primary" (click)="addCondition(item.conditions, j)">add_circle</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="removeCondition(item.conditions, j)">remove_circle</mat-icon>
+                    <div matSuffix style="display: flex">
+                        <mat-icon color="primary" (click)="addCondition(item.conditions, j)">add_circle</mat-icon>
+                        <mat-icon color="primary" (click)="removeCondition(item.conditions, j)">remove_circle</mat-icon>
+                    </div>
                 </mat-form-field>
                 <div class="flip">
                     <div class="title">最后翻转</div>
