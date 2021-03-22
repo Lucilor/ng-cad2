@@ -37,3 +37,24 @@
 .btn-group {
     text-align: center;
 }
+
+@mixin flex {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid gray;
+    border-radius: 20px;
+    margin: 10px;
+    box-sizing: border-box;
+}
+.flip {
+    @include flex;
+
+    .title {
+        margin: 10px 0 0 10px;
+        color: rgba(0, 0, 0, 0.54);
+    }
+
+    .flip-item {
+        @include flex;
+    }
+}

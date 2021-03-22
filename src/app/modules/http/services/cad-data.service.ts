@@ -144,23 +144,25 @@ export class CadDataService extends HttpService {
     }
 
     async getOptions(
-        data: CadData,
         name: string,
         search: string,
         page: number = 1,
-        limit: number = 10
+        limit: number = 10,
+        data?: CadData
     ): Promise<{data: {name: string; img: string}[]; count: number}> {
-        const exportData = data.export();
-        const postData = {
+        const postData: ObjectOf<any> = {
             name,
             search,
             page,
-            limit,
-            mingzi: exportData.name,
-            fenlei: exportData.type,
-            xuanxiang: exportData.options,
-            tiaojian: exportData.conditions
+            limit
         };
+        if (data) {
+            const exportData = data.export();
+            postData.mingzi = exportData.name;
+            postData.fenlei = exportData.type;
+            postData.xuanxiang = exportData.options;
+            postData.tiaojian = exportData.conditions;
+        }
         const response = await this.post<any>("peijian/cad/getOptions", postData);
         if (response) {
             return {

@@ -8,7 +8,7 @@ import {AppStatusService} from "@src/app/services/app-status.service";
 import {getOpenDialogFunc} from "../dialog.common";
 
 interface CadOptionsData {
-    data: CadData;
+    data?: CadData;
     name: string;
     checkedItems: string[];
     multi?: boolean;
@@ -35,9 +35,6 @@ export class CadOptionsComponent implements AfterViewInit {
         private status: AppStatusService,
         private dataService: CadDataService
     ) {
-        if (!this.data.data) {
-            this.data.data = new CadData();
-        }
         this.data.multi = this.data.multi !== false;
         this.checkedItems = this.data.checkedItems?.slice() || [];
     }
@@ -76,7 +73,7 @@ export class CadOptionsComponent implements AfterViewInit {
 
     async getData(page: number) {
         this.status.startLoader({id: this.loaderId, text: "获取CAD数据"});
-        const data = await this.dataService.getOptions(this.data.data, this.data.name, this.searchValue, page, this.paginator?.pageSize);
+        const data = await this.dataService.getOptions(this.data.name, this.searchValue, page, this.paginator?.pageSize, this.data.data);
         this.status.stopLoader();
         this.length = data.count;
         this.pageData.length = 0;

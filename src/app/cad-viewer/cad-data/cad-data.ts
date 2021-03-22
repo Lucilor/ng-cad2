@@ -880,11 +880,10 @@ export class CadZhankai {
     name: string;
     kailiaomuban: string;
     neikaimuban: string;
-    flipWaikai: "" | "v" | "h" | "vh";
-    flipNeikai: "" | "v" | "h" | "vh";
     kailiao: boolean;
     conditions: CadCondition[];
     chai: boolean;
+    flip: {kaiqi: string; chanpinfenlei: string; fanzhuan: boolean}[];
 
     constructor(data: ObjectOf<any> = {}) {
         if (typeof data !== "object") {
@@ -897,14 +896,13 @@ export class CadZhankai {
         this.kailiaomuban = data.kailiaomuban ?? "";
         this.neikaimuban = data.neikaimuban ?? "";
         this.name = data.name ?? "";
-        this.flipWaikai = data.flip ?? data.flipWaikai ?? "";
-        this.flipNeikai = data.flipNeikai ?? "";
         this.kailiao = data.kailiao === false ? false : true;
         this.conditions = [];
         if (Array.isArray(data.conditions)) {
             data.conditions.forEach((v: string | CadCondition) => this.conditions.push(new CadCondition(v)));
         }
         this.chai = data.chai ?? false;
+        this.flip = data.flip ?? [];
     }
 
     export() {
@@ -916,11 +914,10 @@ export class CadZhankai {
             name: this.name,
             kailiaomuban: this.kailiaomuban,
             neikaimuban: this.neikaimuban,
-            flipWaikai: this.flipWaikai,
-            flipNeikai: this.flipNeikai,
             kailiao: this.kailiao,
             conditions: this.conditions.map((v) => v.value).filter((v) => v),
-            chai: this.chai
+            chai: this.chai,
+            flip: this.flip
         };
     }
 }

@@ -41,24 +41,6 @@
                     <mat-label>数量倍数</mat-label>
                     <input matInput type="text" [(ngModel)]="item.shuliangbeishu" name="shuliangbeishu" />
                 </mat-form-field>
-                <mat-form-field>
-                    <mat-label>外开最后翻转</mat-label>
-                    <mat-select [(ngModel)]="item.flipWaikai">
-                        <mat-option value="">不翻转</mat-option>
-                        <mat-option value="v">垂直翻转</mat-option>
-                        <mat-option value="h">水平翻转</mat-option>
-                        <mat-option value="vh">垂直水平翻转</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field>
-                    <mat-label>内开最后翻转</mat-label>
-                    <mat-select [(ngModel)]="item.flipNeikai">
-                        <mat-option value="">不翻转</mat-option>
-                        <mat-option value="v">垂直翻转</mat-option>
-                        <mat-option value="h">水平翻转</mat-option>
-                        <mat-option value="vh">垂直水平翻转</mat-option>
-                    </mat-select>
-                </mat-form-field>
                 <mat-form-field class="full-width">
                     <mat-label>开料</mat-label>
                     <input type="text" matInput hidden value=" " />
@@ -69,12 +51,36 @@
                     <input type="text" matInput hidden value=" " />
                     <mat-slide-toggle [checked]="item.chai" (change)="item.chai = $event.checked"></mat-slide-toggle>
                 </mat-form-field>
-                <mat-form-field *ngFor="let c of item.conditions; let i = index" class="full-width">
+                <mat-form-field *ngFor="let c of item.conditions; let j = index" class="full-width">
                     <mat-label>条件</mat-label>
                     <input matInput type="text" [value]="c.value" (input)="setCondition($event, c)" />
-                    <mat-icon matSuffix color="primary" (click)="addCondition(item.conditions, i)">add_circle</mat-icon>
-                    <mat-icon matSuffix color="primary" (click)="removeCondition(item.conditions, i)">remove_circle</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="addCondition(item.conditions, j)">add_circle</mat-icon>
+                    <mat-icon matSuffix color="primary" (click)="removeCondition(item.conditions, j)">remove_circle</mat-icon>
                 </mat-form-field>
+                <div class="flip">
+                    <div class="title">最后翻转</div>
+                    <div class="flip-item" *ngFor="let item2 of item.flip; let j = index">
+                        <mat-form-field>
+                            <mat-label>{{ keysMap.kaiqi }}</mat-label>
+                            <input type="text" matInput [(ngModel)]="item2.kaiqi" />
+                            <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'kaiqi')">list</mat-icon>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{ keysMap.chanpinfenlei }}</mat-label>
+                            <input type="text" matInput [(ngModel)]="item2.chanpinfenlei" />
+                            <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'chanpinfenlei')">list</mat-icon>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{ keysMap.flip }}</mat-label>
+                            <input type="text" matInput hidden value=" " />
+                            <mat-slide-toggle [checked]="item2.fanzhuan" (change)="item2.fanzhuan = $event.checked"></mat-slide-toggle>
+                        </mat-form-field>
+                        <div class="btn-group">
+                            <mat-icon color="primary" (click)="addFlipItem(i, j)">add</mat-icon>
+                            <mat-icon color="primary" (click)="removeFlipItem(i, j)">remove</mat-icon>
+                        </div>
+                    </div>
+                </div>
             </div>
         </mat-card>
     </div>

@@ -6,6 +6,7 @@ import {CadCondition, CadData, CadZhankai} from "@src/app/cad-viewer";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {cloneDeep} from "lodash";
 import {openCadListDialog} from "../cad-list/cad-list.component";
+import {openCadOptionsDialog} from "../cad-options/cad-options.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
@@ -15,6 +16,14 @@ import {getOpenDialogFunc} from "../dialog.common";
 })
 export class CadZhankaiComponent {
     checkedIndices = new Set<number>();
+    keysMap = {
+        kaiqi: "开启",
+        chanpinfenlei: "产品分类",
+        flip: "翻转"
+    };
+    get emptyFlipItem() {
+        return {kaiqi: "", chanpinfenlei: "", fanzhuan: false};
+    }
 
     constructor(
         public dialogRef: MatDialogRef<CadZhankaiComponent, CadZhankai[]>,
@@ -27,6 +36,9 @@ export class CadZhankaiComponent {
         this.data.forEach((item) => {
             if (item.conditions.length <= 0) {
                 item.conditions.push(new CadCondition());
+            }
+            if (item.flip.length <= 0) {
+                item.flip.push(this.emptyFlipItem);
             }
         });
     }
@@ -117,6 +129,28 @@ export class CadZhankaiComponent {
             } else {
                 conditions.splice(i, 1);
             }
+        }
+    }
+
+    async selectOptions(obj: any, field: string) {
+        const name = (this.keysMap as any)[field];
+        const checkedItems = (obj[field] as string).split(",");
+        const result = await openCadOptionsDialog(this.dialog, {data: {name, checkedItems}});
+        if (Array.isArray(result)) {
+            obj[field] = result.join(",");
+        }
+    }
+
+    addFlipItem(i: number, j: number) {
+        const item = this.data[i].flip;
+        item.splice(j + 1, 0, this.emptyFlipItem);
+    }
+
+    removeFlipItem(i: number, j: number) {
+        const item = this.data[i].flip;
+        item.splice(j, 1);
+        if (item.length <= 0) {
+            item.push(this.emptyFlipItem);
         }
     }
 }
