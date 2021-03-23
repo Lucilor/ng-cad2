@@ -3,6 +3,7 @@ import {FormsModule} from "@angular/forms";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSelectModule} from "@angular/material/select";
@@ -25,6 +26,7 @@ describe("CadListComponent", () => {
             imports: [
                 FormsModule,
                 MatCheckboxModule,
+                MatIconModule,
                 MatInputModule,
                 MatFormFieldModule,
                 MatSelectModule,
