@@ -66,17 +66,17 @@
                 <div class="flip">
                     <div class="title">最后翻转</div>
                     <div class="flip-item" *ngFor="let item2 of item.flip; let j = index">
-                        <mat-form-field>
+                        <mat-form-field class="full-width">
                             <mat-label>{{ keysMap.kaiqi }}</mat-label>
                             <input type="text" matInput [(ngModel)]="item2.kaiqi" />
                             <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'kaiqi')">list</mat-icon>
                         </mat-form-field>
-                        <mat-form-field>
+                        <mat-form-field class="full-width">
                             <mat-label>{{ keysMap.chanpinfenlei }}</mat-label>
                             <input type="text" matInput [(ngModel)]="item2.chanpinfenlei" />
                             <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'chanpinfenlei')">list</mat-icon>
                         </mat-form-field>
-                        <mat-form-field>
+                        <mat-form-field class="full-width">
                             <mat-label>{{ keysMap.flip }}</mat-label>
                             <input type="text" matInput hidden value=" " />
                             <mat-slide-toggle [checked]="item2.fanzhuan" (change)="item2.fanzhuan = $event.checked"></mat-slide-toggle>

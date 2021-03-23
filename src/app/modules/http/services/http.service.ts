@@ -1,4 +1,4 @@
-import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from "@angular/common/http";
+import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Response} from "@src/app/app.common";
@@ -45,11 +45,7 @@ export class HttpService {
 
     protected alert(content: any) {
         if (!this.silent) {
-            if (content instanceof HttpErrorResponse) {
-                this.message.alert(content.message);
-            } else {
-                this.message.alert(content);
-            }
+            this.message.alert(content);
             console.log(content);
         }
     }

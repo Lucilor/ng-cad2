@@ -34,13 +34,18 @@ export class CadZhankaiComponent {
     ) {
         this.data = cloneDeep(this.data);
         this.data.forEach((item) => {
-            if (item.conditions.length <= 0) {
-                item.conditions.push(new CadCondition());
-            }
-            if (item.flip.length <= 0) {
-                item.flip.push(this.emptyFlipItem);
-            }
+            this._checkZhankai(item);
         });
+    }
+
+    private _checkZhankai(item: CadZhankai) {
+        if (item.conditions.length <= 0) {
+            item.conditions.push(new CadCondition());
+        }
+        if (item.flip.length <= 0) {
+            item.flip.push(this.emptyFlipItem);
+        }
+        return item;
     }
 
     submit() {
@@ -81,7 +86,7 @@ export class CadZhankaiComponent {
     }
 
     addItem() {
-        this.data.push(new CadZhankai());
+        this.data.push(this._checkZhankai(new CadZhankai()));
     }
 
     selectAll() {

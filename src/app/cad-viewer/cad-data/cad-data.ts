@@ -902,7 +902,7 @@ export class CadZhankai {
             data.conditions.forEach((v: string | CadCondition) => this.conditions.push(new CadCondition(v)));
         }
         this.chai = data.chai ?? false;
-        this.flip = data.flip ?? [];
+        this.flip = Array.isArray(data.flip) ? data.flip : [];
     }
 
     export() {
