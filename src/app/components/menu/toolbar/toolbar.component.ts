@@ -70,7 +70,9 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         (async () => {
             const timeStamp = Number(local.load("changelogTimestamp"));
             const {changelog} = await this.dataService.getChangelog(1, 1);
-            this.showNew = timeStamp < changelog[0].timeStamp;
+            if (changelog.length) {
+                this.showNew = timeStamp < changelog[0].timeStamp;
+            }
         })();
     }
 

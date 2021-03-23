@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from "@angular/core";
+import {Component, EventEmitter, OnDestroy, OnInit, Output} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute} from "@angular/router";
@@ -19,8 +19,8 @@ import {openCadZhankaiDialog} from "../../dialogs/cad-zhankai/cad-zhankai.compon
 })
 export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy {
     cadsData: CadData[] = [];
-    lengths: string[] = [];
     editDisabled = true;
+    @Output() cadLengthsChange = new EventEmitter<string[]>();
 
     onEntityClick = (((entity) => {
         const {name, index} = this.status.cadStatus$.getValue();
@@ -91,15 +91,16 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     updateLengths(cadsData: CadData[]) {
-        this.lengths = [];
+        const lengths: string[] = [];
         cadsData.forEach((v) => {
             let length = 0;
             const entities = v.getAllEntities();
             entities.line.forEach((e) => (length += e.length));
             entities.arc.forEach((e) => (length += e.length));
             entities.circle.forEach((e) => (length += e.curve.length));
-            this.lengths.push(length.toFixed(2));
+            lengths.push(length.toFixed(2));
         });
+        this.cadLengthsChange.emit(lengths);
     }
 
     async selectOptions(option: CadOption | string) {

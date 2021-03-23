@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {CadConsoleComponent} from "@src/app/modules/cad-console/components/cad-console/cad-console.component";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
@@ -52,6 +52,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     showAllMenu = true;
     loaderId = "saveCadLoader";
     tabIndex = 0;
+    cadLength = "0.00";
 
     get multiSelect() {
         return this.status.cad.config("selectMode") === "multiple";
@@ -61,9 +62,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     }
     get cadStatusStr() {
         return cadStatusNameMap[this.status.cadStatus$.getValue().name];
-    }
-    get cadLength() {
-        return this.infoComponent?.lengths[0] || "0.00";
     }
 
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLElement>;
@@ -97,7 +95,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         private console: CadConsoleService,
         private dataService: CadDataService,
         private route: ActivatedRoute,
-        private message: MessageService
+        private message: MessageService,
+        private cd: ChangeDetectorRef
     ) {
         super();
     }
@@ -249,5 +248,10 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
 
     toggleEntityDraggable() {
         this.config.config("entityDraggable", !this.config.config("entityDraggable"));
+    }
+
+    onCadLengthsChange(event: string[]) {
+        this.cadLength = event[0];
+        this.cd.detectChanges();
     }
 }
