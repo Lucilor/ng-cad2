@@ -13,7 +13,7 @@
         <mat-form-field style="width: 70%">
             <mat-label>搜索CAD</mat-label>
             <input name="search-value" matInput type="search" (keydown)="searchKeydown($event)" [(ngModel)]="searchNameInput" />
-            <mat-icon class="search-button" type="submit" matSuffix (click)="search()">search</mat-icon>
+            <mat-icon color="primary" type="submit" matSuffix (click)="search()">search</mat-icon>
         </mat-form-field>
     </div>
     <div class="btn-group" *ngIf="data.selectMode !== 'table'">

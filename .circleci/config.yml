@@ -1,17 +1,46 @@
-version: 2
+version: 2.1
+executors:
+    ng-cad2:
+        working_directory: ~/ng-cad2
+        docker:
+            - image: circleci/node:10-browsers
 jobs:
-  build:
-    working_directory: ~/ng-cad2
-    docker:
-      - image: circleci/node:10-browsers
-    steps:
-      - checkout
-      - restore_cache:
-          key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      - run: yarn install
-      - save_cache:
-          key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
-          paths:
-            - "node_modules"
-      - run: yarn test -- --no-watch --no-progress --browsers=ChromeHeadless
-      # - run: npm run e2e -- --protractor-config=e2e/protractor.conf.js
+    build:
+        executor: ng-cad2
+        steps:
+            - checkout
+            - restore_cache:
+                  key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - run:
+                  name: Install local dependencies
+                  command: yarn install
+            - save_cache:
+                  key: ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
+                  paths:
+                      - "node_modules"
+    test:
+        executor: ng-cad2
+        steps:
+            - run:
+                  name: Unit test
+                  command: yarn test -- --no-watch --no-progress --browsers=ChromeHeadless
+            - run:
+                  name: End to end test
+                  command: yarn e2e -- --protractor-config=e2e/protractor.conf.js
+    lint:
+        executor: ng-cad2
+        steps:
+            - checkout
+            - run:
+                  name: Lint
+                  command: yarn lint
+workflows:
+    build-test-lint:
+        jobs:
+            - build
+            - test:
+                  requires:
+                      - build
+            - lint:
+                  requires:
+                      - build
