@@ -1,4 +1,4 @@
-import {SessionStorage, LocalStorage} from "@src/app/utils";
+import {SessionStorage, LocalStorage, ObjectOf} from "@src/app/utils";
 import {environment} from "@src/environments/environment";
 
 export const projectName = "NgCad2";
@@ -43,3 +43,25 @@ export const logTime = (content: string, start: number, fractionDigits = 2) => {
 };
 
 export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
+
+export const fullChars2HalfChars = {
+    "“": '"',
+    "”": '"',
+    "。": ".",
+    "，": ",",
+    "？": "?",
+    "！": "!",
+    "；": ";",
+    "：": ":"
+};
+export const replaceChars = (str: string, replaces: ObjectOf<string>) => {
+    let tmp = "";
+    for (const char of str) {
+        if (typeof replaces[char] === "string") {
+            tmp += replaces[char];
+        } else {
+            tmp += char;
+        }
+    }
+    return tmp;
+};

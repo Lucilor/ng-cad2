@@ -2,6 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
+import {fullChars2HalfChars, replaceChars} from "@src/app/app.common";
 import {CadCondition, CadData, CadZhankai} from "@src/app/cad-viewer";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {cloneDeep} from "lodash";
@@ -120,7 +121,8 @@ export class CadZhankaiComponent {
     }
 
     setCondition(event: Event, condition: CadCondition) {
-        condition.value = (event.target as HTMLInputElement).value;
+        const str = (event.target as HTMLInputElement).value;
+        condition.value = replaceChars(str, fullChars2HalfChars);
     }
 
     addCondition(conditions: CadCondition[], i: number) {
@@ -128,12 +130,10 @@ export class CadZhankaiComponent {
     }
 
     async removeCondition(conditions: CadCondition[], i: number) {
-        if (await this.message.confirm("是否确定删除？")) {
-            if (conditions.length === 1) {
-                conditions[0] = new CadCondition();
-            } else {
-                conditions.splice(i, 1);
-            }
+        if (conditions.length === 1) {
+            conditions[0] = new CadCondition();
+        } else {
+            conditions.splice(i, 1);
         }
     }
 

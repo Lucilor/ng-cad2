@@ -40,7 +40,8 @@ export class ChangelogComponent {
         this.loading = true;
         const {changelog, count} = await this.dataService.getChangelog(page, pageSize);
         this.loading = false;
-        this.changelog = changelog;
+        this.changelog = this.changelog.concat(changelog);
+        this.cd.detectChanges();
         this.maxPage = Math.ceil((count || 0) / pageSize);
         this.currentPage++;
     }
@@ -55,7 +56,6 @@ export class ChangelogComponent {
 
     onYReachEnd() {
         this.nextPage();
-        this.cd.detectChanges();
     }
 
     close() {

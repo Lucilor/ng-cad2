@@ -130,7 +130,10 @@ export class AppStatusService {
         if (project && project !== this.project) {
             this.project = project;
             this.dataService.baseURL = `${origin}/n/${project}/index/`;
+            const silent = this.dataService.silent;
+            this.dataService.silent = true;
             const response = await this.dataService.get("user/user/isAdmin");
+            this.dataService.silent = silent;
             this.isAdmin = !!response?.data;
         }
     }

@@ -3,12 +3,12 @@
         <mat-card *ngFor="let item of data; let i = index">
             <div class="zhankai-form">
                 <mat-checkbox
-                    class="full-width"
+                    class="fullwidth"
                     (click)="onCheckboxChanglick($event)"
                     [checked]="checkedIndices.has(i)"
                     (change)="onCheckboxChange($event, i)"
                 ></mat-checkbox>
-                <mat-form-field class="full-width" style="font-weight: bold; color: #ff5e00">
+                <mat-form-field class="fullwidth" style="font-weight: bold; color: #ff5e00">
                     <mat-label>名字</mat-label>
                     <input matInput type="text" [(ngModel)]="item.name" name="name" />
                 </mat-form-field>
@@ -45,19 +45,19 @@
                     <mat-label>数量倍数</mat-label>
                     <input matInput type="text" [(ngModel)]="item.shuliangbeishu" name="shuliangbeishu" />
                 </mat-form-field>
-                <mat-form-field class="full-width">
+                <mat-form-field class="fullwidth">
                     <mat-label>开料</mat-label>
                     <input type="text" matInput hidden value=" " />
                     <mat-slide-toggle [checked]="item.kailiao" (change)="item.kailiao = $event.checked"></mat-slide-toggle>
                 </mat-form-field>
-                <mat-form-field class="full-width">
+                <mat-form-field class="fullwidth">
                     <mat-label>开料数量不为1时拆成单个</mat-label>
                     <input type="text" matInput hidden value=" " />
                     <mat-slide-toggle [checked]="item.chai" (change)="item.chai = $event.checked"></mat-slide-toggle>
                 </mat-form-field>
-                <mat-form-field *ngFor="let c of item.conditions; let j = index" class="full-width">
+                <mat-form-field *ngFor="let c of item.conditions; let j = index" class="fullwidth">
                     <mat-label>条件</mat-label>
-                    <input matInput type="text" [value]="c.value" (input)="setCondition($event, c)" />
+                    <input matInput type="text" [value]="c.value" (change)="setCondition($event, c)" />
                     <div matSuffix style="display: flex">
                         <mat-icon color="primary" (click)="addCondition(item.conditions, j)">add_circle</mat-icon>
                         <mat-icon color="primary" (click)="removeCondition(item.conditions, j)">remove_circle</mat-icon>
@@ -66,17 +66,17 @@
                 <div class="flip">
                     <div class="title">最后翻转</div>
                     <div class="flip-item" *ngFor="let item2 of item.flip; let j = index">
-                        <mat-form-field class="full-width">
+                        <mat-form-field class="fullwidth">
                             <mat-label>{{ keysMap.kaiqi }}</mat-label>
                             <input type="text" matInput [(ngModel)]="item2.kaiqi" />
                             <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'kaiqi')">list</mat-icon>
                         </mat-form-field>
-                        <mat-form-field class="full-width">
+                        <mat-form-field class="fullwidth">
                             <mat-label>{{ keysMap.chanpinfenlei }}</mat-label>
                             <input type="text" matInput [(ngModel)]="item2.chanpinfenlei" />
                             <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'chanpinfenlei')">list</mat-icon>
                         </mat-form-field>
-                        <mat-form-field class="full-width">
+                        <mat-form-field class="fullwidth">
                             <mat-label>{{ keysMap.flip }}</mat-label>
                             <input type="text" matInput hidden value=" " />
                             <mat-slide-toggle [checked]="item2.fanzhuan" (change)="item2.fanzhuan = $event.checked"></mat-slide-toggle>
