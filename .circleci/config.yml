@@ -26,7 +26,7 @@ jobs:
                   name: Install local dependencies
                   command: yarn install
             - *save_cache
-    test:
+    unit-test:
         executor: ng-cad2
         steps:
             - checkout
@@ -34,8 +34,13 @@ jobs:
             - run:
                   name: Unit test
                   command: yarn test --no-watch --no-progress --browsers=ChromeHeadless
+    e2e:
+        executor: ng-cad2
+        steps:
+            - checkout
+            - *restore_cache
             - run:
-                  name: End to end test
+                  name: End to end
                   command: yarn e2e --protractor-config=e2e/protractor.conf.js
     lint:
         executor: ng-cad2
@@ -49,7 +54,10 @@ workflows:
     build-test-lint:
         jobs:
             - build
-            - test:
+            - unit-test:
+                  requires:
+                      - build
+            - e2e:
                   requires:
                       - build
             - lint:
