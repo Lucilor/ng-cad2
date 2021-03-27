@@ -25,11 +25,15 @@
                         placeholder="选项"
                         name="optionValue"
                     />
-                    <div matSuffix style="display: flex">
-                        <mat-icon color="primary" (click)="selectOptions(o)">list</mat-icon>
-                        <mat-icon color="primary" (click)="addOption(cad, j)">add_circle</mat-icon>
-                        <mat-icon color="primary" (click)="removeOption(cad, j)">remove_circle</mat-icon>
-                    </div>
+                    <button mat-icon-button matSuffix color="primary" (click)="selectOptions(o)">
+                        <mat-icon>list</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="addOption(cad, j)">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="removeOption(cad, j)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
                 </mat-form-field>
             </div>
         </div>
@@ -38,10 +42,12 @@
                 <mat-form-field>
                     <mat-label>条件</mat-label>
                     <input matInput type="text" [value]="c.value" (input)="setValue($event, c, 'value')" name="condition" />
-                    <div matSuffix style="display: flex">
-                        <mat-icon color="primary" (click)="addCondition(cad, j)">add_circle</mat-icon>
-                        <mat-icon color="primary" (click)="removeCondition(cad, j)">remove_circle</mat-icon>
-                    </div>
+                    <button mat-icon-button matSuffix color="primary" (click)="addCondition(cad, j)">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="removeCondition(cad, j)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
                 </mat-form-field>
             </div>
         </div>
@@ -50,11 +56,15 @@
                 <mat-form-field [color]="getItemColor('selectBaseline', i)">
                     <mat-label>基准</mat-label>
                     <input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
-                    <div matSuffix style="display: flex">
-                        <mat-icon [color]="getItemColor('selectBaseline', i)" (click)="selectBaseLine(i)">link</mat-icon>
-                        <mat-icon color="primary" (click)="addBaseLine(cad, i)">add_circle</mat-icon>
-                        <mat-icon color="primary" (click)="removeBaseLine(cad, i)">remove_circle</mat-icon>
-                    </div>
+                    <button mat-icon-button matSuffix [color]="getItemColor('selectBaseline', i)" (click)="selectBaseLine(i)">
+                        <mat-icon>link</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="addBaseLine(cad, i)">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="removeBaseLine(cad, i)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
                     <mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>
                 </mat-form-field>
             </div>
@@ -64,13 +74,15 @@
                 <mat-form-field [color]="getItemColor('selectJointpoint', i)">
                     <mat-label>连接点</mat-label>
                     <input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />
-                    <div matSuffix style="display: flex">
-                        <mat-icon color="primary" [color]="getItemColor('selectJointpoint', i)" (click)="selectJointPoint(i)">
-                            link
-                        </mat-icon>
-                        <mat-icon color="primary" (click)="addJointPoint(cad, i)">add_circle</mat-icon>
-                        <mat-icon color="primary" (click)="removeJointPoint(cad, i)">remove_circle</mat-icon>
-                    </div>
+                    <button mat-icon-button matSuffix [color]="getItemColor('selectJointpoint', i)" (click)="selectBaseLine(i)">
+                        <mat-icon>link</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="addJointPoint(cad, i)">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="removeJointPoint(cad, i)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
                     <mat-hint [align]="'start'">x:{{ j.valueX?.toFixed(2) }}, y:{{ j.valueY?.toFixed(2) }}</mat-hint>
                 </mat-form-field>
             </div>
@@ -116,7 +128,9 @@
         <mat-form-field>
             <mat-label>默认开料板材</mat-label>
             <input matInput type="text" [(ngModel)]="cad.morenkailiaobancai" name="morenkailiaobancai" />
-            <mat-icon matSuffix color="primary" (click)="selectOptions('bancai')">list</mat-icon>
+            <button mat-icon-button matSuffix color="primary" (click)="selectOptions('bancai')">
+                <mat-icon>list</mat-icon>
+            </button>
         </mat-form-field>
         <mat-form-field>
             <mat-label>算料处理</mat-label>
@@ -145,12 +159,16 @@
         <mat-form-field>
             <mat-label>自定义属性</mat-label>
             <input matInput type="text" disabled name="attributes" />
-            <mat-icon matSuffix color="primary" (click)="editAttributes(cad)">list</mat-icon>
+            <button mat-icon-button matSuffix color="primary" (click)="editAttributes(cad)">
+                <mat-icon>list</mat-icon>
+            </button>
         </mat-form-field>
         <mat-form-field>
             <mat-label>展开</mat-label>
             <input matInput type="text" disabled name="zhankai" />
-            <mat-icon matSuffix color="primary" (click)="editZhankai(cad)">list</mat-icon>
+            <button mat-icon-button matSuffix color="primary" (click)="editZhankai(cad)">
+                <mat-icon>list</mat-icon>
+            </button>
         </mat-form-field>
         <mat-form-field>
             <mat-label>算料单显示板材</mat-label>

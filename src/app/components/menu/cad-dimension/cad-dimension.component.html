@@ -1,25 +1,27 @@
 <form>
-	<button hidden></button>
-	<div *ngFor="let d of dimensions; let i = index">
-		<mat-form-field>
-			<mat-label>标注名字</mat-label>
-			<input
-				matInput
-				type="text"
-				[value]="getDimensionName(d, i)"
-				(focus)="dimNameFocus = i"
-				(blur)="dimNameFocus = -1"
-				(input)="setDimensionName($event, d)"
-				name="dimensionName"
-			/>
-			<mat-icon matSuffix color="primary" (click)="removeDimension(i)">remove_circle</mat-icon>
-			<mat-hint [align]="'start'">
-				<button mat-raised-button color="primary" (click)="editDimension(i)">编辑</button>
-				<button mat-raised-button [color]="dimLineSelecting === i ? 'accent' : 'primary'" (click)="selectDimLine(i)">选线</button>
-			</mat-hint>
-		</mat-form-field>
-	</div>
-	<div class="btn-group">
-		<button mat-raised-button [color]="dimLineSelecting === -1 ? 'accent' : 'primary'" (click)="addDimension()">添加标注</button>
-	</div>
+    <button hidden></button>
+    <div *ngFor="let d of dimensions; let i = index">
+        <mat-form-field>
+            <mat-label>标注名字</mat-label>
+            <input
+                matInput
+                type="text"
+                [value]="getDimensionName(d, i)"
+                (focus)="dimNameFocus = i"
+                (blur)="dimNameFocus = -1"
+                (input)="setDimensionName($event, d)"
+                name="dimensionName"
+            />
+            <button mat-icon-button matSuffix color="primary" (click)="removeDimension(i)">
+                <mat-icon>remove_circle</mat-icon>
+            </button>
+            <mat-hint [align]="'start'">
+                <button mat-raised-button color="primary" (click)="editDimension(i)">编辑</button>
+                <button mat-raised-button [color]="dimLineSelecting === i ? 'accent' : 'primary'" (click)="selectDimLine(i)">选线</button>
+            </mat-hint>
+        </mat-form-field>
+    </div>
+    <div class="btn-group">
+        <button mat-raised-button [color]="dimLineSelecting === -1 ? 'accent' : 'primary'" (click)="addDimension()">添加标注</button>
+    </div>
 </form>

@@ -16,18 +16,22 @@
                 <mat-form-field class="halfwidth">
                     <mat-label>开料CAD模板</mat-label>
                     <input matInput type="text" [(ngModel)]="item.kailiaomuban" name="kailiaomuban" />
-                    <div matSuffix style="display: flex">
-                        <mat-icon color="primary" (click)="openCadmuban(item, 'kailiaomuban')">open_in_new</mat-icon>
-                        <mat-icon color="primary" (click)="selectCadmuban(item, 'kailiaomuban')">list</mat-icon>
-                    </div>
+                    <button mat-icon-button matSuffix color="primary" (click)="openCadmuban(item, 'kailiaomuban')">
+                        <mat-icon>open_in_new</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="selectCadmuban(item, 'kailiaomuban')">
+                        <mat-icon>list</mat-icon>
+                    </button>
                 </mat-form-field>
                 <mat-form-field class="halfwidth">
                     <mat-label>内开模板</mat-label>
                     <input matInput type="text" [(ngModel)]="item.neikaimuban" name="neikaimuban" />
-                    <div matSuffix style="display: flex">
-                        <mat-icon matSuffix color="primary" (click)="openCadmuban(item, 'neikaimuban')">open_in_new</mat-icon>
-                        <mat-icon matSuffix color="primary" (click)="selectCadmuban(item, 'neikaimuban')">list</mat-icon>
-                    </div>
+                    <button mat-icon-button matSuffix color="primary" (click)="openCadmuban(item, 'neikaimuban')">
+                        <mat-icon>open_in_new</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="selectCadmuban(item, 'neikaimuban')">
+                        <mat-icon>list</mat-icon>
+                    </button>
                 </mat-form-field>
                 <mat-form-field class="halfwidth">
                     <mat-label>展开宽</mat-label>
@@ -64,10 +68,12 @@
                     </div>
                     <mat-form-field *ngFor="let c of ' '.repeat(item.conditions.length).split(''); let j = index">
                         <input matInput type="text" [value]="item.conditions[j]" (change)="setCondition($event, i, j)" />
-                        <div matSuffix style="display: flex">
-                            <mat-icon color="primary" (click)="addCondition(i, j)">add_circle</mat-icon>
-                            <mat-icon color="primary" (click)="removeCondition(i, j)">remove_circle</mat-icon>
-                        </div>
+                        <button mat-icon-button matSuffix color="primary" (click)="addCondition(i, j)">
+                            <mat-icon>add_circle</mat-icon>
+                        </button>
+                        <button mat-icon-button matSuffix color="primary" (click)="removeCondition(i, j)">
+                            <mat-icon>remove_circle</mat-icon>
+                        </button>
                     </mat-form-field>
                 </div>
                 <div class="sub-form-field">
@@ -81,12 +87,16 @@
                         <mat-form-field>
                             <mat-label>{{ keysMap.kaiqi }}</mat-label>
                             <input type="text" matInput [(ngModel)]="item2.kaiqi" />
-                            <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'kaiqi')">list</mat-icon>
+                            <button mat-icon-button matSuffix color="primary" (click)="selectOptions(item2, 'kaiqi')">
+                                <mat-icon>list</mat-icon>
+                            </button>
                         </mat-form-field>
                         <mat-form-field>
                             <mat-label>{{ keysMap.chanpinfenlei }}</mat-label>
                             <input type="text" matInput [(ngModel)]="item2.chanpinfenlei" />
-                            <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'chanpinfenlei')">list</mat-icon>
+                            <button mat-icon-button matSuffix color="primary" (click)="selectOptions(item2, 'chanpinfenlei')">
+                                <mat-icon>list</mat-icon>
+                            </button>
                         </mat-form-field>
                         <mat-form-field>
                             <mat-label>{{ keysMap.flip }}</mat-label>
@@ -118,7 +128,9 @@
                             <mat-form-field class="halfwidth">
                                 <mat-label>序号</mat-label>
                                 <input type="text" matInput readonly [value]="key" />
-                                <mat-icon matSuffix color="primary" (click)="removeFlipChai(i, key)">remove_circle</mat-icon>
+                                <button mat-icon-button matSuffix color="primary" (click)="removeFlipChai(i, key)">
+                                    <mat-icon>remove_circle</mat-icon>
+                                </button>
                             </mat-form-field>
                             <mat-form-field class="halfwidth">
                                 <mat-label>翻转</mat-label>

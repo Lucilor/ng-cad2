@@ -2,7 +2,9 @@
     <mat-form-field>
         <mat-label>搜索选项</mat-label>
         <input name="search" matInput type="search" (keydown)="searchKeydown($event)" [(ngModel)]="searchInput" />
-        <mat-icon class="search-button" matSuffix (click)="search()">search</mat-icon>
+        <button mat-icon-button class="search-button" matSuffix (click)="search()">
+            <mat-icon>search</mat-icon>
+        </button>
     </mat-form-field>
 </form>
 

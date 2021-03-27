@@ -48,7 +48,9 @@
         <mat-form-field floatLabel="always">
             <mat-label>锚点</mat-label>
             <input matInput type="text" placeholder="请选择锚点" [value]="getAnchor()" name="anchor" readonly />
-            <mat-icon color="primary" matSuffix [matMenuTriggerFor]="anchor">list</mat-icon>
+            <button mat-icon-button matSuffix color="primary" [matMenuTriggerFor]="anchor">
+                <mat-icon>list</mat-icon>
+            </button>
             <mat-menu #anchor="matMenu">
                 <app-anchor-selector
                     [x]="currAnchor.x"

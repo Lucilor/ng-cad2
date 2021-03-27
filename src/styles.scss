@@ -37,10 +37,6 @@ body {
     font-size: 1rem;
 }
 
-.mat-icon {
-    cursor: pointer;
-}
-
 form {
     font-size: 1rem;
 
@@ -79,27 +75,6 @@ form {
     color: black;
 }
 
-.mat-checkbox {
-    display: inline-block;
-    max-width: 100%;
-}
-.mat-checkbox-layout {
-    width: 100%;
-}
-.mat-checkbox-label {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: left;
-}
-.mat-checkbox-inner-container {
-    margin: auto 8px !important;
-}
-
-.mat-menu-content {
-    overflow: hidden;
-}
-
 // perfect scrollbar
 .ps__thumb-x,
 .ps__thumb-y {
@@ -120,18 +95,6 @@ form {
 .ps__rail-x,
 .ps__rail-y {
     background: transparent !important;
-}
-
-.mat-form-field {
-    width: 100%;
-
-    .mat-form-field-wrapper {
-        padding-bottom: 1.2em !important;
-    }
-
-    .mat-form-field-flex {
-        padding-top: 0 !important;
-    }
 }
 
 .sub-form-field,
