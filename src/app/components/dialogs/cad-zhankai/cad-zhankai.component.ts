@@ -3,7 +3,8 @@ import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {fullChars2HalfChars, replaceChars} from "@src/app/app.common";
-import {CadCondition, CadData, CadZhankai} from "@src/app/cad-viewer";
+import {CadData, CadZhankai, FlipType} from "@src/app/cad-viewer";
+import {Utils} from "@src/app/mixins/utils.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {cloneDeep} from "lodash";
 import {openCadListDialog} from "../cad-list/cad-list.component";
@@ -15,15 +16,21 @@ import {getOpenDialogFunc} from "../dialog.common";
     templateUrl: "./cad-zhankai.component.html",
     styleUrls: ["./cad-zhankai.component.scss"]
 })
-export class CadZhankaiComponent {
+export class CadZhankaiComponent extends Utils() {
     checkedIndices = new Set<number>();
     keysMap = {
         kaiqi: "开启",
         chanpinfenlei: "产品分类",
         flip: "翻转"
     };
-    get emptyFlipItem() {
-        return {kaiqi: "", chanpinfenlei: "", fanzhuan: false};
+    flipOptions: {name: string; value: FlipType}[] = [
+        {name: "无", value: ""},
+        {name: "水平翻转", value: "h"},
+        {name: "垂直翻转", value: "v"},
+        {name: "水平垂直翻转", value: "vh"}
+    ];
+    get emptyFlipItem(): CadZhankai["flip"][0] {
+        return {kaiqi: "", chanpinfenlei: "", fanzhuanfangshi: ""};
     }
 
     constructor(
@@ -33,20 +40,8 @@ export class CadZhankaiComponent {
         private dialog: MatDialog,
         private message: MessageService
     ) {
+        super();
         this.data = cloneDeep(this.data);
-        this.data.forEach((item) => {
-            this._checkZhankai(item);
-        });
-    }
-
-    private _checkZhankai(item: CadZhankai) {
-        if (item.conditions.length <= 0) {
-            item.conditions.push(new CadCondition());
-        }
-        if (item.flip.length <= 0) {
-            item.flip.push(this.emptyFlipItem);
-        }
-        return item;
     }
 
     submit() {
@@ -87,7 +82,7 @@ export class CadZhankaiComponent {
     }
 
     addItem() {
-        this.data.push(this._checkZhankai(new CadZhankai()));
+        this.data.push(new CadZhankai());
     }
 
     selectAll() {
@@ -120,21 +115,17 @@ export class CadZhankaiComponent {
         }
     }
 
-    setCondition(event: Event, condition: CadCondition) {
+    setCondition(event: Event, i: number, j: number) {
         const str = (event.target as HTMLInputElement).value;
-        condition.value = replaceChars(str, fullChars2HalfChars);
+        this.data[i].conditions[j] = replaceChars(str, fullChars2HalfChars);
     }
 
-    addCondition(conditions: CadCondition[], i: number) {
-        conditions.splice(i + 1, 0, new CadCondition());
+    addCondition(i: number, j: number) {
+        this.data[i].conditions.splice(j + 1, 0, "");
     }
 
-    async removeCondition(conditions: CadCondition[], i: number) {
-        if (conditions.length === 1) {
-            conditions[0] = new CadCondition();
-        } else {
-            conditions.splice(i, 1);
-        }
+    async removeCondition(i: number, j: number) {
+        this.data[i].conditions.splice(j, 1);
     }
 
     async selectOptions(obj: any, field: string) {
@@ -154,9 +145,27 @@ export class CadZhankaiComponent {
     removeFlipItem(i: number, j: number) {
         const item = this.data[i].flip;
         item.splice(j, 1);
-        if (item.length <= 0) {
-            item.push(this.emptyFlipItem);
+    }
+
+    async addFlipChai(i: number) {
+        const result = await this.message.prompt({placeholder: "请输入序号", type: "number"});
+        if (typeof result === "string" && result) {
+            const num = Number(result);
+            if (!(num > 0)) {
+                this.message.snack("请输入大于0的数字");
+                return;
+            }
+            const flipChai = this.data[i].flipChai;
+            if (flipChai[num] !== undefined) {
+                this.message.snack("该序号已存在");
+                return;
+            }
+            flipChai[num] = "h";
         }
+    }
+
+    removeFlipChai(i: number, key: string) {
+        delete this.data[i].flipChai[key];
     }
 }
 

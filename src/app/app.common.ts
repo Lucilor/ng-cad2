@@ -9,7 +9,7 @@ export const imgEmpty = "assets/images/empty.jpg";
 export const imgLoading = "assets/images/loading.gif";
 
 export const routesInfo = {
-    index: {path: "index", title: "首页"},
+    index: {path: "index", title: ""},
     printCad: {path: "print-cad", title: "打印CAD"},
     printA4A015Preview: {path: "printA4A015Preview", title: "订单配件标签"},
     import: {path: "import", title: "导入CAD"},

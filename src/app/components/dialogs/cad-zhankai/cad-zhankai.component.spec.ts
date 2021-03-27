@@ -15,7 +15,12 @@ import {MessageModule} from "@src/app/modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {CadZhankaiComponent} from "./cad-zhankai.component";
 
-const data: CadData["zhankai"] = [new CadZhankai()];
+const item = new CadZhankai();
+item.chai = true;
+item.conditions = ["asd", "qdqwd"];
+item.flip = [{kaiqi: "a", chanpinfenlei: "b", fanzhuanfangshi: "vh"}];
+item.flipChai = {1: "h", 2: "v"};
+const data: CadData["zhankai"] = [item];
 describe("CadZhankaiComponent", () => {
     let component: CadZhankaiComponent;
     let fixture: ComponentFixture<CadZhankaiComponent>;

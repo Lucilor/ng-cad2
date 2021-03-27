@@ -37,7 +37,7 @@ body {
     font-size: 1rem;
 }
 
-mat-icon {
+.mat-icon {
     cursor: pointer;
 }
 
@@ -117,6 +117,42 @@ form {
     background-color: rgba(0, 0, 0, 0.8) !important;
     width: 6px !important;
 }
-.ps__rail-x, .ps__rail-y {
-	background: transparent !important;
+.ps__rail-x,
+.ps__rail-y {
+    background: transparent !important;
+}
+
+.mat-form-field {
+    width: 100%;
+
+    .mat-form-field-wrapper {
+        padding-bottom: 1.2em !important;
+    }
+
+    .mat-form-field-flex {
+        padding-top: 0 !important;
+    }
+}
+
+.sub-form-field,
+.sub-form-field-item {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid gray;
+    border-radius: 20px;
+    box-sizing: border-box;
+    padding: 8px;
+
+    &:not(:first-child) {
+        margin-top: 8px;
+    }
+    &:empty {
+        display: none;
+    }
+}
+.sub-form-field {
+    .label {
+        color: rgba(0, 0, 0, 0.54);
+    }
 }

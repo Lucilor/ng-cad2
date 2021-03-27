@@ -1,4 +1,5 @@
 import {ObjectOf, Point} from "@src/app/utils";
+import {cloneDeep} from "lodash";
 import {CadLine} from "./cad-data/cad-entities";
 
 export const getVectorFromArray = (data: number[] | Point, defaultVal = new Point()) => {
@@ -10,6 +11,20 @@ export const getVectorFromArray = (data: number[] | Point, defaultVal = new Poin
     }
     data = data.filter((v) => !isNaN(v));
     return new Point(...data);
+};
+
+export const getArray = <T>(data: any): T[] => {
+    if (Array.isArray(data)) {
+        return cloneDeep(data);
+    }
+    return [];
+};
+
+export const getObject = <T>(data: any): ObjectOf<T> => {
+    if (data && typeof data === "object" && !Array.isArray(data)) {
+        return cloneDeep(data);
+    }
+    return {};
 };
 
 export const isLinesParallel = (lines: CadLine[], accurary = 0) => {

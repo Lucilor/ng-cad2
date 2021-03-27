@@ -8,12 +8,12 @@
                     [checked]="checkedIndices.has(i)"
                     (change)="onCheckboxChange($event, i)"
                 ></mat-checkbox>
-                <mat-form-field class="fullwidth" style="font-weight: bold; color: #ff5e00">
+                <mat-form-field style="font-weight: bold; color: #ff5e00">
                     <mat-label>名字</mat-label>
                     <input matInput type="text" [(ngModel)]="item.name" name="name" />
                 </mat-form-field>
                 <br />
-                <mat-form-field>
+                <mat-form-field class="halfwidth">
                     <mat-label>开料CAD模板</mat-label>
                     <input matInput type="text" [(ngModel)]="item.kailiaomuban" name="kailiaomuban" />
                     <div matSuffix style="display: flex">
@@ -21,7 +21,7 @@
                         <mat-icon color="primary" (click)="selectCadmuban(item, 'kailiaomuban')">list</mat-icon>
                     </div>
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="halfwidth">
                     <mat-label>内开模板</mat-label>
                     <input matInput type="text" [(ngModel)]="item.neikaimuban" name="neikaimuban" />
                     <div matSuffix style="display: flex">
@@ -29,61 +29,105 @@
                         <mat-icon matSuffix color="primary" (click)="selectCadmuban(item, 'neikaimuban')">list</mat-icon>
                     </div>
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="halfwidth">
                     <mat-label>展开宽</mat-label>
                     <input matInput type="text" [(ngModel)]="item.zhankaikuan" name="zhankaikuan" />
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="halfwidth">
                     <mat-label>展开高</mat-label>
                     <input matInput type="text" [(ngModel)]="item.zhankaigao" name="zhankaigao" />
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="halfwidth">
                     <mat-label>数量</mat-label>
                     <input matInput type="text" [(ngModel)]="item.shuliang" name="shuliang" />
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="halfwidth">
                     <mat-label>数量倍数</mat-label>
                     <input matInput type="text" [(ngModel)]="item.shuliangbeishu" name="shuliangbeishu" />
                 </mat-form-field>
-                <mat-form-field class="fullwidth">
+                <mat-form-field class="halfwidth">
                     <mat-label>开料</mat-label>
                     <input type="text" matInput hidden value=" " />
                     <mat-slide-toggle [checked]="item.kailiao" (change)="item.kailiao = $event.checked"></mat-slide-toggle>
                 </mat-form-field>
-                <mat-form-field class="fullwidth">
+                <mat-form-field class="halfwidth">
                     <mat-label>开料数量不为1时拆成单个</mat-label>
                     <input type="text" matInput hidden value=" " />
                     <mat-slide-toggle [checked]="item.chai" (change)="item.chai = $event.checked"></mat-slide-toggle>
                 </mat-form-field>
-                <mat-form-field *ngFor="let c of item.conditions; let j = index" class="fullwidth">
-                    <mat-label>条件</mat-label>
-                    <input matInput type="text" [value]="c.value" (change)="setCondition($event, c)" />
-                    <div matSuffix style="display: flex">
-                        <mat-icon color="primary" (click)="addCondition(item.conditions, j)">add_circle</mat-icon>
-                        <mat-icon color="primary" (click)="removeCondition(item.conditions, j)">remove_circle</mat-icon>
+                <div class="sub-form-field">
+                    <div class="label">条件</div>
+                    <div *ngIf="item.conditions.length === 0">
+                        <button mat-icon-button (click)="addCondition(i, 0)">
+                            <mat-icon color="primary">add_circle</mat-icon>
+                        </button>
                     </div>
-                </mat-form-field>
-                <div class="flip">
-                    <div class="title">最后翻转</div>
-                    <div class="flip-item" *ngFor="let item2 of item.flip; let j = index">
-                        <mat-form-field class="fullwidth">
+                    <mat-form-field *ngFor="let c of ' '.repeat(item.conditions.length).split(''); let j = index">
+                        <input matInput type="text" [value]="item.conditions[j]" (change)="setCondition($event, i, j)" />
+                        <div matSuffix style="display: flex">
+                            <mat-icon color="primary" (click)="addCondition(i, j)">add_circle</mat-icon>
+                            <mat-icon color="primary" (click)="removeCondition(i, j)">remove_circle</mat-icon>
+                        </div>
+                    </mat-form-field>
+                </div>
+                <div class="sub-form-field">
+                    <div class="label">开料时翻转</div>
+                    <div *ngIf="item.flip.length === 0">
+                        <button mat-icon-button color="primary" (click)="addFlipItem(i, 0)">
+                            <mat-icon>add_circle</mat-icon>
+                        </button>
+                    </div>
+                    <div class="sub-form-field-item" *ngFor="let item2 of item.flip; let j = index">
+                        <mat-form-field>
                             <mat-label>{{ keysMap.kaiqi }}</mat-label>
                             <input type="text" matInput [(ngModel)]="item2.kaiqi" />
                             <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'kaiqi')">list</mat-icon>
                         </mat-form-field>
-                        <mat-form-field class="fullwidth">
+                        <mat-form-field>
                             <mat-label>{{ keysMap.chanpinfenlei }}</mat-label>
                             <input type="text" matInput [(ngModel)]="item2.chanpinfenlei" />
                             <mat-icon matSuffix color="primary" (click)="selectOptions(item2, 'chanpinfenlei')">list</mat-icon>
                         </mat-form-field>
-                        <mat-form-field class="fullwidth">
+                        <mat-form-field>
                             <mat-label>{{ keysMap.flip }}</mat-label>
-                            <input type="text" matInput hidden value=" " />
-                            <mat-slide-toggle [checked]="item2.fanzhuan" (change)="item2.fanzhuan = $event.checked"></mat-slide-toggle>
+                            <mat-select [(ngModel)]="item2.fanzhuanfangshi">
+                                <mat-option *ngFor="let option of flipOptions" [value]="option.value">
+                                    {{ option.name }}
+                                </mat-option>
+                            </mat-select>
                         </mat-form-field>
-                        <div class="btn-group">
-                            <mat-icon color="primary" (click)="addFlipItem(i, j)">add</mat-icon>
-                            <mat-icon color="primary" (click)="removeFlipItem(i, j)">remove</mat-icon>
+                        <div>
+                            <button mat-icon-button color="primary" (click)="addFlipItem(i, j)">
+                                <mat-icon>add_circle</mat-icon>
+                            </button>
+                            <button mat-icon-button color="primary" (click)="removeFlipItem(i, j)">
+                                <mat-icon>remove_circle</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="sub-form-field">
+                    <div class="label">拆开后翻转</div>
+                    <div>
+                        <button mat-icon-button color="primary" (click)="addFlipChai(i)">
+                            <mat-icon>add_circle</mat-icon>
+                        </button>
+                    </div>
+                    <div class="sub-form-field-item">
+                        <div *ngFor="let key of keysOf(item.flipChai)">
+                            <mat-form-field class="halfwidth">
+                                <mat-label>序号</mat-label>
+                                <input type="text" matInput readonly [value]="key" />
+                                <mat-icon matSuffix color="primary" (click)="removeFlipChai(i, key)">remove_circle</mat-icon>
+                            </mat-form-field>
+                            <mat-form-field class="halfwidth">
+                                <mat-label>翻转</mat-label>
+                                <mat-select [(ngModel)]="item.flipChai[key]">
+                                    <mat-option *ngFor="let option of flipOptions" [value]="option.value">
+                                        {{ option.name }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
                         </div>
                     </div>
                 </div>
