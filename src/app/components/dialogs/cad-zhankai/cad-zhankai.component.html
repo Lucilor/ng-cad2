@@ -83,26 +83,24 @@
                             <mat-icon>add_circle</mat-icon>
                         </button>
                     </div>
-                    <div class="sub-form-field-item" *ngFor="let key of keysOf(item.neibugongshi)">
-                        <mat-form-field>
+                    <div *ngFor="let key of keysOf(item.neibugongshi)">
+                        <mat-form-field style="width: 30%">
                             <mat-label>内部公式-键</mat-label>
                             <input type="text" matInput [value]="key" (change)="changeObjectKey(item.neibugongshi, key, $event)" />
                         </mat-form-field>
-                        <mat-form-field>
+                        <mat-form-field style="width: 70%">
                             <mat-label>内部公式-值</mat-label>
                             <input type="text" matInput [(ngModel)]="item.neibugongshi[key]" [ngModelOptions]="{standalone: true}" />
+                            <button mat-icon-button matSuffix color="primary" (click)="objectAdd(item.neibugongshi, '', '')">
+                                <mat-icon>add_circle</mat-icon>
+                            </button>
+                            <button mat-icon-button matSuffix color="primary" (click)="objectRemove(item.neibugongshi, key)">
+                                <mat-icon>remove_circle</mat-icon>
+                            </button>
                             <button mat-icon-button matSuffix color="primary" (click)="selectOptions(cad, key)">
                                 <mat-icon>list</mat-icon>
                             </button>
                         </mat-form-field>
-                        <div>
-                            <button mat-icon-button color="primary" (click)="objectAdd(item.neibugongshi, '', '')">
-                                <mat-icon>add_circle</mat-icon>
-                            </button>
-                            <button mat-icon-button color="primary" (click)="objectRemove(item.neibugongshi, key)">
-                                <mat-icon>remove_circle</mat-icon>
-                            </button>
-                        </div>
                     </div>
                 </div>
                 <div class="sub-form-field">

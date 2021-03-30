@@ -34,7 +34,7 @@
     &.right {
         top: $offset-top;
         height: calc(100vh - #{$offset-top} - #{$offset-bottom});
-        width: 250px;
+        width: 300px;
         padding: 10px;
         flex-direction: column;
         right: 0;
