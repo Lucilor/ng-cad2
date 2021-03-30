@@ -68,7 +68,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     ) {
         super();
         (async () => {
-            const timeStamp = Number(local.load("changelogTimestamp"));
+            const timeStamp = Number(local.load("changelogTimeStamp"));
             const {changelog} = await this.dataService.getChangelog(1, 1);
             if (changelog.length) {
                 this.showNew = timeStamp < changelog[0].timeStamp;
@@ -218,10 +218,10 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
                 const start = group[0];
                 const end = group[group.length - 1];
                 if (start) {
-                    start.kailiaofangshi = "使用线长";
+                    start.zhankaifangshi = "使用线长";
                 }
                 if (end) {
-                    end.kailiaofangshi = "使用线长";
+                    end.zhankaifangshi = "使用线长";
                 }
             });
         });

@@ -382,7 +382,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     getLineText(field: string) {
         const lines = this.selected;
         if (lines.length === 1) {
-            return (lines as any)[0][field] as string;
+            return (lines as any)[0][field] ?? "" as string;
         }
         if (lines.length) {
             const texts = Array.from(new Set(lines.map((l: any) => l[field] as string)));
