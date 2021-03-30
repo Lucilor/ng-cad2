@@ -13,7 +13,7 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, CadStatus, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {copyToClipboard, ObjectOf, Point} from "@src/app/utils";
-import {concat, differenceWith, pull, pullAll} from "lodash";
+import {concat, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
 
@@ -485,8 +485,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const cads = await openCadListDialog(this.dialog, {
             data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
         });
-        const shouldReplace = (cad1: CadData, cad2: CadData) =>
-            cad1.name === cad2.name && differenceWith(cad1.options, cad2.options, (a, b) => a.equals(b)).length === 0;
+        const shouldReplace = (cad1: CadData, cad2: CadData) => false;
         if (Array.isArray(cads)) {
             let childrens: CadData[] | undefined;
             if (type === "partners") {

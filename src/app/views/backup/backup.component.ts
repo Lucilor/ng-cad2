@@ -73,7 +73,9 @@ export class BackupComponent {
     alertInfo(i: number) {
         const data = this.data[i].data;
         const getSpaces = (n: number) => new Array(n).fill("&nbsp;").join("");
-        const optionsStr = data.options.map((v) => `${getSpaces(9)}${v.name}: ${v.value}`).join("<br>");
+        const optionsStr = Object.keys(data.options)
+            .map((v) => `${getSpaces(9)}${v}: ${data.options[v]}`)
+            .join("<br>");
         const conditionsStr = data.conditions.map((v) => `${getSpaces(9)}${v}`).join("<br>");
         const content = [`分类: ${data.type}`, "选项: ", optionsStr, "条件: ", conditionsStr].join("<br>");
         this.message.alert(content, data.name);

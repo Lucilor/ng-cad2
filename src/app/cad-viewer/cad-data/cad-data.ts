@@ -1,7 +1,7 @@
 import {Matrix, MatrixLike, ObjectOf, Point} from "@src/app/utils";
 import {cloneDeep, uniqWith, intersection} from "lodash";
 import {v4} from "uuid";
-import {getObject, getVectorFromArray, isLinesParallel, mergeArray, separateArray} from "../utils";
+import {getArray, getObject, getVectorFromArray, isLinesParallel, mergeArray, mergeObject, separateArray, separateObject} from "../utils";
 import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
 import {CadLayer} from "./cad-layer";
 
@@ -11,8 +11,8 @@ export class CadData {
     id = "";
     name = "";
     type = "";
-    conditions: CadCondition[] = [];
-    options: CadOption[] = [];
+    conditions: string[] = [];
+    options: ObjectOf<string> = {};
     baseLines: CadBaseLine[] = [];
     jointPoints: CadJointPoint[] = [];
     parent = "";
@@ -56,20 +56,8 @@ export class CadData {
             }
         }
         this.entities = new CadEntities(data.entities || {}, this.layers);
-        this.conditions = [];
-        if (Array.isArray(data.conditions)) {
-            data.conditions.forEach((v: string | CadCondition) => this.conditions.push(new CadCondition(v)));
-        }
-        this.options = [];
-        if (typeof data.options === "object") {
-            if (Array.isArray(data.options)) {
-                data.options.forEach((v: CadOption) => this.options.push(new CadOption(v)));
-            } else {
-                for (const key in data.options) {
-                    this.options.push(new CadOption(key, data.options[key]));
-                }
-            }
-        }
+        this.conditions = getArray(data.conditions);
+        this.options = getObject(data.options);
         this.baseLines = [];
         if (Array.isArray(data.baseLines)) {
             data.baseLines.forEach((v) => {
@@ -128,20 +116,14 @@ export class CadData {
         this.layers.forEach((v) => {
             exLayers[v.id] = v.export();
         });
-        const exOptions: ObjectOf<string> = {};
-        this.options.forEach((v) => {
-            if (v.name) {
-                exOptions[v.name] = v.value;
-            }
-        });
-        return {
+        return cloneDeep({
             layers: exLayers,
             entities: this.entities.export(),
             id: this.id,
             name: this.name,
             type: this.type,
-            conditions: this.conditions.map((v) => v.value).filter((v) => v),
-            options: exOptions,
+            conditions: this.conditions,
+            options: this.options,
             baseLines: this.baseLines.map((v) => v.export()).filter((v) => v.name && v.idX && v.idY),
             jointPoints: this.jointPoints.map((v) => v.export()),
             parent: this.parent,
@@ -159,14 +141,14 @@ export class CadData {
             suanliaochuli: this.suanliaochuli,
             showKuandubiaozhu: this.showKuandubiaozhu,
             info: this.info,
-            attributes: cloneDeep(this.attributes),
+            attributes: this.attributes,
             bancaihoudufangxiang: this.bancaihoudufangxiang,
             zhankai: this.zhankai.map((v) => v.export()),
             suanliaodanxianshibancai: this.suanliaodanxianshibancai,
             needsHuajian: this.needsHuajian,
             kedulibancai: this.kedulibancai,
             shuangxiangzhewan: this.shuangxiangzhewan
-        };
+        });
     }
 
     getAllEntities() {
@@ -230,7 +212,7 @@ export class CadData {
         this.layers = this.layers.concat(data.layers);
         this.entities.merge(data.entities);
         this.conditions = mergeArray(this.conditions, data.conditions, "value");
-        this.options = mergeArray(this.options, data.options, "name");
+        this.options = mergeObject(this.options, data.options);
         this.jointPoints = mergeArray(this.jointPoints, data.jointPoints, "name");
         this.baseLines = mergeArray(this.baseLines, data.baseLines, "name");
         this.partners = mergeArray(this.partners, data.partners, "id");
@@ -244,7 +226,7 @@ export class CadData {
         this.layers = this.layers.filter((v) => !layerIds.includes(v.id));
         this.entities.separate(data.entities);
         this.conditions = separateArray(this.conditions, data.conditions);
-        this.options = separateArray(this.options, data.options, "name");
+        this.options = separateObject(this.options, data.options);
         this.jointPoints = separateArray(this.jointPoints, data.jointPoints, "name");
         this.baseLines = separateArray(this.baseLines, data.baseLines, "name");
         this.partners = separateArray(this.partners, data.partners, "id");
@@ -759,41 +741,6 @@ export class CadJointPoint {
     }
 }
 
-export class CadCondition {
-    value: string;
-
-    constructor(value: string | CadCondition = "") {
-        if (value instanceof CadCondition) {
-            this.value = value.value;
-        } else {
-            this.value = value;
-        }
-    }
-
-    equals(condition: CadCondition) {
-        return this.value === condition.value;
-    }
-}
-
-export class CadOption {
-    name: string;
-    value: string;
-
-    constructor(name: string | CadOption = "", value = "") {
-        if (name instanceof CadOption) {
-            this.name = name.name;
-            this.value = name.value;
-        } else {
-            this.name = name;
-            this.value = value;
-        }
-    }
-
-    equals(option: CadOption) {
-        return this.name === option.name && this.value === option.value;
-    }
-}
-
 export class CadConnection {
     ids: string[];
     names: string[];
@@ -922,7 +869,7 @@ export class CadZhankai {
     }
 
     export() {
-        return {
+        return cloneDeep({
             zhankaikuan: this.zhankaikuan,
             zhankaigao: this.zhankaigao,
             shuliang: this.shuliang,
@@ -936,6 +883,6 @@ export class CadZhankai {
             flip: this.flip,
             flipChai: this.flipChai,
             neibugongshi: this.neibugongshi
-        };
+        });
     }
 }

@@ -5,7 +5,7 @@ import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS} from "@angular/material/tooltip";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, imgEmpty, CadCollection} from "@src/app/app.common";
-import {CadData, CadOption} from "@src/app/cad-viewer";
+import {CadData} from "@src/app/cad-viewer";
 import {getCadPreview} from "@src/app/cad.utils";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
@@ -18,7 +18,7 @@ import {getOpenDialogFunc} from "../dialog.common";
 export interface CadListData {
     selectMode: "single" | "multiple" | "table";
     checkedItems?: CadData[];
-    options?: CadOption[];
+    options?: CadData["options"];
     collection: CadCollection;
     qiliao?: boolean;
 }
@@ -75,7 +75,7 @@ export class CadListComponent implements AfterViewInit {
         }
         this.data.qiliao = this.data.qiliao === true;
         if (!Array.isArray(this.data.options)) {
-            this.data.options = [];
+            this.data.options = {};
         }
         this.getData(1);
         this.checkedIndex.subscribe((i) => {
@@ -122,7 +122,7 @@ export class CadListComponent implements AfterViewInit {
         }
     }
 
-    async getData(page: number, options: CadOption[] = [], matchType: "and" | "or" = "and") {
+    async getData(page: number, options: CadData["options"] = {}, matchType: "and" | "or" = "and") {
         if (!this.paginator) {
             return null;
         }
@@ -180,7 +180,7 @@ export class CadListComponent implements AfterViewInit {
         this.searchForm = {};
         this.searchForm[this.searchField] = this.searchNameInput;
         this.paginator.pageIndex = 0;
-        const options = withOption ? this.data.options : [];
+        const options = withOption ? this.data.options : {};
         this.getData(this.paginator.pageIndex + 1, options, matchType);
     }
 

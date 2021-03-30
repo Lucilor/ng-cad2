@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {MatDialogRef} from "@angular/material/dialog";
-import {CadOption} from "@src/app/cad-viewer";
+import {CadData} from "@src/app/cad-viewer";
 import {CadSearchData, CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {ObjectOf, timeout} from "@src/app/utils";
@@ -17,7 +17,7 @@ export class CadSearchFormComponent implements OnInit {
     additional: CadSearchData[0] = {title: "自由选择", items: []};
 
     constructor(
-        public dialogRef: MatDialogRef<CadSearchFormComponent, CadOption[]>,
+        public dialogRef: MatDialogRef<CadSearchFormComponent, CadData["options"]>,
         private dataservice: CadDataService,
         private message: MessageService
     ) {}
@@ -44,11 +44,11 @@ export class CadSearchFormComponent implements OnInit {
     }
 
     submit() {
-        const result = Array<CadOption>();
+        const result: CadData["options"] = {};
         for (const name in this.form) {
             if (this.form[name].length) {
                 const value = this.form[name].join(",");
-                result.push(new CadOption(name, value));
+                result[name] = value;
             }
         }
         this.dialogRef.close(result);
@@ -64,5 +64,4 @@ export class CadSearchFormComponent implements OnInit {
     }
 }
 
-export const openCadSearchFormDialog = getOpenDialogFunc<CadSearchFormComponent, CadSearchData, CadOption[]>(CadSearchFormComponent);
-
+export const openCadSearchFormDialog = getOpenDialogFunc<CadSearchFormComponent, CadSearchData, CadData["options"]>(CadSearchFormComponent);

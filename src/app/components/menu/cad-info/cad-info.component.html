@@ -9,47 +9,51 @@
             <mat-label>分类</mat-label>
             <input matInput type="text" [(ngModel)]="cad.type" name="type" />
         </mat-form-field>
-        <div class="form-item-group options">
-            <div *ngFor="let o of cad.options; let j = index">
+        <div class="sub-form-field">
+            <div class="label">选项</div>
+            <div *ngIf="keysOf(cad.options).length === 0">
+                <button mat-icon-button color="primary" (click)="addCondition(cad, 0)">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+            </div>
+            <div class="sub-form-field-item" *ngFor="let key of keysOf(cad.options)">
                 <mat-form-field>
                     <mat-label>选项-键</mat-label>
-                    <input matInput type="text" [value]="o.name" (input)="setValue($event, o, 'name')" name="optionKey" />
+                    <input type="text" matInput [value]="key" (change)="changeObjectKey(cad.options, key, $event)" />
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>选项-值</mat-label>
-                    <input
-                        matInput
-                        type="text"
-                        [value]="o.value"
-                        (input)="setValue($event, o, 'value')"
-                        placeholder="选项"
-                        name="optionValue"
-                    />
-                    <button mat-icon-button matSuffix color="primary" (click)="selectOptions(o)">
+                    <input type="text" matInput [(ngModel)]="cad.options[key]" [ngModelOptions]="{standalone: true}" />
+                    <button mat-icon-button matSuffix color="primary" (click)="selectOptions(cad, key)">
                         <mat-icon>list</mat-icon>
                     </button>
-                    <button mat-icon-button matSuffix color="primary" (click)="addOption(cad, j)">
+                </mat-form-field>
+                <div>
+                    <button mat-icon-button color="primary" (click)="addOption(cad)">
                         <mat-icon>add_circle</mat-icon>
                     </button>
-                    <button mat-icon-button matSuffix color="primary" (click)="removeOption(cad, j)">
+                    <button mat-icon-button color="primary" (click)="removeOption(cad, key)">
                         <mat-icon>remove_circle</mat-icon>
                     </button>
-                </mat-form-field>
+                </div>
             </div>
         </div>
-        <div class="form-item-group">
-            <div *ngFor="let c of cad.conditions; let j = index">
-                <mat-form-field>
-                    <mat-label>条件</mat-label>
-                    <input matInput type="text" [value]="c.value" (input)="setValue($event, c, 'value')" name="condition" />
-                    <button mat-icon-button matSuffix color="primary" (click)="addCondition(cad, j)">
-                        <mat-icon>add_circle</mat-icon>
-                    </button>
-                    <button mat-icon-button matSuffix color="primary" (click)="removeCondition(cad, j)">
-                        <mat-icon>remove_circle</mat-icon>
-                    </button>
-                </mat-form-field>
+        <div class="sub-form-field">
+            <div class="label">条件</div>
+            <div *ngIf="cad.conditions.length === 0">
+                <button mat-icon-button color="primary" (click)="addCondition(cad, 0)">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
             </div>
+            <mat-form-field *ngFor="let c of ' '.repeat(cad.conditions.length).split(''); let j = index">
+                <input matInput type="text" [(ngModel)]="cad.conditions[j]" [ngModelOptions]="{standalone: true}" />
+                <button mat-icon-button matSuffix color="primary" (click)="addCondition(cad, j)">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+                <button mat-icon-button matSuffix color="primary" (click)="removeCondition(cad, j)">
+                    <mat-icon>remove_circle</mat-icon>
+                </button>
+            </mat-form-field>
         </div>
         <div class="form-item-group hint">
             <div *ngFor="let b of cad.baseLines; let i = index">
@@ -128,7 +132,7 @@
         <mat-form-field>
             <mat-label>默认开料板材</mat-label>
             <input matInput type="text" [(ngModel)]="cad.morenkailiaobancai" name="morenkailiaobancai" />
-            <button mat-icon-button matSuffix color="primary" (click)="selectOptions('bancai')">
+            <button mat-icon-button matSuffix color="primary" (click)="selectOptions(cad, 'bancai')">
                 <mat-icon>list</mat-icon>
             </button>
         </mat-form-field>

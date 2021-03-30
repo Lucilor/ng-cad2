@@ -2,9 +2,10 @@ import {Component, EventEmitter, OnDestroy, OnInit, Output} from "@angular/core"
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute} from "@angular/router";
-import {CadData, CadLine, CadEventCallBack, CadOption, CadBaseLine, CadJointPoint, CadEntity, CadCondition} from "@src/app/cad-viewer";
+import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity} from "@src/app/cad-viewer";
 import {getCadGongshiText} from "@src/app/cad.utils";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
+import {Utils} from "@src/app/mixins/utils.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService, CadStatus} from "@src/app/services/app-status.service";
 import {openCadDataAttrsDialog} from "../../dialogs/cad-data-attrs/cad-data-attrs.component";
@@ -17,7 +18,7 @@ import {openCadZhankaiDialog} from "../../dialogs/cad-zhankai/cad-zhankai.compon
     templateUrl: "./cad-info.component.html",
     styleUrls: ["./cad-info.component.scss"]
 })
-export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy {
+export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnDestroy {
     cadsData: CadData[] = [];
     editDisabled = true;
     @Output() cadLengthsChange = new EventEmitter<string[]>();
@@ -103,57 +104,42 @@ export class CadInfoComponent extends Subscribed() implements OnInit, OnDestroy 
         this.cadLengthsChange.emit(lengths);
     }
 
-    async selectOptions(option: CadOption | string) {
-        const data = this.status.getFlatSelectedCads()[0];
-        if (option instanceof CadOption) {
-            const checkedItems = option.value.split(",");
-            const result = await openCadOptionsDialog(this.dialog, {data: {data, name: option.name, checkedItems}});
-            if (Array.isArray(result)) {
-                option.value = result.join(",");
-            }
-        } else if (option === "huajian") {
+    async selectOptions(data: CadData, optionKey: string) {
+        if (optionKey === "huajian") {
             const checkedItems = data.huajian.split(",");
             const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems}});
             if (Array.isArray(result)) {
                 data.huajian = result.join(",");
             }
-        } else if (option === "bancai") {
+        } else if (optionKey === "bancai") {
             const checkedItems = data.morenkailiaobancai.split(",");
             const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems, multi: false}});
             if (Array.isArray(result)) {
                 data.morenkailiaobancai = result.join(",");
             }
+        } else {
+            const checkedItems = data.options[optionKey].split(",");
+            const result = await openCadOptionsDialog(this.dialog, {data: {data, name: optionKey, checkedItems}});
+            if (result) {
+                data.options[optionKey] = result.join(",");
+            }
         }
     }
 
     addCondition(data: CadData, index: number) {
-        data.conditions.splice(index + 1, 0, new CadCondition());
+        data.conditions.splice(index + 1, 0, "");
     }
 
-    async removeCondition(data: CadData, index: number) {
-        if (await this.message.confirm("是否确定删除？")) {
-            const arr = data.conditions;
-            if (arr.length === 1) {
-                arr[0] = new CadCondition();
-            } else {
-                arr.splice(index, 1);
-            }
-        }
+    removeCondition(data: CadData, index: number) {
+        data.conditions.splice(index, 1);
     }
 
-    addOption(data: CadData, index: number) {
-        data.options.splice(index + 1, 0, new CadOption());
+    addOption(data: CadData) {
+        data.options[""] = "";
     }
 
-    async removeOption(data: CadData, index: number) {
-        if (await this.message.confirm("是否确定删除？")) {
-            const arr = data.options;
-            if (arr.length === 1) {
-                arr[0] = new CadOption();
-            } else {
-                arr.splice(index, 1);
-            }
-        }
+    async removeOption(data: CadData, key: string) {
+        delete data.options[key];
     }
 
     getItemColor(name: CadStatus["name"], index: number) {

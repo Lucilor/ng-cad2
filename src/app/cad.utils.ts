@@ -1,17 +1,6 @@
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {
-    CadData,
-    CadViewer,
-    CadViewerConfig,
-    CadMtext,
-    CadOption,
-    CadBaseLine,
-    CadJointPoint,
-    CadDimension,
-    CadCondition,
-    CadZhankai
-} from "./cad-viewer";
+import {CadData, CadViewer, CadViewerConfig, CadMtext, CadBaseLine, CadJointPoint, CadDimension, CadZhankai} from "./cad-viewer";
 import {getDPI, Point} from "./utils";
 
 export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}) => {
@@ -158,12 +147,6 @@ export const getCadGongshiText = (data: CadData) => {
 };
 
 export const setCadData = (data: CadData) => {
-    if (data.options.length < 1) {
-        data.options.push(new CadOption());
-    }
-    if (data.conditions.length < 1) {
-        data.conditions.push(new CadCondition());
-    }
     if (data.baseLines.length < 1) {
         data.baseLines.push(new CadBaseLine());
     }
