@@ -120,14 +120,6 @@ export class CadZhankaiComponent extends Utils() {
         this.data[i].conditions[j] = replaceChars(str, fullChars2HalfChars);
     }
 
-    addCondition(i: number, j: number) {
-        this.data[i].conditions.splice(j + 1, 0, "");
-    }
-
-    async removeCondition(i: number, j: number) {
-        this.data[i].conditions.splice(j, 1);
-    }
-
     async selectOptions(obj: any, field: string) {
         const name = (this.keysMap as any)[field];
         const checkedItems = (obj[field] as string).split(",");
@@ -135,16 +127,6 @@ export class CadZhankaiComponent extends Utils() {
         if (Array.isArray(result)) {
             obj[field] = result.join(",");
         }
-    }
-
-    addFlipItem(i: number, j: number) {
-        const item = this.data[i].flip;
-        item.splice(j + 1, 0, this.emptyFlipItem);
-    }
-
-    removeFlipItem(i: number, j: number) {
-        const item = this.data[i].flip;
-        item.splice(j, 1);
     }
 
     async addFlipChai(i: number) {

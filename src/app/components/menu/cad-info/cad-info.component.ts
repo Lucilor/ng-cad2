@@ -126,22 +126,6 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
     }
 
-    addCondition(data: CadData, index: number) {
-        data.conditions.splice(index + 1, 0, "");
-    }
-
-    removeCondition(data: CadData, index: number) {
-        data.conditions.splice(index, 1);
-    }
-
-    addOption(data: CadData) {
-        data.options[""] = "";
-    }
-
-    async removeOption(data: CadData, key: string) {
-        delete data.options[key];
-    }
-
     getItemColor(name: CadStatus["name"], index: number) {
         const cadStatus = this.status.cadStatus();
         if (name === cadStatus.name && index === cadStatus.index) {

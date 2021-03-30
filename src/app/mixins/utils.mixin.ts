@@ -2,11 +2,27 @@ import {Constructor, ObjectOf} from "../utils/types";
 
 export const Utils = <T extends Constructor>(base: T = class {} as T) =>
     class extends base {
-        keysOf(obj: ObjectOf<any>) {
+        arrayAdd<K>(arr: K[], value: K, index = arr.length) {
+            arr.splice(index, 0, value);
+        }
+
+        arrayRemove<K>(arr: K[], index: number) {
+            arr.splice(index, 1);
+        }
+
+        objectAdd<K>(obj: ObjectOf<K>, value: K, key = "") {
+            obj[key] = value;
+        }
+
+        objectRemove<K>(obj: ObjectOf<K>, key: string) {
+            delete obj[key];
+        }
+
+        keysOf<K>(obj: ObjectOf<K>) {
             return Object.keys(obj);
         }
 
-        changeObjectKey(obj: ObjectOf<any>, oldKey: string, newKey: string | Event) {
+        changeObjectKey<K>(obj: ObjectOf<K>, oldKey: string, newKey: string | Event) {
             if (newKey instanceof Event) {
                 const value = (newKey.target as any)?.value;
                 if (typeof value === "string") {

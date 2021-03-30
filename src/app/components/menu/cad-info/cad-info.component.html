@@ -12,7 +12,7 @@
         <div class="sub-form-field">
             <div class="label">选项</div>
             <div *ngIf="keysOf(cad.options).length === 0">
-                <button mat-icon-button color="primary" (click)="addCondition(cad, 0)">
+                <button mat-icon-button color="primary" (click)="objectAdd(cad.options, '')">
                     <mat-icon>add_circle</mat-icon>
                 </button>
             </div>
@@ -29,10 +29,10 @@
                     </button>
                 </mat-form-field>
                 <div>
-                    <button mat-icon-button color="primary" (click)="addOption(cad)">
+                    <button mat-icon-button color="primary" (click)="objectAdd(cad.options, '', '')">
                         <mat-icon>add_circle</mat-icon>
                     </button>
-                    <button mat-icon-button color="primary" (click)="removeOption(cad, key)">
+                    <button mat-icon-button color="primary" (click)="objectRemove(cad.options, key)">
                         <mat-icon>remove_circle</mat-icon>
                     </button>
                 </div>
@@ -41,16 +41,16 @@
         <div class="sub-form-field">
             <div class="label">条件</div>
             <div *ngIf="cad.conditions.length === 0">
-                <button mat-icon-button color="primary" (click)="addCondition(cad, 0)">
+                <button mat-icon-button color="primary" (click)="arrayAdd(cad.conditions, '')">
                     <mat-icon>add_circle</mat-icon>
                 </button>
             </div>
             <mat-form-field *ngFor="let c of ' '.repeat(cad.conditions.length).split(''); let j = index">
                 <input matInput type="text" [(ngModel)]="cad.conditions[j]" [ngModelOptions]="{standalone: true}" />
-                <button mat-icon-button matSuffix color="primary" (click)="addCondition(cad, j)">
+                <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(cad.conditions, '', j + 1)">
                     <mat-icon>add_circle</mat-icon>
                 </button>
-                <button mat-icon-button matSuffix color="primary" (click)="removeCondition(cad, j)">
+                <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(cad.conditions, j)">
                     <mat-icon>remove_circle</mat-icon>
                 </button>
             </mat-form-field>
