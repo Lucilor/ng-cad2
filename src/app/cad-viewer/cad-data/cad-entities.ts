@@ -323,7 +323,9 @@ export abstract class CadLineLike extends CadEntity {
         this.zhewanOffset = data.zhewanOffset ?? 0;
         this.zhewanValue = data.zhewanValue ?? 0;
         this.zidingzhankaichang = String(data.zidingzhankaichang) ?? "";
-        if (typeof data.zhankaifangshi === "string") {
+        if (typeof data.kailiaofangshi === "string" && data.kailiaofangshi) {
+            this.zhankaifangshi = data.kailiaofangshi;
+        } else if (typeof data.zhankaifangshi === "string") {
             this.zhankaifangshi = data.zhankaifangshi;
         } else {
             const zidingzhankaichangNum = Number(this.zidingzhankaichang);
