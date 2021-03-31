@@ -242,7 +242,7 @@ export abstract class CadEntity {
     export(): ObjectOf<any> {
         this._indexColor = RGB2Index(this.color.hex());
         this.update();
-        return {
+        return cloneDeep({
             id: this.id,
             layer: this.layer,
             type: this.type,
@@ -250,7 +250,7 @@ export abstract class CadEntity {
             lineweight: linewidth2lineweight(this.linewidth),
             children: this.children.export(),
             info: this.info
-        };
+        });
     }
 
     addChild(...children: CadEntity[]) {
@@ -573,13 +573,13 @@ export class CadDimension extends CadEntity {
     }
 
     export(): ObjectOf<any> {
-        return {
+        return cloneDeep({
             ...super.export(),
             dimstyle: this.dimstyle,
             font_size: this.font_size,
             axis: this.axis,
-            entity1: {...this.entity1},
-            entity2: {...this.entity2},
+            entity1: this.entity1,
+            entity2: this.entity2,
             distance: this.distance,
             cad1: this.cad1,
             cad2: this.cad2,
@@ -589,7 +589,7 @@ export class CadDimension extends CadEntity {
             quzhifanwei: this.quzhifanwei,
             renderStyle: this.renderStyle,
             hideDimLines: this.hideDimLines
-        };
+        });
     }
 
     clone(resetId = false) {
