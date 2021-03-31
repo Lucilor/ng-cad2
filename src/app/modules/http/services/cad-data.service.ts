@@ -169,8 +169,8 @@ export class CadDataService extends HttpService {
         return {data: [], count: 0};
     }
 
-    async getBackupCads(search = "", limit = 20) {
-        const response = await this.post("peijian/cad/getBackupCads", {search, limit});
+    async getBackupCads(name = "", limit = 20) {
+        const response = await this.post("peijian/cad/getBackupCads", {name, limit});
         if (response) {
             const result = response.data as {time: number; data: CadData}[];
             result.forEach((v) => {

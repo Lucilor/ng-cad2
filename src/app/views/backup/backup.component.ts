@@ -1,5 +1,6 @@
 import {Component} from "@angular/core";
 import {DomSanitizer} from "@angular/platform-browser";
+import {ActivatedRoute} from "@angular/router";
 import {CadData} from "@src/app/cad-viewer";
 import {getCadPreview} from "@src/app/cad.utils";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
@@ -17,21 +18,32 @@ export class BackupComponent {
     loaderText = "";
     search = "";
     limit = 20;
+    cads: CadData[] = [];
 
     constructor(
         private message: MessageService,
         private loader: NgxUiLoaderService,
         private dataService: CadDataService,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        private route: ActivatedRoute
     ) {
-        this.getData();
+        (async () => {
+            const ids = this.route.snapshot.queryParams.ids;
+            if (ids) {
+                this.loaderText = "正在获取数据";
+                this.loader.startLoader(this.loaderId);
+                this.cads = (await this.dataService.getCad({ids: ids.split(",")})).cads;
+                this.loader.stopLoader(this.loaderId);
+                this.search = this.cads[0].name;
+            }
+            this.getData();
+        })();
     }
 
     async getData() {
         this.loaderText = "正在获取数据";
         this.loader.startLoader(this.loaderId);
         const result = await this.dataService.getBackupCads(this.search, this.limit);
-        this.data = [];
         if (result) {
             for (const v of result) {
                 const img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(v.data, {width: 200, height: 100})) as string;
@@ -77,7 +89,7 @@ export class BackupComponent {
             .map((v) => `${getSpaces(9)}${v}: ${data.options[v]}`)
             .join("<br>");
         const conditionsStr = data.conditions.map((v) => `${getSpaces(9)}${v}`).join("<br>");
-        const content = [`分类: ${data.type}`, "选项: ", optionsStr, "条件: ", conditionsStr].join("<br>");
+        const content = [`id: ${data.id}`, `分类: ${data.type}`, "选项: ", optionsStr, "条件: ", conditionsStr].join("<br>");
         this.message.alert(content, data.name);
     }
 }

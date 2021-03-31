@@ -1,6 +1,6 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {local} from "@src/app/app.common";
+import {local, routesInfo} from "@src/app/app.common";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
@@ -34,6 +34,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     statusName: ValueOf<CadStatusName> = "普通";
     statusWithoutEsc: ValueOf<CadStatusName>[] = ["普通", "装配"];
     showNew = false;
+    routesInfo = routesInfo;
 
     get isStatusNormal() {
         return this.statusName === "普通";

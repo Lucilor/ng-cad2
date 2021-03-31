@@ -1,7 +1,7 @@
 <form>
     <mat-form-field style="width: 100%">
         <mat-label>搜索CAD名字</mat-label>
-        <input type="text" matInput [(ngModel)]="search" (change)="getData()" name="name" />
+        <input type="text" matInput [(ngModel)]="search" (change)="getData()" [ngModelOptions]="{standalone: true}"/>
         <mat-hint>只显示最近的{{ limit }}个数据。通过搜索CAD名字来找到对应的CAD。</mat-hint>
     </mat-form-field>
     <button hidden (click)="getData()"></button>

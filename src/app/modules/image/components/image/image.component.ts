@@ -86,6 +86,9 @@ export class ImageComponent {
     }
 
     onWheel(event: WheelEvent) {
+        if (!this._control) {
+            return;
+        }
         event.stopPropagation();
         const img = event.target as HTMLImageElement;
         const matrix = this._getDomMatrix(img);
@@ -99,6 +102,9 @@ export class ImageComponent {
     }
 
     onPointerDown(event: PointerEvent) {
+        if (!this._control) {
+            return;
+        }
         event.stopPropagation();
         const img = event.target as HTMLImageElement;
         img.setAttribute("x", event.clientX.toString());
@@ -110,6 +116,9 @@ export class ImageComponent {
     }
 
     onPointerMove(event: PointerEvent) {
+        if (!this._control) {
+            return;
+        }
         event.stopPropagation();
         const img = event.target as HTMLImageElement;
         if (!img.hasAttribute("x") || !img.hasAttribute("y")) {
@@ -125,6 +134,9 @@ export class ImageComponent {
     }
 
     onPointerUp(event: PointerEvent) {
+        if (!this._control) {
+            return;
+        }
         event.stopPropagation();
         const img = event.target as HTMLImageElement;
         img.removeAttribute("x");
