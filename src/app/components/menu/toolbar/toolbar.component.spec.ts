@@ -1,5 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatMenuModule} from "@angular/material/menu";
+import {RouterTestingModule} from "@angular/router/testing";
 import {CadConsoleModule} from "@src/app/modules/cad-console/cad-console.module";
 import {HttpModule} from "@src/app/modules/http/http.module";
 import {MessageModule} from "@src/app/modules/message/message.module";
@@ -13,7 +14,7 @@ describe("ToolbarComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ToolbarComponent],
-            imports: [MatMenuModule, CadConsoleModule, HttpModule, MessageModule]
+            imports: [MatMenuModule, CadConsoleModule, HttpModule, MessageModule, RouterTestingModule]
         }).compileComponents();
     });
 
