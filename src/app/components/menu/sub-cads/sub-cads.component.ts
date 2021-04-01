@@ -485,7 +485,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const cads = await openCadListDialog(this.dialog, {
             data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
         });
-        const shouldReplace = (cad1: CadData, cad2: CadData) => false;
+        const shouldReplace = (cad1: CadData, cad2: CadData) => cad1.id === cad2.id;
         if (Array.isArray(cads)) {
             let childrens: CadData[] | undefined;
             if (type === "partners") {
@@ -496,14 +496,15 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             if (childrens) {
                 const positions: ObjectOf<number[]> = {};
                 for (const cad of cads) {
-                    if (childrens.length) {
-                        for (let i = 0; i < childrens.length; i++) {
+                    const length = childrens.length;
+                    if (length) {
+                        for (let i = 0; i < length; i++) {
                             if (shouldReplace(childrens[i], cad)) {
                                 const {x, y} = removeCadGongshi(childrens[i]).getBoundingRect();
                                 positions[childrens[i].id] = [x, y];
                                 childrens[i] = cad;
                                 break;
-                            } else if (i === childrens.length - 1) {
+                            } else {
                                 childrens.push(cad);
                             }
                         }
