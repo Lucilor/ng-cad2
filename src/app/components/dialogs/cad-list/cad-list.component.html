@@ -59,7 +59,7 @@
                 <div class="cad-preview">
                     <img [src]="item.img" (click)="item.checked = !item.checked" />
                 </div>
-                <ng-container *ngTemplateOutlet="details; context: {$implicit: item}"></ng-container>
+                <ng-container *ngTemplateOutlet="details; context: {$implicit: item.data}"></ng-container>
             </div>
         </div>
     </perfect-scrollbar>
@@ -115,16 +115,16 @@
 </div>
 
 <ng-template #details let-item>
-    <mat-list class="details">
+    <mat-list class="details" *ngFor="let data of asCadDataArray([item])">
         <mat-divider></mat-divider>
         <div matSubheader>选项</div>
-        <mat-list-item *ngFor="let o of item.data.options" [matTooltip]="o.name + ': ' + o.value">
-            {{ o.name }}: {{ o.value }}
+        <mat-list-item *ngFor="let k of keysOf(data.options)" [matTooltip]="k + ': ' + data.options[k]">
+            {{ k }}: {{ data.options[k] }}
         </mat-list-item>
         <mat-divider></mat-divider>
         <div matSubheader>条件</div>
-        <mat-list-item *ngFor="let c of item.data.conditions" [matTooltip]="c.value">
-            {{ c.value }}
+        <mat-list-item *ngFor="let c of data.conditions" [matTooltip]="c">
+            {{ c }}
         </mat-list-item>
     </mat-list>
 </ng-template>

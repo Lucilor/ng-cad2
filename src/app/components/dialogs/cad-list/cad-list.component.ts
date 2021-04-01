@@ -7,6 +7,7 @@ import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, imgEmpty, CadCollection} from "@src/app/app.common";
 import {CadData} from "@src/app/cad-viewer";
 import {getCadPreview} from "@src/app/cad.utils";
+import {Utils} from "@src/app/mixins/utils.mixin";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
@@ -36,7 +37,7 @@ export const customTooltipOptions: MatTooltipDefaultOptions = {
     styleUrls: ["./cad-list.component.scss"],
     providers: [{provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: customTooltipOptions}]
 })
-export class CadListComponent implements AfterViewInit {
+export class CadListComponent extends Utils() implements AfterViewInit {
     length = 100;
     pageSizeOptions = [1, 10, 20, 50, 100];
     pageSize = 10;
@@ -63,7 +64,9 @@ export class CadListComponent implements AfterViewInit {
         private dataService: CadDataService,
         private dialog: MatDialog,
         private message: MessageService
-    ) {}
+    ) {
+        super();
+    }
 
     async ngAfterViewInit() {
         if (!this.paginator) {
@@ -71,7 +74,7 @@ export class CadListComponent implements AfterViewInit {
         }
         await this.paginator.initialized.toPromise();
         if (Array.isArray(this.data.checkedItems)) {
-            this.checkedItems = this.data.checkedItems;
+            this.checkedItems = this.data.checkedItems.map(v=>v.clone());
         }
         this.data.qiliao = this.data.qiliao === true;
         if (!Array.isArray(this.data.options)) {
@@ -261,6 +264,10 @@ export class CadListComponent implements AfterViewInit {
     toggleShowCheckedOnly(evnet: MatSlideToggleChange) {
         this.showCheckedOnly = evnet.checked;
         this.search();
+    }
+
+    asCadDataArray(value: CadData[]) {
+        return value;
     }
 }
 

@@ -131,7 +131,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
     showChangelog() {
         openChangelogDialog(this.dialog, {hasBackdrop: true});
-        local.save("changelogTimestamp", new Date().getTime());
+        local.save("changelogTimeStamp", new Date().getTime());
         this.showNew = false;
     }
 
