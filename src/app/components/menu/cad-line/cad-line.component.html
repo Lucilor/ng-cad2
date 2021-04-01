@@ -19,20 +19,20 @@
 </div>
 <form [class.not-allowed]="editDiabled">
     <button hidden></button>
-    <div class="form-item length">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>长度</mat-label>
             <input matInput type="number" [ngModel]="getLineLength()" (change)="setLineLength($event)" name="lineLength" />
         </mat-form-field>
     </div>
-    <div class="form-item hideLength">
+    <div class="form-item">
         <mat-form-field floatLabel="always">
             <mat-label>是否隐藏线长</mat-label>
             <mat-slide-toggle [ngModel]="getHideLength()" (change)="setHideLength($event)" name="hideLength"></mat-slide-toggle>
             <input matInput hidden />
         </mat-form-field>
     </div>
-    <div class="form-item lengthTextSize">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>线长字体大小</mat-label>
             <input
@@ -44,7 +44,7 @@
             />
         </mat-form-field>
     </div>
-    <div class="form-item color">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>颜色</mat-label>
             <input
@@ -66,13 +66,13 @@
             </mat-menu>
         </mat-form-field>
     </div>
-    <div class="form-item linewidth">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>线宽</mat-label>
             <input matInput type="text" [ngModel]="getLinewidth()" (change)="setLinewidth($event)" name="linewidth" />
         </mat-form-field>
     </div>
-    <div class="form-item mingzi">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>名字</mat-label>
             <input
@@ -86,7 +86,7 @@
             />
         </mat-form-field>
     </div>
-    <div class="form-item qujian">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>区间</mat-label>
             <input
@@ -100,7 +100,7 @@
             />
         </mat-form-field>
     </div>
-    <div class="form-item gongshi">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>公式</mat-label>
             <input
@@ -116,7 +116,7 @@
             <mat-error>{{ inputErrors.gongshi }}</mat-error>
         </mat-form-field>
     </div>
-    <div class="form-item guanlianbianhuagongshi">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>关联变化公式</mat-label>
             <input
@@ -132,7 +132,7 @@
             <mat-error>{{ inputErrors.guanlianbianhuagongshi }}</mat-error>
         </mat-form-field>
     </div>
-    <div class="form-item kongwei">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>孔位</mat-label>
             <input
@@ -146,7 +146,7 @@
             />
         </mat-form-field>
     </div>
-    <div class="form-item nextZhewan">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>下一个折弯标线</mat-label>
             <mat-select name="nextZhewan" [ngModel]="getLineText('nextZhewan')" (selectionChange)="setLineText($event, 'nextZhewan')">
@@ -157,7 +157,7 @@
             </mat-select>
         </mat-form-field>
     </div>
-    <div class="form-item betweenZhewan">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>两根线之间的折弯标记</mat-label>
             <mat-select name="nextZhewan" [ngModel]="getLineText('betweenZhewan')" (selectionChange)="setLineText($event, 'betweenZhewan')">
@@ -168,7 +168,7 @@
             </mat-select>
         </mat-form-field>
     </div>
-    <div class="form-item zhewanOffset">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>折弯标记偏移</mat-label>
             <input
@@ -180,7 +180,7 @@
             />
         </mat-form-field>
     </div>
-    <div class="form-item zhewanValue">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>指定折弯标记位置</mat-label>
             <input
@@ -193,7 +193,7 @@
             />
         </mat-form-field>
     </div>
-    <div class="form-item zhankaifangshi">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>展开方式</mat-label>
             <mat-select
@@ -207,7 +207,7 @@
             </mat-select>
         </mat-form-field>
     </div>
-    <div class="form-item zidingzhankaichang" *ngIf="getLineText('zhankaifangshi') == '指定长度'">
+    <div class="form-item" *ngIf="getLineText('zhankaifangshi') == '指定长度'">
         <mat-form-field>
             <mat-label>指定展开长</mat-label>
             <input
@@ -220,7 +220,7 @@
             />
         </mat-form-field>
     </div>
-    <div class="form-item tiaojianquzhi">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>条件取值</mat-label>
             <input matInput type="text" disabled />
@@ -229,7 +229,7 @@
             </button>
         </mat-form-field>
     </div>
-    <div class="form-item shiyongchazhi">
+    <div class="form-item">
         <mat-form-field>
             <mat-label>使用差值</mat-label>
             <input
@@ -241,6 +241,17 @@
                 (blur)="focusedField = ''"
                 name="shiyongchazhi"
             />
+        </mat-form-field>
+    </div>
+    <div class="form-item">
+        <mat-form-field>
+            <mat-label>展开小数处理</mat-label>
+            <mat-select name="zhankaixiaoshuchuli" [ngModel]="getLineText('zhankaixiaoshuchuli')" (selectionChange)="setLineText($event, 'zhankaixiaoshuchuli')">
+                <mat-option value="不处理">不处理</mat-option>
+                <mat-option value="舍去小数">舍去小数</mat-option>
+                <mat-option value="小数进一">小数进一</mat-option>
+                <mat-option value="四舍五入">四舍五入</mat-option>
+            </mat-select>
         </mat-form-field>
     </div>
 </form>
