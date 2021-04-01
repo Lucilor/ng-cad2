@@ -518,7 +518,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                         if (v.id in positions) {
                             const {x: x1, y: y1} = v.getBoundingRect();
                             const [x2, y2] = positions[v.id];
-                            console.log([x2 - x1, y2 - y1]);
                             v.transform({translate: [x2 - x1, y2 - y1]}, true);
                         }
                     });

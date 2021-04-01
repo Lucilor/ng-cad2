@@ -40,7 +40,7 @@
                     },
                     "configurations": {
                         "production": {
-                            "outputPath": "C:/Softwares/XAMPP/htdocs/n/ng-cad2",
+                            "outputPath": "C:/wamp64/www/n/ng-cad2",
                             "baseHref": "/n/ng-cad2/",
                             "fileReplacements": [
                                 {
