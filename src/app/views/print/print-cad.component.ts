@@ -6,7 +6,6 @@ import {printCads} from "@src/app/cad.utils";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {timeout} from "@src/app/utils";
-import {environment} from "@src/environments/environment";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import printJS from "print-js";
 
@@ -48,14 +47,11 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     async ngAfterViewInit() {
         await timeout(0);
         const queryParams = {...this.route.snapshot.queryParams};
-        let action = queryParams.action as string;
+        const action = queryParams.action as string;
         delete queryParams.action;
         if (!action) {
             this.message.alert("缺少action");
             return;
-        }
-        if (!environment.production) {
-            action = action.replace("https://localhost/n/kgs/index/", "");
         }
         this.loader.startLoader(this.loaderId);
         this.loaderText = "正在获取数据...";
@@ -67,8 +63,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             this.renderStyle = response.data.renderStyle;
             this.pdfUrlRaw = await printCads(this.cads, {}, this.linewidth, this.renderStyle);
             this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
-        } else {
-            this.message.alert("获取数据失败");
         }
         this.loader.stopLoader(this.loaderId);
         window.addEventListener("keydown", this._onKeyDown);
