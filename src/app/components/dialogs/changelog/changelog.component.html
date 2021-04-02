@@ -1,15 +1,16 @@
 <div class="btn-group">
     <button mat-raised-button color="primary" (click)="close()">关闭</button>
-    <button
+    <a
         mat-raised-button
         color="primary"
         (click)="close()"
         [routerLink]="'/' + routesInfo.changelogAdmin.path"
+        target="_blank"
         queryParamsHandling="merge"
         *ngIf="isAdmin"
     >
         编辑
-    </button>
+    </a>
 </div>
 <perfect-scrollbar (psYReachEnd)="onYReachEnd()">
     <ng-container *ngFor="let v of changelog">

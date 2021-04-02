@@ -1,5 +1,3 @@
-@import "../../../style-helpers.scss";
-
 :host {
     display: flex;
     flex-direction: column;
@@ -7,45 +5,24 @@
     height: 100%;
 }
 
-::ng-deep .mat-list-item-content {
-    flex-wrap: wrap;
-}
-
-.list {
-    padding: 20px;
-}
-
-@mixin border {
-    border: 1px solid rgba(0, 0, 0, 0.54);
-    border-radius: 20px;
-    padding: 10px;
-    margin: 10px;
-    box-sizing: border-box;
-    box-shadow: 3px 3px 10px 3px rgba(0, 0, 0, 0.2);
-}
-
 .changelog {
     display: flex;
     flex-direction: column;
-    @include border();
-
-    .content {
-        @include border();
-
-        .item {
-            @include border();
-        }
-    }
 }
 
-.mat-form-field {
-    width: 100%;
+.title,
+.content {
+    display: flex;
 }
 
-.mat-icon-button {
-    @include icon-size(25px);
+.content-type {
+    width: 30%;
+    margin-right: 10px;
+}
+.content-text {
+    width: 70%;
+}
 
-    .mat-icon {
-        @include icon-size(25px);
-    }
+::ng-deep .mat-paginator-container {
+    justify-content: center !important;
 }

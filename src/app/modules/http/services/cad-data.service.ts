@@ -219,14 +219,24 @@ export class CadDataService extends HttpService {
     async getChangelog(page?: number, pageSize?: number) {
         const response = await this.get<Changelog>("ngcad/getChangelog", {page, pageSize}, false);
         if (response?.data) {
-            return {changelog: response.data, count: response.count};
+            return {changelog: response.data, count: response.count || 0};
         } else {
             return {changelog: [], count: 0};
         }
     }
 
-    async setChangelog(changelog: Changelog) {
-        const response = await this.post("ngcad/setChangelog", {changelog}, false);
+    async setChangelogItem(changelogItem: Changelog[0], index: number) {
+        const response = await this.post("ngcad/setChangelogItem", {changelogItem, index}, false);
+        return response && response.code === 0;
+    }
+
+    async addChangelogItem(changelogItem: Changelog[0], index: number) {
+        const response = await this.post("ngcad/addChangelogItem", {changelogItem, index}, false);
+        return response && response.code === 0;
+    }
+
+    async removeChangelogItem(index: number) {
+        const response = await this.post("ngcad/removeChangelogItem", {index}, false);
         return response && response.code === 0;
     }
 }

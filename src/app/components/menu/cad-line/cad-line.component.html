@@ -246,7 +246,11 @@
     <div class="form-item">
         <mat-form-field>
             <mat-label>展开小数处理</mat-label>
-            <mat-select name="zhankaixiaoshuchuli" [ngModel]="getLineText('zhankaixiaoshuchuli')" (selectionChange)="setLineText($event, 'zhankaixiaoshuchuli')">
+            <mat-select
+                name="zhankaixiaoshuchuli"
+                [ngModel]="getLineText('zhankaixiaoshuchuli')"
+                (selectionChange)="setLineText($event, 'zhankaixiaoshuchuli')"
+            >
                 <mat-option value="不处理">不处理</mat-option>
                 <mat-option value="舍去小数">舍去小数</mat-option>
                 <mat-option value="小数进一">小数进一</mat-option>

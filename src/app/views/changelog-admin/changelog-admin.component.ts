@@ -1,6 +1,9 @@
 import {MatDatetimePickerInputEvent} from "@angular-material-components/datetime-picker";
-import {Component, OnInit} from "@angular/core";
+import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
+import {AfterViewInit, Component, ViewChild} from "@angular/core";
+import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {routesInfo} from "@src/app/app.common";
+import {Utils} from "@src/app/mixins/utils.mixin";
 import {CadDataService, Changelog} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
@@ -18,23 +21,42 @@ export const changelogTypes: ObjectOf<string> = {
     templateUrl: "./changelog-admin.component.html",
     styleUrls: ["./changelog-admin.component.scss"]
 })
-export class ChangelogAdminComponent implements OnInit {
+export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     changelogTypeKeys = Object.keys(changelogTypes);
     changelog: Changelog = [];
-    pageSize = 10;
-    currentPage = 0;
-    get changelogPaged() {
-        return this.changelog.slice(0, this.currentPage * this.pageSize);
-    }
+    length = 0;
+    pageSizeOptions = [5, 10, 20, 50, 100];
     routesInfo = routesInfo;
+    @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
+    get page() {
+        return this.paginator?.pageIndex || 0;
+    }
+    get pageSize() {
+        return this.paginator?.pageSize || 5;
+    }
 
-    constructor(private dataService: CadDataService, private message: MessageService, private status: AppStatusService) {}
+    constructor(private dataService: CadDataService, private message: MessageService, private status: AppStatusService) {
+        super();
+    }
 
-    ngOnInit() {
-        (async () => {
-            const {changelog} = await this.dataService.getChangelog();
-            this.changelog = changelog;
-        })();
+    async ngAfterViewInit() {
+        if (!this.paginator) {
+            return;
+        }
+        await this.paginator.initialized.toPromise();
+        this.getChangelog(1);
+    }
+
+    async getChangelog(page = this.page) {
+        this.status.startLoader({id: "changelog"});
+        const {changelog, count} = await this.dataService.getChangelog(page, this.pageSize);
+        this.status.stopLoader();
+        this.changelog = changelog;
+        this.length = count;
+    }
+
+    changePage(event: PageEvent) {
+        this.getChangelog(event.pageIndex + 1);
     }
 
     getDate(timeStamp: number) {
@@ -58,49 +80,59 @@ export class ChangelogAdminComponent implements OnInit {
         return index;
     }
 
-    add<T>(arr: T[], i: number, v: T) {
-        arr.splice(i + 1, 0, v);
-    }
-
-    remove<T>(arr: T[], i: number) {
-        arr.splice(i, 1);
-    }
-
     addChangelog(i: number) {
-        this.add(this.changelog, i - 1, {timeStamp: new Date().getTime(), content: [{type: "", items: [""]}]});
+        this.arrayAdd(this.changelog, {timeStamp: new Date().getTime(), content: [{type: "", items: [""]}]}, i);
     }
 
     removeChangelog(i: number) {
-        this.remove(this.changelog, i);
+        this.arrayRemove(this.changelog, i);
     }
 
     addContent(i: number, j: number) {
-        this.add(this.changelog[i].content, j, {type: "", items: [""]});
+        this.arrayAdd(this.changelog[i].content, {type: "", items: [""]}, j + 1);
     }
 
     removeContent(i: number, j: number) {
-        this.remove(this.changelog[i].content, j);
+        this.arrayRemove(this.changelog[i].content, j);
     }
 
     addItem(i: number, j: number, k: number) {
-        this.add(this.changelog[i].content[j].items, k, "");
+        this.arrayAdd(this.changelog[i].content[j].items, "", k + 1);
     }
 
     removeItem(i: number, j: number, k: number) {
-        this.remove(this.changelog[i].content[j].items, k);
-    }
-
-    async submit() {
-        this.status.startLoader();
-        await this.dataService.setChangelog(this.changelog);
-        this.status.stopLoader();
-    }
-
-    onYReachEnd() {
-        this.currentPage++;
+        this.arrayRemove(this.changelog[i].content[j].items, k);
     }
 
     setTime(i: number) {
         this.changelog[i].timeStamp = new Date().getTime();
+    }
+
+    dropContent(event: CdkDragDrop<Changelog[0]["content"]>, i: number) {
+        moveItemInArray(this.changelog[i].content, event.previousIndex, event.currentIndex);
+    }
+
+    dropContentText(event: CdkDragDrop<Changelog[0]["content"][0]["items"]>, i: number, j: number) {
+        moveItemInArray(this.changelog[i].content[j].items, event.previousIndex, event.currentIndex);
+    }
+
+    async setChangelogItem(i: number) {
+        this.status.startLoader({id: "set" + i});
+        await this.dataService.setChangelogItem(this.changelog[i], this.page * this.pageSize + i);
+        this.status.stopLoader();
+    }
+
+    async addChangelogItem(i: number) {
+        this.status.startLoader({id: "add" + i});
+        await this.dataService.addChangelogItem({timeStamp: new Date().getTime(), content: []}, i);
+        this.status.stopLoader();
+        await this.getChangelog();
+    }
+
+    async removeChangelogItem(i: number) {
+        this.status.startLoader({id: "remove" + i});
+        await this.dataService.removeChangelogItem(i);
+        this.status.stopLoader();
+        await this.getChangelog();
     }
 }

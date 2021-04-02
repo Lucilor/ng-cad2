@@ -1,10 +1,80 @@
-<div class="btn-group">
-    <button mat-raised-button color="primary" (click)="submit()">提交</button>
-    <button mat-raised-button color="primary" [routerLink]="'/' + routesInfo.index.path" queryParamsHandling="merge">返回</button>
-</div>
-<perfect-scrollbar (psYReachEnd)="onYReachEnd()">
-    <div class="list">
-        <div class="changelog" *ngFor="let v of changelogPaged; let i = index">
+<perfect-scrollbar>
+    <mat-accordion>
+        <div class="btn-group" *ngIf="page == 0">
+            <button mat-icon-button color="primary" (click)="addChangelogItem(0)">
+                <ngx-ui-loader [loaderId]="'add0'" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+                <mat-icon>add_circle</mat-icon>
+            </button>
+        </div>
+        <ngx-ui-loader [loaderId]="'changelog'"></ngx-ui-loader>
+        <mat-expansion-panel *ngFor="let v of changelog; let i = index">
+            <mat-expansion-panel-header>
+                <mat-panel-title>{{ getDate(v.timeStamp).toLocaleDateString() }}</mat-panel-title>
+                <mat-panel-description>{{ getDate(v.timeStamp).toLocaleTimeString() }}</mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="changelog" cdkDropList (cdkDropListDropped)="dropContent($event, i)">
+                <div class="title">
+                    <mat-form-field>
+                        <mat-label>更新日期</mat-label>
+                        <input
+                            matInput
+                            [ngxMatDatetimePicker]="picker"
+                            [value]="getDate(v.timeStamp)"
+                            (dateChange)="onDateChange($event, i)"
+                        />
+                        <button mat-icon-button matSuffix color="primary" (click)="setTime(i)">
+                            <mat-icon>autorenew</mat-icon>
+                        </button>
+                        <mat-datepicker-toggle matSuffix [for]="$any(picker)">
+                            <mat-icon color="primary" matDatepickerToggleIcon>book_online</mat-icon>
+                        </mat-datepicker-toggle>
+                        <ngx-mat-datetime-picker #picker [showSeconds]="true">
+                            <ng-template>
+                                <span>OK</span>
+                            </ng-template>
+                        </ngx-mat-datetime-picker>
+                    </mat-form-field>
+                    <div class="btn-group">
+                        <button mat-raised-button color="primary" (click)="setChangelogItem(i)">
+                            <ngx-ui-loader [loaderId]="'set' + i" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+                            保存
+                        </button>
+                        <button mat-raised-button color="primary" (click)="removeChangelogItem(i)">
+                            <ngx-ui-loader [loaderId]="'remove' + i" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+                            删除
+                        </button>
+                    </div>
+                </div>
+                <div class="content" *ngFor="let w of v.content; let j = index" cdkDrag>
+                    <div class="drag-placeholder" *cdkDragPlaceholder></div>
+                    <div class="content-type">
+                        <mat-form-field>
+                            <mat-label>更新类型</mat-label>
+                            <mat-select [(ngModel)]="w.type">
+                                <mat-option *ngFor="let key of changelogTypeKeys" [value]="key">
+                                    {{ key }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="content-text" cdkDropList (cdkDropListDropped)="dropContentText($event, i, j)">
+                        <mat-form-field *ngFor="let item of w.items; let k = index; trackBy: trackByIdx" cdkDrag>
+                            <div class="drag-placeholder" *cdkDragPlaceholder></div>
+                            <input type="text" matInput placeholder="更新内容" [(ngModel)]="w.items[k]" />
+                            <button matSuffix mat-icon-button color="primary" (click)="addItem(i, j, k)">
+                                <mat-icon>add_circle</mat-icon>
+                            </button>
+                            <button matSuffix mat-icon-button color="primary" (click)="removeItem(i, j, k)">
+                                <mat-icon>remove_circle</mat-icon>
+                            </button>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+    <div class="list" *ngIf="false">
+        <div class="changelog" *ngFor="let v of changelog; let i = index">
             <mat-form-field>
                 <mat-label>更新日期</mat-label>
                 <input matInput [ngxMatDatetimePicker]="picker" [value]="getDate(v.timeStamp)" (dateChange)="onDateChange($event, i)" />
@@ -64,3 +134,11 @@
         </div>
     </div>
 </perfect-scrollbar>
+<mat-paginator
+    #paginator
+    [length]="length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    [showFirstLastButtons]="true"
+    (page)="changePage($event)"
+></mat-paginator>
