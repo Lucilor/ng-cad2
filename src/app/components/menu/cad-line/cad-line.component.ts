@@ -194,8 +194,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         });
 
         let prevSelectMode: CadViewerConfig["selectMode"];
-        this.subscribe(this.status.cadStatus$, (cadStatus) => {
-            const name = cadStatus.name;
+        this.subscribe(this.status.cadStatusEnter$, ({name}) => {
             cad = this.status.cad;
             if (name === "drawLine") {
                 const selected = this.selected;
@@ -212,7 +211,20 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     e.info.prevSelectable = e.selectable;
                     e.selectable = false;
                 });
-            } else if (this.lineDrawing) {
+            } else if (name === "moveLines") {
+                const selected = this.selected;
+                if (selected.length < 1) {
+                    this.message.alert("没有选中线");
+                    this.moveLines();
+                } else {
+                    this.status.setCadPoints(new CadEntities().fromArray(selected));
+                    this.linesMoving = {};
+                }
+            }
+        });
+        this.subscribe(this.status.cadStatusExit$, ({name}) => {
+            cad = this.status.cad;
+            if (name === "drawLine") {
                 const lineDrawing = this.lineDrawing;
                 if (lineDrawing) {
                     cad.remove(lineDrawing.entity);
@@ -228,17 +240,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 this.lineDrawing = null;
                 this.status.setCadPoints();
             } else if (name === "moveLines") {
-                const selected = this.selected;
-                if (selected.length < 1) {
-                    this.message.alert("没有选中线");
-                    this.moveLines();
-                } else {
-                    this.status.setCadPoints(new CadEntities().fromArray(selected));
-                    this.linesMoving = {};
-                }
-            } else if (this.lineMoving) {
                 this.status.setCadPoints();
-                this.lineMoving = null;
+                this.linesMoving = null;
             }
         });
         this.subscribe(this.status.cadPoints$, async (cadPoints) => {

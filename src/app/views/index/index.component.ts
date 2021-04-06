@@ -61,7 +61,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         return this.status.cad.config("entityDraggable");
     }
     get cadStatusStr() {
-        return cadStatusNameMap[this.status.cadStatus$.getValue().name];
+        return cadStatusNameMap[this.status.cadStatus().name];
     }
 
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLElement>;
@@ -162,7 +162,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         }
         this.config.config({padding: this.menuPadding.map((v) => v + 30)});
         this.subscribe(this.console.command, (cmd) => this.consoleComponent?.execute(cmd));
-        this.subscribe(this.status.cadStatus$, ({name}) => {
+        this.subscribe(this.status.cadStatusEnter$, ({name}) => {
             if (name === "assemble") {
                 this.shownMenus = ["cadAssemble"];
             } else {

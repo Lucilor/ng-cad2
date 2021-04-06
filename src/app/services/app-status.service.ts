@@ -48,7 +48,7 @@ export const cadStatusNameMap: Record<CadStatusName, string> = {
 export interface CadStatus {
     name: CadStatusName;
     index: number;
-    extra: ObjectOf<any>;
+    extra?: ObjectOf<any>;
 }
 
 export interface SelectedCads {
@@ -79,11 +79,9 @@ export class AppStatusService {
         fullCads: []
     });
     disabledCadTypes$ = new BehaviorSubject<SelectedCadType[]>([]);
-    cadStatus$ = new BehaviorSubject<CadStatus>({
-        name: "normal",
-        index: -1,
-        extra: {}
-    });
+    private _cadStatus: CadStatus = {name: "normal", index: -1};
+    cadStatusEnter$ = new BehaviorSubject<CadStatus>(this._cadStatus);
+    cadStatusExit$ = new BehaviorSubject<CadStatus>(this._cadStatus);
     cad = new CadViewer();
     loaderId$ = new BehaviorSubject<string>("master");
     loaderText$ = new BehaviorSubject<string>("");
@@ -165,21 +163,26 @@ export class AppStatusService {
     cadStatus(config: Partial<CadStatus>): void;
     cadStatus<T extends keyof CadStatus>(key: T, value: CadStatus[T]): void;
     cadStatus<T extends keyof CadStatus>(key?: T | Partial<CadStatus>, value?: CadStatus[T]) {
+        const current = this._cadStatus;
+        let next: CadStatus | undefined;
         if (typeof key === "string") {
             if (value !== undefined) {
-                const obj: Partial<CadStatus> = {};
-                obj[key] = value;
-                this.cadStatus$.next({...this.cadStatus$.getValue(), ...obj});
-                return;
+                next = current;
+                next[key] = value;
             } else {
-                return this.cadStatus$.getValue()[key];
+                return current[key];
             }
         } else if (typeof key === "object") {
-            this.cadStatus$.next({...this.cadStatus$.getValue(), ...key});
-            return;
+            next = {...current, ...key};
         } else {
-            return this.cadStatus$.getValue();
+            return current;
         }
+        if (next) {
+            this.cadStatusExit$.next(current);
+            this.cadStatusEnter$.next(next);
+            this._cadStatus = next;
+        }
+        return;
     }
 
     async openCad(data?: CadData[], collection?: CadCollection) {

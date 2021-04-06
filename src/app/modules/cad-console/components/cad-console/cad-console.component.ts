@@ -136,7 +136,7 @@ export class CadConsoleComponent implements OnInit {
 
     private executor: ObjectOf<(this: CadConsoleComponent, ...args: string[]) => any> = {
         async assemble() {
-            const name = this.status.cadStatus$.getValue().name;
+            const name = this.status.cadStatus().name;
             if (name === "assemble") {
                 this.status.cadStatus({name: "normal"});
             } else {
@@ -444,7 +444,7 @@ export class CadConsoleComponent implements OnInit {
                 loaderId = "saveCadLoader";
             }
             if (collection === "p_yuanshicadwenjian") {
-                const {name, extra} = status.cadStatus$.getValue();
+                const {name, extra} = status.cadStatus();
                 if (name !== "split") {
                     this.message.alert("原始CAD文件只能在选取时保存");
                     return;

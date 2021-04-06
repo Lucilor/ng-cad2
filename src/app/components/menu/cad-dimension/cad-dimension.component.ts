@@ -97,8 +97,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     }
 
     ngOnInit() {
-        this.subscribe(this.status.cadStatus$, (cadStatus) => {
-            const {name, index} = cadStatus;
+        this.subscribe(this.status.cadStatusEnter$, ({name, index}) => {
             if (name === "editDimension") {
                 const dimension = this.dimensions[index];
                 this.dimLineSelecting = index;
@@ -115,7 +114,10 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                     this.status.disabledCadTypes$.next(["cads", "partners", "components"]);
                 }
                 this.focus(dimension);
-            } else {
+            }
+        });
+        this.subscribe(this.status.cadStatusExit$, ({name}) => {
+            if (name === "editDimension") {
                 this.dimLineSelecting = -1;
                 if (this.prevConfig) {
                     this.config.config(this.prevConfig);

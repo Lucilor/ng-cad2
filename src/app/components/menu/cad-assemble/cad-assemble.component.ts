@@ -23,7 +23,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         return this.data.components.connections;
     }
 
-    private _onEntitiesSelect = (((entities,multi) => {
+    private _onEntitiesSelect = (((entities, multi) => {
         const {name, index} = this.status.cadStatus();
         if (name !== "assemble") {
             return;
@@ -157,8 +157,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                 this.data = data;
             }
         });
-        this.subscribe(this.status.cadStatus$, (cadStatus) => {
-            const {name, index} = cadStatus;
+        this.subscribe(this.status.cadStatusEnter$, ({name, index}) => {
             const data = this.status.cad.data.components.data[index];
             if (name === "assemble") {
                 if (!this.prevDisabledCadTypes) {
@@ -170,7 +169,10 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                     this.status.selectedCads$.next({cads: [data.id], partners: [], components: [], fullCads: [data.id]});
                 }
                 this.status.cad.data.updateComponents();
-            } else {
+            }
+        });
+        this.subscribe(this.status.cadStatusExit$, ({name}) => {
+            if (name === "assemble") {
                 if (this.prevDisabledCadTypes) {
                     this.status.disabledCadTypes$.next(this.prevDisabledCadTypes);
                     this.prevDisabledCadTypes = null;

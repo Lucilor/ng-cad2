@@ -84,7 +84,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             return;
         }
         const cloneData = data.clone(true);
-        const collection = extra.collection as CadCollection;
+        const collection = extra?.collection as CadCollection;
         const split = new CadData();
         split.entities = entities.clone(true);
         const node = this._getCadNode(split);
@@ -171,8 +171,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         this.updateList();
         this.subscribe(this.status.openCad$, () => this.updateList());
         this.subscribe(this.status.selectedCads$, () => this.setSelectedCads());
-        this.subscribe(this.status.cadStatus$, async (cadStatus) => {
-            if (cadStatus.name === "split") {
+        this.subscribe(this.status.cadStatusEnter$, async ({name}) => {
+            if (name === "split") {
                 const id = this.status.selectedCads$.getValue().cads[0];
                 let data: CadData | undefined;
                 for (const v of this.status.cad.data.components.data) {
@@ -204,7 +204,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 }
                 this.updateList();
                 return;
-            } else if (this._prevId) {
+            }
+        });
+        this.subscribe(this.status.cadStatusExit$, async ({name}) => {
+            if (name === "split") {
                 this.status.cad.data.components.data.forEach((v) => {
                     v.getAllEntities().forEach((e) => {
                         if (typeof e.info.prevVisible === "boolean") {
@@ -608,10 +611,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     async deleteSelected() {
         const checkedCads = this.cads.filter((v) => v.checked).map((v) => v.data);
         const checkedIds = checkedCads.map((v) => v.id);
-        const {name, extra} = this.status.cadStatus$.getValue();
+        const {name, extra} = this.status.cadStatus();
         const cad = this.status.cad;
         if (name === "split") {
-            const collection = extra.collection as CadCollection;
+            const collection = extra?.collection as CadCollection;
             if (collection !== "p_yuanshicadwenjian") {
                 const data = cad.data.findChild(this._prevId);
                 if (data) {

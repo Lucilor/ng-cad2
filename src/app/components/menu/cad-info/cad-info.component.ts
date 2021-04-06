@@ -24,7 +24,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     @Output() cadLengthsChange = new EventEmitter<string[]>();
 
     onEntityClick = (((entity) => {
-        const {name, index} = this.status.cadStatus$.getValue();
+        const {name, index} = this.status.cadStatus();
         const data = this.status.getFlatSelectedCads()[0];
         if (name === "selectBaseline" && typeof index === "number") {
             if (entity instanceof CadLine) {
@@ -66,21 +66,23 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             }
             this.updateLengths(this.cadsData);
         });
-        this.subscribe(this.status.cadStatus$, (cadStatus) => {
-            const {name, index} = cadStatus;
-            if (name === "selectJointpoint" && typeof index === "number") {
-                this.status.setCadPoints(this.cadsData[0].getAllEntities());
-            } else {
+        this.subscribe(this.status.cadStatusEnter$, ({name}) => {
+            if (name === "selectJointpoint") {
+                this.status.setCadPoints();
+            }
+        });
+        this.subscribe(this.status.cadStatusExit$, ({name}) => {
+            if (name === "selectJointpoint") {
                 this.status.setCadPoints();
             }
         });
         this.subscribe(this.status.cadPoints$, (cadPoints) => {
             const point = cadPoints.filter((v) => v.active)[0];
-            const {name} = this.status.cadStatus$.getValue();
+            const {name, index} = this.status.cadStatus();
             if (name !== "selectJointpoint" || !point) {
                 return;
             }
-            const jointPoint = this.cadsData[0].jointPoints[this.status.cadStatus$.getValue().index];
+            const jointPoint = this.cadsData[0].jointPoints[index];
             jointPoint.valueX = point.x;
             jointPoint.valueY = point.y;
         });

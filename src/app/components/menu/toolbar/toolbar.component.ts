@@ -79,7 +79,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
     ngOnInit() {
         window.addEventListener("keydown", this.onKeyDown);
-        this.subscribe(this.status.cadStatus$, ({name}) => (this.statusName = cadStatusNameMap[name]));
+        this.subscribe(this.status.cadStatusEnter$, ({name}) => (this.statusName = cadStatusNameMap[name]));
     }
 
     ngOnDestroy() {
