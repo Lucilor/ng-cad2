@@ -21,6 +21,7 @@ import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-conso
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
+import {CadStatusDrawLine, CadStatusMoveLines} from "@src/app/services/cad-status";
 import {Point} from "@src/app/utils";
 import Color from "color";
 import {debounce} from "lodash";
@@ -50,8 +51,14 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     };
     selected: CadLineLike[] = [];
 
+    get isDrawingLine() {
+        return this.status.cadStatus instanceof CadStatusDrawLine;
+    }
+    get isMovingLines() {
+        return this.status.cadStatus instanceof CadStatusMoveLines;
+    }
     get cadStatusName() {
-        return this.status.cadStatus("name");
+        return this.status.cadStatus.name;
     }
 
     private _colorText = "";
@@ -194,9 +201,9 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         });
 
         let prevSelectMode: CadViewerConfig["selectMode"];
-        this.subscribe(this.status.cadStatusEnter$, ({name}) => {
+        this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             cad = this.status.cad;
-            if (name === "drawLine") {
+            if (cadStatus instanceof CadStatusDrawLine) {
                 const selected = this.selected;
                 const selected0 = selected[0];
                 if (selected.length === 1 && selected0 instanceof CadLine) {
@@ -211,7 +218,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     e.info.prevSelectable = e.selectable;
                     e.selectable = false;
                 });
-            } else if (name === "moveLines") {
+            } else if (cadStatus instanceof CadStatusMoveLines) {
                 const selected = this.selected;
                 if (selected.length < 1) {
                     this.message.alert("没有选中线");
@@ -222,9 +229,9 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 }
             }
         });
-        this.subscribe(this.status.cadStatusExit$, ({name}) => {
+        this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             cad = this.status.cad;
-            if (name === "drawLine") {
+            if (cadStatus instanceof CadStatusDrawLine) {
                 const lineDrawing = this.lineDrawing;
                 if (lineDrawing) {
                     cad.remove(lineDrawing.entity);
@@ -239,20 +246,20 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 cad.config("selectMode", prevSelectMode);
                 this.lineDrawing = null;
                 this.status.setCadPoints();
-            } else if (name === "moveLines") {
+            } else if (cadStatus instanceof CadStatusMoveLines) {
                 this.status.setCadPoints();
                 this.linesMoving = null;
             }
         });
         this.subscribe(this.status.cadPoints$, async (cadPoints) => {
             const activePoints = cadPoints.filter((v) => v.active);
-            const name = this.status.cadStatus("name");
+            const cadStatus = this.status.cadStatus;
             if (!activePoints.length) {
                 return;
             }
             const worldPoints = activePoints.map((v) => cad.getWorldPoint(v.x, v.y));
             const {lineDrawing, linesMoving} = this;
-            if (name === "drawLine" && lineDrawing) {
+            if (cadStatus instanceof CadStatusDrawLine && lineDrawing) {
                 const {entity, oldEntity} = lineDrawing;
                 if (oldEntity) {
                     if (!entity) {
@@ -293,7 +300,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                         this.addLineDrawing();
                     }
                 }
-            } else if (name === "moveLines" && linesMoving) {
+            } else if (cadStatus instanceof CadStatusMoveLines && linesMoving) {
                 if (worldPoints.length === 1) {
                     if (linesMoving.start) {
                         this.moveLines();
@@ -471,12 +478,12 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     drawLine() {
-        this.status.cadStatusToggle("drawLine");
+        this.status.toggleCadStatus(new CadStatusDrawLine());
     }
 
     moveLines() {
         // this.status.setCadPoints(generatePointsMap(new CadEntities().fromArray(this.selected)));
-        this.status.cadStatusToggle("moveLines");
+        this.status.toggleCadStatus(new CadStatusMoveLines());
     }
 
     addLineDrawing() {

@@ -1,19 +1,9 @@
 <div class="btn-group">
-    <button
-        mat-raised-button
-        [style.z-index]="data ? '1' : '0'"
-        [color]="cadStatusName === 'drawLine' ? 'accent' : 'primary'"
-        (click)="drawLine()"
-    >
-        画线
+    <button mat-raised-button [style.z-index]="data ? '1' : '0'" [color]="isDrawingLine ? 'accent' : 'primary'" (click)="drawLine()">
+        {{ cadStatusName }}
     </button>
-    <button
-        mat-raised-button
-        [style.z-index]="data ? '1' : '0'"
-        [color]="cadStatusName === 'moveLines' ? 'accent' : 'primary'"
-        (click)="moveLines()"
-    >
-        移线
+    <button mat-raised-button [style.z-index]="data ? '1' : '0'" [color]="isMovingLines ? 'accent' : 'primary'" (click)="moveLines()">
+        {{ cadStatusName }}
     </button>
     <button mat-raised-button color="primary" (click)="autoFix()">修正</button>
 </div>

@@ -55,10 +55,10 @@
         </div>
         <div class="form-item-group hint">
             <div *ngFor="let b of cad.baseLines; let i = index">
-                <mat-form-field [color]="getItemColor('selectBaseline', i)">
+                <mat-form-field [color]="getBaselineItemColor(i)">
                     <mat-label>基准</mat-label>
                     <input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
-                    <button mat-icon-button matSuffix [color]="getItemColor('selectBaseline', i)" (click)="selectBaseLine(i)">
+                    <button mat-icon-button matSuffix [color]="getBaselineItemColor(i)" (click)="selectBaseLine(i)">
                         <mat-icon>link</mat-icon>
                     </button>
                     <button mat-icon-button matSuffix color="primary" (click)="addBaseLine(cad, i)">
@@ -73,10 +73,10 @@
         </div>
         <div class="form-item-group hint">
             <div *ngFor="let j of cad.jointPoints; let i = index">
-                <mat-form-field [color]="getItemColor('selectJointpoint', i)">
+                <mat-form-field [color]="getJointPointItemColor(i)">
                     <mat-label>连接点</mat-label>
                     <input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />
-                    <button mat-icon-button matSuffix [color]="getItemColor('selectJointpoint', i)" (click)="selectBaseLine(i)">
+                    <button mat-icon-button matSuffix [color]="getJointPointItemColor(i)" (click)="selectBaseLine(i)">
                         <mat-icon>link</mat-icon>
                     </button>
                     <button mat-icon-button matSuffix color="primary" (click)="addJointPoint(cad, i)">

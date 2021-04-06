@@ -2,13 +2,13 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {local, routesInfo} from "@src/app/app.common";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@src/app/cad-viewer";
-import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@src/app/services/app-config.service";
-import {CadStatusName, AppStatusService, cadStatusNameMap} from "@src/app/services/app-status.service";
-import {ObjectOf, ValueOf} from "@src/app/utils";
+import {AppStatusService} from "@src/app/services/app-status.service";
+import {CadStatusAssemble, CadStatusNormal} from "@src/app/services/cad-status";
+import {ObjectOf} from "@src/app/utils";
 import {flatMap} from "lodash";
 import {openChangelogDialog} from "../../dialogs/changelog/changelog.component";
 
@@ -17,7 +17,7 @@ import {openChangelogDialog} from "../../dialogs/changelog/changelog.component";
     templateUrl: "./toolbar.component.html",
     styleUrls: ["./toolbar.component.scss"]
 })
-export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy {
+export class ToolbarComponent implements OnInit, OnDestroy {
     openLock = false;
     keyMap: ObjectOf<() => void> = {
         s: () => this.save(),
@@ -31,17 +31,21 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         p: () => this.printCad(),
         q: () => this.newCad()
     };
-    statusName: ValueOf<CadStatusName> = "普通";
-    statusWithoutEsc: ValueOf<CadStatusName>[] = ["普通", "装配"];
     showNew = false;
     routesInfo = routesInfo;
 
     get isStatusNormal() {
-        return this.statusName === "普通";
+        return this.status.cadStatus instanceof CadStatusNormal;
     }
-
+    get statusName() {
+        return this.status.cadStatus.name;
+    }
     get canEsc() {
-        return !this.statusWithoutEsc.includes(this.statusName);
+        const cadStatus = this.status.cadStatus;
+        if (cadStatus instanceof CadStatusNormal || cadStatus instanceof CadStatusAssemble) {
+            return false;
+        }
+        return true;
     }
 
     onKeyDown = ((event: KeyboardEvent) => {
@@ -52,8 +56,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
             this.clickBtn(key);
         } else if (key === "escape") {
             event.preventDefault();
-            const name = this.statusName;
-            if (!this.statusWithoutEsc.includes(name)) {
+            if (this.canEsc) {
                 this.backToNormal();
             }
         }
@@ -67,7 +70,6 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         private dialog: MatDialog,
         private dataService: CadDataService
     ) {
-        super();
         (async () => {
             const timeStamp = Number(local.load("changelogTimeStamp"));
             const {changelog} = await this.dataService.getChangelog(1, 1);
@@ -79,11 +81,9 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
     ngOnInit() {
         window.addEventListener("keydown", this.onKeyDown);
-        this.subscribe(this.status.cadStatusEnter$, ({name}) => (this.statusName = cadStatusNameMap[name]));
     }
 
     ngOnDestroy() {
-        super.ngOnDestroy();
         window.removeEventListener("keydown", this.onKeyDown);
     }
 
@@ -206,7 +206,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     backToNormal() {
-        this.status.cadStatus("name", "normal");
+        this.status.setCadStatus(new CadStatusNormal());
     }
 
     newCad() {

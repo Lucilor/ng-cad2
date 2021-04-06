@@ -7,7 +7,8 @@ import {getCadGongshiText} from "@src/app/cad.utils";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {Utils} from "@src/app/mixins/utils.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppStatusService, CadStatus} from "@src/app/services/app-status.service";
+import {AppStatusService} from "@src/app/services/app-status.service";
+import {CadStatusNormal, CadStatusSelectBaseline, CadStatusSelectJointpoint} from "@src/app/services/cad-status";
 import {openCadDataAttrsDialog} from "../../dialogs/cad-data-attrs/cad-data-attrs.component";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "../../dialogs/cad-options/cad-options.component";
@@ -24,11 +25,11 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     @Output() cadLengthsChange = new EventEmitter<string[]>();
 
     onEntityClick = (((entity) => {
-        const {name, index} = this.status.cadStatus();
+        const cadStatus = this.status.cadStatus;
         const data = this.status.getFlatSelectedCads()[0];
-        if (name === "selectBaseline" && typeof index === "number") {
+        if (cadStatus instanceof CadStatusSelectBaseline) {
             if (entity instanceof CadLine) {
-                const baseLine = data.baseLines[index];
+                const baseLine = data.baseLines[cadStatus.index];
                 if (entity.isHorizontal()) {
                     baseLine.idY = entity.selected ? entity.id : "";
                 }
@@ -66,25 +67,24 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             }
             this.updateLengths(this.cadsData);
         });
-        this.subscribe(this.status.cadStatusEnter$, ({name}) => {
-            if (name === "selectJointpoint") {
-                this.status.setCadPoints();
+        this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
+            if (cadStatus instanceof CadStatusSelectJointpoint) {
+                this.status.setCadPoints(this.cadsData[0].getAllEntities());
             }
         });
-        this.subscribe(this.status.cadStatusExit$, ({name}) => {
-            if (name === "selectJointpoint") {
+        this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
+            if (cadStatus instanceof CadStatusSelectJointpoint) {
                 this.status.setCadPoints();
             }
         });
         this.subscribe(this.status.cadPoints$, (cadPoints) => {
             const point = cadPoints.filter((v) => v.active)[0];
-            const {name, index} = this.status.cadStatus();
-            if (name !== "selectJointpoint" || !point) {
-                return;
+            const cadStatus = this.status.cadStatus;
+            if (cadStatus instanceof CadStatusSelectJointpoint && point) {
+                const jointPoint = this.cadsData[0].jointPoints[cadStatus.index];
+                jointPoint.valueX = point.x;
+                jointPoint.valueY = point.y;
             }
-            const jointPoint = this.cadsData[0].jointPoints[index];
-            jointPoint.valueX = point.x;
-            jointPoint.valueY = point.y;
         });
         this.status.cad.on("entityclick", this.onEntityClick);
     }
@@ -128,9 +128,17 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
     }
 
-    getItemColor(name: CadStatus["name"], index: number) {
-        const cadStatus = this.status.cadStatus();
-        if (name === cadStatus.name && index === cadStatus.index) {
+    getBaselineItemColor(i: number) {
+        const cadStatus = this.status.cadStatus;
+        if (cadStatus instanceof CadStatusSelectBaseline && i === cadStatus.index) {
+            return "accent";
+        }
+        return "primary";
+    }
+
+    getJointPointItemColor(i: number) {
+        const cadStatus = this.status.cadStatus;
+        if (cadStatus instanceof CadStatusSelectJointpoint && i === cadStatus.index) {
             return "accent";
         }
         return "primary";
@@ -151,11 +159,11 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
     }
 
-    selectBaseLine(index: number) {
-        if (this.getItemColor("selectBaseline", index) === "primary") {
-            this.status.cadStatus({name: "selectBaseline", index});
+    selectBaseLine(i: number) {
+        if (this.getBaselineItemColor(i) === "primary") {
+            this.status.setCadStatus(new CadStatusSelectBaseline(i));
         } else {
-            this.status.cadStatus({name: "normal"});
+            this.status.setCadStatus(new CadStatusNormal());
         }
     }
 
@@ -174,11 +182,11 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
     }
 
-    selectJointPoint(index: number) {
-        if (this.getItemColor("selectJointpoint", index) === "primary") {
-            this.status.cadStatus({name: "selectJointpoint", index});
+    selectJointPoint(i: number) {
+        if (this.getJointPointItemColor(i) === "primary") {
+            this.status.setCadStatus(new CadStatusSelectJointpoint(i));
         } else {
-            this.status.cadStatus({name: "normal"});
+            this.status.setCadStatus(new CadStatusNormal());
         }
     }
 

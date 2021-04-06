@@ -2,7 +2,7 @@ import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnIn
 import {CadConsoleComponent} from "@src/app/modules/cad-console/components/cad-console/cad-console.component";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService, cadStatusNameMap} from "@src/app/services/app-status.service";
+import {AppStatusService} from "@src/app/services/app-status.service";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {debounce} from "lodash";
 import {trigger, state, style, transition, animate} from "@angular/animations";
@@ -14,6 +14,7 @@ import {CadData, CadEventCallBack} from "@src/app/cad-viewer";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
 import {CadInfoComponent} from "@src/app/components/menu/cad-info/cad-info.component";
 import {MessageService} from "@src/app/modules/message/services/message.service";
+import {CadStatusAssemble} from "@src/app/services/cad-status";
 
 @Component({
     selector: "app-index",
@@ -61,7 +62,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         return this.status.cad.config("entityDraggable");
     }
     get cadStatusStr() {
-        return cadStatusNameMap[this.status.cadStatus().name];
+        return this.status.cadStatus.name;
     }
 
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLElement>;
@@ -162,8 +163,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         }
         this.config.config({padding: this.menuPadding.map((v) => v + 30)});
         this.subscribe(this.console.command, (cmd) => this.consoleComponent?.execute(cmd));
-        this.subscribe(this.status.cadStatusEnter$, ({name}) => {
-            if (name === "assemble") {
+        this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
+            if (cadStatus instanceof CadStatusAssemble) {
                 this.shownMenus = ["cadAssemble"];
             } else {
                 this.shownMenus = ["cadInfo", "entityInfo"];

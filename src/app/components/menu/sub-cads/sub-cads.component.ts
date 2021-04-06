@@ -3,7 +3,7 @@ import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
-import {CadCollection, imgLoading} from "@src/app/app.common";
+import {imgLoading} from "@src/app/app.common";
 import {CadData, CadEntities, CadHatch} from "@src/app/cad-viewer";
 import {getCadPreview, removeCadGongshi} from "@src/app/cad.utils";
 import {ContextMenu} from "@src/app/mixins/context-menu.mixin";
@@ -11,7 +11,8 @@ import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService, CadStatus, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
+import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
+import {CadStatusAssemble, CadStatusSplit} from "@src/app/services/cad-status";
 import {copyToClipboard, ObjectOf, Point} from "@src/app/utils";
 import {concat, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
@@ -40,7 +41,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     cadDisabled = false;
     partnersDisabled = false;
     componentsDisabled = false;
-    needsReload: CadStatus["name"] | null = null;
+    needsReload: string | null = null;
     @ViewChild(MatMenuTrigger) contextMenu?: MatMenuTrigger;
     @ViewChild("dxfInut", {read: ElementRef}) dxfInut?: ElementRef<HTMLElement>;
     contextMenuCad?: {field: SelectedCadType; data: CadData};
@@ -70,8 +71,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         if (key !== "Enter") {
             return;
         }
-        const {name, extra} = this.status.cadStatus();
-        if (name !== "split") {
+        const cadStatus = this.status.cadStatus;
+        if (!(cadStatus instanceof CadStatusSplit)) {
             return;
         }
         const cad = this.status.cad;
@@ -84,7 +85,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             return;
         }
         const cloneData = data.clone(true);
-        const collection = extra?.collection as CadCollection;
+        const collection = this.config.config("collection");
         const split = new CadData();
         split.entities = entities.clone(true);
         const node = this._getCadNode(split);
@@ -133,11 +134,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const {clientX, clientY} = event;
         const cad = this.status.cad;
         const selectedCads = this.status.selectedCads$.getValue();
-        const name = this.status.cadStatus("name");
+        const cadStatus = this.status.cadStatus;
         const pointer = new Point(clientX, clientY);
         const translate = this.lastPointer.sub(pointer).divide(cad.zoom());
         translate.x = -translate.x;
-        if (name === "assemble" && selectedCads.components.length) {
+        if (cadStatus instanceof CadStatusAssemble && selectedCads.components.length) {
             const parent = cad.data.findChild(selectedCads.cads[0]);
             const data = cad.data.findChildren(selectedCads.components);
             if (parent) {
@@ -171,8 +172,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         this.updateList();
         this.subscribe(this.status.openCad$, () => this.updateList());
         this.subscribe(this.status.selectedCads$, () => this.setSelectedCads());
-        this.subscribe(this.status.cadStatusEnter$, async ({name}) => {
-            if (name === "split") {
+        this.subscribe(this.status.cadStatusEnter$, async (cadStatus) => {
+            if (cadStatus instanceof CadStatusSplit) {
                 const id = this.status.selectedCads$.getValue().cads[0];
                 let data: CadData | undefined;
                 for (const v of this.status.cad.data.components.data) {
@@ -206,8 +207,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 return;
             }
         });
-        this.subscribe(this.status.cadStatusExit$, async ({name}) => {
-            if (name === "split") {
+        this.subscribe(this.status.cadStatusExit$, async (cadStatus) => {
+            if (cadStatus instanceof CadStatusSplit) {
                 this.status.cad.data.components.data.forEach((v) => {
                     v.getAllEntities().forEach((e) => {
                         if (typeof e.info.prevVisible === "boolean") {
@@ -436,9 +437,9 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         }
         this.updateListLock = true;
         const cad = this.status.cad;
-        const statusName = this.status.cadStatus("name");
+        const cadStatus = this.status.cadStatus;
         if (!list) {
-            if (statusName === "split") {
+            if (cadStatus instanceof CadStatusSplit) {
                 list = cad.data.components.data.find((v) => v.id === this._prevId)?.components.data || [];
             } else {
                 list = cad.data.components.data;
@@ -611,10 +612,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     async deleteSelected() {
         const checkedCads = this.cads.filter((v) => v.checked).map((v) => v.data);
         const checkedIds = checkedCads.map((v) => v.id);
-        const {name, extra} = this.status.cadStatus();
+        const cadStatus = this.status.cadStatus;
         const cad = this.status.cad;
-        if (name === "split") {
-            const collection = extra?.collection as CadCollection;
+        if (cadStatus instanceof CadStatusSplit) {
+            const collection = this.config.config("collection");
             if (collection !== "p_yuanshicadwenjian") {
                 const data = cad.data.findChild(this._prevId);
                 if (data) {

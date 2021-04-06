@@ -4,6 +4,7 @@ import {CadDimension, CadData, CadLine, CadEventCallBack} from "@src/app/cad-vie
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
+import {CadStatusEditDimension, CadStatusNormal} from "@src/app/services/cad-status";
 import Color from "color";
 import {debounce} from "lodash";
 import {openCadDimensionFormDialog} from "../../dialogs/cad-dimension-form/cad-dimension-form.component";
@@ -28,10 +29,10 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     onEntitiesSelect = (((entities) => {
         const cad = this.status.cad;
         const data = cad.data.components.data;
-        const {name, index} = this.status.cadStatus();
+        const cadStatus = this.status.cadStatus;
         const dimensions = this.dimensions;
         const entity = entities.line[0];
-        if (name === "editDimension" && entity) {
+        if (cadStatus instanceof CadStatusEditDimension && entity) {
             let thatData: CadData | undefined;
             let thatIndex = -1;
             cad.data.components.data.some((d, i) => {
@@ -51,7 +52,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                     break;
                 }
             }
-            let dimension = dimensions[index];
+            let dimension = dimensions[cadStatus.index];
             if (!dimension) {
                 dimension = new CadDimension();
                 dimension.color = new Color(0x00ff00);
@@ -60,7 +61,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                     newIndex += data[i].entities.dimension.length;
                 }
                 newIndex += thatData.entities.dimension.push(dimension) - 1;
-                this.status.cadStatus("index", newIndex);
+                this.status.setCadStatus(new CadStatusEditDimension(newIndex));
             }
             if (!dimension.entity1.id) {
                 dimension.entity1 = {id: entity.id, location: "start"};
@@ -97,8 +98,9 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     }
 
     ngOnInit() {
-        this.subscribe(this.status.cadStatusEnter$, ({name, index}) => {
-            if (name === "editDimension") {
+        this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
+            if (cadStatus instanceof CadStatusEditDimension) {
+                const index = cadStatus.index;
                 const dimension = this.dimensions[index];
                 this.dimLineSelecting = index;
                 if (!this.prevConfig) {
@@ -116,8 +118,8 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                 this.focus(dimension);
             }
         });
-        this.subscribe(this.status.cadStatusExit$, ({name}) => {
-            if (name === "editDimension") {
+        this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
+            if (cadStatus instanceof CadStatusEditDimension) {
                 this.dimLineSelecting = -1;
                 if (this.prevConfig) {
                     this.config.config(this.prevConfig);
@@ -176,16 +178,16 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     }, 500);
 
     isSelectingDimLine(i: number) {
-        const {name, index} = this.status.cadStatus();
-        return name === "editDimension" && index === i;
+        const cadStatus = this.status.cadStatus;
+        return cadStatus instanceof CadStatusEditDimension && cadStatus.index === i;
     }
 
-    async selectDimLine(index: number) {
-        const cadStatus = this.status.cadStatus();
-        if (cadStatus.name === "editDimension" && cadStatus.index === index) {
-            this.status.cadStatus("name", "normal");
+    async selectDimLine(i: number) {
+        const cadStatus = this.status.cadStatus;
+        if (cadStatus instanceof CadStatusEditDimension && cadStatus.index === i) {
+            this.status.setCadStatus(new CadStatusNormal());
         } else {
-            this.status.cadStatus({name: "editDimension", index});
+            this.status.setCadStatus(new CadStatusEditDimension(i));
         }
     }
 

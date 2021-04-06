@@ -13,6 +13,7 @@ import {CadDataService} from "../modules/http/services/cad-data.service";
 import {timeout} from "../utils";
 import {ObjectOf} from "../utils/types";
 import {AppConfig, AppConfigService} from "./app-config.service";
+import {CadStatus, CadStatusNormal} from "./cad-status";
 
 const 合型板示意图 = new CadData();
 合型板示意图.entities.add(new CadLine({start: [0, 20], end: [0, -20]}));
@@ -23,33 +24,6 @@ const 合型板示意图 = new CadData();
 合型板示意图.entities.add(new CadLine({start: [-20, 0], end: [-20, 8]}));
 合型板示意图.entities.add(new CadLine({start: [20, 0], end: [20, 8]}));
 const replaceMap: ObjectOf<CadData> = {合型板示意图};
-
-export type CadStatusName =
-    | "normal"
-    | "selectBaseline"
-    | "selectJointpoint"
-    | "assemble"
-    | "split"
-    | "drawLine"
-    | "moveLines"
-    | "editDimension";
-
-export const cadStatusNameMap: Record<CadStatusName, string> = {
-    normal: "普通",
-    selectBaseline: "选择基准线",
-    selectJointpoint: "选择连接点",
-    assemble: "装配",
-    split: "选取CAD",
-    drawLine: "画线",
-    moveLines: "移线",
-    editDimension: "编辑标注"
-};
-
-export interface CadStatus {
-    name: CadStatusName;
-    index: number;
-    extra?: ObjectOf<any>;
-}
 
 export interface SelectedCads {
     cads: string[];
@@ -79,9 +53,9 @@ export class AppStatusService {
         fullCads: []
     });
     disabledCadTypes$ = new BehaviorSubject<SelectedCadType[]>([]);
-    private _cadStatus: CadStatus = {name: "normal", index: -1};
-    cadStatusEnter$ = new BehaviorSubject<CadStatus>(this._cadStatus);
-    cadStatusExit$ = new BehaviorSubject<CadStatus>(this._cadStatus);
+    cadStatus: CadStatus = new CadStatusNormal();
+    cadStatusEnter$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
+    cadStatusExit$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
     cad = new CadViewer();
     loaderId$ = new BehaviorSubject<string>("master");
     loaderText$ = new BehaviorSubject<string>("");
@@ -158,38 +132,17 @@ export class AppStatusService {
         return data.findChildren(ids);
     }
 
-    cadStatus(): CadStatus;
-    cadStatus<T extends keyof CadStatus>(key: T): CadStatus[T];
-    cadStatus(config: Partial<CadStatus>): void;
-    cadStatus<T extends keyof CadStatus>(key: T, value: CadStatus[T]): void;
-    cadStatus<T extends keyof CadStatus>(key?: T | Partial<CadStatus>, value?: CadStatus[T]) {
-        const current = this._cadStatus;
-        let next: CadStatus | undefined;
-        if (typeof key === "string") {
-            if (value !== undefined) {
-                next = current;
-                next[key] = value;
-            } else {
-                return current[key];
-            }
-        } else if (typeof key === "object") {
-            next = {...current, ...key};
-        } else {
-            return current;
-        }
-        if (next) {
-            this.cadStatusExit$.next(current);
-            this.cadStatusEnter$.next(next);
-            this._cadStatus = next;
-        }
-        return;
+    setCadStatus(value: CadStatus) {
+        this.cadStatusExit$.next(this.cadStatus);
+        this.cadStatus = value;
+        this.cadStatusEnter$.next(value);
     }
 
-    cadStatusToggle(name: CadStatus["name"]) {
-        if (this.cadStatus("name") === name) {
-            this.cadStatus("name", "normal");
+    toggleCadStatus(cadStatus: CadStatus) {
+        if (this.cadStatus.name === cadStatus.name) {
+            this.setCadStatus(new CadStatusNormal());
         } else {
-            this.cadStatus("name", name);
+            this.setCadStatus(cadStatus);
         }
     }
 

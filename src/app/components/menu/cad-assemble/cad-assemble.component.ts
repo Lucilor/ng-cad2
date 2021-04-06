@@ -3,6 +3,7 @@ import {CadData, CadConnection, CadEventCallBack, CadEntity} from "@src/app/cad-
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
+import {CadStatusAssemble} from "@src/app/services/cad-status";
 import {difference} from "lodash";
 
 @Component({
@@ -24,12 +25,12 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
     }
 
     private _onEntitiesSelect = (((entities, multi) => {
-        const {name, index} = this.status.cadStatus();
-        if (name !== "assemble") {
+        const cadStatus = this.status.cadStatus;
+        if (!(cadStatus instanceof CadStatusAssemble)) {
             return;
         }
         const cad = this.status.cad;
-        const data = cad.data.components.data[index];
+        const data = cad.data.components.data[cadStatus.index];
         const selected = cad.selected().toArray();
         const ids = selected.map((e) => e.id);
         if (multi) {
@@ -58,8 +59,8 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
     }) as CadEventCallBack<"entitiesunselect">).bind(this);
 
     private _selectEntity(entity: CadEntity) {
-        const name = this.status.cadStatus("name");
-        if (name !== "assemble" || !entity) {
+        const cadStatus = this.status.cadStatus;
+        if (!(cadStatus instanceof CadStatusAssemble) || !entity) {
             return;
         }
         const cad = this.status.cad;
@@ -157,9 +158,9 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                 this.data = data;
             }
         });
-        this.subscribe(this.status.cadStatusEnter$, ({name, index}) => {
-            const data = this.status.cad.data.components.data[index];
-            if (name === "assemble") {
+        this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
+            if (cadStatus instanceof CadStatusAssemble) {
+                const data = this.status.cad.data.components.data[cadStatus.index];
                 if (!this.prevDisabledCadTypes) {
                     this.prevDisabledCadTypes = this.status.disabledCadTypes$.getValue();
                     this.status.disabledCadTypes$.next(["cads", "partners"]);
@@ -171,8 +172,8 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                 this.status.cad.data.updateComponents();
             }
         });
-        this.subscribe(this.status.cadStatusExit$, ({name}) => {
-            if (name === "assemble") {
+        this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
+            if (cadStatus instanceof CadStatusAssemble) {
                 if (this.prevDisabledCadTypes) {
                     this.status.disabledCadTypes$.next(this.prevDisabledCadTypes);
                     this.prevDisabledCadTypes = null;

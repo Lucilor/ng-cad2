@@ -11,6 +11,7 @@ import {BookData} from "@src/app/modules/message/components/message/message-type
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
+import {CadStatusAssemble, CadStatusNormal, CadStatusSplit} from "@src/app/services/cad-status";
 import {Angle, Line, MatrixLike, ObjectOf, Point, timeout} from "@src/app/utils";
 import {highlight} from "highlight.js";
 import {differenceWith} from "lodash";
@@ -134,13 +135,13 @@ export class CadConsoleComponent implements OnInit {
 
     private executor: ObjectOf<(this: CadConsoleComponent, ...args: string[]) => any> = {
         async assemble() {
-            const name = this.status.cadStatus().name;
-            if (name === "assemble") {
-                this.status.cadStatus({name: "normal"});
+            const cadStatus = this.status.cadStatus;
+            if (cadStatus instanceof CadStatusAssemble) {
+                this.status.setCadStatus(new CadStatusNormal());
             } else {
                 const index = await this.takeOneMajorCad("装配");
-                if (index !== null) {
-                    this.status.cadStatus({name: "assemble", index});
+                if (typeof index === "number") {
+                    this.status.setCadStatus(new CadStatusAssemble(index));
                 }
             }
         },
@@ -428,14 +429,14 @@ export class CadConsoleComponent implements OnInit {
                 loaderId = "saveCadLoader";
             }
             if (collection === "p_yuanshicadwenjian") {
-                const {name, extra} = status.cadStatus();
-                if (name !== "split") {
+                const cadStatus = status.cadStatus;
+                if (!(cadStatus instanceof CadStatusSplit)) {
                     this.message.alert("原始CAD文件只能在选取时保存");
                     return;
                 }
                 let indices: number[];
-                if (typeof extra?.index === "number") {
-                    indices = [extra.index];
+                if (typeof cadStatus.index === "number") {
+                    indices = [cadStatus.index];
                 } else {
                     indices = [...Array(data.length).keys()];
                 }
@@ -453,7 +454,7 @@ export class CadConsoleComponent implements OnInit {
                     status.loaderText$.next(`正在保存CAD(${i + 1}/${total})`);
                 }
                 status.stopLoader();
-                status.cadStatus({name: "normal"});
+                status.setCadStatus(new CadStatusNormal());
             } else {
                 if (cad.config("validateLines")) {
                     const validateResults = this.status.validate();
@@ -488,13 +489,13 @@ export class CadConsoleComponent implements OnInit {
             return result;
         },
         async split() {
-            const name = this.status.cadStatus("name");
-            if (name === "split") {
-                this.status.cadStatus({name: "normal"});
+            const cadStatus = this.status.cadStatus;
+            if (cadStatus instanceof CadStatusSplit) {
+                this.status.setCadStatus(new CadStatusNormal());
             } else {
                 const index = await this.takeOneMajorCad("选取");
-                if (index !== null) {
-                    this.status.cadStatus({name: "split", index});
+                if (typeof index === "number") {
+                    this.status.setCadStatus(new CadStatusSplit(index));
                 }
             }
         },
