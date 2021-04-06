@@ -2,7 +2,6 @@ import {Component, Inject} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {fullChars2HalfChars, replaceChars} from "@src/app/app.common";
 import {CadData, CadZhankai, FlipType} from "@src/app/cad-viewer";
 import {Utils} from "@src/app/mixins/utils.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
@@ -113,11 +112,6 @@ export class CadZhankaiComponent extends Utils() {
         } else {
             this.message.alert("没有选中");
         }
-    }
-
-    setCondition(event: Event, i: number, j: number) {
-        const str = (event.target as HTMLInputElement).value;
-        this.data[i].conditions[j] = replaceChars(str, fullChars2HalfChars);
     }
 
     async selectOptions(obj: any, field: string) {

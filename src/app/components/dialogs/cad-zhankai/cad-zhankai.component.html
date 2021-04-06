@@ -12,7 +12,6 @@
                     <mat-label>名字</mat-label>
                     <input matInput type="text" [(ngModel)]="item.name" name="name" />
                 </mat-form-field>
-                <br />
                 <mat-form-field class="halfwidth">
                     <mat-label>开料CAD模板</mat-label>
                     <input matInput type="text" [(ngModel)]="item.kailiaomuban" name="kailiaomuban" />
@@ -67,7 +66,7 @@
                         </button>
                     </div>
                     <mat-form-field *ngFor="let c of ' '.repeat(item.conditions.length).split(''); let j = index">
-                        <input matInput type="text" [value]="item.conditions[j]" (change)="setCondition($event, i, j)" />
+                        <input matInput type="text" [value]="item.conditions[j]" appReplaceFullChars [arr]="item.conditions" [index]="j" />
                         <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(item.conditions, '', j + 1)">
                             <mat-icon>add_circle</mat-icon>
                         </button>
@@ -90,7 +89,14 @@
                         </mat-form-field>
                         <mat-form-field style="width: 70%">
                             <mat-label>内部公式-值</mat-label>
-                            <input type="text" matInput [(ngModel)]="item.neibugongshi[key]" [ngModelOptions]="{standalone: true}" />
+                            <input
+                                type="text"
+                                matInput
+                                [value]="item.neibugongshi[key]"
+                                appReplaceFullChars
+                                [obj]="item.neibugongshi"
+                                [key]="key"
+                            />
                             <button mat-icon-button matSuffix color="primary" (click)="objectAdd(item.neibugongshi, '', '')">
                                 <mat-icon>add_circle</mat-icon>
                             </button>

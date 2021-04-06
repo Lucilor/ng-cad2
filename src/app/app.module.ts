@@ -52,6 +52,7 @@ import {CadLineComponent} from "./components/menu/cad-line/cad-line.component";
 import {CadMtextComponent} from "./components/menu/cad-mtext/cad-mtext.component";
 import {SubCadsComponent} from "./components/menu/sub-cads/sub-cads.component";
 import {ToolbarComponent} from "./components/menu/toolbar/toolbar.component";
+import {ReplaceFullCharsDirective} from "./directives/replace-full-chars.directive";
 import {CadConsoleModule} from "./modules/cad-console/cad-console.module";
 import {HttpModule} from "./modules/http/http.module";
 import {ImageModule} from "./modules/image/image.module";
@@ -118,7 +119,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         CadZhankaiComponent,
         CadDataAttrsComponent,
         ChangelogComponent,
-        ChangelogAdminComponent
+        ChangelogAdminComponent,
+        ReplaceFullCharsDirective
     ],
     imports: [
         HttpClientModule,
