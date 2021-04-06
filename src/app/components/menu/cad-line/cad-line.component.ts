@@ -471,12 +471,12 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     drawLine() {
-        this.consoleService.execute("draw-line");
+        this.status.cadStatusToggle("drawLine");
     }
 
     moveLines() {
         // this.status.setCadPoints(generatePointsMap(new CadEntities().fromArray(this.selected)));
-        this.consoleService.execute("move-lines");
+        this.status.cadStatusToggle("moveLines");
     }
 
     addLineDrawing() {

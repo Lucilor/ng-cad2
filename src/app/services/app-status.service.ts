@@ -185,6 +185,14 @@ export class AppStatusService {
         return;
     }
 
+    cadStatusToggle(name: CadStatus["name"]) {
+        if (this.cadStatus("name") === name) {
+            this.cadStatus("name", "normal");
+        } else {
+            this.cadStatus("name", name);
+        }
+    }
+
     async openCad(data?: CadData[], collection?: CadCollection) {
         const cad = this.cad;
         if (data) {

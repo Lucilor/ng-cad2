@@ -55,7 +55,6 @@ interface CadViewerConfig {
             }</pre>`
         }
     },
-    {name: "draw-line", args: [], desc: "进入/退出画线状态"},
     {name: "fillet", args: [{name: "radius", defaultValue: "0", desc: "圆角半径"}], desc: "根据两条直线生成圆角"},
     {
         name: "flip",
@@ -73,7 +72,6 @@ interface CadViewerConfig {
         ],
         desc: "查看控制台帮助手册"
     },
-    {name: "move-lines", args: [], desc: "进入/退出移线状态"},
     {name: "new-cad", args: [], desc: "创建一个空白CAD"},
     {
         name: "open",
@@ -151,13 +149,6 @@ export class CadConsoleComponent implements OnInit {
             const result = await openJsonEditorDialog(this.dialog, {data: {json: config}});
             if (result) {
                 this.config.config(result);
-            }
-        },
-        drawLine() {
-            if (this.status.cadStatus("name") === "drawLine") {
-                this.status.cadStatus({name: "normal"});
-            } else {
-                this.status.cadStatus({name: "drawLine"});
             }
         },
         async fillet(radiusArg: string) {
@@ -364,13 +355,6 @@ export class CadConsoleComponent implements OnInit {
                 ];
             }
             this.message.book(data, "帮助手册");
-        },
-        moveLines() {
-            if (this.status.cadStatus("name") === "moveLines") {
-                this.status.cadStatus("name", "normal");
-            } else {
-                this.status.cadStatus("name", "moveLines");
-            }
         },
         newCad() {
             const data = this.status.cad.data.components.data;
