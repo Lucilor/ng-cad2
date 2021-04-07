@@ -18,8 +18,8 @@ export class ChangelogComponent {
     maxPage = 1;
     loading = false;
     routesInfo = routesInfo;
-    get isAdmin() {
-        return this.status.isAdmin;
+    get isAdmin$() {
+        return this.status.isAdmin$;
     }
 
     constructor(

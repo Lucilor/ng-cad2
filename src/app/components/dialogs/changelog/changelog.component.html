@@ -7,7 +7,7 @@
         [routerLink]="'/' + routesInfo.changelogAdmin.path"
         target="_blank"
         queryParamsHandling="merge"
-        *ngIf="isAdmin"
+        *ngIf="isAdmin$ | async"
     >
         编辑
     </a>

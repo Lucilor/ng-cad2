@@ -2,8 +2,8 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {local, routesInfo} from "@src/app/app.common";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@src/app/cad-viewer";
+import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
@@ -17,7 +17,7 @@ import {openChangelogDialog} from "../../dialogs/changelog/changelog.component";
     templateUrl: "./toolbar.component.html",
     styleUrls: ["./toolbar.component.scss"]
 })
-export class ToolbarComponent implements OnInit, OnDestroy {
+export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy {
     openLock = false;
     keyMap: ObjectOf<() => void> = {
         s: () => this.save(),
@@ -79,16 +79,12 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         private message: MessageService,
         private config: AppConfigService,
         private status: AppStatusService,
-        private dialog: MatDialog,
-        private dataService: CadDataService
+        private dialog: MatDialog
     ) {
-        (async () => {
-            const timeStamp = Number(local.load("changelogTimeStamp"));
-            const {changelog} = await this.dataService.getChangelog(1, 1);
-            if (changelog.length) {
-                this.showNew = timeStamp < changelog[0].timeStamp;
-            }
-        })();
+        super();
+        this.subscribe(this.status.changelogTimeStamp$, (changelogTimeStamp) => {
+            this.showNew = changelogTimeStamp > Number(local.load("changelogTimeStamp") || 0);
+        });
     }
 
     ngOnInit() {

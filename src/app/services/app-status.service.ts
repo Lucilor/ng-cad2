@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {clamp, difference, differenceWith} from "lodash";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";
-import {CadCollection} from "../app.common";
+import {CadCollection, local} from "../app.common";
 import {CadEntities, CadLine, CadMtext} from "../cad-viewer";
 import {CadData} from "../cad-viewer/cad-data/cad-data";
 import {generateLineTexts, generatePointsMap, PointsMap, validateLines, ValidateResult} from "../cad-viewer/cad-data/cad-lines";
@@ -62,7 +62,9 @@ export class AppStatusService {
     openCad$ = new Subject<void>();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
     project = "";
-    isAdmin = false;
+    isAdmin$ = new BehaviorSubject<boolean>(false);
+    changelogTimeStamp$ = new BehaviorSubject<number>(-1);
+    private _refreshTimeStamp = Number(local.load("refreshTimeStamp") || -1);
 
     constructor(
         private config: AppConfigService,
@@ -82,7 +84,7 @@ export class AppStatusService {
             });
             cad.render(cadGongshis);
         });
-        this.route.queryParams.subscribe(async (queryParams) => {
+        this.route.queryParams.subscribe((queryParams) => {
             this.setProject(queryParams.project);
         });
     }
@@ -106,7 +108,17 @@ export class AppStatusService {
             this.dataService.silent = true;
             const response = await this.dataService.get("user/user/isAdmin");
             this.dataService.silent = silent;
-            this.isAdmin = !!response?.data;
+            this.isAdmin$.next(!!response?.data);
+            let changelogTimeStamp = this.changelogTimeStamp$.getValue();
+            if (changelogTimeStamp < 0) {
+                const {changelog} = await this.dataService.getChangelog(1, 1);
+                changelogTimeStamp = changelog[0]?.timeStamp || 0;
+            }
+            if (changelogTimeStamp > this._refreshTimeStamp) {
+                location.reload();
+                local.save("refreshTimeStamp", new Date().getTime());
+            }
+            this.changelogTimeStamp$.next(changelogTimeStamp);
         }
     }
 
