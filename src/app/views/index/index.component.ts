@@ -134,7 +134,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             const {id, ids, collection, project} = this.route.snapshot.queryParams;
             const getParams: Partial<GetCadParams> = {};
             if ((id || ids) && collection) {
-                this.config.config("collection", collection);
+                this.status.collection$.next(collection);
                 if (id) {
                     getParams.id = id;
                 }
@@ -142,10 +142,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
                     getParams.ids = ids.split(",");
                 }
                 getParams.collection = collection;
-            } else {
-                const config = this.config.config();
-                getParams.ids = config.cadIds;
-                getParams.collection = config.collection;
             }
             if (project) {
                 this.dataService.baseURL = this.dataService.baseURL.replace(/\/n\/(^\/)*\//, `/n/${project}/`);

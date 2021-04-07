@@ -12,7 +12,7 @@ export class CadPointsComponent {
     constructor(private status: AppStatusService) {}
 
     onPointClick(index: number) {
-        const points = this.points$.getValue();
+        const points = this.points$.value;
         points[index].active = !points[index].active;
         this.points$.next(points);
     }

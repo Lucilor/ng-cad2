@@ -46,6 +46,7 @@ export type CadPoints = {x: number; y: number; active: boolean}[];
     providedIn: "root"
 })
 export class AppStatusService {
+    collection$ = new BehaviorSubject<CadCollection>("cad");
     selectedCads$ = new BehaviorSubject<SelectedCads>({
         cads: [],
         partners: [],
@@ -109,7 +110,7 @@ export class AppStatusService {
             const response = await this.dataService.get("user/user/isAdmin");
             this.dataService.silent = silent;
             this.isAdmin$.next(!!response?.data);
-            let changelogTimeStamp = this.changelogTimeStamp$.getValue();
+            let changelogTimeStamp = this.changelogTimeStamp$.value;
             if (changelogTimeStamp < 0) {
                 const {changelog} = await this.dataService.getChangelog(1, 1);
                 changelogTimeStamp = changelog[0]?.timeStamp || 0;
@@ -127,11 +128,11 @@ export class AppStatusService {
     }
 
     refreshSelectedCads() {
-        this.selectedCads$.next(this.selectedCads$.getValue());
+        this.selectedCads$.next(this.selectedCads$.value);
     }
 
     getFlatSelectedCads() {
-        const currCads = this.selectedCads$.getValue();
+        const currCads = this.selectedCads$.value;
         const data = this.cad.data;
         const {partners, components, fullCads} = currCads;
         const fullCadsData = data.findChildren(fullCads);
@@ -171,11 +172,10 @@ export class AppStatusService {
         const config: Partial<AppConfig> = {};
         const sessionConfig = this.config.sessionConfig;
         const ids = data.map((v) => v.id);
-        config.cadIds = ids;
-        if (collection) {
-            config.collection = collection;
+        if (collection && this.collection$.value !== collection) {
+            this.collection$.next(collection);
         } else {
-            collection = this.config.config("collection");
+            collection = this.collection$.value;
         }
 
         const {ids2, collection2} = this.route.snapshot.queryParams;
@@ -221,17 +221,17 @@ export class AppStatusService {
         if (typeof text === "string") {
             this.loaderText$.next(text);
         }
-        this.loaderService.startLoader(this.loaderId$.getValue());
+        this.loaderService.startLoader(this.loaderId$.value);
     }
 
     stopLoader() {
-        this.loaderService.stopLoader(this.loaderId$.getValue());
+        this.loaderService.stopLoader(this.loaderId$.value);
         this.loaderId$.next("master");
         this.loaderText$.next("");
     }
 
     generateLineTexts() {
-        if (this.config.config("collection") === "CADmuban") {
+        if (this.collection$.value === "CADmuban") {
             this.cad.data.components.data.forEach((v) => {
                 v.entities.line.forEach((e) => {
                     e.children.mtext = e.children.mtext.filter((mt) => !mt.info.isLengthText && !mt.info.isGongshiText);
@@ -262,7 +262,7 @@ export class AppStatusService {
     }
 
     addCadPoint(point: CadPoints[0], i?: number) {
-        const points = this.cadPoints$.getValue();
+        const points = this.cadPoints$.value;
         if (typeof i !== "number") {
             i = points.length;
         }
@@ -271,7 +271,7 @@ export class AppStatusService {
     }
 
     removeCadPoint(i: number) {
-        const points = this.cadPoints$.getValue();
+        const points = this.cadPoints$.value;
         i = clamp(i, 0, points.length - 1);
         points.splice(i, 1);
         this.cadPoints$.next(points);

@@ -389,7 +389,7 @@ export class CadConsoleComponent implements OnInit {
             const cad = this.status.cad;
             const selectMode = collection === "p_yuanshicadwenjian" ? "table" : "multiple";
             let checkedItems: CadData[];
-            if (collection === this.config.config("collection")) {
+            if (collection === this.status.collection$.value) {
                 checkedItems = cad.data.components.data;
             } else {
                 checkedItems = [];
@@ -418,13 +418,13 @@ export class CadConsoleComponent implements OnInit {
         async save() {
             const {dataService, status, message} = this;
             const cad = status.cad;
-            const collection = this.config.config("collection");
+            const collection = this.status.collection$.value;
             const silent = dataService.silent;
             dataService.silent = true;
             const result: CadData[] = [];
             const skipped: string[] = [];
             const data = cad.data.components.data;
-            let loaderId = status.loaderId$.getValue();
+            let loaderId = status.loaderId$.value;
             if (loaderId === "master") {
                 loaderId = "saveCadLoader";
             }
@@ -787,7 +787,7 @@ export class CadConsoleComponent implements OnInit {
                     });
                 }
                 removeCadGongshi(data);
-                addCadGongshi(data, this.config.config("showCadGongshis"), this.config.config("collection") === "CADmuban");
+                addCadGongshi(data, this.config.config("showCadGongshis"), this.status.collection$.value === "CADmuban");
             };
             const selectedCads = this.status.getFlatSelectedCads();
             if (selectedCads.length) {

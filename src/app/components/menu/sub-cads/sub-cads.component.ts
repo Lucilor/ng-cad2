@@ -61,7 +61,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     get disabled() {
-        return this.status.disabledCadTypes$.getValue();
+        return this.status.disabledCadTypes$.value;
     }
     set disabled(value) {
         this.status.disabledCadTypes$.next(value);
@@ -85,7 +85,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             return;
         }
         const cloneData = data.clone(true);
-        const collection = this.config.config("collection");
+        const collection = this.status.collection$.value;
         const split = new CadData();
         split.entities = entities.clone(true);
         const node = this._getCadNode(split);
@@ -133,7 +133,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         }
         const {clientX, clientY} = event;
         const cad = this.status.cad;
-        const selectedCads = this.status.selectedCads$.getValue();
+        const selectedCads = this.status.selectedCads$.value;
         const cadStatus = this.status.cadStatus;
         const pointer = new Point(clientX, clientY);
         const translate = this.lastPointer.sub(pointer).divide(cad.zoom());
@@ -174,7 +174,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         this.subscribe(this.status.selectedCads$, () => this.setSelectedCads());
         this.subscribe(this.status.cadStatusEnter$, async (cadStatus) => {
             if (cadStatus instanceof CadStatusSplit) {
-                const id = this.status.selectedCads$.getValue().cads[0];
+                const id = this.status.selectedCads$.value.cads[0];
                 let data: CadData | undefined;
                 for (const v of this.status.cad.data.components.data) {
                     if (v.id === id) {
@@ -192,7 +192,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     }
                 }
                 this._prevId = id;
-                if (data && this.config.config("collection") === "p_yuanshicadwenjian") {
+                if (data && this.status.collection$.value === "p_yuanshicadwenjian") {
                     data.components.data = [];
                 }
                 if (!this.prevConfig) {
@@ -200,7 +200,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     this.config.config("dragAxis", "xy");
                 }
                 if (!this.prevDisabledCadTypes) {
-                    this.prevDisabledCadTypes = this.status.disabledCadTypes$.getValue();
+                    this.prevDisabledCadTypes = this.status.disabledCadTypes$.value;
                     this.status.disabledCadTypes$.next(["partners", "components"]);
                 }
                 this.updateList();
@@ -229,7 +229,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     this.status.disabledCadTypes$.next(this.prevDisabledCadTypes);
                     this.prevDisabledCadTypes = null;
                 }
-                if (this.config.config("collection") === "p_yuanshicadwenjian" && this._prevId) {
+                if (this.status.collection$.value === "p_yuanshicadwenjian" && this._prevId) {
                     const data = this.status.cad.data.findChild(this._prevId);
                     if (data) {
                         data.components.data = [];
@@ -284,7 +284,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     toggleMultiSelect() {
         this.multiSelect = !this.multiSelect;
         if (!this.multiSelect) {
-            const selectedCads = this.status.selectedCads$.getValue();
+            const selectedCads = this.status.selectedCads$.value;
             const arr = selectedCads.cads.concat(selectedCads.partners, selectedCads.components);
             if (arr.length > 1) {
                 if (selectedCads.cads.length >= 1) {
@@ -303,7 +303,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     selectAll(field: SelectedCadType = "cads") {
-        const selectedCads = this.status.selectedCads$.getValue();
+        const selectedCads = this.status.selectedCads$.value;
         selectedCads[field] = this[field].map((v) => v.data.id);
         if (field === "cads") {
             selectedCads.fullCads = selectedCads.cads.slice();
@@ -314,7 +314,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     unselectAll(field: SelectedCadType = "cads") {
-        const selectedCads = this.status.selectedCads$.getValue();
+        const selectedCads = this.status.selectedCads$.value;
         selectedCads[field] = [];
         if (field === "cads") {
             selectedCads.fullCads = [];
@@ -332,7 +332,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const id = node.data.id;
         let selectedCads: SelectedCads;
         if (this.multiSelect) {
-            selectedCads = this.status.selectedCads$.getValue();
+            selectedCads = this.status.selectedCads$.value;
         } else {
             selectedCads = {cads: [], fullCads: [], components: [], partners: []};
         }
@@ -381,7 +381,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     setSelectedCads() {
-        const {cads, partners, components, fullCads} = this.status.selectedCads$.getValue();
+        const {cads, partners, components, fullCads} = this.status.selectedCads$.value;
         for (const v of this.cads) {
             let checked = false;
             let indeterminate = false;
@@ -485,7 +485,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         if (type === "components") {
             checkedItems = [...data.components.data];
         }
-        const qiliao = type === "components" && this.config.config("collection") === "qiliaozuhe";
+        const qiliao = type === "components" && this.status.collection$.value === "qiliaozuhe";
         const cads = await openCadListDialog(this.dialog, {
             data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
         });
@@ -615,7 +615,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const cadStatus = this.status.cadStatus;
         const cad = this.status.cad;
         if (cadStatus instanceof CadStatusSplit) {
-            const collection = this.config.config("collection");
+            const collection = this.status.collection$.value;
             if (collection !== "p_yuanshicadwenjian") {
                 const data = cad.data.findChild(this._prevId);
                 if (data) {
@@ -631,7 +631,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         } else {
             const data = cad.data;
             data.components.data = data.components.data.filter((v) => !checkedIds.includes(v.id));
-            this.config.config({cadIds: data.components.data.map((v) => v.id)});
             const toRemove: ObjectOf<{p: string[]; c: string[]}> = {};
             this.partners.forEach((v) => {
                 if (v.parent && !checkedIds.includes(v.parent) && v.checked) {
@@ -683,7 +682,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const data = this.contextMenuCad.data;
         const cads = await openCadListDialog(this.dialog, {data: {selectMode: "single", options: data.options, collection: "cad"}});
         if (cads && cads[0]) {
-            this.dataService.replaceData(data, cads[0].id, this.config.config("collection"));
+            this.dataService.replaceData(data, cads[0].id, this.status.collection$.value);
         }
     }
 }

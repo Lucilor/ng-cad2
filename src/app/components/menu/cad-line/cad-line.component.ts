@@ -504,7 +504,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     validateLineText(field: string, value: string | number) {
         value = value.toString();
         if (field === "gongshi") {
-            if (this.config.config("collection") === "cad" && value.match(/[-+*/()（）]/)) {
+            if (this.status.collection$.value === "cad" && value.match(/[-+*/()（）]/)) {
                 this.inputErrors.gongshi = "不能使用四则运算";
                 return false;
             } else if (value.includes("变化值")) {

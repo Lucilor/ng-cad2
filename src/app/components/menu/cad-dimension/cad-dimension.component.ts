@@ -108,11 +108,11 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                     this.config.config({hideLineLength: true, lineGongshi: 0, selectMode: "single"});
                 }
                 if (!this.prevSelectedCads) {
-                    this.prevSelectedCads = this.status.selectedCads$.getValue();
+                    this.prevSelectedCads = this.status.selectedCads$.value;
                     this.status.clearSelectedCads();
                 }
                 if (!this.prevDisabledCadTypes) {
-                    this.prevDisabledCadTypes = this.status.disabledCadTypes$.getValue();
+                    this.prevDisabledCadTypes = this.status.disabledCadTypes$.value;
                     this.status.disabledCadTypes$.next(["cads", "partners", "components"]);
                 }
                 this.focus(dimension);

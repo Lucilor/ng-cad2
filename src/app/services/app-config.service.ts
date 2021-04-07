@@ -1,13 +1,11 @@
 import {Injectable} from "@angular/core";
 import {BehaviorSubject} from "rxjs";
-import {CadCollection, session} from "../app.common";
+import {session} from "../app.common";
 import {CadViewerConfig} from "../cad-viewer/cad-viewer";
 
 export interface AppConfig extends CadViewerConfig {
     showCadGongshis: boolean;
     infoTabIndex: number;
-    cadIds: string[];
-    collection: CadCollection;
 }
 
 @Injectable({
@@ -41,9 +39,7 @@ export class AppConfigService {
             fontWeight: "normal",
             enableZoom: true,
             showCadGongshis: true,
-            infoTabIndex: 0,
-            cadIds: [],
-            collection: "cad"
+            infoTabIndex: 0
         };
         const sessionConfig = this.sessionConfig;
         delete sessionConfig.width;
@@ -60,7 +56,7 @@ export class AppConfigService {
     config(config: Partial<AppConfig>): void;
     config<T extends keyof AppConfig>(key: T, value: AppConfig[T]): void;
     config<T extends keyof AppConfig>(key?: T | Partial<AppConfig>, value?: AppConfig[T]) {
-        const oldVal = this.config$.getValue();
+        const oldVal = this.config$.value;
         if (typeof key === "string") {
             if (value !== undefined) {
                 const newVal: Partial<AppConfig> = {};
@@ -69,14 +65,14 @@ export class AppConfigService {
                 this.config$.next({...oldVal, ...newVal});
                 return;
             } else {
-                return this.config$.getValue()[key];
+                return this.config$.value[key];
             }
         } else if (typeof key === "object") {
             this.configChange$.next({oldVal, newVal: key});
             this.config$.next({...oldVal, ...key});
             return;
         } else {
-            return this.config$.getValue();
+            return this.config$.value;
         }
     }
 }

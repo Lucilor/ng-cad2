@@ -37,7 +37,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
             data.components.data.forEach((v) => {
                 for (const e of v.getAllEntities().toArray()) {
                     if (ids.includes(e.id)) {
-                        const selectedCads = this.status.selectedCads$.getValue();
+                        const selectedCads = this.status.selectedCads$.value;
                         if (selectedCads.components.includes(v.id)) {
                             selectedCads.components = selectedCads.components.filter((vv) => vv !== v.id);
                         } else {
@@ -162,11 +162,11 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
             if (cadStatus instanceof CadStatusAssemble) {
                 const data = this.status.cad.data.components.data[cadStatus.index];
                 if (!this.prevDisabledCadTypes) {
-                    this.prevDisabledCadTypes = this.status.disabledCadTypes$.getValue();
+                    this.prevDisabledCadTypes = this.status.disabledCadTypes$.value;
                     this.status.disabledCadTypes$.next(["cads", "partners"]);
                 }
                 if (!this.prevSelectedCads) {
-                    this.prevSelectedCads = this.status.selectedCads$.getValue();
+                    this.prevSelectedCads = this.status.selectedCads$.value;
                     this.status.selectedCads$.next({cads: [data.id], partners: [], components: [], fullCads: [data.id]});
                 }
                 this.status.cad.data.updateComponents();
