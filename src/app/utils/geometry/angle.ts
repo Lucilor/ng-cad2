@@ -1,4 +1,4 @@
-import {DEFAULT_TOLERANCE} from "./constants";
+import {DEFAULT_TOLERANCE} from "./numbers";
 
 export class Angle {
     private _value: number;

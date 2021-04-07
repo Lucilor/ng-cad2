@@ -7,7 +7,7 @@ import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
-import {CadStatusAssemble, CadStatusNormal} from "@src/app/services/cad-status";
+import {CadStatusNormal} from "@src/app/services/cad-status";
 import {ObjectOf} from "@src/app/utils";
 import {flatMap} from "lodash";
 import {openChangelogDialog} from "../../dialogs/changelog/changelog.component";
@@ -40,12 +40,19 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     get statusName() {
         return this.status.cadStatus.name;
     }
-    get canEsc() {
-        const cadStatus = this.status.cadStatus;
-        if (cadStatus instanceof CadStatusNormal || cadStatus instanceof CadStatusAssemble) {
-            return false;
-        }
-        return true;
+    get canExit() {
+        return !!this.status.cadStatus.canExit;
+    }
+    get exitWithEsc() {
+        const {canExit, exitWithEsc} = this.status.cadStatus;
+        return canExit && exitWithEsc;
+    }
+    get canConfirm() {
+        return !!this.status.cadStatus.canConfirm;
+    }
+    get confirmWithEnter() {
+        const {canConfirm, confirmWithEnter} = this.status.cadStatus;
+        return canConfirm && confirmWithEnter;
     }
 
     onKeyDown = ((event: KeyboardEvent) => {
@@ -55,9 +62,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
             event.preventDefault();
             this.clickBtn(key);
         } else if (key === "escape") {
-            event.preventDefault();
-            if (this.canEsc) {
+            if (this.exitWithEsc) {
+                event.preventDefault();
                 this.backToNormal();
+            }
+        } else if (key === "enter") {
+            if (this.confirmWithEnter) {
+                event.preventDefault();
+                this.backToNormal(true);
             }
         }
     }).bind(this);
@@ -205,8 +217,8 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         this.console.execute("fillet", {radius: radius ? radius.toString() : "0"});
     }
 
-    backToNormal() {
-        this.status.setCadStatus(new CadStatusNormal());
+    backToNormal(confirmed?: boolean) {
+        this.status.setCadStatus(new CadStatusNormal(), confirmed);
     }
 
     newCad() {

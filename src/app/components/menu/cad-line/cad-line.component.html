@@ -1,9 +1,12 @@
 <div class="btn-group">
     <button mat-raised-button [style.z-index]="data ? '1' : '0'" [color]="isDrawingLine ? 'accent' : 'primary'" (click)="drawLine()">
-        {{ cadStatusName }}
+        {{ drawLineName }}
     </button>
     <button mat-raised-button [style.z-index]="data ? '1' : '0'" [color]="isMovingLines ? 'accent' : 'primary'" (click)="moveLines()">
-        {{ cadStatusName }}
+        {{ moveLinesName }}
+    </button>
+    <button mat-raised-button [style.z-index]="data ? '1' : '0'" [color]="isCuttingLine ? 'accent' : 'primary'" (click)="cutLine()">
+        {{ cutLineName }}
     </button>
     <button mat-raised-button color="primary" (click)="autoFix()">修正</button>
 </div>

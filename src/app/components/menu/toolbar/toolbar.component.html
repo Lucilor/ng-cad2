@@ -63,7 +63,11 @@
 <button mat-button (click)="resetLineLength()" [disabled]="!isStatusNormal">重置线长</button>
 <button mat-button (click)="setKailiaofangshi()" [disabled]="!isStatusNormal">首尾开料使用线长</button>
 
-<button mat-raised-button color="accent" (click)="backToNormal()" *ngIf="!isStatusNormal">
+<button mat-raised-button color="accent" (click)="backToNormal()" *ngIf="canExit">
     退出{{ statusName }}
-    <span *ngIf="canEsc">(Esc)</span>
+    <span *ngIf="exitWithEsc">(Esc)</span>
+</button>
+<button mat-raised-button color="accent" (click)="backToNormal(true)" *ngIf="canConfirm">
+    确认
+    <span *ngIf="confirmWithEnter">(Enter)</span>
 </button>

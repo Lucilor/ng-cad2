@@ -1,5 +1,5 @@
 import {Line} from "..";
-import {DEFAULT_TOLERANCE} from "./constants";
+import {DEFAULT_TOLERANCE} from "./numbers";
 import {Matrix, MatrixLike} from "./matrix";
 
 export class Point {

@@ -132,7 +132,8 @@ export class AppStatusService {
         return data.findChildren(ids);
     }
 
-    setCadStatus(value: CadStatus) {
+    setCadStatus(value: CadStatus, confirmed?: boolean) {
+        this.cadStatus.confirmed = confirmed;
         this.cadStatusExit$.next(this.cadStatus);
         this.cadStatus = value;
         this.cadStatusEnter$.next(value);

@@ -1,5 +1,5 @@
 import {Point} from "./point";
-import {DEFAULT_TOLERANCE} from "./constants";
+import {DEFAULT_TOLERANCE, isBetween, isEqual} from "./numbers";
 import {Angle} from "./angle";
 import {ObjectOf} from "../types";
 
@@ -26,19 +26,19 @@ export class Line {
         return this;
     }
 
-    contains(object?: Point | Line | null, extend = false): boolean {
+    contains(object: Point | Line, extend = false, tolerance = DEFAULT_TOLERANCE): boolean {
         if (object instanceof Point) {
             const {x: x1, y: y1} = this.start;
             const {x: x2, y: y2} = this.end;
             const {x, y} = object;
-            const withinLine = extend || (Math.min(x1, x2) <= x && x <= Math.max(x1, x2) && Math.min(y1, y2) <= y && y <= Math.max(y1, y2));
-            if ((x - x1) * (y2 - y1) === (x2 - x1) * (y - y1) && withinLine) {
+            const withinLine = extend || (isBetween(x, x1, x2, true, tolerance) && isBetween(y, y1, y2, true, tolerance));
+            if (isEqual((x - x1) * (y2 - y1), (x2 - x1) * (y - y1), tolerance) && withinLine) {
                 return true;
             } else {
                 return false;
             }
         } else if (object instanceof Line) {
-            return this.contains(object.start, extend) && this.contains(object.end, extend);
+            return this.contains(object.start, extend, tolerance) && this.contains(object.end, extend, tolerance);
         }
         return false;
     }
@@ -105,7 +105,7 @@ export class Line {
         if (!isFinite(slope1) && !isFinite(slope2)) {
             return true;
         }
-        return Math.abs(this.slope - line.slope) <= tolerance;
+        return isEqual(this.slope, line.slope, tolerance);
     }
 
     flip(vertical = false, horizontal = false, anchor = new Point(0)) {
@@ -134,11 +134,8 @@ export class Line {
         }
     }
 
-    intersects(line?: Line, extend = false, tolerance = DEFAULT_TOLERANCE) {
+    intersects(line: Line, extend = false, tolerance = DEFAULT_TOLERANCE) {
         let intersection: Point | null = null;
-        if (!line) {
-            return null;
-        }
         if (this.isParallelWith(line, tolerance)) {
             return intersection;
         }
@@ -147,7 +144,10 @@ export class Line {
         if (exp1 && exp2) {
             intersection = solveLinearEqXY(exp1.a, exp1.b, -exp1.c, exp2.a, exp2.b, -exp2.c);
         }
-        if (extend === false && (!this.contains(intersection) || !line.contains(intersection))) {
+        if (!intersection) {
+            return null;
+        }
+        if (extend === false && (!this.contains(intersection, extend, tolerance) || !line.contains(intersection, extend, tolerance))) {
             intersection = null;
         }
         return intersection;

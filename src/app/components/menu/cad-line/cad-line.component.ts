@@ -20,8 +20,8 @@ import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService} from "@src/app/services/app-status.service";
-import {CadStatusDrawLine, CadStatusMoveLines} from "@src/app/services/cad-status";
+import {AppStatusService, CadPoints} from "@src/app/services/app-status.service";
+import {CadStatusCutLine, CadStatusDrawLine, CadStatusMoveLines} from "@src/app/services/cad-status";
 import {Point} from "@src/app/utils";
 import Color from "color";
 import {debounce} from "lodash";
@@ -38,6 +38,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     editDiabled = false;
     lineDrawing: {start?: Point; end?: Point; entity?: CadLine; oldEntity?: CadLine} | null = null;
     linesMoving: {start?: Point} | null = null;
+    linesCutting: {lines: CadLine[]; points: Point[]} | null = null;
     data: CadData | null = null;
     inputErrors: {gongshi: string | false; guanlianbianhuagongshi: string | false} = {
         gongshi: false,
@@ -54,11 +55,20 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     get isDrawingLine() {
         return this.status.cadStatus instanceof CadStatusDrawLine;
     }
+    get drawLineName() {
+        return new CadStatusDrawLine().name;
+    }
     get isMovingLines() {
         return this.status.cadStatus instanceof CadStatusMoveLines;
     }
-    get cadStatusName() {
-        return this.status.cadStatus.name;
+    get moveLinesName() {
+        return new CadStatusMoveLines().name;
+    }
+    get isCuttingLine() {
+        return this.status.cadStatus instanceof CadStatusCutLine;
+    }
+    get cutLineName() {
+        return new CadStatusCutLine().name;
     }
 
     private _colorText = "";
@@ -227,10 +237,39 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     this.status.setCadPoints(new CadEntities().fromArray(selected));
                     this.linesMoving = {};
                 }
+            } else if (cadStatus instanceof CadStatusCutLine) {
+                const selected = this.selected[0];
+                if (!(selected instanceof CadLine)) {
+                    this.message.alert("请先选中一条直线");
+                    this.cutLine();
+                } else {
+                    if (!this.data) {
+                        throw new Error("no data");
+                    }
+                    const points: CadPoints = [];
+                    const {curve, start, end} = selected;
+                    this.data.getAllEntities().line.forEach((l) => {
+                        if (l.id === selected.id) {
+                            return;
+                        }
+                        const intersection = l.curve.intersects(curve);
+                        if (intersection && !intersection.equals(start) && !intersection.equals(end)) {
+                            const {x, y} = this.status.cad.getScreenPoint(intersection.x, intersection.y);
+                            points.push({x, y, active: false});
+                        }
+                    });
+                    if (points.length) {
+                        this.status.cadPoints$.next(points);
+                        this.linesCutting = {lines: [selected], points: []};
+                    } else {
+                        this.message.alert("无法截这条线(相交的线不足)");
+                    }
+                }
             }
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             cad = this.status.cad;
+            const {linesCutting} = this;
             if (cadStatus instanceof CadStatusDrawLine) {
                 const lineDrawing = this.lineDrawing;
                 if (lineDrawing) {
@@ -249,6 +288,31 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             } else if (cadStatus instanceof CadStatusMoveLines) {
                 this.status.setCadPoints();
                 this.linesMoving = null;
+            } else if (cadStatus instanceof CadStatusCutLine) {
+                this.status.setCadPoints();
+                this.linesCutting = null;
+                if (cadStatus.confirmed && linesCutting) {
+                    const lines = linesCutting.lines;
+                    linesCutting.points.forEach((point) => {
+                        let index = -1;
+                        let split1: CadLine | undefined;
+                        let split2: CadLine | undefined;
+                        lines.forEach((line, i) => {
+                            if (line.curve.contains(point)) {
+                                split1 = new CadLine(line.export());
+                                split2 = new CadLine(line.export());
+                                split1.end.copy(point);
+                                split2.start.copy(point);
+                                index = i;
+                                cad.remove(line);
+                                cad.add([split1, split2]);
+                            }
+                        });
+                        if (index > -1 && split1 && split2) {
+                            lines.splice(index, 1, split1, split2);
+                        }
+                    });
+                }
             }
         });
         this.subscribe(this.status.cadPoints$, async (cadPoints) => {
@@ -258,7 +322,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 return;
             }
             const worldPoints = activePoints.map((v) => cad.getWorldPoint(v.x, v.y));
-            const {lineDrawing, linesMoving} = this;
+            const {lineDrawing, linesMoving, linesCutting} = this;
             if (cadStatus instanceof CadStatusDrawLine && lineDrawing) {
                 const {entity, oldEntity} = lineDrawing;
                 if (oldEntity) {
@@ -313,6 +377,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                         this.status.setCadPoints(this.data?.getAllEntities(), cadPoints);
                     }
                 }
+            } else if (cadStatus instanceof CadStatusCutLine && linesCutting) {
+                linesCutting.points = worldPoints;
             }
         });
 
@@ -484,6 +550,10 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     moveLines() {
         // this.status.setCadPoints(generatePointsMap(new CadEntities().fromArray(this.selected)));
         this.status.toggleCadStatus(new CadStatusMoveLines());
+    }
+
+    cutLine() {
+        this.status.toggleCadStatus(new CadStatusCutLine());
     }
 
     addLineDrawing() {
