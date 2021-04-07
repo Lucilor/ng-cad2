@@ -273,6 +273,18 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         const result = await openCadZhankaiDialog(this.dialog, {data: data.zhankai});
         if (result) {
             data.zhankai = result;
+            if (result.length) {
+                data.name = result[0].name;
+            }
+        }
+    }
+
+    setCadName(data: CadData, event: Event) {
+        const name = (event.target as HTMLInputElement).value;
+        data.name = name;
+        const zhankai = data.zhankai[0];
+        if (zhankai) {
+            zhankai.name = name;
         }
     }
 }

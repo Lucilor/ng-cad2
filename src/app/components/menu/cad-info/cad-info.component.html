@@ -3,7 +3,7 @@
         <button hidden></button>
         <mat-form-field>
             <mat-label>名字</mat-label>
-            <input matInput type="text" [(ngModel)]="cad.name" name="name" />
+            <input matInput type="text" [value]="cad.name" (change)="setCadName(cad, $event)" name="name" />
         </mat-form-field>
         <mat-form-field>
             <mat-label>分类</mat-label>
