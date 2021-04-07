@@ -60,6 +60,12 @@
                                     {{ key }}
                                 </mat-option>
                             </mat-select>
+                            <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation();addContent(i, j)">
+                                <mat-icon>add_circle</mat-icon>
+                            </button>
+                            <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation();removeContent(i, j)">
+                                <mat-icon>remove_circle</mat-icon>
+                            </button>
                         </mat-form-field>
                     </div>
                     <div class="content-text" cdkDropList (cdkDropListDropped)="dropContentText($event, i, j)">
