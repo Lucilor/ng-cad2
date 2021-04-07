@@ -29,7 +29,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     routesInfo = routesInfo;
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
     get page() {
-        return this.paginator?.pageIndex || 0;
+        return (this.paginator?.pageIndex || 0) + 1;
     }
     get pageSize() {
         return this.paginator?.pageSize || 5;

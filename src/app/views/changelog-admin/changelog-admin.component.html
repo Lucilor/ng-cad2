@@ -1,6 +1,6 @@
 <perfect-scrollbar>
     <mat-accordion>
-        <div class="btn-group" *ngIf="page == 0">
+        <div class="btn-group" *ngIf="page === 1">
             <button mat-icon-button color="primary" (click)="addChangelogItem(0)">
                 <ngx-ui-loader [loaderId]="'add0'" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
                 <mat-icon>add_circle</mat-icon>
@@ -44,6 +44,11 @@
                             删除
                         </button>
                     </div>
+                </div>
+                <div class="btn-group" *ngIf="v.content.length === 0">
+                    <button mat-icon-button color="primary" (click)="addContent(i, 0)">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
                 </div>
                 <div class="content" *ngFor="let w of v.content; let j = index" cdkDrag>
                     <div class="drag-placeholder" *cdkDragPlaceholder></div>
