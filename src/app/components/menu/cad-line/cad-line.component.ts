@@ -299,13 +299,17 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                         let split2: CadLine | undefined;
                         lines.forEach((line, i) => {
                             if (line.curve.contains(point)) {
-                                split1 = new CadLine(line.export());
-                                split2 = new CadLine(line.export());
+                                split1 = new CadLine(line.export(), [], true);
+                                split2 = new CadLine();
+                                split2.color = line.color;
+                                split2.zhankaixiaoshuchuli = line.zhankaixiaoshuchuli;
                                 split1.end.copy(point);
                                 split2.start.copy(point);
+                                split2.end.copy(line.end);
                                 index = i;
+                                console.log(split1, split2);
+                                this.data?.entities.add(split1, split2);
                                 cad.remove(line);
-                                cad.add([split1, split2]);
                             }
                         });
                         if (index > -1 && split1 && split2) {

@@ -118,7 +118,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
 
     async setChangelogItem(i: number) {
         this.status.startLoader({id: "set" + i});
-        await this.dataService.setChangelogItem(this.changelog[i], this.page * this.pageSize + i);
+        await this.dataService.setChangelogItem(this.changelog[i], (this.page - 1) * this.pageSize + i);
         this.status.stopLoader();
     }
 
