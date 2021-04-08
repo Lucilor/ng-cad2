@@ -35,9 +35,6 @@
 
 <button mat-button [matMenuTriggerFor]="view" [disabled]="!isStatusNormal">视图</button>
 <mat-menu #view="matMenu">
-    <button mat-menu-item (click)="toggleShowDimensions()">{{ getConfig("hideDimensions") ? "显示" : "隐藏" }}标注</button>
-    <button mat-menu-item (click)="toggleShowCadGongshis()">{{ getConfig("showCadGongshis") ? "隐藏" : "显示" }}展开表达式</button>
-    <button mat-menu-item (click)="toggleValidateLines()">{{ getConfig("validateLines") ? "" : "不" }}验证线段</button>
     <button mat-menu-item (click)="setShowGongshi()">设置公式显示</button>
 </mat-menu>
 
@@ -46,16 +43,16 @@
 <button mat-button disabled>|</button>
 
 <button mat-button (click)="toggleShowLineLength()" [disabled]="!isStatusNormal">
-    {{ getConfig("hideLineLength") ? "显示" : "隐藏" }}线长
+    {{ getConfig("hideLineLength") ? "隐藏" : "显示" }}线长
 </button>
 <button mat-button (click)="toggleShowLineGongshi()" [disabled]="!isStatusNormal">
-    {{ getConfig("hideLineGongshi") ? "显示" : "隐藏" }}公式
+    {{ getConfig("hideLineGongshi") ? "隐藏" : "显示" }}公式
 </button>
 <button mat-button (click)="toggleShowDimensions()" [disabled]="!isStatusNormal">
-    {{ getConfig("hideDimensions") ? "显示" : "隐藏" }}标注
+    {{ getConfig("hideDimensions") ? "隐藏" : "显示" }}标注
 </button>
 <button mat-button (click)="toggleShowCadGongshis()" [disabled]="!isStatusNormal">
-    {{ getConfig("showCadGongshis") ? "隐藏" : "显示" }}展开表达式
+    {{ getConfig("showCadGongshis") ? "显示" : "隐藏" }}展开表达式
 </button>
 <button mat-button (click)="toggleValidateLines()" [disabled]="!isStatusNormal">
     {{ getConfig("validateLines") ? "" : "不" }}验证线段
