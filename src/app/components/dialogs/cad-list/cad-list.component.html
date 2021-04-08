@@ -45,7 +45,7 @@
                     {{ item.data.name }}
                 </mat-radio-button>
                 <img [src]="item.img" (click)="checkedIndex.next(i)" />
-                <ng-container *ngTemplateOutlet="details; context: {$implicit: item}"></ng-container>
+                <ng-container *ngTemplateOutlet="details; context: {$implicit: item.data}"></ng-container>
             </div>
         </mat-radio-group>
     </perfect-scrollbar>
@@ -114,16 +114,16 @@
     <button mat-raised-button color="primary" (click)="close()">取消</button>
 </div>
 
-<ng-template #details let-item>
-    <mat-list class="details" *ngFor="let data of asCadDataArray([item])">
+<ng-template #details let-data>
+    <mat-list class="details" *ngFor="let v of asCadDataArray([data])">
         <mat-divider></mat-divider>
         <div matSubheader>选项</div>
-        <mat-list-item *ngFor="let k of keysOf(data.options)" [matTooltip]="k + ': ' + data.options[k]">
+        <mat-list-item *ngFor="let k of keysOf(v.options)" [matTooltip]="k + ': ' + v.options[k]">
             {{ k }}: {{ data.options[k] }}
         </mat-list-item>
         <mat-divider></mat-divider>
         <div matSubheader>条件</div>
-        <mat-list-item *ngFor="let c of data.conditions" [matTooltip]="c">
+        <mat-list-item *ngFor="let c of v.conditions" [matTooltip]="c">
             {{ c }}
         </mat-list-item>
     </mat-list>
