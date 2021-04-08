@@ -74,6 +74,7 @@ export class AppStatusService {
         private router: Router,
         private dataService: CadDataService
     ) {
+        this.cad.config(this.config.config());
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
             cad.config(newVal);
@@ -120,6 +121,7 @@ export class AppStatusService {
                 local.save("refreshTimeStamp", new Date().getTime());
             }
             this.changelogTimeStamp$.next(changelogTimeStamp);
+            await this.config.getUserConfig();
         }
     }
 
@@ -170,7 +172,6 @@ export class AppStatusService {
             this.refreshSelectedCads();
         }
         const config: Partial<AppConfig> = {};
-        const sessionConfig = this.config.sessionConfig;
         const ids = data.map((v) => v.id);
         if (collection && this.collection$.value !== collection) {
             this.collection$.next(collection);
@@ -182,15 +183,15 @@ export class AppStatusService {
         if (ids.join(",") !== ids2 || collection !== collection2) {
             this.router.navigate(["/index"], {queryParams: {ids: ids.join(","), collection}, queryParamsHandling: "merge"});
         }
-
+        const userConfig = this.config.userConfig;
         cad.data.info.算料单 = data.some((v) => v.info.算料单);
-        if (typeof sessionConfig.hideLineGongshi === "boolean") {
-            config.hideLineGongshi = sessionConfig.hideLineGongshi;
+        if (typeof userConfig.hideLineGongshi === "boolean") {
+            config.hideLineGongshi = userConfig.hideLineGongshi;
         } else {
             config.hideLineGongshi = !!cad.data.info.算料单;
         }
-        if (typeof sessionConfig.hideLineLength === "boolean") {
-            config.hideLineLength = sessionConfig.hideLineLength;
+        if (typeof userConfig.hideLineLength === "boolean") {
+            config.hideLineLength = userConfig.hideLineLength;
         } else {
             config.hideLineLength = collection !== "cad";
         }
