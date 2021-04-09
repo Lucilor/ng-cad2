@@ -1,20 +1,28 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {trigger, state, style, transition, animate} from "@angular/animations";
+import {CdkDragEnd, CdkDragMove, CdkDragStart} from "@angular/cdk/drag-drop";
+import {Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef} from "@angular/core";
+import {MatMenuTrigger} from "@angular/material/menu";
+import {MatTabGroup, MatTabChangeEvent} from "@angular/material/tabs";
+import {ActivatedRoute} from "@angular/router";
+import {CadEventCallBack, CadData} from "@src/app/cad-viewer";
+import {CadInfoComponent} from "@src/app/components/menu/cad-info/cad-info.component";
+import {ContextMenu} from "@src/app/mixins/context-menu.mixin";
+import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadConsoleComponent} from "@src/app/modules/cad-console/components/cad-console/cad-console.component";
 import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
-import {AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService} from "@src/app/services/app-status.service";
-import {Subscribed} from "@src/app/mixins/subscribed.mixin";
-import {debounce} from "lodash";
-import {trigger, state, style, transition, animate} from "@angular/animations";
-import {ContextMenu} from "@src/app/mixins/context-menu.mixin";
-import {MatMenuTrigger} from "@angular/material/menu";
-import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
-import {ActivatedRoute} from "@angular/router";
-import {CadData, CadEventCallBack} from "@src/app/cad-viewer";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
-import {CadInfoComponent} from "@src/app/components/menu/cad-info/cad-info.component";
 import {MessageService} from "@src/app/modules/message/services/message.service";
+import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
+import {AppStatusService} from "@src/app/services/app-status.service";
 import {CadStatusAssemble} from "@src/app/services/cad-status";
+import {debounce} from "lodash";
+import {BehaviorSubject} from "rxjs";
+
+interface DragData {
+    width: number;
+}
+
+type Dragkey = keyof Pick<AppConfig, "leftMenuWidth" | "rightMenuWidth">;
 
 @Component({
     selector: "app-index",
@@ -40,6 +48,10 @@ import {CadStatusAssemble} from "@src/app/services/cad-status";
             state("open", style({transform: "translateX(0)"})),
             state("closed", style({transform: "translateX(-100%)"})),
             transition("open <=> closed", [animate("0.3s")])
+        ]),
+        trigger("menuWidth", [
+            transition(":enter", [style({opacity: 0}), animate("0.5s", style({opacity: 1}))]),
+            transition(":leave", [style({opacity: 1}), animate("0.5s", style({opacity: 0}))])
         ])
     ]
 })
@@ -54,6 +66,12 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     loaderId = "saveCadLoader";
     tabIndex = 0;
     cadLength = "0.00";
+    leftMenuWidth$ = new BehaviorSubject<number>(this.config.config("leftMenuWidth"));
+    rightMenuWidth$ = new BehaviorSubject<number>(this.config.config("rightMenuWidth"));
+    dragDataLeft: DragData = {width: 0};
+    dragDataRight: DragData = {width: 0};
+    isDraggingLeft = false;
+    isDraggingRight = false;
 
     get multiSelect() {
         return this.status.cad.config("selectMode") === "multiple";
@@ -151,6 +169,16 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         }
         cad.on("entitiescopy", this._onEntitiesCopy);
         cad.on("entitiespaste", this._onEntitiesPaste);
+
+        this.subscribe(this.config.configChange$, ({newVal}) => {
+            const {leftMenuWidth, rightMenuWidth} = newVal;
+            if (typeof leftMenuWidth === "number") {
+                this.leftMenuWidth$.next(leftMenuWidth);
+            }
+            if (typeof rightMenuWidth === "number") {
+                this.rightMenuWidth$.next(rightMenuWidth);
+            }
+        });
     }
 
     ngAfterViewInit() {
@@ -250,5 +278,34 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     onCadLengthsChange(event: string[]) {
         this.cadLength = event[0];
         this.cd.detectChanges();
+    }
+
+    onResizeMenuStart(_event: CdkDragStart<DragData>, key: Dragkey) {
+        if (key === "leftMenuWidth") {
+            this.dragDataLeft.width = this.leftMenuWidth$.value;
+            this.isDraggingLeft = true;
+        } else if (key === "rightMenuWidth") {
+            this.dragDataRight.width = this.rightMenuWidth$.value;
+            this.isDraggingRight = true;
+        }
+    }
+
+    onResizeMenu(event: CdkDragMove<DragData>, key: Dragkey) {
+        if (key === "leftMenuWidth") {
+            this.leftMenuWidth$.next(event.source.data.width + event.distance.x);
+        } else if (key === "rightMenuWidth") {
+            this.rightMenuWidth$.next(event.source.data.width - event.distance.x);
+        }
+        event.source.element.nativeElement.style.transform = "";
+    }
+
+    onResizeMenuEnd(_event: CdkDragEnd<DragData>, key: Dragkey) {
+        if (key === "leftMenuWidth") {
+            this.config.config(key, this.leftMenuWidth$.value);
+            this.isDraggingLeft = false;
+        } else if (key === "rightMenuWidth") {
+            this.config.config(key, this.rightMenuWidth$.value);
+            this.isDraggingRight = false;
+        }
     }
 }

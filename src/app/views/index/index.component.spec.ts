@@ -1,3 +1,4 @@
+import {DragDropModule} from "@angular/cdk/drag-drop";
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {FormsModule} from "@angular/forms";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
@@ -50,6 +51,7 @@ describe("IndexComponent", () => {
                 CadConsoleModule,
                 ColorChromeModule,
                 ColorCircleModule,
+                DragDropModule,
                 FormsModule,
                 HttpModule,
                 MatAutocompleteModule,

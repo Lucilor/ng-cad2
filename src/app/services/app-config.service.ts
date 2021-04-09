@@ -7,6 +7,8 @@ import {CadDataService} from "../modules/http/services/cad-data.service";
 export interface AppConfig extends CadViewerConfig {
     showCadGongshis: boolean;
     infoTabIndex: number;
+    leftMenuWidth: number;
+    rightMenuWidth: number;
 }
 
 @Injectable({
@@ -32,7 +34,9 @@ export class AppConfigService {
         fontWeight: "normal",
         enableZoom: true,
         showCadGongshis: true,
-        infoTabIndex: 0
+        infoTabIndex: 0,
+        leftMenuWidth: 200,
+        rightMenuWidth: 300
     });
     configChange$ = new BehaviorSubject<{oldVal: AppConfig; newVal: Partial<AppConfig>}>({
         oldVal: this.config$.value,

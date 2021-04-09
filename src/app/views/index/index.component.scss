@@ -1,14 +1,28 @@
-.menu {
+.menus {
     z-index: 10;
     position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+
+    .menus-row {
+        display: flex;
+        flex: 1 1 0;
+        height: 0;
+        justify-content: space-between;
+    }
+}
+
+.menu {
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.4);
-
-    $offset-top: 40px;
-    $offset-bottom: 40px;
+    box-sizing: border-box;
 
     &.top {
-        width: 100vw;
+        width: 100%;
         border-radius: 0;
         padding: 0 10px;
         top: 0;
@@ -16,27 +30,26 @@
     }
 
     &.bottom {
-        width: 100vw;
+        width: 100%;
         bottom: 0;
         height: 20px;
         line-height: 22px;
     }
 
-    &.left {
-        top: $offset-top;
-        height: calc(100vh - #{$offset-top} - #{$offset-bottom});
-        width: 200px;
-        padding: 10px;
+    &.left,
+    &.right {
+        display: flex;
         flex-direction: column;
+        padding: 10px;
+        height: 100%;
+        align-items: center;
+    }
+
+    &.left {
         left: 0;
     }
 
     &.right {
-        top: $offset-top;
-        height: calc(100vh - #{$offset-top} - #{$offset-bottom});
-        width: 300px;
-        padding: 10px;
-        flex-direction: column;
         right: 0;
     }
 
@@ -62,15 +75,20 @@
 .menu-icon {
     background-color: white;
     transition: 0.3s;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 6px;
+    margin: 0 !important;
     &.left {
         float: right;
         &.closed {
-            transform: translateX(45px);
+            transform: translateX(36px);
         }
     }
     &.right {
         &.closed {
-            transform: translateX(-45px);
+            transform: translateX(-36px);
         }
     }
 }
@@ -83,4 +101,14 @@
 
 ::ng-deep .mat-form-field-suffix {
     top: 8px;
+}
+
+.width-indicator {
+    position: absolute;
+    top: 10px;
+    background: black;
+    color: white;
+    padding: 5px;
+    border-radius: 8px;
+    opacity: 0.8;
 }
