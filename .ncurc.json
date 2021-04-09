@@ -1,4 +1,4 @@
 {
     "upgrade": true,
-    "reject": ["@angular/**", "@angular-eslint/**", "@types/quill", "typescript"]
+    "reject": ["@angular/**", "@angular-devkit/**", "@angular-eslint/**", "@types/quill", "typescript"]
 }
