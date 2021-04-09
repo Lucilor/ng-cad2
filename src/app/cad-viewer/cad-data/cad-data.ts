@@ -10,6 +10,7 @@ export class CadData {
     layers: CadLayer[] = [];
     id = "";
     name = "";
+    xianshimingzi = "";
     type = "";
     conditions: string[] = [];
     options: ObjectOf<string> = {};
@@ -49,6 +50,7 @@ export class CadData {
         }
         this.id = data.id || v4();
         this.name = data.name ?? "";
+        this.xianshimingzi = data.xianshimingzi ?? "";
         this.type = data.type ?? "";
         this.layers = [];
         if (typeof data.layers === "object") {
@@ -123,6 +125,7 @@ export class CadData {
             entities: this.entities.export(),
             id: this.id,
             name: this.name,
+            xianshimingzi: this.xianshimingzi,
             type: this.type,
             conditions: this.conditions,
             options: this.options,
