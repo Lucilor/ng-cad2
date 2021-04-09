@@ -1,6 +1,7 @@
 import {Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadData} from "@src/app/cad-viewer";
+import {Utils} from "@src/app/mixins/utils.mixin";
 import {getOpenDialogFunc} from "../dialog.common";
 
 export type CadDataAttrsComponentData = CadData["attributes"];
@@ -10,22 +11,16 @@ export type CadDataAttrsComponentData = CadData["attributes"];
     templateUrl: "./cad-data-attrs.component.html",
     styleUrls: ["./cad-data-attrs.component.scss"]
 })
-export class CadDataAttrsComponent {
+export class CadDataAttrsComponent extends Utils() {
     list: {key: string; value: string}[] = [];
 
     constructor(
         public dialogRef: MatDialogRef<CadDataAttrsComponent, CadDataAttrsComponentData>,
         @Inject(MAT_DIALOG_DATA) public data: CadDataAttrsComponentData
     ) {
+        super();
         for (const key in data) {
             this.list.push({key, value: data[key]});
-        }
-        this._checkEmpty();
-    }
-
-    private _checkEmpty() {
-        if (this.list.length < 1) {
-            this.list.push({key: "", value: ""});
         }
     }
 
@@ -41,15 +36,6 @@ export class CadDataAttrsComponent {
 
     cancle() {
         this.dialogRef.close();
-    }
-
-    add(i: number) {
-        this.list.splice(i + 1, 0, {key: "", value: ""});
-    }
-
-    remove(i: number) {
-        this.list.splice(i, 1);
-        this._checkEmpty();
     }
 }
 
