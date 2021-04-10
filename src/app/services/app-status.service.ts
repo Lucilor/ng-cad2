@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Params, Router} from "@angular/router";
 import {clamp, difference, differenceWith} from "lodash";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";
@@ -87,7 +87,7 @@ export class AppStatusService {
             cad.render(cadGongshis);
         });
         this.route.queryParams.subscribe((queryParams) => {
-            this.setProject(queryParams.project);
+            this.setProject(queryParams);
         });
     }
 
@@ -102,26 +102,26 @@ export class AppStatusService {
         source.separate(new CadData({entities: mtexts.export()}));
     }
 
-    async setProject(project: string) {
+    async setProject(queryParams: Params) {
+        const {project, action} = queryParams;
         if (project && project !== this.project) {
             this.project = project;
             this.dataService.baseURL = `${origin}/n/${project}/index/`;
-            const silent = this.dataService.silent;
-            this.dataService.silent = true;
-            const response = await this.dataService.get("user/user/isAdmin");
-            this.dataService.silent = silent;
-            this.isAdmin$.next(!!response?.data);
-            let changelogTimeStamp = this.changelogTimeStamp$.value;
-            if (changelogTimeStamp < 0) {
-                const {changelog} = await this.dataService.getChangelog(1, 1);
-                changelogTimeStamp = changelog[0]?.timeStamp || 0;
+            if (!action) {
+                const response = await this.dataService.get("user/user/isAdmin");
+                this.isAdmin$.next(!!response?.data);
+                let changelogTimeStamp = this.changelogTimeStamp$.value;
+                if (changelogTimeStamp < 0) {
+                    const {changelog} = await this.dataService.getChangelog(1, 1);
+                    changelogTimeStamp = changelog[0]?.timeStamp || 0;
+                }
+                if (changelogTimeStamp > this._refreshTimeStamp) {
+                    location.reload();
+                    local.save("refreshTimeStamp", new Date().getTime());
+                }
+                this.changelogTimeStamp$.next(changelogTimeStamp);
+                await this.config.getUserConfig();
             }
-            if (changelogTimeStamp > this._refreshTimeStamp) {
-                location.reload();
-                local.save("refreshTimeStamp", new Date().getTime());
-            }
-            this.changelogTimeStamp$.next(changelogTimeStamp);
-            await this.config.getUserConfig();
         }
     }
 
