@@ -134,7 +134,14 @@
         <mat-form-field>
             <mat-label>默认开料板材</mat-label>
             <input matInput type="text" [(ngModel)]="cad.morenkailiaobancai" name="morenkailiaobancai" />
-            <button mat-icon-button matSuffix color="primary" (click)="selectOptions(cad, 'bancai')">
+            <button mat-icon-button matSuffix color="primary" (click)="selectOptions(cad, 'bancai', 'morenkailiaobancai')">
+                <mat-icon>list</mat-icon>
+            </button>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>固定开料板材</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.gudingkailiaobancai" name="gudingkailiaobancai" />
+            <button mat-icon-button matSuffix color="primary" (click)="selectOptions(cad, 'bancai', 'gudingkailiaobancai')">
                 <mat-icon>list</mat-icon>
             </button>
         </mat-form-field>

@@ -28,6 +28,7 @@ export class CadData {
     bancaiwenlifangxiang: "垂直" | "水平" = "垂直";
     kailiaopaibanfangshi: "自动排版" | "不排版" | "必须排版" = "自动排版";
     morenkailiaobancai = "";
+    gudingkailiaobancai = "";
     suanliaochuli: "算料+显示展开+开料" | "算料+开料" | "算料+显示展开" | "算料" = "算料+显示展开+开料";
     showKuandubiaozhu = false;
     info: ObjectOf<any> = {};
@@ -91,6 +92,7 @@ export class CadData {
         this.bancaiwenlifangxiang = data.bancaiwenlifangxiang ?? "垂直";
         this.kailiaopaibanfangshi = data.kailiaopaibanfangshi ?? "自动排版";
         this.morenkailiaobancai = data.morenkailiaobancai ?? "";
+        this.gudingkailiaobancai = data.gudingkailiaobancai ?? "";
         this.suanliaochuli = data.suanliaochuli ?? "算料+显示展开+开料";
         this.showKuandubiaozhu = data.showKuandubiaozhu ?? false;
         this.info = getObject(data.info);
@@ -143,6 +145,7 @@ export class CadData {
             bancaiwenlifangxiang: this.bancaiwenlifangxiang,
             kailiaopaibanfangshi: this.kailiaopaibanfangshi,
             morenkailiaobancai: this.morenkailiaobancai,
+            gudingkailiaobancai: this.gudingkailiaobancai,
             suanliaochuli: this.suanliaochuli,
             showKuandubiaozhu: this.showKuandubiaozhu,
             info: this.info,

@@ -106,18 +106,18 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         this.cadLengthsChange.emit(lengths);
     }
 
-    async selectOptions(data: CadData, optionKey: string, xinghao?: string) {
+    async selectOptions(data: CadData, optionKey: string, key?: string) {
         if (optionKey === "huajian") {
             const checkedItems = data.huajian.split(",");
-            const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems, xinghao}});
+            const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems, xinghao: key}});
             if (Array.isArray(result)) {
                 data.huajian = result.join(",");
             }
         } else if (optionKey === "bancai") {
             const checkedItems = data.morenkailiaobancai.split(",");
             const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems, multi: false}});
-            if (Array.isArray(result)) {
-                data.morenkailiaobancai = result.join(",");
+            if (Array.isArray(result) && key) {
+                (data as any)[key] = result.join(",");
             }
         } else {
             const checkedItems = data.options[optionKey].split(",");
