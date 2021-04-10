@@ -144,13 +144,15 @@ export class CadDataService extends HttpService {
         search: string,
         page: number = 1,
         limit: number = 10,
-        data?: CadData
+        data?: CadData,
+        xinghao?: string
     ): Promise<{data: {name: string; img: string}[]; count: number}> {
         const postData: ObjectOf<any> = {
             name,
             search,
             page,
-            limit
+            limit,
+            xinghao
         };
         if (data) {
             const exportData = data.export();

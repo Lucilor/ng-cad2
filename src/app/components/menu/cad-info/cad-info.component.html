@@ -183,6 +183,33 @@
                 <mat-option [value]="false">否</mat-option>
             </mat-select>
         </mat-form-field> -->
+        <div class="sub-form-field">
+            <div class="label">型号花件</div>
+            <div *ngIf="keysOf(cad.options).length === 0">
+                <button mat-icon-button color="primary" (click)="objectAdd(cad.xinghaohuajian, '')">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+            </div>
+            <div *ngFor="let key of keysOf(cad.xinghaohuajian)">
+                <mat-form-field style="width: 50%">
+                    <mat-label>型号</mat-label>
+                    <input type="text" matInput [value]="key" (change)="changeObjectKey(cad.xinghaohuajian, key, $event)" />
+                </mat-form-field>
+                <mat-form-field style="width: 50%">
+                    <mat-label>花件</mat-label>
+                    <input type="text" matInput [(ngModel)]="cad.xinghaohuajian[key]" [ngModelOptions]="{standalone: true}" />
+                    <button mat-icon-button matSuffix color="primary" (click)="selectOptions(cad, 'huajian', key)">
+                        <mat-icon>list</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="objectAdd(cad.xinghaohuajian, '', '')">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="objectRemove(cad.xinghaohuajian, key)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+        </div>
         <mat-form-field>
             <mat-label>必须绑定花件</mat-label>
             <mat-select [(ngModel)]="cad.needsHuajian" name="needsHuajian">

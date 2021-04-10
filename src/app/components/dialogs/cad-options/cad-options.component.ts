@@ -12,6 +12,7 @@ interface CadOptionsData {
     name: string;
     checkedItems: string[];
     multi?: boolean;
+    xinghao?: string;
 }
 
 @Component({
@@ -73,7 +74,14 @@ export class CadOptionsComponent implements AfterViewInit {
 
     async getData(page: number) {
         this.status.startLoader({id: this.loaderId, text: "获取CAD数据"});
-        const data = await this.dataService.getOptions(this.data.name, this.searchValue, page, this.paginator?.pageSize, this.data.data);
+        const data = await this.dataService.getOptions(
+            this.data.name,
+            this.searchValue,
+            page,
+            this.paginator?.pageSize,
+            this.data.data,
+            this.data.xinghao
+        );
         this.status.stopLoader();
         this.length = data.count;
         this.pageData.length = 0;
