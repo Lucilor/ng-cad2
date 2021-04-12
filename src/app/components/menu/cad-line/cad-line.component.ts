@@ -17,7 +17,6 @@ import {
     CadEntities
 } from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
-import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, CadPoints} from "@src/app/services/app-status.service";
@@ -196,7 +195,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     constructor(
         private status: AppStatusService,
         private config: AppConfigService,
-        private consoleService: CadConsoleService,
         private dialog: MatDialog,
         private message: MessageService
     ) {

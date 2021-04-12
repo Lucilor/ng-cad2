@@ -13,7 +13,7 @@
             min="0"
             max="1"
             [matAutocomplete]="autoX"
-            [ngModel]="x"
+            [value]="x"
             (change)="onInputChange($event, 'x')"
         />
         <mat-autocomplete #autoX (optionSelected)="onInputChange($event, 'x')">
@@ -31,7 +31,7 @@
             min="0"
             max="1"
             [matAutocomplete]="autoY"
-            [ngModel]="y"
+            [value]="y"
             (change)="onInputChange($event, 'y')"
         />
         <mat-autocomplete #autoY (optionSelected)="onInputChange($event, 'y')">

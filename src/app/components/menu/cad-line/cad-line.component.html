@@ -15,13 +15,13 @@
     <div class="form-item">
         <mat-form-field>
             <mat-label>长度</mat-label>
-            <input matInput type="number" [ngModel]="getLineLength()" (change)="setLineLength($event)" name="lineLength" />
+            <input matInput type="number" [value]="getLineLength()" (change)="setLineLength($event)" name="lineLength" />
         </mat-form-field>
     </div>
     <div class="form-item">
         <mat-form-field floatLabel="always">
             <mat-label>是否隐藏线长</mat-label>
-            <mat-slide-toggle [ngModel]="getHideLength()" (change)="setHideLength($event)" name="hideLength"></mat-slide-toggle>
+            <mat-slide-toggle [checked]="getHideLength()" (change)="setHideLength($event)" name="hideLength"></mat-slide-toggle>
             <input matInput hidden />
         </mat-form-field>
     </div>
@@ -31,7 +31,7 @@
             <input
                 matInput
                 type="text"
-                [ngModel]="getLineText('lengthTextSize')"
+                [value]="getLineText('lengthTextSize')"
                 (change)="setLineText($event, 'lengthTextSize')"
                 name="lengthTextSize"
             />
@@ -62,7 +62,7 @@
     <div class="form-item">
         <mat-form-field>
             <mat-label>线宽</mat-label>
-            <input matInput type="text" [ngModel]="getLinewidth()" (change)="setLinewidth($event)" name="linewidth" />
+            <input matInput type="text" [value]="getLinewidth()" (change)="setLinewidth($event)" name="linewidth" />
         </mat-form-field>
     </div>
     <div class="form-item">
@@ -71,7 +71,7 @@
             <input
                 matInput
                 type="text"
-                [ngModel]="getLineText('mingzi')"
+                [value]="getLineText('mingzi')"
                 (input)="setLineText($event, 'mingzi')"
                 (focus)="focusedField = 'mingzi'"
                 (blur)="focusedField = ''"
@@ -85,7 +85,7 @@
             <input
                 matInput
                 type="text"
-                [ngModel]="getLineText('qujian')"
+                [value]="getLineText('qujian')"
                 (input)="setLineText($event, 'qujian')"
                 (focus)="focusedField = 'qujian'"
                 (blur)="focusedField = ''"
@@ -99,7 +99,7 @@
             <input
                 matInput
                 type="text"
-                [ngModel]="getLineText('gongshi')"
+                [value]="getLineText('gongshi')"
                 (input)="setLineText($event, 'gongshi')"
                 (focus)="focusedField = 'gongshi'"
                 (blur)="focusedField = ''"
@@ -115,7 +115,7 @@
             <input
                 matInput
                 type="text"
-                [ngModel]="getLineText('guanlianbianhuagongshi')"
+                [value]="getLineText('guanlianbianhuagongshi')"
                 (input)="setLineText($event, 'guanlianbianhuagongshi')"
                 (focus)="focusedField = 'guanlianbianhuagongshi'"
                 (blur)="focusedField = ''"
@@ -131,7 +131,7 @@
             <input
                 matInput
                 type="text"
-                [ngModel]="getLineText('kongwei')"
+                [value]="getLineText('kongwei')"
                 (input)="setLineText($event, 'kongwei')"
                 (focus)="focusedField = 'kongwei'"
                 (blur)="focusedField = ''"
@@ -142,7 +142,7 @@
     <div class="form-item">
         <mat-form-field>
             <mat-label>下一个折弯标线</mat-label>
-            <mat-select name="nextZhewan" [ngModel]="getLineText('nextZhewan')" (selectionChange)="setLineText($event, 'nextZhewan')">
+            <mat-select name="nextZhewan" [value]="getLineText('nextZhewan')" (selectionChange)="setLineText($event, 'nextZhewan')">
                 <mat-option value="自动">自动</mat-option>
                 <mat-option value="无">无</mat-option>
                 <mat-option value="2mm">2mm</mat-option>
@@ -153,7 +153,7 @@
     <div class="form-item">
         <mat-form-field>
             <mat-label>两根线之间的折弯标记</mat-label>
-            <mat-select name="nextZhewan" [ngModel]="getLineText('betweenZhewan')" (selectionChange)="setLineText($event, 'betweenZhewan')">
+            <mat-select name="nextZhewan" [value]="getLineText('betweenZhewan')" (selectionChange)="setLineText($event, 'betweenZhewan')">
                 <mat-option value="自动">自动</mat-option>
                 <mat-option value="无">无</mat-option>
                 <mat-option value="2mm">2mm</mat-option>
@@ -168,7 +168,7 @@
                 matInput
                 type="number"
                 name="zhewanOffset"
-                [ngModel]="getLineText('zhewanOffset')"
+                [value]="getLineText('zhewanOffset')"
                 (input)="setLineText($event, 'zhewanOffset')"
             />
         </mat-form-field>
@@ -181,7 +181,7 @@
                 min="0"
                 type="number"
                 name="zhewanValue"
-                [ngModel]="getLineText('zhewanValue')"
+                [value]="getLineText('zhewanValue')"
                 (input)="setLineText($event, 'zhewanValue')"
             />
         </mat-form-field>
@@ -191,7 +191,7 @@
             <mat-label>展开方式</mat-label>
             <mat-select
                 name="zhankaifangshi"
-                [ngModel]="getLineText('zhankaifangshi')"
+                [value]="getLineText('zhankaifangshi')"
                 (selectionChange)="setLineText($event, 'zhankaifangshi')"
             >
                 <mat-option value="自动计算">自动计算</mat-option>
@@ -207,7 +207,7 @@
                 matInput
                 type="text"
                 name="zidingzhankaichang"
-                [ngModel]="getLineText('zidingzhankaichang')"
+                [value]="getLineText('zidingzhankaichang')"
                 (input)="setLineText($event, 'zidingzhankaichang')"
                 [disabled]="getLineText('zhankaifangshi') !== '指定长度'"
             />
@@ -228,7 +228,7 @@
             <input
                 matInput
                 type="text"
-                [ngModel]="getLineText('shiyongchazhi')"
+                [value]="getLineText('shiyongchazhi')"
                 (input)="setLineText($event, 'shiyongchazhi')"
                 (focus)="focusedField = 'shiyongchazhi'"
                 (blur)="focusedField = ''"
@@ -241,7 +241,7 @@
             <mat-label>展开小数处理</mat-label>
             <mat-select
                 name="zhankaixiaoshuchuli"
-                [ngModel]="getLineText('zhankaixiaoshuchuli')"
+                [value]="getLineText('zhankaixiaoshuchuli')"
                 (selectionChange)="setLineText($event, 'zhankaixiaoshuchuli')"
             >
                 <mat-option value="不处理">不处理</mat-option>

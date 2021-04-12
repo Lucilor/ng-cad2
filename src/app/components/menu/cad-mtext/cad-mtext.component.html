@@ -8,7 +8,7 @@
                 matInput
                 cdkTextareaAutosize
                 [cdkAutosizeMaxRows]="5"
-                [ngModel]="getInfo('text')"
+                [value]="getInfo('text')"
                 (input)="setInfo('text', $event)"
                 placeholder="请输入内容"
                 name="mtext"
@@ -22,7 +22,7 @@
                 matInput
                 type="number"
                 min="0"
-                [ngModel]="getInfo('font_size')"
+                [value]="getInfo('font_size')"
                 (change)="setInfo('font_size', $event)"
                 placeholder="请输入字体大小"
                 name="font_size"

@@ -163,7 +163,7 @@
         </mat-form-field>
         <mat-form-field>
             <mat-label>板材厚度方向</mat-label>
-            <mat-select [ngModel]="cad.bancaihoudufangxiang" name="bancaihoudufangxiang" (selectionChange)="offset($event)">
+            <mat-select [value]="cad.bancaihoudufangxiang" name="bancaihoudufangxiang" (selectionChange)="offset($event)">
                 <mat-option [value]="'gt0'">方向1</mat-option>
                 <mat-option [value]="'lt0'">方向2</mat-option>
                 <mat-option [value]="'none'">不指定</mat-option>
