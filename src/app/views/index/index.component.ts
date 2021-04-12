@@ -66,8 +66,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     loaderId = "saveCadLoader";
     tabIndex = 0;
     cadLength = "0.00";
-    leftMenuWidth$ = new BehaviorSubject<number>(this.config.config("leftMenuWidth"));
-    rightMenuWidth$ = new BehaviorSubject<number>(this.config.config("rightMenuWidth"));
+    leftMenuWidth$ = new BehaviorSubject<number>(this.config.getConfig("leftMenuWidth"));
+    rightMenuWidth$ = new BehaviorSubject<number>(this.config.getConfig("rightMenuWidth"));
     dragDataLeft: DragData = {width: 0};
     dragDataRight: DragData = {width: 0};
     isDraggingLeft = false;
@@ -89,7 +89,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     @ViewChild(MatMenuTrigger) contextMenu?: MatMenuTrigger;
     @ViewChild(MatTabGroup) infoTabs?: MatTabGroup;
 
-    private _resize = debounce(() => this.config.config({width: innerWidth, height: innerHeight}), 500).bind(this);
+    private _resize = debounce(() => this.config.setConfig({width: innerWidth, height: innerHeight}), 500).bind(this);
     private _onEntitiesCopy: CadEventCallBack<"entitiescopy"> = (entities) => {
         const cad = this.status.cad;
         const selectedCads = this.status.getFlatSelectedCads();
@@ -123,7 +123,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     async ngOnInit() {
         const cad = this.status.cad;
         Reflect.defineProperty(window, "cad", {value: cad});
-        Reflect.defineProperty(window, "config", {value: this.config.config.bind(this.config)});
+        Reflect.defineProperty(window, "getConfig", {value: this.config.getConfig.bind(this.config)});
+        Reflect.defineProperty(window, "setConfig", {value: this.config.setConfig.bind(this.config)});
         Reflect.defineProperty(window, "status", {value: this.status});
         Reflect.defineProperty(window, "data0", {get: () => cad.data.components.data[0]});
         Reflect.defineProperty(window, "data0Ex", {get: () => cad.data.components.data[0].export()});
@@ -185,7 +186,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         if (this.cadContainer) {
             this.status.cad.appendTo(this.cadContainer.nativeElement);
         }
-        this.config.config({padding: this.menuPadding.map((v) => v + 30)});
+        this.config.setConfig({padding: this.menuPadding.map((v) => v + 30)});
         this.subscribe(this.console.command, (cmd) => this.consoleComponent?.execute(cmd));
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
@@ -195,8 +196,15 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             }
         });
 
-        if (this.infoTabs) {
-            this.infoTabs.selectedIndex = this.config.config("infoTabIndex");
+        const infoTabs = this.infoTabs;
+        if (infoTabs) {
+            const sub = this.config.configChange$.subscribe(({newVal}) => {
+                const infoTabIndex = newVal.infoTabIndex;
+                if (typeof infoTabIndex === "number" && infoTabIndex >= 0 && this.infoTabs) {
+                    this.infoTabs.selectedIndex = infoTabIndex;
+                    sub.unsubscribe();
+                }
+            });
         }
 
         window.addEventListener("resize", this._resize);
@@ -211,13 +219,13 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     }
 
     private _setCadPadding(show: boolean, i: number) {
-        const padding = this.config.config("padding");
+        const padding = this.config.getConfig("padding");
         if (show) {
             padding[i] += this.menuPadding[i];
         } else {
             padding[i] -= this.menuPadding[i];
         }
-        this.config.config({padding});
+        this.config.setConfig({padding});
     }
 
     toggleTopMenu(show?: boolean) {
@@ -262,17 +270,17 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
 
     onInfoTabChange({index}: MatTabChangeEvent) {
         this.tabIndex = index;
-        this.config.config("infoTabIndex", index);
+        this.config.setConfig("infoTabIndex", index);
     }
 
     toggleMultiSelect() {
-        let selectMode = this.config.config("selectMode");
+        let selectMode = this.config.getConfig("selectMode");
         selectMode = selectMode === "multiple" ? "single" : "multiple";
-        this.config.config("selectMode", selectMode);
+        this.config.setConfig("selectMode", selectMode);
     }
 
     toggleEntityDraggable() {
-        this.config.config("entityDraggable", !this.config.config("entityDraggable"));
+        this.config.setConfig("entityDraggable", !this.config.getConfig("entityDraggable"));
     }
 
     onCadLengthsChange(event: string[]) {
@@ -301,10 +309,10 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
 
     onResizeMenuEnd(_event: CdkDragEnd<DragData>, key: Dragkey) {
         if (key === "leftMenuWidth") {
-            this.config.config(key, this.leftMenuWidth$.value);
+            this.config.setConfig(key, this.leftMenuWidth$.value);
             this.isDraggingLeft = false;
         } else if (key === "rightMenuWidth") {
-            this.config.config(key, this.rightMenuWidth$.value);
+            this.config.setConfig(key, this.rightMenuWidth$.value);
             this.isDraggingRight = false;
         }
     }

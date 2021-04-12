@@ -96,7 +96,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     getConfig(key: keyof AppConfig) {
-        return this.config.config(key);
+        return this.config.getConfig(key);
     }
 
     clickBtn(key: string) {
@@ -152,16 +152,16 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     toggleShowDimensions() {
-        this.config.config("hideDimensions", !this.config.config("hideDimensions"));
+        this.config.setConfig("hideDimensions", !this.config.getConfig("hideDimensions"));
     }
 
     toggleShowCadGongshis() {
-        this.config.config("showCadGongshis", !this.config.config("showCadGongshis"));
+        this.config.setConfig("showCadGongshis", !this.config.getConfig("showCadGongshis"));
     }
 
     toggleValidateLines() {
-        const value = !this.config.config("validateLines");
-        this.config.config("validateLines", value);
+        const value = !this.config.getConfig("validateLines");
+        this.config.setConfig("validateLines", value);
         if (value) {
             const errMsg = flatMap(this.status.validate().map((v) => v.errMsg));
             if (errMsg.length) {
@@ -171,11 +171,11 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     toggleShowLineLength() {
-        this.config.config("hideLineLength", !this.config.config("hideLineLength"));
+        this.config.setConfig("hideLineLength", !this.config.getConfig("hideLineLength"));
     }
 
     toggleShowLineGongshi() {
-        this.config.config("hideLineGongshi", !this.config.config("hideLineGongshi"));
+        this.config.setConfig("hideLineGongshi", !this.config.getConfig("hideLineGongshi"));
     }
 
     async setShowGongshi() {
@@ -183,11 +183,11 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
             await this.message.prompt({
                 type: "number",
                 hint: "若小于等于0则不显示",
-                value: this.config.config("lineGongshi").toString(),
+                value: this.config.getConfig("lineGongshi").toString(),
                 placeholder: "公式字体大小"
             })
         );
-        this.config.config("lineGongshi", num);
+        this.config.setConfig("lineGongshi", num);
     }
 
     async resetLineLength() {

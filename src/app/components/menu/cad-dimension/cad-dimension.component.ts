@@ -104,8 +104,8 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                 const dimension = this.dimensions[index];
                 this.dimLineSelecting = index;
                 if (!this.prevConfig) {
-                    this.prevConfig = this.config.config();
-                    this.config.config({hideLineLength: true, lineGongshi: 0, selectMode: "single"});
+                    this.prevConfig = this.config.getConfig();
+                    this.config.setConfig({hideLineLength: true, lineGongshi: 0, selectMode: "single"}, false);
                 }
                 if (!this.prevSelectedCads) {
                     this.prevSelectedCads = this.status.selectedCads$.value;
@@ -122,7 +122,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
             if (cadStatus instanceof CadStatusEditDimension) {
                 this.dimLineSelecting = -1;
                 if (this.prevConfig) {
-                    this.config.config(this.prevConfig);
+                    this.config.setConfig(this.prevConfig, false);
                     this.prevConfig = null;
                 }
                 if (this.prevSelectedCads) {

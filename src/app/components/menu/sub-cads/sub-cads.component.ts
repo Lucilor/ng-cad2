@@ -110,7 +110,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
     private onPointerDown = ((event: PointerEvent) => {
         const {clientX, clientY, shiftKey, button} = event;
-        if (this.config.config("dragAxis") !== "" || (button !== 1 && !(shiftKey && button === 0))) {
+        if (this.config.getConfig("dragAxis") !== "" || (button !== 1 && !(shiftKey && button === 0))) {
             return;
         }
         this.lastPointer = new Point(clientX, clientY);
@@ -196,8 +196,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     data.components.data = [];
                 }
                 if (!this.prevConfig) {
-                    this.prevConfig = this.config.config();
-                    this.config.config("dragAxis", "xy");
+                    this.prevConfig = this.config.getConfig();
+                    this.config.setConfig("dragAxis", "xy", false);
                 }
                 if (!this.prevDisabledCadTypes) {
                     this.prevDisabledCadTypes = this.status.disabledCadTypes$.value;
@@ -222,7 +222,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     return this;
                 });
                 if (this.prevConfig) {
-                    this.config.config(this.prevConfig);
+                    this.config.setConfig(this.prevConfig, false);
                     this.prevConfig = null;
                 }
                 if (this.prevDisabledCadTypes) {
@@ -408,10 +408,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const count = cads.length + partners.length + components.length;
         if (count === 0) {
             this.focus();
-            this.config.config("dragAxis", "xy");
+            this.config.setConfig("dragAxis", "xy");
         } else {
             this.blur();
-            this.config.config("dragAxis", "");
+            this.config.setConfig("dragAxis", "");
             this.cads.forEach((v) => {
                 if (cads.includes(v.data.id)) {
                     this.focus(v.data.entities);

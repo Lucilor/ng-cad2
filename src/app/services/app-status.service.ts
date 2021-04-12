@@ -74,11 +74,11 @@ export class AppStatusService {
         private router: Router,
         private dataService: CadDataService
     ) {
-        this.cad.config(this.config.config());
+        this.cad.config(this.config.getConfig());
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
             cad.config(newVal);
-            const showCadGongshis = newVal.showCadGongshis ?? this.config.config("showCadGongshis");
+            const showCadGongshis = newVal.showCadGongshis ?? this.config.getConfig("showCadGongshis");
             const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
             cadGongshis.forEach((e) => {
                 e.visible = showCadGongshis;
@@ -171,7 +171,8 @@ export class AppStatusService {
             data = cad.data.components.data;
             this.refreshSelectedCads();
         }
-        const config: Partial<AppConfig> = {};
+        const oldConfig = this.config.getConfig();
+        const newConfig: Partial<AppConfig> = {};
         const ids = data.map((v) => v.id);
         if (collection && this.collection$.value !== collection) {
             this.collection$.next(collection);
@@ -183,21 +184,20 @@ export class AppStatusService {
         if (ids.join(",") !== ids2 || collection !== collection2) {
             this.router.navigate(["/index"], {queryParams: {ids: ids.join(","), collection}, queryParamsHandling: "merge"});
         }
-        const userConfig = this.config.userConfig;
         cad.data.info.算料单 = data.some((v) => v.info.算料单);
-        if (typeof userConfig.hideLineGongshi === "boolean") {
-            config.hideLineGongshi = userConfig.hideLineGongshi;
+        if (typeof oldConfig.hideLineGongshi === "boolean") {
+            newConfig.hideLineGongshi = oldConfig.hideLineGongshi;
         } else {
-            config.hideLineGongshi = !!cad.data.info.算料单;
+            newConfig.hideLineGongshi = !!cad.data.info.算料单;
         }
-        if (typeof userConfig.hideLineLength === "boolean") {
-            config.hideLineLength = userConfig.hideLineLength;
+        if (typeof oldConfig.hideLineLength === "boolean") {
+            newConfig.hideLineLength = oldConfig.hideLineLength;
         } else {
-            config.hideLineLength = collection !== "cad";
+            newConfig.hideLineLength = collection !== "cad";
         }
         data.forEach((v) => {
             setCadData(v);
-            addCadGongshi(v, this.config.config("showCadGongshis"), collection === "CADmuban");
+            addCadGongshi(v, this.config.getConfig("showCadGongshis"), collection === "CADmuban");
             for (const key in replaceMap) {
                 this._replaceText(v, key, replaceMap[key]);
             }
@@ -205,7 +205,7 @@ export class AppStatusService {
         if (collection === "cad") {
             data.forEach((v) => validateLines(v));
         }
-        this.config.config(config);
+        this.config.setUserConfig(newConfig);
         this.generateLineTexts();
         cad.reset();
         cad.render();

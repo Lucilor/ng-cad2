@@ -146,10 +146,10 @@ export class CadConsoleComponent implements OnInit {
             }
         },
         async config() {
-            const config = this.config.config();
+            const config = this.config.getConfig();
             const result = await openJsonEditorDialog(this.dialog, {data: {json: config}});
             if (result) {
-                this.config.config(result);
+                this.config.setConfig(result);
             }
         },
         async fillet(radiusArg: string) {
@@ -787,7 +787,7 @@ export class CadConsoleComponent implements OnInit {
                     });
                 }
                 removeCadGongshi(data);
-                addCadGongshi(data, this.config.config("showCadGongshis"), this.status.collection$.value === "CADmuban");
+                addCadGongshi(data, this.config.getConfig("showCadGongshis"), this.status.collection$.value === "CADmuban");
             };
             const selectedCads = this.status.getFlatSelectedCads();
             if (selectedCads.length) {

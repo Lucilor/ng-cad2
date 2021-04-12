@@ -11,6 +11,12 @@ export interface AppConfig extends CadViewerConfig {
     rightMenuWidth: number;
 }
 
+export interface AppConfigChange {
+    oldVal: AppConfig;
+    newVal: Partial<AppConfig>;
+    sync: boolean;
+}
+
 @Injectable({
     providedIn: "root"
 })
@@ -38,54 +44,43 @@ export class AppConfigService {
         leftMenuWidth: 200,
         rightMenuWidth: 300
     });
-    configChange$ = new BehaviorSubject<{oldVal: AppConfig; newVal: Partial<AppConfig>}>({
+    configChange$ = new BehaviorSubject<AppConfigChange>({
         oldVal: this.config$.value,
-        newVal: {}
+        newVal: {},
+        sync: false
     });
-    userConfig: Partial<AppConfig> = {};
+    private _userConfig: Partial<AppConfig> = {};
 
     constructor(private dataService: CadDataService) {
         const setConfigInterval = 1000;
         let id = -1;
         let config: Partial<AppConfig> = {};
-        this.configChange$.subscribe(({newVal}) => {
-            if (Object.keys(newVal).length) {
-                window.clearInterval(id);
+        this.configChange$.subscribe(({newVal, sync}) => {
+            if (sync) {
                 config = {...config, ...newVal};
-                id = window.setTimeout(() => {
-                    this.setUserConfig(config);
-                    config = {};
-                }, setConfigInterval);
+                if (Object.keys(config).length) {
+                    window.clearInterval(id);
+                    id = window.setTimeout(() => {
+                        this.setUserConfig(config);
+                        config = {};
+                    }, setConfigInterval);
+                }
             }
         });
     }
 
-    config(): AppConfig;
-    config<T extends keyof AppConfig>(key: T): AppConfig[T];
-    config(config: Partial<AppConfig>): void;
-    config<T extends keyof AppConfig>(key: T, value: AppConfig[T]): void;
-    config<T extends keyof AppConfig>(key?: T | Partial<AppConfig>, value?: AppConfig[T]) {
-        const oldVal = this.config$.value;
-        if (typeof key === "string") {
-            if (value !== undefined) {
-                const newVal: Partial<AppConfig> = {};
-                newVal[key] = value;
-                this.configChange$.next({oldVal, newVal});
-                this.config$.next({...oldVal, ...newVal});
-                return;
-            } else {
-                return this.config$.value[key];
+    private _purgeConfig(oldVal: AppConfig, newVal: Partial<AppConfig>) {
+        const result = cloneDeep(newVal);
+        for (const key in newVal) {
+            const typedKey = key as keyof AppConfig;
+            if (oldVal[typedKey] === newVal[typedKey]) {
+                delete result[typedKey];
             }
-        } else if (typeof key === "object") {
-            this.configChange$.next({oldVal, newVal: key});
-            this.config$.next({...oldVal, ...key});
-            return;
-        } else {
-            return this.config$.value;
         }
+        return result;
     }
 
-    private purgeUserConfig(config: Partial<AppConfig>) {
+    private _purgeUserConfig(config: Partial<AppConfig>) {
         config = cloneDeep(config);
         delete config.width;
         delete config.height;
@@ -94,22 +89,49 @@ export class AppConfigService {
         return config;
     }
 
+    getConfig(): AppConfig;
+    getConfig<T extends keyof AppConfig>(key: T): AppConfig[T];
+    getConfig(key?: keyof AppConfig) {
+        if (typeof key === "string") {
+            return this.config$.value[key];
+        } else {
+            return this.config$.value;
+        }
+    }
+
+    setConfig(config: Partial<AppConfig>, sync?: boolean): void;
+    setConfig<T extends keyof AppConfig>(key: T, value: AppConfig[T], sync?: boolean): void;
+    setConfig<T extends keyof AppConfig>(key: T | Partial<AppConfig>, value: AppConfig[T] | boolean = true, sync = true) {
+        const oldVal = this.config$.value;
+        let newVal: Partial<AppConfig> | undefined;
+        if (typeof key === "string") {
+            newVal = {};
+            newVal[key] = value as AppConfig[T];
+        } else {
+            newVal = key;
+            sync = value as boolean;
+        }
+        newVal = this._purgeConfig(oldVal, newVal);
+        this.configChange$.next({oldVal, newVal, sync});
+        this.config$.next({...oldVal, ...newVal});
+    }
+
     async getUserConfig(key?: string) {
         const response = await this.dataService.post<Partial<AppConfig>>("ngcad/getUserConfig", {key}, false);
         const config = response?.data;
         if (config) {
-            this.userConfig = this.purgeUserConfig(config);
-            if (Object.keys(this.userConfig).length) {
-                this.config$.next({...this.config$.value, ...this.userConfig});
+            this._userConfig = this._purgeUserConfig(config);
+            if (Object.keys(this._userConfig).length) {
+                this.setConfig(this._userConfig, false);
             }
         }
-        return this.userConfig;
+        return this._userConfig;
     }
 
     async setUserConfig(config: Partial<AppConfig>) {
-        config = this.purgeUserConfig(config);
+        config = this._purgeUserConfig(config);
         if (Object.keys(config).length) {
-            const response = await this.dataService.post("ngcad/setUserConfig", {config: this.purgeUserConfig(config)}, false);
+            const response = await this.dataService.post("ngcad/setUserConfig", {config: this._purgeUserConfig(config)}, false);
             return response && response.code === 0;
         }
         return false;
