@@ -63,6 +63,7 @@ export class AppStatusService {
     openCad$ = new Subject<void>();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
     project = "";
+    setProject$ = new Subject<void>();
     isAdmin$ = new BehaviorSubject<boolean>(false);
     changelogTimeStamp$ = new BehaviorSubject<number>(-1);
     private _refreshTimeStamp = Number(local.load("refreshTimeStamp") || -1);
@@ -86,8 +87,8 @@ export class AppStatusService {
             });
             cad.render(cadGongshis);
         });
-        this.route.queryParams.subscribe((queryParams) => {
-            this.setProject(queryParams);
+        this.route.queryParams.subscribe(async (queryParams) => {
+            await this._setProject(queryParams);
         });
     }
 
@@ -102,7 +103,7 @@ export class AppStatusService {
         source.separate(new CadData({entities: mtexts.export()}));
     }
 
-    async setProject(queryParams: Params) {
+    private async _setProject(queryParams: Params) {
         const {project, action} = queryParams;
         if (project && project !== this.project) {
             this.project = project;
@@ -122,6 +123,7 @@ export class AppStatusService {
                 this.changelogTimeStamp$.next(changelogTimeStamp);
                 await this.config.getUserConfig();
             }
+            this.setProject$.next();
         }
     }
 
@@ -171,7 +173,6 @@ export class AppStatusService {
             data = cad.data.components.data;
             this.refreshSelectedCads();
         }
-        const oldConfig = this.config.getConfig();
         const newConfig: Partial<AppConfig> = {};
         const ids = data.map((v) => v.id);
         if (collection && this.collection$.value !== collection) {
@@ -183,17 +184,6 @@ export class AppStatusService {
         const {ids2, collection2} = this.route.snapshot.queryParams;
         if (ids.join(",") !== ids2 || collection !== collection2) {
             this.router.navigate(["/index"], {queryParams: {ids: ids.join(","), collection}, queryParamsHandling: "merge"});
-        }
-        cad.data.info.算料单 = data.some((v) => v.info.算料单);
-        if (typeof oldConfig.hideLineGongshi === "boolean") {
-            newConfig.hideLineGongshi = oldConfig.hideLineGongshi;
-        } else {
-            newConfig.hideLineGongshi = !!cad.data.info.算料单;
-        }
-        if (typeof oldConfig.hideLineLength === "boolean") {
-            newConfig.hideLineLength = oldConfig.hideLineLength;
-        } else {
-            newConfig.hideLineLength = collection !== "cad";
         }
         data.forEach((v) => {
             setCadData(v);

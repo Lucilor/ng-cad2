@@ -13,7 +13,7 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {CadStatusAssemble, CadStatusSplit} from "@src/app/services/cad-status";
-import {copyToClipboard, ObjectOf, Point} from "@src/app/utils";
+import {copyToClipboard, ObjectOf, Point, timeout} from "@src/app/utils";
 import {concat, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
@@ -258,9 +258,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     private _getCadNode(data: CadData, parent?: string) {
-        // const img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data)) as string;
         const node: CadNode = {data, img: imgLoading, checked: false, indeterminate: false, parent};
-        getCadPreview(data).then((img) => (node.img = this.sanitizer.bypassSecurityTrustUrl(img) as string));
         return node;
     }
 
@@ -430,7 +428,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         cad.render();
     }
 
-    updateList(list?: CadData[]) {
+    async updateList(list?: CadData[]) {
         if (this.updateListLock) {
             return;
         }
@@ -451,7 +449,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             const node = this._getCadNode(d);
             this.cads.push(node);
             for (const dd of d.partners) {
-                this.partners.push(this._getCadNode(dd, d.id));
+                const node2 = this._getCadNode(dd, d.id);
+                this.partners.push(node2);
             }
             for (const dd of d.components.data) {
                 this.components.push(this._getCadNode(dd, d.id));
@@ -460,6 +459,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         this.status.clearSelectedCads();
         if (this.cads.length) {
             this.clickCad("cads", 0);
+        }
+        await timeout(0);
+        for (const node of this.cads.concat(this.partners).concat(this.components)) {
+            const img = await getCadPreview(node.data);
+            node.img = this.sanitizer.bypassSecurityTrustUrl(img) as string;
         }
         this.updateListLock = false;
     }

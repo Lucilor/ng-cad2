@@ -120,7 +120,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         super();
     }
 
-    async ngOnInit() {
+    ngOnInit() {
         const cad = this.status.cad;
         Reflect.defineProperty(window, "cad", {value: cad});
         Reflect.defineProperty(window, "getConfig", {value: this.config.getConfig.bind(this.config)});
@@ -131,46 +131,13 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         Reflect.defineProperty(window, "selected", {get: () => cad.selected()});
         Reflect.defineProperty(window, "selectedArray", {get: () => cad.selected().toArray()});
         Reflect.defineProperty(window, "selected0", {get: () => cad.selected().toArray()[0]});
-        this.status.openCad$.subscribe(() => {
+        this.subscribe(this.status.openCad$, () => {
             document.title = cad.data.components.data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
         });
-
-        let cachedData: any = null;
-        let params: any = null;
-        try {
-            cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data") || "null");
-            params = JSON.parse(sessionStorage.getItem("params") || "{}");
-        } catch (error) {
-            console.warn(error);
-        }
-        if (cachedData) {
-            if (!Array.isArray(cachedData)) {
-                cachedData = [cachedData];
-            }
-            const data: CadData[] = cachedData.map((v: any) => new CadData(v));
-            this.status.openCad(data, params.collection ?? "cad");
-        } else {
-            const {id, ids, collection, project} = this.route.snapshot.queryParams;
-            const getParams: Partial<GetCadParams> = {};
-            if ((id || ids) && collection) {
-                this.status.collection$.next(collection);
-                if (id) {
-                    getParams.id = id;
-                }
-                if (ids) {
-                    getParams.ids = ids.split(",");
-                }
-                getParams.collection = collection;
-            }
-            if (project) {
-                this.dataService.baseURL = this.dataService.baseURL.replace(/\/n\/(^\/)*\//, `/n/${project}/`);
-            }
-            const result = await this.dataService.getCad(getParams);
-            this.status.openCad(result.cads);
-        }
-        cad.on("entitiescopy", this._onEntitiesCopy);
-        cad.on("entitiespaste", this._onEntitiesPaste);
-
+        // this.subscribe(this.status.setProject$, () => {
+        //     this._initCad();
+        // });
+        this._initCad();
         this.subscribe(this.config.configChange$, ({newVal}) => {
             const {leftMenuWidth, rightMenuWidth} = newVal;
             if (typeof leftMenuWidth === "number") {
@@ -216,6 +183,42 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         window.removeEventListener("resize", this._resize);
         cad.off("entitiescopy", this._onEntitiesCopy);
         cad.off("entitiespaste", this._onEntitiesPaste);
+    }
+
+    private async _initCad() {
+        let cachedData: any = null;
+        let params: any = null;
+        try {
+            cachedData = JSON.parse(sessionStorage.getItem("cache-cad-data") || "null");
+            params = JSON.parse(sessionStorage.getItem("params") || "{}");
+        } catch (error) {
+            console.warn(error);
+        }
+        if (cachedData) {
+            if (!Array.isArray(cachedData)) {
+                cachedData = [cachedData];
+            }
+            const data: CadData[] = cachedData.map((v: any) => new CadData(v));
+            this.status.openCad(data, params.collection ?? "cad");
+        } else {
+            const {id, ids, collection} = this.route.snapshot.queryParams;
+            const getParams: Partial<GetCadParams> = {};
+            if ((id || ids) && collection) {
+                this.status.collection$.next(collection);
+                if (id) {
+                    getParams.id = id;
+                }
+                if (ids) {
+                    getParams.ids = ids.split(",");
+                }
+                getParams.collection = collection;
+            }
+            const result = await this.dataService.getCad(getParams);
+            this.status.openCad(result.cads);
+        }
+        const cad = this.status.cad;
+        cad.on("entitiescopy", this._onEntitiesCopy);
+        cad.on("entitiespaste", this._onEntitiesPaste);
     }
 
     private _setCadPadding(show: boolean, i: number) {

@@ -11,9 +11,7 @@ export class ProjectGuard implements CanActivate {
 
     async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         const project = route.queryParams.project;
-        if (project) {
-            await this.status.setProject(project);
-        } else {
+        if (!project) {
             const url = route.children[0]?.url.toString() || "/";
             const projectInput = await this.message.prompt({placeholder: "请输入项目"}, "", "", false);
             return this.router.createUrlTree([url], {
