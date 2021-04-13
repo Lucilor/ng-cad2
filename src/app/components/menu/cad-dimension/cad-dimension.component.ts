@@ -18,9 +18,6 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     dimNameFocus = -1;
     dimLineSelecting = -1;
     dimensions: CadDimension[] = [];
-    private prevConfig: AppConfig | null = null;
-    private prevDisabledCadTypes: SelectedCadType[] | null = null;
-    private prevSelectedCads: SelectedCads | null = null;
 
     private updateDimensions = (() => {
         this.dimensions = this.status.cad.data.getAllEntities().dimension;
@@ -98,21 +95,23 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     }
 
     ngOnInit() {
+        let prevConfig: Partial<AppConfig> | null = null;
+        let prevDisabledCadTypes: SelectedCadType[] | null = null;
+        let prevSelectedCads: SelectedCads | null = null;
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusEditDimension) {
                 const index = cadStatus.index;
                 const dimension = this.dimensions[index];
                 this.dimLineSelecting = index;
-                if (!this.prevConfig) {
-                    this.prevConfig = this.config.getConfig();
-                    this.config.setConfig({hideLineLength: true, lineGongshi: 0, selectMode: "single"}, false);
+                if (!prevConfig) {
+                    prevConfig = this.config.setConfig({hideLineLength: true, lineGongshi: 0, selectMode: "single"}, false);
                 }
-                if (!this.prevSelectedCads) {
-                    this.prevSelectedCads = this.status.selectedCads$.value;
+                if (!prevSelectedCads) {
+                    prevSelectedCads = this.status.selectedCads$.value;
                     this.status.clearSelectedCads();
                 }
-                if (!this.prevDisabledCadTypes) {
-                    this.prevDisabledCadTypes = this.status.disabledCadTypes$.value;
+                if (!prevDisabledCadTypes) {
+                    prevDisabledCadTypes = this.status.disabledCadTypes$.value;
                     this.status.disabledCadTypes$.next(["cads", "partners", "components"]);
                 }
                 this.focus(dimension);
@@ -121,17 +120,17 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             if (cadStatus instanceof CadStatusEditDimension) {
                 this.dimLineSelecting = -1;
-                if (this.prevConfig) {
-                    this.config.setConfig(this.prevConfig, false);
-                    this.prevConfig = null;
+                if (prevConfig) {
+                    this.config.setConfig(prevConfig, false);
+                    prevConfig = null;
                 }
-                if (this.prevSelectedCads) {
-                    this.status.selectedCads$.next(this.prevSelectedCads);
-                    this.prevSelectedCads = null;
+                if (prevSelectedCads) {
+                    this.status.selectedCads$.next(prevSelectedCads);
+                    prevSelectedCads = null;
                 }
-                if (this.prevDisabledCadTypes) {
-                    this.status.disabledCadTypes$.next(this.prevDisabledCadTypes);
-                    this.prevDisabledCadTypes = null;
+                if (prevDisabledCadTypes) {
+                    this.status.disabledCadTypes$.next(prevDisabledCadTypes);
+                    prevDisabledCadTypes = null;
                 }
                 this.blur();
             }

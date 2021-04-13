@@ -50,8 +50,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     private entitiesToMove?: CadEntities;
     private entitiesNotToMove?: CadEntities;
     private updateListLock = false;
-    private prevConfig: AppConfig | null = null;
-    private prevDisabledCadTypes: SelectedCadType[] | null = null;
 
     get selected() {
         const cads = this.cads.filter((v) => v.checked).map((v) => v.data);
@@ -172,6 +170,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         this.updateList();
         this.subscribe(this.status.openCad$, () => this.updateList());
         this.subscribe(this.status.selectedCads$, () => this.setSelectedCads());
+        let prevConfig: Partial<AppConfig> | null = null;
+        let prevDisabledCadTypes: SelectedCadType[] | null = null;
         this.subscribe(this.status.cadStatusEnter$, async (cadStatus) => {
             if (cadStatus instanceof CadStatusSplit) {
                 const id = this.status.selectedCads$.value.cads[0];
@@ -195,12 +195,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 if (data && this.status.collection$.value === "p_yuanshicadwenjian") {
                     data.components.data = [];
                 }
-                if (!this.prevConfig) {
-                    this.prevConfig = this.config.getConfig();
-                    this.config.setConfig("dragAxis", "xy", false);
+                if (!prevConfig) {
+                    prevConfig = this.config.setConfig("dragAxis", "xy", false);
                 }
-                if (!this.prevDisabledCadTypes) {
-                    this.prevDisabledCadTypes = this.status.disabledCadTypes$.value;
+                if (!prevDisabledCadTypes) {
+                    prevDisabledCadTypes = this.status.disabledCadTypes$.value;
                     this.status.disabledCadTypes$.next(["partners", "components"]);
                 }
                 this.updateList();
@@ -221,13 +220,13 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     }, true);
                     return this;
                 });
-                if (this.prevConfig) {
-                    this.config.setConfig(this.prevConfig, false);
+                if (prevConfig) {
+                    this.config.setConfig(prevConfig, false);
                     this.prevConfig = null;
                 }
-                if (this.prevDisabledCadTypes) {
-                    this.status.disabledCadTypes$.next(this.prevDisabledCadTypes);
-                    this.prevDisabledCadTypes = null;
+                if (prevDisabledCadTypes) {
+                    this.status.disabledCadTypes$.next(prevDisabledCadTypes);
+                    prevDisabledCadTypes = null;
                 }
                 if (this.status.collection$.value === "p_yuanshicadwenjian" && this._prevId) {
                     const data = this.status.cad.data.findChild(this._prevId);

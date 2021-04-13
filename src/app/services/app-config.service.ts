@@ -3,6 +3,7 @@ import {cloneDeep} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {CadViewerConfig} from "../cad-viewer/cad-viewer";
 import {CadDataService} from "../modules/http/services/cad-data.service";
+import {keysOf} from "../utils";
 
 export interface AppConfig extends CadViewerConfig {
     showCadGongshis: boolean;
@@ -12,7 +13,7 @@ export interface AppConfig extends CadViewerConfig {
 }
 
 export interface AppConfigChange {
-    oldVal: AppConfig;
+    oldVal: Partial<AppConfig>;
     newVal: Partial<AppConfig>;
     sync: boolean;
 }
@@ -69,15 +70,18 @@ export class AppConfigService {
         });
     }
 
-    private _purgeConfig(oldVal: AppConfig, newVal: Partial<AppConfig>) {
-        const result = cloneDeep(newVal);
-        for (const key in newVal) {
-            const typedKey = key as keyof AppConfig;
-            if (oldVal[typedKey] === newVal[typedKey]) {
-                delete result[typedKey];
+    private _purgeConfig(oldVal: Partial<AppConfig>, newVal: Partial<AppConfig>) {
+        const oldVal2 = cloneDeep(oldVal);
+        const newVal2 = cloneDeep(newVal);
+        const keys = keysOf(oldVal).concat(keysOf(newVal));
+        for (const key of keys) {
+            if (oldVal2[key] === undefined) {
+                (oldVal2 as any)[key] = this.getConfig(key);
+            } else if (newVal2[key] === undefined || oldVal2[key] === newVal2[key]) {
+                delete newVal2[key];
             }
         }
-        return result;
+        return [oldVal2, newVal2];
     }
 
     private _purgeUserConfig(config: Partial<AppConfig>) {
@@ -99,8 +103,8 @@ export class AppConfigService {
         }
     }
 
-    setConfig(config: Partial<AppConfig>, sync?: boolean): void;
-    setConfig<T extends keyof AppConfig>(key: T, value: AppConfig[T], sync?: boolean): void;
+    setConfig(config: Partial<AppConfig>, sync?: boolean): Partial<AppConfig>;
+    setConfig<T extends keyof AppConfig>(key: T, value: AppConfig[T], sync?: boolean): Partial<AppConfig>;
     setConfig<T extends keyof AppConfig>(key: T | Partial<AppConfig>, value: AppConfig[T] | boolean = true, sync = true) {
         const oldVal = this.config$.value;
         let newVal: Partial<AppConfig> | undefined;
@@ -111,9 +115,10 @@ export class AppConfigService {
             newVal = key;
             sync = value as boolean;
         }
-        newVal = this._purgeConfig(oldVal, newVal);
-        this.configChange$.next({oldVal, newVal, sync});
-        this.config$.next({...oldVal, ...newVal});
+        const [oldVal2, newVal2] = this._purgeConfig(oldVal, newVal);
+        this.configChange$.next({oldVal: oldVal2, newVal: newVal2, sync});
+        this.config$.next({...oldVal, ...newVal2});
+        return oldVal2;
     }
 
     async getUserConfig(key?: string) {

@@ -17,8 +17,6 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
     names: string[] = [];
     lines: string[] = [];
     data = new CadData();
-    private prevSelectedCads: SelectedCads | null = null;
-    private prevDisabledCadTypes: SelectedCadType[] | null = null;
 
     get connections() {
         return this.data.components.connections;
@@ -158,15 +156,17 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                 this.data = data;
             }
         });
+        let prevSelectedCads: SelectedCads | null = null;
+        let prevDisabledCadTypes: SelectedCadType[] | null = null;
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
                 const data = this.status.cad.data.components.data[cadStatus.index];
-                if (!this.prevDisabledCadTypes) {
-                    this.prevDisabledCadTypes = this.status.disabledCadTypes$.value;
+                if (!prevDisabledCadTypes) {
+                    prevDisabledCadTypes = this.status.disabledCadTypes$.value;
                     this.status.disabledCadTypes$.next(["cads", "partners"]);
                 }
-                if (!this.prevSelectedCads) {
-                    this.prevSelectedCads = this.status.selectedCads$.value;
+                if (!prevSelectedCads) {
+                    prevSelectedCads = this.status.selectedCads$.value;
                     this.status.selectedCads$.next({cads: [data.id], partners: [], components: [], fullCads: [data.id]});
                 }
                 this.status.cad.data.updateComponents();
@@ -174,12 +174,12 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
-                if (this.prevDisabledCadTypes) {
-                    this.status.disabledCadTypes$.next(this.prevDisabledCadTypes);
+                if (prevDisabledCadTypes) {
+                    this.status.disabledCadTypes$.next(prevDisabledCadTypes);
                     this.prevDisabledCadTypes = null;
                 }
-                if (this.prevSelectedCads) {
-                    this.status.selectedCads$.next(this.prevSelectedCads);
+                if (prevSelectedCads) {
+                    this.status.selectedCads$.next(prevSelectedCads);
                     this.prevSelectedCads = null;
                 }
             }
