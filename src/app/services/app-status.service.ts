@@ -207,11 +207,12 @@ export class AppStatusService {
         }
         this.config.setUserConfig(newConfig);
         this.generateLineTexts();
+        this.openCad$.next();
+        await timeout(0);
         cad.reset();
         cad.render();
         cad.data.updatePartners().updateComponents();
         cad.render().center();
-        this.openCad$.next();
     }
 
     startLoader(config: {id?: string; text?: string} = {}) {

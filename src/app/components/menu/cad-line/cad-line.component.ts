@@ -175,19 +175,51 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }).bind(this);
 
     private updateCadPoints = (() => {
-        const {lineDrawing, linesMoving} = this;
+        const {lineDrawing, linesMoving, linesCutting, selected} = this;
+        const selected0 = selected[0];
         if (lineDrawing) {
-            if (lineDrawing.entity && lineDrawing.oldEntity && !lineDrawing.start && !lineDrawing.end) {
-                this.status.setCadPoints(new CadEntities().add(lineDrawing.entity));
-            } else {
-                this.status.setCadPoints(this.data?.getAllEntities());
-            }
+            this.status.setCadPoints(this.data?.getAllEntities());
+            this.lineDrawing = {};
         } else if (linesMoving) {
             if (linesMoving.start) {
                 const exclude = this.status.getCadPoints(new CadEntities().fromArray(this.selected));
                 this.status.setCadPoints(this.data?.getAllEntities(), exclude);
             } else {
-                this.status.setCadPoints(new CadEntities().fromArray(this.selected));
+                if (selected.length < 1) {
+                    this.message.alert("没有选中线");
+                    this.moveLines();
+                    this.linesMoving = null;
+                } else {
+                    this.status.setCadPoints(new CadEntities().fromArray(this.selected));
+                }
+            }
+        } else if (linesCutting) {
+            if (!(selected0 instanceof CadLine)) {
+                this.message.alert("请先选中一条直线");
+                this.cutLine();
+                this.linesCutting = null;
+            } else {
+                if (!this.data) {
+                    throw new Error("no data");
+                }
+                const points: CadPoints = [];
+                const {curve, start, end} = selected0;
+                this.data.getAllEntities().line.forEach((l) => {
+                    if (l.id === selected0.id) {
+                        return;
+                    }
+                    const intersection = l.curve.intersects(curve);
+                    if (intersection && !intersection.equals(start) && !intersection.equals(end)) {
+                        const {x, y} = this.status.cad.getScreenPoint(intersection.x, intersection.y);
+                        points.push({x, y, active: false});
+                    }
+                });
+                if (points.length) {
+                    this.status.cadPoints$.next(points);
+                    this.linesCutting = {lines: [selected0], points: []};
+                } else {
+                    this.message.alert("无法截这条线(相交的线不足)");
+                }
             }
         }
     }).bind(this);
@@ -212,57 +244,20 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             cad = this.status.cad;
             if (cadStatus instanceof CadStatusDrawLine) {
-                const selected = this.selected;
-                const selected0 = selected[0];
-                if (selected.length === 1 && selected0 instanceof CadLine) {
-                    this.lineDrawing = {entity: selected0.clone(true), oldEntity: selected0};
-                } else {
-                    this.lineDrawing = {};
-                }
-                this.updateCadPoints();
                 prevSelectMode = cad.config("selectMode");
                 cad.config("selectMode", "none");
                 cad.traverse((e) => {
                     e.info.prevSelectable = e.selectable;
                     e.selectable = false;
                 });
+                this.lineDrawing = {};
+                this.updateCadPoints();
             } else if (cadStatus instanceof CadStatusMoveLines) {
-                const selected = this.selected;
-                if (selected.length < 1) {
-                    this.message.alert("没有选中线");
-                    this.moveLines();
-                } else {
-                    this.status.setCadPoints(new CadEntities().fromArray(selected));
-                    this.linesMoving = {};
-                }
+                this.linesMoving = {};
+                this.updateCadPoints();
             } else if (cadStatus instanceof CadStatusCutLine) {
-                const selected = this.selected[0];
-                if (!(selected instanceof CadLine)) {
-                    this.message.alert("请先选中一条直线");
-                    this.cutLine();
-                } else {
-                    if (!this.data) {
-                        throw new Error("no data");
-                    }
-                    const points: CadPoints = [];
-                    const {curve, start, end} = selected;
-                    this.data.getAllEntities().line.forEach((l) => {
-                        if (l.id === selected.id) {
-                            return;
-                        }
-                        const intersection = l.curve.intersects(curve);
-                        if (intersection && !intersection.equals(start) && !intersection.equals(end)) {
-                            const {x, y} = this.status.cad.getScreenPoint(intersection.x, intersection.y);
-                            points.push({x, y, active: false});
-                        }
-                    });
-                    if (points.length) {
-                        this.status.cadPoints$.next(points);
-                        this.linesCutting = {lines: [selected], points: []};
-                    } else {
-                        this.message.alert("无法截这条线(相交的线不足)");
-                    }
-                }
+                this.linesCutting = {lines: [], points: []};
+                this.updateCadPoints();
             }
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
