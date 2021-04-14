@@ -12,7 +12,7 @@
                 <mat-panel-title>{{ getDate(v.timeStamp).toLocaleDateString() }}</mat-panel-title>
                 <mat-panel-description>{{ getDate(v.timeStamp).toLocaleTimeString() }}</mat-panel-description>
             </mat-expansion-panel-header>
-            <div class="changelog" cdkDropList (cdkDropListDropped)="dropContent($event, i)">
+            <div class="changelog" cdkDropList (cdkDropListDropped)="dropContent($event, i)" [cdkDropListDisabled]="isDropListDisabled(i)">
                 <div class="title">
                     <mat-form-field>
                         <mat-label>更新日期</mat-label>
@@ -60,18 +60,30 @@
                                     {{ key }}
                                 </mat-option>
                             </mat-select>
-                            <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation();addContent(i, j)">
+                            <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation(); addContent(i, j)">
                                 <mat-icon>add_circle</mat-icon>
                             </button>
-                            <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation();removeContent(i, j)">
+                            <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation(); removeContent(i, j)">
                                 <mat-icon>remove_circle</mat-icon>
                             </button>
                         </mat-form-field>
                     </div>
-                    <div class="content-text" cdkDropList (cdkDropListDropped)="dropContentText($event, i, j)">
+                    <div
+                        class="content-text"
+                        cdkDropList
+                        (cdkDropListDropped)="dropContentText($event, i, j)"
+                        [cdkDropListDisabled]="isDropListDisabled(i, j)"
+                    >
                         <mat-form-field *ngFor="let item of w.items; let k = index; trackBy: trackByIdx" cdkDrag>
                             <div class="drag-placeholder" *cdkDragPlaceholder></div>
-                            <input type="text" matInput placeholder="更新内容" [(ngModel)]="w.items[k]" />
+                            <input
+                                type="text"
+                                matInput
+                                placeholder="更新内容"
+                                [(ngModel)]="w.items[k]"
+                                (focus)="focusedContentText = [i, j]"
+                                (blur)="focusedContentText = null"
+                            />
                             <button matSuffix mat-icon-button color="primary" (click)="addItem(i, j, k)">
                                 <mat-icon>add_circle</mat-icon>
                             </button>

@@ -27,6 +27,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     length = 0;
     pageSizeOptions = [5, 10, 20, 50, 100];
     routesInfo = routesInfo;
+    focusedContentText: number[] | null = null;
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
     get page() {
         return (this.paginator?.pageIndex || 0) + 1;
@@ -134,5 +135,16 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
         await this.dataService.removeChangelogItem(i);
         this.status.stopLoader();
         await this.getChangelog();
+    }
+
+    isDropListDisabled(i: number, j?: number) {
+        if (this.focusedContentText) {
+            const [i2, j2] = this.focusedContentText;
+            if (typeof j === "number") {
+                return i === i2 && j === j2;
+            }
+            return i === i2;
+        }
+        return false;
     }
 }
