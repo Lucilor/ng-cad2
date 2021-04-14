@@ -169,7 +169,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         this.updateList();
         this.subscribe(this.status.openCad$, () => this.updateList());
         this.subscribe(this.status.selectedCads$, () => this.setSelectedCads());
-        let prevConfig: Partial<AppConfig> | null = null;
+        let prevConfig: Partial<AppConfig> = {};
         let prevDisabledCadTypes: SelectedCadType[] | null = null;
         this.subscribe(this.status.cadStatusEnter$, async (cadStatus) => {
             if (cadStatus instanceof CadStatusSplit) {
@@ -194,13 +194,9 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 if (data && this.status.collection$.value === "p_yuanshicadwenjian") {
                     data.components.data = [];
                 }
-                if (!prevConfig) {
-                    prevConfig = this.config.setConfig("dragAxis", "xy", false);
-                }
-                if (!prevDisabledCadTypes) {
-                    prevDisabledCadTypes = this.status.disabledCadTypes$.value;
-                    this.status.disabledCadTypes$.next(["partners", "components"]);
-                }
+                prevConfig = this.config.setConfig("dragAxis", "xy", false);
+                prevDisabledCadTypes = this.status.disabledCadTypes$.value;
+                this.status.disabledCadTypes$.next(["partners", "components"]);
                 this.updateList();
                 return;
             }
@@ -219,10 +215,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     }, true);
                     return this;
                 });
-                if (prevConfig) {
-                    this.config.setConfig(prevConfig, false);
-                    this.prevConfig = null;
-                }
+                this.config.setConfig(prevConfig, false);
                 if (prevDisabledCadTypes) {
                     this.status.disabledCadTypes$.next(prevDisabledCadTypes);
                     prevDisabledCadTypes = null;

@@ -95,7 +95,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     }
 
     ngOnInit() {
-        let prevConfig: Partial<AppConfig> | null = null;
+        let prevConfig: Partial<AppConfig> = {};
         let prevDisabledCadTypes: SelectedCadType[] | null = null;
         let prevSelectedCads: SelectedCads | null = null;
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
@@ -103,27 +103,18 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                 const index = cadStatus.index;
                 const dimension = this.dimensions[index];
                 this.dimLineSelecting = index;
-                if (!prevConfig) {
-                    prevConfig = this.config.setConfig({hideLineLength: true, lineGongshi: 0, selectMode: "single"}, false);
-                }
-                if (!prevSelectedCads) {
-                    prevSelectedCads = this.status.selectedCads$.value;
-                    this.status.clearSelectedCads();
-                }
-                if (!prevDisabledCadTypes) {
-                    prevDisabledCadTypes = this.status.disabledCadTypes$.value;
-                    this.status.disabledCadTypes$.next(["cads", "partners", "components"]);
-                }
+                prevConfig = this.config.setConfig({hideLineLength: true, lineGongshi: 0, selectMode: "single"}, false);
+                prevSelectedCads = this.status.selectedCads$.value;
+                this.status.clearSelectedCads();
+                prevDisabledCadTypes = this.status.disabledCadTypes$.value;
+                this.status.disabledCadTypes$.next(["cads", "partners", "components"]);
                 this.focus(dimension);
             }
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             if (cadStatus instanceof CadStatusEditDimension) {
                 this.dimLineSelecting = -1;
-                if (prevConfig) {
-                    this.config.setConfig(prevConfig, false);
-                    prevConfig = null;
-                }
+                this.config.setConfig(prevConfig, false);
                 if (prevSelectedCads) {
                     this.status.selectedCads$.next(prevSelectedCads);
                     prevSelectedCads = null;

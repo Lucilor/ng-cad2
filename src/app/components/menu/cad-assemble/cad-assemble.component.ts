@@ -2,6 +2,7 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {CadData, CadConnection, CadEventCallBack, CadEntity} from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
+import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {CadStatusAssemble} from "@src/app/services/cad-status";
 import {difference} from "lodash";
@@ -145,7 +146,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         }
     }
 
-    constructor(private status: AppStatusService, private message: MessageService) {
+    constructor(private config: AppConfigService, private status: AppStatusService, private message: MessageService) {
         super();
     }
 
@@ -156,24 +157,23 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                 this.data = data;
             }
         });
+        let prevConfig: Partial<AppConfig> = {};
         let prevSelectedCads: SelectedCads | null = null;
         let prevDisabledCadTypes: SelectedCadType[] | null = null;
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
                 const data = this.status.cad.data.components.data[cadStatus.index];
-                if (!prevDisabledCadTypes) {
-                    prevDisabledCadTypes = this.status.disabledCadTypes$.value;
-                    this.status.disabledCadTypes$.next(["cads", "partners"]);
-                }
-                if (!prevSelectedCads) {
-                    prevSelectedCads = this.status.selectedCads$.value;
-                    this.status.selectedCads$.next({cads: [data.id], partners: [], components: [], fullCads: [data.id]});
-                }
+                prevConfig = this.config.setConfig({selectMode: "multiple"}, false);
+                prevDisabledCadTypes = this.status.disabledCadTypes$.value;
+                this.status.disabledCadTypes$.next(["cads", "partners"]);
+                prevSelectedCads = this.status.selectedCads$.value;
+                this.status.selectedCads$.next({cads: [data.id], partners: [], components: [], fullCads: [data.id]});
                 this.status.cad.data.updateComponents();
             }
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
+                this.config.setConfig(prevConfig, false);
                 if (prevDisabledCadTypes) {
                     this.status.disabledCadTypes$.next(prevDisabledCadTypes);
                     this.prevDisabledCadTypes = null;
