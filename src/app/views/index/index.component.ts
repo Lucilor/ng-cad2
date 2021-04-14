@@ -237,7 +237,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         if (this.showLeftMenu) {
             padding[3] += this.leftMenuWidth$.value;
         }
-        console.log(this.rightMenuWidth$.value);
         this.config.setConfig({padding}, false);
     }
 

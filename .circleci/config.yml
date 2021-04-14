@@ -34,14 +34,14 @@ jobs:
             - run:
                   name: Unit test
                   command: yarn test --no-watch --no-progress --browsers=ChromeHeadless
-    e2e:
-        executor: ng-cad2
-        steps:
-            - checkout
-            - *restore_cache
-            - run:
-                  name: End to end
-                  command: yarn e2e --protractor-config=e2e/protractor.conf.js
+    # e2e:
+    #     executor: ng-cad2
+    #     steps:
+    #         - checkout
+    #         - *restore_cache
+    #         - run:
+    #               name: End to end
+    #               command: yarn e2e --protractor-config=e2e/protractor.conf.js
     lint:
         executor: ng-cad2
         steps:
@@ -57,9 +57,9 @@ workflows:
             - unit-test:
                   requires:
                       - build
-            - e2e:
-                  requires:
-                      - build
+            # - e2e:
+            #       requires:
+            #           - build
             - lint:
                   requires:
                       - build
