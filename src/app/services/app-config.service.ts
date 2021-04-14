@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {cloneDeep} from "lodash";
 import {BehaviorSubject} from "rxjs";
+import {local} from "../app.common";
 import {CadViewerConfig} from "../cad-viewer/cad-viewer";
 import {CadDataService} from "../modules/http/services/cad-data.service";
 import {keysOf} from "../utils";
@@ -43,7 +44,8 @@ export class AppConfigService {
         showCadGongshis: true,
         infoTabIndex: 0,
         leftMenuWidth: 200,
-        rightMenuWidth: 300
+        rightMenuWidth: 300,
+        ...(local.load("userConfig") || {})
     });
     configChange$ = new BehaviorSubject<AppConfigChange>({
         oldVal: this.config$.value,
@@ -128,6 +130,7 @@ export class AppConfigService {
             this._userConfig = this._purgeUserConfig(config);
             if (Object.keys(this._userConfig).length) {
                 this.setConfig(this._userConfig, false);
+                local.save("userConfig", {...(local.load("userConfig") || {}), ...this._userConfig});
             }
         }
         return this._userConfig;
@@ -137,6 +140,7 @@ export class AppConfigService {
         config = this._purgeUserConfig(config);
         if (Object.keys(config).length) {
             const response = await this.dataService.post("ngcad/setUserConfig", {config: this._purgeUserConfig(config)}, false);
+            local.save("userConfig", {...(local.load("userConfig") || {}), ...config});
             return response && response.code === 0;
         }
         return false;

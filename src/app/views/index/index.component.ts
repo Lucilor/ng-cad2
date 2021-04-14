@@ -56,7 +56,6 @@ type Dragkey = keyof Pick<AppConfig, "leftMenuWidth" | "rightMenuWidth">;
     ]
 })
 export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit, AfterViewInit, OnDestroy {
-    menuPadding = [40, 270, 20, 220];
     shownMenus: ("cadInfo" | "entityInfo" | "cadAssemble")[] = ["cadInfo", "entityInfo"];
     showTopMenu = true;
     showRightMenu = true;
@@ -66,8 +65,11 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     loaderId = "saveCadLoader";
     tabIndex = 0;
     cadLength = "0.00";
+    menuPaddingBase = [10, 10, 10, 10];
     leftMenuWidth$ = new BehaviorSubject<number>(this.config.getConfig("leftMenuWidth"));
     rightMenuWidth$ = new BehaviorSubject<number>(this.config.getConfig("rightMenuWidth"));
+    topMenuHeight$ = new BehaviorSubject<number>(40);
+    bottomMenuHeight$ = new BehaviorSubject<number>(20);
     dragDataLeft: DragData = {width: 0};
     dragDataRight: DragData = {width: 0};
     isDraggingLeft = false;
@@ -137,6 +139,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         // this.subscribe(this.status.setProject$, () => {
         //     this._initCad();
         // });
+        this._setCadPadding();
         this._initCad();
         this.subscribe(this.config.configChange$, ({newVal}) => {
             const {leftMenuWidth, rightMenuWidth} = newVal;
@@ -153,7 +156,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         if (this.cadContainer) {
             this.status.cad.appendTo(this.cadContainer.nativeElement);
         }
-        this.config.setConfig({padding: this.menuPadding.map((v) => v + 30)});
         this.subscribe(this.console.command, (cmd) => this.consoleComponent?.execute(cmd));
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
@@ -221,34 +223,42 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         cad.on("entitiespaste", this._onEntitiesPaste);
     }
 
-    private _setCadPadding(show: boolean, i: number) {
-        const padding = this.config.getConfig("padding");
-        if (show) {
-            padding[i] += this.menuPadding[i];
-        } else {
-            padding[i] -= this.menuPadding[i];
+    private _setCadPadding() {
+        const padding = this.menuPaddingBase.slice();
+        if (this.showTopMenu) {
+            padding[0] += this.topMenuHeight$.value;
         }
-        this.config.setConfig({padding});
+        if (this.showRightMenu) {
+            padding[1] += this.rightMenuWidth$.value;
+        }
+        if (this.showBottomMenu) {
+            padding[2] += this.bottomMenuHeight$.value;
+        }
+        if (this.showLeftMenu) {
+            padding[3] += this.leftMenuWidth$.value;
+        }
+        console.log(this.rightMenuWidth$.value);
+        this.config.setConfig({padding}, false);
     }
 
     toggleTopMenu(show?: boolean) {
         this.showTopMenu = show ?? !this.showTopMenu;
-        this._setCadPadding(this.showTopMenu, 0);
+        this._setCadPadding();
     }
 
     toggleRightMenu(show?: boolean) {
         this.showRightMenu = show ?? !this.showRightMenu;
-        this._setCadPadding(this.showRightMenu, 1);
+        this._setCadPadding();
     }
 
     toggleBottomMenu(show?: boolean) {
         this.showBottomMenu = show ?? !this.showBottomMenu;
-        this._setCadPadding(this.showBottomMenu, 2);
+        this._setCadPadding();
     }
 
     toggleLeftMenu(show?: boolean) {
         this.showLeftMenu = show ?? !this.showLeftMenu;
-        this._setCadPadding(this.showLeftMenu, 3);
+        this._setCadPadding();
     }
 
     toggleAllMenu(show?: boolean) {
@@ -318,5 +328,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             this.config.setConfig(key, this.rightMenuWidth$.value);
             this.isDraggingRight = false;
         }
+        this._setCadPadding();
     }
 }

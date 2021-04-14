@@ -199,8 +199,7 @@ export class AppStatusService {
         this.generateLineTexts();
         this.openCad$.next();
         await timeout(0);
-        cad.reset();
-        cad.render();
+        cad.reset().render();
         cad.data.updatePartners().updateComponents();
         cad.render().center();
     }

@@ -1,7 +1,7 @@
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadData, CadViewer, CadViewerConfig, CadMtext, CadBaseLine, CadJointPoint, CadDimension, CadZhankai} from "./cad-viewer";
-import {getDPI, Point} from "./utils";
+import {getDPI, Point, timeout} from "./utils";
 
 export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}) => {
     const cad = new CadViewer(new CadData(), {
@@ -16,6 +16,9 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
     cad.appendTo(document.body);
     cad.data = data.clone();
     cad.render().center();
+    // ? ?? ???
+    await timeout(0);
+    cad.center();
     const src = cad.toBase64();
     cad.destroy();
     return src;

@@ -49,7 +49,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     private lastPointer: Point | null = null;
     private entitiesToMove?: CadEntities;
     private entitiesNotToMove?: CadEntities;
-    private updateListLock = false;
 
     get selected() {
         const cads = this.cads.filter((v) => v.checked).map((v) => v.data);
@@ -258,6 +257,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     private _getCadNode(data: CadData, parent?: string) {
+        removeCadGongshi(data);
         const node: CadNode = {data, img: imgLoading, checked: false, indeterminate: false, parent};
         return node;
     }
@@ -429,10 +429,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     async updateList(list?: CadData[]) {
-        if (this.updateListLock) {
-            return;
-        }
-        this.updateListLock = true;
         const cad = this.status.cad;
         const cadStatus = this.status.cadStatus;
         if (!list) {
@@ -465,7 +461,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             const img = await getCadPreview(node.data);
             node.img = this.sanitizer.bypassSecurityTrustUrl(img) as string;
         }
-        this.updateListLock = false;
     }
 
     onContextMenu(event: MouseEvent, data: CadData, field: SelectedCadType) {
