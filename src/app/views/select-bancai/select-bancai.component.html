@@ -48,6 +48,12 @@
                 />
                 <mat-error>{{ getGuigeError(i) }}</mat-error>
             </mat-form-field>
+            <mat-form-field *ngIf="type === '激光喷码开料排版'">
+                <mat-label>切割保护气体</mat-label>
+                <mat-select formControlName="gas" (selectionChange)="formIdx = i; updateSortedCads(form)">
+                    <mat-option *ngFor="let o of gasOptions" [value]="o.value">{{ o.label }}</mat-option>
+                </mat-select>
+            </mat-form-field>
             <button mat-raised-button [color]="form.get('oversized')?.value ? 'accent' : 'primary'" (click)="openCadsDialog(i)">
                 开料CAD
             </button>
@@ -57,7 +63,7 @@
 </perfect-scrollbar>
 <div class="btn-group">
     <button mat-raised-button color="primary" [disabled]="!valid" (click)="submit()">
-        激光开料排版
+        {{ type }}
         <ngx-ui-loader [loaderId]="'submitLoader'" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
     </button>
 </div>

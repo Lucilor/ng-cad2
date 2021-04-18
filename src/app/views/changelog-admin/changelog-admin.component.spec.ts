@@ -1,4 +1,5 @@
 import {NgxMatDatetimePickerModule, NgxMatNativeDateModule, NgxMatTimepickerModule} from "@angular-material-components/datetime-picker";
+import {DragDropModule} from "@angular/cdk/drag-drop";
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {FormsModule} from "@angular/forms";
 import {MatButtonModule} from "@angular/material/button";
@@ -23,6 +24,7 @@ describe("ChangelogAdminComponent", () => {
         await TestBed.configureTestingModule({
             declarations: [ChangelogAdminComponent],
             imports: [
+                DragDropModule,
                 HttpModule,
                 FormsModule,
                 MatButtonModule,

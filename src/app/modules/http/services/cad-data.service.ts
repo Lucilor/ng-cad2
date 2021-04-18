@@ -43,7 +43,7 @@ export interface BancaiCad {
     name: string;
     width: number;
     height: number;
-    bancai: {mingzi: string; cailiao: string | null; houdu: number | null; guige: number[] | null};
+    bancai: {mingzi: string; cailiao: string | null; houdu: number | null; guige: number[] | null; gas?: string};
 }
 
 export type Changelog = {
@@ -204,14 +204,6 @@ export class CadDataService extends HttpService {
 
     async getBancais(table: string, codes: string[]) {
         const response = await this.post<{bancaiList: BancaiList[]; bancaiCads: BancaiCad[]}>("order/order/getBancais", {table, codes});
-        if (response?.data) {
-            return response.data;
-        }
-        return null;
-    }
-
-    async jiguangkailiaopaiban(codes: string[], bancaiCads: BancaiCad[], table: string, autoGuige: boolean) {
-        const response = await this.post<string>("order/order/jiguangkailiaopaiban", {codes, bancaiCads, table, autoGuige});
         if (response?.data) {
             return response.data;
         }

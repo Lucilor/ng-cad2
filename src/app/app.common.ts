@@ -14,7 +14,7 @@ export const routesInfo = {
     printA4A015Preview: {path: "printA4A015Preview", title: "订单配件标签"},
     import: {path: "import", title: "导入CAD"},
     backup: {path: "backup", title: "备份CAD"},
-    selectBancai: {path: "select-bancai", title: "激光开料排版"},
+    selectBancai: {path: "select-bancai", title: ""},
     changelogAdmin: {path: "changelog-admin", title: "编辑更新日志"}
 };
 

@@ -31,6 +31,15 @@ export class SelectBancaiComponent implements OnInit {
     formIdx = -1;
     codes: string[] = [];
     table = "";
+    type = "";
+    gasOptions: {value: string; label: string}[] = [
+        {value: "Air", label: "空气"},
+        {value: "O2", label: "氧气"},
+        {value: "N2", label: "氮气"},
+        {value: "H-Air", label: "高压空气"},
+        {value: "H-O2", label: "高压氧气"},
+        {value: "H-N2", label: "高压氮气"}
+    ];
 
     get currList(): BancaiList {
         const form = this.bancaiForms[this.formIdx];
@@ -56,11 +65,13 @@ export class SelectBancaiComponent implements OnInit {
     ) {}
 
     async ngOnInit() {
-        const {codes, table} = this.route.snapshot.queryParams;
-        if (codes && table) {
+        const {codes, table, type} = this.route.snapshot.queryParams;
+        if (codes && table && type) {
             this.loader.startLoader("bancaiLoader");
             this.codes = codes.split(",");
             this.table = table;
+            document.title = type;
+            this.type = type;
             const result = await this.dataService.getBancais(this.table, this.codes);
             this.loader.stopLoader("bancaiLoader");
             if (result) {
@@ -80,6 +91,9 @@ export class SelectBancaiComponent implements OnInit {
                                 throw new Error(`${cad.bancai.mingzi}, 没有板材规格`);
                             }
                             cad.bancai.guige = list.guigeList[0].slice();
+                        }
+                        if (!cad.bancai.gas) {
+                            cad.bancai.gas = "Air";
                         }
                     }
                 });
@@ -106,7 +120,8 @@ export class SelectBancaiComponent implements OnInit {
             a.cailiao === b.cailiao &&
             a.houdu === b.houdu &&
             a.guige?.[0] === b.guige?.[0] &&
-            a.guige?.[1] === b.guige?.[1]
+            a.guige?.[1] === b.guige?.[1] &&
+            a.gas === b.gas
         );
     }
 
@@ -154,6 +169,10 @@ export class SelectBancaiComponent implements OnInit {
                     bancai.guige = [Number(match[1]), Number(match[3])];
                 }
             }
+            const gas = bancaiCads.get("gas");
+            if (gas && !gas.errors) {
+                bancai.gas = gas.value;
+            }
             const group = sortedCads[this.formIdx];
             group.forEach((v) => {
                 Object.assign(v.bancai, bancai);
@@ -186,7 +205,8 @@ export class SelectBancaiComponent implements OnInit {
                 houdu: [bancai.houdu?.toString() || "", [Validators.required, Validators.pattern(houduPattern)]],
                 guige: [bancai.guige?.join(" × ") || "", [Validators.required, Validators.pattern(guigePattern)]],
                 cads: group.map((v) => v.id).join(","),
-                oversized: group.some((v) => v.oversized)
+                oversized: group.some((v) => v.oversized),
+                gas: bancai.gas
             });
             bancaiForms.push(form);
             form.updateValueAndValidity();
@@ -276,11 +296,18 @@ export class SelectBancaiComponent implements OnInit {
             )
             .flat();
         this.loader.startLoader("submitLoader");
-        const url = await this.dataService.jiguangkailiaopaiban(this.codes, bancaiCads, this.table, this.autoGuige);
+        const api = "order/order/selectBancai";
+        const {codes, table, autoGuige, type} = this;
+        const response = await this.dataService.post<string | string[]>(api, {codes, bancaiCads, table, autoGuige, type});
         this.loader.stopLoader("submitLoader");
+        const url = response?.data;
         if (url) {
-            if (!open(url)) {
-                this.message.alert(`<p>自动下载被拦截，请点击下列链接下载。</p><a href="${url}" download>下载开料结果</a>`);
+            if (Array.isArray(url)) {
+                this.message.alert(url.map((v) => `<div>${v}</div>`).join(""));
+            } else {
+                if (!open(url)) {
+                    this.message.alert(`<p>自动下载被拦截，请点击下列链接下载。</p><a href="${url}" download>下载开料结果</a>`);
+                }
             }
         }
     }
