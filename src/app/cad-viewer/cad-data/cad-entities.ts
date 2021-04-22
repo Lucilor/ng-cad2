@@ -310,6 +310,7 @@ export abstract class CadLineLike extends CadEntity {
     zidingzhankaichang: string;
     zhankaifangshi: "自动计算" | "使用线长" | "指定长度";
     zhankaixiaoshuchuli: "不处理" | "舍去小数" | "小数进一" | "四舍五入";
+    kailiaoshishanchu: boolean;
 
     constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
         super(data, layers, resetId);
@@ -337,6 +338,7 @@ export abstract class CadLineLike extends CadEntity {
             }
         }
         this.zhankaixiaoshuchuli = data.zhankaixiaoshuchuli ?? "不处理";
+        this.kailiaoshishanchu = !!data.kailiaoshishanchu;
     }
 
     export(): ObjectOf<any> {
@@ -353,7 +355,8 @@ export abstract class CadLineLike extends CadEntity {
             zhewanValue: this.zhewanValue,
             zidingzhankaichang: this.zidingzhankaichang,
             zhankaifangshi: this.zhankaifangshi,
-            zhankaixiaoshuchuli: this.zhankaixiaoshuchuli
+            zhankaixiaoshuchuli: this.zhankaixiaoshuchuli,
+            kailiaoshishanchu: this.kailiaoshishanchu
         };
     }
 }
