@@ -1,0 +1,49 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    & > perfect-scrollbar {
+        flex: 1 1 0;
+    }
+}
+
+.t1 {
+    margin: 10px;
+
+    & > * {
+        margin: 10px;
+    }
+}
+
+.t2 {
+    .mat-form-field {
+        width: 25%;
+        padding: 0 5px;
+        box-sizing: border-box;
+        flex: 1 0 auto;
+    }
+}
+
+.t3 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.mat-form-field {
+    width: 100%;
+}
+
+.mat-expansion-panel-header-title {
+    white-space: pre-wrap;
+}
+
+.sub-form-field:not(:first-child),
+.sub-form-field-item:not(:first-child) {
+    margin-top: 0px;
+}
+.sub-form-field:not(:last-child),
+.sub-form-field-item:not(:last-child) {
+    margin-bottom: 10px;
+}

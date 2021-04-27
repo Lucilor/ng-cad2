@@ -1,4 +1,4 @@
-import JSEncrypt from "jsencrypt";
+import {JSEncrypt} from "jsencrypt";
 
 const defaultPublicKey = `
 -----BEGIN PUBLIC KEY-----
@@ -12,7 +12,7 @@ VwIDAQAB
 -----END PUBLIC KEY-----
 `;
 export const RSAEncrypt = (data: any, publicKey = defaultPublicKey, separator = "&&&&&") => {
-    const jsEncrypt = new JSEncrypt();
+    const jsEncrypt = new JSEncrypt({});
     jsEncrypt.setPublicKey(publicKey);
     let plainText = JSON.stringify(data);
     if (!plainText) {
@@ -48,18 +48,6 @@ export const getDPI = () => {
     result[1] = tmpNode.offsetHeight;
     tmpNode.remove();
     return result;
-};
-
-export const copyToClipboard = (str: string) => {
-    const el = document.createElement("textarea");
-    el.value = str;
-    el.setAttribute("readonly", "");
-    el.style.position = "absolute";
-    el.style.opacity = "0";
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand("copy");
-    document.body.removeChild(el);
 };
 
 export const downloadByString = (content: string, filename: string) => {

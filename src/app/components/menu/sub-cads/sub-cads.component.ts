@@ -13,7 +13,7 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {CadStatusAssemble, CadStatusSplit} from "@src/app/services/cad-status";
-import {copyToClipboard, ObjectOf, Point, timeout} from "@src/app/utils";
+import {ObjectOf, Point, timeout} from "@src/app/utils";
 import {concat, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
@@ -576,13 +576,13 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         input.value = "";
     }
 
-    getJson() {
+    async getJson() {
         if (!this.contextMenuCad) {
             return;
         }
         const data = this.contextMenuCad.data.clone();
         removeCadGongshi(data);
-        copyToClipboard(JSON.stringify(data.export()));
+        await navigator.clipboard.writeText(JSON.stringify(data.export()));
         this.message.snack("内容已复制");
         console.log(data);
     }

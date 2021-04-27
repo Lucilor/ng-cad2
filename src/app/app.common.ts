@@ -15,7 +15,8 @@ export const routesInfo = {
     import: {path: "import", title: "导入CAD"},
     backup: {path: "backup", title: "备份CAD"},
     selectBancai: {path: "select-bancai", title: ""},
-    changelogAdmin: {path: "changelog-admin", title: "编辑更新日志"}
+    changelogAdmin: {path: "changelog-admin", title: "编辑更新日志"},
+    kailiaokongweipeizhi: {path: "kailiaokongweipeizhi", title: "开料孔位配置"}
 };
 
 export interface Response<T> {
