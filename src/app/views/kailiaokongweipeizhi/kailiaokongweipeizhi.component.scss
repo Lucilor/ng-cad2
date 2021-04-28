@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    background-color: gray;
 
     & > perfect-scrollbar {
         flex: 1 1 0;
@@ -9,7 +10,8 @@
 }
 
 .t1 {
-    margin: 10px;
+    margin: 50px 10px;
+    background-color: lightgray;
 
     & > * {
         margin: 10px;
@@ -46,4 +48,9 @@
 .sub-form-field:not(:last-child),
 .sub-form-field-item:not(:last-child) {
     margin-bottom: 10px;
+}
+
+.mat-expansion-panel-header-title {
+    font-size: 20px;
+    font-weight: bold;
 }

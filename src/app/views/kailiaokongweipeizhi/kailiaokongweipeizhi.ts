@@ -19,6 +19,7 @@ export interface KlkwpzItemBase {
     baseX: Gongshi;
     baseY: Gongshi;
     板材打孔范围缩减: {上: Gongshi; 下: Gongshi; 左: Gongshi; 右: Gongshi};
+    删除超出板材的孔: BooleanCN;
 }
 
 export interface KlkwpzItemType0 extends KlkwpzItemBase {
@@ -92,6 +93,7 @@ export class Kailiaokongweipeizhi {
             baseX: getGongshi(source.baseX),
             baseY: getGongshi(source.baseY),
             板材打孔范围缩减,
+            删除超出板材的孔: source.删除超出板材的孔 === "否" ? "否" : "是",
             类型: ""
         };
         if (source.类型 === "增加指定偏移") {

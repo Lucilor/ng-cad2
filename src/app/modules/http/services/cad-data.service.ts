@@ -78,7 +78,7 @@ export class CadDataService extends HttpService {
             const missingCads: CadData[] | undefined = resData.missingCads;
             if (missingCads) {
                 const names = missingCads.map((v) => v.name).join(", ");
-                const yes = await this.message.confirm("以下CAD在后台没有数据, 是否保存?<br>" + names, "", false);
+                const yes = await this.message.confirm("CAD模块中不存在以下数据, 是否生成并保存?如果取消, 将把CAD从模板中删除, 然后执行模板的保存<br>" + names, "", false);
                 return await this.setCad({...params, restore: !!yes});
             } else {
                 return new CadData(resData);

@@ -17,11 +17,11 @@
 </div>
 <div mat-dialog-actions style="justify-content: center" [ngSwitch]="data.type">
     <ng-container *ngSwitchCase="'alert'">
-        <button mat-raised-button (click)="cancle()" cdkFocusInitial>好的</button>
+        <button mat-raised-button (click)="cancle()" cdkFocusInitial>确定</button>
     </ng-container>
     <ng-container *ngSwitchCase="'confirm'">
-        <button mat-raised-button (click)="submit()">当然</button>
-        <button mat-raised-button (click)="cancle()" cdkFocusInitial>算了</button>
+        <button mat-raised-button (click)="submit()">确定</button>
+        <button mat-raised-button (click)="cancle()" cdkFocusInitial>取消</button>
     </ng-container>
     <ng-container *ngSwitchCase="'prompt'">
         <button mat-raised-button (click)="submit()" cdkFocusInitial>确定</button>

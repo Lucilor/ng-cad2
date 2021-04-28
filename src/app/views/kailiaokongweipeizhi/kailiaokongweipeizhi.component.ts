@@ -33,6 +33,7 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
             baseX: "",
             baseY: "",
             板材打孔范围缩减: {上: "", 下: "", 左: "", 右: ""},
+            删除超出板材的孔: "是",
             类型: ""
         };
     }
