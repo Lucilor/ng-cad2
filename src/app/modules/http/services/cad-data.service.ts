@@ -21,6 +21,7 @@ export interface SetCadParams {
     collection: CadCollection;
     cadData: CadData;
     force: boolean;
+    restore?: boolean;
 }
 
 export type CadSearchData = {
@@ -69,11 +70,19 @@ export class CadDataService extends HttpService {
         return result;
     }
 
-    async setCad(params: SetCadParams) {
-        const data = {...params, cadData: JSON.stringify(params.cadData.export())};
-        const response = await this.post<CadData>("peijian/cad/setCad", data, false);
+    async setCad(params: SetCadParams): Promise<CadData | null> {
+        const data = {...params, cadData: params.cadData.export()};
+        const response = await this.post<any>("peijian/cad/setCad", data, false);
         if (response && response.data) {
-            return new CadData(response.data);
+            const resData = response.data;
+            const missingCads: CadData[] | undefined = resData.missingCads;
+            if (missingCads) {
+                const names = missingCads.map((v) => v.name).join(", ");
+                const yes = await this.message.confirm("以下CAD在后台没有数据, 是否保存?<br>" + names, "", false);
+                return await this.setCad({...params, restore: !!yes});
+            } else {
+                return new CadData(resData);
+            }
         } else {
             return null;
         }

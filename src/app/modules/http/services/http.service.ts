@@ -91,13 +91,7 @@ export class HttpService {
                 if (encrypt) {
                     formData.append("data", RSAEncrypt(data));
                 } else {
-                    for (const key in data) {
-                        let value = data[key];
-                        if (typeof value !== "string") {
-                            value = JSON.stringify(value);
-                        }
-                        formData.append(key, value);
-                    }
+                    formData.append("data", JSON.stringify(data));
                 }
                 files.forEach((v, i) => formData.append("file" + i, v));
                 response = await this.http.post<Response<T>>(url, formData, options).toPromise();

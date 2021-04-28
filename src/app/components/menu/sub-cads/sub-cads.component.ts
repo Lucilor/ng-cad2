@@ -13,7 +13,7 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {CadStatusAssemble, CadStatusSplit} from "@src/app/services/cad-status";
-import {ObjectOf, Point, timeout} from "@src/app/utils";
+import {ObjectOf, Point} from "@src/app/utils";
 import {concat, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
@@ -191,19 +191,21 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     }
                 }
                 this._prevId = id;
-                if (data && this.status.collection$.value === "p_yuanshicadwenjian") {
-                    data.components.data = [];
+                if (data) {
+                    if (this.status.collection$.value === "p_yuanshicadwenjian") {
+                        data.components.data = [];
+                    }
+                    prevConfig = this.config.setConfig("dragAxis", "xy", false);
+                    prevDisabledCadTypes = this.status.disabledCadTypes$.value;
+                    this.status.disabledCadTypes$.next(["partners", "components"]);
+                    this.updateList(data.components.data, false);
                 }
-                prevConfig = this.config.setConfig("dragAxis", "xy", false);
-                prevDisabledCadTypes = this.status.disabledCadTypes$.value;
-                this.status.disabledCadTypes$.next(["partners", "components"]);
-                this.updateList();
                 return;
             }
         });
         this.subscribe(this.status.cadStatusExit$, async (cadStatus) => {
             if (cadStatus instanceof CadStatusSplit) {
-                this.status.cad.data.components.data.forEach((v) => {
+                cad.data.components.data.forEach((v) => {
                     v.getAllEntities().forEach((e) => {
                         if (typeof e.info.prevVisible === "boolean") {
                             e.visible = e.info.prevVisible;
@@ -228,7 +230,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     }
                 }
                 this._prevId = "";
-                this.updateList();
+                this.updateList(cad.data.components.data);
             }
         });
         // this.status.cad.on("render", debounce((() => this.updateList()).bind(this), 1000));
@@ -252,6 +254,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     private _getCadNode(data: CadData, parent?: string) {
         removeCadGongshi(data);
         const node: CadNode = {data, img: imgLoading, checked: false, indeterminate: false, parent};
+        setTimeout(() => {
+            getCadPreview(node.data).then((img) => {
+                node.img = this.sanitizer.bypassSecurityTrustUrl(img) as string;
+            });
+        }, 0);
         return node;
     }
 
@@ -421,15 +428,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         cad.render();
     }
 
-    async updateList(list?: CadData[]) {
+    updateList(list?: CadData[], selectFirstNode = true) {
         const cad = this.status.cad;
-        const cadStatus = this.status.cadStatus;
         if (!list) {
-            if (cadStatus instanceof CadStatusSplit) {
-                list = cad.data.components.data.find((v) => v.id === this._prevId)?.components.data || [];
-            } else {
-                list = cad.data.components.data;
-            }
+            list = cad.data.components.data;
         }
         this.cads = [];
         this.partners = [];
@@ -446,13 +448,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             }
         }
         this.status.clearSelectedCads();
-        if (this.cads.length) {
+        if (this.cads.length && selectFirstNode) {
             this.clickCad("cads", 0);
-        }
-        await timeout(0);
-        for (const node of this.cads.concat(this.partners).concat(this.components)) {
-            const img = await getCadPreview(node.data);
-            node.img = this.sanitizer.bypassSecurityTrustUrl(img) as string;
         }
     }
 
