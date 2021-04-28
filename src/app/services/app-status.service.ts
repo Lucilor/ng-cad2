@@ -150,6 +150,7 @@ export class AppStatusService {
     }
 
     setCadStatus(value: CadStatus, confirmed?: boolean) {
+        console.log(value);
         this.cadStatus.confirmed = confirmed;
         this.cadStatusExit$.next(this.cadStatus);
         this.cadStatus = value;

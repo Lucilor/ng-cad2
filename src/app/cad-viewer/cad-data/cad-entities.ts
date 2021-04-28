@@ -511,6 +511,7 @@ export class CadDimension extends CadEntity {
     qujian: string;
     ref?: "entity1" | "entity2" | "minX" | "maxX" | "minY" | "maxY" | "minLength" | "maxLength";
     quzhifanwei: string;
+    xianshigongshiwenben: string;
 
     private _renderStyle = 1;
     get renderStyle() {
@@ -571,6 +572,7 @@ export class CadDimension extends CadEntity {
         this.quzhifanwei = data.quzhifanwei ?? "";
         this.renderStyle = data.renderStyle ?? 1;
         this.hideDimLines = data.hideDimLines === true;
+        this.xianshigongshiwenben = data.xianshigongshiwenben ?? "";
     }
 
     transform(matrix: Matrix, alter = false, parent?: CadEntity) {
@@ -594,7 +596,8 @@ export class CadDimension extends CadEntity {
             ref: this.ref,
             quzhifanwei: this.quzhifanwei,
             renderStyle: this.renderStyle,
-            hideDimLines: this.hideDimLines
+            hideDimLines: this.hideDimLines,
+            xianshigongshiwenben: this.xianshigongshiwenben
         });
     }
 

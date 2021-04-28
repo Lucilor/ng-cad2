@@ -167,10 +167,11 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
 
         const infoTabs = this.infoTabs;
         if (infoTabs) {
+            infoTabs.selectedIndex = this.config.getConfig("infoTabIndex");
             const sub = this.config.configChange$.subscribe(({newVal}) => {
                 const infoTabIndex = newVal.infoTabIndex;
-                if (typeof infoTabIndex === "number" && infoTabIndex >= 0 && this.infoTabs) {
-                    this.infoTabs.selectedIndex = infoTabIndex;
+                if (typeof infoTabIndex === "number" && infoTabIndex >= 0 && infoTabs) {
+                    infoTabs.selectedIndex = infoTabIndex;
                     sub.unsubscribe();
                 }
             });

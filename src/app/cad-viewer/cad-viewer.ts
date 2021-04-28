@@ -166,8 +166,9 @@ export class CadViewer extends EventEmitter {
                         if (config.selectMode === "none") {
                             this.unselectAll();
                         } else if (config.selectMode === "single") {
-                            const selected = this.selected().toArray().pop();
-                            this.unselectAll().select(selected);
+                            const selected = this.selected().toArray();
+                            selected.pop();
+                            this.unselect(selected);
                         }
                         break;
                 }

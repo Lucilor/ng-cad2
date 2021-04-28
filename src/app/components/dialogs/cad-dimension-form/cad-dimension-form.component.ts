@@ -26,6 +26,7 @@ export class CadDimensionFormComponent {
         this.dimension = dimension;
         this.form = this.fb.group({
             mingzi: [dimension.mingzi],
+            xianshigongshiwenben: dimension.xianshigongshiwenben,
             qujian: [dimension.qujian, [this.qujianValidator()]],
             e1Location: dimension.entity1?.location,
             e2Location: dimension.entity2?.location,
@@ -48,6 +49,7 @@ export class CadDimensionFormComponent {
             const value = this.form.value;
             const dimension = this.dimension;
             dimension.mingzi = value.mingzi;
+            dimension.xianshigongshiwenben = value.xianshigongshiwenben;
             dimension.qujian = value.qujian;
             dimension.entity1.location = value.e1Location;
             dimension.entity2.location = value.e2Location;
