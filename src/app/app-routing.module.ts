@@ -11,6 +11,7 @@ import {KailiaokongweipeizhiComponent} from "./views/kailiaokongweipeizhi/kailia
 import {PageNotFoundComponent} from "./views/page-not-found/page-not-found.component";
 import {PrintA4A015PreviewComponent} from "./views/print-a4-a015-preview/print-a4-a015-preview.component";
 import {PrintCadComponent} from "./views/print/print-cad.component";
+import {ReplaceTextComponent} from "./views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "./views/select-bancai/select-bancai.component";
 
 const routes: Routes = [
@@ -25,7 +26,8 @@ const routes: Routes = [
             {path: routesInfo.backup.path, component: BackupComponent},
             {path: routesInfo.selectBancai.path, component: SelectBancaiComponent},
             {path: routesInfo.changelogAdmin.path, component: ChangelogAdminComponent},
-            {path: routesInfo.kailiaokongweipeizhi.path, component: KailiaokongweipeizhiComponent}
+            {path: routesInfo.kailiaokongweipeizhi.path, component: KailiaokongweipeizhiComponent},
+            {path: routesInfo.replaceText.path, component: ReplaceTextComponent}
         ],
         canActivate: [ProjectGuard]
     },

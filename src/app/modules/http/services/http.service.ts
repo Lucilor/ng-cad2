@@ -45,7 +45,7 @@ export class HttpService {
 
     protected alert(content: any) {
         if (!this.silent) {
-            this.message.alert(content);
+            this.message.alert({content});
             console.log(content);
         }
     }

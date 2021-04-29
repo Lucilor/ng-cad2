@@ -30,6 +30,7 @@
     "jsoneditor": "^9.4.1",
     "lodash": "^4.17.21",
     "ngx-color": "^6.2.0",
+    "ngx-forms-typed": "^1.0.8",
     "ngx-perfect-scrollbar": "^10.1.0",
     "ngx-quill": "^13.2.0",
     "ngx-ui-loader": "^11.0.0",

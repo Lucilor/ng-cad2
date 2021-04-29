@@ -9102,6 +9102,7 @@ fsevents@~2.3.1:
     karma-jasmine-html-reporter: ^1.5.4
     lodash: ^4.17.21
     ngx-color: ^6.2.0
+    ngx-forms-typed: ^1.0.8
     ngx-perfect-scrollbar: ^10.1.0
     ngx-quill: ^13.2.0
     ngx-ui-loader: ^11.0.0
@@ -9129,6 +9130,18 @@ fsevents@~2.3.1:
     "@angular/common": ">=10.0.0-0"
     "@angular/core": ">=10.0.0-0"
   checksum: 33213c272a49fbbf17860e7e20fff743ab229f747f55769dcadb59074f0ccbfbc4c597ac2354d9638637cea8bb7b6f749685f442860d3c8c3068a90e1544c033
+  languageName: node
+  linkType: hard
+
+"ngx-forms-typed@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "ngx-forms-typed@npm:1.0.8"
+  peerDependencies:
+    "@angular/core": ">=2.0.0"
+    "@angular/forms": ">=2.0.0"
+    tslib: ^1.10.0
+    typescript: ">=2.8.0"
+  checksum: 407d74583953a75aac75428d312d905dcfddff30fafb686bf04e93cc4dcc5e9c584082c628659e7b129a3198b51b137e622b33a8c787ce5308030295a11f44a8
   languageName: node
   linkType: hard
 

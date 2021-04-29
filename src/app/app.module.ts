@@ -66,6 +66,7 @@ import {KailiaokongweipeizhiComponent} from "./views/kailiaokongweipeizhi/kailia
 import {PageNotFoundComponent} from "./views/page-not-found/page-not-found.component";
 import {PrintA4A015PreviewComponent} from "./views/print-a4-a015-preview/print-a4-a015-preview.component";
 import {PrintCadComponent} from "./views/print/print-cad.component";
+import {ReplaceTextComponent} from "./views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "./views/select-bancai/select-bancai.component";
 
 @Injectable()
@@ -122,7 +123,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         ChangelogComponent,
         ChangelogAdminComponent,
         ReplaceFullCharsDirective,
-        KailiaokongweipeizhiComponent
+        KailiaokongweipeizhiComponent,
+        ReplaceTextComponent
     ],
     imports: [
         HttpClientModule,
