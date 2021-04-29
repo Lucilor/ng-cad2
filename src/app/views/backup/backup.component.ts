@@ -90,6 +90,6 @@ export class BackupComponent {
             .join("<br>");
         const conditionsStr = data.conditions.map((v) => `${getSpaces(9)}${v}`).join("<br>");
         const content = [`id: ${data.id}`, `分类: ${data.type}`, "选项: ", optionsStr, "条件: ", conditionsStr].join("<br>");
-        this.message.alert(content, data.name);
+        this.message.alert({content, title: data.name});
     }
 }

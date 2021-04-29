@@ -1,9 +1,20 @@
 import {Injectable} from "@angular/core";
 import {MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
-import {BookData, MessageData, PromptData} from "../components/message/message-types";
+import {
+    AlertMessageData,
+    BookMessageData,
+    ButtonMessageData,
+    ConfirmMessageData,
+    EditorMessageData,
+    MessageData,
+    MessageDataMap,
+    PromptMessageData
+} from "../components/message/message-types";
 import {MessageComponent} from "../components/message/message.component";
 import {MessageModule} from "../message.module";
+
+export type MessageDataParams<T> = Partial<Omit<T, "type">>;
 
 @Injectable({
     providedIn: MessageModule
@@ -16,24 +27,38 @@ export class MessageService {
         return await ref.afterClosed().toPromise();
     }
 
-    async alert(content: string, title?: string, cancelable = true) {
-        return await this.open({data: {type: "alert", content, title, cancelable}});
+    private _getData<T extends MessageData, K extends MessageData["type"]>(
+        data: string | MessageDataParams<T>,
+        type: K
+    ): MessageDataMap[K] {
+        if (typeof data === "string") {
+            data = {content: data} as MessageDataParams<T>;
+        }
+        return ({...data, type} as MessageData) as MessageDataMap[K];
     }
 
-    async confirm(content: string, title?: string, cancelable = true) {
-        return await this.open({data: {type: "confirm", content, title, cancelable}});
+    async alert(data: string | MessageDataParams<AlertMessageData>) {
+        return await this.open({data: this._getData(data, "alert")});
     }
 
-    async prompt(promptData?: PromptData, content?: string, title?: string, cancelable = true) {
-        return await this.open({data: {type: "prompt", promptData, content, title, cancelable}});
+    async confirm(data: string | MessageDataParams<ConfirmMessageData>) {
+        return await this.open({data: this._getData(data, "confirm")});
     }
 
-    async book(bookData: BookData, title?: string, cancelable = true) {
-        return await this.open({data: {type: "book", bookData, title, cancelable}, width: "80vw", height: "65vh"});
+    async prompt(data: string | MessageDataParams<PromptMessageData>) {
+        return await this.open({data: this._getData(data, "prompt")});
     }
 
-    async editor(content?: string, title?: string, editable = true, cancelable = true) {
-        return await this.open({data: {type: "editor", editable, content, title, cancelable}});
+    async book(data: string | MessageDataParams<BookMessageData>) {
+        return await this.open({data: this._getData(data, "book"), width: "80vw", height: "65vh"});
+    }
+
+    async editor(data: string | MessageDataParams<EditorMessageData>) {
+        return await this.open({data: this._getData(data, "editor")});
+    }
+
+    async button(data: string | MessageDataParams<ButtonMessageData>) {
+        return await this.open({data: this._getData(data, "button")});
     }
 
     snack(message: string, action?: string, config?: MatSnackBarConfig) {

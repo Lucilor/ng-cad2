@@ -5,7 +5,7 @@ import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
 import {clamp, cloneDeep, debounce} from "lodash";
 import {QuillEditorComponent, QuillViewComponent} from "ngx-quill";
-import {MessageData, PromptData} from "./message-types";
+import {ButtonMessageData, MessageData, MessageDataMap, PromptData} from "./message-types";
 
 @Component({
     selector: "app-message",
@@ -48,6 +48,13 @@ export class MessageComponent implements OnInit, OnDestroy {
             result = this.data.promptData;
         }
         return result;
+    }
+
+    get buttons() {
+        if (this.data.type === "button") {
+            return this.data.buttons;
+        }
+        return [];
     }
 
     get minPage() {
@@ -154,7 +161,7 @@ export class MessageComponent implements OnInit, OnDestroy {
         return "";
     }
 
-    submit() {
+    submit(button?: ButtonMessageData["buttons"][0]) {
         if (this.data.type === "confirm") {
             this.dialogRef.close(true);
         } else if (this.data.type === "prompt") {
@@ -166,6 +173,8 @@ export class MessageComponent implements OnInit, OnDestroy {
             }
         } else if (this.data.type === "editor") {
             this.dialogRef.close(this.data.content);
+        } else if (this.data.type === "button" && button) {
+            this.dialogRef.close(typeof button === "string" ? button : button.label);
         } else {
             this.cancle();
         }
@@ -197,5 +206,13 @@ export class MessageComponent implements OnInit, OnDestroy {
         } else {
             this.page = 0;
         }
+    }
+
+    cast<T extends MessageData["type"]>(data: MessageData, _type: T) {
+        return data as MessageDataMap[T];
+    }
+
+    getButtonLabel(button: ButtonMessageData["buttons"][0]) {
+        return typeof button === "string" ? button : button.label;
     }
 }

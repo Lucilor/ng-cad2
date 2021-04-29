@@ -124,7 +124,7 @@ export class CadZhankaiComponent extends Utils() {
     }
 
     async addFlipChai(i: number) {
-        const result = await this.message.prompt({placeholder: "请输入序号", type: "number"});
+        const result = await this.message.prompt({promptData: {placeholder: "请输入序号", type: "number"}});
         if (typeof result === "string" && result) {
             const num = Number(result);
             if (!(num > 0)) {

@@ -118,7 +118,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     async rotate(clockwise?: boolean) {
         let angle = 0;
         if (clockwise === undefined) {
-            const input = await this.message.prompt({type: "number", placeholder: "输入角度"});
+            const input = await this.message.prompt({promptData: {type: "number", placeholder: "输入角度"}});
             if (input === false) {
                 return;
             }
@@ -181,10 +181,12 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     async setShowGongshi() {
         const num = Number(
             await this.message.prompt({
-                type: "number",
-                hint: "若小于等于0则不显示",
-                value: this.config.getConfig("lineGongshi").toString(),
-                placeholder: "公式字体大小"
+                promptData: {
+                    type: "number",
+                    hint: "若小于等于0则不显示",
+                    value: this.config.getConfig("lineGongshi").toString(),
+                    placeholder: "公式字体大小"
+                }
             })
         );
         this.config.setConfig("lineGongshi", num);

@@ -13,7 +13,7 @@ export class ProjectGuard implements CanActivate {
         const project = route.queryParams.project;
         if (!project) {
             const url = route.children[0]?.url.toString() || "/";
-            const projectInput = await this.message.prompt({placeholder: "请输入项目"}, "", "", false);
+            const projectInput = await this.message.prompt({promptData: {placeholder: "请输入项目"}, cancelable: false});
             return this.router.createUrlTree([url], {
                 queryParams: {project: projectInput, ...route.queryParams},
                 queryParamsHandling: "merge"
