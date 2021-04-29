@@ -91,7 +91,11 @@ export class HttpService {
                 if (encrypt) {
                     formData.append("data", RSAEncrypt(data));
                 } else {
-                    formData.append("data", JSON.stringify(data));
+                    if (typeof data === "string") {
+                        formData.append("data", data);
+                    } else {
+                        formData.append("data", JSON.stringify(data));
+                    }
                 }
                 files.forEach((v, i) => formData.append("file" + i, v));
                 response = await this.http.post<Response<T>>(url, formData, options).toPromise();
