@@ -40,7 +40,7 @@ describe("ReplaceTextComponent", () => {
         component = fixture.componentInstance;
         component.form.controls.replaceFrom.setValue("aaa");
         component.form.controls.replaceTo.setValue("bbb");
-        // component.toBeReplacedList = [{id: "123", name: "345", matchedTexts: ["123", "321"], checked: true}];
+        component.toBeReplacedList = [{id: "123", name: "345", matchedTexts: ["123", "321"], checked: true}];
         fixture.detectChanges();
     });
 

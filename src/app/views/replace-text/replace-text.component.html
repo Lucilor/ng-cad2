@@ -1,31 +1,33 @@
-<ng-container *ngIf="toBeReplacedList.length === 0">
-    <div class="form" [formGroup]="form">
-        <mat-form-field>
-            <mat-label>替换类型</mat-label>
-            <mat-select formControlName="replacer">
-                <mat-option *ngFor="let r of replacers" [value]="r">
-                    {{ r.type }}
-                </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="replacerDesc.length">将替换所有{{ replacerDesc[0] }}的文本为{{ replacerDesc[1] }}</mat-hint>
-        </mat-form-field>
-        <mat-form-field>
-            <mat-label>被替换的字符串</mat-label>
-            <input type="text" matInput formControlName="replaceFrom" [errorStateMatcher]="replaceStrErrorMatcher()" />
-            <mat-error>{{ getReplaceStrError(form.controls.replaceFrom) }}</mat-error>
-        </mat-form-field>
-        <mat-form-field>
-            <mat-label>用来替换的字符串</mat-label>
-            <input type="text" matInput formControlName="replaceTo" [errorStateMatcher]="replaceStrErrorMatcher()" />
-            <mat-error>{{ getReplaceStrError(form.controls.replaceTo) }}</mat-error>
-        </mat-form-field>
-    </div>
-    <div class="btn-group">
-        <button mat-raised-button color="primary" (click)="ready()">提交</button>
-    </div>
-</ng-container>
+<div class="form" [formGroup]="form">
+    <mat-form-field>
+        <mat-label>替换类型</mat-label>
+        <mat-select formControlName="replacer">
+            <mat-option *ngFor="let r of replacers" [value]="r">
+                {{ r.type }}
+            </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="replacerDesc.length">将替换所有{{ replacerDesc[0] }}的文本为{{ replacerDesc[1] }}</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>被替换的字符串</mat-label>
+        <input type="text" matInput formControlName="replaceFrom" [errorStateMatcher]="replaceStrErrorMatcher()" />
+        <mat-error>{{ getReplaceStrError(form.controls.replaceFrom) }}</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>用来替换的字符串</mat-label>
+        <input type="text" matInput formControlName="replaceTo" [errorStateMatcher]="replaceStrErrorMatcher()" />
+        <mat-error>{{ getReplaceStrError(form.controls.replaceTo) }}</mat-error>
+    </mat-form-field>
+</div>
+<div class="btn-group" *ngIf="step.value === 1">
+    <button mat-raised-button color="primary" (click)="ready()">提交</button>
+</div>
 
-<ng-container *ngIf="toBeReplacedList.length">
+<ng-container *ngIf="step.value === 2">
+    <div class="btn-group">
+        <button mat-raised-button color="primary" (click)="step.next(1)">取消</button>
+        <button mat-raised-button color="primary" (click)="submit()">确认替换</button>
+    </div>
     <div>替换所有{{ replacerDesc[0] }}的文本为{{ replacerDesc[1] }}</div>
     <div>匹配到的模板：</div>
     <perfect-scrollbar>
@@ -46,9 +48,5 @@
             </mat-card>
         </div>
     </perfect-scrollbar>
-    <div class="btn-group">
-        <button mat-raised-button color="primary" (click)="toBeReplacedList.length = 0">返回</button>
-        <button mat-raised-button color="primary" (click)="submit()">确认替换</button>
-    </div>
 </ng-container>
 <ngx-ui-loader [loaderId]="'replace-text'"></ngx-ui-loader>

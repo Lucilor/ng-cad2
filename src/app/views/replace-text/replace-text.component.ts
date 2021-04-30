@@ -1,10 +1,12 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {FormControl, FormGroupDirective, NgForm, ValidatorFn, Validators} from "@angular/forms";
 import {ErrorStateMatcher} from "@angular/material/core";
+import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {typedFormControl, TypedFormControl, typedFormGroup, TypedFormGroup} from "ngx-forms-typed";
+import {BehaviorSubject} from "rxjs";
 
 interface Replacer {
     type: "全等于" | "在开头" | "在结尾" | "在中间";
@@ -30,7 +32,7 @@ interface ToBeReplaced {
     templateUrl: "./replace-text.component.html",
     styleUrls: ["./replace-text.component.scss"]
 })
-export class ReplaceTextComponent {
+export class ReplaceTextComponent extends Subscribed() implements OnInit {
     replacers: Replacer[] = [
         {type: "全等于", description: ["全等于%s", "%s"], regex: (s) => new RegExp(`^${s}$`)},
         {type: "在开头", description: ["以%s开头", "%s"], regex: (s) => new RegExp(`^${s}`)},
@@ -45,7 +47,7 @@ export class ReplaceTextComponent {
         {
             replacer: typedFormControl(this.replacers[0]),
             replaceFrom: typedFormControl("", Validators.required),
-            replaceTo: typedFormControl("", Validators.required)
+            replaceTo: typedFormControl("")
         },
         this.replaceStrValidator()
     ) as TypedFormGroup<FormModel>;
@@ -61,8 +63,23 @@ export class ReplaceTextComponent {
         return result;
     }
     toBeReplacedList: ToBeReplaced[] = [];
+    step = new BehaviorSubject<number>(1);
 
-    constructor(private message: MessageService, private dataService: CadDataService, private status: AppStatusService) {}
+    constructor(private message: MessageService, private dataService: CadDataService, private status: AppStatusService) {
+        super();
+    }
+
+    ngOnInit() {
+        this.subscribe(this.step, (step) => {
+            if (step === 1) {
+                this.form.enable();
+            } else if (step === 2) {
+                this.form.disable();
+            } else {
+                throw new Error("invalid step: " + step);
+            }
+        });
+    }
 
     replaceStrValidator(): ValidatorFn {
         return () => {
@@ -124,6 +141,7 @@ export class ReplaceTextComponent {
                 v.checked = true;
                 return v;
             });
+            this.step.next(2);
         }
     }
 
@@ -151,6 +169,7 @@ export class ReplaceTextComponent {
         this.status.stopLoader();
         if (response?.code === 0) {
             this.toBeReplacedList.length = 0;
+            this.step.next(1);
         }
     }
 }
