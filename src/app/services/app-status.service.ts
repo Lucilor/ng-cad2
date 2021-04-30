@@ -182,9 +182,9 @@ export class AppStatusService {
             collection = this.collection$.value;
         }
 
-        const {ids2, collection2} = this.route.snapshot.queryParams;
+        const {ids: ids2, collection: collection2} = this.route.snapshot.queryParams;
         if (ids.join(",") !== ids2 || collection !== collection2) {
-            this.router.navigate(["/index"], {queryParams: {ids: ids.join(","), collection}, queryParamsHandling: "merge"});
+            this.router.navigate(["/index"], {queryParams: {id: undefined, ids: ids.join(","), collection}, queryParamsHandling: "merge"});
         }
         data.forEach((v) => {
             setCadData(v);

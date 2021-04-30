@@ -38,12 +38,13 @@
                         <mat-checkbox [checked]="item.checked" (change)="item.checked = $event.checked"></mat-checkbox>
                         <span>{{ item.name }}</span>
                     </mat-card-title>
-                    <mat-card-subtitle>{{ item.id }}</mat-card-subtitle>
+                    <mat-card-subtitle> 
+                        <button color="primary" mat-icon-button (click)="openCad(item.id)"><mat-icon>open_in_new</mat-icon></button>
+                    </mat-card-subtitle>
                 </mat-card-header>
                 <mat-card-content>
-                    <span>匹配到的文本（{{ item.matchedTexts.length }}个）：</span>
-                    <br />
-                    <span>{{ item.matchedTexts.join("，") }}</span>
+                    <span class="matched-text">匹配到的文本（{{ item.matchedTexts.length }}个）：</span>
+                    <span class="matched-text" *ngFor="let text of item.matchedTexts">{{ text }}</span>
                 </mat-card-content>
             </mat-card>
         </div>

@@ -1,6 +1,8 @@
 import {Component, OnInit} from "@angular/core";
 import {FormControl, FormGroupDirective, NgForm, ValidatorFn, Validators} from "@angular/forms";
 import {ErrorStateMatcher} from "@angular/material/core";
+import {Router} from "@angular/router";
+import {CadCollection, routesInfo} from "@src/app/app.common";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
@@ -65,7 +67,12 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
     toBeReplacedList: ToBeReplaced[] = [];
     step = new BehaviorSubject<number>(1);
 
-    constructor(private message: MessageService, private dataService: CadDataService, private status: AppStatusService) {
+    constructor(
+        private message: MessageService,
+        private dataService: CadDataService,
+        private status: AppStatusService,
+        private router: Router
+    ) {
         super();
     }
 
@@ -167,5 +174,11 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
             this.toBeReplacedList.length = 0;
             this.step.next(1);
         }
+    }
+
+    openCad(id: string) {
+        const collection: CadCollection = "CADmuban";
+        const url = this.router.createUrlTree([routesInfo.index.path], {queryParams: {id, collection}, queryParamsHandling: "merge"});
+        window.open(url.toString());
     }
 }
