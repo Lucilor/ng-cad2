@@ -20,7 +20,7 @@
     </mat-form-field>
 </div>
 <div class="btn-group" *ngIf="step.value === 1">
-    <button mat-raised-button color="primary" (click)="ready()">提交</button>
+    <button mat-raised-button color="primary" (click)="ready()" [disabled]="form.invalid">提交</button>
 </div>
 
 <ng-container *ngIf="step.value === 2">

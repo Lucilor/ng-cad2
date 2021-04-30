@@ -36,7 +36,7 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
     replacers: Replacer[] = [
         {type: "全等于", description: ["全等于%s", "%s"], regex: (s) => new RegExp(`^${s}$`)},
         {type: "在开头", description: ["以%s开头", "%s"], regex: (s) => new RegExp(`^${s}`)},
-        {type: "在结尾", description: ["以%结尾", "%s"], regex: (s) => new RegExp(`${s}$`)},
+        {type: "在结尾", description: ["以%s结尾", "%s"], regex: (s) => new RegExp(`${s}$`)},
         {
             type: "在中间",
             description: ["%s在中间", "%s"],
@@ -47,7 +47,7 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
         {
             replacer: typedFormControl(this.replacers[0]),
             replaceFrom: typedFormControl("", Validators.required),
-            replaceTo: typedFormControl("")
+            replaceTo: typedFormControl("", Validators.required)
         },
         this.replaceStrValidator()
     ) as TypedFormGroup<FormModel>;
@@ -117,10 +117,6 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
             form.markAllAsTouched();
         }
         if (form.invalid) {
-            return;
-        }
-        const yes = await this.message.confirm("是否确定替换？");
-        if (!yes) {
             return;
         }
         const {replaceFrom, replaceTo, replacer} = form.value;
