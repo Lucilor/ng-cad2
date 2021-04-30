@@ -72,7 +72,7 @@ export class CadDataService extends HttpService {
 
     async setCad(params: SetCadParams): Promise<CadData | null> {
         const data = {...params, cadData: params.cadData.export()};
-        const response = await this.post<any>("peijian/cad/setCad", data, false);
+        const response = await this.post<any>("peijian/cad/setCad", data, "no");
         if (response && response.data) {
             const resData = response.data;
             const missingCads: CadData[] | undefined = resData.missingCads;
@@ -119,7 +119,7 @@ export class CadDataService extends HttpService {
     }
 
     async downloadDxf(data: CadData) {
-        const result = await this.post<any>("peijian/cad/downloadDxf", {cadData: JSON.stringify(data.export())}, false);
+        const result = await this.post<any>("peijian/cad/downloadDxf", {cadData: JSON.stringify(data.export())}, "no");
         const host = environment.production ? origin : "//localhost";
         if (result) {
             open(host + "/" + result.data.path);
@@ -144,7 +144,7 @@ export class CadDataService extends HttpService {
                 target,
                 collection
             },
-            false
+            "no"
         );
         if (response) {
             return new CadData(response.data);
@@ -224,7 +224,7 @@ export class CadDataService extends HttpService {
     }
 
     async getChangelog(page?: number, pageSize?: number) {
-        const response = await this.get<Changelog>("ngcad/getChangelog", {page, pageSize}, false);
+        const response = await this.get<Changelog>("ngcad/getChangelog", {page, pageSize}, "no");
         if (response?.data) {
             return {changelog: response.data, count: response.count || 0};
         } else {
@@ -233,17 +233,17 @@ export class CadDataService extends HttpService {
     }
 
     async setChangelogItem(changelogItem: Changelog[0], index: number) {
-        const response = await this.post("ngcad/setChangelogItem", {changelogItem, index}, false);
+        const response = await this.post("ngcad/setChangelogItem", {changelogItem, index}, "no");
         return response && response.code === 0;
     }
 
     async addChangelogItem(changelogItem: Changelog[0], index: number) {
-        const response = await this.post("ngcad/addChangelogItem", {changelogItem, index}, false);
+        const response = await this.post("ngcad/addChangelogItem", {changelogItem, index}, "no");
         return response && response.code === 0;
     }
 
     async removeChangelogItem(index: number) {
-        const response = await this.post("ngcad/removeChangelogItem", {index}, false);
+        const response = await this.post("ngcad/removeChangelogItem", {index}, "no");
         return response && response.code === 0;
     }
 }

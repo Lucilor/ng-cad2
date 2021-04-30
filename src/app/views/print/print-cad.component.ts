@@ -55,7 +55,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         }
         this.loader.startLoader(this.loaderId);
         this.loaderText = "正在获取数据...";
-        const response = await this.dataService.post<ResponseData>(action, queryParams.data, false);
+        const response = await this.dataService.post<ResponseData>(action, queryParams, "both");
         if (response?.data) {
             this.loaderText = "正在生成算料单...";
             this.cads = response.data.cads.map((v) => new CadData(v));

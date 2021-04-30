@@ -6,6 +6,8 @@ import {ObjectOf, RSAEncrypt} from "@src/app/utils";
 import {environment} from "@src/environments/environment";
 import {MessageService} from "../../message/services/message.service";
 
+export type DataEncrpty = "yes" | "no" | "both";
+
 /* eslint-disable @typescript-eslint/indent */
 export interface HttpOptions {
     headers?:
@@ -50,7 +52,7 @@ export class HttpService {
         }
     }
 
-    async request<T>(url: string, method: "GET" | "POST", data?: ObjectOf<any>, encrypt = true, options?: HttpOptions) {
+    async request<T>(url: string, method: "GET" | "POST", data?: any, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
         if (!url.startsWith("http")) {
             url = `${this.baseURL}${url}`;
         }
@@ -88,13 +90,17 @@ export class HttpService {
                     }
                 }
                 const formData = new FormData();
-                if (encrypt) {
+                if (encrypt === "yes") {
                     formData.append("data", RSAEncrypt(data));
-                } else {
+                } else if (encrypt === "no") {
                     if (typeof data === "string") {
                         formData.append("data", data);
                     } else {
                         formData.append("data", JSON.stringify(data));
+                    }
+                } else {
+                    for (const key in data) {
+                        formData.append(key, data[key]);
                     }
                 }
                 files.forEach((v, i) => formData.append("file" + i, v));
@@ -136,11 +142,11 @@ export class HttpService {
         }
     }
 
-    async get<T>(url: string, data?: ObjectOf<any>, encrypt = true, options?: HttpOptions) {
+    async get<T>(url: string, data?: ObjectOf<any>, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
         return await this.request<T>(url, "GET", data, encrypt, options);
     }
 
-    async post<T>(url: string, data?: ObjectOf<any>, encrypt = true, options?: HttpOptions) {
+    async post<T>(url: string, data?: ObjectOf<any>, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
         return await this.request<T>(url, "POST", data, encrypt, options);
     }
 }
