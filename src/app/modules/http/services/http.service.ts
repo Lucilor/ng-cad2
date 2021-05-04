@@ -129,7 +129,7 @@ export class HttpService {
                 } else if (code === -2) {
                     const baseURL = environment.production ? this.baseURL : "https://localhost/n/kgs/index/";
                     location.href = `${baseURL}signUp/index#${encodeURIComponent(location.href)}`;
-                    return null;
+                    throw new Error("code:-2");
                 } else {
                     throw new Error(response.msg);
                 }
@@ -137,6 +137,9 @@ export class HttpService {
                 return response;
             }
         } catch (error) {
+            if (error instanceof Error && error.message === "code:-2") {
+                throw new Error("请重新登录");
+            }
             this.alert(error);
             return null;
         }
