@@ -3,9 +3,9 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {CadViewer, CadData} from "@src/app/cad-viewer";
-import {timeout} from "@src/app/utils";
 import {ActivatedRoute} from "@angular/router";
 import {cloneDeep} from "lodash";
+import {timeout} from "@lucilor/utils";
 
 export type PreviewData = {
     // eslint-disable-next-line @typescript-eslint/naming-convention

@@ -1,7 +1,7 @@
 import {Injectable, Injector} from "@angular/core";
+import {ObjectOf} from "@lucilor/utils";
 import {CadCollection} from "@src/app/app.common";
 import {CadData} from "@src/app/cad-viewer";
-import {ObjectOf} from "@src/app/utils";
 import {environment} from "@src/environments/environment";
 import {HttpService} from "./http.service";
 

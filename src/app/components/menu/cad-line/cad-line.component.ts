@@ -3,6 +3,7 @@ import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {Point} from "@lucilor/utils";
 import {
     CadLine,
     CadData,
@@ -21,7 +22,6 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, CadPoints} from "@src/app/services/app-status.service";
 import {CadStatusCutLine, CadStatusDrawLine, CadStatusMoveLines} from "@src/app/services/cad-status";
-import {Point} from "@src/app/utils";
 import Color from "color";
 import {debounce} from "lodash";
 import {ColorEvent} from "ngx-color";

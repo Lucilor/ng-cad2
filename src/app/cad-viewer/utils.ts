@@ -1,4 +1,4 @@
-import {ObjectOf, Point} from "@src/app/utils";
+import {ObjectOf, Point} from "@lucilor/utils";
 import {cloneDeep} from "lodash";
 import {CadLine} from "./cad-data/cad-entities";
 

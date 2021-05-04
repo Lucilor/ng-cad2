@@ -1,8 +1,8 @@
-import {Matrix, MatrixLike, ObjectOf, Point} from "@src/app/utils";
+import {Matrix, MatrixLike, ObjectOf, Point} from "@lucilor/utils";
 import {cloneDeep, uniqWith, intersection} from "lodash";
 import {v4} from "uuid";
-import {getArray, getObject, getVectorFromArray, isLinesParallel, mergeArray, mergeObject, separateArray, separateObject} from "../utils";
-import {CadCircle, CadDimension, CadEntities, CadLine} from "./cad-entities";
+import {getArray, getObject, mergeArray, mergeObject, separateArray, separateObject, getVectorFromArray, isLinesParallel} from "../utils";
+import {CadEntities, CadLine, CadDimension, CadCircle} from "./cad-entities";
 import {CadLayer} from "./cad-layer";
 
 export class CadData {

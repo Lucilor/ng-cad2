@@ -1,7 +1,7 @@
+import {timeout, getDPI, Point} from "@lucilor/utils";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadData, CadViewer, CadViewerConfig, CadMtext, CadBaseLine, CadJointPoint, CadDimension, CadZhankai} from "./cad-viewer";
-import {getDPI, Point, timeout} from "./utils";
 
 export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}) => {
     const cad = new CadViewer(new CadData(), {

@@ -3,6 +3,7 @@ import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
+import {ObjectOf, Point} from "@lucilor/utils";
 import {imgLoading} from "@src/app/app.common";
 import {CadData, CadEntities, CadHatch} from "@src/app/cad-viewer";
 import {getCadPreview, removeCadGongshi} from "@src/app/cad.utils";
@@ -13,7 +14,6 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {CadStatusAssemble, CadStatusSplit} from "@src/app/services/cad-status";
-import {ObjectOf, Point} from "@src/app/utils";
 import {concat, pull, pullAll} from "lodash";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";

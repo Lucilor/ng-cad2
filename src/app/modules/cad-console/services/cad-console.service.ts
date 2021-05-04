@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {ObjectOf} from "@src/app/utils";
+import {ObjectOf} from "@lucilor/utils";
 import {BehaviorSubject} from "rxjs";
 import {ValuedCommand} from "../cad-command-types";
 import {CadConsoleModule} from "../cad-console.module";

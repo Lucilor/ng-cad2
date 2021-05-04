@@ -1,8 +1,8 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
+import {Point} from "@lucilor/utils";
 import {CadData, CadMtext, CadEntity} from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {AppStatusService} from "@src/app/services/app-status.service";
-import {Point} from "@src/app/utils";
 import Color from "color";
 import {debounce} from "lodash";
 import {ColorEvent} from "ngx-color";

@@ -1,5 +1,5 @@
+import {ObjectOf, keysOf} from "@lucilor/utils";
 import {getObject} from "@src/app/cad-viewer";
-import {keysOf, ObjectOf} from "@src/app/utils";
 import {cloneDeep} from "lodash";
 
 export type Anchor = [number, number];

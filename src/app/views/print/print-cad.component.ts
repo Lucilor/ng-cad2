@@ -1,11 +1,11 @@
 import {AfterViewInit, Component, OnDestroy} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
+import { timeout } from "@lucilor/utils";
 import {CadData, CadDimension} from "@src/app/cad-viewer";
 import {printCads} from "@src/app/cad.utils";
 import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {timeout} from "@src/app/utils";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import printJS from "print-js";
 

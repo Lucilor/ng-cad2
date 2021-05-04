@@ -1,4 +1,4 @@
-import {Constructor, ObjectOf} from "../utils/types";
+import {Constructor, ObjectOf} from "@lucilor/utils";
 
 export const Utils = <T extends Constructor>(base: T = class {} as T) =>
     class extends base {

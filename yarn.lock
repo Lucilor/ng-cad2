@@ -1812,6 +1812,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lucilor/utils@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "@lucilor/utils@npm:1.5.1"
+  dependencies:
+    color: ^3.1.3
+    jsencrypt: ^3.2.0
+  checksum: 07dd32a5d27ac8e46626dd1ccc68fb28c393ce0e644b58c04afb4fd81c4698318e0948689dba2ae1710f6d22c947e405aba2d46b6278aad6d2b2e6714af5ace5
+  languageName: node
+  linkType: hard
+
 "@ngtools/webpack@npm:11.2.11":
   version: 11.2.11
   resolution: "@ngtools/webpack@npm:11.2.11"
@@ -9081,6 +9091,7 @@ fsevents@~2.3.1:
     "@angular/platform-browser": ~11.2.12
     "@angular/platform-browser-dynamic": ~11.2.12
     "@angular/router": ~11.2.12
+    "@lucilor/utils": ^1.5.1
     "@svgdotjs/svg.js": ^3.0.16
     "@types/color": ^3
     "@types/jasmine": ~3.6.10

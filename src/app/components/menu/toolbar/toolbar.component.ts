@@ -1,5 +1,6 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
+import {ObjectOf} from "@lucilor/utils";
 import {local, routesInfo} from "@src/app/app.common";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
@@ -8,7 +9,6 @@ import {MessageService} from "@src/app/modules/message/services/message.service"
 import {AppConfigService, AppConfig} from "@src/app/services/app-config.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {CadStatusNormal} from "@src/app/services/cad-status";
-import {ObjectOf} from "@src/app/utils";
 import {flatMap} from "lodash";
 import {openChangelogDialog} from "../../dialogs/changelog/changelog.component";
 

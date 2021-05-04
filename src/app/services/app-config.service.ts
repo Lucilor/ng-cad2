@@ -1,10 +1,10 @@
 import {Injectable} from "@angular/core";
+import {keysOf} from "@lucilor/utils";
 import {cloneDeep} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {local} from "../app.common";
-import {CadViewerConfig} from "../cad-viewer/cad-viewer";
+import {CadViewerConfig} from "../cad-viewer";
 import {CadDataService} from "../modules/http/services/cad-data.service";
-import {keysOf} from "../utils";
 
 export interface AppConfig extends CadViewerConfig {
     showCadGongshis: boolean;

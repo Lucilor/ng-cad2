@@ -1,4 +1,4 @@
-import {SessionStorage, LocalStorage} from "@src/app/utils";
+import {SessionStorage, LocalStorage} from "@lucilor/utils";
 import {environment} from "@src/environments/environment";
 
 export const projectName = "NgCad2";

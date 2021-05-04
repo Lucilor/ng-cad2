@@ -1,11 +1,11 @@
-import {Angle, Arc, index2RGB, Line, Matrix, MatrixLike, ObjectOf, Point, Rectangle, RGB2Index} from "@src/app/utils";
+import {Angle, Arc, index2RGB, Line, Matrix, MatrixLike, ObjectOf, Point, Rectangle, RGB2Index} from "@lucilor/utils";
 import {G, Matrix as Matrix2, Svg} from "@svgdotjs/svg.js";
 import Color from "color";
 import {cloneDeep} from "lodash";
 import {v4} from "uuid";
+import {lineweight2linewidth, linewidth2lineweight, getVectorFromArray, mergeArray, separateArray} from "../utils";
 import {CadLayer} from "./cad-layer";
 import {cadTypesKey, CadTypeKey, CadType, cadTypes} from "./cad-types";
-import {getVectorFromArray, lineweight2linewidth, linewidth2lineweight, mergeArray, separateArray} from "../utils";
 
 export const DEFAULT_LENGTH_TEXT_SIZE = 24;
 

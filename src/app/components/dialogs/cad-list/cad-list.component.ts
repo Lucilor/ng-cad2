@@ -4,6 +4,7 @@ import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS} from "@angular/material/tooltip";
 import {DomSanitizer} from "@angular/platform-browser";
+import {ObjectOf} from "@lucilor/utils";
 import {imgLoading, imgEmpty, CadCollection} from "@src/app/app.common";
 import {CadData} from "@src/app/cad-viewer";
 import {getCadPreview} from "@src/app/cad.utils";
@@ -11,7 +12,6 @@ import {Utils} from "@src/app/mixins/utils.mixin";
 import {CadDataService, GetCadParams} from "@src/app/modules/http/services/cad-data.service";
 import {MessageService} from "@src/app/modules/message/services/message.service";
 import {AppStatusService} from "@src/app/services/app-status.service";
-import {ObjectOf} from "@src/app/utils";
 import {BehaviorSubject} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 import {getOpenDialogFunc} from "../dialog.common";
@@ -74,7 +74,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         }
         await this.paginator.initialized.toPromise();
         if (Array.isArray(this.data.checkedItems)) {
-            this.checkedItems = this.data.checkedItems.map(v=>v.clone());
+            this.checkedItems = this.data.checkedItems.map((v) => v.clone());
         }
         this.data.qiliao = this.data.qiliao === true;
         if (!Array.isArray(this.data.options)) {
