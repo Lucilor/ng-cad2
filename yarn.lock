@@ -1768,6 +1768,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@es-joy/jsdoccomment@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@es-joy/jsdoccomment@npm:0.1.1"
+  checksum: f1b83dbc360d1d1e8d082ccdcb3dd0606fa4a4dd8ab4c32c695740b3ae4a5b03d54f23c65429448950a505c94da1dfe480289bd68e2adcc7f615675e41102eff
+  languageName: node
+  linkType: hard
+
 "@eslint/eslintrc@npm:^0.4.0":
   version: 0.4.0
   resolution: "@eslint/eslintrc@npm:0.4.0"
@@ -5655,10 +5662,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:32.3.3":
-  version: 32.3.3
-  resolution: "eslint-plugin-jsdoc@npm:32.3.3"
+"eslint-plugin-jsdoc@npm:33.0.0":
+  version: 33.0.0
+  resolution: "eslint-plugin-jsdoc@npm:33.0.0"
   dependencies:
+    "@es-joy/jsdoccomment": ^0.1.1
     comment-parser: 1.1.5
     debug: ^4.3.1
     jsdoctypeparser: ^9.0.0
@@ -5668,7 +5676,7 @@ __metadata:
     spdx-expression-parse: ^3.0.1
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0
-  checksum: 914d7473e406423c4d158bf2574e943868de99ee66774b329c602276db7fa8eb1d5ec384b310175c8398a265473a927227a01cbd6c9aa0a4a61dbf574b1c75a5
+  checksum: 60a462c6b0283f4f95299c00dc27d7aa3db3712559842e43b79e386a4f92ebf8d7ca5bd22caec0817d6bf7ab254a75296d7c8c48221fc28ab5503e0f651d7a18
   languageName: node
   linkType: hard
 
@@ -9088,7 +9096,7 @@ fsevents@~2.3.1:
     color: ^3.1.3
     eslint: ^7.25.0
     eslint-plugin-import: 2.22.1
-    eslint-plugin-jsdoc: 32.3.3
+    eslint-plugin-jsdoc: 33.0.0
     eslint-plugin-prefer-arrow: 1.2.3
     highlight.js: ^10.7.2
     jasmine-core: ~3.7.1
@@ -9104,7 +9112,7 @@ fsevents@~2.3.1:
     ngx-color: ^6.2.0
     ngx-forms-typed: ^1.0.8
     ngx-perfect-scrollbar: ^10.1.0
-    ngx-quill: ^13.2.0
+    ngx-quill: ^13.3.1
     ngx-ui-loader: ^11.0.0
     pdfmake: ^0.1.71
     print-js: ^1.6.0
@@ -9159,9 +9167,9 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"ngx-quill@npm:^13.2.0":
-  version: 13.2.0
-  resolution: "ngx-quill@npm:13.2.0"
+"ngx-quill@npm:^13.3.1":
+  version: 13.3.1
+  resolution: "ngx-quill@npm:13.3.1"
   dependencies:
     tslib: ^2.0.0
   peerDependencies:
@@ -9171,7 +9179,7 @@ fsevents@~2.3.1:
     "@angular/platform-browser": ^10.0.0 || ^11.0.0
     quill: ^1.3.7
     rxjs: ^6.5.0
-  checksum: 04db22f7b4f8387de1297e70e4987527b71c5417562831fbc21383a26937f0e05f1d2a4a49aae32f2ab655370e67442e881d423a2f46ce19399cd8bcf887cbe2
+  checksum: 096072264b2d6c54b8a32101190c144f65e0ac10d801df2579132236cf055a84059fe201e30948ee6dc392641d85aee3ca77c5ed4ee9de83c9c4086ed9a48975
   languageName: node
   linkType: hard
 
