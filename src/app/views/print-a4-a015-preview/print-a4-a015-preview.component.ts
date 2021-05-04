@@ -42,32 +42,34 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
         Object.assign(window, {app: this});
         document.body.style.overflowX = "hidden";
         document.body.style.overflowY = "auto";
-        const id = this.route.snapshot.queryParams.id;
+        const {id, zhankai: zhankai2} = this.route.snapshot.queryParams;
         const response = await this.dataService.post<PreviewData>("order/printCode/printA4A015Preview", {id}, "no");
         if (!response?.data) {
             return;
         }
         this.data = response.data;
-        this.data.forEach((v, i) => {
-            const toAdd: PreviewData[0] = [];
-            v.forEach((vv) => {
-                const calcZhankai = vv.CAD?.calcZhankai;
-                const zhankai = vv.CAD?.zhankai;
-                if (Array.isArray(calcZhankai)) {
-                    for (let j = 0; j < calcZhankai.length; j++) {
-                        const clone = cloneDeep(vv);
-                        clone.CAD.calcW = calcZhankai[j][0];
-                        clone.CAD.calcH = calcZhankai[j][1];
-                        clone.CAD.num = zhankai[j][2];
-                        if (zhankai[j][4]) {
-                            clone.CAD.peihe = zhankai[j][4];
+        if (zhankai2) {
+            this.data.forEach((v, i) => {
+                const toAdd: PreviewData[0] = [];
+                v.forEach((vv) => {
+                    const calcZhankai = vv.CAD?.calcZhankai;
+                    const zhankai = vv.CAD?.zhankai;
+                    if (Array.isArray(calcZhankai)) {
+                        for (let j = 0; j < calcZhankai.length; j++) {
+                            const clone = cloneDeep(vv);
+                            clone.CAD.calcW = calcZhankai[j][0];
+                            clone.CAD.calcH = calcZhankai[j][1];
+                            clone.CAD.num = zhankai[j][2];
+                            if (zhankai[j][4]) {
+                                clone.CAD.peihe = zhankai[j][4];
+                            }
+                            toAdd.push(clone);
                         }
-                        toAdd.push(clone);
                     }
-                }
+                });
+                this.data[i] = v.concat(toAdd);
             });
-            this.data[i] = v.concat(toAdd);
-        });
+        }
         const total = this.data.reduce((sum, v) => sum + v.length, 0);
         let done = 0;
         this.loader.startLoader(this.loaderId);
