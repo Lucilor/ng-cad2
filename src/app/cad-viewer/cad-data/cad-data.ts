@@ -26,6 +26,7 @@ export class CadData {
     kailiaoshibaokeng = false;
     bianxingfangshi: "自由" | "高比例变形" | "宽比例变形" | "宽高比例变形" = "自由";
     bancaiwenlifangxiang: "垂直" | "水平" = "垂直";
+    huajianwenlifangxiang: "垂直" | "水平" = "垂直";
     kailiaopaibanfangshi: "自动排版" | "不排版" | "必须排版" = "自动排版";
     morenkailiaobancai = "";
     gudingkailiaobancai = "";
@@ -90,6 +91,7 @@ export class CadData {
         this.kailiaoshibaokeng = data.kailiaoshibaokeng ?? false;
         this.bianxingfangshi = data.bianxingfangshi ?? "自由";
         this.bancaiwenlifangxiang = data.bancaiwenlifangxiang ?? "垂直";
+        this.huajianwenlifangxiang = data.huajianwenlifangxiang ?? "垂直";
         this.kailiaopaibanfangshi = data.kailiaopaibanfangshi ?? "自动排版";
         this.morenkailiaobancai = data.morenkailiaobancai ?? "";
         this.gudingkailiaobancai = data.gudingkailiaobancai ?? "";
@@ -143,6 +145,7 @@ export class CadData {
             kailiaoshibaokeng: this.kailiaoshibaokeng,
             bianxingfangshi: this.bianxingfangshi,
             bancaiwenlifangxiang: this.bancaiwenlifangxiang,
+            huajianwenlifangxiang: this.huajianwenlifangxiang,
             kailiaopaibanfangshi: this.kailiaopaibanfangshi,
             morenkailiaobancai: this.morenkailiaobancai,
             gudingkailiaobancai: this.gudingkailiaobancai,

@@ -124,6 +124,13 @@
             </mat-select>
         </mat-form-field>
         <mat-form-field>
+            <mat-label>花件纹理方向</mat-label>
+            <mat-select [(ngModel)]="cad.huajianwenlifangxiang" name="huajianwenlifangxiang">
+                <mat-option [value]="'垂直'">垂直</mat-option>
+                <mat-option [value]="'水平'">水平</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field>
             <mat-label>开料排版方式</mat-label>
             <mat-select [(ngModel)]="cad.kailiaopaibanfangshi" name="kailiaopaibanfangshi">
                 <mat-option [value]="'自动排版'">自动排版</mat-option>
