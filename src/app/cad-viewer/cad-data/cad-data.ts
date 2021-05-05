@@ -9,6 +9,7 @@ export class CadData {
     entities = new CadEntities();
     layers: CadLayer[] = [];
     id = "";
+    numId = 0;
     name = "";
     xianshimingzi = "";
     type = "";
@@ -50,7 +51,8 @@ export class CadData {
         if (typeof data !== "object") {
             data = {};
         }
-        this.id = data.id || v4();
+        this.id = data.id ?? v4();
+        this.numId = data.numId ?? 0;
         this.name = data.name ?? "";
         this.xianshimingzi = data.xianshimingzi ?? "";
         this.type = data.type ?? "";
@@ -128,6 +130,7 @@ export class CadData {
             layers: exLayers,
             entities: this.entities.export(),
             id: this.id,
+            numId: this.numId,
             name: this.name,
             xianshimingzi: this.xianshimingzi,
             type: this.type,

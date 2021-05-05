@@ -41,8 +41,11 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
         Object.assign(window, {app: this});
         document.body.style.overflowX = "hidden";
         document.body.style.overflowY = "auto";
-        const {id, zhankai} = this.route.snapshot.queryParams;
-        const response = await this.dataService.post<PreviewData>("order/printCode/printA4A015Preview", {id, zhankai}, "no");
+        const response = await this.dataService.post<PreviewData>(
+            "order/printCode/printA4A015Preview",
+            this.route.snapshot.queryParams,
+            "no"
+        );
         if (!response?.data) {
             return;
         }
