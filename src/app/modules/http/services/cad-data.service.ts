@@ -224,7 +224,7 @@ export class CadDataService extends HttpService {
     }
 
     async getChangelog(page?: number, pageSize?: number) {
-        const response = await this.get<Changelog>("ngcad/getChangelog", {page, pageSize}, "no");
+        const response = await this.post<Changelog>("ngcad/getChangelog", {page, pageSize}, "no");
         if (response?.data) {
             return {changelog: response.data, count: response.count || 0};
         } else {
