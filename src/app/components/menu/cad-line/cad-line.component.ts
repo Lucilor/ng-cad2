@@ -19,7 +19,6 @@ import {
 } from "@src/app/cad-viewer";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppConfigService} from "@src/app/services/app-config.service";
 import {AppStatusService, CadPoints} from "@src/app/services/app-status.service";
 import {CadStatusCutLine, CadStatusDrawLine, CadStatusMoveLines} from "@src/app/services/cad-status";
 import Color from "color";
@@ -211,7 +210,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     const intersection = l.curve.intersects(curve);
                     if (intersection && !intersection.equals(start) && !intersection.equals(end)) {
                         const {x, y} = this.status.cad.getScreenPoint(intersection.x, intersection.y);
-                        points.push({x, y, active: false});
+                        points.push({x, y, active: false, lines: []});
                     }
                 });
                 if (points.length) {
@@ -226,7 +225,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
 
     constructor(
         private status: AppStatusService,
-        private config: AppConfigService,
         private dialog: MatDialog,
         private message: MessageService
     ) {
@@ -388,7 +386,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         cad.on("entitiesunselect", this.onEntitiesChange);
         cad.on("entitiesadd", this.onEntitiesChange);
         cad.on("entitiesremove", this.onEntitiesChange);
-        cad.on("moveEntities", this.updateCadPoints);
+        cad.on("moveentities", this.updateCadPoints);
         cad.on("zoom", this.updateCadPoints);
     }
 
@@ -401,7 +399,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         cad.off("entitiesunselect", this.onEntitiesChange);
         cad.off("entitiesadd", this.onEntitiesChange);
         cad.off("entitiesremove", this.onEntitiesChange);
-        cad.off("moveEntities", this.updateCadPoints);
+        cad.off("moveentities", this.updateCadPoints);
         cad.off("zoom", this.updateCadPoints);
     }
 

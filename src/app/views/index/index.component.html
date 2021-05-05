@@ -55,16 +55,16 @@
             <mat-accordion multi style="width: 100%">
                 <mat-expansion-panel expanded *ngIf="shownMenus.includes('entityInfo')">
                     <mat-expansion-panel-header>
-                        <mat-panel-title
-                            >CAD信息 <span>(总长: {{ cadLength }})</span></mat-panel-title
-                        >
+                        <mat-panel-title>
+                            CAD信息 <span>(总长: {{ cadLength }})</span>
+                        </mat-panel-title>
                     </mat-expansion-panel-header>
                     <mat-slide-toggle [checked]="multiSelect" (change)="toggleMultiSelect()">
                         实体{{ multiSelect ? "多选" : "单选" }}
                     </mat-slide-toggle>
                     <br />
                     <!-- <mat-slide-toggle [checked]="!!entityDraggable" (change)="toggleEntityDraggable()"> 实体拖动 </mat-slide-toggle> -->
-                    <mat-tab-group #infoTabs dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
+                    <mat-tab-group #infoTabs [disablePagination]="true" dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
                         <mat-tab label="CAD">
                             <perfect-scrollbar>
                                 <app-cad-info (cadLengthsChange)="onCadLengthsChange($event)"></app-cad-info>

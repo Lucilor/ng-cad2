@@ -738,6 +738,6 @@ export class CadViewer extends EventEmitter {
             this.move(x, y);
             notToMove.transform({translate: [-x, -y]});
         }
-        this.emit("moveEntities", toMove);
+        this.emit("moveentities", toMove);
     }
 }

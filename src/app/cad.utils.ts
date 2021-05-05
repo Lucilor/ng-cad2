@@ -1,7 +1,17 @@
 import {timeout, getDPI, Point} from "@lucilor/utils";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {CadData, CadViewer, CadViewerConfig, CadMtext, CadBaseLine, CadJointPoint, CadDimension, CadZhankai} from "./cad-viewer";
+import {
+    CadData,
+    CadViewer,
+    CadViewerConfig,
+    CadMtext,
+    CadBaseLine,
+    CadJointPoint,
+    CadDimension,
+    CadZhankai,
+    CadLineLike
+} from "./cad-viewer";
 
 export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}) => {
     const cad = new CadViewer(new CadData(), {
@@ -54,7 +64,9 @@ export const printCads = async (
                 e.opacity = 0;
             }
             e.color = new Color(0);
-            e.linewidth = linewidth;
+            if (e instanceof CadLineLike) {
+                e.linewidth = linewidth;
+            }
             if (e instanceof CadDimension) {
                 e.renderStyle = renderStyle;
                 e.selected = true;

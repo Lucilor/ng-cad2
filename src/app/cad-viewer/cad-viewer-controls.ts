@@ -28,7 +28,7 @@ export interface CadEvents {
     entitiescopy: [CadEntities];
     entitiespaste: [CadEntities];
     render: [CadEntities];
-    moveEntities: [CadEntities];
+    moveentities: [CadEntities];
     zoom: [];
 }
 export type CadEventCallBack<T extends keyof CadEvents> = (...params: CadEvents[T]) => void;

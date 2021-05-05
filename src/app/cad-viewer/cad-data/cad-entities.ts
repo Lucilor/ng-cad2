@@ -14,10 +14,8 @@ export abstract class CadEntity {
     type: CadType = "";
     layer: string;
     color: Color;
-    linewidth: number;
     info: ObjectOf<any>;
     _indexColor: number | null;
-    _lineweight: number;
     parent?: CadEntity;
     children: CadEntities;
     el?: G | null;
@@ -167,19 +165,6 @@ export abstract class CadEntity {
             }
             this._indexColor = RGB2Index(this.color.hex());
         }
-        this.linewidth = data.linewidth ?? 1;
-        this._lineweight = -3;
-        if (typeof data.lineweight === "number") {
-            this._lineweight = data.lineweight;
-            if (data.lineweight >= 0) {
-                this.linewidth = lineweight2linewidth(data.lineweight);
-            } else if (data.lineweight === -1) {
-                const layer = layers.find((l) => l.name === this.layer);
-                if (layer) {
-                    this.linewidth = layer.linewidth;
-                }
-            }
-        }
         if (typeof data.info === "object" && !Array.isArray(data.info)) {
             this.info = cloneDeep(data.info);
         } else {
@@ -247,7 +232,6 @@ export abstract class CadEntity {
             layer: this.layer,
             type: this.type,
             color: this._indexColor,
-            lineweight: linewidth2lineweight(this.linewidth),
             children: this.children.export(),
             info: this.info
         });
@@ -298,6 +282,8 @@ export abstract class CadLineLike extends CadEntity {
     abstract get middle(): Point;
     abstract get length(): number;
     swapped: boolean;
+    linewidth: number;
+    _lineweight: number;
     mingzi: string;
     qujian: string;
     gongshi: string;
@@ -339,11 +325,25 @@ export abstract class CadLineLike extends CadEntity {
         }
         this.zhankaixiaoshuchuli = data.zhankaixiaoshuchuli ?? "不处理";
         this.kailiaoshishanchu = !!data.kailiaoshishanchu;
+        this.linewidth = data.linewidth ?? 1;
+        this._lineweight = -3;
+        if (typeof data.lineweight === "number") {
+            this._lineweight = data.lineweight;
+            if (data.lineweight >= 0) {
+                this.linewidth = lineweight2linewidth(data.lineweight);
+            } else if (data.lineweight === -1) {
+                const layer = layers.find((l) => l.name === this.layer);
+                if (layer) {
+                    this.linewidth = layer.linewidth;
+                }
+            }
+        }
     }
 
     export(): ObjectOf<any> {
         return {
             ...super.export(),
+            lineweight: linewidth2lineweight(this.linewidth),
             mingzi: this.mingzi,
             qujian: this.qujian,
             gongshi: this.gongshi,
@@ -867,6 +867,9 @@ export class CadSpline extends CadEntity {
     fitPoints: Point[] = [];
     controlPoints: Point[] = [];
     degree = 3;
+    get boundingPoints() {
+        return [];
+    }
 
     constructor(data: any = {}, layers: CadLayer[] = [], resetId = false) {
         super(data, layers, resetId);
@@ -888,10 +891,6 @@ export class CadSpline extends CadEntity {
             controlPoints: this.controlPoints.map((v) => v.toArray()),
             degree: this.degree
         };
-    }
-
-    get boundingPoints() {
-        return [];
     }
 
     clone(resetId = false) {
@@ -1018,7 +1017,7 @@ export class CadEntities {
     }
 
     export() {
-        const result: ObjectOf<any> = {line: {}, circle: {}, arc: {}, mtext: {}, dimension: {}, hatch: {}, spline: {}};
+        const result: ObjectOf<any> = {line: {}, circle: {}, arc: {}, mtext: {}, dimension: {}, hatch: {}, spline: {}, point: {}};
         for (const key of cadTypesKey) {
             this[key].forEach((e: CadEntity) => {
                 if (e instanceof CadDimension) {

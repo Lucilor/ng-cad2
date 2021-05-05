@@ -58,17 +58,17 @@
             </mat-form-field>
         </div>
         <div class="form-item-group hint">
-            <div *ngFor="let b of cad.baseLines; let i = index">
-                <mat-form-field [color]="getBaselineItemColor(i)">
+            <div *ngFor="let b of cad.baseLines; let j = index">
+                <mat-form-field [color]="getBaselineItemColor(j)">
                     <mat-label>基准</mat-label>
                     <input matInput type="text" [(ngModel)]="b.name" name="baseLineName" />
-                    <button mat-icon-button matSuffix [color]="getBaselineItemColor(i)" (click)="selectBaseLine(i)">
-                        <mat-icon>link</mat-icon>
+                    <button mat-icon-button matSuffix [color]="getBaselineItemColor(j)" (click)="selectBaseLine(j)">
+                        <mat-icon>linear_scale</mat-icon>
                     </button>
-                    <button mat-icon-button matSuffix color="primary" (click)="addBaseLine(cad, i)">
+                    <button mat-icon-button matSuffix color="primary" (click)="addBaseLine(cad, j)">
                         <mat-icon>add_circle</mat-icon>
                     </button>
-                    <button mat-icon-button matSuffix color="primary" (click)="removeBaseLine(cad, i)">
+                    <button mat-icon-button matSuffix color="primary" (click)="removeBaseLine(cad, j)">
                         <mat-icon>remove_circle</mat-icon>
                     </button>
                     <mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>
@@ -76,20 +76,20 @@
             </div>
         </div>
         <div class="form-item-group hint">
-            <div *ngFor="let j of cad.jointPoints; let i = index">
-                <mat-form-field [color]="getJointPointItemColor(i)">
+            <div *ngFor="let p of cad.jointPoints; let j = index">
+                <mat-form-field [color]="getJointPointItemColor(j)">
                     <mat-label>连接点</mat-label>
-                    <input matInput type="text" [(ngModel)]="j.name" name="jointPointName" />
-                    <button mat-icon-button matSuffix [color]="getJointPointItemColor(i)" (click)="selectBaseLine(i)">
-                        <mat-icon>link</mat-icon>
+                    <input matInput type="text" [(ngModel)]="p.name" name="jointPointName" />
+                    <button mat-icon-button matSuffix [color]="getJointPointItemColor(j)" (click)="selectJointPoint(j)">
+                        <mat-icon>linear_scale</mat-icon>
                     </button>
-                    <button mat-icon-button matSuffix color="primary" (click)="addJointPoint(cad, i)">
+                    <button mat-icon-button matSuffix color="primary" (click)="addJointPoint(cad, j)">
                         <mat-icon>add_circle</mat-icon>
                     </button>
-                    <button mat-icon-button matSuffix color="primary" (click)="removeJointPoint(cad, i)">
+                    <button mat-icon-button matSuffix color="primary" (click)="removeJointPoint(cad, j)">
                         <mat-icon>remove_circle</mat-icon>
                     </button>
-                    <mat-hint [align]="'start'">x:{{ j.valueX?.toFixed(2) }}, y:{{ j.valueY?.toFixed(2) }}</mat-hint>
+                    <mat-hint [align]="'start'">x:{{ p.valueX?.toFixed(2) }}, y:{{ p.valueY?.toFixed(2) }}</mat-hint>
                 </mat-form-field>
             </div>
         </div>
@@ -187,13 +187,6 @@
                 <mat-icon>list</mat-icon>
             </button>
         </mat-form-field>
-        <!-- <mat-form-field>
-            <mat-label>算料单显示板材</mat-label>
-            <mat-select [(ngModel)]="cad.suanliaodanxianshibancai" name="suanliaodanxianshibancai">
-                <mat-option [value]="true">是</mat-option>
-                <mat-option [value]="false">否</mat-option>
-            </mat-select>
-        </mat-form-field> -->
         <div class="sub-form-field">
             <div class="label">型号花件</div>
             <div *ngIf="keysOf(cad.xinghaohuajian).length === 0">
@@ -250,6 +243,13 @@
                 <mat-option value="板材">板材</mat-option>
                 <mat-option value="都不显示">都不显示</mat-option>
             </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>指定位置刨坑</mat-label>
+            <input type="text" matInput [value]="cad.zhidingweizhipaokeng.length ? '已指定' : '未指定'" readonly />
+            <button mat-icon-button matSuffix [color]="getZhidingweizhipaokengColor()" (click)="selectZhidingweizhipaokeng()">
+                <mat-icon>linear_scale</mat-icon>
+            </button>
         </mat-form-field>
     </form>
 </div>

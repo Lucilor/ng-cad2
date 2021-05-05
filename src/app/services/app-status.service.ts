@@ -47,7 +47,7 @@ export interface Loader {
     text?: string;
 }
 
-export type CadPoints = {x: number; y: number; active: boolean}[];
+export type CadPoints = {x: number; y: number; active: boolean; lines: string[]}[];
 
 @Injectable({
     providedIn: "root"
@@ -157,7 +157,6 @@ export class AppStatusService {
     }
 
     setCadStatus(value: CadStatus, confirmed?: boolean) {
-        console.log(value);
         this.cadStatus.confirmed = confirmed;
         this.cadStatusExit$.next(this.cadStatus);
         this.cadStatus = value;
@@ -165,7 +164,8 @@ export class AppStatusService {
     }
 
     toggleCadStatus(cadStatus: CadStatus) {
-        if (this.cadStatus.name === cadStatus.name) {
+        const {name, index} = this.cadStatus;
+        if (name === cadStatus.name && index === cadStatus.index) {
             this.setCadStatus(new CadStatusNormal());
         } else {
             this.setCadStatus(cadStatus);
@@ -251,12 +251,11 @@ export class AppStatusService {
         }
         return map.map((v) => {
             const {x, y} = this.cad.getScreenPoint(v.point.x, v.point.y);
-            return {x, y, active: false};
+            return {x, y, active: false, lines: v.lines.map((vv) => vv.id)} as CadPoints[0];
         });
     }
 
-    async setCadPoints(map: PointsMap | CadEntities = [], exclude: CadPoints = []) {
-        await timeout(0);
+    setCadPoints(map: PointsMap | CadEntities = [], exclude: CadPoints = []) {
         this.cadPoints$.next(differenceWith(this.getCadPoints(map), exclude, (a, b) => a.x === b.x && a.y === b.y));
     }
 

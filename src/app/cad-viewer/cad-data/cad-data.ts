@@ -42,6 +42,7 @@ export class CadData {
     kedulibancai = false;
     shuangxiangzhewan = false;
     suanliaodanxianshi: "尺寸+板材" | "尺寸" | "板材" | "都不显示" = "尺寸+板材";
+    zhidingweizhipaokeng: string[] = [];
 
     constructor(data?: ObjectOf<any>) {
         this.init(data);
@@ -112,6 +113,7 @@ export class CadData {
         this.kedulibancai = data.kedulibancai ?? false;
         this.shuangxiangzhewan = data.shuangxiangzhewan ?? false;
         this.suanliaodanxianshi = data.suanliaodanxianshi ?? "尺寸+板材";
+        this.zhidingweizhipaokeng = data.zhidingweizhipaokeng ?? [];
         this.updateDimensions();
         return this;
     }
@@ -162,7 +164,8 @@ export class CadData {
             needsHuajian: this.needsHuajian,
             kedulibancai: this.kedulibancai,
             shuangxiangzhewan: this.shuangxiangzhewan,
-            suanliaodanxianshi: this.suanliaodanxianshi
+            suanliaodanxianshi: this.suanliaodanxianshi,
+            zhidingweizhipaokeng: this.zhidingweizhipaokeng
         });
     }
 

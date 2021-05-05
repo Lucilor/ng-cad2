@@ -1,5 +1,6 @@
 export interface CadStatus {
     name: string;
+    index?: number;
     canExit?: boolean;
     exitWithEsc?: boolean;
     canConfirm?: boolean;
@@ -63,4 +64,10 @@ export class CadStatusEditDimension implements CadStatus {
     canExit = true;
     exitWithEsc = true;
     constructor(public index: number) {}
+}
+
+export class CadStatusIntersection implements CadStatus {
+    name = "取交点";
+    canExit = true;
+    exitWithEsc = true;
 }

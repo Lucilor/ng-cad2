@@ -8,8 +8,9 @@ import {getCadGongshiText} from "@src/app/cad.utils";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {Utils} from "@src/app/mixins/utils.mixin";
 import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppStatusService} from "@src/app/services/app-status.service";
-import {CadStatusNormal, CadStatusSelectBaseline, CadStatusSelectJointpoint} from "@src/app/services/cad-status";
+import {AppStatusService, CadPoints} from "@src/app/services/app-status.service";
+import {CadStatusIntersection, CadStatusSelectBaseline, CadStatusSelectJointpoint} from "@src/app/services/cad-status";
+import {isEqual} from "lodash";
 import {openCadDataAttrsDialog} from "../../dialogs/cad-data-attrs/cad-data-attrs.component";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "../../dialogs/cad-options/cad-options.component";
@@ -23,9 +24,10 @@ import {openCadZhankaiDialog} from "../../dialogs/cad-zhankai/cad-zhankai.compon
 export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnDestroy {
     cadsData: CadData[] = [];
     editDisabled = true;
+    private _cadPointsLock = false;
     @Output() cadLengthsChange = new EventEmitter<string[]>();
 
-    onEntityClick = (((entity) => {
+    private _onEntityClick = (((entity) => {
         const cadStatus = this.status.cadStatus;
         const data = this.status.getFlatSelectedCads()[0];
         if (cadStatus instanceof CadStatusSelectBaseline) {
@@ -45,6 +47,23 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             }
         }
     }) as CadEventCallBack<"entityclick">).bind(this);
+
+    private _updateCadPoints = (() => {
+        const cadStatus = this.status.cadStatus;
+        const data = this.cadsData[0];
+        if (cadStatus instanceof CadStatusSelectJointpoint) {
+            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities());
+            const {valueX, valueY} = data.jointPoints[cadStatus.index];
+            this._setActiveCadPoint({x: valueX, y: valueY}, points);
+            this._cadPointsLock = true;
+            this.status.cadPoints$.next(points);
+        } else if (cadStatus instanceof CadStatusIntersection) {
+            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities());
+            this._setActiveCadPoint({lines: data.zhidingweizhipaokeng}, points);
+            this._cadPointsLock = true;
+            this.status.cadPoints$.next(points);
+        }
+    }).bind(this);
 
     constructor(
         private status: AppStatusService,
@@ -70,28 +89,80 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         });
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusSelectJointpoint) {
-                this.status.setCadPoints(this.cadsData[0].getAllEntities());
+                this._updateCadPoints();
+            } else if (cadStatus instanceof CadStatusIntersection) {
+                this._updateCadPoints();
             }
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             if (cadStatus instanceof CadStatusSelectJointpoint) {
                 this.status.setCadPoints();
+            } else if (cadStatus instanceof CadStatusIntersection) {
+                this.status.setCadPoints();
             }
         });
-        this.subscribe(this.status.cadPoints$, (cadPoints) => {
-            const point = cadPoints.filter((v) => v.active)[0];
+        this.subscribe(this.status.cadPoints$, (points) => {
+            const activePoints = points.filter((p) => p.active);
             const cadStatus = this.status.cadStatus;
-            if (cadStatus instanceof CadStatusSelectJointpoint && point) {
+            if (this._cadPointsLock) {
+                this._cadPointsLock = false;
+                return;
+            }
+            if (cadStatus instanceof CadStatusSelectJointpoint) {
                 const jointPoint = this.cadsData[0].jointPoints[cadStatus.index];
-                jointPoint.valueX = point.x;
-                jointPoint.valueY = point.y;
+                if (activePoints.length < 1) {
+                    jointPoint.valueX = NaN;
+                    jointPoint.valueY = NaN;
+                } else {
+                    const {valueX: x, valueY: y} = jointPoint;
+                    for (const p of activePoints) {
+                        const p2 = this._setActiveCadPoint({x, y}, points);
+                        if (!p2 || !isEqual([p.x, p.y], [p2.x, p2.y])) {
+                            jointPoint.valueX = p.x;
+                            jointPoint.valueY = p.y;
+                            this._updateCadPoints();
+                            break;
+                        }
+                    }
+                }
+            } else if (cadStatus instanceof CadStatusIntersection) {
+                const lines = this.cadsData[0].zhidingweizhipaokeng;
+                if (activePoints.length < 1) {
+                    this.cadsData[0].zhidingweizhipaokeng = [];
+                } else {
+                    for (const p of activePoints) {
+                        const p2 = this._setActiveCadPoint({lines}, points);
+                        if (!p2 || !isEqual(p.lines, p2.lines)) {
+                            this.cadsData[0].zhidingweizhipaokeng = p.lines.slice();
+                            this._updateCadPoints();
+                            break;
+                        }
+                    }
+                }
             }
         });
-        this.status.cad.on("entityclick", this.onEntityClick);
+        const cad = this.status.cad;
+        cad.on("entityclick", this._onEntityClick);
+        cad.on("moveentities", this._updateCadPoints);
+        cad.on("zoom", this._updateCadPoints);
     }
 
     ngOnDestroy() {
-        this.status.cad.off("entityclick", this.onEntityClick);
+        const cad = this.status.cad;
+        cad.off("entityclick", this._onEntityClick);
+        cad.off("moveentities", this._updateCadPoints);
+        cad.off("zoom", this._updateCadPoints);
+    }
+
+    private _setActiveCadPoint(point: Partial<CadPoints[0]>, points: CadPoints) {
+        points.forEach((p) => (p.active = false));
+        for (const p of points) {
+            if (isEqual(p.lines, point.lines) || isEqual([p.x, p.y], [point.x, point.y])) {
+                p.active = true;
+                return p;
+            }
+        }
+        return null;
     }
 
     updateLengths(cadsData: CadData[]) {
@@ -161,11 +232,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     }
 
     selectBaseLine(i: number) {
-        if (this.getBaselineItemColor(i) === "primary") {
-            this.status.setCadStatus(new CadStatusSelectBaseline(i));
-        } else {
-            this.status.setCadStatus(new CadStatusNormal());
-        }
+        this.status.toggleCadStatus(new CadStatusSelectBaseline(i));
     }
 
     addJointPoint(data: CadData, index: number) {
@@ -184,11 +251,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     }
 
     selectJointPoint(i: number) {
-        if (this.getJointPointItemColor(i) === "primary") {
-            this.status.setCadStatus(new CadStatusSelectJointpoint(i));
-        } else {
-            this.status.setCadStatus(new CadStatusNormal());
-        }
+        this.status.toggleCadStatus(new CadStatusSelectJointpoint(i));
     }
 
     updateCadGongshi(data: CadData) {
@@ -287,5 +350,17 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         if (zhankai) {
             zhankai.name = name;
         }
+    }
+
+    selectZhidingweizhipaokeng() {
+        this.status.toggleCadStatus(new CadStatusIntersection());
+    }
+
+    getZhidingweizhipaokengColor() {
+        const cadStatus = this.status.cadStatus;
+        if (cadStatus instanceof CadStatusIntersection) {
+            return "accent";
+        }
+        return "primary";
     }
 }
