@@ -2,6 +2,7 @@ import {Component, EventEmitter, OnDestroy, OnInit, Output} from "@angular/core"
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute} from "@angular/router";
+import {joinOptions, splitOptions} from "@src/app/app.common";
 import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity} from "@src/app/cad-viewer";
 import {getCadGongshiText} from "@src/app/cad.utils";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
@@ -108,22 +109,22 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
 
     async selectOptions(data: CadData, optionKey: string, key?: string) {
         if (optionKey === "huajian") {
-            const checkedItems = data.huajian.split(",");
+            const checkedItems = splitOptions(data.huajian);
             const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems, xinghao: key}});
             if (Array.isArray(result)) {
-                data.huajian = result.join(",");
+                data.huajian = joinOptions(result);
             }
         } else if (optionKey === "bancai") {
-            const checkedItems = data.morenkailiaobancai.split(",");
+            const checkedItems = splitOptions(data.morenkailiaobancai);
             const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems, multi: false}});
             if (Array.isArray(result) && key) {
-                (data as any)[key] = result.join(",");
+                (data as any)[key] = joinOptions(result);
             }
         } else {
-            const checkedItems = data.options[optionKey].split(",");
+            const checkedItems = splitOptions(data.options[optionKey]);
             const result = await openCadOptionsDialog(this.dialog, {data: {data, name: optionKey, checkedItems}});
             if (result) {
-                data.options[optionKey] = result.join(",");
+                data.options[optionKey] = joinOptions(result);
             }
         }
     }

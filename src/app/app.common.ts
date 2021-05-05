@@ -45,3 +45,13 @@ export const logTime = (content: string, start: number, fractionDigits = 2) => {
 };
 
 export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
+
+export const splitOptions = (str: string) => {
+    if (str.includes(";")) {
+        return str.split(";");
+    } else {
+        return str.split(",");
+    }
+};
+
+export const joinOptions = (options: string[]) => options.join(";");
