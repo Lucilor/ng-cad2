@@ -1,11 +1,19 @@
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CdkDragEnd, CdkDragMove, CdkDragStart} from "@angular/cdk/drag-drop";
-import {Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef} from "@angular/core";
-import {MatMenuTrigger} from "@angular/material/menu";
+import {
+    Component,
+    OnInit,
+    AfterViewInit,
+    OnDestroy,
+    ViewChild,
+    ElementRef,
+    ChangeDetectorRef,
+    ViewChildren,
+    QueryList
+} from "@angular/core";
 import {MatTabGroup, MatTabChangeEvent} from "@angular/material/tabs";
 import {ActivatedRoute} from "@angular/router";
 import {CadEventCallBack, CadData} from "@src/app/cad-viewer";
-import {CadInfoComponent} from "@src/app/components/menu/cad-info/cad-info.component";
 import {ContextMenu} from "@src/app/mixins/context-menu.mixin";
 import {Subscribed} from "@src/app/mixins/subscribed.mixin";
 import {CadConsoleComponent} from "@src/app/modules/cad-console/components/cad-console/cad-console.component";
@@ -16,6 +24,7 @@ import {AppConfig, AppConfigService} from "@src/app/services/app-config.service"
 import {AppStatusService} from "@src/app/services/app-status.service";
 import {CadStatusAssemble} from "@src/app/services/cad-status";
 import {debounce} from "lodash";
+import {PerfectScrollbarComponent} from "ngx-perfect-scrollbar";
 import {BehaviorSubject} from "rxjs";
 
 interface DragData {
@@ -85,13 +94,32 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         return this.status.cadStatus.name;
     }
 
-    @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLElement>;
-    @ViewChild(CadConsoleComponent) consoleComponent?: CadConsoleComponent;
-    @ViewChild(CadInfoComponent) infoComponent?: CadInfoComponent;
-    @ViewChild(MatMenuTrigger) contextMenu?: MatMenuTrigger;
-    @ViewChild(MatTabGroup) infoTabs?: MatTabGroup;
+    @ViewChild("cadContainer", {read: ElementRef}) cadContainer!: ElementRef<HTMLElement>;
+    @ViewChild(CadConsoleComponent) consoleComponent!: CadConsoleComponent;
+    @ViewChild(MatTabGroup) infoTabs!: MatTabGroup;
+    @ViewChildren(PerfectScrollbarComponent)
+    private _scrollbars!: QueryList<PerfectScrollbarComponent>;
+    private get _scrollbar() {
+        const scrollbar = this._scrollbars.get(this.tabIndex);
+        if (!scrollbar) {
+            throw new Error("Failed to access scrollbar component.");
+        }
+        return scrollbar;
+    }
 
-    private _resize = debounce(() => this.config.setConfig({width: innerWidth, height: innerHeight}), 500).bind(this);
+    private _scrollChangeLock = false;
+    onScrollChange = debounce((event: CustomEvent) => {
+        if (this._scrollChangeLock) {
+            this._scrollChangeLock = false;
+            return;
+        }
+        const scroll = this.config.getConfig("scroll");
+        const el = event.target as HTMLDivElement;
+        scroll["tab" + this.tabIndex] = el.scrollTop;
+        this.config.setConfig("scroll", scroll);
+    }, 500);
+
+    private _resize = debounce(() => this.config.setConfig({width: innerWidth, height: innerHeight}), 500);
     private _onEntitiesCopy: CadEventCallBack<"entitiescopy"> = (entities) => {
         const cad = this.status.cad;
         const selectedCads = this.status.getFlatSelectedCads();
@@ -136,9 +164,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         this.subscribe(this.status.openCad$, () => {
             document.title = cad.data.components.data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
         });
-        // this.subscribe(this.status.setProject$, () => {
-        //     this._initCad();
-        // });
         this._setCadPadding();
         this._initCad();
         this.subscribe(this.config.configChange$, ({newVal}) => {
@@ -153,10 +178,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     }
 
     ngAfterViewInit() {
-        if (this.cadContainer) {
-            this.status.cad.appendTo(this.cadContainer.nativeElement);
-        }
-        this.subscribe(this.console.command, (cmd) => this.consoleComponent?.execute(cmd));
+        this.status.cad.appendTo(this.cadContainer.nativeElement);
+        this.subscribe(this.console.command, (cmd) => this.consoleComponent.execute(cmd));
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
                 this.shownMenus = ["cadAssemble"];
@@ -166,16 +189,22 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         });
 
         const infoTabs = this.infoTabs;
-        if (infoTabs) {
-            infoTabs.selectedIndex = this.config.getConfig("infoTabIndex");
-            const sub = this.config.configChange$.subscribe(({newVal}) => {
-                const infoTabIndex = newVal.infoTabIndex;
-                if (typeof infoTabIndex === "number" && infoTabIndex >= 0 && infoTabs) {
-                    infoTabs.selectedIndex = infoTabIndex;
-                    sub.unsubscribe();
-                }
-            });
-        }
+        const setInfoTabs = () => {
+            const {infoTabIndex, scroll} = this.config.getConfig();
+            if (typeof infoTabIndex === "number" && infoTabIndex >= 0) {
+                infoTabs.selectedIndex = infoTabIndex;
+            }
+            if (scroll) {
+                this._setTabScroll();
+            }
+        };
+        setInfoTabs();
+        const sub = this.config.configChange$.subscribe(({isUserConfig}) => {
+            if (isUserConfig) {
+                setInfoTabs();
+                sub.unsubscribe();
+            }
+        });
 
         window.addEventListener("resize", this._resize);
     }
@@ -238,7 +267,16 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         if (this.showLeftMenu) {
             padding[3] += this.leftMenuWidth$.value;
         }
-        this.config.setConfig({padding}, false);
+        this.config.setConfig({padding}, {sync: false});
+    }
+
+    private async _setTabScroll() {
+        const scroll = this.config.getConfig("scroll");
+        const key = "tab" + this.tabIndex;
+        if (scroll[key] !== undefined) {
+            this._scrollChangeLock = true;
+            this._scrollbar.directiveRef?.scrollToTop(scroll[key]);
+        }
     }
 
     toggleTopMenu(show?: boolean) {
@@ -284,6 +322,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     onInfoTabChange({index}: MatTabChangeEvent) {
         this.tabIndex = index;
         this.config.setConfig("infoTabIndex", index);
+        this._setTabScroll();
     }
 
     toggleMultiSelect() {

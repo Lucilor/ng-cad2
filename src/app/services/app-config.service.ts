@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
-import {keysOf} from "@lucilor/utils";
-import {cloneDeep} from "lodash";
+import {keysOf, ObjectOf} from "@lucilor/utils";
+import {cloneDeep, isEqual} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {local} from "../app.common";
 import {CadViewerConfig} from "../cad-viewer";
@@ -11,13 +11,17 @@ export interface AppConfig extends CadViewerConfig {
     infoTabIndex: number;
     leftMenuWidth: number;
     rightMenuWidth: number;
+    scroll: ObjectOf<number>;
 }
 
 export interface AppConfigChange {
     oldVal: Partial<AppConfig>;
     newVal: Partial<AppConfig>;
     sync: boolean;
+    isUserConfig: boolean;
 }
+
+export type AppConfigChangeOptions = Partial<Omit<AppConfigChange, "oldVal" | "newVal">>;
 
 @Injectable({
     providedIn: "root"
@@ -45,12 +49,14 @@ export class AppConfigService {
         infoTabIndex: 0,
         leftMenuWidth: 200,
         rightMenuWidth: 300,
+        scroll: {},
         ...(local.load("userConfig") || {})
     });
     configChange$ = new BehaviorSubject<AppConfigChange>({
-        oldVal: this.config$.value,
-        newVal: {},
-        sync: false
+        oldVal: {},
+        newVal: this.config$.value,
+        sync: false,
+        isUserConfig: true
     });
     private _userConfig: Partial<AppConfig> = {};
 
@@ -79,7 +85,7 @@ export class AppConfigService {
         for (const key of keys) {
             if (oldVal2[key] === undefined) {
                 (oldVal2 as any)[key] = this.getConfig(key);
-            } else if (newVal2[key] === undefined || oldVal2[key] === newVal2[key]) {
+            } else if (newVal2[key] === undefined || isEqual(oldVal2[key], newVal2[key])) {
                 delete newVal2[key];
             }
         }
@@ -99,15 +105,19 @@ export class AppConfigService {
     getConfig<T extends keyof AppConfig>(key: T): AppConfig[T];
     getConfig(key?: keyof AppConfig) {
         if (typeof key === "string") {
-            return this.config$.value[key];
+            return cloneDeep(this.config$.value[key]);
         } else {
-            return this.config$.value;
+            return cloneDeep(this.config$.value);
         }
     }
 
-    setConfig(config: Partial<AppConfig>, sync?: boolean): Partial<AppConfig>;
-    setConfig<T extends keyof AppConfig>(key: T, value: AppConfig[T], sync?: boolean): Partial<AppConfig>;
-    setConfig<T extends keyof AppConfig>(key: T | Partial<AppConfig>, value: AppConfig[T] | boolean = true, sync = true) {
+    setConfig(config: Partial<AppConfig>, options?: AppConfigChangeOptions): Partial<AppConfig>;
+    setConfig<T extends keyof AppConfig>(key: T, value: AppConfig[T], options?: AppConfigChangeOptions): Partial<AppConfig>;
+    setConfig<T extends keyof AppConfig>(
+        key: T | Partial<AppConfig>,
+        value?: AppConfig[T] | AppConfigChangeOptions,
+        options?: AppConfigChangeOptions
+    ) {
         const oldVal = this.config$.value;
         let newVal: Partial<AppConfig> | undefined;
         if (typeof key === "string") {
@@ -115,10 +125,12 @@ export class AppConfigService {
             newVal[key] = value as AppConfig[T];
         } else {
             newVal = key;
-            sync = value as boolean;
+            options = value as AppConfigChangeOptions;
         }
         const [oldVal2, newVal2] = this._purgeConfig(oldVal, newVal);
-        this.configChange$.next({oldVal: oldVal2, newVal: newVal2, sync});
+        const sync = options?.sync ?? true;
+        const isUserConfig = options?.isUserConfig ?? false;
+        this.configChange$.next({oldVal: oldVal2, newVal: newVal2, sync, isUserConfig});
         this.config$.next({...oldVal, ...newVal2});
         return oldVal2;
     }
@@ -129,7 +141,7 @@ export class AppConfigService {
         if (config) {
             this._userConfig = this._purgeUserConfig(config);
             if (Object.keys(this._userConfig).length) {
-                this.setConfig(this._userConfig, false);
+                this.setConfig(this._userConfig, {sync: false, isUserConfig: true});
                 local.save("userConfig", {...(local.load("userConfig") || {}), ...this._userConfig});
             }
         }

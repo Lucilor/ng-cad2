@@ -40,7 +40,7 @@ export class MessageComponent implements OnInit, OnDestroy {
             }
         }
         return false;
-    }, 500).bind(this);
+    }, 500);
 
     get promptData() {
         let result: PromptData = {};

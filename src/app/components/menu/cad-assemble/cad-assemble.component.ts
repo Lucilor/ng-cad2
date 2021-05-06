@@ -163,7 +163,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
                 const data = this.status.cad.data.components.data[cadStatus.index];
-                prevConfig = this.config.setConfig({selectMode: "multiple"}, false);
+                prevConfig = this.config.setConfig({selectMode: "multiple"}, {sync: false});
                 prevDisabledCadTypes = this.status.disabledCadTypes$.value;
                 this.status.disabledCadTypes$.next(["cads", "partners"]);
                 prevSelectedCads = this.status.selectedCads$.value;
@@ -173,7 +173,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
-                this.config.setConfig(prevConfig, false);
+                this.config.setConfig(prevConfig, {sync: false});
                 if (prevDisabledCadTypes) {
                     this.status.disabledCadTypes$.next(prevDisabledCadTypes);
                     this.prevDisabledCadTypes = null;
