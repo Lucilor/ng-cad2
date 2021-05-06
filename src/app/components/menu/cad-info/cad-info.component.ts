@@ -96,8 +96,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             if (cadStatus instanceof CadStatusSelectJointpoint) {
+                this._cadPointsLock = true;
                 this.status.setCadPoints();
             } else if (cadStatus instanceof CadStatusIntersection) {
+                this._cadPointsLock = true;
                 this.status.setCadPoints();
             }
         });
