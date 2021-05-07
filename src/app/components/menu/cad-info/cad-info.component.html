@@ -251,5 +251,16 @@
                 <mat-icon>linear_scale</mat-icon>
             </button>
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>算料单显示放大倍数</mat-label>
+            <input
+                type="number"
+                step="0.1"
+                min="0"
+                matInput
+                [value]="cad.suanliaodanZoom"
+                (change)="setNumberValue(cad, 'suanliaodanZoom', $event)"
+            />
+        </mat-form-field>
     </form>
 </div>
