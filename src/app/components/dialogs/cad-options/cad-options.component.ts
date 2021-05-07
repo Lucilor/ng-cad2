@@ -2,9 +2,9 @@ import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
-import {CadData} from "@src/app/cad-viewer";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
-import {AppStatusService} from "@src/app/services/app-status.service";
+import {CadData} from "@cad-viewer";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {AppStatusService} from "@services/app-status.service";
 import {getOpenDialogFunc} from "../dialog.common";
 
 interface CadOptionsData {

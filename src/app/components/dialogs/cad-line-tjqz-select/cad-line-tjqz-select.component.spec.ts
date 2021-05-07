@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
-import {MessageModule} from "@src/app/modules/message/message.module";
+import {MessageModule} from "@app/modules/message/message.module";
 
 import {CadLineTjqzSelectComponent} from "./cad-line-tjqz-select.component";
 

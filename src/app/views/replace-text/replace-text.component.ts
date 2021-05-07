@@ -2,11 +2,11 @@ import {Component, OnInit} from "@angular/core";
 import {FormControl, FormGroupDirective, NgForm, ValidatorFn, Validators} from "@angular/forms";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {Router} from "@angular/router";
-import {CadCollection, routesInfo} from "@src/app/app.common";
-import {Subscribed} from "@src/app/mixins/subscribed.mixin";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
-import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppStatusService} from "@src/app/services/app-status.service";
+import {CadCollection, routesInfo} from "@app/app.common";
+import {Subscribed} from "@mixins/subscribed.mixin";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
+import {AppStatusService} from "@services/app-status.service";
 import {typedFormControl, TypedFormControl, typedFormGroup, TypedFormGroup} from "ngx-forms-typed";
 import {BehaviorSubject} from "rxjs";
 

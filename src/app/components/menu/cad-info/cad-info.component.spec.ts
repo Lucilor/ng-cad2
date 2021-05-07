@@ -4,9 +4,9 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
-import {HttpModule} from "@src/app/modules/http/http.module";
-import {MessageModule} from "@src/app/modules/message/message.module";
-import {CadPointsComponent} from "../../cad-points/cad-points.component";
+import {CadPointsComponent} from "@components/cad-points/cad-points.component";
+import {HttpModule} from "@modules/http/http.module";
+import {MessageModule} from "@modules/message/message.module";
 
 import {CadInfoComponent} from "./cad-info.component";
 

@@ -1,20 +1,20 @@
-import {Component, EventEmitter, OnDestroy, OnInit, Output} from "@angular/core";
+import {Component, OnInit, OnDestroy, Output, EventEmitter} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute} from "@angular/router";
-import {joinOptions, splitOptions} from "@src/app/app.common";
-import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity} from "@src/app/cad-viewer";
-import {getCadGongshiText} from "@src/app/cad.utils";
-import {Subscribed} from "@src/app/mixins/subscribed.mixin";
-import {Utils} from "@src/app/mixins/utils.mixin";
-import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppStatusService, CadPoints} from "@src/app/services/app-status.service";
-import {CadStatusIntersection, CadStatusSelectBaseline, CadStatusSelectJointpoint} from "@src/app/services/cad-status";
+import {splitOptions, joinOptions} from "@app/app.common";
+import {getCadGongshiText} from "@app/cad.utils";
+import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity} from "@cad-viewer";
+import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
+import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
+import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
+import {openCadZhankaiDialog} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
+import {Subscribed} from "@mixins/subscribed.mixin";
+import {Utils} from "@mixins/utils.mixin";
+import {MessageService} from "@modules/message/services/message.service";
+import {AppStatusService, CadPoints} from "@services/app-status.service";
+import {CadStatusSelectBaseline, CadStatusSelectJointpoint, CadStatusIntersection} from "@services/cad-status";
 import {isEqual} from "lodash";
-import {openCadDataAttrsDialog} from "../../dialogs/cad-data-attrs/cad-data-attrs.component";
-import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
-import {openCadOptionsDialog} from "../../dialogs/cad-options/cad-options.component";
-import {openCadZhankaiDialog} from "../../dialogs/cad-zhankai/cad-zhankai.component";
 
 @Component({
     selector: "app-cad-info",

@@ -10,9 +10,9 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {RouterTestingModule} from "@angular/router/testing";
-import {CadData, CadZhankai} from "@src/app/cad-viewer";
-import {ReplaceFullCharsDirective} from "@src/app/directives/replace-full-chars.directive";
-import {MessageModule} from "@src/app/modules/message/message.module";
+import {CadData, CadZhankai} from "@cad-viewer";
+import {ReplaceFullCharsDirective} from "@directives/replace-full-chars.directive";
+import {MessageModule} from "@modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {CadZhankaiComponent} from "./cad-zhankai.component";
 

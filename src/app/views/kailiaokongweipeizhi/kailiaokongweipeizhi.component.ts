@@ -1,10 +1,10 @@
 import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {ObjectOf} from "@lucilor/utils";
-import {Utils} from "@src/app/mixins/utils.mixin";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
-import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppStatusService} from "@src/app/services/app-status.service";
+import {Utils} from "@mixins/utils.mixin";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
+import {AppStatusService} from "@services/app-status.service";
 import {Kailiaokongweipeizhi, KailiaokongweipeizhiSource, KlkwpzItem, KlkwpzItemMatrixBase} from "./kailiaokongweipeizhi";
 
 @Component({

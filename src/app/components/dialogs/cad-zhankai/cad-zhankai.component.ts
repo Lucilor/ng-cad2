@@ -1,11 +1,11 @@
 import {Component, Inject} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {joinOptions, splitOptions} from "@src/app/app.common";
-import {CadData, CadZhankai, FlipType} from "@src/app/cad-viewer";
-import {Utils} from "@src/app/mixins/utils.mixin";
-import {MessageService} from "@src/app/modules/message/services/message.service";
+import {splitOptions, joinOptions} from "@app/app.common";
+import {CadZhankai, CadData, FlipType} from "@cad-viewer";
+import {Utils} from "@mixins/utils.mixin";
+import {MessageService} from "@modules/message/services/message.service";
 import {cloneDeep} from "lodash";
 import {openCadListDialog} from "../cad-list/cad-list.component";
 import {openCadOptionsDialog} from "../cad-options/cad-options.component";

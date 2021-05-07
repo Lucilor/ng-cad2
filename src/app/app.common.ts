@@ -1,5 +1,5 @@
 import {SessionStorage, LocalStorage} from "@lucilor/utils";
-import {environment} from "@src/environments/environment";
+import {environment} from "src/environments/environment";
 
 export const projectName = "NgCad2";
 export const session = new SessionStorage(projectName);

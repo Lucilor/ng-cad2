@@ -2,7 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {FormGroup, FormBuilder, FormControl, ValidatorFn, AbstractControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
-import {CadDimension} from "@src/app/cad-viewer";
+import {CadDimension} from "@cad-viewer";
 import {getOpenDialogFunc} from "../dialog.common";
 
 export interface CadDimensionData {

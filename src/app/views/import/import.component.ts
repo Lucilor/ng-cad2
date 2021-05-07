@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
-import {splitCad} from "@src/app/cad-viewer";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
-import {MessageService} from "@src/app/modules/message/services/message.service";
+import {splitCad} from "@cad-viewer";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
 @Component({

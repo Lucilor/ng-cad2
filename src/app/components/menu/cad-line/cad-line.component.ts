@@ -3,28 +3,28 @@ import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
-import {Point} from "@lucilor/utils";
 import {
     CadLine,
     CadData,
     CadLineLike,
     validColors,
     setLinesLength,
+    CadEntities,
     CadViewerConfig,
     CadArc,
     linewidth2lineweight,
     lineweight2linewidth,
-    autoFixLine,
-    CadEntities
-} from "@src/app/cad-viewer";
-import {Subscribed} from "@src/app/mixins/subscribed.mixin";
-import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppStatusService, CadPoints} from "@src/app/services/app-status.service";
-import {CadStatusCutLine, CadStatusDrawLine, CadStatusMoveLines} from "@src/app/services/cad-status";
+    autoFixLine
+} from "@cad-viewer";
+import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
+import {Point} from "@lucilor/utils";
+import {Subscribed} from "@mixins/subscribed.mixin";
+import {MessageService} from "@modules/message/services/message.service";
+import {CadPoints, AppStatusService} from "@services/app-status.service";
+import {CadStatusDrawLine, CadStatusMoveLines, CadStatusCutLine} from "@services/cad-status";
 import Color from "color";
 import {debounce} from "lodash";
 import {ColorEvent} from "ngx-color";
-import {openCadLineTiaojianquzhiDialog} from "../../dialogs/cad-line-tjqz/cad-line-tjqz.component";
 
 @Component({
     selector: "app-cad-line",
@@ -223,11 +223,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         }
     }).bind(this);
 
-    constructor(
-        private status: AppStatusService,
-        private dialog: MatDialog,
-        private message: MessageService
-    ) {
+    constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
         super();
     }
 

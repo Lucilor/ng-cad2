@@ -1,4 +1,4 @@
-import {getList} from "@src/app/app.common";
+import {getList} from "@app/app.common";
 import {highlight} from "highlight.js";
 import {v4} from "uuid";
 import {Desc} from "./cad-command-types";

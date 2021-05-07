@@ -1,10 +1,7 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
-import {ObjectOf, timeout} from "@lucilor/utils";
-import {difference, differenceWith, clamp} from "lodash";
-import {NgxUiLoaderService} from "ngx-ui-loader";
-import {BehaviorSubject, Subject} from "rxjs";
-import {CadCollection, local} from "../app.common";
+import {CadCollection, local} from "@app/app.common";
+import {setCadData, addCadGongshi} from "@app/cad.utils";
 import {
     CadData,
     CadLine,
@@ -16,9 +13,12 @@ import {
     CadEntities,
     generatePointsMap,
     ValidateResult
-} from "../cad-viewer";
-import {setCadData, addCadGongshi} from "../cad.utils";
-import {CadDataService} from "../modules/http/services/cad-data.service";
+} from "@cad-viewer";
+import {ObjectOf, timeout} from "@lucilor/utils";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {difference, differenceWith, clamp} from "lodash";
+import {NgxUiLoaderService} from "ngx-ui-loader";
+import {BehaviorSubject, Subject} from "rxjs";
 import {AppConfigService, AppConfig} from "./app-config.service";
 import {CadStatus, CadStatusNormal} from "./cad-status";
 

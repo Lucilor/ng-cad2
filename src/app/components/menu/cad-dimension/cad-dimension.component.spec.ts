@@ -1,9 +1,8 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDialogModule} from "@angular/material/dialog";
-import {HttpModule} from "@src/app/modules/http/http.module";
-import {MessageModule} from "@src/app/modules/message/message.module";
-
+import { HttpModule } from "@modules/http/http.module";
+import { MessageModule } from "@modules/message/message.module";
 import {CadDimensionComponent} from "./cad-dimension.component";
 
 describe("CadDimensionComponent", () => {

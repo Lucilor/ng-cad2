@@ -1,12 +1,12 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
+import {CadData, CadMtext, CadEntity} from "@cad-viewer";
+import {AnchorEvent} from "@components/anchor-selector/anchor-selector.component";
 import {Point} from "@lucilor/utils";
-import {CadData, CadMtext, CadEntity} from "@src/app/cad-viewer";
-import {Subscribed} from "@src/app/mixins/subscribed.mixin";
-import {AppStatusService} from "@src/app/services/app-status.service";
+import {Subscribed} from "@mixins/subscribed.mixin";
+import {AppStatusService} from "@services/app-status.service";
 import Color from "color";
 import {debounce} from "lodash";
 import {ColorEvent} from "ngx-color";
-import {AnchorEvent} from "../../anchor-selector/anchor-selector.component";
 
 @Component({
     selector: "app-cad-mtext",

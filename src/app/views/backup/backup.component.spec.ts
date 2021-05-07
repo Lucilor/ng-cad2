@@ -4,13 +4,12 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatCardModule} from "@angular/material/card";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
-import {CadData} from "@src/app/cad-viewer";
-import {HttpModule} from "@src/app/modules/http/http.module";
-import {ImageModule} from "@src/app/modules/image/image.module";
-import {MessageModule} from "@src/app/modules/message/message.module";
+import {CadData} from "@cad-viewer";
+import {HttpModule} from "@modules/http/http.module";
+import {ImageModule} from "@modules/image/image.module";
+import {MessageModule} from "@modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
-
 import {BackupComponent} from "./backup.component";
 
 describe("BackupComponent", () => {

@@ -5,8 +5,8 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatPaginatorModule} from "@angular/material/paginator";
-import {HttpModule} from "@src/app/modules/http/http.module";
-import {MessageModule} from "@src/app/modules/message/message.module";
+import {HttpModule} from "@modules/http/http.module";
+import {MessageModule} from "@modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 

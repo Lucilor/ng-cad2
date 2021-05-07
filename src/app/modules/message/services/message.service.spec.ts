@@ -1,6 +1,5 @@
 import {TestBed} from "@angular/core/testing";
 import {MessageModule} from "../message.module";
-
 import {MessageService} from "./message.service";
 
 describe("MessageService", () => {

@@ -1,9 +1,9 @@
 import {ChangeDetectorRef, Component, Input} from "@angular/core";
 import {MatDialogRef} from "@angular/material/dialog";
-import {routesInfo} from "@src/app/app.common";
-import {CadDataService, Changelog} from "@src/app/modules/http/services/cad-data.service";
-import {AppStatusService} from "@src/app/services/app-status.service";
-import {changelogTypes} from "@src/app/views/changelog-admin/changelog-admin.component";
+import {routesInfo} from "@app/app.common";
+import {Changelog, CadDataService} from "@modules/http/services/cad-data.service";
+import {AppStatusService} from "@services/app-status.service";
+import {changelogTypes} from "@views/changelog-admin/changelog-admin.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({

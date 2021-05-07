@@ -18,7 +18,15 @@
         "module": "es2020",
         "lib": ["es2020", "dom"],
         "paths": {
-            "@src/*": ["src/*"]
+            "@cad-viewer": ["src/app/cad-viewer"],
+            "@components/*": ["src/app/components/*"],
+            "@directives/*": ["src/app/directives/*"],
+            "@guards/*": ["src/app/guards/*"],
+            "@mixins/*": ["src/app/mixins/*"],
+            "@modules/*": ["src/app/modules/*"],
+            "@services/*": ["src/app/services/*"],
+            "@views/*": ["src/app/views/*"],
+            "@app/*": ["src/app/*"]
         },
         "allowJs": true,
         "allowSyntheticDefaultImports": true,

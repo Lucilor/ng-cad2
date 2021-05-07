@@ -6,10 +6,10 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatSelectModule} from "@angular/material/select";
-import {HttpModule} from "@src/app/modules/http/http.module";
-import {MessageModule} from "@src/app/modules/message/message.module";
+import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
+import {HttpModule} from "@modules/http/http.module";
+import {MessageModule} from "@modules/message/message.module";
 import {ColorChromeModule} from "ngx-color/chrome";
-import {AnchorSelectorComponent} from "../../anchor-selector/anchor-selector.component";
 
 import {CadMtextComponent} from "./cad-mtext.component";
 

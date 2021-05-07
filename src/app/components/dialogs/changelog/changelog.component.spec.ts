@@ -2,8 +2,8 @@ import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatDialogRef} from "@angular/material/dialog";
 import {MatDividerModule} from "@angular/material/divider";
 import {RouterTestingModule} from "@angular/router/testing";
-import {HttpModule} from "@src/app/modules/http/http.module";
-import {MessageModule} from "@src/app/modules/message/message.module";
+import {HttpModule} from "@modules/http/http.module";
+import {MessageModule} from "@modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 
 import {ChangelogComponent} from "./changelog.component";

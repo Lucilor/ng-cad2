@@ -1,7 +1,7 @@
 import {Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {CadData} from "@src/app/cad-viewer";
-import {Utils} from "@src/app/mixins/utils.mixin";
+import {CadData} from "@cad-viewer";
+import {Utils} from "@mixins/utils.mixin";
 import {getOpenDialogFunc} from "../dialog.common";
 
 export type CadDataAttrsComponentData = CadData["attributes"];

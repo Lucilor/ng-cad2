@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Params} from "@angular/router";
-import {routesInfo} from "../app.common";
+import {routesInfo} from "@app/app.common";
 
 @Injectable({
     providedIn: "root"

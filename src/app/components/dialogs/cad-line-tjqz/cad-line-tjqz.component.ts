@@ -1,9 +1,9 @@
 import {Component, ViewChild, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {MatTableDataSource} from "@angular/material/table";
-import {CadLine} from "@src/app/cad-viewer";
-import {CadConsoleService} from "@src/app/modules/cad-console/services/cad-console.service";
-import {MessageService} from "@src/app/modules/message/services/message.service";
+import {CadLine} from "@cad-viewer";
+import {CadConsoleService} from "@modules/cad-console/services/cad-console.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {
     ColumnInfo,
     TableComponent,
@@ -12,8 +12,8 @@ import {
     TableErrorState,
     RowEvent,
     CellEvent
-} from "@src/app/modules/table/components/table/table.component";
-import {AppStatusService} from "@src/app/services/app-status.service";
+} from "@modules/table/components/table/table.component";
+import {AppStatusService} from "@services/app-status.service";
 import {cloneDeep} from "lodash";
 import {CadLineTjqzSelectData, openCadLineTjqzSelectDialog} from "../cad-line-tjqz-select/cad-line-tjqz-select.component";
 import {getOpenDialogFunc} from "../dialog.common";

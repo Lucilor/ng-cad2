@@ -5,7 +5,7 @@ import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatSort} from "@angular/material/sort";
 import {MatTable, MatTableDataSource} from "@angular/material/table";
 import {downloadByString} from "@lucilor/utils";
-import {MessageService} from "@src/app/modules/message/services/message.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {cloneDeep, debounce} from "lodash";
 
 export interface ColumnInfoBase<T> {

@@ -1,10 +1,10 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadData, CadConnection, CadEventCallBack, CadEntity} from "@src/app/cad-viewer";
-import {Subscribed} from "@src/app/mixins/subscribed.mixin";
-import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
-import {CadStatusAssemble} from "@src/app/services/cad-status";
+import {CadData, CadEventCallBack, CadEntity, CadConnection} from "@cad-viewer";
+import {Subscribed} from "@mixins/subscribed.mixin";
+import {MessageService} from "@modules/message/services/message.service";
+import {AppConfigService, AppConfig} from "@services/app-config.service";
+import {AppStatusService, SelectedCads, SelectedCadType} from "@services/app-status.service";
+import {CadStatusAssemble} from "@services/cad-status";
 import {difference} from "lodash";
 
 @Component({

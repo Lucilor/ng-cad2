@@ -2,9 +2,8 @@ import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatTableModule} from "@angular/material/table";
-import {MessageModule} from "@src/app/modules/message/message.module";
+import {MessageModule} from "@modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
-
 import {TableComponent} from "./table.component";
 
 describe("TableComponent", () => {

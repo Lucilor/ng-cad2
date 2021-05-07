@@ -6,9 +6,8 @@ import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {CadDimension} from "@src/app/cad-viewer";
+import {CadDimension} from "@cad-viewer";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
-
 import {CadDimensionData, CadDimensionFormComponent} from "./cad-dimension-form.component";
 
 const data: CadDimensionData = {data: new CadDimension()};

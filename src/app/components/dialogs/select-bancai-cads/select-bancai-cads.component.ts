@@ -1,6 +1,6 @@
 import {Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {BancaiCadExtend} from "@src/app/views/select-bancai/select-bancai.component";
+import {BancaiCadExtend} from "@views/select-bancai/select-bancai.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
 export interface SelectBancaiCadsData {

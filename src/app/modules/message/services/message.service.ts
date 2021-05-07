@@ -2,14 +2,14 @@ import {Injectable} from "@angular/core";
 import {MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {
-    AlertMessageData,
-    BookMessageData,
-    ButtonMessageData,
-    ConfirmMessageData,
-    EditorMessageData,
     MessageData,
     MessageDataMap,
-    PromptMessageData
+    AlertMessageData,
+    ConfirmMessageData,
+    PromptMessageData,
+    BookMessageData,
+    EditorMessageData,
+    ButtonMessageData
 } from "../components/message/message-types";
 import {MessageComponent} from "../components/message/message.component";
 import {MessageModule} from "../message.module";

@@ -1,9 +1,9 @@
 import {Component, OnInit} from "@angular/core";
 import {MatDialogRef} from "@angular/material/dialog";
+import {CadData} from "@cad-viewer";
 import {ObjectOf, timeout} from "@lucilor/utils";
-import {CadData} from "@src/app/cad-viewer";
-import {CadSearchData, CadDataService} from "@src/app/modules/http/services/cad-data.service";
-import {MessageService} from "@src/app/modules/message/services/message.service";
+import {CadSearchData, CadDataService} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({

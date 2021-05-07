@@ -1,6 +1,5 @@
 import {TestBed} from "@angular/core/testing";
 import {HttpModule} from "../http.module";
-
 import {CadDataService} from "./cad-data.service";
 
 describe("CadDataService", () => {

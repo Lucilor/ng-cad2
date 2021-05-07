@@ -1,9 +1,9 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {CadConsoleModule} from "@src/app/modules/cad-console/cad-console.module";
-import {HttpModule} from "@src/app/modules/http/http.module";
-import {MessageModule} from "@src/app/modules/message/message.module";
-import {TableModule} from "@src/app/modules/table/table.module";
+import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
+import {HttpModule} from "@modules/http/http.module";
+import {MessageModule} from "@modules/message/message.module";
+import {TableModule} from "@modules/table/table.module";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 
 import {CadLineTjqzComponent} from "./cad-line-tjqz.component";

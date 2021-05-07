@@ -1,23 +1,23 @@
 import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
+import {getList, CadCollection} from "@app/app.common";
+import {removeCadGongshi, printCads, addCadGongshi} from "@app/cad.utils";
+import {CadArc, CadData} from "@cad-viewer";
+import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
+import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {ObjectOf, Angle, timeout, Point, Line, MatrixLike} from "@lucilor/utils";
-import {CadCollection, getList} from "@src/app/app.common";
-import {CadArc, CadData} from "@src/app/cad-viewer";
-import {removeCadGongshi, addCadGongshi, printCads} from "@src/app/cad.utils";
-import {openCadListDialog} from "@src/app/components/dialogs/cad-list/cad-list.component";
-import {openJsonEditorDialog} from "@src/app/components/dialogs/json-editor/json-editor.component";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
-import {BookData} from "@src/app/modules/message/components/message/message-types";
-import {MessageService} from "@src/app/modules/message/services/message.service";
-import {AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService} from "@src/app/services/app-status.service";
-import {CadStatusAssemble, CadStatusNormal, CadStatusSplit} from "@src/app/services/cad-status";
+import {Command, ValuedCommand, Arg} from "@modules/cad-console/cad-command-types";
+import {getContent, getEmphasized, getBashStyle, spaceReplacer} from "@modules/cad-console/cad-console.utils";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {BookData} from "@modules/message/components/message/message-types";
+import {MessageService} from "@modules/message/services/message.service";
+import {AppConfigService} from "@services/app-config.service";
+import {AppStatusService} from "@services/app-status.service";
+import {CadStatusAssemble, CadStatusNormal, CadStatusSplit} from "@services/cad-status";
 import {highlight} from "highlight.js";
 import {differenceWith} from "lodash";
 import printJS from "print-js";
-import {Command, ValuedCommand, Arg} from "../../cad-command-types";
-import {getBashStyle, getContent, getEmphasized, spaceReplacer} from "../../cad-console.utils";
 
 export const commands: Command[] = [
     {name: "assemble", args: [], desc: "进入/退出装配状态"},

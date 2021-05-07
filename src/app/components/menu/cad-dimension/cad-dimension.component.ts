@@ -1,13 +1,13 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {CadDimension, CadData, CadLine, CadEventCallBack} from "@src/app/cad-viewer";
-import {Subscribed} from "@src/app/mixins/subscribed.mixin";
-import {AppConfig, AppConfigService} from "@src/app/services/app-config.service";
-import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
-import {CadStatusEditDimension, CadStatusNormal} from "@src/app/services/cad-status";
+import {CadDimension, CadData, CadLine, CadEventCallBack} from "@cad-viewer";
+import {openCadDimensionFormDialog} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
+import {Subscribed} from "@mixins/subscribed.mixin";
+import {AppConfigService, AppConfig} from "@services/app-config.service";
+import {AppStatusService, SelectedCadType, SelectedCads} from "@services/app-status.service";
+import {CadStatusEditDimension, CadStatusNormal} from "@services/cad-status";
 import Color from "color";
 import {debounce} from "lodash";
-import {openCadDimensionFormDialog} from "../../dialogs/cad-dimension-form/cad-dimension-form.component";
 
 @Component({
     selector: "app-cad-dimension",

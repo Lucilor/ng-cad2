@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import {AppStatusService} from "@src/app/services/app-status.service";
+import {AppStatusService} from "@services/app-status.service";
 
 @Component({
     selector: "app-cad-points",

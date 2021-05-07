@@ -1,10 +1,10 @@
 import {Component} from "@angular/core";
 import {DomSanitizer} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {CadData} from "@src/app/cad-viewer";
-import {getCadPreview} from "@src/app/cad.utils";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
-import {MessageService} from "@src/app/modules/message/services/message.service";
+import {getCadPreview} from "@app/cad.utils";
+import {CadData} from "@cad-viewer";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
 @Component({

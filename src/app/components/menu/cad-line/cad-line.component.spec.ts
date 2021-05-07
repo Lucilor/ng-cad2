@@ -7,9 +7,9 @@ import {MatInputModule} from "@angular/material/input";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {CadConsoleModule} from "@src/app/modules/cad-console/cad-console.module";
-import {HttpModule} from "@src/app/modules/http/http.module";
-import {MessageModule} from "@src/app/modules/message/message.module";
+import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
+import {HttpModule} from "@modules/http/http.module";
+import {MessageModule} from "@modules/message/message.module";
 import {ColorCircleModule} from "ngx-color/circle";
 
 import {CadLineComponent} from "./cad-line.component";

@@ -1,7 +1,7 @@
 import {TestBed} from "@angular/core/testing";
+import {MessageModule} from "@modules/message/message.module";
 import {AppComponent} from "./app.component";
 import {AppModule} from "./app.module";
-import {MessageModule} from "./modules/message/message.module";
 
 describe("AppComponent", () => {
     beforeEach(async () => {

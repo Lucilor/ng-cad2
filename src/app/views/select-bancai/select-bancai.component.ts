@@ -3,10 +3,10 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
+import {openSelectBancaiCadsDialog} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {ObjectOf} from "@lucilor/utils";
-import {openSelectBancaiCadsDialog} from "@src/app/components/dialogs/select-bancai-cads/select-bancai-cads.component";
-import {BancaiList, BancaiCad, CadDataService} from "@src/app/modules/http/services/cad-data.service";
-import {MessageService} from "@src/app/modules/message/services/message.service";
+import {BancaiCad, BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
 const houduPattern = /^[0-9]+([.]{1}[0-9]+){0,1}$/;

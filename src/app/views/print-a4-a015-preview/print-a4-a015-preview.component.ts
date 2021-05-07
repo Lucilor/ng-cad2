@@ -1,10 +1,10 @@
 import {Component, ChangeDetectorRef, OnDestroy, AfterViewInit} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {NgxUiLoaderService} from "ngx-ui-loader";
-import {CadDataService} from "@src/app/modules/http/services/cad-data.service";
-import {CadViewer, CadData} from "@src/app/cad-viewer";
 import {ActivatedRoute} from "@angular/router";
 import {timeout} from "@lucilor/utils";
+import {CadViewer, CadData} from "@cad-viewer";
+import {CadDataService} from "@modules/http/services/cad-data.service";
 
 export type PreviewData = {
     // eslint-disable-next-line @typescript-eslint/naming-convention
