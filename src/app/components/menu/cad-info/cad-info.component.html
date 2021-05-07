@@ -244,13 +244,28 @@
                 <mat-option value="都不显示">都不显示</mat-option>
             </mat-select>
         </mat-form-field>
-        <mat-form-field>
-            <mat-label>指定位置刨坑</mat-label>
-            <input type="text" matInput [value]="cad.zhidingweizhipaokeng.length ? '已指定' : '未指定'" readonly />
-            <button mat-icon-button matSuffix [color]="getZhidingweizhipaokengColor()" (click)="selectZhidingweizhipaokeng()">
-                <mat-icon>linear_scale</mat-icon>
-            </button>
-        </mat-form-field>
+        <div class="sub-form-field">
+            <div class="label">指定位置刨坑</div>
+            <div *ngIf="cad.zhidingweizhipaokeng.length === 0">
+                <button mat-icon-button color="primary" (click)="arrayAdd(cad.zhidingweizhipaokeng, [])">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+            </div>
+            <div *ngFor="let v of cad.zhidingweizhipaokeng; let j = index">
+                <mat-form-field>
+                    <input type="text" matInput [value]="v.length ? '已指定' : '未指定'" readonly />
+                    <button mat-icon-button matSuffix [color]="getZhidingweizhipaokengColor(j)" (click)="selectZhidingweizhipaokeng(j)">
+                        <mat-icon>linear_scale</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(cad.zhidingweizhipaokeng, [], j + 1)">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(cad.zhidingweizhipaokeng, j)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+        </div>
         <mat-form-field>
             <mat-label>算料单显示放大倍数</mat-label>
             <input

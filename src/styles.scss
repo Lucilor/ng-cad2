@@ -108,7 +108,7 @@ form {
     padding: 8px;
 
     &:not(:first-child) {
-        margin-top: 8px;
+        margin: 5px auto;
     }
     &:empty {
         display: none;

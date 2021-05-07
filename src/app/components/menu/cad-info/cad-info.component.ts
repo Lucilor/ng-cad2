@@ -58,8 +58,8 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             this._cadPointsLock = true;
             this.status.cadPoints$.next(points);
         } else if (cadStatus instanceof CadStatusIntersection) {
-            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities());
-            this._setActiveCadPoint({lines: data.zhidingweizhipaokeng}, points);
+            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities()).filter((v) => v.lines.length > 1);
+            this._setActiveCadPoint({lines: data.zhidingweizhipaokeng[cadStatus.index]}, points);
             this._cadPointsLock = true;
             this.status.cadPoints$.next(points);
         }
@@ -128,14 +128,15 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
                     }
                 }
             } else if (cadStatus instanceof CadStatusIntersection) {
-                const lines = this.cadsData[0].zhidingweizhipaokeng;
+                const index = cadStatus.index;
+                const lines = this.cadsData[0].zhidingweizhipaokeng[index];
                 if (activePoints.length < 1) {
-                    this.cadsData[0].zhidingweizhipaokeng = [];
+                    this.cadsData[0].zhidingweizhipaokeng[index] = [];
                 } else {
                     for (const p of activePoints) {
                         const p2 = this._setActiveCadPoint({lines}, points);
                         if (!p2 || !isEqual(p.lines, p2.lines)) {
-                            this.cadsData[0].zhidingweizhipaokeng = p.lines.slice();
+                            this.cadsData[0].zhidingweizhipaokeng[index] = p.lines.slice();
                             this._updateCadPoints();
                             break;
                         }
@@ -354,13 +355,13 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
     }
 
-    selectZhidingweizhipaokeng() {
-        this.status.toggleCadStatus(new CadStatusIntersection());
+    selectZhidingweizhipaokeng(i: number) {
+        this.status.toggleCadStatus(new CadStatusIntersection(i));
     }
 
-    getZhidingweizhipaokengColor() {
+    getZhidingweizhipaokengColor(i: number) {
         const cadStatus = this.status.cadStatus;
-        if (cadStatus instanceof CadStatusIntersection) {
+        if (cadStatus instanceof CadStatusIntersection && i === cadStatus.index) {
             return "accent";
         }
         return "primary";
