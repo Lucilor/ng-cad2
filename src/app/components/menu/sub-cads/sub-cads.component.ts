@@ -1,6 +1,7 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog} from "@angular/material/dialog";
+import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
 import {ObjectOf, Point} from "@lucilor/utils";
 import {imgLoading} from "@src/app/app.common";
@@ -14,7 +15,6 @@ import {AppConfig, AppConfigService} from "@src/app/services/app-config.service"
 import {AppStatusService, SelectedCads, SelectedCadType} from "@src/app/services/app-status.service";
 import {CadStatusAssemble, CadStatusSplit} from "@src/app/services/cad-status";
 import {concat, pull, pullAll} from "lodash";
-import {PerfectScrollbarComponent} from "ngx-perfect-scrollbar";
 import {openCadListDialog} from "../../dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "../../dialogs/json-editor/json-editor.component";
 
@@ -42,8 +42,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     partnersDisabled = false;
     componentsDisabled = false;
     needsReload: string | null = null;
-    @ViewChild("dxfInut", {read: ElementRef}) private _dxfInut!: ElementRef<HTMLElement>;
-    @ViewChild(PerfectScrollbarComponent) private _scrollbar!: PerfectScrollbarComponent;
+    @ViewChild(MatMenuTrigger) contextMenu!: MatMenuTrigger;
+    @ViewChild("dxfInut", {read: ElementRef}) dxfInut!: ElementRef<HTMLElement>;
     contextMenuCad?: {field: SelectedCadType; data: CadData};
     private _prevId = "";
     private lastPointer: Point | null = null;
@@ -528,7 +528,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     uploadDxf(mainCad = false) {
-        const el = this._dxfInut.nativeElement;
+        const el = this.dxfInut.nativeElement;
         el.click();
         if (mainCad) {
             el.setAttribute("main-cad", "");

@@ -11,6 +11,7 @@ import {
     ViewChildren,
     QueryList
 } from "@angular/core";
+import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabGroup, MatTabChangeEvent} from "@angular/material/tabs";
 import {ActivatedRoute} from "@angular/router";
 import {CadEventCallBack, CadData} from "@src/app/cad-viewer";
@@ -94,6 +95,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         return this.status.cadStatus.name;
     }
 
+    @ViewChild(MatMenuTrigger) contextMenu!: MatMenuTrigger;
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer!: ElementRef<HTMLElement>;
     @ViewChild(CadConsoleComponent) consoleComponent!: CadConsoleComponent;
     @ViewChild(MatTabGroup) infoTabs!: MatTabGroup;
