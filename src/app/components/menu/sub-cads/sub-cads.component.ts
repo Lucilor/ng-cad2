@@ -8,7 +8,6 @@ import {removeCadGongshi, getCadPreview} from "@app/cad.utils";
 import {CadData, CadEntities, CadHatch} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
-import {ObjectOf, Point} from "@lucilor/utils";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -16,6 +15,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {SelectedCadType, AppStatusService, SelectedCads} from "@services/app-status.service";
 import {CadStatusSplit, CadStatusAssemble} from "@services/cad-status";
+import {ObjectOf, Point} from "@utils";
 import {concat, pull, pullAll} from "lodash";
 
 interface CadNode {

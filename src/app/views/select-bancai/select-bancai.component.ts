@@ -4,9 +4,9 @@ import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {openSelectBancaiCadsDialog} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
-import {ObjectOf} from "@lucilor/utils";
 import {BancaiCad, BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {ObjectOf} from "@utils";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
 const houduPattern = /^[0-9]+([.]{1}[0-9]+){0,1}$/;

@@ -3,9 +3,9 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {printCads} from "@app/cad.utils";
 import {CadData, CadDimension} from "@cad-viewer";
-import {timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {timeout} from "@utils";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import printJS from "print-js";
 

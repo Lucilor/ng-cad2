@@ -2,8 +2,8 @@ import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Response} from "@app/app.common";
-import {RSAEncrypt, ObjectOf} from "@lucilor/utils";
 import {MessageService} from "@modules/message/services/message.service";
+import {RSAEncrypt, ObjectOf} from "@utils";
 import {environment} from "src/environments/environment";
 
 export type DataEncrpty = "yes" | "no" | "both";

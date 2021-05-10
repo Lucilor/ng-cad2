@@ -1816,16 +1816,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lucilor/utils@npm:^1.5.2":
-  version: 1.5.2
-  resolution: "@lucilor/utils@npm:1.5.2"
-  dependencies:
-    color: ^3.1.3
-    jsencrypt: ^3.2.0
-  checksum: 5bc1cb15acc9bb8568069c56439046f289b51aa1508a241c5c382009afaca22c7ed74fecc38415316e66143c103177a1fa10d122d0aae36d467719527f79b196
-  languageName: node
-  linkType: hard
-
 "@ngtools/webpack@npm:11.2.12":
   version: 11.2.12
   resolution: "@ngtools/webpack@npm:11.2.12"
@@ -7902,13 +7892,6 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"jsencrypt@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "jsencrypt@npm:3.2.0"
-  checksum: 3f30ac14a82db8ceeec52568a089da322fa7146fa14a360f4f47ef0afbab73c4bfae2bf7c187ba5e1fecb5fb9758d4e652a5526f03b75d50507878c251a30a38
-  languageName: node
-  linkType: hard
-
 "jsesc@npm:^2.5.1":
   version: 2.5.2
   resolution: "jsesc@npm:2.5.2"
@@ -9096,7 +9079,6 @@ fsevents@~2.3.1:
     "@angular/platform-browser": ~11.2.13
     "@angular/platform-browser-dynamic": ~11.2.13
     "@angular/router": ~11.2.13
-    "@lucilor/utils": ^1.5.2
     "@svgdotjs/svg.js": ^3.0.16
     "@types/color": ^3
     "@types/jasmine": ~3.7.1

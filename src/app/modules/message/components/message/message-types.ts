@@ -1,5 +1,5 @@
 import {ValidatorFn} from "@angular/forms";
-import {ObjectOf} from "@lucilor/utils";
+import {ObjectOf} from "@utils";
 
 export interface BaseMessageData {
     title?: string;

@@ -9,7 +9,7 @@ import {
     CadBaseLine,
     CadJointPoint
 } from "@cad-viewer";
-import {timeout, getDPI, Point} from "@lucilor/utils";
+import {timeout, getDPI, Point} from "@utils";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 

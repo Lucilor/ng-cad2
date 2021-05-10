@@ -14,8 +14,8 @@ import {
     generatePointsMap,
     ValidateResult
 } from "@cad-viewer";
-import {ObjectOf, timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
+import {ObjectOf, timeout} from "@utils";
 import {difference, differenceWith, clamp} from "lodash";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";

@@ -22,7 +22,6 @@
     "@angular/platform-browser": "~11.2.13",
     "@angular/platform-browser-dynamic": "~11.2.13",
     "@angular/router": "~11.2.13",
-    "@lucilor/utils": "^1.5.2",
     "@svgdotjs/svg.js": "^3.0.16",
     "ang-jsoneditor": "^1.10.5",
     "color": "^3.1.3",

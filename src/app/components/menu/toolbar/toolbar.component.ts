@@ -3,13 +3,13 @@ import {MatDialog} from "@angular/material/dialog";
 import {routesInfo, local} from "@app/app.common";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@cad-viewer";
 import {openChangelogDialog} from "@components/dialogs/changelog/changelog.component";
-import {ObjectOf} from "@lucilor/utils";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadConsoleService} from "@modules/cad-console/services/cad-console.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusNormal} from "@services/cad-status";
+import {ObjectOf} from "@utils";
 import {flatMap} from "lodash";
 
 @Component({

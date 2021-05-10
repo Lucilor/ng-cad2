@@ -1,7 +1,7 @@
 import {OnDestroy} from "@angular/core";
+import {Constructor} from "@utils";
 import {Observable, Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
-import {Constructor} from "@lucilor/utils";
 
 export const Subscribed = <T extends Constructor>(base: T = class {} as T) =>
     class extends base implements OnDestroy {

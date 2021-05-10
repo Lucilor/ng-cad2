@@ -3,11 +3,11 @@ import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {routesInfo} from "@app/app.common";
-import {ObjectOf} from "@lucilor/utils";
 import {Utils} from "@mixins/utils.mixin";
 import {Changelog, CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
+import {ObjectOf} from "@utils";
 
 export const changelogTypes: ObjectOf<string> = {
     feat: "✨新特性",

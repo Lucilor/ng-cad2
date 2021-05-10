@@ -17,11 +17,11 @@ import {
     autoFixLine
 } from "@cad-viewer";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
-import {Point} from "@lucilor/utils";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {CadPoints, AppStatusService} from "@services/app-status.service";
 import {CadStatusDrawLine, CadStatusMoveLines, CadStatusCutLine} from "@services/cad-status";
+import {Point} from "@utils";
 import Color from "color";
 import {debounce} from "lodash";
 import {ColorEvent} from "ngx-color";
