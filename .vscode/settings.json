@@ -1,0 +1,3 @@
+{
+    "eslint.workingDirectories": [".", "src/cad-viewer", "src/cad-viewer/src/utils"]
+}

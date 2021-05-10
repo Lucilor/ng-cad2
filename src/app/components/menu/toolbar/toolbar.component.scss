@@ -1,25 +1,31 @@
 ::ng-deep {
-	.mat-menu-item {
-		display: flex !important;
-		justify-content: space-between;
-		padding: 0 10px;
+    .mat-menu-item {
+        display: flex !important;
+        justify-content: space-between;
+        padding: 0 10px;
 
-		.shortcut {
-			text-align: right;
-			font-size: 0.75rem;
-			color: #868686;
-			margin-left: 10px;
-		}
-	}
+        .shortcut {
+            text-align: right;
+            font-size: 0.75rem;
+            color: #868686;
+            margin-left: 10px;
+        }
+    }
 }
 
 .mat-button {
-	padding: 2px 5px;
-	min-width: unset;
+    padding: 2px 5px;
+    min-width: unset;
 }
 
 .super {
-	vertical-align: super !important;
-	font-size: 0.5em;
-	color: hotpink;
+    vertical-align: super !important;
+    font-size: 0.5em;
+    color: hotpink;
+}
+
+.mat-divider {
+    display: inline;
+	border-right-color: rgba(0, 0, 0, 0.25);
+	margin: 0 3px;
 }

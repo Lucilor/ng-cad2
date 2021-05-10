@@ -40,7 +40,8 @@
 
 <!-- <button mat-button (click)="showManual()">帮助<span class="super">NEW!</span></button> -->
 <button mat-button (click)="showChangelog()">更新日志<span *ngIf="this.showNew" class="super">NEW!</span></button>
-<button mat-button disabled>|</button>
+<!-- <button mat-button disabled>|</button> -->
+<mat-divider vertical></mat-divider>
 
 <button mat-button (click)="toggleShowLineLength()" [disabled]="!isStatusNormal">
     {{ getConfig("hideLineLength") ? "隐藏" : "显示" }}线长
