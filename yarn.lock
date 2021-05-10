@@ -1768,20 +1768,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@es-joy/jsdoccomment@npm:^0.4.3":
-  version: 0.4.3
-  resolution: "@es-joy/jsdoccomment@npm:0.4.3"
+"@es-joy/jsdoccomment@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@es-joy/jsdoccomment@npm:0.4.4"
   dependencies:
     comment-parser: ^1.1.5
     esquery: ^1.4.0
     jsdoctypeparser: ^9.0.0
-  checksum: 111f41d1b74e7686975aab84ebf3fa2f8705c5f406618e68aec746fa0800ef1a8d8b0a3ef421885955690881ee9ccf9ce582cce2e636d3be7c9abf598bcb83d0
+  checksum: 485e0e591d6ff3e62bb1da9a5b6d30c543a5ff24f30e39eb71acf40dd7b5767316cd2a235af92d9debd375d6d91d0d4fa521cc05a168cccadc3a72560d1c3233
   languageName: node
   linkType: hard
 
-"@eslint/eslintrc@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@eslint/eslintrc@npm:0.4.0"
+"@eslint/eslintrc@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@eslint/eslintrc@npm:0.4.1"
   dependencies:
     ajv: ^6.12.4
     debug: ^4.1.1
@@ -1792,7 +1792,7 @@ __metadata:
     js-yaml: ^3.13.1
     minimatch: ^3.0.4
     strip-json-comments: ^3.1.1
-  checksum: d3f51b741997cbf36662d8b5a52985bfa5d2873e48cadccd95c67fcce1706327ec98ebb6f0be79c6ecbc31bdeca32c2b1c4f66fd1cf3934c434d1ac269cbceac
+  checksum: 418f5810c8dd9897d2457ceef098197d0e5f1ad345fbe4cd9256fd4223d7ea83d5e350f9091b3ab3483b6b1c367fa560df3ba1fccc7eb8ca6e1aae5a5b126d60
   languageName: node
   linkType: hard
 
@@ -2063,19 +2063,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jasmine@npm:~3.6.11":
-  version: 3.6.11
-  resolution: "@types/jasmine@npm:3.6.11"
-  checksum: bb991c440138357e413a9f5bcd45a06af5301079195ea136429e8a1979eb81bc4ff84dee369ddd6f1340f21390b0428258c05b67a885a5683297fa1b75858d9e
+"@types/jasmine@npm:~3.7.1":
+  version: 3.7.1
+  resolution: "@types/jasmine@npm:3.7.1"
+  checksum: cb47ecced41397492419f913998cfd5274f30ddbbeee08648137cce6c2aab99730a52b8f1ea4dd33411ba0d3f2d324b212b4bc82fdaaf3ef11b4eaaff69df6f0
   languageName: node
   linkType: hard
 
-"@types/jasminewd2@npm:~2.0.8":
-  version: 2.0.8
-  resolution: "@types/jasminewd2@npm:2.0.8"
+"@types/jasminewd2@npm:~2.0.9":
+  version: 2.0.9
+  resolution: "@types/jasminewd2@npm:2.0.9"
   dependencies:
     "@types/jasmine": "*"
-  checksum: 747d05a5aa24bae9b7cba5f76693d49c83f9eba2cb897a3826445760d6b069d7cdb9ca0e0fa81568330b18e5e8300cee8be67e2795524752b9a4f633d150fd5e
+  checksum: f0ab1754318396e05a8b91eb6876bd37aea19e6fa3d61db2c4d8e53f7bc0cfb23033bdbe756a262b1c8fa0b0ef90ba8e3aae4c349384d4a32139273b76e2f87a
   languageName: node
   linkType: hard
 
@@ -5676,11 +5676,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:33.1.0":
-  version: 33.1.0
-  resolution: "eslint-plugin-jsdoc@npm:33.1.0"
+"eslint-plugin-jsdoc@npm:33.1.1":
+  version: 33.1.1
+  resolution: "eslint-plugin-jsdoc@npm:33.1.1"
   dependencies:
-    "@es-joy/jsdoccomment": ^0.4.3
+    "@es-joy/jsdoccomment": ^0.4.4
     comment-parser: 1.1.5
     debug: ^4.3.1
     esquery: ^1.4.0
@@ -5691,7 +5691,7 @@ __metadata:
     spdx-expression-parse: ^3.0.1
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0
-  checksum: 5b9135ec92c59fa2bcc457be64a8092d8ff2e66e8ff1b8d6ffa8a708f152e1a1383fe320e9fbda570da73512f70fa302a36095fa1298225bc271d6a8e46ab963
+  checksum: e4811962287ee33ba40fb16eac408b8a2e22330d56fe0e3709f3c7a893a1755050fe8aea946b446919b158e03730539810774e99fdb95711605e5992fe6596a8
   languageName: node
   linkType: hard
 
@@ -5747,12 +5747,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^7.25.0":
-  version: 7.25.0
-  resolution: "eslint@npm:7.25.0"
+"eslint@npm:^7.26.0":
+  version: 7.26.0
+  resolution: "eslint@npm:7.26.0"
   dependencies:
     "@babel/code-frame": 7.12.11
-    "@eslint/eslintrc": ^0.4.0
+    "@eslint/eslintrc": ^0.4.1
     ajv: ^6.10.0
     chalk: ^4.0.0
     cross-spawn: ^7.0.2
@@ -5790,7 +5790,7 @@ __metadata:
     v8-compile-cache: ^2.0.3
   bin:
     eslint: bin/eslint.js
-  checksum: 6e1782e2264ebf987504746ee82e996bf0ef2c29a2eaea869b54cb8aa1eaf10945b1d563618515e65ac934ca626f3609282127773f45868ad4a98744458a3c62
+  checksum: 08f99befd764fbd6ea811e9eec27d5c6b9dc9d1bbfe5ffa1016e4f1fe526a4f45ea127c4e30c554c423ee55eb290ce9af4fb7fedf9b7af3f84076a444c2bbdf6
   languageName: node
   linkType: hard
 
@@ -8103,14 +8103,14 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"karma-jasmine-html-reporter@npm:^1.5.4":
-  version: 1.5.4
-  resolution: "karma-jasmine-html-reporter@npm:1.5.4"
+"karma-jasmine-html-reporter@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "karma-jasmine-html-reporter@npm:1.6.0"
   peerDependencies:
-    jasmine-core: ">=3.5"
+    jasmine-core: ">=3.7.1"
     karma: ">=0.9"
     karma-jasmine: ">=1.1"
-  checksum: 39115ac12e337179ee8ae3e685046a2c216ea47648fc5305d274e5abc344752aa8507b260d921f898107aa0dd7dced0b408ae82e213069e906fe29974e7ea638
+  checksum: 4f4decdf11a33b06770684d9f19e3898086bb5044a2f7b67b567004dd94b3e22c55956dbe2963f581e173d593a92d1ae1b548c2a937c93b639a680a65ccf21f5
   languageName: node
   linkType: hard
 
@@ -9099,8 +9099,8 @@ fsevents@~2.3.1:
     "@lucilor/utils": ^1.5.2
     "@svgdotjs/svg.js": ^3.0.16
     "@types/color": ^3
-    "@types/jasmine": ~3.6.11
-    "@types/jasminewd2": ~2.0.8
+    "@types/jasmine": ~3.7.1
+    "@types/jasminewd2": ~2.0.9
     "@types/lodash": ^4
     "@types/node": ^15
     "@types/pdfmake": ^0
@@ -9110,9 +9110,9 @@ fsevents@~2.3.1:
     "@typescript-eslint/parser": 4.22.1
     ang-jsoneditor: ^1.10.5
     color: ^3.1.3
-    eslint: ^7.25.0
+    eslint: ^7.26.0
     eslint-plugin-import: 2.22.1
-    eslint-plugin-jsdoc: 33.1.0
+    eslint-plugin-jsdoc: 33.1.1
     eslint-plugin-prefer-arrow: 1.2.3
     highlight.js: ^10.7.2
     jasmine-core: ~3.7.1
@@ -9122,12 +9122,12 @@ fsevents@~2.3.1:
     karma-chrome-launcher: ~3.1.0
     karma-coverage-istanbul-reporter: ~3.0.3
     karma-jasmine: ~4.0.1
-    karma-jasmine-html-reporter: ^1.5.4
+    karma-jasmine-html-reporter: ^1.6.0
     lodash: ^4.17.21
     ngx-color: ^6.2.0
     ngx-forms-typed: ^1.0.8
     ngx-perfect-scrollbar: ^10.1.1
-    ngx-quill: ^13.3.1
+    ngx-quill: ^13.4.0
     ngx-ui-loader: ^11.0.0
     pdfmake: ^0.1.71
     print-js: ^1.6.0
@@ -9182,9 +9182,9 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"ngx-quill@npm:^13.3.1":
-  version: 13.3.1
-  resolution: "ngx-quill@npm:13.3.1"
+"ngx-quill@npm:^13.4.0":
+  version: 13.4.0
+  resolution: "ngx-quill@npm:13.4.0"
   dependencies:
     tslib: ^2.0.0
   peerDependencies:
@@ -9194,7 +9194,7 @@ fsevents@~2.3.1:
     "@angular/platform-browser": ^10.0.0 || ^11.0.0
     quill: ^1.3.7
     rxjs: ^6.5.0
-  checksum: 096072264b2d6c54b8a32101190c144f65e0ac10d801df2579132236cf055a84059fe201e30948ee6dc392641d85aee3ca77c5ed4ee9de83c9c4086ed9a48975
+  checksum: e81442403912593f5b7e4061d2404c2336487d80097ffaaffac7760d5a0ed0a9493a3477e5de54c68726f47a17d3028b03c63beb1ede01b7e82bbb785afec3c0
   languageName: node
   linkType: hard
 
