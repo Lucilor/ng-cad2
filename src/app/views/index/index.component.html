@@ -52,50 +52,41 @@
                     </mat-icon>
                 </button>
             </div>
-            <mat-accordion multi style="width: 100%">
-                <mat-expansion-panel expanded *ngIf="shownMenus.includes('entityInfo')">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            CAD信息 <span>(总长: {{ cadLength }})</span>
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <mat-slide-toggle [checked]="multiSelect" (change)="toggleMultiSelect()">
-                        实体{{ multiSelect ? "多选" : "单选" }}
-                    </mat-slide-toggle>
-                    <br />
-                    <!-- <mat-slide-toggle [checked]="!!entityDraggable" (change)="toggleEntityDraggable()"> 实体拖动 </mat-slide-toggle> -->
-                    <mat-tab-group #infoTabs [disablePagination]="true" dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
-                        <mat-tab label="CAD">
-                            <perfect-scrollbar (psScrollY)="onScrollChange($event)">
-                                <app-cad-info (cadLengthsChange)="onCadLengthsChange($event)"></app-cad-info>
-                            </perfect-scrollbar>
-                        </mat-tab>
-                        <mat-tab label="线段">
-                            <perfect-scrollbar (psScrollY)="onScrollChange($event)">
-                                <app-cad-line></app-cad-line>
-                            </perfect-scrollbar>
-                        </mat-tab>
-                        <mat-tab label="文本">
-                            <perfect-scrollbar (psScrollY)="onScrollChange($event)">
-                                <app-cad-mtext></app-cad-mtext>
-                            </perfect-scrollbar>
-                        </mat-tab>
-                        <mat-tab label="标注">
-                            <perfect-scrollbar (psScrollY)="onScrollChange($event)">
-                                <app-cad-dimension></app-cad-dimension>
-                            </perfect-scrollbar>
-                        </mat-tab>
-                    </mat-tab-group>
-                </mat-expansion-panel>
-                <mat-expansion-panel expanded *ngIf="shownMenus.includes('cadAssemble')">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>装配CAD</mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <perfect-scrollbar style="height: calc(100vh - 180px)">
-                        <app-cad-assemble></app-cad-assemble>
-                    </perfect-scrollbar>
-                </mat-expansion-panel>
-            </mat-accordion>
+            <div class="sub-menu" *ngIf="shownMenus.includes('entityInfo')">
+                <div style="padding: 10px; font-size: 1.2em">CAD总长: {{ cadLength }}</div>
+                <mat-slide-toggle [checked]="multiSelect" (change)="toggleMultiSelect()">
+                    实体{{ multiSelect ? "多选" : "单选" }}
+                </mat-slide-toggle>
+                <br />
+                <!-- <mat-slide-toggle [checked]="!!entityDraggable" (change)="toggleEntityDraggable()"> 实体拖动 </mat-slide-toggle> -->
+                <mat-tab-group #infoTabs [disablePagination]="true" dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
+                    <mat-tab label="CAD">
+                        <perfect-scrollbar (psScrollY)="onScrollChange($event)">
+                            <app-cad-info (cadLengthsChange)="onCadLengthsChange($event)"></app-cad-info>
+                        </perfect-scrollbar>
+                    </mat-tab>
+                    <mat-tab label="线段">
+                        <perfect-scrollbar (psScrollY)="onScrollChange($event)">
+                            <app-cad-line></app-cad-line>
+                        </perfect-scrollbar>
+                    </mat-tab>
+                    <mat-tab label="文本">
+                        <perfect-scrollbar (psScrollY)="onScrollChange($event)">
+                            <app-cad-mtext></app-cad-mtext>
+                        </perfect-scrollbar>
+                    </mat-tab>
+                    <mat-tab label="标注">
+                        <perfect-scrollbar (psScrollY)="onScrollChange($event)">
+                            <app-cad-dimension></app-cad-dimension>
+                        </perfect-scrollbar>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+            <div class="sub-menu" *ngIf="shownMenus.includes('cadAssemble')">
+                <perfect-scrollbar>
+                    <app-cad-assemble></app-cad-assemble>
+                </perfect-scrollbar>
+            </div>
             <div class="width-indicator" @menuWidth *ngIf="isDraggingRight">{{ rightMenuWidth$ | async }}px</div>
             <div
                 class="resize-handle-left"
