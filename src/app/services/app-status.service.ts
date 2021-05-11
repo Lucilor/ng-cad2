@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
-import {CadCollection, local} from "@app/app.common";
+import {CadCollection, local, timer} from "@app/app.common";
 import {setCadData, addCadGongshi} from "@app/cad.utils";
 import {
     CadData,
@@ -173,6 +173,8 @@ export class AppStatusService {
     }
 
     async openCad(data?: CadData[], collection?: CadCollection) {
+        const timerName = "openCad";
+        timer.start(timerName);
         const cad = this.cad;
         if (data) {
             cad.data.components.data = data;
@@ -210,6 +212,7 @@ export class AppStatusService {
         cad.reset().render();
         cad.data.updatePartners().updateComponents();
         cad.render().center();
+        timer.end(timerName, "打开CAD");
     }
 
     startLoader(config: {id?: string; text?: string} = {}) {

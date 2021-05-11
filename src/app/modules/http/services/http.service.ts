@@ -1,7 +1,7 @@
 import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {Response} from "@app/app.common";
+import {Response, timer} from "@app/app.common";
 import {MessageService} from "@modules/message/services/message.service";
 import {RSAEncrypt, ObjectOf} from "@utils";
 import {environment} from "src/environments/environment";
@@ -53,6 +53,9 @@ export class HttpService {
     }
 
     async request<T>(url: string, method: "GET" | "POST", data?: any, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
+        const timerName = "http.request." + url;
+        timer.start(timerName);
+        const rawUrl = url;
         if (!url.startsWith("http")) {
             url = `${this.baseURL}${url}`;
         }
@@ -142,6 +145,8 @@ export class HttpService {
             }
             this.alert(error);
             return null;
+        } finally {
+            timer.end(timerName, `${method} ${rawUrl}`);
         }
     }
 

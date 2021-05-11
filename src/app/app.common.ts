@@ -1,5 +1,5 @@
 import {LocalStorage, SessionStorage} from "@utils";
-import {environment} from "src/environments/environment";
+import {Timer} from "./app.timer";
 
 export const projectName = "NgCad2";
 export const session = new SessionStorage(projectName);
@@ -30,19 +30,8 @@ export interface Response<T> {
 
 export type CadCollection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";
 
-export const logTime = (content: string, start: number, fractionDigits = 2) => {
-    if (environment.production) {
-        return;
-    }
-    const time = (performance.now() - start) / 1000;
-    let str = "";
-    if (typeof fractionDigits === "number") {
-        str = time.toFixed(fractionDigits);
-    } else {
-        str = time.toString();
-    }
-    console.log(`%c[DEBUG] ${content}: ${str}s`, "color:deeppink");
-};
+export const timer = new Timer();
+Object.assign(window, {timer});
 
 export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 

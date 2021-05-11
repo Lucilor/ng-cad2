@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, OnDestroy} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
+import { timer } from "@app/app.common";
 import {printCads} from "@app/cad.utils";
 import {CadData, CadDimension} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -58,11 +59,13 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const response = await this.dataService.post<ResponseData>(action, queryParams, "both");
         if (response?.data) {
             this.loaderText = "正在生成算料单...";
+            timer.start(this.loaderId);
             this.cads = response.data.cads.map((v) => new CadData(v));
             this.linewidth = response.data.linewidth;
             this.renderStyle = response.data.renderStyle;
             this.pdfUrlRaw = await printCads(this.cads, {}, this.linewidth, this.renderStyle);
             this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
+            timer.end(this.loaderId, "生成算料单");
         }
         this.loader.stopLoader(this.loaderId);
         window.addEventListener("keydown", this._onKeyDown);
