@@ -63,6 +63,12 @@ mat-radio-group,
         .mat-divider {
             margin: 5px 0;
         }
+
+        .text {
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }
 
