@@ -53,7 +53,7 @@ export class HttpService {
     }
 
     async request<T>(url: string, method: "GET" | "POST", data?: any, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
-        const timerName = "http.request." + url;
+        const timerName = `http.request.${url}.${timer.now}`;
         timer.start(timerName);
         const rawUrl = url;
         if (!url.startsWith("http")) {

@@ -21,6 +21,7 @@ export class ChangelogComponent {
     get isAdmin$() {
         return this.status.isAdmin$;
     }
+    private _nextPageLock = false;
 
     constructor(
         private cd: ChangeDetectorRef,
@@ -33,17 +34,19 @@ export class ChangelogComponent {
 
     private async nextPage() {
         const {pageSize, maxPage} = this;
-        if (this.currentPage > maxPage) {
+        if (this.currentPage >= maxPage || this._nextPageLock) {
             return;
         }
+        this._nextPageLock = true;
         const page = this.currentPage + 1;
         this.loading = true;
         const {changelog, count} = await this.dataService.getChangelog(page, pageSize);
         this.loading = false;
         this.changelog = this.changelog.concat(changelog);
-        this.cd.detectChanges();
         this.maxPage = Math.ceil((count || 0) / pageSize);
         this.currentPage++;
+        this.cd.detectChanges();
+        this._nextPageLock = false;
     }
 
     getTitle(timeStamp: number) {
