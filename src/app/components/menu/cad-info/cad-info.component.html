@@ -277,5 +277,12 @@
                 (change)="setNumberValue(cad, 'suanliaodanZoom', $event)"
             />
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>企料前后宽同时改变</mat-label>
+            <mat-select type="text" [(ngModel)]="cad['企料前后宽同时改变']" name="企料前后宽同时改变">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
     </form>
 </div>
