@@ -64,6 +64,8 @@
     }
 
     .sub-menu {
+        width: 100%;
+        box-sizing: border-box;
         background-color: #fafafa;
         padding: 10px;
         border-radius: 10px;
@@ -81,7 +83,7 @@
 ::ng-deep {
     .mat-tab-label,
     .mat-tab-label-active {
-        min-width: 44px !important;
+        min-width: unset !important;
         padding: 3px !important;
         margin: 3px !important;
         flex: 1 1 0;
