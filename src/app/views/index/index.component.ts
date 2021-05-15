@@ -14,6 +14,7 @@ import {
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabGroup, MatTabChangeEvent} from "@angular/material/tabs";
 import {ActivatedRoute} from "@angular/router";
+import {log} from "@app/app.log";
 import {CadEventCallBack, CadData} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {Subscribed} from "@mixins/subscribed.mixin";
@@ -108,8 +109,20 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         }
         return scrollbar;
     }
-
     private _scrollChangeLock = false;
+
+    constructor(
+        private config: AppConfigService,
+        private status: AppStatusService,
+        private cadConsole: CadConsoleService,
+        private dataService: CadDataService,
+        private route: ActivatedRoute,
+        private message: MessageService,
+        private cd: ChangeDetectorRef
+    ) {
+        super();
+    }
+
     onScrollChange = debounce((event: CustomEvent) => {
         if (this._scrollChangeLock) {
             this._scrollChangeLock = false;
@@ -140,18 +153,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         this.status.cad.render(entities);
     };
 
-    constructor(
-        private config: AppConfigService,
-        private status: AppStatusService,
-        private console: CadConsoleService,
-        private dataService: CadDataService,
-        private route: ActivatedRoute,
-        private message: MessageService,
-        private cd: ChangeDetectorRef
-    ) {
-        super();
-    }
-
     ngOnInit() {
         const cad = this.status.cad;
         Reflect.defineProperty(window, "cad", {value: cad});
@@ -163,6 +164,13 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         Reflect.defineProperty(window, "selected", {get: () => cad.selected()});
         Reflect.defineProperty(window, "selectedArray", {get: () => cad.selected().toArray()});
         Reflect.defineProperty(window, "selected0", {get: () => cad.selected().toArray()[0]});
+        console.groupCollapsed("全局变量");
+        log("cad -- 当前CAD实体");
+        log("getConfig/setConfig -- 获取/设置当前配置");
+        log("status -- 状态管理实体");
+        log("data0 -- 第一个CAD数据");
+        log("data0Ex -- 第一个CAD数据(的导出数据)");
+        console.groupEnd();
         this.subscribe(this.status.openCad$, () => {
             document.title = cad.data.components.data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
         });
@@ -181,7 +189,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
 
     ngAfterViewInit() {
         this.status.cad.appendTo(this.cadContainer.nativeElement);
-        this.subscribe(this.console.command, (cmd) => this.consoleComponent.execute(cmd));
+        this.subscribe(this.cadConsole.command, (cmd) => this.consoleComponent.execute(cmd));
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
                 this.shownMenus = ["cadAssemble"];
@@ -310,7 +318,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     }
 
     save() {
-        this.console.execute("save");
+        this.cadConsole.execute("save");
     }
 
     refresh() {

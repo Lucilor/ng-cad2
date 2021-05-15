@@ -1,4 +1,5 @@
 import {ObjectOf} from "@utils";
+import {log} from "./app.log";
 
 export class Timer {
     private _pool: ObjectOf<number> = {};
@@ -17,7 +18,7 @@ export class Timer {
         if (content) {
             content += ": ";
         }
-        console.log(`%c[Timer] ${content}${this._getTimeString(name)}`, "color:deeppink");
+        log(`${content}${this._getTimeString(name)}`, "Timer");
         return this;
     }
 
