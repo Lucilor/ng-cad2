@@ -14,7 +14,8 @@ import {
     CadArc,
     linewidth2lineweight,
     lineweight2linewidth,
-    autoFixLine
+    autoFixLine,
+    变化方式
 } from "@cad-viewer";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
@@ -23,7 +24,7 @@ import {CadPoints, AppStatusService} from "@services/app-status.service";
 import {CadStatusDrawLine, CadStatusMoveLines, CadStatusCutLine} from "@services/cad-status";
 import {Point} from "@utils";
 import Color from "color";
-import {debounce} from "lodash";
+import {debounce, uniq} from "lodash";
 import {ColorEvent} from "ngx-color";
 
 @Component({
@@ -49,6 +50,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         isErrorState: () => !!this.inputErrors.guanlianbianhuagongshi
     };
     selected: CadLineLike[] = [];
+    bhfs = 变化方式;
 
     get isDrawingLine() {
         return this.status.cadStatus instanceof CadStatusDrawLine;
@@ -446,23 +448,38 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         this.status.cad.render();
     }
 
-    getLineText(field: string) {
+    getLineText(field: string, i?: number) {
         const lines = this.selected;
+        let result = "";
         if (lines.length === 1) {
-            return (lines as any)[0][field] ?? ("" as string);
-        }
-        if (lines.length) {
-            const texts = Array.from(new Set(lines.map((l: any) => l[field] as string)));
-            if (texts.length === 1) {
-                return texts[0];
+            if (typeof i === "number") {
+                result = (lines as any)[0][field][i];
+            } else {
+                result = (lines as any)[0][field];
             }
-            return field === this.focusedField ? "" : "多个值";
+        } else if (lines.length) {
+            let texts = lines.map((l: any) => {
+                if (typeof i === "number") {
+                    return l[field][i] as string;
+                } else {
+                    return l[field] as string;
+                }
+            });
+            texts = uniq(texts);
+            if (texts.length === 1) {
+                result = texts[0];
+            } else {
+                result = field === this.focusedField ? "" : "多个值";
+            }
         }
-        return "";
+        if (result === undefined || result === null) {
+            result = "";
+        }
+        return result;
     }
 
     // eslint-disable-next-line @typescript-eslint/member-ordering
-    setLineText = debounce((event: InputEvent | MatSelectChange | Event, field: string) => {
+    setLineText = debounce((event: InputEvent | MatSelectChange | Event, field: string, i?: number) => {
         let value: number | string = "";
         if (event instanceof MatSelectChange) {
             value = event.value;
@@ -480,7 +497,11 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         }
         if (this.validateLineText(field, value)) {
             this.selected.forEach((e) => {
-                (e as any)[field] = value;
+                if (typeof i === "number") {
+                    (e as any)[field][i] = value;
+                } else {
+                    (e as any)[field] = value;
+                }
                 if (["mingzi", "gongshi", "guanlianbianhuagongshi", "lengthTextSize"].includes(field)) {
                     this.status.cad.render(e);
                 }

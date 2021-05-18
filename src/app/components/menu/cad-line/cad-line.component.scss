@@ -2,3 +2,11 @@
     background-color: gray;
     padding: 5px;
 }
+
+.form-item {
+    display: flex;
+
+    > *:not(:last-child) {
+        margin-right: 5px;
+    }
+}

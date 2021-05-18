@@ -264,4 +264,26 @@
             </mat-select>
         </mat-form-field>
     </div>
+    <div class="form-item">
+        <mat-form-field>
+            <mat-label>变化方式</mat-label>
+            <mat-select name="变化方式" [value]="getLineText('变化方式')" (selectionChange)="setLineText($event, '变化方式')">
+                <mat-option *ngFor="let o of bhfs" [value]="o">{{ o }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="form-item">
+        <mat-form-field *ngFor="let i of [0, 1]" style="width: 50%">
+            <mat-label>角度范围</mat-label>
+            <input
+                matInput
+                type="number"
+                min="0"
+                max="360"
+                name="角度范围"
+                [value]="getLineText('角度范围', i)"
+                (input)="setLineText($event, '角度范围', i)"
+            />
+        </mat-form-field>
+    </div>
 </form>
