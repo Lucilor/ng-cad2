@@ -3,7 +3,7 @@ import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
-import {imgLoading} from "@app/app.common";
+import {imgLoading, timer} from "@app/app.common";
 import {removeCadGongshi, getCadPreview} from "@app/cad.utils";
 import {CadData, CadEntities, CadHatch} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
@@ -485,6 +485,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 childrens = data.components.data;
             }
             if (childrens) {
+                const timerName = "sub-cads-editChildren";
+                timer.start(timerName);
                 const positions: ObjectOf<number[]> = {};
                 for (const cad of cads) {
                     const length = childrens.length;
@@ -512,6 +514,9 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                             v.transform({translate: [x2 - x1, y2 - y1]}, true);
                         }
                     });
+                    timer.end(timerName, "编辑装配CAD");
+                } else {
+                    timer.end(timerName, "编辑关联CAD");
                 }
                 await this.status.openCad();
             }

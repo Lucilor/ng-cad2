@@ -4,7 +4,7 @@ import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS} from "@angular/material/tooltip";
 import {DomSanitizer} from "@angular/platform-browser";
-import {CadCollection, imgLoading, imgEmpty} from "@app/app.common";
+import {CadCollection, imgLoading, timer} from "@app/app.common";
 import {getCadPreview} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
@@ -77,9 +77,6 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             this.checkedItems = this.data.checkedItems.map((v) => v.clone());
         }
         this.data.qiliao = this.data.qiliao === true;
-        if (!Array.isArray(this.data.options)) {
-            this.data.options = {};
-        }
         this.getData(1);
         this.checkedIndex.subscribe((i) => {
             if (this.data.selectMode === "single") {
@@ -153,25 +150,22 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             this.length = result.total;
             this.pageData.length = 0;
             result.cads.forEach(async (d, i) => {
-                try {
-                    const checked = this.checkedItems.find((v) => v.id === d.id) ? true : false;
-                    if (checked && this.data.selectMode === "single") {
-                        this.checkedIndex.next(i);
-                    }
-                    const pageData = {data: d, img: imgLoading, checked};
-                    this.pageData.push(pageData);
-                    pageData.img = this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(d)) as string;
-                } catch (e) {
-                    console.warn(e);
-                    this.pageData.push({
-                        data: new CadData({id: d.id, name: d.name}),
-                        img: imgEmpty,
-                        checked: false
-                    });
+                const checked = this.checkedItems.find((v) => v.id === d.id) ? true : false;
+                if (checked && this.data.selectMode === "single") {
+                    this.checkedIndex.next(i);
                 }
+                const pageData = {data: d, img: imgLoading, checked};
+                this.pageData.push(pageData);
             });
             this.checkedIndex.next(-1);
             this.syncCheckedItems();
+            const timerName = "cad-list-getData";
+            timer.start(timerName);
+            for (const data of this.pageData) {
+                const url = await getCadPreview(data.data);
+                data.img = this.sanitizer.bypassSecurityTrustUrl(url) as string;
+            }
+            timer.end(timerName, "渲染CAD列表");
             return result;
         }
     }
