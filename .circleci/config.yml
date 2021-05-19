@@ -2,51 +2,47 @@ version: 2.1
 var_1: &cache_key ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
 var_2: &cache_fallback_key ng-cad2
 var_3: &restore_cache
-  restore_cache:
-    keys:
-      - *cache_key
-      - *cache_fallback_key
+    restore_cache:
+        keys:
+            - *cache_key
+            - *cache_fallback_key
 var_4: &save_cache
     save_cache:
         key: *cache_key
         paths:
-        - "node_modules"
+            - "node_modules"
 executors:
     ng-cad2:
         working_directory: ~/ng-cad2
         docker:
-            - image: circleci/node:10-browsers
+            - image: circleci/node:14-browsers
 jobs:
     build:
         executor: ng-cad2
         steps:
             - checkout
             - *restore_cache
-            # - run: git submodule sync
             - run: git submodule update --init --recursive
             - run:
                   name: Install local dependencies
                   command: yarn install
-            - run:
-                  name: Install cad-viewer dependencies
-                  command: cd ./src/cad-viewer && yarn install
             - *save_cache
-    # unit-test:
-    #     executor: ng-cad2
-    #     steps:
-    #         - checkout
-    #         - *restore_cache
-    #         - run:
-    #               name: Unit test
-    #               command: yarn test --no-watch --no-progress --browsers=ChromeHeadless
-    # e2e:
-    #     executor: ng-cad2
-    #     steps:
-    #         - checkout
-    #         - *restore_cache
-    #         - run:
-    #               name: End to end
-    #               command: yarn e2e --protractor-config=e2e/protractor.conf.js
+    unit-test:
+        executor: ng-cad2
+        steps:
+            - checkout
+            - *restore_cache
+            - run:
+                  name: Unit test
+                  command: yarn test --no-watch --no-progress --browsers=ChromeHeadless
+    e2e:
+        executor: ng-cad2
+        steps:
+            - checkout
+            - *restore_cache
+            - run:
+                  name: End to end
+                  command: yarn e2e --protractor-config=e2e/protractor.conf.js
     lint:
         executor: ng-cad2
         steps:
@@ -59,10 +55,12 @@ workflows:
     build-test-lint:
         jobs:
             - build
-            # - unit-test:
-            #       requires:
-            #           - build
+            - unit-test:
+                  requires:
+                      - build
             # - e2e:
             #       requires:
             #           - build
-            - lint
+            - lint:
+                  requires:
+                      - build
