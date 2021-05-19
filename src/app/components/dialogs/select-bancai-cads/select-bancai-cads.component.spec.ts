@@ -11,7 +11,7 @@ const data: SelectBancaiCadsData = {
             name: "cad1",
             width: 1000,
             height: 1000,
-            bancai: {mingzi: "baicai1", cailiao: "cailiao1", houdu: 0.5, guige: [2000, 2000]},
+            bancai: {mingzi: "baicai1", cailiao: "cailiao1", houdu: "1.2", guige: [2000, 2000]},
             checked: false,
             oversized: false,
             disabled: false
@@ -21,7 +21,7 @@ const data: SelectBancaiCadsData = {
             name: "cad2",
             width: 10000,
             height: 10000,
-            bancai: {mingzi: "baicai2", cailiao: "cailiao2", houdu: 0.8, guige: [2000, 2000]},
+            bancai: {mingzi: "baicai2", cailiao: "cailiao2", houdu: "0.8", guige: [2000, 2000]},
             checked: true,
             oversized: true,
             disabled: true
