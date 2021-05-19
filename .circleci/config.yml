@@ -22,7 +22,7 @@ jobs:
         steps:
             - checkout
             - *restore_cache
-            - run: git submodule update --init --recursive
+            # - run: git submodule update --init --recursive
             - run:
                   name: Install local dependencies
                   command: yarn install
@@ -32,6 +32,13 @@ jobs:
         steps:
             - checkout
             - *restore_cache
+            - run: git submodule update --init --recursive
+            - run:
+                  name: Install cad-viewer dependencies
+                  command: cd ./src/cad-viewer && yarn install
+            - run:
+                  name: Install utils dependencies
+                  command: cd ./src/cad-viewer/src/utils && yarn install
             - run:
                   name: Unit test
                   command: yarn test --no-watch --no-progress --browsers=ChromeHeadless
