@@ -17,22 +17,20 @@ executors:
         docker:
             - image: circleci/node:10-browsers
 jobs:
-    # build:
-    #     executor: ng-cad2
-    #     steps:
-    #         - checkout
-    #         - run: mkdir -p ~/.ssh
-    #         - run: ssh-keyscan github.com >> ~/.ssh/known_hosts
-    #         - *restore_cache
-    #         - run: git submodule sync
-    #         - run: git submodule update --init --recursive
-    #         - run:
-    #               name: Install local dependencies
-    #               command: yarn install
-    #         - run:
-    #               name: Install cad-viewer dependencies
-    #               command: cd ./src/cad-viewer && yarn install
-    #         - *save_cache
+    build:
+        executor: ng-cad2
+        steps:
+            - checkout
+            - *restore_cache
+            # - run: git submodule sync
+            - run: git submodule update --init --recursive
+            - run:
+                  name: Install local dependencies
+                  command: yarn install
+            - run:
+                  name: Install cad-viewer dependencies
+                  command: cd ./src/cad-viewer && yarn install
+            - *save_cache
     # unit-test:
     #     executor: ng-cad2
     #     steps:
@@ -60,7 +58,7 @@ jobs:
 workflows:
     build-test-lint:
         jobs:
-            # - build
+            - build
             # - unit-test:
             #       requires:
             #           - build

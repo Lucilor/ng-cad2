@@ -160,7 +160,7 @@ export class SelectBancaiComponent implements OnInit {
             }
             const houdu = bancaiCads.get("houdu");
             if (houdu && !houdu.errors) {
-                bancai.houdu = Number(houdu.value);
+                bancai.houdu = houdu.value;
             }
             const guige = bancaiCads.get("guige");
             if (guige && !guige.errors) {

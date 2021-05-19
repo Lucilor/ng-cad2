@@ -36,7 +36,7 @@ export type CadSearchData = {
 export interface BancaiList {
     mingzi: string;
     cailiaoList: string[];
-    houduList: number[];
+    houduList: string[];
     guigeList: number[][];
 }
 export interface BancaiCad {
@@ -44,7 +44,7 @@ export interface BancaiCad {
     name: string;
     width: number;
     height: number;
-    bancai: {mingzi: string; cailiao: string | null; houdu: number | null; guige: number[] | null; gas?: string};
+    bancai: {mingzi: string; cailiao: string | null; houdu: string | null; guige: number[] | null; gas?: string};
 }
 
 export type Changelog = {
