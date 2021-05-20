@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadData, CadMtext, CadEntity} from "@cad-viewer";
+import {CadData, CadEntity, CadMtext} from "@cad-viewer";
 import {AnchorEvent} from "@components/anchor-selector/anchor-selector.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {AppStatusService} from "@services/app-status.service";
