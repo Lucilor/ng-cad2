@@ -296,7 +296,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                                 split2.start.copy(point);
                                 split2.end.copy(line.end);
                                 index = i;
-                                console.log(split1, split2);
                                 this.data?.entities.add(split1, split2);
                                 cad.remove(line);
                             }
