@@ -6,7 +6,6 @@ import {splitOptions, joinOptions} from "@app/app.common";
 import {getCadGongshiText} from "@app/cad.utils";
 import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity} from "@cad-viewer";
 import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
-import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {openCadZhankaiDialog} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
@@ -27,26 +26,28 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     private _cadPointsLock = false;
     @Output() cadLengthsChange = new EventEmitter<string[]>();
 
-    private _onEntityClick = (((entity) => {
-        const cadStatus = this.status.cadStatus;
-        const data = this.status.getFlatSelectedCads()[0];
-        if (cadStatus instanceof CadStatusSelectBaseline) {
-            if (entity instanceof CadLine) {
-                const baseLine = data.baseLines[cadStatus.index];
-                if (entity.isHorizontal()) {
-                    baseLine.idY = entity.selected ? entity.id : "";
+    private _onEntityClick = (
+        ((entity) => {
+            const cadStatus = this.status.cadStatus;
+            const data = this.status.getFlatSelectedCads()[0];
+            if (cadStatus instanceof CadStatusSelectBaseline) {
+                if (entity instanceof CadLine) {
+                    const baseLine = data.baseLines[cadStatus.index];
+                    if (entity.isHorizontal()) {
+                        baseLine.idY = entity.selected ? entity.id : "";
+                    }
+                    if (entity.isVertical()) {
+                        baseLine.idX = entity.selected ? entity.id : "";
+                    }
+                    data.updateBaseLines();
+                    data.getAllEntities().forEach((e) => {
+                        e.selected = [baseLine.idX, baseLine.idY].includes(e.id);
+                    });
+                    this.status.cad.render();
                 }
-                if (entity.isVertical()) {
-                    baseLine.idX = entity.selected ? entity.id : "";
-                }
-                data.updateBaseLines();
-                data.getAllEntities().forEach((e) => {
-                    e.selected = [baseLine.idX, baseLine.idY].includes(e.id);
-                });
-                this.status.cad.render();
             }
-        }
-    }) as CadEventCallBack<"entityclick">).bind(this);
+        }) as CadEventCallBack<"entityclick">
+    ).bind(this);
 
     private _updateCadPoints = (() => {
         const cadStatus = this.status.cadStatus;
@@ -262,23 +263,6 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         if (mtext) {
             mtext.text = getCadGongshiText(data);
             this.status.cad.render(mtext);
-        }
-    }
-
-    openKailiaomuban(data: CadData) {
-        if (data.kailiaomuban) {
-            const params = {...this.route.snapshot.queryParams};
-            params.collection = "kailiaocadmuban";
-            params.id = data.kailiaomuban;
-            open("index?" + new URLSearchParams(params).toString());
-        }
-    }
-
-    async selectKailiaomuban(data: CadData) {
-        const checkedItems = [new CadData({id: data.kailiaomuban})];
-        const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
-        if (result?.length) {
-            data.kailiaomuban = result[0].id;
         }
     }
 
