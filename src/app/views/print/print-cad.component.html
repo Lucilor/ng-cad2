@@ -1,4 +1,8 @@
-<div class="toolbar">
+<div class="toolbar btn-group">
+    <ng-container *ngIf="showDxfInput">
+        <input #uploadInput type="file" hidden accept=".dxf" (input)="uploadDxf($event)">
+        <button mat-raised-button color="primary" (click)="uploadInput.click()">上传dxf</button>
+    </ng-container>
     <button mat-raised-button color="primary" (click)="print()">打印</button>
 </div>
 <embed *ngIf="pdfUrl" name="算料单" width="100%" height="100%" [src]="pdfUrl" type="application/pdf" />

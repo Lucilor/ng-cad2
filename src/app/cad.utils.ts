@@ -9,7 +9,7 @@ import {
     CadBaseLine,
     CadJointPoint
 } from "@cad-viewer";
-import {timeout, getDPI, Point} from "@utils";
+import {timeout, getDPI, Point, isNearZero, loadImage} from "@utils";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 
@@ -34,16 +34,122 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
     return src;
 };
 
+const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], margin: number) => {
+    const img = await loadImage(mubanUrl);
+    const rectData = muban.getBoundingRect();
+    const rect = rectData.clone();
+    const lines = muban.entities.line.filter((line) => line.isHorizontal() && isNearZero(line.length - rectData.width, 1));
+    lines.sort((a, b) => b.start.y - a.start.y);
+    for (let i = 0; i < lines.length - 1; i++) {
+        if (lines[i].start.y - lines[i + 1].start.y > 500) {
+            rect.top = lines[i].start.y;
+            rect.bottom = lines[i + 1].start.y;
+            break;
+        }
+    }
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+        throw new Error("failed to get 2d context of canvas");
+    }
+    const {width, height} = img;
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = "100%";
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const getColor = (x: number, y: number) => {
+        const i = (y * width + x) * 4;
+        return imageData.data.slice(i, i + 4);
+    };
+    const isBlank = (color: Uint8ClampedArray) => {
+        const [r, g, b, a] = color;
+        return a === 0 || (r === 255 && g === 255 && b === 255);
+    };
+    let offsetX = 0;
+    let offsetY = 0;
+    const midX = Math.floor(width / 2);
+    const midY = Math.floor(height / 2);
+    for (let x = 0; x < width; x++) {
+        if (!isBlank(getColor(x, midY))) {
+            offsetX = x;
+            break;
+        }
+    }
+    for (let y = 0; y < height; y++) {
+        if (!isBlank(getColor(midX, y))) {
+            offsetY = y;
+            break;
+        }
+    }
+    offsetX += 1;
+    offsetY += 1;
+
+    ctx.fillStyle = "white";
+    const yPercent1 = (rectData.top - rect.top) / rectData.height;
+    const yPercent2 = (rectData.top - rect.bottom) / rectData.height;
+    const hPercent = yPercent2 - yPercent1;
+    const width2 = width - offsetX * 2 - 2;
+    const height2 = (height - offsetY * 2) * hPercent - 2;
+    offsetY += (height - offsetY * 2) * yPercent1;
+    ctx.fillRect(offsetX, offsetY, width2, height2);
+
+    const imgs: HTMLImageElement[] = [];
+    for (const src of urls) {
+        imgs.push(await loadImage(src));
+    }
+
+    const getDrawArea = (sw: number, sh: number, dw: number, dh: number) => {
+        let x = 0;
+        let y = 0;
+        let w = 0;
+        let h = 0;
+        if (sw / sh > dw / dh) {
+            w = Math.min(dw - margin * 2, sw);
+            h = dw * (sh / sw);
+            x = margin;
+            y = (dh - h) / 2;
+        } else {
+            h = Math.min(dh - margin * 2, sh);
+            w = dh * (sw / sh);
+            y = margin;
+            x = (dw - w) / 2;
+        }
+        return {x, y, w, h};
+    };
+    if (rectData.width > rectData.height) {
+        const dw = width2 / imgs.length;
+        const dh = height2;
+        imgs.forEach((img2, i) => {
+            const {width: sw, height: sh} = img2;
+            const {x, y, w, h} = getDrawArea(sw, sh, dw, dh);
+            ctx.drawImage(img2, 0, 0, sw, sh, x + offsetX + dw * i, y + offsetY, w, h);
+        });
+    } else {
+        const dw = width2;
+        const dh = height2 / imgs.length;
+        imgs.forEach((img2, i) => {
+            const {width: sw, height: sh} = img2;
+            const {x, y, w, h} = getDrawArea(sw, sh, dw, dh);
+            ctx.drawImage(img2, 0, 0, sw, sh, x + offsetX, y + offsetY + dh * i, w, h);
+        });
+    }
+
+    return canvas.toDataURL();
+};
+
 /**
  * A4: (210 × 297)mm²
  *    =(8.26 × 11.69)in² (1in = 25.4mm)
  * 	  =(794 × 1123)px² (96dpi)
  */
 export const printCads = async (
-    dataArr: CadData[],
+    cads: CadData[],
     config: Partial<CadViewerConfig> = {},
     linewidth = 1,
-    renderStyle: CadDimension["renderStyle"] = 2
+    renderStyle: CadDimension["renderStyle"] = 2,
+    designPics?: {urls: (string | string[])[]; margin: number}
 ) => {
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
@@ -57,8 +163,9 @@ export const printCads = async (
     const scale = Math.sqrt(scaleX * scaleY);
 
     const imgs: string[] = [];
-    dataArr = dataArr.map((v) => v.clone());
-    for (const data of dataArr) {
+    cads = cads.map((v) => v.clone());
+    for (let i = 0; i < cads.length; i++) {
+        const data = cads[i];
         data.getAllEntities().forEach((e) => {
             if (e.color.string() === "rgb(128, 128, 128)") {
                 e.opacity = 0;
@@ -101,7 +208,17 @@ export const printCads = async (
                 }
             });
         });
-        imgs.push((await cadPrint.toCanvas()).toDataURL());
+        const img = (await cadPrint.toCanvas()).toDataURL();
+        imgs.push(img);
+        if (designPics) {
+            let designPicsGroup = designPics.urls[i];
+            if (designPicsGroup) {
+                if (typeof designPicsGroup === "string") {
+                    designPicsGroup = [designPicsGroup];
+                }
+                imgs.push(await drawDesignPics(data, img, designPicsGroup, designPics.margin));
+            }
+        }
         document.body.appendChild(await cadPrint.toCanvas());
         cadPrint.destroy();
     }

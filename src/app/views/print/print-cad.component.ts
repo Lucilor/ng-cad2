@@ -1,19 +1,21 @@
 import {AfterViewInit, Component, OnDestroy} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import { timer } from "@app/app.common";
+import {timer} from "@app/app.common";
 import {printCads} from "@app/cad.utils";
-import {CadData, CadDimension} from "@cad-viewer";
+import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {timeout} from "@utils";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import printJS from "print-js";
 
+type PrintParameters = Parameters<typeof printCads>;
 type ResponseData = {
-    cads: CadData[];
-    linewidth: number;
-    renderStyle: CadDimension["renderStyle"];
+    cads: PrintParameters["0"];
+    linewidth?: PrintParameters["2"];
+    renderStyle?: PrintParameters["3"];
+    designPics?: PrintParameters["4"];
 };
 
 @Component({
@@ -26,9 +28,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     loaderText = "";
     pdfUrlRaw?: string;
     pdfUrl?: SafeUrl;
-    cads: CadData[] = [];
-    linewidth = 1;
-    renderStyle = 2;
+    showDxfInput = false;
 
     constructor(
         private loader: NgxUiLoaderService,
@@ -51,21 +51,15 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const action = queryParams.action as string;
         delete queryParams.action;
         if (!action) {
-            this.message.alert("缺少action");
+            this.showDxfInput = true;
             return;
         }
         this.loader.startLoader(this.loaderId);
         this.loaderText = "正在获取数据...";
         const response = await this.dataService.post<ResponseData>(action, queryParams, "both");
         if (response?.data) {
-            this.loaderText = "正在生成算料单...";
-            timer.start(this.loaderId);
-            this.cads = response.data.cads.map((v) => new CadData(v));
-            this.linewidth = response.data.linewidth;
-            this.renderStyle = response.data.renderStyle;
-            this.pdfUrlRaw = await printCads(this.cads, {}, this.linewidth, this.renderStyle);
-            this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
-            timer.end(this.loaderId, "生成算料单");
+            response.data.cads = response.data.cads.map((v) => new CadData(v));
+            await this.generateSuanliaodan(response.data);
         }
         this.loader.stopLoader(this.loaderId);
         window.addEventListener("keydown", this._onKeyDown);
@@ -77,5 +71,36 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
 
     async print() {
         printJS({printable: this.pdfUrlRaw, type: "pdf"});
+    }
+
+    async generateSuanliaodan(data: ResponseData) {
+        const {cads, linewidth, renderStyle, designPics} = data;
+        this.loaderText = "正在生成算料单...";
+        timer.start(this.loaderId);
+        this.pdfUrlRaw = await printCads(cads, {}, linewidth, renderStyle, designPics);
+        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
+        timer.end(this.loaderId, "生成算料单");
+    }
+
+    async uploadDxf(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.item(0);
+        if (!file) {
+            return;
+        }
+        this.loader.startLoader(this.loaderId);
+        const data = await this.dataService.uploadDxf(file);
+        if (!data) {
+            return;
+        }
+        await this.generateSuanliaodan({
+            cads: [data],
+            designPics: {
+                urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],
+                margin: 10
+            }
+        });
+        this.loader.stopLoader(this.loaderId);
+        this.showDxfInput = false;
     }
 }
