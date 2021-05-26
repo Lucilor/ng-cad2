@@ -43,7 +43,6 @@ const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], 
     for (let i = 0; i < lines.length - 1; i++) {
         if (lines[i].start.y - lines[i + 1].start.y > 500) {
             rect.top = lines[i].start.y;
-            rect.bottom = lines[i + 1].start.y;
             break;
         }
     }
@@ -83,16 +82,16 @@ const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], 
             break;
         }
     }
-    offsetX += 1;
-    offsetY += 1;
+    offsetX += 4;
+    offsetY += 4;
 
-    ctx.fillStyle = "white";
     const yPercent1 = (rectData.top - rect.top) / rectData.height;
     const yPercent2 = (rectData.top - rect.bottom) / rectData.height;
     const hPercent = yPercent2 - yPercent1;
-    const width2 = width - offsetX * 2 - 2;
-    const height2 = (height - offsetY * 2) * hPercent - 2;
+    const width2 = width - offsetX * 2;
+    const height2 = (height - offsetY * 2) * hPercent;
     offsetY += (height - offsetY * 2) * yPercent1;
+    ctx.fillStyle = "white";
     ctx.fillRect(offsetX, offsetY, width2, height2);
 
     const imgs: HTMLImageElement[] = [];
@@ -106,16 +105,14 @@ const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], 
         let w = 0;
         let h = 0;
         if (sw / sh > dw / dh) {
-            w = Math.min(dw - margin * 2, sw);
-            h = dw * (sh / sw);
-            x = margin;
-            y = (dh - h) / 2;
+            w = dw - margin * 2;
+            h = w * (sh / sw);
         } else {
-            h = Math.min(dh - margin * 2, sh);
-            w = dh * (sw / sh);
-            y = margin;
-            x = (dw - w) / 2;
+            h = dh - margin * 2;
+            w = h * (sw / sh);
         }
+        x = (dw - w) / 2;
+        y = (dh - h) / 2;
         return {x, y, w, h};
     };
     if (rectData.width > rectData.height) {
@@ -129,6 +126,7 @@ const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], 
     } else {
         const dw = width2;
         const dh = height2 / imgs.length;
+        console.log({width2, height2, dw, dh});
         imgs.forEach((img2, i) => {
             const {width: sw, height: sh} = img2;
             const {x, y, w, h} = getDrawArea(sw, sh, dw, dh);
