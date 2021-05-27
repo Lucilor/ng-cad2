@@ -199,10 +199,11 @@ export const printCads = async (
                     return;
                 }
                 if (child.hasClass("stroke")) {
-                    child.stroke("grey");
+                    child.stroke("#505050");
+                    child.attr("stroke-width", 2);
                 }
                 if (child.hasClass("fill")) {
-                    child.fill("grey");
+                    child.fill("#505050");
                 }
             });
         });

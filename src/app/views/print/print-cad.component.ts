@@ -98,7 +98,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             designPics: {
                 urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],
                 margin: 10
-            }
+            },
+            linewidth: 2
         });
         this.loader.stopLoader(this.loaderId);
         this.showDxfInput = false;
