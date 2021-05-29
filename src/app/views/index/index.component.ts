@@ -162,14 +162,20 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         Reflect.defineProperty(window, "data0", {get: () => cad.data.components.data[0]});
         Reflect.defineProperty(window, "data0Ex", {get: () => cad.data.components.data[0].export()});
         Reflect.defineProperty(window, "selected", {get: () => cad.selected()});
-        Reflect.defineProperty(window, "selectedArray", {get: () => cad.selected().toArray()});
         Reflect.defineProperty(window, "selected0", {get: () => cad.selected().toArray()[0]});
         console.groupCollapsed("全局变量");
-        log("cad -- 当前CAD实体");
-        log("getConfig/setConfig -- 获取/设置当前配置");
-        log("status -- 状态管理实体");
-        log("data0 -- 第一个CAD数据");
-        log("data0Ex -- 第一个CAD数据(的导出数据)");
+        const arr = [
+            ["cad", "当前CAD实例"],
+            ["getConfig", "获取当前配置"],
+            ["setConfig", "设置当前配置"],
+            ["status", "状态管理实例"],
+            ["data0", "第一个CAD数据"],
+            ["data0Ex", "第一个CAD数据(的导出数据)"],
+            ["selected", "当前选中的所有实体"],
+            ["selected0", "当前选中的第一个实体"]
+        ];
+        const maxLen = arr.reduce((prev, curr) => Math.max(prev, curr[0].length), 0);
+        arr.forEach((v) => log(`${v[0].padEnd(maxLen, " ")} -- %c${v[1]}`, "", {fontStyle: "italic", paddingRight: "5px"}));
         console.groupEnd();
         this.subscribe(this.status.openCad$, () => {
             document.title = cad.data.components.data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";

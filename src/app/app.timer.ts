@@ -18,7 +18,7 @@ export class Timer {
         if (content) {
             content += ": ";
         }
-        log(`${content}${this._getTimeString(name)}`, "Timer");
+        log(`${content}${this._getTimeString(name)}`, "Timer", {color: "deeppink"});
         return this;
     }
 
