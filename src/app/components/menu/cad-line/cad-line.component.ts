@@ -19,6 +19,7 @@ import {
 } from "@cad-viewer";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
+import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {CadPoints, AppStatusService} from "@services/app-status.service";
 import {CadStatusDrawLine, CadStatusMoveLines, CadStatusCutLine} from "@services/cad-status";
@@ -51,6 +52,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     };
     selected: CadLineLike[] = [];
     bhfs = 变化方式;
+    zhewan = [1, 3];
 
     get isDrawingLine() {
         return this.status.cadStatus instanceof CadStatusDrawLine;
@@ -225,11 +227,16 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         }
     }).bind(this);
 
-    constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
+    constructor(
+        private status: AppStatusService,
+        private dialog: MatDialog,
+        private message: MessageService,
+        private dataService: CadDataService
+    ) {
         super();
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         let cad = this.status.cad;
         this.subscribe(this.status.selectedCads$, () => {
             const cads = this.status.getFlatSelectedCads();
@@ -385,6 +392,12 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         cad.on("entitiesremove", this.onEntitiesChange);
         cad.on("moveentities", this.updateCadPoints);
         cad.on("zoom", this.updateCadPoints);
+
+        const response = await this.dataService.get<number[]>("ngcad/getZhewan");
+        if (response?.data) {
+            this.zhewan = response.data;
+            console.log(this.zhewan);
+        }
     }
 
     ngOnDestroy() {
