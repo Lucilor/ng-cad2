@@ -82,9 +82,7 @@
                 </mat-tab-group>
             </div>
             <div class="sub-menu" *ngIf="shownMenus.includes('cadAssemble')">
-                <perfect-scrollbar>
-                    <app-cad-assemble></app-cad-assemble>
-                </perfect-scrollbar>
+                <app-cad-assemble></app-cad-assemble>
             </div>
             <div class="width-indicator" @menuWidth *ngIf="isDraggingRight">{{ rightMenuWidth$ | async }}px</div>
             <div
