@@ -126,7 +126,6 @@ const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], 
     } else {
         const dw = width2;
         const dh = height2 / imgs.length;
-        console.log({width2, height2, dw, dh});
         imgs.forEach((img2, i) => {
             const {width: sw, height: sh} = img2;
             const {x, y, w, h} = getDrawArea(sw, sh, dw, dh);
@@ -173,6 +172,7 @@ export const printCads = async (
                 e.linewidth = linewidth;
             }
             if (e instanceof CadDimension) {
+                e.linewidth = linewidth;
                 e.renderStyle = renderStyle;
                 e.selected = true;
             } else if (e instanceof CadMtext && e.fontFamily === "仿宋") {
@@ -200,7 +200,6 @@ export const printCads = async (
                 }
                 if (child.hasClass("stroke")) {
                     child.stroke("#505050");
-                    child.attr("stroke-width", 2);
                 }
                 if (child.hasClass("fill")) {
                     child.fill("#505050");
