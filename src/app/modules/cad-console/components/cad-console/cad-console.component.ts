@@ -15,7 +15,7 @@ import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusAssemble, CadStatusNormal, CadStatusSplit} from "@services/cad-status";
 import {Angle, Line, MatrixLike, ObjectOf, Point, timeout} from "@utils";
-import {highlight} from "highlight.js";
+import hljs from "highlight.js";
 import {differenceWith} from "lodash";
 import printJS from "print-js";
 
@@ -26,7 +26,7 @@ export const commands: Command[] = [
         args: [],
         desc: {
             content: `编辑配置信息<br>这些信息保存在sessionStorage中，以便刷新页面后恢复。<br><pre class="hljs">${
-                highlight(
+                hljs.highlight(
                     "typescript",
                     `
 interface CadViewerConfig {
