@@ -28,6 +28,7 @@
     "highlight.js": "^11.0.0",
     "jsoneditor": "^9.4.1",
     "lodash": "^4.17.21",
+    "material-icons": "^0.7.0",
     "ngx-color": "^7.0.0",
     "ngx-forms-typed": "^1.1.0",
     "ngx-perfect-scrollbar": "^10.1.1",

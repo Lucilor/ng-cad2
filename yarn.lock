@@ -8697,6 +8697,13 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
+"material-icons@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "material-icons@npm:0.7.0"
+  checksum: d07497fbc27eea148a3e7e79fd881b93abf57e06559f6dd595b22f002c2da1495b3c1b40f487fb391341358b70e9bd1f716660f22c46c551e56e12c12df92c4a
+  languageName: node
+  linkType: hard
+
 "mdn-data@npm:2.0.14":
   version: 2.0.14
   resolution: "mdn-data@npm:2.0.14"
@@ -9216,6 +9223,7 @@ fsevents@~2.3.1:
     karma-jasmine: ~4.0.1
     karma-jasmine-html-reporter: ^1.6.0
     lodash: ^4.17.21
+    material-icons: ^0.7.0
     ngx-color: ^7.0.0
     ngx-forms-typed: ^1.1.0
     ngx-perfect-scrollbar: ^10.1.1
