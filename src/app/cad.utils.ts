@@ -164,11 +164,12 @@ export const printCads = async (
     for (let i = 0; i < cads.length; i++) {
         const data = cads[i];
         data.getAllEntities().forEach((e) => {
-            if (e.color.string() === "rgb(128, 128, 128)") {
+            const colorStr = e.color.string();
+            if (colorStr === "rgb(128, 128, 128)") {
                 e.opacity = 0;
             }
             e.color = new Color(0);
-            if (e instanceof CadLineLike) {
+            if (e instanceof CadLineLike && colorStr === "rgb(51, 51, 51)") {
                 e.linewidth = linewidth;
             }
             if (e instanceof CadDimension) {
