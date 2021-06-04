@@ -396,7 +396,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         const response = await this.dataService.get<number[]>("ngcad/getZhewan");
         if (response?.data) {
             this.zhewan = response.data;
-            console.log(this.zhewan);
         }
     }
 
