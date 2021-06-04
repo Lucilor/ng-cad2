@@ -177,9 +177,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         const maxLen = arr.reduce((prev, curr) => Math.max(prev, curr[0].length), 0);
         arr.forEach((v) => log(`${v[0].padEnd(maxLen, " ")} -- %c${v[1]}`, "", {fontStyle: "italic", paddingRight: "5px"}));
         console.groupEnd();
-        this.subscribe(this.status.openCad$, () => {
-            document.title = cad.data.components.data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
-        });
         this._setCadPadding();
         this._initCad();
         this.subscribe(this.config.configChange$, ({newVal}) => {

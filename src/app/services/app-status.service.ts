@@ -207,6 +207,9 @@ export class AppStatusService {
         }
         this.config.setUserConfig(newConfig);
         this.generateLineTexts();
+        const title = cad.data.components.data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
+        document.title = title;
+        cad.data.name = title;
         this.openCad$.next();
         await timeout(0);
         cad.reset().render();
