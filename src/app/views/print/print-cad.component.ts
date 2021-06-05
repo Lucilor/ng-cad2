@@ -1,7 +1,8 @@
 import {AfterViewInit, Component, OnDestroy} from "@angular/core";
+import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {timer} from "@app/app.common";
+import {session, timer} from "@app/app.common";
 import {printCads} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -29,6 +30,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     pdfUrlRaw?: string;
     pdfUrl?: SafeUrl;
     showDxfInput = false;
+    private _showDesignPicsKey = "printCad-showDesignPics";
+    showDesignPics = Boolean(session.load(this._showDesignPicsKey));
 
     constructor(
         private loader: NgxUiLoaderService,
@@ -93,15 +96,20 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!data) {
             return;
         }
-        await this.generateSuanliaodan({
-            cads: [data],
-            designPics: {
+        const param: ResponseData = {cads: [data], linewidth: 2};
+        if (this.showDesignPics) {
+            param.designPics = {
                 urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],
                 margin: 10
-            },
-            linewidth: 2
-        });
+            };
+        }
+        await this.generateSuanliaodan(param);
         this.loader.stopLoader(this.loaderId);
         this.showDxfInput = false;
+    }
+
+    setShowDesignPics(event: MatSlideToggleChange) {
+        this.showDesignPics = event.checked;
+        session.save(this._showDesignPicsKey, this.showDesignPics);
     }
 }
