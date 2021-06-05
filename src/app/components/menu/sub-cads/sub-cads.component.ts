@@ -490,18 +490,17 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 const positions: ObjectOf<number[]> = {};
                 for (const cad of cads) {
                     const length = childrens.length;
-                    if (length) {
-                        for (let i = 0; i < length; i++) {
-                            if (shouldReplace(childrens[i], cad)) {
-                                const {x, y} = removeCadGongshi(childrens[i]).getBoundingRect();
-                                positions[childrens[i].id] = [x, y];
-                                childrens[i] = cad;
-                                break;
-                            } else {
-                                childrens.push(cad);
-                            }
+                    let shouldPush = true;
+                    for (let i = 0; i < length; i++) {
+                        if (shouldReplace(childrens[i], cad)) {
+                            const {x, y} = removeCadGongshi(childrens[i]).getBoundingRect();
+                            positions[childrens[i].id] = [x, y];
+                            childrens[i] = cad;
+                            shouldPush = false;
+                            break;
                         }
-                    } else {
+                    }
+                    if (shouldPush) {
                         childrens.push(cad);
                     }
                 }
