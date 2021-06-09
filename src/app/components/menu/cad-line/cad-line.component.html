@@ -9,6 +9,15 @@
         {{ cutLineName }}
     </button>
     <button mat-raised-button color="primary" (click)="autoFix()">修正</button>
+    <button
+        mat-raised-button
+        [style.z-index]="data ? '1' : '0'"
+        [color]="isAddingWHDashedLines ? 'accent' : 'primary'"
+        [disabled]="!canAddWHDashedLines()"
+        (click)="toggleWHDashedLines()"
+    >
+        增加宽高虚线
+    </button>
 </div>
 <form [class.not-allowed]="editDiabled">
     <button hidden></button>

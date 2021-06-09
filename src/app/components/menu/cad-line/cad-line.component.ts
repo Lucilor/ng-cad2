@@ -4,17 +4,19 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {
-    CadLine,
-    CadData,
-    CadLineLike,
-    validColors,
-    setLinesLength,
-    CadEntities,
-    CadViewerConfig,
-    CadArc,
-    linewidth2lineweight,
-    lineweight2linewidth,
     autoFixLine,
+    CadArc,
+    CadData,
+    CadEntities,
+    CadLine,
+    CadLineLike,
+    CadViewerConfig,
+    generateLineTexts,
+    lineweight2linewidth,
+    linewidth2lineweight,
+    PointsMap,
+    setLinesLength,
+    validColors,
     变化方式
 } from "@cad-viewer";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
@@ -22,11 +24,13 @@ import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {CadPoints, AppStatusService} from "@services/app-status.service";
-import {CadStatusDrawLine, CadStatusMoveLines, CadStatusCutLine} from "@services/cad-status";
+import {CadStatusDrawLine, CadStatusMoveLines, CadStatusCutLine, CadStatusIntersection} from "@services/cad-status";
 import {Point} from "@utils";
 import Color from "color";
 import {debounce, uniq} from "lodash";
 import {ColorEvent} from "ngx-color";
+
+const cadStatusIntersectionInfo = "addWHDashedLines";
 
 @Component({
     selector: "app-cad-line",
@@ -53,6 +57,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     selected: CadLineLike[] = [];
     bhfs = 变化方式;
     zhewan = [1, 3];
+    WHDashedLines: {line: CadLine; map: PointsMap} | null = null;
 
     get isDrawingLine() {
         return this.status.cadStatus instanceof CadStatusDrawLine;
@@ -71,6 +76,10 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }
     get cutLineName() {
         return new CadStatusCutLine().name;
+    }
+    get isAddingWHDashedLines() {
+        const cadStatus = this.status.cadStatus;
+        return cadStatus instanceof CadStatusIntersection && cadStatus.info === "addWHDashedLines";
     }
 
     private _colorText = "";
@@ -178,7 +187,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }).bind(this);
 
     private updateCadPoints = (() => {
-        const {lineDrawing, linesMoving, linesCutting, selected} = this;
+        const {lineDrawing, linesMoving, linesCutting, selected, WHDashedLines} = this;
         const selected0 = selected[0];
         if (lineDrawing) {
             this.status.setCadPoints(this.data?.getAllEntities());
@@ -224,6 +233,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     this.message.alert("无法截这条线(相交的线不足)");
                 }
             }
+        } else if (WHDashedLines) {
+            this.status.setCadPoints(WHDashedLines.map);
         }
     }).bind(this);
 
@@ -261,6 +272,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             } else if (cadStatus instanceof CadStatusCutLine) {
                 this.linesCutting = {lines: [], points: []};
                 this.updateCadPoints();
+            } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo) {
+                this.addWHDashedLinesStart();
             }
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
@@ -312,6 +325,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                         }
                     });
                 }
+            } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo) {
+                this.addWHDashedLinesEnd();
             }
         });
         this.subscribe(this.status.cadPoints$, async (cadPoints) => {
@@ -378,6 +393,21 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 }
             } else if (cadStatus instanceof CadStatusCutLine && linesCutting) {
                 linesCutting.points = worldPoints;
+            } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo) {
+                const worldPoint = worldPoints[0];
+                const map = this.WHDashedLines?.map;
+                if (!worldPoint || !map) {
+                    return;
+                }
+                const index = map.findIndex(({point}) => worldPoint.equals(point));
+                if (index >= 0) {
+                    map[index].lines.forEach((l) => (l.opacity = 1));
+                    map.splice(index, 1);
+                }
+                if (this.data) {
+                    generateLineTexts(this.data);
+                }
+                this.toggleWHDashedLines();
             }
         });
 
@@ -623,5 +653,58 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     setHideLength(event: MatSlideToggleChange) {
         this.selected.forEach((v) => (v.hideLength = event.checked));
         this.status.cad.render(this.selected);
+    }
+
+    canAddWHDashedLines() {
+        if (this.selected.length !== 1) {
+            return false;
+        }
+        const line = this.selected[0];
+        if (line instanceof CadLine) {
+            return !line.isHorizontal() && !line.isVertical();
+        }
+        return false;
+    }
+
+    toggleWHDashedLines() {
+        this.status.toggleCadStatus(new CadStatusIntersection(cadStatusIntersectionInfo));
+    }
+
+    addWHDashedLinesStart() {
+        const line = this.selected[0];
+        const data = this.data;
+        if (!(line instanceof CadLine) || !data) {
+            return;
+        }
+        const {start, end, deltaX, deltaY} = line;
+        const p1 = start.clone().add(deltaX, 0);
+        const p2 = start.clone().add(0, deltaY);
+        const lines = [
+            [start, p1],
+            [p1, end],
+            [start, p2],
+            [p2, end]
+        ].map((v) => {
+            const l = new CadLine({start: v[0], end: v[1]});
+            l.dashArray = [20, 7];
+            l.opacity = 0.7;
+            return l;
+        });
+        const map: PointsMap = [
+            {point: p1, lines: lines.slice(0, 2), selected: false},
+            {point: p2, lines: lines.slice(2, 4), selected: false}
+        ];
+        this.WHDashedLines = {line, map};
+        this.status.setCadPoints(map);
+        data.entities.add(...lines);
+        this.status.cad.render(lines);
+    }
+
+    addWHDashedLinesEnd() {
+        if (this.WHDashedLines) {
+            this.status.cad.remove(this.WHDashedLines.map.map((v) => v.lines).flat());
+            this.WHDashedLines = null;
+            this.status.setCadPoints();
+        }
     }
 }

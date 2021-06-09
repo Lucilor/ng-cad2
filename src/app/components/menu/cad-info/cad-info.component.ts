@@ -15,6 +15,8 @@ import {AppStatusService, CadPoints} from "@services/app-status.service";
 import {CadStatusSelectBaseline, CadStatusSelectJointpoint, CadStatusIntersection} from "@services/cad-status";
 import {isEqual} from "lodash";
 
+const cadStatusIntersectionInfo = "zhidingweizhipaokeng";
+
 @Component({
     selector: "app-cad-info",
     templateUrl: "./cad-info.component.html",
@@ -58,7 +60,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             this._setActiveCadPoint({x: valueX, y: valueY}, points);
             this._cadPointsLock = true;
             this.status.cadPoints$.next(points);
-        } else if (cadStatus instanceof CadStatusIntersection) {
+        } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo) {
             const points = this.status.getCadPoints(this.cadsData[0].getAllEntities()).filter((v) => v.lines.length > 1);
             this._setActiveCadPoint({lines: data.zhidingweizhipaokeng[cadStatus.index]}, points);
             this._cadPointsLock = true;
@@ -91,7 +93,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusSelectJointpoint) {
                 this._updateCadPoints();
-            } else if (cadStatus instanceof CadStatusIntersection) {
+            } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo) {
                 this._updateCadPoints();
             }
         });
@@ -128,7 +130,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
                         }
                     }
                 }
-            } else if (cadStatus instanceof CadStatusIntersection) {
+            } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo) {
                 const index = cadStatus.index;
                 const lines = this.cadsData[0].zhidingweizhipaokeng[index];
                 if (activePoints.length < 1) {
@@ -340,12 +342,12 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     }
 
     selectZhidingweizhipaokeng(i: number) {
-        this.status.toggleCadStatus(new CadStatusIntersection(i));
+        this.status.toggleCadStatus(new CadStatusIntersection(cadStatusIntersectionInfo, i));
     }
 
     getZhidingweizhipaokengColor(i: number) {
         const cadStatus = this.status.cadStatus;
-        if (cadStatus instanceof CadStatusIntersection && i === cadStatus.index) {
+        if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo && i === cadStatus.index) {
             return "accent";
         }
         return "primary";

@@ -71,4 +71,8 @@ export class CadStatusIntersection extends CadStatus {
     name = "取交点";
     canExit = true;
     exitWithEsc = true;
+
+    constructor(public info: string, index?: number) {
+        super(index);
+    }
 }

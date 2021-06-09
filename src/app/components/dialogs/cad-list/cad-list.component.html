@@ -19,7 +19,7 @@
         </mat-form-field>
     </div>
     <div class="btn-group" *ngIf="data.selectMode !== 'table'">
-        <<ng-container *ngIf="data.options">
+        <ng-container *ngIf="data.options">
             <button mat-raised-button color="primary" (click)="search(true, 'and')">父级搜索</button>
             <button mat-raised-button color="primary" (click)="search(true, 'or')">父级搜索2</button>
         </ng-container>
