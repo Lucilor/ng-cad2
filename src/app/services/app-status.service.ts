@@ -212,9 +212,8 @@ export class AppStatusService {
         cad.data.name = title;
         this.openCad$.next();
         await timeout(0);
-        cad.reset().render();
         cad.data.updatePartners().updateComponents();
-        cad.render().center();
+        cad.reset().render().center();
         timer.end(timerName, "打开CAD");
     }
 
