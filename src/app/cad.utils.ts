@@ -180,7 +180,7 @@ export const printCads = async (
                 e.fontWeight = "bolder";
             }
         }, true);
-        const cadPrint = new CadViewer(undefined, {
+        const cadPrint = new CadViewer(data, {
             width: width * scaleX,
             height: height * scaleY,
             backgroundColor: "white",
@@ -190,8 +190,8 @@ export const printCads = async (
             minLinewidth: 0,
             ...config
         }).appendTo(document.body);
+        cadPrint.center().render();
         data.updatePartners().updateComponents();
-        cadPrint.data = data;
         cadPrint.render().center();
         cadPrint.draw.find("[type='DIMENSION']").forEach((el) => {
             el.children().forEach((child) => {
