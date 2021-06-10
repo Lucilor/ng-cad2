@@ -11,6 +11,7 @@ import {
     CadLine,
     CadLineLike,
     CadViewerConfig,
+    DEFAULT_DASH_ARRAY,
     generateLineTexts,
     lineweight2linewidth,
     linewidth2lineweight,
@@ -686,7 +687,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             [p2, end]
         ].map((v) => {
             const l = new CadLine({start: v[0], end: v[1]});
-            l.dashArray = [20, 7];
+            l.dashArray = DEFAULT_DASH_ARRAY;
             l.opacity = 0.7;
             return l;
         });
