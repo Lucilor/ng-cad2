@@ -689,6 +689,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             const l = new CadLine({start: v[0], end: v[1]});
             l.dashArray = DEFAULT_DASH_ARRAY;
             l.opacity = 0.7;
+            l.info.宽高虚线 = line.id;
             return l;
         });
         const map: PointsMap = [
