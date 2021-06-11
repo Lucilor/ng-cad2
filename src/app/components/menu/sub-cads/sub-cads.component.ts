@@ -15,7 +15,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {SelectedCadType, AppStatusService, SelectedCads} from "@services/app-status.service";
 import {CadStatusSplit, CadStatusAssemble} from "@services/cad-status";
-import {ObjectOf, Point} from "@utils";
+import {downloadByString, ObjectOf, Point} from "@utils";
 import {concat, pull, pullAll} from "lodash";
 
 interface CadNode {
@@ -582,6 +582,14 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         await navigator.clipboard.writeText(JSON.stringify(data.export()));
         this.message.snack("内容已复制");
         console.log(data);
+    }
+
+    async downloadJson() {
+        if (!this.contextMenuCad) {
+            return;
+        }
+        const data = this.contextMenuCad.data.clone();
+        downloadByString(JSON.stringify(data.export()), `${data.name}.json`);
     }
 
     async setJson() {
