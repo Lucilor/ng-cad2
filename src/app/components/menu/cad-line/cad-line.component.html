@@ -293,4 +293,13 @@
             />
         </mat-form-field>
     </div>
+    <div class="form-item">
+        <mat-form-field>
+            <mat-label>可输入修改</mat-label>
+            <mat-select name="可输入修改" [value]="getLineText('可输入修改')" (selectionChange)="setLineText($event, '可输入修改')">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
 </form>
