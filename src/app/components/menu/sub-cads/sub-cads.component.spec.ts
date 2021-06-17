@@ -1,5 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatDialogModule} from "@angular/material/dialog";
+import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
@@ -18,6 +19,7 @@ describe("SubCadsComponent", () => {
             declarations: [SubCadsComponent],
             imports: [
                 MatDialogModule,
+                MatDividerModule,
                 MatExpansionModule,
                 MatMenuModule,
                 MatSlideToggleModule,
@@ -36,5 +38,9 @@ describe("SubCadsComponent", () => {
 
     it("should create", () => {
         expect(component).toBeTruthy();
+    });
+
+    it("should show menu", () => {
+        component.contextMenu.openMenu();
     });
 });

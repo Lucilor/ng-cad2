@@ -121,13 +121,22 @@
         <ng-container *ngIf="contextMenuCad?.field === 'cads'">
             <button mat-menu-item (click)="editChildren('partners')">编辑关联</button>
             <button mat-menu-item (click)="editChildren('components')">编辑装配</button>
-            <button mat-menu-item (click)="uploadDxf(true)">上传dxf文件(主CAD)</button>
+            <mat-divider></mat-divider>
         </ng-container>
         <button mat-menu-item (click)="downloadDxf()">下载dxf文件</button>
-        <button mat-menu-item (click)="uploadDxf()">上传dxf文件</button>
-        <button mat-menu-item (click)="getJson()">获取json数据</button>
+        <button mat-menu-item [matMenuTriggerFor]="uploadMenu">上传dxf文件</button>
+        <mat-menu #uploadMenu="matMenu">
+            <button mat-menu-item (click)="uploadDxf(false, false)">替换</button>
+            <button mat-menu-item (click)="uploadDxf(true, false)">添加</button>
+            <ng-container *ngIf="contextMenuCad?.field === 'cads'">
+                <button mat-menu-item (click)="uploadDxf(false, true)">替换主CAD</button>
+            </ng-container>
+        </mat-menu>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="getJson()">复制json数据</button>
         <button mat-menu-item (click)="downloadJson()">下载json文件</button>
         <button mat-menu-item (click)="setJson()">修改json数据</button>
+        <mat-divider></mat-divider>
         <button mat-menu-item (click)="replaceData()">替换数据</button>
     </ng-template>
 </mat-menu>

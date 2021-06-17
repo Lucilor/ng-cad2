@@ -531,13 +531,18 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         this.dataService.downloadDxf(data);
     }
 
-    uploadDxf(mainCad = false) {
+    uploadDxf(append: boolean, mainCad: boolean) {
         const el = this.dxfInut.nativeElement;
         el.click();
         if (mainCad) {
             el.setAttribute("main-cad", "");
         } else {
             el.removeAttribute("main-cad");
+        }
+        if (append) {
+            el.setAttribute("append", "");
+        } else {
+            el.removeAttribute("append");
         }
     }
 
@@ -547,27 +552,42 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         if (!this.contextMenuCad || !file) {
             return;
         }
+        const append = input.hasAttribute("append");
+        const mainCad = input.hasAttribute("main-cad");
         const data = this.contextMenuCad.data;
-        const content = `确定要上传<span style="color:red">${file.name}</span>并替换<span style="color:red">${data.name}</span>的数据吗？`;
-        const yes = await this.message.confirm(content);
-        if (yes) {
+        if (append) {
             const resData = await this.dataService.uploadDxf(file);
             if (resData) {
-                if (input.hasAttribute("main-cad")) {
-                    const data1 = new CadData();
-                    data1.entities = data.entities;
-                    const data2 = new CadData();
-                    data2.entities = resData.entities;
-                    const {min: min1} = data1.getBoundingRect();
-                    const {min: min2} = data2.getBoundingRect();
-                    data2.transform({translate: min1.sub(min2)});
-                    data.entities = data2.entities;
-                } else {
-                    data.entities = resData.entities;
-                    data.partners = resData.partners;
-                    data.components = resData.components;
-                }
+                const rect1 = data.getBoundingRect();
+                const rect2 = resData.entities.getBoundingRect();
+                const dx = rect1.right + 10 - rect2.left;
+                const dy = rect1.y - rect2.y;
+                resData.entities.transform({translate: [dx, dy]}, true);
+                data.entities.merge(resData.entities);
                 this.status.openCad();
+            }
+        } else {
+            const content = `确定要上传<span style="color:red">${file.name}</span>并替换<span style="color:red">${data.name}</span>的数据吗？`;
+            const yes = await this.message.confirm(content);
+            if (yes) {
+                const resData = await this.dataService.uploadDxf(file);
+                if (resData) {
+                    if (mainCad) {
+                        const data1 = new CadData();
+                        data1.entities = data.entities;
+                        const data2 = new CadData();
+                        data2.entities = resData.entities;
+                        const {min: min1} = data1.getBoundingRect();
+                        const {min: min2} = data2.getBoundingRect();
+                        data2.transform({translate: min1.sub(min2)}, true);
+                        data.entities = data2.entities;
+                    } else {
+                        data.entities = resData.entities;
+                        data.partners = resData.partners;
+                        data.components = resData.components;
+                    }
+                    this.status.openCad();
+                }
             }
         }
         input.value = "";
