@@ -4,7 +4,7 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, timer} from "@app/app.common";
 import {printCads} from "@app/cad.utils";
-import {CadData} from "@cad-viewer";
+import {CadData, CadViewerConfig} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {timeout} from "@utils";
@@ -17,6 +17,7 @@ type ResponseData = {
     linewidth?: PrintParameters["2"];
     renderStyle?: PrintParameters["3"];
     designPics?: PrintParameters["4"];
+    fontFamily?: CadViewerConfig["fontFamily"];
 };
 
 @Component({
@@ -32,6 +33,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     showDxfInput = false;
     private _showDesignPicsKey = "printCad-showDesignPics";
     showDesignPics = Boolean(session.load(this._showDesignPicsKey));
+    fontFamily = "微软雅黑";
 
     constructor(
         private loader: NgxUiLoaderService,
@@ -77,10 +79,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
 
     async generateSuanliaodan(data: ResponseData) {
-        const {cads, linewidth, renderStyle, designPics} = data;
+        const {cads, linewidth, renderStyle, designPics, fontFamily} = data;
         this.loaderText = "正在生成算料单...";
         timer.start(this.loaderId);
-        this.pdfUrlRaw = await printCads(cads, {}, linewidth, renderStyle, designPics);
+        this.pdfUrlRaw = await printCads(cads, {fontFamily}, linewidth, renderStyle, designPics);
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
         timer.end(this.loaderId, "生成算料单");
     }
@@ -96,7 +98,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!data) {
             return;
         }
-        const param: ResponseData = {cads: [data], linewidth: 2};
+        const param: ResponseData = {cads: [data], linewidth: 2, fontFamily: this.fontFamily};
         if (this.showDesignPics) {
             param.designPics = {
                 urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],

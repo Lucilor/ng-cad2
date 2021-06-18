@@ -1,9 +1,13 @@
 <div class="toolbar btn-group">
     <ng-container *ngIf="showDxfInput">
-        <input #uploadInput type="file" hidden accept=".dxf" (input)="uploadDxf($event)">
+        <input #uploadInput type="file" hidden accept=".dxf" (input)="uploadDxf($event)" />
         <button mat-raised-button color="primary" (click)="uploadInput.click()">上传dxf</button>
         <span>打印效果图</span>
         <mat-slide-toggle [checked]="showDesignPics" (change)="setShowDesignPics($event)"></mat-slide-toggle>
+        <mat-form-field style="width: 150px">
+            <mat-label>字体</mat-label>
+            <input type="text" matInput [(ngModel)]="fontFamily" />
+        </mat-form-field>
     </ng-container>
     <button mat-raised-button color="primary" (click)="print()">打印</button>
 </div>
