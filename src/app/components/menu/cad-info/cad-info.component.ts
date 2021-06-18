@@ -4,7 +4,7 @@ import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute} from "@angular/router";
 import {splitOptions, joinOptions} from "@app/app.common";
 import {getCadGongshiText} from "@app/cad.utils";
-import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity} from "@cad-viewer";
+import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity, 算料单显示} from "@cad-viewer";
 import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {openCadZhankaiDialog} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
@@ -26,6 +26,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     cadsData: CadData[] = [];
     editDisabled = true;
     private _cadPointsLock = false;
+    sldxs = 算料单显示;
     @Output() cadLengthsChange = new EventEmitter<string[]>();
 
     private _onEntityClick = (
