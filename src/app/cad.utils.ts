@@ -176,8 +176,13 @@ export const printCads = async (
                 e.linewidth = linewidth;
                 e.renderStyle = renderStyle;
                 e.selected = true;
-            } else if (e instanceof CadMtext && e.fontFamily === "仿宋") {
-                e.fontWeight = "bolder";
+            } else if (e instanceof CadMtext) {
+                if (e.fontFamily === "仿宋") {
+                    e.fontWeight = "bolder";
+                }
+                if (config.fontFamily === "宋体") {
+                    e.font_size += 8;
+                }
             }
         }, true);
         const cadPrint = new CadViewer(data, {

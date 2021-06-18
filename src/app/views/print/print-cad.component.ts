@@ -7,6 +7,7 @@ import {printCads} from "@app/cad.utils";
 import {CadData, CadViewerConfig} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {AppStatusService} from "@services/app-status.service";
 import {timeout} from "@utils";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import printJS from "print-js";
@@ -33,14 +34,23 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     showDxfInput = false;
     private _showDesignPicsKey = "printCad-showDesignPics";
     showDesignPics = Boolean(session.load(this._showDesignPicsKey));
-    fontFamily = "微软雅黑";
+    private _fontFamilyKey = "printCad-fontFamily";
+    private _fontFamily = session.load(this._fontFamilyKey) || "微软雅黑";
+    get fontFamily() {
+        return this._fontFamily;
+    }
+    set fontFamily(value) {
+        this._fontFamily = value;
+        session.save(this._fontFamilyKey, value);
+    }
 
     constructor(
         private loader: NgxUiLoaderService,
         private route: ActivatedRoute,
         private dataService: CadDataService,
         private message: MessageService,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        private status: AppStatusService
     ) {}
 
     private _onKeyDown = ((event: KeyboardEvent) => {
@@ -82,6 +92,18 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const {cads, linewidth, renderStyle, designPics, fontFamily} = data;
         this.loaderText = "正在生成算料单...";
         timer.start(this.loaderId);
+        if (this.status.project === "sd" || location.href.includes("localhost")) {
+            cads.forEach((cad) => {
+                cad.entities.mtext.forEach((mtext) => {
+                    const l = 12;
+                    if (mtext.text.startsWith("拉手:") && mtext.text.length > l) {
+                        const text1 = mtext.text.slice(0, l);
+                        const text2 = mtext.text.slice(l);
+                        mtext.text = `${text1}\n    \t${text2}`;
+                    }
+                });
+            });
+        }
         this.pdfUrlRaw = await printCads(cads, {fontFamily}, linewidth, renderStyle, designPics);
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
         timer.end(this.loaderId, "生成算料单");
