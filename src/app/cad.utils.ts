@@ -177,9 +177,6 @@ export const printCads = async (
                 e.renderStyle = renderStyle;
                 e.selected = true;
             } else if (e instanceof CadMtext) {
-                if (e.fontFamily === "仿宋") {
-                    e.fontWeight = "bolder";
-                }
                 if (config.fontFamily === "宋体") {
                     e.font_size += 8;
                 }

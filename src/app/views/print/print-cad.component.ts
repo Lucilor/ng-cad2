@@ -99,7 +99,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                     if (mtext.text.startsWith("拉手:") && mtext.text.length > l) {
                         const text1 = mtext.text.slice(0, l);
                         const text2 = mtext.text.slice(l);
-                        mtext.text = `${text1}\n    \t${text2}`;
+                        mtext.text = `${text1}\n     ${text2}`;
                     }
                 });
             });
