@@ -18,6 +18,7 @@ type ResponseData = {
     linewidth?: PrintParameters["2"];
     renderStyle?: PrintParameters["3"];
     designPics?: PrintParameters["4"];
+    extra?: PrintParameters["5"];
     fontFamily?: CadViewerConfig["fontFamily"];
 };
 
@@ -89,22 +90,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
 
     async generateSuanliaodan(data: ResponseData) {
-        const {cads, linewidth, renderStyle, designPics, fontFamily} = data;
+        const {cads, linewidth, renderStyle, designPics, extra, fontFamily} = data;
         this.loaderText = "正在生成算料单...";
         timer.start(this.loaderId);
-        if (this.status.project === "sd" || location.href.includes("localhost")) {
-            cads.forEach((cad) => {
-                cad.entities.mtext.forEach((mtext) => {
-                    const l = 12;
-                    if (mtext.text.startsWith("拉手:") && mtext.text.length > l) {
-                        const text1 = mtext.text.slice(0, l);
-                        const text2 = mtext.text.slice(l);
-                        mtext.text = `${text1}\n     ${text2}`;
-                    }
-                });
-            });
-        }
-        this.pdfUrlRaw = await printCads(cads, {fontFamily}, linewidth, renderStyle, designPics);
+        this.pdfUrlRaw = await printCads(cads, {fontFamily}, linewidth, renderStyle, designPics, extra);
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
         timer.end(this.loaderId, "生成算料单");
     }
@@ -120,7 +109,14 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!data) {
             return;
         }
-        const param: ResponseData = {cads: [data], linewidth: 2, fontFamily: this.fontFamily};
+        const param: ResponseData = {
+            cads: [data],
+            linewidth: 2,
+            fontFamily: this.fontFamily,
+            extra: {
+                拉手信息宽度: 578
+            }
+        };
         if (this.showDesignPics) {
             param.designPics = {
                 urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],

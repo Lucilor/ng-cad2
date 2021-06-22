@@ -7,7 +7,8 @@ import {
     CadMtext,
     CadZhankai,
     CadBaseLine,
-    CadJointPoint
+    CadJointPoint,
+    getWrapedText
 } from "@cad-viewer";
 import {timeout, getDPI, Point, isNearZero, loadImage} from "@utils";
 import Color from "color";
@@ -146,7 +147,8 @@ export const printCads = async (
     config: Partial<CadViewerConfig> = {},
     linewidth = 1,
     renderStyle: CadDimension["renderStyle"] = 2,
-    designPics?: {urls: (string | string[])[]; margin: number}
+    designPics?: {urls: (string | string[])[]; margin: number},
+    extra: {拉手信息宽度?: number} = {}
 ) => {
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
@@ -182,6 +184,7 @@ export const printCads = async (
                 }
             }
         }, true);
+        data.entities.mtext.filter((v) => v.text.startsWith("拉手:")).forEach((v) => (v.text += "121dWEDvsvAS"));
         const cadPrint = new CadViewer(data, {
             width: width * scaleX,
             height: height * scaleY,
@@ -208,6 +211,25 @@ export const printCads = async (
                 }
             });
         });
+        const {拉手信息宽度} = extra;
+        if (typeof 拉手信息宽度 === "number" && 拉手信息宽度 > 0) {
+            cads.forEach((cad) => {
+                const 拉手信息 = cad.entities.mtext.filter((v) => v.text.startsWith("拉手:")).sort((v) => v.insert.x - v.insert.y);
+                拉手信息.forEach((v) => (v.text += "awgAWegWEGWEWgwa"));
+                拉手信息.forEach((mtext) => {
+                    const {el, text, insert, anchor} = mtext;
+                    if (el && el.width() >= 拉手信息宽度) {
+                        const {fontStyle} = cadPrint.stylizer.get(mtext);
+                        try {
+                            mtext.text = getWrapedText(text, 拉手信息宽度, fontStyle, insert, anchor);
+                            cadPrint.render(mtext);
+                        } catch (error) {
+                            console.warn("拉手信息自动换行出错");
+                        }
+                    }
+                });
+            });
+        }
         const img = (await cadPrint.toCanvas()).toDataURL();
         imgs.push(img);
         if (designPics) {
