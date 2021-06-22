@@ -184,7 +184,6 @@ export const printCads = async (
                 }
             }
         }, true);
-        data.entities.mtext.filter((v) => v.text.startsWith("拉手:")).forEach((v) => (v.text += "121dWEDvsvAS"));
         const cadPrint = new CadViewer(data, {
             width: width * scaleX,
             height: height * scaleY,
@@ -215,7 +214,6 @@ export const printCads = async (
         if (typeof 拉手信息宽度 === "number" && 拉手信息宽度 > 0) {
             cads.forEach((cad) => {
                 const 拉手信息 = cad.entities.mtext.filter((v) => v.text.startsWith("拉手:")).sort((v) => v.insert.x - v.insert.y);
-                拉手信息.forEach((v) => (v.text += "awgAWegWEGWEWgwa"));
                 拉手信息.forEach((mtext) => {
                     const {el, text, insert, anchor} = mtext;
                     if (el && el.width() >= 拉手信息宽度) {

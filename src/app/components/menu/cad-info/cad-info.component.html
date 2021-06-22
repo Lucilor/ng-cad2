@@ -303,5 +303,12 @@
                 <mat-option value="门扇">门扇</mat-option>
             </mat-select>
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>内开做分体</mat-label>
+            <mat-select type="text" [(ngModel)]="cad['内开做分体']" name="内开做分体">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
     </form>
 </div>
