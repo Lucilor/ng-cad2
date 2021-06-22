@@ -39,9 +39,9 @@
             <mat-label>线长字体大小</mat-label>
             <input
                 matInput
-                type="text"
+                type="number"
                 [value]="getLineText('lengthTextSize')"
-                (change)="setLineText($event, 'lengthTextSize')"
+                (input)="setLineText($event, 'lengthTextSize')"
                 name="lengthTextSize"
             />
         </mat-form-field>
