@@ -179,8 +179,22 @@ export const printCads = async (
                 e.renderStyle = renderStyle;
                 e.selected = true;
             } else if (e instanceof CadMtext) {
-                if (config.fontFamily === "宋体") {
-                    e.font_size += 8;
+                if (e.text.includes("     ") && !isNaN(Number(e.text))) {
+                    if (e.font_size === 24) {
+                        e.font_size = 36;
+                        e.insert.y += 11;
+                        e.insert.x -= 4;
+                    }
+                    e.text = e.text.replace("     ", "");
+                    e.fontFamily = "仿宋";
+                    e.fontWeight = "bolder";
+                } else {
+                    if (config.fontFamily === "宋体") {
+                        e.font_size += 6;
+                    }
+                }
+                if (e.font_size < 24) {
+                    e.fontWeight = "bolder";
                 }
             }
         }, true);
