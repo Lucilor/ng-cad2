@@ -1,7 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {HttpModule} from "@modules/http/http.module";
-import {MessageModule} from "@modules/message/message.module";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 
 import {PrintCadComponent} from "./print-cad.component";
@@ -13,7 +12,7 @@ describe("PrintCADComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [PrintCadComponent],
-            imports: [HttpModule, MatSlideToggleModule, MessageModule, NgxUiLoaderModule]
+            imports: [HttpModule, MatSlideToggleModule, NgxUiLoaderModule]
         }).compileComponents();
     });
 

@@ -3,24 +3,12 @@ import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, timer} from "@app/app.common";
-import {printCads} from "@app/cad.utils";
-import {CadData, CadViewerConfig} from "@cad-viewer";
+import {printCads, PrintCadsParams} from "@app/cad.utils";
+import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {MessageService} from "@modules/message/services/message.service";
-import {AppStatusService} from "@services/app-status.service";
 import {timeout} from "@utils";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import printJS from "print-js";
-
-type PrintParameters = Parameters<typeof printCads>;
-type ResponseData = {
-    cads: PrintParameters["0"];
-    linewidth?: PrintParameters["2"];
-    renderStyle?: PrintParameters["3"];
-    designPics?: PrintParameters["4"];
-    extra?: PrintParameters["5"];
-    fontFamily?: CadViewerConfig["fontFamily"];
-};
 
 @Component({
     selector: "app-print-cad",
@@ -49,9 +37,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         private loader: NgxUiLoaderService,
         private route: ActivatedRoute,
         private dataService: CadDataService,
-        private message: MessageService,
-        private sanitizer: DomSanitizer,
-        private status: AppStatusService
+        private sanitizer: DomSanitizer
     ) {}
 
     private _onKeyDown = ((event: KeyboardEvent) => {
@@ -72,7 +58,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         }
         this.loader.startLoader(this.loaderId);
         this.loaderText = "正在获取数据...";
-        const response = await this.dataService.post<ResponseData>(action, queryParams, "both");
+        const response = await this.dataService.post<PrintCadsParams>(action, queryParams, "both");
         if (response?.data) {
             response.data.cads = response.data.cads.map((v) => new CadData(v));
             await this.generateSuanliaodan(response.data);
@@ -89,11 +75,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         printJS({printable: this.pdfUrlRaw, type: "pdf"});
     }
 
-    async generateSuanliaodan(data: ResponseData) {
-        const {cads, linewidth, renderStyle, designPics, extra, fontFamily} = data;
+    async generateSuanliaodan(params: PrintCadsParams) {
         this.loaderText = "正在生成算料单...";
         timer.start(this.loaderId);
-        this.pdfUrlRaw = await printCads(cads, {fontFamily}, linewidth, renderStyle, designPics, extra);
+        this.pdfUrlRaw = await printCads(params);
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
         timer.end(this.loaderId, "生成算料单");
     }
@@ -109,10 +94,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!data) {
             return;
         }
-        const param: ResponseData = {
+        const param: PrintCadsParams = {
             cads: [data],
             linewidth: 2,
-            fontFamily: this.fontFamily,
+            config: {fontFamily: this.fontFamily},
             extra: {
                 拉手信息宽度: 578
             }

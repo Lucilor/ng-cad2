@@ -406,7 +406,7 @@ export class CadConsoleComponent implements OnInit {
             const cad = this.status.cad;
             const data = cad.data.clone();
             removeCadGongshi(data);
-            const url = await printCads([data]);
+            const url = await printCads({cads: [data], config: cad.config()});
             this.status.stopLoader();
             printJS({printable: url, type: "pdf"});
         },

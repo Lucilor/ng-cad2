@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
 import {CadCollection, local, timer} from "@app/app.common";
-import {setCadData, addCadGongshi} from "@app/cad.utils";
+import {setCadData, addCadGongshi, prepareCadViewer} from "@app/cad.utils";
 import {
     CadData,
     CadLine,
@@ -210,6 +210,7 @@ export class AppStatusService {
         const title = cad.data.components.data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
         document.title = title;
         cad.data.name = title;
+        await prepareCadViewer(cad);
         this.openCad$.next();
         await timeout(0);
         cad.data.updatePartners().updateComponents();

@@ -137,19 +137,30 @@ const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], 
     return canvas.toDataURL();
 };
 
+export const prepareCadViewer = async (cad: CadViewer) => {
+    await cad.loadFont({name: "喜鸿至简特殊字体", url: origin + "/assets/fonts/xhzj_sp.ttf"});
+};
+
+export interface PrintCadsParams {
+    cads: CadData[];
+    config?: Partial<CadViewerConfig>;
+    linewidth?: number;
+    renderStyle?: CadDimension["renderStyle"];
+    designPics?: {urls: (string | string[])[]; margin: number};
+    extra?: {拉手信息宽度?: number};
+}
 /**
  * A4: (210 × 297)mm²
  *    =(8.26 × 11.69)in² (1in = 25.4mm)
  * 	  =(794 × 1123)px² (96dpi)
  */
-export const printCads = async (
-    cads: CadData[],
-    config: Partial<CadViewerConfig> = {},
-    linewidth = 1,
-    renderStyle: CadDimension["renderStyle"] = 2,
-    designPics?: {urls: (string | string[])[]; margin: number},
-    extra: {拉手信息宽度?: number} = {}
-) => {
+export const printCads = async (params: PrintCadsParams) => {
+    const cads = params.cads.map((v) => v.clone());
+    const config = params.config || {};
+    const linewidth = params.linewidth || 1;
+    const renderStyle = params.renderStyle || 2;
+    const designPics = params.designPics;
+    const extra = params.extra || {};
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
         console.warn("Unable to get screen dpi.Assuming dpi = 96.");
@@ -161,8 +172,19 @@ export const printCads = async (
     const scaleY = 300 / dpiY / 0.75;
     const scale = Math.sqrt(scaleX * scaleY);
 
+    const cadPrint = new CadViewer(new CadData(), {
+        ...config,
+        width: width * scaleX,
+        height: height * scaleY,
+        backgroundColor: "white",
+        padding: [18 * scale],
+        hideLineLength: true,
+        hideLineGongshi: true,
+        minLinewidth: 0
+    }).appendTo(document.body);
+    await prepareCadViewer(cadPrint);
+
     const imgs: string[] = [];
-    cads = cads.map((v) => v.clone());
     for (let i = 0; i < cads.length; i++) {
         const data = cads[i];
         data.getAllEntities().forEach((e) => {
@@ -191,6 +213,7 @@ export const printCads = async (
                 } else {
                     if (config.fontFamily === "宋体") {
                         e.font_size += 6;
+                        e.insert.y -= 10;
                     }
                 }
                 if (e.font_size < 24) {
@@ -198,16 +221,7 @@ export const printCads = async (
                 }
             }
         }, true);
-        const cadPrint = new CadViewer(data, {
-            width: width * scaleX,
-            height: height * scaleY,
-            backgroundColor: "white",
-            padding: [18 * scale],
-            hideLineLength: true,
-            hideLineGongshi: true,
-            minLinewidth: 0,
-            ...config
-        }).appendTo(document.body);
+        cadPrint.data = data;
         cadPrint.center().render();
         data.updatePartners().updateComponents();
         cadPrint.render().center();
@@ -253,9 +267,9 @@ export const printCads = async (
                 imgs.push(await drawDesignPics(data, img, designPicsGroup, designPics.margin));
             }
         }
-        document.body.appendChild(await cadPrint.toCanvas());
-        cadPrint.destroy();
     }
+
+    cadPrint.destroy();
     const pdf = createPdf(
         {
             content: imgs.map((image) => ({image, width, height})),
