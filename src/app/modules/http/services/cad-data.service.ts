@@ -129,7 +129,7 @@ export class CadDataService extends HttpService {
     async uploadDxf(dxf: File) {
         const response = await this.post<any>("peijian/cad/uploadDxf", {dxf});
         if (response) {
-            return new CadData(response.data);
+            return new CadData(response.data).clone(true);
         }
         return null;
     }
