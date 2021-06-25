@@ -178,10 +178,8 @@ export class AppStatusService {
         const cad = this.cad;
         if (data) {
             cad.data.components.data = data;
-            this.clearSelectedCads();
         } else {
             data = cad.data.components.data;
-            this.refreshSelectedCads();
         }
         const newConfig: Partial<AppConfig> = {};
         const ids = data.map((v) => v.id);

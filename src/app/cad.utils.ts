@@ -138,7 +138,7 @@ const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], 
 };
 
 export const prepareCadViewer = async (cad: CadViewer) => {
-    await cad.loadFont({name: "喜鸿至简特殊字体", url: origin + "/assets/fonts/xhzj_sp.ttf"});
+    await cad.loadFont({name: "喜鸿至简特殊字体", url: "assets/fonts/xhzj_sp.ttf"});
 };
 
 export interface PrintCadsParams {
@@ -213,7 +213,6 @@ export const printCads = async (params: PrintCadsParams) => {
                 } else {
                     if (config.fontFamily === "宋体") {
                         e.font_size += 6;
-                        e.insert.y -= 10;
                     }
                 }
                 if (e.font_size < 24) {

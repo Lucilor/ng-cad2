@@ -432,6 +432,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         if (!list) {
             list = cad.data.components.data;
         }
+        const selectedCads = this.status.selectedCads$.value;
         this.cads = [];
         this.partners = [];
         this.components = [];
@@ -446,8 +447,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 this.components.push(this._getCadNode(dd, d.id));
             }
         }
-        this.status.clearSelectedCads();
-        if (this.cads.length && selectFirstNode) {
+        this.status.selectedCads$.next(selectedCads);
+        if (this.cads.length && !this.cads[0].checked && selectFirstNode) {
             this.clickCad("cads", 0);
         }
     }
