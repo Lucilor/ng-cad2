@@ -291,8 +291,8 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         const blinkCount = 3;
         const blink = (el: CadEntity["el"]) => {
             if (el) {
-                el.css("opacity", 1);
-                setTimeout(() => el.css("opacity", 0), blinkInterval);
+                el.css("opacity", "1");
+                setTimeout(() => el.css("opacity", "0"), blinkInterval);
             }
         };
         entities.forEach((e) => {
