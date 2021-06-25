@@ -233,7 +233,7 @@ export const printCads = async (
                     if (el && el.width() >= 拉手信息宽度) {
                         const {fontStyle} = cadPrint.stylizer.get(mtext);
                         try {
-                            mtext.text = getWrapedText(text, 拉手信息宽度, fontStyle, insert, anchor);
+                            mtext.text = getWrapedText(text, 拉手信息宽度, fontStyle, insert, anchor).join("\n     ");
                             cadPrint.render(mtext);
                         } catch (error) {
                             console.warn("拉手信息自动换行出错");
