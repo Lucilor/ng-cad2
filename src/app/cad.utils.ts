@@ -213,6 +213,9 @@ export const printCads = async (params: PrintCadsParams) => {
                 } else {
                     if (config.fontFamily === "宋体") {
                         e.font_size += 6;
+                        e.insert.y -= 5;
+                    } else {
+                        e.insert.y -= 12;
                     }
                 }
                 if (e.font_size < 24) {
