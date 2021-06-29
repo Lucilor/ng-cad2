@@ -544,7 +544,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 } else {
                     (e as any)[field] = value;
                 }
-                if (["mingzi", "gongshi", "guanlianbianhuagongshi", "lengthTextSize"].includes(field)) {
+                if (["mingzi", "gongshi", "guanlianbianhuagongshi", "lengthTextSize", "linewidth"].includes(field)) {
                     this.status.cad.render(e);
                 }
             });

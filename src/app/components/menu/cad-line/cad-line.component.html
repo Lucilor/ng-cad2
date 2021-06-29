@@ -71,7 +71,7 @@
     <div class="form-item">
         <mat-form-field>
             <mat-label>线宽</mat-label>
-            <input matInput type="text" [value]="getLinewidth()" (change)="setLinewidth($event)" name="linewidth" />
+            <input matInput type="number" [value]="getLineText('linewidth')" (input)="setLineText($event, 'linewidth')" name="linewidth" />
         </mat-form-field>
     </div>
     <div class="form-item">
