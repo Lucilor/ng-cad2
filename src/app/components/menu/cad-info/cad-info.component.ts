@@ -319,10 +319,6 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
     }
 
-    setValue(event: Event, obj: any, field: any) {
-        obj[field] = (event.target as HTMLInputElement).value;
-    }
-
     async editZhankai(data: CadData) {
         const result = await openCadZhankaiDialog(this.dialog, {data: data.zhankai});
         if (result) {
