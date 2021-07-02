@@ -283,7 +283,8 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             return;
         }
         const distance = 2;
-        sortLines(data);
+        const lines = sortLines(data);
+        lines.forEach((v) => (v[0].mingzi = "起始线"));
         const entities = data.getAllEntities().clone(true);
         entities.offset(direction, distance);
         cad.add(entities);
