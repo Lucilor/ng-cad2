@@ -351,4 +351,9 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
         return "primary";
     }
+
+    async copyCadId(cad: CadData) {
+        await navigator.clipboard.writeText(cad.id);
+        this.message.snack("id已复制");
+    }
 }

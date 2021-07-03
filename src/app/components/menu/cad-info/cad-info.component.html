@@ -2,6 +2,13 @@
     <form *ngFor="let cad of cadsData; let i = index" [class.add-divider]="i < cadsData.length - 1">
         <button hidden></button>
         <mat-form-field>
+            <mat-label>id</mat-label>
+            <input matInput readonly type="text" [value]="cad.id" name="id" />
+            <button mat-icon-button matSuffix color="primary" (click)="copyCadId(cad)">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+        </mat-form-field>
+        <mat-form-field>
             <mat-label>名字</mat-label>
             <input matInput type="text" [value]="cad.name" (change)="setCadName(cad, $event)" name="name" />
         </mat-form-field>
