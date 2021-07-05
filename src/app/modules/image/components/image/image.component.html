@@ -1,4 +1,4 @@
-<div class="img-container" [class.small-pic]="bigPic" (click)="showBigPic()">
+<div class="img-container" [class.small-pic]="bigPicSrc" (click)="showBigPic()">
     <div *ngIf="loading">
         <img [src]="loadingSrc" />
     </div>
@@ -14,6 +14,6 @@
     />
 </div>
 
-<div #bigPicDiv class="big-pic" *ngIf="bigPic" style="display: none" (click)="hideBigPic()">
-    <img [src]="src" *ngIf="bigPicVisible" @toggle />
+<div #bigPicDiv class="big-pic" *ngIf="bigPicSrc" style="display: none" (click)="hideBigPic()">
+    <img [src]="bigPicSrc" *ngIf="bigPicVisible" @toggle />
 </div>

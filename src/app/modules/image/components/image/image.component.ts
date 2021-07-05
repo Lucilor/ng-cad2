@@ -4,8 +4,8 @@ import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {SafeUrl} from "@angular/platform-browser";
 import {timeout} from "@utils";
 
-export const imgEmpty = "assets/images/empty.jpg";
-export const imgLoading = "assets/images/loading.gif";
+const imgEmpty = "assets/images/empty.jpg";
+const imgLoading = "assets/images/loading.gif";
 
 @Component({
     selector: "app-image",
@@ -28,14 +28,7 @@ export const imgLoading = "assets/images/loading.gif";
 })
 export class ImageComponent {
     @Input() src?: string | SafeUrl;
-    private _bigPic = false;
-    @Input()
-    get bigPic() {
-        return this._bigPic;
-    }
-    set bigPic(value: boolean | string) {
-        this._bigPic = coerceBooleanProperty(value);
-    }
+    @Input() bigPicSrc?: string | SafeUrl;
     private _control = false;
     @Input()
     get control() {
@@ -62,7 +55,7 @@ export class ImageComponent {
     }
 
     async showBigPic() {
-        if (this.bigPic && this.bigPicDiv) {
+        if (this.bigPicSrc && this.bigPicDiv) {
             this.bigPicVisible = true;
             await timeout();
             const el = this.bigPicDiv.nativeElement;
@@ -72,7 +65,7 @@ export class ImageComponent {
     }
 
     async hideBigPic() {
-        if (this.bigPic && this.bigPicDiv) {
+        if (this.bigPicSrc && this.bigPicDiv) {
             this.bigPicVisible = false;
             await timeout(400);
             const bpEl = this.bigPicDiv.nativeElement;

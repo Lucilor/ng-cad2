@@ -17,7 +17,8 @@ export const routesInfo = {
     selectBancai: {path: "select-bancai", title: ""},
     changelogAdmin: {path: "changelog-admin", title: "编辑更新日志"},
     kailiaokongweipeizhi: {path: "kailiaokongweipeizhi", title: "开料孔位配置"},
-    replaceText: {path: "replace-text", title: "文本替换"}
+    replaceText: {path: "replace-text", title: "文本替换"},
+    piliangjianban: {path: "piliangjianban", title: "批量剪板"}
 };
 
 export interface Response<T> {

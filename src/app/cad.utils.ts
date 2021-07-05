@@ -14,7 +14,7 @@ import {timeout, getDPI, Point, isNearZero, loadImage} from "@utils";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 
-export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}) => {
+export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}, fixedLengthTextSize?: number) => {
     const cad = new CadViewer(new CadData(), {
         width: 300,
         height: 150,
@@ -25,11 +25,30 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
         ...config
     });
     cad.appendTo(document.body);
+    await prepareCadViewer(cad);
     cad.data = data.clone();
     cad.render().center();
     // ? ?? ???
     await timeout(0);
     cad.center();
+    if (fixedLengthTextSize) {
+        const resize = () => {
+            const zoom = cad.zoom();
+            cad.data.entities.line.forEach((line) => {
+                line.lengthTextSize = fixedLengthTextSize / zoom;
+                line.children.mtext.forEach((mtext) => {
+                    mtext.info.offset = [0, 0];
+                    // if (mtext.info.offset) {
+                    //     mtext.info.offset = mtext.info.offset.map((v) => v / zoom);
+                    // }
+                });
+                cad.render(line);
+            });
+            cad.center();
+        };
+        resize();
+        resize();
+    }
     const src = cad.toBase64();
     cad.destroy();
     return src;

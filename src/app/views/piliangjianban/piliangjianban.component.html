@@ -1,0 +1,26 @@
+<perfect-scrollbar>
+    <mat-accordion multi>
+        <mat-expansion-panel expanded *ngFor="let bancai of bancais" class="page">
+            <mat-expansion-panel-header>
+                <mat-panel-title>{{ bancai["厚度"] }}, {{ bancai["材料"] }}, {{ bancai["板材"] }}</mat-panel-title>
+                <mat-panel-description>{{ bancai["规格"][0] }}×{{ bancai["规格"][1] }}={{ bancai["数量"] }}</mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="cads">
+                <mat-card *ngFor="let data of bancai.data" class="cad">
+                    <mat-card-header>
+                        <mat-card-title>{{ data.code }}</mat-card-title>
+                        <mat-card-subtitle>{{ data.cad.name }}</mat-card-subtitle>
+                    </mat-card-header>
+                    <app-image
+                        [src]="data.img"
+                        [bigPicSrc]="data.imgLarge"
+                        [ngStyle]="{maxWidth: imgSize[0] + 'px', maxHeight: imgSize[1] + 'px'}"
+                    ></app-image>
+                    <mat-card-footer>
+                        <div>{{ data.zhankaiSize[0] }}×{{ data.zhankaiSize[1] }}={{ data.num }}</div>
+                    </mat-card-footer>
+                </mat-card>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+</perfect-scrollbar>

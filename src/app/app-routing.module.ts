@@ -8,6 +8,7 @@ import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
 import {PageNotFoundComponent} from "@views/page-not-found/page-not-found.component";
+import {PiliangjianbanComponent} from "@views/piliangjianban/piliangjianban.component";
 import {PrintA4A015PreviewComponent} from "@views/print-a4-a015-preview/print-a4-a015-preview.component";
 import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
@@ -27,7 +28,8 @@ const routes: Routes = [
             {path: routesInfo.selectBancai.path, component: SelectBancaiComponent},
             {path: routesInfo.changelogAdmin.path, component: ChangelogAdminComponent},
             {path: routesInfo.kailiaokongweipeizhi.path, component: KailiaokongweipeizhiComponent},
-            {path: routesInfo.replaceText.path, component: ReplaceTextComponent}
+            {path: routesInfo.replaceText.path, component: ReplaceTextComponent},
+            {path: routesInfo.piliangjianban.path, component: PiliangjianbanComponent}
         ],
         canActivate: [ProjectGuard]
     },
