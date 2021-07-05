@@ -142,7 +142,7 @@ export class AppConfigService {
             this._userConfig = this._purgeUserConfig(config);
             if (Object.keys(this._userConfig).length) {
                 this.setConfig(this._userConfig, {sync: false, isUserConfig: true});
-                local.save("userConfig", {...(local.load("userConfig") || {}), ...this._userConfig});
+                local.save("userConfig", {...(local.load<Partial<AppConfig>>("userConfig") || {}), ...this._userConfig});
             }
         }
         return this._userConfig;
@@ -152,7 +152,7 @@ export class AppConfigService {
         config = this._purgeUserConfig(config);
         if (Object.keys(config).length) {
             const response = await this.dataService.post("ngcad/setUserConfig", {config: this._purgeUserConfig(config)}, "no");
-            local.save("userConfig", {...(local.load("userConfig") || {}), ...config});
+            local.save("userConfig", {...(local.load<Partial<AppConfig>>("userConfig") || {}), ...config});
             return response && response.code === 0;
         }
         return false;
