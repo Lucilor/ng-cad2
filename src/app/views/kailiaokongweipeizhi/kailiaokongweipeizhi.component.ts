@@ -48,7 +48,6 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
     }
 
     ngOnInit() {
-        (window as any).k = this;
         this.route.queryParams.subscribe(async (queryParams) => {
             const id = queryParams.id;
             this.id = id;
@@ -57,7 +56,6 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
             if (typeof data === "object" && !Array.isArray(data)) {
                 this.klkwpz.init(data);
             }
-            console.log(response);
         });
     }
 

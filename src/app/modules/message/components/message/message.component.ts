@@ -95,7 +95,6 @@ export class MessageComponent implements OnInit, OnDestroy {
             data.content = data.content.message;
             console.warn(data.content);
         } else if (data.content instanceof HttpErrorResponse) {
-            console.log(data);
             data.title = "网络错误";
             const {error, status, statusText} = data.content;
             if (typeof error === "string") {
