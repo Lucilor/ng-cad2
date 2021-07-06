@@ -1,5 +1,5 @@
-<h1 mat-dialog-title [innerHTML]="titleHTML"></h1>
-<h2 mat-dialog-title [innerHTML]="subTitleHTML"></h2>
+<h2 mat-dialog-title *ngIf="titleHTML" [innerHTML]="titleHTML"></h2>
+<h3 mat-dialog-title *ngIf="subTitleHTML" [innerHTML]="subTitleHTML"></h3>
 <div mat-dialog-content>
     <ng-container *ngIf="data.type === 'editor'; else notEditor">
         <quill-editor [(ngModel)]="data.content" [preserveWhitespace]="true"> </quill-editor>

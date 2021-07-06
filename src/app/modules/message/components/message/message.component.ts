@@ -95,14 +95,17 @@ export class MessageComponent implements OnInit, OnDestroy {
             data.content = data.content.message;
             console.warn(data.content);
         } else if (data.content instanceof HttpErrorResponse) {
+            console.log(data);
             data.title = "网络错误";
-            if (typeof data.content.error === "string") {
+            const {error, status, statusText} = data.content;
+            if (typeof error === "string") {
                 data.content = data.content.error;
             } else if (typeof data.content.error?.text === "string") {
                 data.content = data.content.error.text;
             } else {
                 data.content = "未知网络错误";
             }
+            data.content = `<span>${status} (${statusText})</span><br>` + data.content;
         } else if (typeof data.content !== "string") {
             try {
                 data.content = JSON.stringify(data.content);
@@ -110,6 +113,7 @@ export class MessageComponent implements OnInit, OnDestroy {
                 console.warn(error);
             }
         }
+        this.titleHTML = this.sanitizer.bypassSecurityTrustHtml(data.title);
         this.contentHTML = this.sanitizer.bypassSecurityTrustHtml(data.content);
 
         if (data.type === "prompt") {
