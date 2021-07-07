@@ -1,9 +1,11 @@
 <perfect-scrollbar>
     <mat-accordion multi>
-        <mat-expansion-panel expanded *ngFor="let bancai of bancais" class="page">
+        <mat-expansion-panel [(expanded)]="bancai.expanded" *ngFor="let bancai of bancais" class="page">
             <mat-expansion-panel-header>
                 <mat-panel-title>{{ bancai["厚度"] }}, {{ bancai["材料"] }}, {{ bancai["板材"] }}</mat-panel-title>
-                <mat-panel-description>{{ bancai["规格"][0] }}×{{ bancai["规格"][1] }}={{ bancai["数量"] }}</mat-panel-description>
+                <mat-panel-description
+                    >{{ bancai["规格"][0] }}×{{ bancai["规格"][1] }}={{ bancai["数量"] }}({{ bancai.pageNum }})</mat-panel-description
+                >
             </mat-expansion-panel-header>
             <div class="cads">
                 <mat-card *ngFor="let data of bancai.data" class="cad">

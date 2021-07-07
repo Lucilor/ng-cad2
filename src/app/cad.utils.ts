@@ -14,7 +14,11 @@ import {timeout, getDPI, Point, isNearZero, loadImage} from "@utils";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 
-export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}, fixedLengthTextSize?: number) => {
+export interface CadPreviewParams {
+    fixedLengthTextSize?: number;
+}
+export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}, params: CadPreviewParams = {}) => {
+    const fixedLengthTextSize = params.fixedLengthTextSize;
     const cad = new CadViewer(new CadData(), {
         width: 300,
         height: 150,

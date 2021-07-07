@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgLoading} from "@app/app.common";
@@ -26,6 +26,8 @@ export interface Bancai {
     板材: string;
     气体: string;
     规格: number[];
+    expanded: boolean;
+    pageNum: number;
 }
 
 @Component({
@@ -33,11 +35,11 @@ export interface Bancai {
     templateUrl: "./piliangjianban.component.html",
     styleUrls: ["./piliangjianban.component.scss"]
 })
-export class PiliangjianbanComponent implements OnInit {
+export class PiliangjianbanComponent implements OnInit, OnDestroy {
     bancais: Bancai[] = [];
     cadsPerPage = 12;
     imgSize = [300, 200];
-    lengthTextSize = 24;
+    fixedLengthTextSize = 24;
 
     constructor(
         private route: ActivatedRoute,
@@ -46,15 +48,30 @@ export class PiliangjianbanComponent implements OnInit {
         private sanitizer: DomSanitizer
     ) {}
 
-    async ngOnInit() {
-        document.body.style.overflow = "hidden auto";
+    private _beforePrint = (() => {
+        this.bancais.forEach((bancai) => (bancai.expanded = true));
+    }).bind(this);
+
+    ngOnInit() {
+        setTimeout(() => this.getBancais(), 0);
+        window.addEventListener("beforeprint", this._beforePrint);
+    }
+
+    ngOnDestroy() {
+        window.removeEventListener("beforeprint", this._beforePrint);
+    }
+
+    async getBancais(bancais?: Bancai[]) {
+        if (bancais) {
+            this.bancais = bancais;
+            return;
+        }
         const url = "order/order/piliangjianban";
         const params = this.route.snapshot.queryParams;
         this.status.startLoader({text: "获取数据..."});
         const response = await this.dataService.post<Bancai[]>(url, params);
-        // this.status.loaderText$.next("生成预览图...");
-        console.log(this);
         if (response?.data) {
+            this.status.loaderText$.next("生成预览图...");
             this.bancais.length = 0;
             response.data.forEach((bancai) => {
                 const data: Bancai["data"] = [];
@@ -71,13 +88,14 @@ export class PiliangjianbanComponent implements OnInit {
                 });
                 if (data.length) {
                     bancai.data = data.concat(data);
+                    bancai.expanded = true;
                     this.bancais.push(bancai);
                 }
             });
             this.splitBancais();
             await timeout(0);
             const dataAll = this.bancais.map((v) => v.data).flat();
-            const {imgSize, lengthTextSize} = this;
+            const {imgSize, fixedLengthTextSize} = this;
             const config: Partial<CadViewerConfig> = {
                 hideLineLength: false,
                 hideLineGongshi: true,
@@ -87,13 +105,15 @@ export class PiliangjianbanComponent implements OnInit {
                 fontFamily: "宋体"
             };
             const getImg = async (data: CadData) =>
-                this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data, config, lengthTextSize));
+                this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data, config, {fixedLengthTextSize}));
             await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.cad))));
             this.status.stopLoader();
             await timeout(0);
             config.width = innerWidth * 0.85;
             config.height = innerHeight * 0.85;
             await Promise.all(dataAll.map(async (v) => (v.imgLarge = await getImg(v.cad))));
+        } else {
+            this.status.stopLoader();
         }
     }
 
@@ -103,9 +123,11 @@ export class PiliangjianbanComponent implements OnInit {
         bancais.forEach((bancai) => {
             const data = bancai.data;
             bancai.data = [];
+            let j = 0;
             for (let i = 0; i < data.length; i += this.cadsPerPage) {
                 const bancaiCopy = cloneDeep(bancai);
                 bancaiCopy.data = data.slice(i, i + this.cadsPerPage);
+                bancaiCopy.pageNum = ++j;
                 this.bancais.push(bancaiCopy);
             }
         });
