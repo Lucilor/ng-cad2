@@ -28,6 +28,7 @@ export interface Bancai {
     规格: number[];
     expanded: boolean;
     pageNum: number;
+    pageBreakAfter: CSSStyleDeclaration["pageBreakAfter"];
 }
 
 @Component({
@@ -37,7 +38,11 @@ export interface Bancai {
 })
 export class PiliangjianbanComponent implements OnInit, OnDestroy {
     bancais: Bancai[] = [];
-    cadsPerPage = 12;
+    cadsRowNum = 4;
+    cadsColNum = 3;
+    get cadElWidth() {
+        return `calc(${100 / this.cadsColNum}% - 10px)`;
+    }
     imgSize = [300, 200];
     fixedLengthTextSize = 24;
 
@@ -89,6 +94,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                 if (data.length) {
                     bancai.data = data.concat(data);
                     bancai.expanded = true;
+                    bancai.pageBreakAfter = "always";
                     this.bancais.push(bancai);
                 }
             });
@@ -119,17 +125,30 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
 
     splitBancais() {
         const bancais = this.bancais.slice();
+        bancais.sort((a, b) => b.data.length - a.data.length);
         this.bancais = [];
+        const {cadsColNum, cadsRowNum} = this;
+        const cadsPerPage = cadsColNum * cadsRowNum;
         bancais.forEach((bancai) => {
             const data = bancai.data;
             bancai.data = [];
             let j = 0;
-            for (let i = 0; i < data.length; i += this.cadsPerPage) {
+            for (let i = 0; i < data.length; i += cadsPerPage) {
                 const bancaiCopy = cloneDeep(bancai);
-                bancaiCopy.data = data.slice(i, i + this.cadsPerPage);
+                bancaiCopy.data = data.slice(i, i + cadsPerPage);
                 bancaiCopy.pageNum = ++j;
                 this.bancais.push(bancaiCopy);
             }
         });
+        for (let i = 0; i < this.bancais.length - 1; i++) {
+            const curr = this.bancais[i];
+            const next = this.bancais[i + 1];
+            const currRows = Math.ceil(curr.data.length / cadsColNum);
+            const nextRows = Math.ceil(next.data.length / cadsColNum);
+            if (currRows + nextRows + 1 <= cadsRowNum) {
+                curr.pageBreakAfter = "none";
+                i++;
+            }
+        }
     }
 }

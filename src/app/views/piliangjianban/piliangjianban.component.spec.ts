@@ -30,7 +30,8 @@ const bancais: Bancai[] = [
         气体: "",
         规格: [20, 10],
         expanded: true,
-        pageNum: 1
+        pageNum: 1,
+        pageBreakAfter: "always"
     }
 ];
 

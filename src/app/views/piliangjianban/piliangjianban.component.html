@@ -1,6 +1,11 @@
 <perfect-scrollbar>
     <mat-accordion multi>
-        <mat-expansion-panel [(expanded)]="bancai.expanded" *ngFor="let bancai of bancais" class="page">
+        <mat-expansion-panel
+            [(expanded)]="bancai.expanded"
+            [ngStyle]="{'page-break-after': bancai.pageBreakAfter}"
+            *ngFor="let bancai of bancais"
+            class="page"
+        >
             <mat-expansion-panel-header>
                 <mat-panel-title>{{ bancai["厚度"] }}, {{ bancai["材料"] }}, {{ bancai["板材"] }}</mat-panel-title>
                 <mat-panel-description
@@ -8,7 +13,7 @@
                 >
             </mat-expansion-panel-header>
             <div class="cads">
-                <mat-card *ngFor="let data of bancai.data" class="cad">
+                <mat-card *ngFor="let data of bancai.data" class="cad" [ngStyle]="{width: cadElWidth}">
                     <mat-card-header>
                         <mat-card-title>{{ data.code }}</mat-card-title>
                         <mat-card-subtitle>{{ data.cad.name }}</mat-card-subtitle>
