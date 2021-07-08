@@ -15,6 +15,7 @@ import {
     ValidateResult
 } from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, timeout} from "@utils";
 import {difference, differenceWith, clamp} from "lodash";
 import {NgxUiLoaderService} from "ngx-ui-loader";
@@ -80,7 +81,8 @@ export class AppStatusService {
         private loaderService: NgxUiLoaderService,
         private route: ActivatedRoute,
         private router: Router,
-        private dataService: CadDataService
+        private dataService: CadDataService,
+        private message: MessageService
     ) {
         this.cad.config(this.config.getConfig());
         this.config.configChange$.subscribe(({newVal}) => {
@@ -93,9 +95,6 @@ export class AppStatusService {
                 e.selectable = false;
             });
             cad.render(cadGongshis);
-        });
-        this.route.queryParams.subscribe(async (queryParams) => {
-            await this._setProject(queryParams);
         });
     }
 
@@ -110,26 +109,31 @@ export class AppStatusService {
         source.separate(new CadData({entities: mtexts.export()}));
     }
 
-    private async _setProject(queryParams: Params) {
+    async setProject(queryParams: Params) {
         const {project, action} = queryParams;
         if (project && project !== this.project) {
             this.project = project;
             this.dataService.baseURL = `${origin}/n/${project}/index/`;
+            this.startLoader({text: "读取用户信息..."});
             if (!action) {
                 const response = await this.dataService.get("user/user/isAdmin");
                 this.isAdmin$.next(!!response?.data);
-                let changelogTimeStamp = this.changelogTimeStamp$.value;
-                if (changelogTimeStamp < 0) {
-                    const {changelog} = await this.dataService.getChangelog(1, 1);
-                    changelogTimeStamp = changelog[0]?.timeStamp || 0;
-                }
-                if (changelogTimeStamp > this._refreshTimeStamp) {
-                    location.reload();
-                    local.save("refreshTimeStamp", new Date().getTime());
-                }
-                this.changelogTimeStamp$.next(changelogTimeStamp);
                 await this.config.getUserConfig();
             }
+            this.loaderText$.next("检查更新...");
+            let changelogTimeStamp = this.changelogTimeStamp$.value;
+            if (changelogTimeStamp < 0) {
+                const {changelog} = await this.dataService.getChangelog(1, 1);
+                changelogTimeStamp = changelog[0]?.timeStamp || 0;
+            }
+            this.stopLoader();
+            if (changelogTimeStamp > this._refreshTimeStamp) {
+                this.message.snack("版本更新，自动刷新页面");
+                local.save("refreshTimeStamp", new Date().getTime());
+                await timeout(1000);
+                location.reload();
+            }
+            this.changelogTimeStamp$.next(changelogTimeStamp);
             this.setProject$.next();
         }
     }
