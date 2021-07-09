@@ -43,8 +43,8 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
     get cadElWidth() {
         return `calc(${100 / this.cadsColNum}% - 10px)`;
     }
-    imgSize = [300, 200];
-    fixedLengthTextSize = 24;
+    imgSize = [300, 250];
+    fixedLengthTextSize = 22;
 
     constructor(
         private route: ActivatedRoute,
@@ -89,6 +89,11 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                     v.img = imgLoading;
                     const rect = v.unfolded.getBoundingRect();
                     v.zhankaiSize = [Number(rect.width.toFixed(1)), Number(rect.height.toFixed(1))];
+                    v.cad.entities.line.forEach((line) => {
+                        if (line.length <= 5) {
+                            line.children.mtext = [];
+                        }
+                    });
                     data.push(v);
                 });
                 if (data.length) {
@@ -150,5 +155,9 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                 i++;
             }
         }
+    }
+
+    print() {
+        window.print();
     }
 }

@@ -8,16 +8,14 @@
         >
             <mat-expansion-panel-header>
                 <mat-panel-title>{{ bancai["厚度"] }}, {{ bancai["材料"] }}, {{ bancai["板材"] }}</mat-panel-title>
-                <mat-panel-description
-                    >{{ bancai["规格"][0] }}×{{ bancai["规格"][1] }}={{ bancai["数量"] }}({{ bancai.pageNum }})</mat-panel-description
-                >
+                <mat-panel-description> {{ bancai["规格"][0] }}×{{ bancai["规格"][1] }}={{ bancai["数量"] }} </mat-panel-description>
             </mat-expansion-panel-header>
             <div class="cads">
                 <mat-card *ngFor="let data of bancai.data" class="cad" [ngStyle]="{width: cadElWidth}">
-                    <mat-card-header>
-                        <mat-card-title>{{ data.code }}</mat-card-title>
-                        <mat-card-subtitle>{{ data.cad.name }}</mat-card-subtitle>
-                    </mat-card-header>
+                    <div class="header">
+                        <div class="title">{{ data.code }}</div>
+                        <div class="subtitle">{{ data.cad.name }}</div>
+                    </div>
                     <app-image
                         [src]="data.img"
                         [bigPicSrc]="data.imgLarge"
@@ -31,3 +29,6 @@
         </mat-expansion-panel>
     </mat-accordion>
 </perfect-scrollbar>
+<div class="btn-group toolbar">
+    <button mat-raised-button color="primary" (click)="print()">打印</button>
+</div>

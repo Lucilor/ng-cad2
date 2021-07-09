@@ -114,13 +114,12 @@ export class AppStatusService {
         if (project && project !== this.project) {
             this.project = project;
             this.dataService.baseURL = `${origin}/n/${project}/index/`;
-            this.startLoader({text: "读取用户信息..."});
+            this.startLoader();
             if (!action) {
                 const response = await this.dataService.get("user/user/isAdmin");
                 this.isAdmin$.next(!!response?.data);
                 await this.config.getUserConfig();
             }
-            this.loaderText$.next("检查更新...");
             let changelogTimeStamp = this.changelogTimeStamp$.value;
             if (changelogTimeStamp < 0) {
                 const {changelog} = await this.dataService.getChangelog(1, 1);
@@ -132,10 +131,12 @@ export class AppStatusService {
                 local.save("refreshTimeStamp", new Date().getTime());
                 await timeout(1000);
                 location.reload();
+                return false;
             }
             this.changelogTimeStamp$.next(changelogTimeStamp);
             this.setProject$.next();
         }
+        return true;
     }
 
     clearSelectedCads() {

@@ -19,7 +19,6 @@ export class ProjectGuard implements CanActivate {
                 queryParamsHandling: "merge"
             });
         }
-        await this.status.setProject(route.queryParams);
-        return true;
+        return await this.status.setProject(route.queryParams);
     }
 }

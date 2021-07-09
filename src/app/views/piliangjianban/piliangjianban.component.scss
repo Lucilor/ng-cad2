@@ -1,7 +1,14 @@
 :host {
-    display: block;
+    display: flex;
+    flex-direction: column;
     width: 100vw;
     height: 100vh;
+}
+
+.toolbar {
+    position: fixed;
+    left: 830px;
+    top: 10px;
 }
 
 .page {
@@ -32,12 +39,34 @@
         box-sizing: border-box;
         box-shadow: none;
         border: 1px solid lightgrey;
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+
+            .title {
+                font-size: 28px;
+                text-align: left;
+                padding-left: 14px;
+            }
+            .subtitle {
+                font-size: 14px;
+                text-align: right;
+                padding-right: 7px;
+            }
+        }
     }
 }
 
 @media print {
     :host {
         height: auto;
+    }
+
+    .toolbar {
+        display: none;
     }
 
     .page {
@@ -73,15 +102,8 @@
 .mat-card {
     box-shadow: 0px 2px 6px -1px rgb(0 0 0 / 20%), 0px 1px 6px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
 }
-.mat-card-title,
-.mat-card-subtitle {
-    text-align: center;
-}
-.mat-card-title {
-    font-size: 28px;
-}
-.mat-card-subtitle {
-    margin-bottom: 0;
+.mat-card-header {
+    width: 100%;
 }
 .mat-card-footer {
     margin: 5px -10px -10px -10px;
