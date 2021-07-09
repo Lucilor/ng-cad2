@@ -302,4 +302,14 @@
             </mat-select>
         </mat-form-field>
     </div>
+    <div class="form-item">
+        <mat-form-field>
+            <mat-label>圆弧显示</mat-label>
+            <mat-select name="圆弧显示" [value]="getLineText('圆弧显示')" (selectionChange)="setLineText($event, '圆弧显示')">
+                <mat-option value="默认">默认</mat-option>
+                <mat-option value="半径">半径</mat-option>
+                <mat-option value="弧长">弧长</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
 </form>
