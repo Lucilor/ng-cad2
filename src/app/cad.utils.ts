@@ -246,6 +246,7 @@ export const printCads = async (params: PrintCadsParams) => {
                 }
             }
         }, true);
+        cadPrint.reset();
         cadPrint.data = data;
         cadPrint.center().render();
         data.updatePartners().updateComponents();

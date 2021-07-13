@@ -58,7 +58,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     selected: CadLineLike[] = [];
     bhfs = 变化方式;
     zhewan = [1, 3];
-    WHDashedLines: {line: CadLine; map: PointsMap} | null = null;
+    WHDashedLines: {line: CadLineLike; map: PointsMap} | null = null;
 
     get isDrawingLine() {
         return this.status.cadStatus instanceof CadStatusDrawLine;
@@ -599,7 +599,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     moveLines() {
-        // this.status.setCadPoints(generatePointsMap(new CadEntities().fromArray(this.selected)));
         this.status.toggleCadStatus(new CadStatusMoveLines());
     }
 
@@ -661,8 +660,9 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             return false;
         }
         const line = this.selected[0];
-        if (line instanceof CadLine) {
-            return !line.isHorizontal() && !line.isVertical();
+        if (line instanceof CadLineLike) {
+            const {deltaX, deltaY} = line;
+            return deltaX !== 0 && deltaY !== 0;
         }
         return false;
     }
@@ -674,22 +674,28 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     addWHDashedLinesStart() {
         const line = this.selected[0];
         const data = this.data;
-        if (!(line instanceof CadLine) || !data) {
+        if (!(line instanceof CadLineLike) || !data) {
             return;
         }
-        const {start, end, deltaX, deltaY} = line;
+        const {minX, minY, maxX, maxY} = line;
+        const deltaX = Math.abs(line.deltaX);
+        const deltaY = Math.abs(line.deltaY);
+        const start = new Point(minX, minY);
+        const end = new Point(maxX, maxY);
         const p1 = start.clone().add(deltaX, 0);
         const p2 = start.clone().add(0, deltaY);
-        const lines = [
-            [start, p1],
-            [p1, end],
-            [start, p2],
-            [p2, end]
-        ].map((v) => {
+        const points: [Point, Point, Required<CadLine>["宽高虚线"]["position"]][] = [
+            [start, p1, "下"],
+            [p1, end, "右"],
+            [start, p2, "左"],
+            [p2, end, "上"]
+        ];
+
+        const lines = points.map((v) => {
             const l = new CadLine({start: v[0], end: v[1]});
             l.dashArray = DEFAULT_DASH_ARRAY;
             l.opacity = 0.7;
-            l.info.宽高虚线 = line.id;
+            l.宽高虚线 = {source: line.id, position: v[2]};
             return l;
         });
         const map: PointsMap = [
@@ -698,13 +704,13 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         ];
         this.WHDashedLines = {line, map};
         this.status.setCadPoints(map);
-        data.entities.add(...lines);
+        line.addChild(...lines);
         this.status.cad.render(lines);
     }
 
     addWHDashedLinesEnd() {
         if (this.WHDashedLines) {
-            this.status.cad.remove(this.WHDashedLines.map.map((v) => v.lines).flat());
+            this.WHDashedLines.map.forEach((v) => v.lines.forEach((line) => line.remove()));
             this.WHDashedLines = null;
             this.status.setCadPoints();
         }
