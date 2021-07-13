@@ -237,4 +237,27 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
             });
         });
     }
+
+    async scaleComponents(factorNum?: number) {
+        if (factorNum === undefined) {
+            const factorStr = await this.message.prompt({title: "放大装配CAD", promptData: {type: "number", placeholder: "请输入放大倍数"}});
+            if (typeof factorStr !== "string") {
+                return;
+            }
+            factorNum = Number(factorStr);
+            if (isNaN(factorNum)) {
+                this.message.alert("请输入有效数字");
+                return;
+            }
+        }
+        const cads = this.status.getFlatSelectedCads();
+        for (const cad of cads) {
+            for (const component of cad.components.data) {
+                const rect = component.getBoundingRect();
+                component.transform({scale: [factorNum, factorNum], origin: [rect.x, rect.y]}, true);
+            }
+            cad.updateComponents();
+        }
+        this.status.cad.render();
+    }
 }

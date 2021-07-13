@@ -183,14 +183,14 @@ export class CadConsoleComponent implements OnInit {
                 let l4: Line;
                 let reverse: number;
                 if (l1.theta.equals(l2.theta)) {
-                    l3 = l1.clone().rotate(Math.PI / 2, l1.start);
-                    l4 = l1.clone().rotate(Math.PI / 2, l1.end);
+                    l3 = l1.clone().transform({rotate: Math.PI / 2, origin: l1.start});
+                    l4 = l1.clone().transform({rotate: Math.PI / 2, origin: l1.end});
                     l3.end.copy(l3.intersects(l2, true));
                     l4.reverse().end.copy(l4.intersects(l2, true));
                     reverse = 1;
                 } else {
-                    l3 = l1.clone().rotate(Math.PI / 2, l1.end);
-                    l4 = l1.clone().rotate(Math.PI / 2, l1.start);
+                    l3 = l1.clone().transform({rotate: Math.PI / 2, origin: l1.end});
+                    l4 = l1.clone().transform({rotate: Math.PI / 2, origin: l1.start});
                     l3.reverse().end.copy(l3.intersects(l2, true));
                     l4.end.copy(l4.intersects(l2, true));
                     reverse = -1;
