@@ -28,11 +28,11 @@ export class BackupComponent {
         private route: ActivatedRoute
     ) {
         (async () => {
-            const ids = this.route.snapshot.queryParams.ids;
+            const {ids, collection} = this.route.snapshot.queryParams.ids;
             if (ids) {
                 this.loaderText = "正在获取数据";
                 this.loader.startLoader(this.loaderId);
-                this.cads = (await this.dataService.getCad({ids: ids.split(",")})).cads;
+                this.cads = (await this.dataService.getCad({ids: ids.split(","), collection})).cads;
                 this.loader.stopLoader(this.loaderId);
                 this.search = this.cads[0].name;
             }

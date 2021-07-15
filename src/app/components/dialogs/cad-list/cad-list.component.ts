@@ -128,7 +128,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         }
         const limit = this.paginator.pageSize;
         const collection = this.data.collection;
-        const params: Partial<GetCadParams> = {collection, page, limit, search: this.searchForm};
+        const params: GetCadParams = {collection, page, limit, search: this.searchForm};
         if (this.data.selectMode === "table") {
             this.status.startLoader({id: "cadList"});
             const result = await this.dataService.getYuanshicadwenjian(params);

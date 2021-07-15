@@ -247,8 +247,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             this.status.openCad(data, params.collection ?? "cad");
         } else {
             const {id, ids, collection} = this.route.snapshot.queryParams;
-            const getParams: Partial<GetCadParams> = {};
             if ((id || ids) && collection) {
+                const getParams: GetCadParams = {collection, sync: true};
                 this.status.collection$.next(collection);
                 if (id) {
                     getParams.id = id;
@@ -257,9 +257,9 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
                     getParams.ids = ids.split(",");
                 }
                 getParams.collection = collection;
+                const result = await this.dataService.getCad(getParams);
+                this.status.openCad(result.cads);
             }
-            const result = await this.dataService.getCad(getParams);
-            this.status.openCad(result.cads);
         }
         const cad = this.status.cad;
         cad.on("entitiescopy", this._onEntitiesCopy);

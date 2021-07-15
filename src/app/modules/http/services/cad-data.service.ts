@@ -3,24 +3,26 @@ import {CadCollection} from "@app/app.common";
 import {CadData} from "@cad-viewer";
 import {ObjectOf} from "@utils";
 import {environment} from "src/environments/environment";
-import {HttpService} from "./http.service";
+import {CustomResponse, HttpService} from "./http.service";
 
 export interface GetCadParams {
     collection: CadCollection;
-    id: string;
-    ids: string[];
-    page: number;
-    limit: number;
-    search: ObjectOf<any>;
-    qiliao: boolean;
-    options: CadData["options"];
-    optionsMatchType: "and" | "or";
+    id?: string;
+    ids?: string[];
+    page?: number;
+    limit?: number;
+    search?: ObjectOf<any>;
+    qiliao?: boolean;
+    options?: CadData["options"];
+    optionsMatchType?: "and" | "or";
+    sync?: boolean;
+    restore?: boolean;
 }
 
 export interface SetCadParams {
     collection: CadCollection;
     cadData: CadData;
-    force: boolean;
+    force?: boolean;
     restore?: boolean;
 }
 
@@ -60,30 +62,44 @@ export class CadDataService extends HttpService {
         super(injector);
     }
 
-    async getCad(params: Partial<GetCadParams>) {
+    private async _resolveMissingCads(response: CustomResponse<any>) {
+        const missingCads: CadData[] = response.data?.missingCads;
+        if (missingCads) {
+            const names = missingCads.map((v) => v.name).join(", ");
+            const yes = await this.message.confirm({
+                content: "CAD模块中不存在以下数据，你可以选择生成这些CAD，或从模板中删除这些CAD。<br>" + names,
+                cancelable: false,
+                btnTexts: {yes: "生成CAD", no: "删除CAD"}
+            });
+            return !!yes;
+        }
+        return null;
+    }
+
+    async getCad(params: GetCadParams): Promise<{cads: CadData[]; total: number}> {
         const response = await this.post<any[]>("peijian/cad/getCad", params);
         const result: {cads: CadData[]; total: number} = {cads: [], total: 0};
         if (response && response.data) {
-            response.data.forEach((d) => result.cads.push(new CadData(d)));
-            result.total = response.count || 0;
+            const restore = await this._resolveMissingCads(response);
+            if (typeof restore === "boolean") {
+                return await this.getCad({...params, restore});
+            } else {
+                result.cads = response.data.map((v) => new CadData(v));
+                result.total = response.count || 0;
+            }
         }
         return result;
     }
 
     async setCad(params: SetCadParams): Promise<CadData | null> {
-        const data = {...params, cadData: params.cadData.export()};
+        const cadData = params.cadData instanceof CadData ? params.cadData.export() : params.cadData;
+        const data = {...params, cadData};
         const response = await this.post<any>("peijian/cad/setCad", data, "no");
         if (response && response.data) {
             const resData = response.data;
-            const missingCads: CadData[] | undefined = resData.missingCads;
-            if (missingCads) {
-                const names = missingCads.map((v) => v.name).join(", ");
-                const yes = await this.message.confirm({
-                    content: "CAD模块中不存在以下数据，你可以选择生成这些CAD，或从模板中删除这些CAD。<br>" + names,
-                    cancelable: false,
-                    btnTexts: {yes: "生成CAD", no: "删除CAD"}
-                });
-                return await this.setCad({...params, restore: !!yes});
+            const restore = await this._resolveMissingCads(response);
+            if (typeof restore === "boolean") {
+                return await this.setCad({...params, restore});
             } else {
                 return new CadData(resData);
             }
@@ -92,7 +108,7 @@ export class CadDataService extends HttpService {
         }
     }
 
-    async getYuanshicadwenjian(params: Partial<GetCadParams>) {
+    async getYuanshicadwenjian(params: GetCadParams) {
         const response = await this.post<any[]>("peijian/cad/getYuanshicadwenjian", params);
         const result: {cads: any[]; total: number} = {cads: [], total: 0};
         if (response && response.data) {

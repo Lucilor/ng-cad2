@@ -1,10 +1,18 @@
 import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {Response, timer} from "@app/app.common";
+import {timer} from "@app/app.common";
 import {MessageService} from "@modules/message/services/message.service";
 import {RSAEncrypt, ObjectOf} from "@utils";
 import {environment} from "src/environments/environment";
+
+export interface CustomResponse<T> {
+    code: number;
+    msg?: string;
+    data?: T;
+    count?: number;
+    importance?: number;
+}
 
 export type DataEncrpty = "yes" | "no" | "both";
 
@@ -59,7 +67,7 @@ export class HttpService {
             url = `${this.baseURL}${url}`;
         }
         try {
-            let response: Response<T> | null = null;
+            let response: CustomResponse<T> | null = null;
             if (method === "GET") {
                 if (data) {
                     if (encrypt) {
@@ -76,7 +84,7 @@ export class HttpService {
                         }
                     }
                 }
-                response = await this.http.get<Response<T>>(url, options).toPromise();
+                response = await this.http.get<CustomResponse<T>>(url, options).toPromise();
             }
             if (method === "POST") {
                 let files: File[] = [];
@@ -106,7 +114,7 @@ export class HttpService {
                     }
                 }
                 files.forEach((v, i) => formData.append("file" + i, v));
-                response = await this.http.post<Response<T>>(url, formData, options).toPromise();
+                response = await this.http.post<CustomResponse<T>>(url, formData, options).toPromise();
             }
             if (!response) {
                 throw new Error("请求错误");
