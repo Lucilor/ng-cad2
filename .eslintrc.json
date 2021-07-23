@@ -8,6 +8,9 @@
                 "createDefaultProgram": true
             },
             "extends": [
+                "eslint:recommended",
+                "plugin:@typescript-eslint/eslint-recommended",
+                "plugin:@typescript-eslint/recommended",
                 "plugin:@angular-eslint/recommended",
                 "plugin:@angular-eslint/ng-cli-compat",
                 "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
@@ -60,11 +63,10 @@
                         "argsIgnorePattern": "."
                     }
                 ],
+                "@typescript-eslint/explicit-module-boundary-types": "off",
                 "guard-for-in": "off",
                 "no-underscore-dangle": "off",
-                "no-console": "off",
-                "no-restricted-syntax": "off",
-                "no-dupe-else-if": "error"
+                "no-console": "off"
             }
         },
         {
