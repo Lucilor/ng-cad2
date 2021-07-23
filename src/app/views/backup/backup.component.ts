@@ -28,7 +28,7 @@ export class BackupComponent {
         private route: ActivatedRoute
     ) {
         (async () => {
-            const {ids, collection} = this.route.snapshot.queryParams.ids;
+            const {ids, collection} = this.route.snapshot.queryParams;
             if (ids) {
                 this.loaderText = "正在获取数据";
                 this.loader.startLoader(this.loaderId);
