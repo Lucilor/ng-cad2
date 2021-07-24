@@ -14,7 +14,6 @@ import {
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabGroup, MatTabChangeEvent} from "@angular/material/tabs";
 import {ActivatedRoute} from "@angular/router";
-import {log} from "@app/app.log";
 import {CadEventCallBack, CadData} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {Subscribed} from "@mixins/subscribed.mixin";
@@ -25,6 +24,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusAssemble} from "@services/cad-status";
+import {log} from "@utils";
 import {debounce} from "lodash";
 import {PerfectScrollbarComponent} from "ngx-perfect-scrollbar";
 import {BehaviorSubject} from "rxjs";

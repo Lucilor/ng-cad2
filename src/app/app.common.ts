@@ -1,5 +1,4 @@
-import {LocalStorage, SessionStorage} from "@utils";
-import {Timer} from "./app.timer";
+import {LocalStorage, SessionStorage, Timer} from "@utils";
 
 export const projectName = "NgCad2";
 export const session = new SessionStorage(projectName);
