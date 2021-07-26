@@ -97,7 +97,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                     data.push(v);
                 });
                 if (data.length) {
-                    bancai.data = data.concat(data);
+                    bancai.data = data;
                     bancai.expanded = true;
                     bancai.pageBreakAfter = "always";
                     this.bancais.push(bancai);

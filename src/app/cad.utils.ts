@@ -38,15 +38,17 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
     if (fixedLengthTextSize) {
         const resize = () => {
             const zoom = cad.zoom();
-            cad.data.entities.line.forEach((line) => {
-                line.lengthTextSize = fixedLengthTextSize / zoom;
-                line.children.mtext.forEach((mtext) => {
-                    mtext.info.offset = [0, 0];
-                    // if (mtext.info.offset) {
-                    //     mtext.info.offset = mtext.info.offset.map((v) => v / zoom);
-                    // }
-                });
-                cad.render(line);
+            cad.data.entities.forEach((e) => {
+                if (e instanceof CadLineLike) {
+                    e.lengthTextSize = fixedLengthTextSize / zoom;
+                    e.children.mtext.forEach((mtext) => {
+                        mtext.info.offset = [0, 0];
+                        // if (mtext.info.offset) {
+                        //     mtext.info.offset = mtext.info.offset.map((v) => v / zoom);
+                        // }
+                    });
+                    cad.render(e);
+                }
             });
             cad.center();
         };
