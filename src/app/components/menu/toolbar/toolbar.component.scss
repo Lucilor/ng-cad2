@@ -29,3 +29,8 @@
 	border-right-color: rgba(0, 0, 0, 0.25);
 	margin: 0 3px;
 }
+
+.toolbar {
+    display: flex;
+    flex-direction: column;
+}

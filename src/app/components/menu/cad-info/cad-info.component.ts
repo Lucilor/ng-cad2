@@ -7,7 +7,7 @@ import {getCadGongshiText} from "@app/cad.utils";
 import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity, 算料单显示, sortLines} from "@cad-viewer";
 import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
-import {openCadZhankaiDialog} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
+import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
@@ -322,13 +322,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     }
 
     async editZhankai(data: CadData) {
-        const result = await openCadZhankaiDialog(this.dialog, {data: data.zhankai});
-        if (result) {
-            data.zhankai = result;
-            if (result.length) {
-                data.name = result[0].name;
-            }
-        }
+        await editCadZhankai(this.dialog, data);
     }
 
     setCadName(data: CadData, event: Event) {

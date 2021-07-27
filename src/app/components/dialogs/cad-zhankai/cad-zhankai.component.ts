@@ -147,3 +147,13 @@ export class CadZhankaiComponent extends Utils() {
 }
 
 export const openCadZhankaiDialog = getOpenDialogFunc<CadZhankaiComponent, CadZhankai[], CadZhankai[]>(CadZhankaiComponent);
+
+export const editCadZhankai = async (dialog: MatDialog, data: CadData) => {
+    const result = await openCadZhankaiDialog(dialog, {data: data.zhankai});
+    if (result) {
+        data.zhankai = result;
+        if (result.length) {
+            data.name = result[0].name;
+        }
+    }
+};

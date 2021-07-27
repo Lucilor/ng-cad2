@@ -1,7 +1,9 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {routesInfo, local} from "@app/app.common";
-import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@cad-viewer";
+import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines, CadLine} from "@cad-viewer";
+import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
+import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {openChangelogDialog} from "@components/dialogs/changelog/changelog.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadConsoleService} from "@modules/cad-console/services/cad-console.service";
@@ -240,7 +242,10 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
     async scaleComponents(factorNum?: number) {
         if (factorNum === undefined) {
-            const factorStr = await this.message.prompt({title: "放大装配CAD", promptData: {type: "number", placeholder: "请输入放大倍数"}});
+            const factorStr = await this.message.prompt({
+                title: "放大装配CAD",
+                promptData: {type: "number", placeholder: "请输入放大倍数"}
+            });
             if (typeof factorStr !== "string") {
                 return;
             }
@@ -259,5 +264,24 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
             cad.updateComponents();
         }
         this.status.cad.render();
+    }
+
+    async editZhankai() {
+        const data = this.status.getFlatSelectedCads()[0];
+        if (data) {
+            await editCadZhankai(this.dialog, data);
+        }
+    }
+
+    async editTiaojianquzhi() {
+        const selected = this.status.cad.selected();
+        const lines = selected.toArray().filter((v) => v instanceof CadLine) as CadLine[];
+        if (lines.length < 1) {
+            this.message.alert("请先选中一条直线");
+        } else if (lines.length > 1) {
+            this.message.alert("无法同时编辑多根线的条件取值");
+        } else {
+            openCadLineTiaojianquzhiDialog(this.dialog, {data: lines[0]});
+        }
     }
 }
