@@ -1,9 +1,12 @@
+import {NgxMatDatetimePickerModule, NgxMatNativeDateModule} from "@angular-material-components/datetime-picker";
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {FormsModule} from "@angular/forms";
 import {MatButtonModule} from "@angular/material/button";
 import {MatCardModule} from "@angular/material/card";
 import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
+import {MatPaginatorModule} from "@angular/material/paginator";
 import {CadData} from "@cad-viewer";
 import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
@@ -26,8 +29,12 @@ describe("BackupComponent", () => {
                 MatButtonModule,
                 MatCardModule,
                 MatFormFieldModule,
+                MatIconModule,
                 MatInputModule,
+                MatPaginatorModule,
                 MessageModule,
+                NgxMatDatetimePickerModule,
+                NgxMatNativeDateModule,
                 NgxUiLoaderModule,
                 PerfectScrollbarModule
             ]

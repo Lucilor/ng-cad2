@@ -1,4 +1,10 @@
-import {NgxMatDatetimePickerModule, NgxMatTimepickerModule, NgxMatNativeDateModule} from "@angular-material-components/datetime-picker";
+import {
+    NgxMatDateFormats,
+    NgxMatDatetimePickerModule,
+    NgxMatNativeDateModule,
+    NgxMatTimepickerModule,
+    NGX_MAT_DATE_FORMATS
+} from "@angular-material-components/datetime-picker";
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import {HttpClientModule} from "@angular/common/http";
 import {Injectable, NgModule} from "@angular/core";
@@ -7,6 +13,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatButtonModule} from "@angular/material/button";
 import {MatCardModule} from "@angular/material/card";
 import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MAT_DATE_LOCALE} from "@angular/material/core";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatDividerModule} from "@angular/material/divider";
@@ -90,6 +97,25 @@ const perfectScrollbarConfig: PerfectScrollbarConfigInterface = {
 
 const matFormFieldOptions: MatFormFieldDefaultOptions = {
     appearance: "standard"
+};
+
+const INTL_DATE_INPUT_FORMAT = {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hourCycle: "h23",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+};
+const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
+    parse: {dateInput: INTL_DATE_INPUT_FORMAT},
+    display: {
+        dateInput: INTL_DATE_INPUT_FORMAT,
+        monthYearLabel: {year: "numeric", month: "short"},
+        dateA11yLabel: {year: "numeric", month: "long", day: "numeric"},
+        monthYearA11yLabel: {year: "numeric", month: "long"}
+    }
 };
 
 @NgModule({
@@ -180,7 +206,9 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     providers: [
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
         {provide: PERFECT_SCROLLBAR_CONFIG, useValue: perfectScrollbarConfig},
-        {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matFormFieldOptions}
+        {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matFormFieldOptions},
+        {provide: NGX_MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS},
+        {provide: MAT_DATE_LOCALE, useValue: "zh-CN"}
     ],
     bootstrap: [AppComponent]
 })

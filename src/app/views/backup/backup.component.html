@@ -1,10 +1,33 @@
-<form>
+<form class="header">
+    <div>
+        <button mat-raised-button color="primary" (click)="search()">搜索</button>
+    </div>
     <mat-form-field style="width: 100%">
-        <mat-label>搜索CAD名字</mat-label>
-        <input type="text" matInput [(ngModel)]="search" (change)="getData()" [ngModelOptions]="{standalone: true}"/>
-        <mat-hint>只显示最近的{{ limit }}个数据。通过搜索CAD名字来找到对应的CAD。</mat-hint>
+        <mat-label>按名字搜索</mat-label>
+        <input type="text" matInput name="searchName" [(ngModel)]="searchParams.name" />
     </mat-form-field>
-    <button hidden (click)="getData()"></button>
+    <mat-form-field>
+        <mat-label>按日期搜索</mat-label>
+        <input
+            matInput
+            type="datetime"
+            name="searchTime"
+            [ngxMatDatetimePicker]="picker"
+            [min]="minTime"
+            [max]="maxTime"
+            [(ngModel)]="searchTime"
+            readonly
+            (click)="picker.open()"
+        />
+        <button *ngIf="searchParams.time" matSuffix mat-icon-button (click)="resetSearchTime()">
+            <mat-icon>close</mat-icon>
+        </button>
+        <ngx-mat-datetime-picker #picker [showSeconds]="true">
+            <ng-template>
+                <span>确定</span>
+            </ng-template>
+        </ngx-mat-datetime-picker>
+    </mat-form-field>
 </form>
 <perfect-scrollbar>
     <div class="cads">
@@ -15,7 +38,7 @@
             </mat-card-header>
             <mat-card-content>
                 <div class="cad-preview" (click)="alertInfo(i)">
-                    <app-image [src]="item.img"></app-image>
+                    <img [src]="item.img" />
                 </div>
                 <div class="btn-group">
                     <button mat-raised-button color="primary" (click)="restore(i)">恢复备份</button>
@@ -23,23 +46,16 @@
                 </div>
             </mat-card-content>
         </mat-card>
-        <!-- <mat-accordion>
-            <mat-expansion-panel *ngFor="let item of data; let i = index">
-                <mat-expansion-panel-header>
-                    <mat-panel-title>备份时间: {{ item.title }} </mat-panel-title>
-                </mat-expansion-panel-header>
-                <div class="btn-group">
-                    <button mat-raised-button color="primary" (click)="restore(i)">恢复备份</button>
-                    <button mat-raised-button color="accent" (click)="remove(i)">删除备份</button>
-                </div>
-                <div class="cads">
-                    <div class="cad-name">
-                        <span>{{ item.cad.data.name }}</span>
-                    </div>
-                    <app-image class="cad-preview" [src]="item.cad.img"></app-image>
-                </div>
-            </mat-expansion-panel>
-        </mat-accordion> -->
     </div>
 </perfect-scrollbar>
+<div class="footer">
+    <mat-paginator
+        #paginator
+        [length]="cadsCount"
+        [pageSize]="searchParams.limit"
+        [pageSizeOptions]="pageSizeOptions"
+        showFirstLastButtons
+        (page)="changePage($event)"
+    ></mat-paginator>
+</div>
 <ngx-ui-loader [loaderId]="loaderId" [text]="loaderText"></ngx-ui-loader>
