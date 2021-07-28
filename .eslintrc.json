@@ -1,5 +1,8 @@
 {
     "root": true,
+    "env": {
+        "es6": true
+    },
     "overrides": [
         {
             "files": ["*.ts"],
@@ -66,7 +69,9 @@
                 "@typescript-eslint/explicit-module-boundary-types": "off",
                 "guard-for-in": "off",
                 "no-underscore-dangle": "off",
-                "no-console": "off"
+                "no-console": "off",
+                "object-curly-spacing": ["error", "never"],
+                "array-bracket-spacing": ["error", "never"]
             }
         },
         {
