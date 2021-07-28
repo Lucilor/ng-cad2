@@ -677,18 +677,16 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         if (!(line instanceof CadLineLike) || !data) {
             return;
         }
-        const {minX, minY, maxX, maxY} = line;
-        const deltaX = Math.abs(line.deltaX);
-        const deltaY = Math.abs(line.deltaY);
-        const start = new Point(minX, minY);
-        const end = new Point(maxX, maxY);
-        const p1 = start.clone().add(deltaX, 0);
-        const p2 = start.clone().add(0, deltaY);
+        const {minX, minY, maxX, maxY, start, end} = line;
+        const topLeft = new Point(minX, maxY);
+        const topRight = new Point(maxX, maxY);
+        const bottomLeft = new Point(minX, minY);
+        const bottomRight = new Point(maxX, minY);
         const points: [Point, Point, Required<CadLine>["宽高虚线"]["position"]][] = [
-            [start, p1, "下"],
-            [p1, end, "右"],
-            [start, p2, "左"],
-            [p2, end, "上"]
+            [topLeft, topRight, "上"],
+            [bottomLeft, bottomRight, "下"],
+            [topLeft, bottomLeft, "左"],
+            [topRight, bottomRight, "右"]
         ];
 
         const lines = points.map((v) => {
@@ -699,9 +697,20 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             return l;
         });
         const map: PointsMap = [
-            {point: p1, lines: lines.slice(0, 2), selected: false},
-            {point: p2, lines: lines.slice(2, 4), selected: false}
+            {point: new Point(), lines: [], selected: false},
+            {point: new Point(), lines: [], selected: false}
         ];
+        if (bottomLeft.equals(start) || bottomLeft.equals(end)) {
+            map[0].point.copy(topLeft);
+            map[1].point.copy(bottomRight);
+            map[0].lines = [lines[0], lines[2]];
+            map[1].lines = [lines[1], lines[3]];
+        } else {
+            map[0].point.copy(bottomLeft);
+            map[1].point.copy(topRight);
+            map[0].lines = [lines[1], lines[2]];
+            map[1].lines = [lines[0], lines[3]];
+        }
         this.WHDashedLines = {line, map};
         this.status.setCadPoints(map);
         line.addChild(...lines);
