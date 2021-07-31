@@ -11,7 +11,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusNormal} from "@services/cad-status";
-import {ObjectOf} from "@utils";
+import {ObjectOf, timeout} from "@utils";
 import {flatMap} from "lodash";
 
 @Component({
@@ -283,5 +283,20 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         } else {
             openCadLineTiaojianquzhiDialog(this.dialog, {data: lines[0]});
         }
+    }
+
+    async resetIds() {
+        const cads = this.status.getFlatSelectedCads();
+        const names = cads.map((v) => v.name);
+        const yes = await this.message.confirm({
+            title: "重设ID",
+            content: `重新生成<span style="color:red">${names.join("，")}</span>的实体ID，是否确定？`
+        });
+        if (!yes) {
+            return;
+        }
+        cads.forEach((cad) => cad.resetIds(true));
+        await timeout(0);
+        this.message.snack("重设ID完成");
     }
 }

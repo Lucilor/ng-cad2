@@ -25,6 +25,7 @@
             <button mat-menu-item (click)="clickBtn('h')">选取<span class="shortcut">Ctrl + H</span></button>
             <button mat-menu-item (click)="fillet(0)">连接线段(直角)</button>
             <button mat-menu-item (click)="fillet()">连接线段(圆角)</button>
+            <button mat-menu-item (click)="resetIds()">重设ID</button>
         </mat-menu>
         <mat-menu #transform="matMenu">
             <button mat-menu-item (click)="flip(true, false)">垂直翻转</button>

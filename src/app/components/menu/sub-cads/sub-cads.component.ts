@@ -16,7 +16,7 @@ import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {SelectedCadType, AppStatusService, SelectedCads} from "@services/app-status.service";
 import {CadStatusSplit, CadStatusAssemble} from "@services/cad-status";
 import {downloadByString, ObjectOf, Point} from "@utils";
-import {concat, pull, pullAll} from "lodash";
+import {concat, keyBy, pull, pullAll} from "lodash";
 
 interface CadNode {
     data: CadData;
@@ -136,11 +136,12 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const translate = this.lastPointer.sub(pointer).divide(cad.zoom());
         translate.x = -translate.x;
         if (cadStatus instanceof CadStatusAssemble && selectedCads.components.length) {
-            const parent = cad.data.findChild(selectedCads.cads[0]);
             const data = cad.data.findChildren(selectedCads.components);
-            if (parent) {
-                data.forEach((v) => parent.moveComponent(v, translate));
-            }
+            const parents = keyBy(cad.data.components.data, "id");
+            data.forEach((v) => {
+                const parent = parents[v.parent];
+                parent?.moveComponent(v, translate);
+            });
         } else if (this.entitiesToMove && this.entitiesNotToMove) {
             cad.moveEntities(this.entitiesToMove, this.entitiesNotToMove, translate.x, translate.y);
         }
@@ -234,6 +235,18 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             }
         });
 
+        const setConfig = () => {
+            const {subCadsMultiSelect} = this.config.getConfig();
+            this.multiSelect = subCadsMultiSelect;
+        };
+        setConfig();
+        const sub = this.config.configChange$.subscribe(({isUserConfig}) => {
+            if (isUserConfig) {
+                setConfig();
+                sub.unsubscribe();
+            }
+        });
+
         const cad = this.status.cad;
         cad.on("pointerdown", this.onPointerDown);
         cad.on("pointermove", this.onPointerMove);
@@ -279,6 +292,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
     toggleMultiSelect() {
         this.multiSelect = !this.multiSelect;
+        this.config.setConfig("subCadsMultiSelect", this.multiSelect);
         if (!this.multiSelect) {
             const selectedCads = this.status.selectedCads$.value;
             const arr = selectedCads.cads.concat(selectedCads.partners, selectedCads.components);

@@ -12,6 +12,7 @@ export interface AppConfig extends CadViewerConfig {
     leftMenuWidth: number;
     rightMenuWidth: number;
     scroll: ObjectOf<number>;
+    subCadsMultiSelect: boolean;
 }
 
 export interface AppConfigChange {
@@ -50,6 +51,7 @@ export class AppConfigService {
         leftMenuWidth: 200,
         rightMenuWidth: 300,
         scroll: {},
+        subCadsMultiSelect: true,
         ...(local.load("userConfig") || {})
     });
     configChange$ = new BehaviorSubject<AppConfigChange>({
