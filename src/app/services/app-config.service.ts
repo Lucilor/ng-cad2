@@ -46,6 +46,8 @@ export class AppConfigService {
         fontFamily: "微软雅黑",
         fontWeight: "normal",
         enableZoom: true,
+        dashedLinePadding: 2,
+        // 分界线
         showCadGongshis: true,
         infoTabIndex: 0,
         leftMenuWidth: 200,
