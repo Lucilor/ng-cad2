@@ -1,6 +1,7 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {PrintA4A015PreviewComponent} from "./print-a4-a015-preview.component";
 
@@ -11,7 +12,7 @@ describe("PrintA4A015PreviewComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [PrintA4A015PreviewComponent],
-            imports: [HttpModule, MessageModule, NgxUiLoaderModule]
+            imports: [HttpModule, MessageModule, NgxUiLoaderModule, PerfectScrollbarModule]
         }).compileComponents();
     });
 

@@ -38,8 +38,9 @@
 			position: absolute;
 			top: 5px;
 			left: 10px;
-			font-size: 30px;
-			font-weight: 700;
+			font-size: 20px;
+			font-weight: bold;
+			white-space: nowrap;
 		}
 
 		.desc-right {
@@ -83,8 +84,24 @@
 	}
 }
 
+:host {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
 .menu {
 	position: fixed;
 	left: 800px;
 	bottom: 30px;
+}
+
+@media print {
+	:host {
+		height: auto;
+	}
+
+	.menu {
+		display: none;
+	}
 }

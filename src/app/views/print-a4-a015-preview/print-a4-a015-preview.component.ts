@@ -7,7 +7,6 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {timeout} from "@utils";
 
 export type PreviewData = {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     CAD?: any;
     code: string;
     codeText?: string;
@@ -25,7 +24,6 @@ export type PreviewData = {
 })
 export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
     data: PreviewData = [];
-    printing = false;
     loaderId = "printPreview";
     loadingText = "";
 
@@ -81,10 +79,7 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
     }
 
     printPages() {
-        this.printing = true;
-        this.cd.detectChanges();
         print();
-        this.printing = false;
     }
 
     getTop(i: number) {
