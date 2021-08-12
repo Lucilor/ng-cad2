@@ -44,7 +44,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
         return `calc(${100 / this.cadsColNum}% - 10px)`;
     }
     imgSize = [300, 250];
-    fixedLengthTextSize = 22;
+    fixedLengthTextSize = 20;
 
     constructor(
         private route: ActivatedRoute,

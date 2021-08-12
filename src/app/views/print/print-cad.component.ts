@@ -35,6 +35,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     pdfUrl?: SafeUrl;
     showDxfInput = false;
     private _showDesignPicsKey = "printCad-showDesignPics";
+    private _paramKey = "printCad-paramCache";
     showDesignPics = Boolean(session.load(this._showDesignPicsKey));
     private _fontFamilyKey = "printCad-fontFamily";
     private _fontFamily = session.load(this._fontFamilyKey) || "微软雅黑";
@@ -68,6 +69,12 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         delete queryParams.action;
         if (!action) {
             this.showDxfInput = true;
+            const param = session.load<PrintCadsParams>(this._paramKey);
+            if (param) {
+                param.cads = param.cads.map((v) => new CadData(v));
+                await this.generateSuanliaodan(param);
+                this.toggleToolbarVisible();
+            }
             return;
         }
         this.loader.startLoader(this.loaderId);
@@ -124,8 +131,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         }
         await this.generateSuanliaodan(param);
         this.loader.stopLoader(this.loaderId);
-        this.showDxfInput = false;
         this.toggleToolbarVisible();
+        const cads = param.cads.map((v) => v.export());
+        session.save(this._paramKey, {...param, cads});
     }
 
     setShowDesignPics(event: MatSlideToggleChange) {

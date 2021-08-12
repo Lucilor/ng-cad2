@@ -7,10 +7,9 @@ import {
     CadMtext,
     CadZhankai,
     CadBaseLine,
-    CadJointPoint,
-    getWrapedText
+    CadJointPoint
 } from "@cad-viewer";
-import {timeout, getDPI, Point, isNearZero, loadImage} from "@utils";
+import {timeout, getDPI, Point, isNearZero, loadImage, isBetween} from "@utils";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 
@@ -166,6 +165,32 @@ export const prepareCadViewer = async (cad: CadViewer) => {
     await cad.loadFont({name: "喜鸿至简特殊字体", url: "assets/fonts/xhzj_sp.ttf"});
 };
 
+const getWrapedText = (cad: CadViewer, source: string, maxLength: number, mtext: CadMtext) => {
+    const sourceLength = source.length;
+    let start = 0;
+    let end = 1;
+    const tmpText = mtext.clone(true);
+    tmpText.text = source;
+    cad.add(tmpText);
+    const arr: string[] = [];
+    while (end <= sourceLength) {
+        tmpText.text = source.slice(start, end);
+        cad.render(tmpText);
+        if (tmpText.el && tmpText.el.width() < maxLength) {
+            end++;
+        } else {
+            if (start === end - 1) {
+                throw new Error("文字自动换行时出错");
+            }
+            arr.push(source.slice(start, end - 1));
+            start = end - 1;
+        }
+    }
+    arr.push(source.slice(start));
+    cad.remove(tmpText);
+    return arr;
+};
+
 export interface PrintCadsParams {
     cads: CadData[];
     config?: Partial<CadViewerConfig>;
@@ -207,12 +232,14 @@ export const printCads = async (params: PrintCadsParams) => {
         hideLineGongshi: true,
         minLinewidth: 0
     }).appendTo(document.body);
+    cadPrint.dom.style.opacity = "0";
     await prepareCadViewer(cadPrint);
 
     const imgs: string[] = [];
     for (let i = 0; i < cads.length; i++) {
         const data = cads[i];
-        data.getAllEntities().forEach((e) => {
+        const es = data.getAllEntities().toArray();
+        for (const e of es) {
             const colorStr = e.color.string();
             if (colorStr === "rgb(128, 128, 128)") {
                 e.opacity = 0;
@@ -226,28 +253,53 @@ export const printCads = async (params: PrintCadsParams) => {
                 e.renderStyle = renderStyle;
                 e.selected = true;
             } else if (e instanceof CadMtext) {
+                const {text, insert} = e;
                 if (e.text.includes("     ") && !isNaN(Number(e.text))) {
                     if (e.font_size === 24) {
                         e.font_size = 36;
-                        e.insert.y += 11;
-                        e.insert.x -= 4;
+                        insert.y += 11;
+                        insert.x -= 4;
                     }
-                    e.text = e.text.replace("     ", "");
+                    e.text = text.replace("     ", "");
                     e.fontFamily = "仿宋";
                     e.fontWeight = "bolder";
                 } else {
                     if (config.fontFamily === "宋体") {
                         e.font_size += 6;
-                        e.insert.y -= 5;
+                        insert.y -= 5;
                     } else {
-                        e.insert.y -= 12;
+                        insert.y -= 12;
                     }
                 }
                 if (e.font_size < 24) {
                     e.fontWeight = "bolder";
                 }
+
+                if (text.match(/^(花件信息|注意事项)/)) {
+                    // * 自动换行
+                    let wrapedText = text.match(/^(花件信息)/) ? text.slice(4) : text;
+                    let lines = data.getAllEntities().line;
+                    lines = lines.filter((ee) => ee.isVertical() && isBetween(insert.y, ee.minY, ee.maxY) && ee.start.x - insert.x > 50);
+                    let dMin = Infinity;
+                    for (const ee of lines) {
+                        const d = ee.start.x - insert.x - 1;
+                        if (dMin > d) {
+                            dMin = d;
+                        }
+                    }
+                    try {
+                        wrapedText = wrapedText
+                            .split("\n")
+                            .map((v) => getWrapedText(cadPrint, v, dMin, e).join("\n"))
+                            .join("\n");
+                    } catch (error) {
+                        wrapedText = "花件信息自动换行时出错\n" + wrapedText;
+                        e.color = new Color("red");
+                    }
+                    e.text = wrapedText;
+                }
             }
-        }, true);
+        }
         cadPrint.reset();
         cadPrint.data = data;
         cadPrint.center().render();
@@ -268,21 +320,20 @@ export const printCads = async (params: PrintCadsParams) => {
         });
         const {拉手信息宽度} = extra;
         if (typeof 拉手信息宽度 === "number" && 拉手信息宽度 > 0) {
-            cads.forEach((cad) => {
+            for (const cad of cads) {
                 const 拉手信息 = cad.entities.mtext.filter((v) => v.text.startsWith("拉手:")).sort((v) => v.insert.x - v.insert.y);
-                拉手信息.forEach((mtext) => {
-                    const {el, text, insert, anchor} = mtext;
+                for (const mtext of 拉手信息) {
+                    const {el, text} = mtext;
                     if (el && el.width() >= 拉手信息宽度) {
-                        const {fontStyle} = cadPrint.stylizer.get(mtext);
                         try {
-                            mtext.text = getWrapedText(text, 拉手信息宽度, fontStyle, insert, anchor).join("\n     ");
+                            mtext.text = getWrapedText(cadPrint, text, 拉手信息宽度, mtext).join("\n     ");
                             cadPrint.render(mtext);
                         } catch (error) {
                             console.warn("拉手信息自动换行出错");
                         }
                     }
-                });
-            });
+                }
+            }
         }
         const img = (await cadPrint.toCanvas()).toDataURL();
         imgs.push(img);
