@@ -11,3 +11,15 @@ $bg-color: #616161;
     text-align: right;
     background-color: $bg-color;
 }
+
+.toolbar-toggle {
+    position: fixed;
+    right: 10px;
+    top: 50px;
+    z-index: 1;
+    opacity: 0.25;
+    transition: 0.3s;
+    &:hover {
+        opacity: 1;
+    }
+}

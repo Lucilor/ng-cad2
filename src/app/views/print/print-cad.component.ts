@@ -7,13 +7,26 @@ import {printCads, PrintCadsParams} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {timeout} from "@utils";
+import {
+    slideInLeftOnEnterAnimation,
+    slideInRightOnEnterAnimation,
+    slideOutLeftOnLeaveAnimation,
+    slideOutRightOnLeaveAnimation
+} from "angular-animations";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import printJS from "print-js";
+import {environment} from "src/environments/environment";
 
 @Component({
     selector: "app-print-cad",
     templateUrl: "./print-cad.component.html",
-    styleUrls: ["./print-cad.component.scss"]
+    styleUrls: ["./print-cad.component.scss"],
+    animations: [
+        slideInLeftOnEnterAnimation({anchor: "toolbarEnter", duration: 500}),
+        slideOutLeftOnLeaveAnimation({anchor: "toolbarLeave", duration: 500}),
+        slideInRightOnEnterAnimation({anchor: "toolbarToggleEnter", duration: 500}),
+        slideOutRightOnLeaveAnimation({anchor: "toolbarToggleLeave", duration: 500})
+    ]
 })
 export class PrintCadComponent implements AfterViewInit, OnDestroy {
     loaderId = "printLoader";
@@ -32,6 +45,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         this._fontFamily = value;
         session.save(this._fontFamilyKey, value);
     }
+    toolbarVisible = environment.production ? false : true;
 
     constructor(
         private loader: NgxUiLoaderService,
@@ -111,10 +125,15 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         await this.generateSuanliaodan(param);
         this.loader.stopLoader(this.loaderId);
         this.showDxfInput = false;
+        this.toggleToolbarVisible();
     }
 
     setShowDesignPics(event: MatSlideToggleChange) {
         this.showDesignPics = event.checked;
         session.save(this._showDesignPicsKey, this.showDesignPics);
+    }
+
+    toggleToolbarVisible() {
+        this.toolbarVisible = !this.toolbarVisible;
     }
 }

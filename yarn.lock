@@ -3494,6 +3494,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"angular-animations@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "angular-animations@npm:0.11.0"
+  dependencies:
+    tslib: ^2.0.0
+  peerDependencies:
+    "@angular/animations": ">=6.0.0"
+  checksum: 28e9cd3010dafe91e35f68f78e545ec57f986145b27867b5376bd4d3373016356b7b0be23fe6c3ab8a15c5ed5c1b89eec5f7984cb965cd48c897f5f0b5410308
+  languageName: node
+  linkType: hard
+
 "ansi-colors@npm:4.1.1, ansi-colors@npm:^4.1.1":
   version: 4.1.1
   resolution: "ansi-colors@npm:4.1.1"
@@ -9778,6 +9789,7 @@ fsevents@~2.3.2:
     "@typescript-eslint/eslint-plugin": 4.29.1
     "@typescript-eslint/parser": 4.29.1
     ang-jsoneditor: ^1.10.5
+    angular-animations: ^0.11.0
     color: ^4.0.1
     eslint: ^7.32.0
     eslint-plugin-import: 2.24.0
