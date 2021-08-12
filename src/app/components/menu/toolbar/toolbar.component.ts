@@ -121,9 +121,6 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         let angle = 0;
         if (clockwise === undefined) {
             const input = await this.message.prompt({promptData: {type: "number", placeholder: "输入角度"}});
-            if (input === false) {
-                return;
-            }
             angle = Number(input);
         } else {
             if (clockwise === true) {
@@ -276,7 +273,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         this.status.cad.render();
     }
 
-    private _checkSelectedOnlyOne() {
+    private async _checkSelectedOnlyOne() {
         const selected = this.status.cad.selected();
         const lines = selected.toArray().filter((v) => v instanceof CadLine) as CadLine[];
         if (lines.length !== 1) {
@@ -294,16 +291,18 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     async editTiaojianquzhi() {
-        const line = this._checkSelectedOnlyOne();
+        const line = await this._checkSelectedOnlyOne();
         if (line) {
             openCadLineTiaojianquzhiDialog(this.dialog, {data: line});
         }
     }
 
     async editGongshi() {
-        const line = this._checkSelectedOnlyOne();
+        const line = await this._checkSelectedOnlyOne();
         if (line) {
-            this.message.prompt({title: "编辑公式", promptData: {value: line.gongshi, placeholder: "公式"}});
+            const gongshi = await this.message.prompt({title: "编辑公式", promptData: {value: line.gongshi, placeholder: "公式"}});
+            line.gongshi = gongshi;
+            this.status.cad.render(line);
         }
     }
 
