@@ -73,7 +73,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     async editItem(i: number, j: number, k: number) {
         const result = await this.message.editor(this.changelog[i].content[j].items[k]);
         if (result) {
-            this.changelog[i].content[j].items[k] = result as string;
+            this.changelog[i].content[j].items[k] = result;
         }
     }
 

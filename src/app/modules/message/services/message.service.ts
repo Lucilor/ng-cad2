@@ -34,31 +34,31 @@ export class MessageService {
         if (typeof data === "string") {
             data = {content: data} as MessageDataParams<T>;
         }
-        return ({...data, type} as MessageData) as MessageDataMap[K];
+        return {...data, type} as MessageData as MessageDataMap[K];
     }
 
     async alert(data: string | MessageDataParams<AlertMessageData>) {
-        return await this.open({data: this._getData(data, "alert")});
+        await this.open({data: this._getData(data, "alert")});
     }
 
     async confirm(data: string | MessageDataParams<ConfirmMessageData>) {
-        return await this.open({data: this._getData(data, "confirm")});
+        return !!(await this.open({data: this._getData(data, "confirm")}));
     }
 
     async prompt(data: string | MessageDataParams<PromptMessageData>) {
-        return await this.open({data: this._getData(data, "prompt")});
+        return String(await this.open({data: this._getData(data, "prompt")}));
     }
 
     async book(data: string | MessageDataParams<BookMessageData>) {
-        return await this.open({data: this._getData(data, "book"), width: "80vw", height: "65vh"});
+        await this.open({data: this._getData(data, "book"), width: "80vw", height: "65vh"});
     }
 
     async editor(data: string | MessageDataParams<EditorMessageData>) {
-        return await this.open({data: this._getData(data, "editor")});
+        return String(await this.open({data: this._getData(data, "editor")}));
     }
 
     async button(data: string | MessageDataParams<ButtonMessageData>) {
-        return await this.open({data: this._getData(data, "button")});
+        return String(await this.open({data: this._getData(data, "button")}));
     }
 
     snack(message: string, action?: string, config?: MatSnackBarConfig) {
