@@ -240,6 +240,16 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         });
     }
 
+    highlightTjqz() {
+        this.status.cad.data.getAllEntities().line.forEach((e) => {
+            if (e.tiaojianquzhi.length > 0) {
+                e.selected = true;
+            } else {
+                e.selected = false;
+            }
+        });
+    }
+
     async scaleComponents(factorNum?: number) {
         if (factorNum === undefined) {
             const factorStr = await this.message.prompt({
@@ -266,6 +276,16 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         this.status.cad.render();
     }
 
+    private _checkSelectedOnlyOne() {
+        const selected = this.status.cad.selected();
+        const lines = selected.toArray().filter((v) => v instanceof CadLine) as CadLine[];
+        if (lines.length !== 1) {
+            this.message.alert("请先选中且只选中一根线");
+            return null;
+        }
+        return lines[0];
+    }
+
     async editZhankai() {
         const data = this.status.getFlatSelectedCads()[0];
         if (data) {
@@ -274,14 +294,16 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     async editTiaojianquzhi() {
-        const selected = this.status.cad.selected();
-        const lines = selected.toArray().filter((v) => v instanceof CadLine) as CadLine[];
-        if (lines.length < 1) {
-            this.message.alert("请先选中一条直线");
-        } else if (lines.length > 1) {
-            this.message.alert("无法同时编辑多根线的条件取值");
-        } else {
-            openCadLineTiaojianquzhiDialog(this.dialog, {data: lines[0]});
+        const line = this._checkSelectedOnlyOne();
+        if (line) {
+            openCadLineTiaojianquzhiDialog(this.dialog, {data: line});
+        }
+    }
+
+    async editGongshi() {
+        const line = this._checkSelectedOnlyOne();
+        if (line) {
+            this.message.prompt({title: "编辑公式", promptData: {value: line.gongshi, placeholder: "公式"}});
         }
     }
 

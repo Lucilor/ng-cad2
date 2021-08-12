@@ -64,6 +64,7 @@
         </button>
         <button mat-button (click)="resetLineLength()" [disabled]="!isStatusNormal">重置线长</button>
         <button mat-button (click)="setKailiaofangshi()" [disabled]="!isStatusNormal">首尾开料使用线长</button>
+        <button mat-button (click)="highlightTjqz()">高亮条件取值的线</button>
 
         <button mat-raised-button color="accent" (click)="backToNormal()" *ngIf="canExit">
             退出{{ statusName }}
@@ -77,5 +78,6 @@
     <div>
         <button mat-button (click)="editZhankai()">展开</button>
         <button mat-button (click)="editTiaojianquzhi()">条件取值</button>
+        <button mat-button (click)="editGongshi()">公式</button>
     </div>
 </div>
