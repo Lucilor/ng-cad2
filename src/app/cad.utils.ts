@@ -198,6 +198,7 @@ export interface PrintCadsParams {
     renderStyle?: CadDimension["renderStyle"];
     designPics?: {urls: (string | string[])[]; margin: number};
     extra?: {拉手信息宽度?: number};
+    url?: string;
 }
 /**
  * A4: (210 × 297)mm²

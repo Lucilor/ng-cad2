@@ -6,7 +6,8 @@ import {session, timer} from "@app/app.common";
 import {printCads, PrintCadsParams} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {timeout} from "@utils";
+import {MessageService} from "@modules/message/services/message.service";
+import {downloadByUrl, timeout} from "@utils";
 import {
     slideInDownOnEnterAnimation,
     slideInRightOnEnterAnimation,
@@ -47,12 +48,14 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         session.save(this._fontFamilyKey, value);
     }
     toolbarVisible = true;
+    downloadUrl: string | null = null;
 
     constructor(
         private loader: NgxUiLoaderService,
         private route: ActivatedRoute,
         private dataService: CadDataService,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        private message: MessageService
     ) {}
 
     private _onKeyDown = ((event: KeyboardEvent) => {
@@ -81,6 +84,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const response = await this.dataService.post<PrintCadsParams>(action, queryParams, "both");
         if (response?.data) {
             response.data.cads = response.data.cads.map((v) => new CadData(v));
+            this.downloadUrl = response.data.url || null;
             await this.generateSuanliaodan(response.data);
         }
         this.loader.stopLoader(this.loaderId);
@@ -141,5 +145,13 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
 
     toggleToolbarVisible() {
         this.toolbarVisible = !this.toolbarVisible;
+    }
+
+    downloadDxf() {
+        if (this.downloadUrl !== null) {
+            downloadByUrl(this.downloadUrl);
+        } else {
+            this.message.alert("没有提供下载地址");
+        }
     }
 }
