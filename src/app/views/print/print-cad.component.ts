@@ -8,24 +8,24 @@ import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {timeout} from "@utils";
 import {
-    slideInLeftOnEnterAnimation,
+    slideInDownOnEnterAnimation,
     slideInRightOnEnterAnimation,
-    slideOutLeftOnLeaveAnimation,
-    slideOutRightOnLeaveAnimation
+    slideOutRightOnLeaveAnimation,
+    slideOutUpOnLeaveAnimation
 } from "angular-animations";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import printJS from "print-js";
-import {environment} from "src/environments/environment";
 
+const duration = 400;
 @Component({
     selector: "app-print-cad",
     templateUrl: "./print-cad.component.html",
     styleUrls: ["./print-cad.component.scss"],
     animations: [
-        slideInLeftOnEnterAnimation({anchor: "toolbarEnter", duration: 500}),
-        slideOutLeftOnLeaveAnimation({anchor: "toolbarLeave", duration: 500}),
-        slideInRightOnEnterAnimation({anchor: "toolbarToggleEnter", duration: 500}),
-        slideOutRightOnLeaveAnimation({anchor: "toolbarToggleLeave", duration: 500})
+        slideInDownOnEnterAnimation({anchor: "toolbarEnter", duration}),
+        slideOutUpOnLeaveAnimation({anchor: "toolbarLeave", duration}),
+        slideInRightOnEnterAnimation({anchor: "toolbarToggleEnter", duration}),
+        slideOutRightOnLeaveAnimation({anchor: "toolbarToggleLeave", duration})
     ]
 })
 export class PrintCadComponent implements AfterViewInit, OnDestroy {
@@ -46,7 +46,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         this._fontFamily = value;
         session.save(this._fontFamilyKey, value);
     }
-    toolbarVisible = environment.production ? false : true;
+    toolbarVisible = true;
 
     constructor(
         private loader: NgxUiLoaderService,
@@ -73,7 +73,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             if (param) {
                 param.cads = param.cads.map((v) => new CadData(v));
                 await this.generateSuanliaodan(param);
-                this.toggleToolbarVisible();
             }
             return;
         }
@@ -131,7 +130,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         }
         await this.generateSuanliaodan(param);
         this.loader.stopLoader(this.loaderId);
-        this.toggleToolbarVisible();
         const cads = param.cads.map((v) => v.export());
         session.save(this._paramKey, {...param, cads});
     }

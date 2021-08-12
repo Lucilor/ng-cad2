@@ -245,7 +245,7 @@ export const printCads = async (params: PrintCadsParams) => {
                 e.opacity = 0;
             }
             e.color = new Color(0);
-            if (e instanceof CadLineLike && colorStr === "rgb(51, 51, 51)") {
+            if (e instanceof CadLineLike && (colorStr === "rgb(51, 51, 51)" || e.layer === "1")) {
                 e.linewidth = linewidth;
             }
             if (e instanceof CadDimension) {
