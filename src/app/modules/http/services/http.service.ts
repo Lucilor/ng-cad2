@@ -67,7 +67,10 @@ export class HttpService {
     private async _waitForLogin() {
         if (!this._loginPromise) {
             this._loginPromise = openLoginFormDialog(this.dialog, {
-                data: {project: {id: "kgs", name: "凯格斯"}, baseUrl: this.baseURL}
+                data: {project: {id: "kgs", name: "凯格斯"}, baseUrl: this.baseURL},
+                autoFocus: true,
+                hasBackdrop: true,
+                disableClose: true
             });
         }
         await this._loginPromise;
