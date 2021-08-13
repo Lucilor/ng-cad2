@@ -3,7 +3,7 @@ import {Injectable, Injector} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {timer} from "@app/app.common";
-import {openLoginFormDialog} from "@components/dialogs/login-form/login-form.component";
+import {LoginFormData, openLoginFormDialog} from "@components/dialogs/login-form/login-form.component";
 import {MessageService} from "@modules/message/services/message.service";
 import {RSAEncrypt, ObjectOf} from "@utils";
 import {environment} from "src/environments/environment";
@@ -64,10 +64,10 @@ export class HttpService {
         }
     }
 
-    private async _waitForLogin() {
+    private async _waitForLogin(project: LoginFormData["project"]) {
         if (!this._loginPromise) {
             this._loginPromise = openLoginFormDialog(this.dialog, {
-                data: {project: {id: "kgs", name: "凯格斯"}, baseUrl: this.baseURL},
+                data: {project, baseUrl: this.baseURL},
                 autoFocus: true,
                 hasBackdrop: true,
                 disableClose: true
@@ -160,7 +160,7 @@ export class HttpService {
                     }
                     return null;
                 } else if (code === -2) {
-                    this._waitForLogin();
+                    this._waitForLogin((response.data as any)?.project || {id: -1, name: "无"});
                     return response; //this.request(url, method, data, encrypt, options);
                 } else {
                     throw new Error(response.msg);
