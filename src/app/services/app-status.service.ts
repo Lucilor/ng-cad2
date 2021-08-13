@@ -116,7 +116,7 @@ export class AppStatusService {
             this.dataService.baseURL = `${origin}/n/${project}/index/`;
             this.startLoader();
             if (!action) {
-                const response = await this.dataService.get("user/user/isAdmin");
+                const response = await this.dataService.get("user/user/isAdmin", {nothing: null}, "no");
                 this.isAdmin$.next(!!response?.data);
                 await this.config.getUserConfig();
             }
@@ -185,6 +185,9 @@ export class AppStatusService {
             cad.data.components.data = data;
         } else {
             data = cad.data.components.data;
+        }
+        if (data.length < 1) {
+            return;
         }
         const newConfig: Partial<AppConfig> = {};
         const ids = data.map((v) => v.id);

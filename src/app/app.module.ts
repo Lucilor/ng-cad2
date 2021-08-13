@@ -44,6 +44,7 @@ import {CadSearchFormComponent} from "@components/dialogs/cad-search-form/cad-se
 import {CadZhankaiComponent} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {ChangelogComponent} from "@components/dialogs/changelog/changelog.component";
 import {JsonEditorComponent} from "@components/dialogs/json-editor/json-editor.component";
+import {LoginFormComponent} from "@components/dialogs/login-form/login-form.component";
 import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {CadAssembleComponent} from "@components/menu/cad-assemble/cad-assemble.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
@@ -70,6 +71,7 @@ import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {NgJsonEditorModule} from "ang-jsoneditor";
+import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY} from "ng-recaptcha";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {PerfectScrollbarConfigInterface, PerfectScrollbarModule, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
@@ -152,7 +154,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         ReplaceFullCharsDirective,
         KailiaokongweipeizhiComponent,
         ReplaceTextComponent,
-        PiliangjianbanComponent
+        PiliangjianbanComponent,
+        LoginFormComponent
     ],
     imports: [
         HttpClientModule,
@@ -198,6 +201,7 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
             bgsType: SPINNER.ballScaleMultiple,
             minTime: 100
         }),
+        RecaptchaV3Module,
         CadConsoleModule,
         HttpModule,
         MessageModule,
@@ -208,7 +212,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         {provide: PERFECT_SCROLLBAR_CONFIG, useValue: perfectScrollbarConfig},
         {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matFormFieldOptions},
         {provide: NGX_MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS},
-        {provide: MAT_DATE_LOCALE, useValue: "zh-CN"}
+        {provide: MAT_DATE_LOCALE, useValue: "zh-CN"},
+        {provide: RECAPTCHA_V3_SITE_KEY, useValue: "6Leil-0ZAAAAACnzpTud2QN5OuhJ10UyJJrUq70m"}
     ],
     bootstrap: [AppComponent]
 })

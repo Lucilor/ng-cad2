@@ -2686,6 +2686,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/grecaptcha@npm:^3.0.1":
+  version: 3.0.3
+  resolution: "@types/grecaptcha@npm:3.0.3"
+  checksum: c2a6815360b0fee5cd1f4a427974054dcc61b2bbeee623505d13188dd3c76e79eef09751bc38c2a6e42bdb18b14f0892a65ce62f66eced48006d9793c984d6a5
+  languageName: node
+  linkType: hard
+
 "@types/jasmine@npm:*":
   version: 3.6.2
   resolution: "@types/jasmine@npm:3.6.2"
@@ -2741,6 +2748,15 @@ __metadata:
   version: 4.14.168
   resolution: "@types/lodash@npm:4.14.168"
   checksum: 3326966ee089debde7a7d819e13b64991756e879945852c3357df14a7be837130f697c2cb451be9dd599eb7213fed0975bc9ca0f8f56b46fa73c46a83815b79c
+  languageName: node
+  linkType: hard
+
+"@types/md5@npm:^2":
+  version: 2.3.1
+  resolution: "@types/md5@npm:2.3.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: d508f4dd0663beba1660e5b3796480137690096f5683a0a7dfd2e4afa3a5d906e1f04f5a3bf02355f35ee2e64f4067adf349f4f67ccb15da50e1372b848b8579
   languageName: node
   linkType: hard
 
@@ -4510,6 +4526,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"charenc@npm:0.0.2":
+  version: 0.0.2
+  resolution: "charenc@npm:0.0.2"
+  checksum: 81dcadbe57e861d527faf6dd3855dc857395a1c4d6781f4847288ab23cffb7b3ee80d57c15bba7252ffe3e5e8019db767757ee7975663ad2ca0939bb8fcaf2e5
+  languageName: node
+  linkType: hard
+
 "chokidar@npm:>=3.0.0 <4.0.0":
   version: 3.5.1
   resolution: "chokidar@npm:3.5.1"
@@ -5106,6 +5129,13 @@ __metadata:
     shebang-command: ^2.0.0
     which: ^2.0.1
   checksum: 671cc7c7288c3a8406f3c69a3ae2fc85555c04169e9d611def9a675635472614f1c0ed0ef80955d5b6d4e724f6ced67f0ad1bb006c2ea643488fcfef994d7f52
+  languageName: node
+  linkType: hard
+
+"crypt@npm:0.0.2":
+  version: 0.0.2
+  resolution: "crypt@npm:0.0.2"
+  checksum: baf4c7bbe05df656ec230018af8cf7dbe8c14b36b98726939cef008d473f6fe7a4fad906cfea4062c93af516f1550a3f43ceb4d6615329612c6511378ed9fe34
   languageName: node
   linkType: hard
 
@@ -7975,7 +8005,7 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"is-buffer@npm:^1.1.5":
+"is-buffer@npm:^1.1.5, is-buffer@npm:~1.1.6":
   version: 1.1.6
   resolution: "is-buffer@npm:1.1.6"
   checksum: 4a186d995d8bbf9153b4bd9ff9fd04ae75068fe695d29025d25e592d9488911eeece84eefbd8fa41b8ddcc0711058a71d4c466dcf6f1f6e1d83830052d8ca707
@@ -9263,6 +9293,17 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
+"md5@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "md5@npm:2.3.0"
+  dependencies:
+    charenc: 0.0.2
+    crypt: 0.0.2
+    is-buffer: ~1.1.6
+  checksum: a63cacf4018dc9dee08c36e6f924a64ced735b37826116c905717c41cebeb41a522f7a526ba6ad578f9c80f02cb365033ccd67fe186ffbcc1a1faeb75daa9b6e
+  languageName: node
+  linkType: hard
+
 "mdn-data@npm:2.0.14":
   version: 2.0.14
   resolution: "mdn-data@npm:2.0.14"
@@ -9782,6 +9823,7 @@ fsevents@~2.3.2:
     "@types/jasmine": ~3.8.2
     "@types/jasminewd2": ~2.0.10
     "@types/lodash": ^4
+    "@types/md5": ^2
     "@types/node": ^16
     "@types/pdfmake": ^0
     "@types/quill": ^1
@@ -9806,6 +9848,8 @@ fsevents@~2.3.2:
     karma-jasmine-html-reporter: ^1.7.0
     lodash: ^4.17.21
     material-icons: ^1.1.1
+    md5: ^2.3.0
+    ng-recaptcha: ^8.0.1
     ngx-color: ^7.2.0
     ngx-forms-typed: ^1.1.6
     ngx-perfect-scrollbar: ^10.1.1
@@ -9823,6 +9867,18 @@ fsevents@~2.3.2:
     zone.js: ~0.11.4
   languageName: unknown
   linkType: soft
+
+"ng-recaptcha@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "ng-recaptcha@npm:8.0.1"
+  dependencies:
+    "@types/grecaptcha": ^3.0.1
+    tslib: ^2.0.0
+  peerDependencies:
+    "@angular/core": ^12.0.0
+  checksum: 3813736b903f421330e25942e85aafa3abe5159df1c4c408975568fbd80b4417bbdd90d419fee7a1f1faf84a4de1da7cd32cc121110fab63bfa6a528ef97bb0d
+  languageName: node
+  linkType: hard
 
 "ngx-color@npm:^7.2.0":
   version: 7.2.0

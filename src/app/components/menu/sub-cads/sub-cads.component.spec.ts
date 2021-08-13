@@ -42,5 +42,6 @@ describe("SubCadsComponent", () => {
 
     it("should show menu", () => {
         component.contextMenu.openMenu();
+        expect(component.contextMenu.menuOpened).toBeTruthy();
     });
 });

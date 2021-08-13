@@ -1,0 +1,26 @@
+<form class="login-form" [formGroup]="form">
+    <button hidden type="submit" (click)="submit()"></button>
+    <div class="title">登录 · {{ data.project.name }}</div>
+    <mat-form-field>
+        <mat-label>账户</mat-label>
+        <mat-icon matPrefix>account_circle</mat-icon>
+        <input type="text" matInput formControlName="user" autocomplete="off" required />
+        <mat-error *ngIf="form.get('user')?.errors">请输入账户</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>密码</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+        <input [type]="passwordVisible ? 'text' : 'password'" autocomplete="off" matInput formControlName="password" required />
+        <button mat-icon-button matSuffix (click)="togglePasswordVisible($event)" tabindex="-1">
+            <mat-icon>{{ passwordVisible ? "visibility" : "visibility_off" }}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.get('password')?.errors">请输入密码</mat-error>
+    </mat-form-field>
+    <div class="btn-group action">
+        <button mat-raised-button color="primary" type="submit" (click)="submit()" tabindex="-1">登录</button>
+    </div>
+    <div class="help-info">
+        登录遇到问题？
+        <button mat-icon-button tabindex="-1" (click)="goToLoginPage()"><mat-icon>open_in_new</mat-icon></button>
+    </div>
+</form>

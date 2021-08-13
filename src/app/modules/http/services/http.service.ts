@@ -1,7 +1,9 @@
 import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {timer} from "@app/app.common";
+import {openLoginFormDialog} from "@components/dialogs/login-form/login-form.component";
 import {MessageService} from "@modules/message/services/message.service";
 import {RSAEncrypt, ObjectOf} from "@utils";
 import {environment} from "src/environments/environment";
@@ -41,13 +43,16 @@ export interface HttpOptions {
 export class HttpService {
     silent = false;
     loaderId = "master";
-    message: MessageService;
-    http: HttpClient;
-    snackBar: MatSnackBar;
+    protected dialog: MatDialog;
+    protected message: MessageService;
+    protected http: HttpClient;
+    protected snackBar: MatSnackBar;
     baseURL = "";
     strict = true;
+    private _loginPromise: ReturnType<typeof openLoginFormDialog> | null = null;
 
     constructor(injector: Injector) {
+        this.dialog = injector.get(MatDialog);
         this.message = injector.get(MessageService);
         this.http = injector.get(HttpClient);
         this.snackBar = injector.get(MatSnackBar);
@@ -59,7 +64,22 @@ export class HttpService {
         }
     }
 
+    private async _waitForLogin() {
+        if (!this._loginPromise) {
+            this._loginPromise = openLoginFormDialog(this.dialog, {
+                data: {project: {id: "kgs", name: "凯格斯"}, baseUrl: this.baseURL}
+            });
+        }
+        await this._loginPromise;
+        if (this._loginPromise) {
+            this._loginPromise = null;
+        }
+    }
+
     async request<T>(url: string, method: "GET" | "POST", data?: any, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
+        if (environment.unitTest) {
+            return null;
+        }
         const timerName = `http.request.${url}.${timer.now}`;
         timer.start(timerName);
         const rawUrl = url;
@@ -70,7 +90,7 @@ export class HttpService {
             let response: CustomResponse<T> | null = null;
             if (method === "GET") {
                 if (data) {
-                    if (encrypt) {
+                    if (encrypt !== "no") {
                         url += `?data=${RSAEncrypt(data)}`;
                     } else {
                         const queryArr: string[] = [];
@@ -137,9 +157,8 @@ export class HttpService {
                     }
                     return null;
                 } else if (code === -2) {
-                    const baseURL = environment.production ? this.baseURL : "https://localhost/n/kgs/index/";
-                    location.href = `${baseURL}signUp/index#${encodeURIComponent(location.href)}`;
-                    throw new Error("code:-2");
+                    this._waitForLogin();
+                    return response; //this.request(url, method, data, encrypt, options);
                 } else {
                     throw new Error(response.msg);
                 }
@@ -147,14 +166,12 @@ export class HttpService {
                 return response;
             }
         } catch (error) {
-            if (error instanceof Error && error.message === "code:-2") {
-                throw new Error("请重新登录");
-            }
             this.alert(error);
             return null;
         } finally {
             timer.end(timerName, `${method} ${rawUrl}`);
         }
+        return null;
     }
 
     async get<T>(url: string, data?: ObjectOf<any>, encrypt: DataEncrpty = "yes", options?: HttpOptions) {

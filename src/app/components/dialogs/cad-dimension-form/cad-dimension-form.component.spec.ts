@@ -1,5 +1,5 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {ReactiveFormsModule} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
@@ -19,7 +19,6 @@ describe("CadDimensionFormComponent", () => {
         await TestBed.configureTestingModule({
             declarations: [CadDimensionFormComponent],
             imports: [
-                FormsModule,
                 ReactiveFormsModule,
                 MatInputModule,
                 MatFormFieldModule,

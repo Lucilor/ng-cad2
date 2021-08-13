@@ -59,6 +59,10 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
     onKeyDown = ((event: KeyboardEvent) => {
         const {ctrlKey} = event;
+        if (!event.key) {
+            // ? key有可能是undefined
+            return;
+        }
         const key = event.key.toLowerCase();
         if (ctrlKey && this.keyMap[key]) {
             event.preventDefault();
