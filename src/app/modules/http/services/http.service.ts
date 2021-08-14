@@ -161,7 +161,7 @@ export class HttpService {
                     return null;
                 } else if (code === -2) {
                     this._waitForLogin((response.data as any)?.project || {id: -1, name: "无"});
-                    return response; //this.request(url, method, data, encrypt, options);
+                    return null; //this.request(url, method, data, encrypt, options);
                 } else {
                     throw new Error(response.msg);
                 }

@@ -71,7 +71,7 @@ import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {NgJsonEditorModule} from "ang-jsoneditor";
-import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY} from "ng-recaptcha";
+import {RecaptchaV3Module, RECAPTCHA_BASE_URL, RECAPTCHA_V3_SITE_KEY} from "ng-recaptcha";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {PerfectScrollbarConfigInterface, PerfectScrollbarModule, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
@@ -213,7 +213,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matFormFieldOptions},
         {provide: NGX_MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS},
         {provide: MAT_DATE_LOCALE, useValue: "zh-CN"},
-        {provide: RECAPTCHA_V3_SITE_KEY, useValue: "6Leil-0ZAAAAACnzpTud2QN5OuhJ10UyJJrUq70m"}
+        {provide: RECAPTCHA_V3_SITE_KEY, useValue: "6Leil-0ZAAAAACnzpTud2QN5OuhJ10UyJJrUq70m"},
+        {provide: RECAPTCHA_BASE_URL, useValue: "https://recaptcha.net/recaptcha/api.js"}
     ],
     bootstrap: [AppComponent]
 })
