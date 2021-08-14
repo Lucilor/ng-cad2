@@ -26,6 +26,9 @@
                     </mat-card-footer>
                 </mat-card>
             </div>
+            <div class="footer" [ngClass]="{'no-print':bancai.pageBreakAfter === 'none'}">
+                第{{ bancai.printPageIndex }}页，共{{ printPageTotal }}页
+            </div>
         </mat-expansion-panel>
     </mat-accordion>
 </perfect-scrollbar>

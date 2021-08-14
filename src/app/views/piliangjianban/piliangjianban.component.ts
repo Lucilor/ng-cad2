@@ -29,6 +29,7 @@ export interface Bancai {
     expanded: boolean;
     pageNum: number;
     pageBreakAfter: CSSStyleDeclaration["pageBreakAfter"];
+    printPageIndex: number;
 }
 
 @Component({
@@ -45,6 +46,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
     }
     imgSize = [300, 250];
     fixedLengthTextSize = 20;
+    printPageTotal = 0;
 
     constructor(
         private route: ActivatedRoute,
@@ -100,6 +102,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                     bancai.data = data;
                     bancai.expanded = true;
                     bancai.pageBreakAfter = "always";
+                    bancai.printPageIndex = -1;
                     this.bancais.push(bancai);
                 }
             });
@@ -145,16 +148,23 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                 this.bancais.push(bancaiCopy);
             }
         });
-        for (let i = 0; i < this.bancais.length - 1; i++) {
+        let printPageIndex = 1;
+        for (let i = 0; i < this.bancais.length; i++) {
             const curr = this.bancais[i];
-            const next = this.bancais[i + 1];
-            const currRows = Math.ceil(curr.data.length / cadsColNum);
-            const nextRows = Math.ceil(next.data.length / cadsColNum);
-            if (currRows + nextRows + 1 <= cadsRowNum) {
-                curr.pageBreakAfter = "none";
-                i++;
+            curr.printPageIndex = printPageIndex;
+            if (i < bancais.length - 1) {
+                const next = this.bancais[i + 1];
+                const currRows = Math.ceil(curr.data.length / cadsColNum);
+                const nextRows = Math.ceil(next.data.length / cadsColNum);
+                if (currRows + nextRows + 1 <= cadsRowNum) {
+                    curr.pageBreakAfter = "none";
+                    next.printPageIndex = printPageIndex;
+                    i++;
+                }
             }
+            printPageIndex++;
         }
+        this.printPageTotal = printPageIndex - 1;
     }
 
     print() {
