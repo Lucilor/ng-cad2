@@ -4,7 +4,7 @@ import {MatSelectChange} from "@angular/material/select";
 import {ActivatedRoute} from "@angular/router";
 import {splitOptions, joinOptions} from "@app/app.common";
 import {getCadGongshiText} from "@app/cad.utils";
-import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity, 算料单显示, sortLines} from "@cad-viewer";
+import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity, sortLines} from "@cad-viewer";
 import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
@@ -26,7 +26,25 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     cadsData: CadData[] = [];
     editDisabled = true;
     private _cadPointsLock = false;
-    sldxs = 算料单显示;
+    private _算料单显示 = [
+        "尺寸",
+        "板材",
+        "尺寸+板材",
+        "名字",
+        "名字+板材",
+        "名字+展开宽",
+        "名字+展开宽+展开高",
+        "名字+展开高+板材",
+        "名字+展开高",
+        "展开宽",
+        "展开高",
+        "展开宽+展开高",
+        "展开宽+板材",
+        "展开高+板材",
+        "展开宽+展开高+板材",
+        "都不显示"
+    ];
+    sldxs = this._算料单显示.slice();
     @Output() cadLengthsChange = new EventEmitter<string[]>();
 
     private _onEntityClick = (
@@ -147,6 +165,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
                     }
                 }
             }
+        });
+        this.subscribe(this.status.openCad$, () => {
+            const sldxsArr = this.status.cad.data.components.data.map((v) => v.suanliaodanxianshi);
+            this.sldxs = Array.from(new Set(sldxsArr.concat(this._算料单显示)));
         });
         const cad = this.status.cad;
         cad.on("entityclick", this._onEntityClick);
