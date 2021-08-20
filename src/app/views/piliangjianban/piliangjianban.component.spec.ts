@@ -31,7 +31,8 @@ const bancais: Bancai[] = [
         规格: [20, 10],
         expanded: true,
         pageNum: 1,
-        pageBreakAfter: "always"
+        pageBreakAfter: "always",
+        printPageIndex: 0
     }
 ];
 
