@@ -202,7 +202,7 @@ export class AppStatusService {
             this.router.navigate(["/index"], {queryParams: {id: undefined, ids: ids.join(","), collection}, queryParamsHandling: "merge"});
         }
         data.forEach((v) => {
-            setCadData(v);
+            setCadData(v, this.project);
             addCadGongshi(v, this.config.getConfig("showCadGongshis"), collection === "CADmuban");
             for (const key in replaceMap) {
                 this._replaceText(v, key, replaceMap[key]);
