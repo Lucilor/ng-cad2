@@ -417,6 +417,6 @@ export const setCadData = (data: CadData, project: string) => {
     data.partners.forEach((v) => setCadData(v, project));
     data.components.data.forEach((v) => setCadData(v, project));
     if (data.算料单线长显示的最小长度 === null) {
-        data.算料单线长显示的最小长度 = project === "sd" ? 5 : 6;
+        data.算料单线长显示的最小长度 = project === "yhmy" ? 5 : 6;
     }
 };
