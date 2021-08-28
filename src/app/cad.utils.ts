@@ -276,7 +276,7 @@ export const printCads = async (params: PrintCadsParams) => {
                     e.fontWeight = "bolder";
                 }
 
-                if (text.match(/^(花件信息|注意事项)/)) {
+                if (text.match(/^(花件信息|注意事项|①)/)) {
                     // * 自动换行
                     let wrapedText = text.match(/^(花件信息)/) ? text.slice(4) : text;
                     let lines = data.getAllEntities().line;
