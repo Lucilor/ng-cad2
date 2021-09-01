@@ -20,6 +20,10 @@
             <mat-label>分类</mat-label>
             <input matInput type="text" [(ngModel)]="cad.type" name="type" />
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>分类2</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.type2" name="type2" />
+        </mat-form-field>
         <div class="sub-form-field">
             <div class="label">选项</div>
             <div *ngIf="keysOf(cad.options).length === 0">
