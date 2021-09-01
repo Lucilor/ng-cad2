@@ -288,6 +288,9 @@ export const printCads = async (params: PrintCadsParams) => {
                             dMin = d;
                         }
                     }
+                    if (text.match(/^(花件信息)/)) {
+                        dMin += 8;
+                    }
                     try {
                         wrapedText = wrapedText
                             .split("\n")

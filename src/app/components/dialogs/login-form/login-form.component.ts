@@ -1,5 +1,5 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, Inject, OnInit} from "@angular/core";
+import {Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf} from "@utils";
@@ -30,7 +30,7 @@ export interface LoginResponse {
     templateUrl: "./login-form.component.html",
     styleUrls: ["./login-form.component.scss"]
 })
-export class LoginFormComponent implements OnInit {
+export class LoginFormComponent {
     form = typedFormGroup({
         user: typedFormControl(""),
         password: typedFormControl("")
@@ -48,10 +48,6 @@ export class LoginFormComponent implements OnInit {
         if (!this.data) {
             this.data = {project: {id: "?", name: "???"}, baseUrl: ""};
         }
-    }
-
-    ngOnInit() {
-        console.log(this.data.baseUrl);
     }
 
     async submit() {
