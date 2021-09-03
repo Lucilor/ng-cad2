@@ -260,6 +260,21 @@
     </div>
     <div class="form-item">
         <mat-form-field>
+            <mat-label>算料单小数处理</mat-label>
+            <mat-select
+                name="suanliaosanxiaoshuchuli"
+                [value]="getLineText('suanliaosanxiaoshuchuli')"
+                (selectionChange)="setLineText($event, 'suanliaosanxiaoshuchuli')"
+            >
+                <mat-option value="不处理">不处理</mat-option>
+                <mat-option value="舍去小数">舍去小数</mat-option>
+                <mat-option value="小数进一">小数进一</mat-option>
+                <mat-option value="四舍五入">四舍五入</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="form-item">
+        <mat-form-field>
             <mat-label>开料时删除</mat-label>
             <mat-select
                 name="kailiaoshishanchu"

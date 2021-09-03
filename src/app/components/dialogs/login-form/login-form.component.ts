@@ -69,9 +69,11 @@ export class LoginFormComponent {
         let response: ObjectOf<any> = await this.http.post(`${baseUrl}/login/in`, data).toPromise();
         this.loader.stop();
         if (response.status === -1) {
-            this.loader.start();
-            const phonecode = await this.message.prompt({title: "请输入验证码", promptData: {placeholder: "验证码"}});
-            this.loader.stop();
+            const phonecode = await this.message.prompt({
+                title: "请输入验证码",
+                promptData: {placeholder: "验证码"},
+                cancelable: false
+            });
             data.set("phonecode", phonecode);
             response = await this.http.post(`${baseUrl}/login/in`, data).toPromise();
         }
