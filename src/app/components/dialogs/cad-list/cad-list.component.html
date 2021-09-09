@@ -110,7 +110,7 @@
 
 <div mat-dialog-actions>
     <button mat-raised-button color="primary" (click)="submit()">
-        <ngx-ui-loader [loaderId]="'submitLoader'" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+        <app-loader-inline [loaderId]="'submitLoader'"></app-loader-inline>
         确定
     </button>
     <button mat-raised-button color="primary" (click)="close()">取消</button>

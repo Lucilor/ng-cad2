@@ -46,6 +46,7 @@ import {ChangelogComponent} from "@components/dialogs/changelog/changelog.compon
 import {JsonEditorComponent} from "@components/dialogs/json-editor/json-editor.component";
 import {LoginFormComponent} from "@components/dialogs/login-form/login-form.component";
 import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
+import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {CadAssembleComponent} from "@components/menu/cad-assemble/cad-assemble.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
@@ -155,7 +156,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         KailiaokongweipeizhiComponent,
         ReplaceTextComponent,
         PiliangjianbanComponent,
-        LoginFormComponent
+        LoginFormComponent,
+        LoaderInlineComponent
     ],
     imports: [
         HttpClientModule,

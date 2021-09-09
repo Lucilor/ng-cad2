@@ -276,9 +276,9 @@ export const printCads = async (params: PrintCadsParams) => {
                     e.fontWeight = "bolder";
                 }
 
-                if (text.match(/^(花件信息|注意事项|①)/)) {
+                if (text.match(/^花件信息/)) {
                     // * 自动换行
-                    let wrapedText = text.match(/^(花件信息)/) ? text.slice(4) : text;
+                    let wrapedText = text.slice(4);
                     let lines = data.getAllEntities().line;
                     lines = lines.filter((ee) => ee.isVertical() && isBetween(insert.y, ee.minY, ee.maxY) && ee.start.x - insert.x > 50);
                     let dMin = Infinity;
@@ -288,9 +288,7 @@ export const printCads = async (params: PrintCadsParams) => {
                             dMin = d;
                         }
                     }
-                    if (text.match(/^(花件信息)/)) {
-                        dMin += 8;
-                    }
+                    dMin += 8;
                     try {
                         wrapedText = wrapedText
                             .split("\n")

@@ -64,6 +64,12 @@ export class HttpService {
         }
     }
 
+    protected snack(msg: string) {
+        if (!this.silent) {
+            this.message.snack(msg);
+        }
+    }
+
     private async _waitForLogin(project: LoginFormData["project"]) {
         if (!this._loginPromise) {
             this._loginPromise = openLoginFormDialog(this.dialog, {
@@ -146,7 +152,7 @@ export class HttpService {
                 const code = response.code;
                 if (code === 0) {
                     if (typeof response.msg === "string" && response.msg) {
-                        this.message.snack(response.msg);
+                        this.snack(response.msg);
                     }
                     return response;
                 } else if (code === 2) {
@@ -156,7 +162,7 @@ export class HttpService {
                         if (typeof data2?.name === "string") {
                             msg += "<br>" + data2.name;
                         }
-                        this.message.alert(msg);
+                        this.alert(msg);
                     }
                     return null;
                 } else if (code === -2) {

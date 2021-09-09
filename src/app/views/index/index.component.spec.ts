@@ -15,6 +15,7 @@ import {MatTabsModule} from "@angular/material/tabs";
 import {RouterTestingModule} from "@angular/router/testing";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
+import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
 import {CadLineComponent} from "@components/menu/cad-line/cad-line.component";
@@ -28,7 +29,6 @@ import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
-
 import {IndexComponent} from "./index.component";
 
 describe("IndexComponent", () => {
@@ -46,7 +46,8 @@ describe("IndexComponent", () => {
                 CadLineComponent,
                 CadMtextComponent,
                 CadDimensionComponent,
-                AnchorSelectorComponent
+                AnchorSelectorComponent,
+                LoaderInlineComponent
             ],
             imports: [
                 CadConsoleModule,

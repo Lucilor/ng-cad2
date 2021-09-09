@@ -5,10 +5,11 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
-
 import {ImportComponent} from "./import.component";
 
 describe("ImportComponent", () => {
@@ -17,7 +18,7 @@ describe("ImportComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ImportComponent],
+            declarations: [ImportComponent, LoaderInlineComponent],
             imports: [
                 FormsModule,
                 MatCardModule,
@@ -27,7 +28,8 @@ describe("ImportComponent", () => {
                 MatSlideToggleModule,
                 HttpModule,
                 MessageModule,
-                NgxUiLoaderModule
+                NgxUiLoaderModule,
+                PerfectScrollbarModule
             ]
         }).compileComponents();
     });

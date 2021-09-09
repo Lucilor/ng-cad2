@@ -1,21 +1,106 @@
 .container {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    > *:not(:last-child) {
+        margin-bottom: 10px;
+    }
 }
 
-.content {
-	display: flex;
-	flex-direction: column;
+.toolbar {
+    width: 50%;
 
-	> * {
-		margin: 10px;
-	}
+    .content {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+
+        > * {
+            margin: 10px;
+        }
+    }
 }
 
-.mat-form-field {
-	font-size: 20px;
+.cads-title {
+    width: 100%;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.cads {
+    display: flex;
+    flex-wrap: wrap;
+
+    .cad {
+        padding: 5px;
+        margin: 5px;
+        width: calc(20% - 10px);
+        border: 1px grey solid;
+        border-radius: 20px;
+        box-sizing: border-box;
+
+        ul {
+            margin-block-start: 0;
+            margin-block-end: 0;
+            padding-inline-start: 15px;
+        }
+    }
+}
+
+.error {
+    color: red;
+}
+.success {
+    color: green;
+}
+
+.progress-bar {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-radius: 25px;
+    line-height: 50px;
+    font-size: 20px;
+
+    .progress-bar-layer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        background-color: white;
+        transition: 0.3s;
+        mix-blend-mode: soft-light;
+    }
+
+    &.progress {
+        background: linear-gradient(90deg, #496eaa, #21eaff, #d82dc4, #21eaff, #496eaa);
+        background-size: 1500% 300%;
+        animation: dynamics 200s ease infinite;
+    }
+    &.success {
+        background-color: green;
+        color: white;
+    }
+    &.error {
+        background-color: red;
+        color: white;
+    }
+}
+
+@keyframes progress {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 50% 100%;
+    }
+    100% {
+        background-position: 100% 0%;
+    }
 }
