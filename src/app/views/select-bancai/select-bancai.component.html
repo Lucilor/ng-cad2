@@ -64,7 +64,7 @@
 <div class="btn-group">
     <button mat-raised-button color="primary" [disabled]="!valid" (click)="submit()">
         {{ type }}
-        <ngx-ui-loader [loaderId]="'submitLoader'" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+        <app-loader-inline [loaderId]="'submitLoader'"></app-loader-inline>
     </button>
 </div>
 

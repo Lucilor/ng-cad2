@@ -1,16 +1,31 @@
 <div class="container">
-	<mat-card>
-		<mat-card-content class="content">
-			<mat-form-field>
-				<textarea matInput hidden></textarea>
-				<mat-slide-toggle [(ngModel)]="force">{{ force ? "" : "不" }}覆盖数据</mat-slide-toggle>
-				<mat-hint *ngIf="!force">重复数据将会被跳过</mat-hint>
-				<mat-hint *ngIf="force" style="color: red">重复数据将会被覆盖</mat-hint>
-			</mat-form-field>
-			<button mat-flat-button color="primary" (click)="fileInput.click()" style="width: 200px; height: 50px">选择文件</button>
-			<input #fileInput type="file" accept=".dxf" hidden (input)="importDxf($event)" />
-			<div class="msg">{{ msg }}</div>
-		</mat-card-content>
-	</mat-card>
+    <mat-card class="toolbar">
+        <mat-card-content class="content">
+            <div>
+                <button mat-raised-button color="primary" (click)="fileInput.click()">
+                    选择文件
+                    <app-loader-inline [loaderId]="loaderId"></app-loader-inline>
+                </button>
+            </div>
+            <input #fileInput type="file" accept=".dxf" hidden (change)="importDxf($event)" />
+            <div class="progress-bar dynamics" *ngIf="progressBarStatus !== 'hidden'" [ngClass]="progressBarStatus">
+                <div class="progress-bar-msg">{{ msg }}</div>
+                <div class="progress-bar-layer" [style.width.%]="100 - progress"></div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <perfect-scrollbar style="flex: 1 1 0">
+        <div class="cads">
+            <ng-container *ngFor="let cad of cads">
+                <div *ngIf="cad.errors.length > 0" class="cad">
+                    <div>名字: {{ cad.data.name }}</div>
+                    <div>唯一码: {{ cad.data.info["唯一码"] }}</div>
+                    <ul>
+                        <li class="error" *ngFor="let error of cad.errors">{{ error }}</li>
+                    </ul>
+                </div>
+            </ng-container>
+        </div>
+    </perfect-scrollbar>
 </div>
-<ngx-ui-loader [loaderId]="loaderId" [text]="loaderText"></ngx-ui-loader>

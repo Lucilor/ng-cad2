@@ -10,6 +10,7 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS} from "@angular/material/tooltip";
+import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
@@ -23,7 +24,7 @@ describe("CadListComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [CadListComponent],
+            declarations: [CadListComponent, LoaderInlineComponent],
             imports: [
                 FormsModule,
                 MatCheckboxModule,

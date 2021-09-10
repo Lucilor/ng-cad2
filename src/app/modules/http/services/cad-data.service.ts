@@ -35,6 +35,11 @@ export type CadSearchData = {
     }[];
 }[];
 
+export interface OptionsData {
+    data: {name: string; img: string}[];
+    count: number;
+}
+
 export interface BancaiList {
     mingzi: string;
     cailiaoList: string[];
@@ -168,14 +173,7 @@ export class CadDataService extends HttpService {
         return null;
     }
 
-    async getOptions(
-        name: string,
-        search: string,
-        page: number = 1,
-        limit: number = 10,
-        data?: CadData,
-        xinghao?: string
-    ): Promise<{data: {name: string; img: string}[]; count: number}> {
+    async getOptions(name: string, search: string, page?: number, limit?: number, data?: CadData, xinghao?: string): Promise<OptionsData> {
         const postData: ObjectOf<any> = {
             name,
             search,
@@ -190,10 +188,10 @@ export class CadDataService extends HttpService {
             postData.xuanxiang = exportData.options;
             postData.tiaojian = exportData.conditions;
         }
-        const response = await this.post<any>("peijian/cad/getOptions", postData);
-        if (response) {
+        const response = await this.post<any>("peijian/cad/getOptions", postData, "no");
+        if (response && response.data) {
             return {
-                data: response.data.map((v: any) => ({name: v.mingzi, img: `${origin}/filepath/${v.xiaotu}`})),
+                data: (response.data as any[]).map((v: any) => ({name: v.mingzi, img: `${origin}/filepath/${v.xiaotu}`})),
                 count: response.count || 0
             };
         }

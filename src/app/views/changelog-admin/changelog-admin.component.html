@@ -2,7 +2,7 @@
     <mat-accordion>
         <div class="btn-group" *ngIf="page === 1">
             <button mat-icon-button color="primary" (click)="addChangelogItem(0)">
-                <ngx-ui-loader [loaderId]="'add0'" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+                <app-loader-inline [loaderId]="'add0'"></app-loader-inline>
                 <mat-icon>add_circle</mat-icon>
             </button>
         </div>
@@ -36,11 +36,11 @@
                     </mat-form-field>
                     <div class="btn-group">
                         <button mat-raised-button color="primary" (click)="setChangelogItem(i)">
-                            <ngx-ui-loader [loaderId]="'set' + i" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+                            <app-loader-inline [loaderId]="'set' + i"></app-loader-inline>
                             保存
                         </button>
                         <button mat-raised-button color="primary" (click)="removeChangelogItem(i)">
-                            <ngx-ui-loader [loaderId]="'remove' + i" [fgsSize]="30" [hasProgressBar]="false"></ngx-ui-loader>
+                            <app-loader-inline [loaderId]="'remove' + i"></app-loader-inline>
                             删除
                         </button>
                     </div>
