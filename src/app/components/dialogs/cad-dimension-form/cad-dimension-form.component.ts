@@ -37,7 +37,8 @@ export class CadDimensionFormComponent {
             cad1: new FormControl({value: dimension.cad1 || " ", disabled: true}),
             cad2: new FormControl({value: dimension.cad2 || " ", disabled: true}),
             quzhifanwei: dimension.quzhifanwei,
-            hideDimLines: dimension.hideDimLines
+            hideDimLines: dimension.hideDimLines,
+            xiaoshuchuli: dimension.xiaoshuchuli
         });
     }
 
@@ -59,6 +60,7 @@ export class CadDimensionFormComponent {
             dimension.ref = value.ref;
             dimension.quzhifanwei = value.quzhifanwei;
             dimension.hideDimLines = value.hideDimLines;
+            dimension.xiaoshuchuli = value.xiaoshuchuli;
             this.dialogRef.close(dimension);
         } else {
             this.form.controls.qujian.updateValueAndValidity();

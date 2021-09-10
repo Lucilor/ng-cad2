@@ -86,6 +86,16 @@
                 <input type="text" matInput hidden value=" " />
                 <mat-slide-toggle [checked]="getHideDimLines()" (change)="setHideDimLines($event)"></mat-slide-toggle>
             </mat-form-field>
+            <mat-form-field>
+                <mat-label>小数处理</mat-label>
+                <mat-select formControlName="xiaoshuchuli">
+                    <mat-option value="四舍五入">四舍五入</mat-option>
+                    <mat-option value="舍去小数">舍去小数</mat-option>
+                    <mat-option value="小数进一">小数进一</mat-option>
+                    <mat-option value="保留一位">保留一位</mat-option>
+                    <mat-option value="保留两位">保留两位</mat-option>
+                </mat-select>
+            </mat-form-field>
         </form>
     </perfect-scrollbar>
 </div>
