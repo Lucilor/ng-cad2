@@ -15,7 +15,7 @@ executors:
     ng-cad2:
         working_directory: ~/ng-cad2
         docker:
-            - image: circleci/node:14-browsers
+            - image: znck/pnpm:latest
 jobs:
     build:
         executor: ng-cad2
