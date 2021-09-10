@@ -140,6 +140,9 @@ export class ImportComponent implements OnInit {
             } else if (uniqCodesCount[uniqId] > 1) {
                 item.errors.push("唯一码重复: " + uniqId);
             }
+            if (!cad.type) {
+                item.errors.push("没有分类");
+            }
             if (cad.name.match(/^\d+/)) {
                 cad.name = "_" + cad.name;
             } else if (!cad.name.match(this._cadNameRegex)) {
