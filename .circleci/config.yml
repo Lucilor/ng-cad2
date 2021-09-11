@@ -15,7 +15,7 @@ executors:
     ng-cad2:
         working_directory: ~/ng-cad2
         docker:
-            - image: znck/pnpm:latest
+            - image: lsage/pnpm-circleci-node
 jobs:
     build:
         executor: ng-cad2
@@ -41,7 +41,7 @@ jobs:
                   command: cd ./src/cad-viewer/src/utils && pnpm install
             - run:
                   name: Unit test
-                  command: pnpm run test --no-watch --no-progress --browsers=ChromeHeadless
+                  command: pnpm run test -- --no-watch --no-progress --browsers=ChromeHeadless
     e2e:
         executor: ng-cad2
         steps:
@@ -49,7 +49,7 @@ jobs:
             - *restore_cache
             - run:
                   name: End to end
-                  command: pnpm run e2e --protractor-config=e2e/protractor.conf.js
+                  command: pnpm run e2e -- --protractor-config=e2e/protractor.conf.js
     lint:
         executor: ng-cad2
         steps:
