@@ -10,7 +10,7 @@
             <input #fileInput type="file" accept=".dxf" hidden (change)="importDxf($event)" />
             <div class="progress-bar dynamics" *ngIf="progressBarStatus !== 'hidden'" [ngClass]="progressBarStatus">
                 <div class="progress-bar-msg">{{ msg }}</div>
-                <div class="progress-bar-layer" [style.width.%]="100 - progress"></div>
+                <div class="progress-bar-layer" *ngIf="progressBarStatus === 'progress'" [style.width.%]="100 - progressBar.progress"></div>
             </div>
         </mat-card-content>
     </mat-card>
@@ -22,7 +22,7 @@
                     <div>名字: {{ cad.data.name }}</div>
                     <div>唯一码: {{ cad.data.info["唯一码"] }}</div>
                     <ul>
-                        <li class="error" *ngFor="let error of cad.errors">{{ error }}</li>
+                        <li class="error" *ngFor="let error of cad.errors" [innerHtml]="error"></li>
                     </ul>
                 </div>
             </ng-container>

@@ -13,6 +13,10 @@
             <input matInput type="text" [value]="cad.name" (change)="setCadName(cad, $event)" name="name" />
         </mat-form-field>
         <mat-form-field>
+            <mat-label>唯一码</mat-label>
+            <input matInput type="text" [(ngModel)]="cad.info['唯一码']" name="name" />
+        </mat-form-field>
+        <mat-form-field>
             <mat-label>显示名字</mat-label>
             <input matInput type="text" [(ngModel)]="cad.xianshimingzi" name="xianshimingzi" />
         </mat-form-field>
