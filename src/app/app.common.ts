@@ -12,6 +12,7 @@ export const routesInfo = {
     printCad: {path: "print-cad", title: "打印CAD"},
     printA4A015Preview: {path: "printA4A015Preview", title: "订单配件标签"},
     import: {path: "import", title: "导入CAD"},
+    export: {path: "export", title: "导出CAD"},
     backup: {path: "backup", title: "备份CAD"},
     selectBancai: {path: "select-bancai", title: ""},
     changelogAdmin: {path: "changelog-admin", title: "编辑更新日志"},

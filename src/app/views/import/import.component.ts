@@ -66,7 +66,7 @@ export class ImportComponent implements OnInit {
             finish(true, "error", "读取文件失败");
             return;
         }
-        const cads = this.splitCad(data);
+        const cads = this._splitCad(data);
         const total = cads.length;
         this.progressBar.start(total * 2);
         this.msg = "正在检查数据";
@@ -161,7 +161,8 @@ export class ImportComponent implements OnInit {
                 "包边饰条",
                 "底框",
                 "方通",
-                "花件"
+                "花件",
+                "孔"
             ];
             const namesReg = new RegExp(names.join("|"));
 
@@ -230,7 +231,7 @@ export class ImportComponent implements OnInit {
         this.cadsParsed = true;
     }
 
-    private splitCad(data: CadData) {
+    private _splitCad(data: CadData) {
         const lines = data.entities.line.filter((v) => v.color.rgbNumber() === 0x00ff00);
         const lineIds = lines.map((v) => v.id);
         const dumpData = new CadData();
@@ -352,13 +353,11 @@ export class ImportComponent implements OnInit {
 
             v.info.vars = {};
             v.entities.line.forEach((e) => {
-                const varNames = e.info.varNames;
-                if (Array.isArray(varNames)) {
-                    varNames.forEach((name) => {
-                        v.info.vars[name] = e.id;
-                    });
+                const varName = e.info.varName;
+                if (varName) {
+                    v.info.vars[varName] = e.id;
                 }
-                delete e.info.varNames;
+                // delete e.info.varName;
             });
         });
         return result;

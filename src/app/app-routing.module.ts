@@ -4,6 +4,7 @@ import {ProjectGuard} from "@guards/project.guard";
 import {PathResolveService} from "@services/path-resolve.service";
 import {BackupComponent} from "@views/backup/backup.component";
 import {ChangelogAdminComponent} from "@views/changelog-admin/changelog-admin.component";
+import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
@@ -24,6 +25,7 @@ const routes: Routes = [
             {path: routesInfo.printCad.path, component: PrintCadComponent},
             {path: routesInfo.printA4A015Preview.path, component: PrintA4A015PreviewComponent},
             {path: routesInfo.import.path, component: ImportComponent},
+            {path: routesInfo.export.path, component: ExportComponent},
             {path: routesInfo.backup.path, component: BackupComponent},
             {path: routesInfo.selectBancai.path, component: SelectBancaiComponent},
             {path: routesInfo.changelogAdmin.path, component: ChangelogAdminComponent},

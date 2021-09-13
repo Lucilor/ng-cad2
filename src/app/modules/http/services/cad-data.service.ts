@@ -59,6 +59,14 @@ export type Changelog = {
     content: {type: string; items: string[]}[];
 }[];
 
+export interface QueryMongodbParams {
+    collection: CadCollection;
+    where?: ObjectOf<any>;
+    fields?: string[];
+    limit?: number;
+    skip?: number;
+}
+
 @Injectable({
     providedIn: "root"
 })
@@ -247,5 +255,10 @@ export class CadDataService extends HttpService {
     async removeChangelogItem(index: number) {
         const response = await this.post("ngcad/removeChangelogItem", {index}, "no");
         return response && response.code === 0;
+    }
+
+    async queryMongodb<T extends ObjectOf<any>>(params: QueryMongodbParams) {
+        const response = await this.post<T[]>("ngcad/queryMongodb", params, "no");
+        return response?.data ?? [];
     }
 }
