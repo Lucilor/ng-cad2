@@ -80,6 +80,7 @@ import {PerfectScrollbarConfigInterface, PerfectScrollbarModule, PERFECT_SCROLLB
 import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
+import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
 
 @Injectable()
 class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -159,7 +160,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         PiliangjianbanComponent,
         LoginFormComponent,
         LoaderInlineComponent,
-        ExportComponent
+        ExportComponent,
+        ProgressBarComponent
     ],
     imports: [
         HttpClientModule,

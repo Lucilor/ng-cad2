@@ -65,6 +65,7 @@ export interface QueryMongodbParams {
     fields?: string[];
     limit?: number;
     skip?: number;
+    genUnqiCode?: boolean;
 }
 
 @Injectable({

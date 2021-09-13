@@ -2,8 +2,9 @@ import {Component} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {CadData, CadLine, CadMtext, CadZhankai} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
+import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {ObjectOf} from "@utils";
+import {ObjectOf, ProgressBar} from "@utils";
 
 type ExportType = "包边正面" | "框型和企料" | "指定型号" | "自由选择";
 
@@ -13,6 +14,9 @@ type ExportType = "包边正面" | "框型和企料" | "指定型号" | "自由�
     styleUrls: ["./export.component.scss"]
 })
 export class ExportComponent {
+    progressBar = new ProgressBar(0);
+    progressBarStatus: ProgressBarStatus = "hidden";
+    msg = "";
     constructor(private dialog: MatDialog, private dataService: CadDataService) {}
 
     private async _queryIds(where: ObjectOf<any>) {
@@ -20,6 +24,9 @@ export class ExportComponent {
     }
 
     async exportCads(type: ExportType) {
+        this.progressBar.start(1);
+        this.progressBarStatus = "progress";
+        this.msg = "正在获取数据";
         let ids: string[];
         switch (type) {
             case "包边正面":
@@ -45,15 +52,25 @@ export class ExportComponent {
         if (ids.length > 0) {
             const data = await this._joinCad(ids);
             console.log(data);
-            this.dataService.downloadDxf(data);
+            // this.dataService.downloadDxf(data);
             // downloadByString(JSON.stringify(data.export()), "data.json");
+            this.progressBarStatus = "success";
+            this.msg = "导出完成";
+        } else {
+            this.progressBarStatus = "error";
+            this.msg = "没有CAD数据";
         }
     }
 
     private async _joinCad(ids: string[]) {
         const result = new CadData();
-        for (const id of ids) {
-            const data = await this.dataService.queryMongodb({collection: "cad", where: {_id: id}});
+        const total = ids.length;
+        this.progressBar.start(total);
+        for (let i = 0; i < total; i++) {
+            const id = ids[i];
+            const data = await this.dataService.queryMongodb({collection: "cad", where: {_id: id}, genUnqiCode: true});
+            this.msg = `正在导出数据(${i + 1}/${total})`;
+            this.progressBar.forward();
             if (data.length !== 1) {
                 continue;
             }
@@ -61,7 +78,7 @@ export class ExportComponent {
             const rect = cad.getBoundingRect();
 
             let text = [
-                `唯一码: ${cad.info.唯一码 ?? (await this.getUniqCode(cad))}`,
+                `唯一码: ${cad.info.唯一码}`,
                 `名字: ${cad.name}`,
                 `分类: ${cad.type}`,
                 `分类2: ${cad.type2}`,
@@ -100,13 +117,5 @@ export class ExportComponent {
             result.entities.merge(cad.getAllEntities());
         }
         return result;
-    }
-
-    private async getUniqCode({type, name}: CadData) {
-        const response = await this.dataService.post<string>("peijian/cad/getUniqCode", {type, name});
-        if (response?.data) {
-            return response.data;
-        }
-        return type + name + new Date().toString();
     }
 }

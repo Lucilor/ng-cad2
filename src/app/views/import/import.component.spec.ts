@@ -6,6 +6,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
+import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
@@ -18,7 +19,7 @@ describe("ImportComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ImportComponent, LoaderInlineComponent],
+            declarations: [ImportComponent, LoaderInlineComponent, ProgressBarComponent],
             imports: [
                 FormsModule,
                 MatCardModule,

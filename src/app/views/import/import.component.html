@@ -8,10 +8,7 @@
                 </button>
             </div>
             <input #fileInput type="file" accept=".dxf" hidden (change)="importDxf($event)" />
-            <div class="progress-bar dynamics" *ngIf="progressBarStatus !== 'hidden'" [ngClass]="progressBarStatus">
-                <div class="progress-bar-msg">{{ msg }}</div>
-                <div class="progress-bar-layer" *ngIf="progressBarStatus === 'progress'" [style.width.%]="100 - progressBar.progress"></div>
-            </div>
+            <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
         </mat-card-content>
     </mat-card>
 

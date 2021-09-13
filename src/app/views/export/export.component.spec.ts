@@ -1,4 +1,5 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
+import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {ExportComponent} from "./export.component";
@@ -9,7 +10,7 @@ describe("ExportComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ExportComponent],
+            declarations: [ExportComponent, ProgressBarComponent],
             imports: [HttpModule, MessageModule]
         }).compileComponents();
     });

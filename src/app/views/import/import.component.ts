@@ -1,6 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {session} from "@app/app.common";
 import {CadArc, CadCircle, CadData, CadDimension, CadLine, CadMtext, CadZhankai, sortLines} from "@cad-viewer";
+import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
@@ -13,8 +14,6 @@ export interface ImportComponentCad {
     data: CadData;
     errors: string[];
 }
-
-type ProgressBarStatus = "hidden" | "progress" | "success" | "error";
 
 @Component({
     selector: "app-import",
