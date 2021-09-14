@@ -66,9 +66,9 @@ workflows:
     build-test-lint:
         jobs:
             - build
-            - unit-test:
-                  requires:
-                      - build
+            # - unit-test:
+            #       requires:
+            #           - build
             # - e2e:
             #       requires:
             #           - build
