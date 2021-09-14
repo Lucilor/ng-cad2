@@ -15,11 +15,12 @@ executors:
     ng-cad2:
         working_directory: ~/ng-cad2
         docker:
-            - image: ianwalter/pnpm
+            - image: circleci/node:latest-browsers
 jobs:
     build:
         executor: ng-cad2
         steps:
+            - run: npm install --prefix=$HOME/.local -g pnpm
             - checkout
             - *restore_cache
             # - run: git submodule update --init --recursive
@@ -30,6 +31,7 @@ jobs:
     unit-test:
         executor: ng-cad2
         steps:
+            - run: npm install --prefix=$HOME/.local -g pnpm
             - checkout
             - *restore_cache
             - run: git submodule update --init --recursive
@@ -45,6 +47,7 @@ jobs:
     e2e:
         executor: ng-cad2
         steps:
+            - run: npm install --prefix=$HOME/.local -g pnpm
             - checkout
             - *restore_cache
             - run:
@@ -53,6 +56,7 @@ jobs:
     lint:
         executor: ng-cad2
         steps:
+            - run: npm install --prefix=$HOME/.local -g pnpm
             - checkout
             - *restore_cache
             - run:
