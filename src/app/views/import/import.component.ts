@@ -3,7 +3,6 @@ import {session} from "@app/app.common";
 import {CadArc, CadCircle, CadData, CadDimension, CadLine, CadMtext, CadZhankai, sortLines} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {MessageService} from "@modules/message/services/message.service";
 import {Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";
@@ -33,7 +32,7 @@ export class ImportComponent implements OnInit {
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
 
-    constructor(private message: MessageService, private loader: NgxUiLoaderService, private dataService: CadDataService) {}
+    constructor(private loader: NgxUiLoaderService, private dataService: CadDataService) {}
 
     ngOnInit() {
         const cads: ImportComponentCad[] | null = session.load<any[]>(this._cadsKey);
@@ -81,7 +80,8 @@ export class ImportComponent implements OnInit {
             const result = await this.dataService.setCad({
                 collection: "cad",
                 cadData: cads[i],
-                force: true
+                force: true,
+                fromImported: true
             });
             this.msg = `正在导入dxf数据(${i + 1}/${total})`;
             if (!result) {
@@ -265,7 +265,7 @@ export class ImportComponent implements OnInit {
             }
             rects.forEach((rect, i) => {
                 if (e instanceof CadLine && rect.contains(new Line(e.start, e.end))) {
-                    result[i].entities.add(e.clone());
+                    result[i].entities.add(e);
                 } else if (e instanceof CadMtext && rect.contains(e.insert)) {
                     result[i].entities.add(e);
                 } else if (e instanceof CadArc && rect.contains(new Line(e.start, e.end))) {

@@ -24,6 +24,7 @@ export interface SetCadParams {
     cadData: CadData;
     force?: boolean;
     restore?: boolean;
+    fromImported?: boolean;
 }
 
 export type CadSearchData = {
@@ -159,7 +160,7 @@ export class CadDataService extends HttpService {
     async uploadDxf(dxf: File) {
         const response = await this.post<any>("peijian/cad/uploadDxf", {dxf});
         if (response) {
-            return new CadData(response.data).clone(true);
+            return new CadData(response.data);
         }
         return null;
     }

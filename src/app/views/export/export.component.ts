@@ -4,7 +4,7 @@ import {CadData, CadLine, CadMtext, CadZhankai} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {ObjectOf, ProgressBar} from "@utils";
+import {ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
 
 type ExportType = "包边正面" | "框型和企料" | "指定型号" | "自由选择";
 
@@ -48,14 +48,18 @@ export class ExportComponent {
             default:
                 return;
         }
-        console.log(ids);
         if (ids.length > 0) {
-            const data = await this._joinCad(ids);
-            console.log(data);
-            // this.dataService.downloadDxf(data);
-            // downloadByString(JSON.stringify(data.export()), "data.json");
-            this.progressBarStatus = "success";
-            this.msg = "导出完成";
+            this.progressBar.start(ids.length + 1);
+            try {
+                const data = await this._joinCad(ids);
+                this.msg = "正在下载dxf文件";
+                await this.dataService.downloadDxf(data);
+                this.progressBarStatus = "success";
+                this.msg = "导出完成";
+            } catch (error) {
+                this.progressBarStatus = "error";
+                this.msg = "导出失败";
+            }
         } else {
             this.progressBarStatus = "error";
             this.msg = "没有CAD数据";
@@ -65,17 +69,27 @@ export class ExportComponent {
     private async _joinCad(ids: string[]) {
         const result = new CadData();
         const total = ids.length;
-        this.progressBar.start(total);
-        for (let i = 0; i < total; i++) {
-            const id = ids[i];
-            const data = await this.dataService.queryMongodb({collection: "cad", where: {_id: id}, genUnqiCode: true});
-            this.msg = `正在导出数据(${i + 1}/${total})`;
-            this.progressBar.forward();
-            if (data.length !== 1) {
-                continue;
+        let prevRect: Rectangle | undefined;
+        const margin = 100;
+        const padding = [100, 500, 500, 100];
+        const step = 5;
+        const textHeight = 1000;
+        let bottom = Infinity;
+
+        const join = (cad: CadData, i: number) => {
+            let rect = cad.getBoundingRect();
+            if (prevRect) {
+                let translate: Point;
+                if (i % step === 0) {
+                    translate = new Point(0, bottom - padding[0] - padding[2] - textHeight - margin);
+                } else {
+                    translate = new Point(prevRect.right + padding[1] + padding[3] + margin, prevRect.top);
+                }
+                translate.sub(new Point(rect.left, rect.top));
+                cad.transform({translate}, true);
+                rect = cad.getBoundingRect();
+                bottom = Math.min(bottom, rect.bottom);
             }
-            const cad = new CadData(data[0].json);
-            const rect = cad.getBoundingRect();
 
             let text = [
                 `唯一码: ${cad.info.唯一码}`,
@@ -97,11 +111,10 @@ export class ExportComponent {
                 text += `\n\n锁边自动绑定可搭配铰边: \n${cad.info.锁边自动绑定可搭配铰边}`;
             }
             cad.entities.add(new CadMtext({text, insert: [rect.left, rect.bottom - 100], anchor: [0, 0]}));
-            const textHeight = 1000;
 
             cad.getAllEntities().line.forEach((e) => (e.info.generateLineInfo = true));
+            cad.getAllEntities().arc.forEach((e) => (e.info.generateLineInfo = true));
 
-            const padding = [100, 500, 500, 100];
             const min = rect.min.clone().sub(padding[3], padding[2]);
             const max = rect.max.clone().add(padding[1], padding[0]);
             min.y -= textHeight;
@@ -115,7 +128,23 @@ export class ExportComponent {
             });
 
             result.entities.merge(cad.getAllEntities());
+
+            prevRect = rect;
+        };
+
+        for (let i = 0; i < total; i += step) {
+            const end = Math.min(total, i + step);
+            const currIds = ids.slice(i, end);
+            if (i + 1 === end) {
+                this.msg = `正在导出数据(${end}/${total})`;
+            } else {
+                this.msg = `正在导出数据((${i + 1}~${end})/${total})`;
+            }
+            const data = await this.dataService.queryMongodb({collection: "cad", where: {_id: {$in: currIds}}, genUnqiCode: true});
+            data.forEach((v, j) => join(new CadData(v.json), i + j));
+            this.progressBar.forward(end - i);
         }
+
         return result;
     }
 }

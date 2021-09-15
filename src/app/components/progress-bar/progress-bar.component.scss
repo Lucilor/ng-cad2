@@ -29,7 +29,7 @@
     &.progress {
         background: linear-gradient(90deg, #496eaa, #21eaff, #d82dc4, #21eaff, #496eaa);
         background-size: 1500% 300%;
-        animation: dynamics 200s ease infinite;
+        animation: progress 50s ease infinite;
     }
     &.success {
         background-color: green;
