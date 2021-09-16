@@ -372,4 +372,8 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         await navigator.clipboard.writeText(cad.id);
         this.message.snack("id已复制");
     }
+
+    async selectGensuiCad(cad: CadData) {
+        console.log(cad.xinghaohuajian);
+    }
 }
