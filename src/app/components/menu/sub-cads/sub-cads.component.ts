@@ -600,6 +600,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                         data.entities = resData.entities;
                         data.partners = resData.partners;
                         data.components = resData.components;
+                        data.zhidingweizhipaokeng = resData.zhidingweizhipaokeng;
+                        data.info = resData.info;
                     }
                     this.status.openCad();
                 }
@@ -635,7 +637,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         removeCadGongshi(data);
         const result = await openJsonEditorDialog(this.dialog, {data: {json: data.export()}});
         if (result) {
-            this.contextMenuCad.data.copy(new CadData(result));
+            result.id = this.contextMenuCad.data.id;
+            this.contextMenuCad.data.init(result);
             this.status.openCad();
         }
     }

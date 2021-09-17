@@ -1,8 +1,8 @@
 import {Component, OnInit} from "@angular/core";
 import {session} from "@app/app.common";
 import {CadArc, CadCircle, CadData, CadDimension, CadLine, CadMtext, CadZhankai, sortLines} from "@cad-viewer";
+import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {MessageService} from "@modules/message/services/message.service";
 import {Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";
@@ -13,8 +13,6 @@ export interface ImportComponentCad {
     data: CadData;
     errors: string[];
 }
-
-type ProgressBarStatus = "hidden" | "progress" | "success" | "error";
 
 @Component({
     selector: "app-import",
@@ -34,7 +32,7 @@ export class ImportComponent implements OnInit {
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
 
-    constructor(private message: MessageService, private loader: NgxUiLoaderService, private dataService: CadDataService) {}
+    constructor(private loader: NgxUiLoaderService, private dataService: CadDataService) {}
 
     ngOnInit() {
         const cads: ImportComponentCad[] | null = session.load<any[]>(this._cadsKey);
@@ -66,7 +64,7 @@ export class ImportComponent implements OnInit {
             finish(true, "error", "读取文件失败");
             return;
         }
-        const cads = this.splitCad(data);
+        const cads = this._splitCad(data);
         const total = cads.length;
         this.progressBar.start(total * 2);
         this.msg = "正在检查数据";
@@ -82,7 +80,8 @@ export class ImportComponent implements OnInit {
             const result = await this.dataService.setCad({
                 collection: "cad",
                 cadData: cads[i],
-                force: true
+                force: true,
+                fromImported: true
             });
             this.msg = `正在导入dxf数据(${i + 1}/${total})`;
             if (!result) {
@@ -161,7 +160,8 @@ export class ImportComponent implements OnInit {
                 "包边饰条",
                 "底框",
                 "方通",
-                "花件"
+                "花件",
+                "孔"
             ];
             const namesReg = new RegExp(names.join("|"));
 
@@ -181,11 +181,18 @@ export class ImportComponent implements OnInit {
             } else if (!cad.name.match(this._cadNameRegex)) {
                 item.errors.push("CAD名字只能是：中文、英文字母、数字、下划线");
             }
-            if (cad.info.修改包边正面宽规则 && !cad.options["包边"]) {
-                item.errors.push("没有[包边选项]时不能有[修改包边正面宽规则]");
+            if (cad.info.修改包边正面宽规则) {
+                if (!cad.options["包边"]) {
+                    item.errors.push("没有[包边选项]时不能有[修改包边正面宽规则]");
+                }
+                const 修改包边正面宽规则 = "修改包边正面宽规则:\n" + cad.info.修改包边正面宽规则;
+                item.errors = item.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, cad.info.vars).errors);
             }
             if (cad.info.锁边自动绑定可搭配铰边 && cad.type !== "锁企料") {
                 item.errors.push("分类不为[锁企料]时不能有[锁边自动绑定可搭配铰边]");
+            }
+            if (cad.kailiaoshibaokeng && cad.zhidingweizhipaokeng.length>0) {
+                item.errors.push("不能同时设置[全部刨坑]和[指定位置刨坑]");
             }
             for (const optionKey in cad.options) {
                 if (["铰边", "锁边"].includes(optionKey)) {
@@ -230,7 +237,7 @@ export class ImportComponent implements OnInit {
         this.cadsParsed = true;
     }
 
-    private splitCad(data: CadData) {
+    private _splitCad(data: CadData) {
         const lines = data.entities.line.filter((v) => v.color.rgbNumber() === 0x00ff00);
         const lineIds = lines.map((v) => v.id);
         const dumpData = new CadData();
@@ -265,7 +272,7 @@ export class ImportComponent implements OnInit {
             }
             rects.forEach((rect, i) => {
                 if (e instanceof CadLine && rect.contains(new Line(e.start, e.end))) {
-                    result[i].entities.add(e.clone());
+                    result[i].entities.add(e);
                 } else if (e instanceof CadMtext && rect.contains(e.insert)) {
                     result[i].entities.add(e);
                 } else if (e instanceof CadArc && rect.contains(new Line(e.start, e.end))) {
@@ -291,7 +298,7 @@ export class ImportComponent implements OnInit {
             分类: "type",
             分类2: "type2",
             模板放大: "mubanfangda",
-            开料时刨坑: "kailiaoshibaokeng",
+            全部刨坑: "kailiaoshibaokeng",
             变形方式: "baseLines",
             板材纹理方向: "bancaiwenlifangxiang",
             开料排版方式: "kailiaopaibanfangshi",
@@ -352,13 +359,11 @@ export class ImportComponent implements OnInit {
 
             v.info.vars = {};
             v.entities.line.forEach((e) => {
-                const varNames = e.info.varNames;
-                if (Array.isArray(varNames)) {
-                    varNames.forEach((name) => {
-                        v.info.vars[name] = e.id;
-                    });
+                const varName = e.info.varName;
+                if (varName) {
+                    v.info.vars[varName] = e.id;
                 }
-                delete e.info.varNames;
+                // delete e.info.varName;
             });
         });
         return result;

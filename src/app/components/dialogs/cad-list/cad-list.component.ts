@@ -22,6 +22,7 @@ export interface CadListData {
     options?: CadData["options"];
     collection: CadCollection;
     qiliao?: boolean;
+    search?: ObjectOf<any>;
 }
 
 export const customTooltipOptions: MatTooltipDefaultOptions = {
@@ -144,6 +145,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             if (this.showCheckedOnly) {
                 params.ids = this.checkedItems.map((v) => v.id);
             }
+            params.search = this.data.search;
             this.status.startLoader({id: "cadList"});
             const result = await this.dataService.getCad(params);
             this.status.stopLoader();

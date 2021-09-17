@@ -1,0 +1,4 @@
+<div class="progress-bar" *ngIf="status !== 'hidden'" [ngClass]="status">
+    <div class="progress-bar-msg">{{ msg }}</div>
+    <div class="progress-bar-layer" *ngIf="status === 'progress'" [style.width.%]="100 - progressBar.progress"></div>
+</div>

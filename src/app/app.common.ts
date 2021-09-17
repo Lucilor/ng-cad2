@@ -1,4 +1,15 @@
-import {LocalStorage, SessionStorage, Timer} from "@utils";
+import {LocalStorage, ObjectOf, SessionStorage, Timer} from "@utils";
+
+declare global {
+    interface Window {
+        parseBaobianzhengmianRules(content: string, vars: ObjectOf<any>): {errors: string[]};
+    }
+}
+if (typeof window.parseBaobianzhengmianRules !== "function") {
+    window.parseBaobianzhengmianRules = () => {
+        throw new Error("parseBaobianzhengmianRules is not defined!");
+    };
+}
 
 export const projectName = "NgCad2";
 export const session = new SessionStorage(projectName);
@@ -12,6 +23,7 @@ export const routesInfo = {
     printCad: {path: "print-cad", title: "打印CAD"},
     printA4A015Preview: {path: "printA4A015Preview", title: "订单配件标签"},
     import: {path: "import", title: "导入CAD"},
+    export: {path: "export", title: "导出CAD"},
     backup: {path: "backup", title: "备份CAD"},
     selectBancai: {path: "select-bancai", title: ""},
     changelogAdmin: {path: "changelog-admin", title: "编辑更新日志"},

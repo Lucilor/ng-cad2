@@ -24,6 +24,7 @@ export interface SetCadParams {
     cadData: CadData;
     force?: boolean;
     restore?: boolean;
+    fromImported?: boolean;
 }
 
 export type CadSearchData = {
@@ -58,6 +59,15 @@ export type Changelog = {
     timeStamp: number;
     content: {type: string; items: string[]}[];
 }[];
+
+export interface QueryMongodbParams {
+    collection: CadCollection;
+    where?: ObjectOf<any>;
+    fields?: string[];
+    limit?: number;
+    skip?: number;
+    genUnqiCode?: boolean;
+}
 
 @Injectable({
     providedIn: "root"
@@ -150,7 +160,7 @@ export class CadDataService extends HttpService {
     async uploadDxf(dxf: File) {
         const response = await this.post<any>("peijian/cad/uploadDxf", {dxf});
         if (response) {
-            return new CadData(response.data).clone(true);
+            return new CadData(response.data);
         }
         return null;
     }
@@ -247,5 +257,10 @@ export class CadDataService extends HttpService {
     async removeChangelogItem(index: number) {
         const response = await this.post("ngcad/removeChangelogItem", {index}, "no");
         return response && response.code === 0;
+    }
+
+    async queryMongodb<T extends ObjectOf<any>>(params: QueryMongodbParams) {
+        const response = await this.post<T[]>("ngcad/queryMongodb", params, "no");
+        return response?.data ?? [];
     }
 }

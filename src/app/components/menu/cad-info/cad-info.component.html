@@ -344,5 +344,9 @@
             <mat-label>对应门扇厚度</mat-label>
             <input matInput type="number" [(ngModel)]="cad['对应门扇厚度']" name="对应门扇厚度" />
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>跟随CAD开料板材</mat-label>
+            <input type="text" readonly matInput [value]="cad['跟随CAD开料板材'] || ''" />
+        </mat-form-field>
     </form>
 </div>
