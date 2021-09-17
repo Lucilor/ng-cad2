@@ -181,11 +181,18 @@ export class ImportComponent implements OnInit {
             } else if (!cad.name.match(this._cadNameRegex)) {
                 item.errors.push("CAD名字只能是：中文、英文字母、数字、下划线");
             }
-            if (cad.info.修改包边正面宽规则 && !cad.options["包边"]) {
-                item.errors.push("没有[包边选项]时不能有[修改包边正面宽规则]");
+            if (cad.info.修改包边正面宽规则) {
+                if (!cad.options["包边"]) {
+                    item.errors.push("没有[包边选项]时不能有[修改包边正面宽规则]");
+                }
+                const 修改包边正面宽规则 = "修改包边正面宽规则:\n" + cad.info.修改包边正面宽规则;
+                item.errors = item.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, cad.info.vars).errors);
             }
             if (cad.info.锁边自动绑定可搭配铰边 && cad.type !== "锁企料") {
                 item.errors.push("分类不为[锁企料]时不能有[锁边自动绑定可搭配铰边]");
+            }
+            if (cad.kailiaoshibaokeng && cad.zhidingweizhipaokeng.length>0) {
+                item.errors.push("不能同时设置[全部刨坑]和[指定位置刨坑]");
             }
             for (const optionKey in cad.options) {
                 if (["铰边", "锁边"].includes(optionKey)) {
@@ -291,7 +298,7 @@ export class ImportComponent implements OnInit {
             分类: "type",
             分类2: "type2",
             模板放大: "mubanfangda",
-            开料时刨坑: "kailiaoshibaokeng",
+            全部刨坑: "kailiaoshibaokeng",
             变形方式: "baseLines",
             板材纹理方向: "bancaiwenlifangxiang",
             开料排版方式: "kailiaopaibanfangshi",

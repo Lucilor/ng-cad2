@@ -101,6 +101,9 @@ export class ExportComponent {
             for (const optionName in cad.options) {
                 text += `\n${optionName}: ${cad.options[optionName]}`;
             }
+            if (cad.kailiaoshibaokeng) {
+                text += `\n全部刨坑: 是`;
+            }
             const zhankai = cad.zhankai[0] ?? new CadZhankai();
             text += `\n展开高: ${zhankai.zhankaigao}`;
             text += `\n展开宽: ${zhankai.zhankaikuan}`;

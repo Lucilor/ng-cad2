@@ -1,4 +1,15 @@
-import {LocalStorage, SessionStorage, Timer} from "@utils";
+import {LocalStorage, ObjectOf, SessionStorage, Timer} from "@utils";
+
+declare global {
+    interface Window {
+        parseBaobianzhengmianRules(content: string, vars: ObjectOf<any>): {errors: string[]};
+    }
+}
+if (typeof window.parseBaobianzhengmianRules !== "function") {
+    window.parseBaobianzhengmianRules = () => {
+        throw new Error("parseBaobianzhengmianRules is not defined!");
+    };
+}
 
 export const projectName = "NgCad2";
 export const session = new SessionStorage(projectName);
