@@ -261,6 +261,11 @@ export const printCads = async (params: PrintCadsParams) => {
                         insert.y += 11;
                         insert.x -= 4;
                     }
+                    if (e.font_size === 22) {
+                        e.font_size = 30;
+                        insert.y += 11;
+                        insert.x -= 4;
+                    }
                     e.text = text.replace("     ", "");
                     e.fontFamily = "仿宋";
                     e.fontWeight = "bolder";
