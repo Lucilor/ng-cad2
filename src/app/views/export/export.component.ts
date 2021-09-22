@@ -1,5 +1,6 @@
 import {Component} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
+import {session} from "@app/app.common";
 import {CadData, CadDimension, CadLeader, CadLine, CadLineLike, CadMtext, CadZhankai, sortLines} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
@@ -8,7 +9,11 @@ import {Line, ObjectOf, Point, ProgressBar} from "@utils";
 import Color from "color";
 import {intersection} from "lodash";
 
-type ExportType = "包边正面" | "框型和企料" | "指定型号" | "自由选择";
+type ExportType = "包边正面" | "框型和企料" | "指定型号" | "自由选择" | "导出选中";
+
+interface ExportParams {
+    ids: string[];
+}
 
 @Component({
     selector: "app-export",
@@ -19,6 +24,8 @@ export class ExportComponent {
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
     msg = "";
+    exportParams = session.load<ExportParams>("exportParams");
+
     constructor(private dialog: MatDialog, private dataService: CadDataService) {
         (async () => {
             // const data = await this.dataService.queryMySql({table: "p_miaoshu"});
@@ -51,6 +58,9 @@ export class ExportComponent {
                         data: {selectMode: "multiple", collection: "cad", search: {分类: "^.+$"}}
                     })) ?? []
                 ).map((v) => v.id);
+                break;
+            case "导出选中":
+                ids = this.exportParams?.ids || [];
                 break;
             default:
                 return;
