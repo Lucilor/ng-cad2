@@ -14,8 +14,8 @@
         "experimentalDecorators": true,
         "moduleResolution": "node",
         "importHelpers": true,
-        "target": "es2017",
-        "module": "commonjs",
+        "target": "es2015",
+        "module": "esnext",
         "lib": ["esnext", "dom"],
         "paths": {
             "@utils": ["src/cad-viewer/src/utils/src"],
@@ -31,8 +31,7 @@
         },
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true,
-        "esModuleInterop": true
+        "resolveJsonModule": true
     },
     "angularCompilerOptions": {
         "strictInjectionParameters": true,

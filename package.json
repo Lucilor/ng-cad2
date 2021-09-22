@@ -8,7 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "upload": "pnpm build && pnpx ts-node upload.ts"
+    "upload": "pnpx ts-node --project tsconfig.upload.json upload.ts",
+    "bu":"pnpm build && pnpm upload"
   },
   "private": true,
   "dependencies": {
