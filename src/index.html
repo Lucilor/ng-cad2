@@ -8,9 +8,13 @@
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
         <!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet" /> -->
         <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" /> -->
-        <script src="https://www.let888.cn/static/js/parseBaobianzhengmianRules.js"></script>
     </head>
     <body class="mat-typography">
         <app-root></app-root>
     </body>
+    <script>
+        const script = document.createElement("script");
+        script.src = "https://www.let888.cn/static/js/parseBaobianzhengmianRules.js?" + new Date().getTime();
+        document.head.append(script);
+    </script>
 </html>
