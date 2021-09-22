@@ -1,6 +1,17 @@
 import {Component, OnInit} from "@angular/core";
 import {session} from "@app/app.common";
-import {CadArc, CadCircle, CadData, CadDimension, CadLine, CadMtext, CadZhankai, generatePointsMap, sortLines} from "@cad-viewer";
+import {
+    CadArc,
+    CadCircle,
+    CadData,
+    CadDimension,
+    CadLeader,
+    CadLine,
+    CadMtext,
+    CadZhankai,
+    generatePointsMap,
+    sortLines
+} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
@@ -304,6 +315,11 @@ export class ImportComponent implements OnInit {
                     if (pts.every((p) => rect.contains(p))) {
                         result[i].entities.add(e);
                     }
+                } else if (e instanceof CadLeader) {
+                    const pts = e.vertices;
+                    if (pts.length === 2 && rect.contains(pts[1])) {
+                        result[i].entities.add(e);
+                    }
                 }
             });
         });
@@ -325,7 +341,6 @@ export class ImportComponent implements OnInit {
         result.forEach((v) => {
             let toRemove = -1;
             this._removeLeaders(v);
-            console.log(v);
             v.entities.mtext.some((e, i) => {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
