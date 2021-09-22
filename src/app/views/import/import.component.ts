@@ -176,6 +176,7 @@ export class ImportComponent implements OnInit {
             if (!cad.type) {
                 item.errors.push("没有分类");
             }
+            cad.name = cad.name.replaceAll("-", "_");
             if (cad.name.match(/^\d+/)) {
                 cad.name = "_" + cad.name;
             } else if (!cad.name.match(this._cadNameRegex)) {
@@ -354,7 +355,11 @@ export class ImportComponent implements OnInit {
                             obj[key] = value;
                             const key2 = fields[key];
                             if (key2) {
-                                (v[key2] as string) = value;
+                                if (typeof v[key2] === "string") {
+                                    (v[key2] as string) = value;
+                                } else if (typeof v[key2] === "boolean") {
+                                    (v[key2] as boolean) = value === "是";
+                                }
                             } else if (infoKeys.includes(key)) {
                                 v.info[key] = value;
                             } else if (key === "条件") {
@@ -374,7 +379,7 @@ export class ImportComponent implements OnInit {
             }
 
             v.info.vars = {};
-            v.entities.line.forEach((e) => {
+            [...v.entities.line, ...v.entities.arc].forEach((e) => {
                 const varName = e.info.varName;
                 if (varName) {
                     v.info.vars[varName] = e.id;

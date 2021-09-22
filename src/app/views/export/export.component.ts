@@ -4,7 +4,7 @@ import {CadData, CadDimension, CadLeader, CadLine, CadLineLike, CadMtext, CadZha
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
+import {Line, ObjectOf, Point, ProgressBar} from "@utils";
 import Color from "color";
 import {intersection} from "lodash";
 
@@ -19,7 +19,12 @@ export class ExportComponent {
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
     msg = "";
-    constructor(private dialog: MatDialog, private dataService: CadDataService) {}
+    constructor(private dialog: MatDialog, private dataService: CadDataService) {
+        (async () => {
+            // const data = await this.dataService.queryMySql({table: "p_miaoshu"});
+            // console.log(data);
+        })();
+    }
 
     private async _queryIds(where: ObjectOf<any>) {
         return (await this.dataService.queryMongodb<{_id: string}>({collection: "cad", fields: ["_id"], where})).map((v) => v._id);
@@ -163,31 +168,22 @@ export class ExportComponent {
     private async _joinCad(ids: string[]) {
         const result = new CadData();
         const total = ids.length;
-        let prevRect: Rectangle | undefined;
-        const margin = 100;
-        const padding = [100, 500, 500, 100];
+        const margin = 300;
+        const padding = 80;
         const step = 5;
-        const textHeight = 1000;
-        let left = Infinity;
-        let bottom = Infinity;
+        const width = 855;
+        const height = 1700;
+        const cols = 10;
 
         const join = (cad: CadData, i: number) => {
             this._addLeaders(cad);
             const rect = cad.getBoundingRect();
-            if (prevRect) {
-                let translate: Point;
-                if (i % step === 0) {
-                    translate = new Point(left, bottom - padding[0] - margin);
-                } else {
-                    translate = new Point(prevRect.right + padding[2] + margin, prevRect.top - padding[0]);
-                }
-                translate.sub(new Point(rect.left, rect.top));
-                cad.transform({translate}, true);
-                rect.transform({translate});
-                bottom = Math.min(bottom, rect.bottom - textHeight - padding[2]);
-            } else {
-                left = rect.left;
-            }
+            const offsetX = (i % cols) * (width + margin);
+            const offsetY = -Math.floor(i / cols) * (height + margin);
+            const translate = new Point(offsetX + (width - rect.width - padding * 2) / 2, offsetY + height - padding);
+            translate.sub(rect.left, rect.top);
+            cad.transform({translate}, true);
+            rect.transform({translate});
 
             const texts = [
                 `唯一码: ${cad.info.唯一码}`,
@@ -209,29 +205,31 @@ export class ExportComponent {
                 texts.push(`\n修改包边正面宽规则: \n${cad.info.修改包边正面宽规则}`);
             }
             if (cad.info.锁边自动绑定可搭配铰边) {
-                texts.push(`\n锁边自动绑定可搭配铰边: \n${cad.info.锁边自动绑定可搭配铰边}`);
+                texts.push(`锁边自动绑定可搭配铰边: \n${cad.info.锁边自动绑定可搭配铰边}`);
             }
-            cad.entities.add(new CadMtext({text: texts.join("\n"), insert: [rect.left, rect.bottom - 100], anchor: [0, 0]}));
+            cad.entities.add(
+                new CadMtext({
+                    text: texts.join("\n"),
+                    insert: [offsetX + padding, rect.bottom - padding],
+                    anchor: [0, 0]
+                })
+            );
 
             const {line: lines, arc: arcs} = cad.getAllEntities();
             [...lines, ...arcs].forEach((e) => this._addDimension(cad, e));
 
-            const {min, max} = rect;
-            min.sub(padding[3], padding[2]);
-            max.add(padding[1], padding[0]);
-            min.y -= textHeight;
             [
-                [min.x, min.y, max.x, min.y],
-                [max.x, min.y, max.x, max.y],
-                [max.x, max.y, min.x, max.y],
-                [min.x, max.y, min.x, min.y]
+                [0, 0, width, 0],
+                [width, 0, width, height],
+                [width, height, 0, height],
+                [0, height, 0, 0]
             ].forEach((v) => {
-                cad.entities.add(new CadLine({color: 3, start: [v[0], v[1]], end: [v[2], v[3]]}));
+                const start = [v[0] + offsetX, v[1] + offsetY];
+                const end = [v[2] + offsetX, v[3] + offsetY];
+                cad.entities.add(new CadLine({color: 3, start, end}));
             });
 
             result.entities.merge(cad.getAllEntities());
-
-            prevRect = rect;
         };
 
         const cads: CadData[] = [];

@@ -69,6 +69,14 @@ export interface QueryMongodbParams {
     genUnqiCode?: boolean;
 }
 
+export interface QueryMysqlParams {
+    table: string;
+    filter?: ObjectOf<any>;
+    fields?: string[];
+    page?: number;
+    limit?: number;
+}
+
 @Injectable({
     providedIn: "root"
 })
@@ -261,6 +269,11 @@ export class CadDataService extends HttpService {
 
     async queryMongodb<T extends ObjectOf<any>>(params: QueryMongodbParams) {
         const response = await this.post<T[]>("ngcad/queryMongodb", params, "no");
+        return response?.data ?? [];
+    }
+
+    async queryMySql<T extends ObjectOf<any>>(params: QueryMysqlParams) {
+        const response = await this.post<T[]>("ngcad/queryMysql", params, "no");
         return response?.data ?? [];
     }
 }
