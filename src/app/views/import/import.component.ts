@@ -98,7 +98,7 @@ export class ImportComponent implements OnInit {
             if (!result) {
                 skipped.push(cads[i].name);
                 this.msg += `\n ${skipped.join(", ")} 保存失败`;
-                this.cads[i].errors.push("保存失败");
+                this.cads[i].errors.push(this.dataService.lastResponse?.msg || "保存失败");
             }
             this.progressBar.forward();
         }

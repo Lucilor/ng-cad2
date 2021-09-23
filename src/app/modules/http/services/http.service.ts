@@ -50,6 +50,7 @@ export class HttpService {
     baseURL = "";
     strict = true;
     private _loginPromise: ReturnType<typeof openLoginFormDialog> | null = null;
+    lastResponse: CustomResponse<any> | null = null;
 
     constructor(injector: Injector) {
         this.dialog = injector.get(MatDialog);
@@ -95,8 +96,8 @@ export class HttpService {
         if (!url.startsWith("http")) {
             url = `${this.baseURL}${url}`;
         }
+        let response: CustomResponse<T> | null = null;
         try {
-            let response: CustomResponse<T> | null = null;
             if (method === "GET") {
                 if (data) {
                     if (encrypt !== "no") {
@@ -178,9 +179,9 @@ export class HttpService {
             this.alert(error);
             return null;
         } finally {
+            this.lastResponse = response;
             timer.end(timerName, `${method} ${rawUrl}`);
         }
-        return null;
     }
 
     async get<T>(url: string, data?: ObjectOf<any>, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
