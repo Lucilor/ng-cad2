@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {session} from "@app/app.common";
 import {CadData, CadDimension, CadLeader, CadLine, CadLineLike, CadMtext, CadZhankai, sortLines} from "@cad-viewer";
@@ -20,17 +20,22 @@ interface ExportParams {
     templateUrl: "./export.component.html",
     styleUrls: ["./export.component.scss"]
 })
-export class ExportComponent {
+export class ExportComponent implements OnInit {
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
     msg = "";
-    exportParams = session.load<ExportParams>("exportParams");
+    exportParams: ExportParams | null = null;
 
     constructor(private dialog: MatDialog, private dataService: CadDataService) {
         (async () => {
             // const data = await this.dataService.queryMySql({table: "p_miaoshu"});
             // console.log(data);
         })();
+    }
+
+    ngOnInit() {
+        this.exportParams = session.load<ExportParams>("exportParams");
+        session.remove("exportParams");
     }
 
     private async _queryIds(where: ObjectOf<any>) {
@@ -143,9 +148,18 @@ export class ExportComponent {
         dimension.entity2 = {id: e.id, location: "end"};
 
         const texts = [`{\\H0.1x;id:${e.id}}`];
-        const mingzi = e.info.varName ?? e.mingzi;
+        let mingzi = e.mingzi;
+        const vars = cad.info.vars;
+        if (vars) {
+            for (const varName in vars) {
+                if (vars[varName] === e.id) {
+                    mingzi = varName;
+                }
+            }
+        }
         const {qujian, gongshi} = e;
         const qujianMatch = qujian.match(/(\d+)[~-](\d+)/);
+        let mingziAdded = false;
         if (qujianMatch) {
             const [left, right] = qujianMatch.slice(1);
             const leftNum = Number(left);
@@ -157,9 +171,14 @@ export class ExportComponent {
             } else {
                 texts.push(`${mingzi}=${left}-${right}`);
             }
+            mingziAdded = true;
         }
         if (gongshi) {
             texts.push(`${mingzi}=${gongshi}`);
+            mingziAdded = true;
+        }
+        if (!mingziAdded) {
+            texts.push(mingzi);
         }
         if (e.children.line.find((v) => v.宽高虚线)) {
             texts.push("显示斜线宽高");
