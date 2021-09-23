@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {NavigationEnd, Router} from "@angular/router";
-import {projectName, routesInfo} from "./app.common";
+import {routesInfo} from "./app.common";
 import {AppStatusService} from "./services/app-status.service";
 
 @Component({
@@ -22,7 +22,9 @@ export class AppComponent implements OnInit {
             if (event instanceof NavigationEnd) {
                 const url = event.urlAfterRedirects;
                 const routeInfo = Object.values(routesInfo).find((v) => url.startsWith("/" + v.path));
-                document.title = routeInfo?.title || projectName;
+                if (routeInfo?.title) {
+                    document.title = routeInfo.title;
+                }
             }
         });
     }

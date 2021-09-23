@@ -1,6 +1,17 @@
 import {Component, OnInit} from "@angular/core";
 import {session} from "@app/app.common";
-import {CadArc, CadCircle, CadData, CadDimension, CadLine, CadMtext, CadZhankai, sortLines} from "@cad-viewer";
+import {
+    CadArc,
+    CadCircle,
+    CadData,
+    CadDimension,
+    CadLeader,
+    CadLine,
+    CadMtext,
+    CadZhankai,
+    generatePointsMap,
+    sortLines
+} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
@@ -176,6 +187,7 @@ export class ImportComponent implements OnInit {
             if (!cad.type) {
                 item.errors.push("没有分类");
             }
+            cad.name = cad.name.replaceAll("-", "_");
             if (cad.name.match(/^\d+/)) {
                 cad.name = "_" + cad.name;
             } else if (!cad.name.match(this._cadNameRegex)) {
@@ -191,7 +203,7 @@ export class ImportComponent implements OnInit {
             if (cad.info.锁边自动绑定可搭配铰边 && cad.type !== "锁企料") {
                 item.errors.push("分类不为[锁企料]时不能有[锁边自动绑定可搭配铰边]");
             }
-            if (cad.kailiaoshibaokeng && cad.zhidingweizhipaokeng.length>0) {
+            if (cad.kailiaoshibaokeng && cad.zhidingweizhipaokeng.length > 0) {
                 item.errors.push("不能同时设置[全部刨坑]和[指定位置刨坑]");
             }
             for (const optionKey in cad.options) {
@@ -235,6 +247,20 @@ export class ImportComponent implements OnInit {
             this.cads.map((v) => ({...v, data: environment.production ? null : v.data.export()}))
         );
         this.cadsParsed = true;
+    }
+
+    async _removeLeaders(cad: CadData) {
+        const leaders = cad.entities.leader.filter((e) => e.color.rgbNumber() === 0xff0000);
+        const map = generatePointsMap(cad.entities);
+        leaders.forEach((e) => {
+            cad.entities.remove(e);
+            for (const v of map) {
+                if (v.lines.length === 2 && e.vertices[0].distanceTo(v.point) <= 5) {
+                    cad.zhidingweizhipaokeng.push([v.lines[0].id, v.lines[1].id]);
+                    break;
+                }
+            }
+        });
     }
 
     private _splitCad(data: CadData) {
@@ -289,6 +315,11 @@ export class ImportComponent implements OnInit {
                     if (pts.every((p) => rect.contains(p))) {
                         result[i].entities.add(e);
                     }
+                } else if (e instanceof CadLeader) {
+                    const pts = e.vertices;
+                    if (pts.length === 2 && rect.contains(pts[1])) {
+                        result[i].entities.add(e);
+                    }
                 }
             });
         });
@@ -309,6 +340,7 @@ export class ImportComponent implements OnInit {
         const infoKeys = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
         result.forEach((v) => {
             let toRemove = -1;
+            this._removeLeaders(v);
             v.entities.mtext.some((e, i) => {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
@@ -338,7 +370,11 @@ export class ImportComponent implements OnInit {
                             obj[key] = value;
                             const key2 = fields[key];
                             if (key2) {
-                                (v[key2] as string) = value;
+                                if (typeof v[key2] === "string") {
+                                    (v[key2] as string) = value;
+                                } else if (typeof v[key2] === "boolean") {
+                                    (v[key2] as boolean) = value === "是";
+                                }
                             } else if (infoKeys.includes(key)) {
                                 v.info[key] = value;
                             } else if (key === "条件") {
@@ -358,12 +394,12 @@ export class ImportComponent implements OnInit {
             }
 
             v.info.vars = {};
-            v.entities.line.forEach((e) => {
+            [...v.entities.line, ...v.entities.arc].forEach((e) => {
                 const varName = e.info.varName;
                 if (varName) {
                     v.info.vars[varName] = e.id;
                 }
-                // delete e.info.varName;
+                delete e.info.varName;
             });
         });
         return result;

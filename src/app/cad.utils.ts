@@ -241,12 +241,13 @@ export const printCads = async (params: PrintCadsParams) => {
         const data = cads[i];
         const es = data.getAllEntities().toArray();
         for (const e of es) {
-            const colorStr = e.color.string();
-            if (colorStr === "rgb(128, 128, 128)") {
+            const colorNumber = e.color.rgbNumber();
+            if (colorNumber === 0x808080) {
                 e.opacity = 0;
+            } else if (colorNumber !== 0xff0000){
+                e.color = new Color(0);
             }
-            e.color = new Color(0);
-            if (e instanceof CadLineLike && (colorStr === "rgb(51, 51, 51)" || e.layer === "1")) {
+            if (e instanceof CadLineLike && (colorNumber === 0x333333 || e.layer === "1")) {
                 e.linewidth = linewidth;
             }
             if (e instanceof CadDimension) {
@@ -258,6 +259,11 @@ export const printCads = async (params: PrintCadsParams) => {
                 if (e.text.includes("     ") && !isNaN(Number(e.text))) {
                     if (e.font_size === 24) {
                         e.font_size = 36;
+                        insert.y += 11;
+                        insert.x -= 4;
+                    }
+                    if (e.font_size === 22) {
+                        e.font_size = 30;
                         insert.y += 11;
                         insert.x -= 4;
                     }

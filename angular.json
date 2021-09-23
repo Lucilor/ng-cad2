@@ -45,8 +45,8 @@
                     },
                     "configurations": {
                         "production": {
-                            "outputPath": "C:/wamp64/www/n/ng-cad2",
-                            "baseHref": "/n/ng-cad2/",
+                            "outputPath": "C:/wamp64/www/static/ng-cad2",
+                            "baseHref": "/static/ng-cad2/",
                             "fileReplacements": [
                                 {
                                     "replace": "src/environments/environment.ts",
