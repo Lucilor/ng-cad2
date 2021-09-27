@@ -2,10 +2,20 @@
     <mat-card class="toolbar">
         <mat-card-content class="content">
             <div>
-                <button mat-raised-button color="primary" (click)="fileInput.click()">
-                    选择文件
+                <button mat-raised-button color="primary" (click)="fileInput.click()" [disabled]="!canSubmit">
+                    选择dxf文件
                     <app-loader-inline [loaderId]="loaderId"></app-loader-inline>
                 </button>
+            </div>
+            <div class="form">
+                <mat-form-field *ngFor="let config of importConfig">
+                    <mat-label>{{ config.label }}</mat-label>
+                    <input type="text" matInput value="1" hidden>
+                    <mat-radio-group [(ngModel)]="config.value" required>
+                        <mat-radio-button [value]="true">是</mat-radio-button>
+                        <mat-radio-button [value]="false">否</mat-radio-button>
+                    </mat-radio-group>
+                </mat-form-field>
             </div>
             <input #fileInput type="file" accept=".dxf" hidden (change)="importDxf($event)" />
             <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>

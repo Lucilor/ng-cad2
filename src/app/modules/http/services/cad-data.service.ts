@@ -24,7 +24,7 @@ export interface SetCadParams {
     cadData: CadData;
     force?: boolean;
     restore?: boolean;
-    fromImported?: boolean;
+    importConfig?: {pruneLines: boolean};
 }
 
 export type CadSearchData = {

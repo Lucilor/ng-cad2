@@ -1,4 +1,4 @@
-@use '~@angular/material' as mat;
+@use "~@angular/material" as mat;
 
 $app-typography: mat.define-typography-config(
     $font-family: "Roboto, 微软雅黑, sans-serif",
@@ -41,6 +41,7 @@ html {
 .mat-form-field {
     width: 100%;
     flex: 1 1 0;
+    font-size: 18px;
 
     .mat-form-field-wrapper {
         padding-bottom: 1.2em !important;

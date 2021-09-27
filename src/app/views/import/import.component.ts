@@ -7,6 +7,7 @@ import {
     CadDimension,
     CadLeader,
     CadLine,
+    CadLineLike,
     CadMtext,
     CadZhankai,
     generatePointsMap,
@@ -25,6 +26,13 @@ export interface ImportComponentCad {
     errors: string[];
 }
 
+export type ImportComponentConfigName = "requireLineId" | "pruneLines";
+export type ImportComponentConfig = {
+    name: ImportComponentConfigName;
+    label: string;
+    value: boolean | null;
+}[];
+
 @Component({
     selector: "app-import",
     templateUrl: "./import.component.html",
@@ -42,6 +50,14 @@ export class ImportComponent implements OnInit {
     optionsCache: ObjectOf<string[]> = {};
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
+    importConfig: ImportComponentConfig = [
+        {name: "requireLineId", label: "上传线必须全部带ID", value: null},
+        {name: "pruneLines", label: "后台线在上传数据中没有时删除", value: null}
+    ];
+    get canSubmit() {
+        const {requireLineId, pruneLines} = this._getConfig();
+        return requireLineId !== null && pruneLines !== null;
+    }
 
     constructor(private loader: NgxUiLoaderService, private dataService: CadDataService) {}
 
@@ -50,6 +66,12 @@ export class ImportComponent implements OnInit {
         if (cads && !environment.production) {
             this.cads = cads.map((v) => ({...v, data: new CadData(v.data)}));
         }
+    }
+
+    private _getConfig() {
+        const result: ObjectOf<boolean | null> = {};
+        this.importConfig.forEach((v) => (result[v.name] = v.value));
+        return result as Record<ImportComponentConfigName, boolean>;
     }
 
     async importDxf(event: Event) {
@@ -87,12 +109,13 @@ export class ImportComponent implements OnInit {
         const skipped = [];
         const silent = this.dataService.silent;
         this.dataService.silent = true;
+        const {pruneLines} = this._getConfig();
         for (let i = 0; i < total; i++) {
             const result = await this.dataService.setCad({
                 collection: "cad",
                 cadData: cads[i],
                 force: true,
-                fromImported: true
+                importConfig: {pruneLines}
             });
             this.msg = `正在导入dxf数据(${i + 1}/${total})`;
             if (!result) {
@@ -143,6 +166,7 @@ export class ImportComponent implements OnInit {
         this.cads = [];
         const md5Map: ObjectOf<ImportComponentCad[]> = {};
         const total = cads.length;
+        const {requireLineId} = this._getConfig();
         for (let i = 0; i < total; i++) {
             this.msg = `正在检查dxf数据(${i + 1}/${total})`;
             this.progressBar.forward();
@@ -172,7 +196,8 @@ export class ImportComponent implements OnInit {
                 "底框",
                 "方通",
                 "花件",
-                "孔"
+                "孔",
+                "算料"
             ];
             const namesReg = new RegExp(names.join("|"));
 
@@ -206,6 +231,12 @@ export class ImportComponent implements OnInit {
             if (cad.kailiaoshibaokeng && cad.zhidingweizhipaokeng.length > 0) {
                 item.errors.push("不能同时设置[全部刨坑]和[指定位置刨坑]");
             }
+            if (requireLineId) {
+                const lines = cad.getAllEntities().toArray((v) => v instanceof CadLineLike);
+                if (lines.some((v) => !v.info.idReplaced)) {
+                    item.errors.push("存在没有Id的线");
+                }
+            }
             for (const optionKey in cad.options) {
                 if (["铰边", "锁边"].includes(optionKey)) {
                     continue;
@@ -215,7 +246,7 @@ export class ImportComponent implements OnInit {
                     const optionInfo = await this.dataService.getOptions(optionKey, "");
                     this.optionsCache[optionKey] = optionInfo.data.map((v) => v.name);
                 }
-                const optionsNotExist = difference(optionValues, this.optionsCache[optionKey]);
+                const optionsNotExist = difference(optionValues, this.optionsCache[optionKey], ["所有", "不选"]);
                 if (optionsNotExist.length > 0) {
                     item.errors.push(`选项[${optionKey}]不存在: ${optionsNotExist.join(", ")}`);
                 }
@@ -250,7 +281,7 @@ export class ImportComponent implements OnInit {
     }
 
     async _removeLeaders(cad: CadData) {
-        const leaders = cad.entities.leader.filter((e) => e.color.rgbNumber() === 0xff0000);
+        const leaders = cad.entities.leader;
         const map = generatePointsMap(cad.entities);
         leaders.forEach((e) => {
             cad.entities.remove(e);
@@ -338,6 +369,24 @@ export class ImportComponent implements OnInit {
             显示宽度标注: "showKuandubiaozhu"
         };
         const infoKeys = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
+
+        const getKeyValuePairs = (text: string) => {
+            text = text.replaceAll("：", ":").replaceAll("；", ";");
+            const strs = text.split(":");
+            const keyValuePairs: [string, string][] = [];
+            strs.forEach((str, j) => {
+                if (j === 0) {
+                    keyValuePairs[j] = [str.trim(), ""];
+                } else if (j === strs.length - 1) {
+                    keyValuePairs[j - 1][1] = str.trim();
+                } else {
+                    const arr = str.split("\n");
+                    keyValuePairs[j - 1][1] = arr.slice(0, -1).join("\n").trim();
+                    keyValuePairs[j] = [arr[arr.length - 1].trim(), ""];
+                }
+            });
+            return keyValuePairs;
+        };
         result.forEach((v) => {
             let toRemove = -1;
             this._removeLeaders(v);
@@ -345,26 +394,16 @@ export class ImportComponent implements OnInit {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
                     const obj: ObjectOf<string> = {};
-                    const text = e.text.replaceAll("：", ":").replaceAll("；", ";");
-                    const strs = text.split(":");
-                    const keyValuePairs: [string, string][] = [];
-                    strs.forEach((str, j) => {
-                        if (j === 0) {
-                            keyValuePairs[j] = [str.trim(), ""];
-                        } else if (j === strs.length - 1) {
-                            keyValuePairs[j - 1][1] = str.trim();
-                        } else {
-                            const arr = str.split("\n");
-                            keyValuePairs[j - 1][1] = arr.slice(0, -1).join("\n").trim();
-                            keyValuePairs[j] = [arr[arr.length - 1].trim(), ""];
-                        }
-                    });
+                    const keyValuePairs = getKeyValuePairs(e.text);
                     keyValuePairs.forEach(([key, value]) => {
                         if (key === "展开高") {
                             obj.zhankaigao = value;
                             return;
                         } else if (key === "展开宽") {
                             obj.zhankaikuan = value;
+                            return;
+                        } else if (key === "数量") {
+                            obj.shuliang = value;
                             return;
                         } else {
                             obj[key] = value;

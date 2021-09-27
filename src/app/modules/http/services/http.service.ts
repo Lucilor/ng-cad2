@@ -2,10 +2,10 @@ import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {timer} from "@app/app.common";
+import {publicKey, timer} from "@app/app.common";
 import {LoginFormData, openLoginFormDialog} from "@components/dialogs/login-form/login-form.component";
 import {MessageService} from "@modules/message/services/message.service";
-import {RSAEncrypt, ObjectOf} from "@utils";
+import {RSA, ObjectOf} from "@utils";
 import {environment} from "src/environments/environment";
 
 export interface CustomResponse<T> {
@@ -101,7 +101,7 @@ export class HttpService {
             if (method === "GET") {
                 if (data) {
                     if (encrypt !== "no") {
-                        url += `?data=${RSAEncrypt(data)}`;
+                        url += `?data=${RSA.encrypt(data, publicKey)}`;
                     } else {
                         const queryArr: string[] = [];
                         for (const key in data) {
@@ -131,7 +131,7 @@ export class HttpService {
                 }
                 const formData = new FormData();
                 if (encrypt === "yes") {
-                    formData.append("data", RSAEncrypt(data));
+                    formData.append("data", RSA.encrypt(data, publicKey));
                 } else if (encrypt === "no") {
                     if (typeof data === "string") {
                         formData.append("data", data);
