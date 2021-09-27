@@ -346,7 +346,11 @@
         </mat-form-field>
         <mat-form-field>
             <mat-label>跟随CAD开料板材</mat-label>
-            <input type="text" readonly matInput [value]="cad['跟随CAD开料板材'] || ''" />
+            <input type="text" readonly matInput [value]="cad['跟随CAD开料板材']" />
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>算料特殊要求</mat-label>
+            <input type="text" matInput [(ngModel)]="cad['算料特殊要求']" name="算料特殊要求" />
         </mat-form-field>
     </form>
 </div>
