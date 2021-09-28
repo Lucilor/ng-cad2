@@ -4,9 +4,10 @@ import {MatCardModule} from "@angular/material/card";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
-import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {MatRadioModule} from "@angular/material/radio";
 import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
+import {ThuumComponent} from "@components/thuum/thuum.component";
 import {HttpModule} from "@modules/http/http.module";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
@@ -18,14 +19,14 @@ describe("ImportComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ImportComponent, LoaderInlineComponent, ProgressBarComponent],
+            declarations: [ImportComponent, LoaderInlineComponent, ProgressBarComponent, ThuumComponent],
             imports: [
                 FormsModule,
                 MatCardModule,
                 MatDialogModule,
                 MatFormFieldModule,
                 MatInputModule,
-                MatSlideToggleModule,
+                MatRadioModule,
                 HttpModule,
                 NgxUiLoaderModule,
                 PerfectScrollbarModule

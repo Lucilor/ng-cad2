@@ -81,6 +81,7 @@ import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
+import {ThuumComponent} from "@components/thuum/thuum.component";
 
 @Injectable()
 class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -161,7 +162,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         LoginFormComponent,
         LoaderInlineComponent,
         ExportComponent,
-        ProgressBarComponent
+        ProgressBarComponent,
+        ThuumComponent
     ],
     imports: [
         HttpClientModule,

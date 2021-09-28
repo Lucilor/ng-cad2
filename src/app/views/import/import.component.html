@@ -10,7 +10,7 @@
             <div class="form">
                 <mat-form-field *ngFor="let config of importConfig">
                     <mat-label>{{ config.label }}</mat-label>
-                    <input type="text" matInput value="1" hidden>
+                    <input type="text" matInput value="1" hidden />
                     <mat-radio-group [(ngModel)]="config.value" required>
                         <mat-radio-button [value]="true">是</mat-radio-button>
                         <mat-radio-button [value]="false">否</mat-radio-button>
@@ -35,4 +35,5 @@
             </ng-container>
         </div>
     </perfect-scrollbar>
+    <app-thuum></app-thuum>
 </div>
