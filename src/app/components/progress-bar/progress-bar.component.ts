@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {ProgressBar} from "@utils";
+import {ListRandom, ProgressBar} from "@utils";
 
 export type ProgressBarStatus = "hidden" | "progress" | "success" | "error";
 
@@ -15,4 +15,25 @@ export class ProgressBarComponent {
     status: ProgressBarStatus = "hidden";
     @Input()
     msg = "";
+
+    clickTextsRandom = new ListRandom([
+        "(〃'▽'〃)",
+        "φ(>ω<*) ",
+        "(｡･ω･｡)",
+        "( ･´ω`･ )",
+        "ヾ(=･ω･=)o",
+        "(>ω･* )ﾉ",
+        "(*･ω-q) ",
+        "ヽ(･ω･´ﾒ)",
+        "d(´ω｀*)"
+    ]);
+    clickText: string | null = null;
+
+    onPointerDown() {
+        this.clickText = this.clickTextsRandom.next();
+    }
+
+    onPointerUp() {
+        this.clickText = null;
+    }
 }

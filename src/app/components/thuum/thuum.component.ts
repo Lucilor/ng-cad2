@@ -1,4 +1,5 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
+import {ListRandom} from "@utils";
 
 interface Thuum {
     text: string;
@@ -41,28 +42,15 @@ const originThuums: Thuum[] = [
     styleUrls: ["./thuum.component.scss"]
 })
 export class ThuumComponent implements OnInit, OnDestroy {
-    thuums = originThuums.slice();
-    private _thuumIndex = -1;
     private _intervalId = -1;
-    get randomThuum() {
-        const {thuums} = this;
-        if (this._thuumIndex >= thuums.length - 1) {
-            this._thuumIndex = -1;
-        }
-        if (this._thuumIndex < 0) {
-            thuums.sort(() => (Math.random() < 0.5 ? 1 : -1));
-            this._thuumIndex = 0;
-            return thuums[0];
-        }
-        return this.thuums[++this._thuumIndex];
-    }
-    currThuum = this.randomThuum;
+    thuumRandom = new ListRandom(originThuums);
+    currThuum = this.thuumRandom.next();
 
     constructor() {}
 
     ngOnInit() {
         this._intervalId = window.setInterval(() => {
-            this.currThuum = this.randomThuum;
+            this.currThuum = this.thuumRandom.next();
         }, 3000);
     }
 
