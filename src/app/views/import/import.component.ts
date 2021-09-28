@@ -11,11 +11,12 @@ import {
     CadMtext,
     CadZhankai,
     generatePointsMap,
+    LINE_LIMIT,
     sortLines
 } from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
+import {isBetween, Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
@@ -33,6 +34,16 @@ export type ImportComponentConfig = {
     value: boolean | null;
 }[];
 
+interface PeiheInfo {
+    type: string;
+    options: {
+        contains?: string[];
+        is?: ObjectOf<string>;
+        isNot?: ObjectOf<(string | null | undefined)[]>;
+    };
+    hint?: string;
+}
+
 @Component({
     selector: "app-import",
     templateUrl: "./import.component.html",
@@ -41,13 +52,14 @@ export type ImportComponentConfig = {
 export class ImportComponent implements OnInit {
     private _cadsKey = "import-cads";
     private _cadNameRegex = /^(?!\d)[\da-zA-Z\u4e00-\u9fa5_]*$/u;
+    private _optionsCache: ObjectOf<string[]> = {};
+    private _peiheCadCache: ObjectOf<boolean> = {};
 
     loaderId = "importLoader";
     msg = "";
     cads: ImportComponentCad[] = [];
     cadsParsed = false;
     hasError = false;
-    optionsCache: ObjectOf<string[]> = {};
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
     importConfig: ImportComponentConfig = [
@@ -65,6 +77,10 @@ export class ImportComponent implements OnInit {
         const cads: ImportComponentCad[] | null = session.load<any[]>(this._cadsKey);
         if (cads && !environment.production) {
             this.cads = cads.map((v) => ({...v, data: new CadData(v.data)}));
+        }
+        if (!environment.production) {
+            this.importConfig[0].value = false;
+            this.importConfig[1].value = true;
         }
     }
 
@@ -146,10 +162,15 @@ export class ImportComponent implements OnInit {
         );
     }
 
+    private _clearCache() {
+        this._optionsCache = {};
+        this._peiheCadCache = {};
+    }
+
     async parseCads(cads: CadData[]) {
         this.cadsParsed = false;
         this.hasError = false;
-        this.optionsCache = {};
+        this._clearCache();
         const uniqCodesCount: ObjectOf<number> = {};
         cads.forEach((v) => {
             const uniqCode = v.info.唯一码;
@@ -166,95 +187,12 @@ export class ImportComponent implements OnInit {
         this.cads = [];
         const md5Map: ObjectOf<ImportComponentCad[]> = {};
         const total = cads.length;
-        const {requireLineId} = this._getConfig();
         for (let i = 0; i < total; i++) {
-            this.msg = `正在检查dxf数据(${i + 1}/${total})`;
-            this.progressBar.forward();
             const cad = cads[i];
-            const item: ImportComponent["cads"][0] = {
+            const item: ImportComponentCad = {
                 data: cad,
                 errors: []
             };
-            const names = [
-                "包边正面",
-                "顶框",
-                "锁框",
-                "铰框",
-                "企料",
-                "锁边",
-                "铰边",
-                "型号",
-                "罗马柱",
-                "罗马头",
-                "中横框",
-                "立柱",
-                "上板",
-                "中板",
-                "下板",
-                "压条",
-                "包边饰条",
-                "底框",
-                "方通",
-                "花件",
-                "孔",
-                "算料"
-            ];
-            const namesReg = new RegExp(names.join("|"));
-
-            const uniqCode = cad.info.唯一码;
-            if (!uniqCode) {
-                item.errors.push("没有唯一码");
-            } else if (uniqCodesCount[uniqCode] > 1) {
-                item.errors.push("唯一码重复: " + uniqCode);
-            } else if (!uniqCode.match(namesReg)) {
-                item.errors.push("唯一码必须包含<br><br>" + names.join(", "));
-            }
-            if (!cad.type) {
-                item.errors.push("没有分类");
-            }
-            cad.name = cad.name.replaceAll("-", "_");
-            if (cad.name.match(/^\d+/)) {
-                cad.name = "_" + cad.name;
-            } else if (!cad.name.match(this._cadNameRegex)) {
-                item.errors.push("CAD名字只能是：中文、英文字母、数字、下划线");
-            }
-            if (cad.info.修改包边正面宽规则) {
-                if (!cad.options["包边"]) {
-                    item.errors.push("没有[包边选项]时不能有[修改包边正面宽规则]");
-                }
-                const 修改包边正面宽规则 = "修改包边正面宽规则:\n" + cad.info.修改包边正面宽规则;
-                item.errors = item.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, cad.info.vars).errors);
-            }
-            if (cad.info.锁边自动绑定可搭配铰边 && cad.type !== "锁企料") {
-                item.errors.push("分类不为[锁企料]时不能有[锁边自动绑定可搭配铰边]");
-            }
-            if (cad.kailiaoshibaokeng && cad.zhidingweizhipaokeng.length > 0) {
-                item.errors.push("不能同时设置[全部刨坑]和[指定位置刨坑]");
-            }
-            if (requireLineId) {
-                const lines = cad.getAllEntities().toArray((v) => v instanceof CadLineLike);
-                if (lines.some((v) => !v.info.idReplaced)) {
-                    item.errors.push("存在没有Id的线");
-                }
-            }
-            for (const optionKey in cad.options) {
-                if (["铰边", "锁边"].includes(optionKey)) {
-                    continue;
-                }
-                const optionValues = cad.options[optionKey].split(";");
-                if (this.optionsCache[optionKey] === undefined) {
-                    const optionInfo = await this.dataService.getOptions(optionKey, "");
-                    this.optionsCache[optionKey] = optionInfo.data.map((v) => v.name);
-                }
-                const optionsNotExist = difference(optionValues, this.optionsCache[optionKey], ["所有", "不选"]);
-                if (optionsNotExist.length > 0) {
-                    item.errors.push(`选项[${optionKey}]不存在: ${optionsNotExist.join(", ")}`);
-                }
-            }
-            if (item.errors.length > 0) {
-                this.hasError = true;
-            }
-
             this.cads.push(item);
             const md5Str = this._getMd5(cad);
             if (md5Map[md5Str]) {
@@ -272,6 +210,12 @@ export class ImportComponent implements OnInit {
                 });
             }
         }
+        const {requireLineId} = this._getConfig();
+        for (let i = 0; i < total; i++) {
+            this.msg = `正在检查dxf数据(${i + 1}/${total})`;
+            this.progressBar.forward();
+            await this._validateCad(this.cads[i], uniqCodesCount, requireLineId);
+        }
 
         session.save(
             this._cadsKey,
@@ -280,7 +224,7 @@ export class ImportComponent implements OnInit {
         this.cadsParsed = true;
     }
 
-    async _removeLeaders(cad: CadData) {
+    private async _removeLeaders(cad: CadData) {
         const leaders = cad.entities.leader;
         const map = generatePointsMap(cad.entities);
         leaders.forEach((e) => {
@@ -302,6 +246,27 @@ export class ImportComponent implements OnInit {
         dumpData.entities.line = lines;
         const rects: Rectangle[] = [];
         const sorted = sortLines(dumpData);
+
+        const getObject = (text: string) => {
+            text = text.replaceAll("：", ":").replaceAll("；", ";");
+            const strs = text.split(":");
+            const keyValuePairs: [string, string][] = [];
+            const obj: ObjectOf<string> = {};
+            strs.forEach((str, j) => {
+                if (j === 0) {
+                    keyValuePairs[j] = [str.trim(), ""];
+                } else if (j === strs.length - 1) {
+                    keyValuePairs[j - 1][1] = str.trim();
+                } else {
+                    const arr = str.split("\n");
+                    keyValuePairs[j - 1][1] = arr.slice(0, -1).join("\n").trim();
+                    keyValuePairs[j] = [arr[arr.length - 1].trim(), ""];
+                }
+            });
+            keyValuePairs.forEach(([k, v]) => (obj[k] = v));
+            return obj;
+        };
+
         sorted.forEach((group) => {
             const min = new Point(Infinity, Infinity);
             const max = new Point(-Infinity, -Infinity);
@@ -326,6 +291,9 @@ export class ImportComponent implements OnInit {
         data.getAllEntities().forEach((e) => {
             if (lineIds.includes(e.id)) {
                 return;
+            }
+            if (e instanceof CadMtext && e.text.includes("算料公式")) {
+                console.log(getObject(e.text));
             }
             rects.forEach((rect, i) => {
                 if (e instanceof CadLine && rect.contains(new Line(e.start, e.end))) {
@@ -368,43 +336,25 @@ export class ImportComponent implements OnInit {
             算料处理: "suanliaochuli",
             显示宽度标注: "showKuandubiaozhu"
         };
+        const zhankaiFields: ObjectOf<keyof CadZhankai> = {
+            展开高: "zhankaigao",
+            展开宽: "zhankaikuan",
+            数量: "shuliang"
+        };
         const infoKeys = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
 
-        const getKeyValuePairs = (text: string) => {
-            text = text.replaceAll("：", ":").replaceAll("；", ";");
-            const strs = text.split(":");
-            const keyValuePairs: [string, string][] = [];
-            strs.forEach((str, j) => {
-                if (j === 0) {
-                    keyValuePairs[j] = [str.trim(), ""];
-                } else if (j === strs.length - 1) {
-                    keyValuePairs[j - 1][1] = str.trim();
-                } else {
-                    const arr = str.split("\n");
-                    keyValuePairs[j - 1][1] = arr.slice(0, -1).join("\n").trim();
-                    keyValuePairs[j] = [arr[arr.length - 1].trim(), ""];
-                }
-            });
-            return keyValuePairs;
-        };
         result.forEach((v) => {
             let toRemove = -1;
             this._removeLeaders(v);
             v.entities.mtext.some((e, i) => {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
-                    const obj: ObjectOf<string> = {};
-                    const keyValuePairs = getKeyValuePairs(e.text);
-                    keyValuePairs.forEach(([key, value]) => {
-                        if (key === "展开高") {
-                            obj.zhankaigao = value;
-                            return;
-                        } else if (key === "展开宽") {
-                            obj.zhankaikuan = value;
-                            return;
-                        } else if (key === "数量") {
-                            obj.shuliang = value;
-                            return;
+                    const obj = getObject(e.text);
+                    const zhankaiObj: ObjectOf<string> = {};
+                    for (const key in obj) {
+                        const value = obj[key];
+                        if (zhankaiFields[key] !== undefined) {
+                            zhankaiObj[zhankaiFields[key]] = value;
                         } else {
                             obj[key] = value;
                             const key2 = fields[key];
@@ -422,8 +372,8 @@ export class ImportComponent implements OnInit {
                                 v.options[key] = value;
                             }
                         }
-                    });
-                    v.zhankai = [new CadZhankai(obj)];
+                    }
+                    v.zhankai = [new CadZhankai(zhankaiObj)];
                     return true;
                 }
                 return false;
@@ -442,5 +392,170 @@ export class ImportComponent implements OnInit {
             });
         });
         return result;
+    }
+
+    private async _validateCad(cad: ImportComponentCad, uniqCodesCount: ObjectOf<number>, requireLineId: boolean) {
+        const data = cad.data;
+        const names = [
+            "包边正面",
+            "顶框",
+            "锁框",
+            "铰框",
+            "企料",
+            "锁边",
+            "铰边",
+            "型号",
+            "罗马柱",
+            "罗马头",
+            "中横框",
+            "立柱",
+            "上板",
+            "中板",
+            "下板",
+            "压条",
+            "包边饰条",
+            "底框",
+            "方通",
+            "花件",
+            "孔",
+            "算料"
+        ];
+        const namesReg = new RegExp(names.join("|"));
+
+        const uniqCode = data.info.唯一码;
+        if (!uniqCode) {
+            cad.errors.push("没有唯一码");
+        } else if (uniqCodesCount[uniqCode] > 1) {
+            cad.errors.push("唯一码重复: " + uniqCode);
+        } else if (!uniqCode.match(namesReg)) {
+            cad.errors.push("唯一码必须包含<br><br>" + names.join(", "));
+        }
+        if (!data.type) {
+            cad.errors.push("没有分类");
+        }
+        data.name = data.name.replaceAll("-", "_");
+        if (data.name.match(/^\d+/)) {
+            data.name = "_" + data.name;
+        } else if (!data.name.match(this._cadNameRegex)) {
+            cad.errors.push("CAD名字只能是：中文、英文字母、数字、下划线");
+        }
+        if (data.info.修改包边正面宽规则) {
+            if (!data.options["包边"]) {
+                cad.errors.push("没有[包边选项]时不能有[修改包边正面宽规则]");
+            }
+            const 修改包边正面宽规则 = "修改包边正面宽规则:\n" + data.info.修改包边正面宽规则;
+            cad.errors = cad.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, data.info.vars).errors);
+        }
+        if (data.info.锁边自动绑定可搭配铰边 && data.type !== "锁企料") {
+            cad.errors.push("分类不为[锁企料]时不能有[锁边自动绑定可搭配铰边]");
+        }
+        if (data.kailiaoshibaokeng && data.zhidingweizhipaokeng.length > 0) {
+            cad.errors.push("不能同时设置[全部刨坑]和[指定位置刨坑]");
+        }
+        const entities = data.getAllEntities();
+        if (requireLineId) {
+            const lines = entities.toArray((v) => v instanceof CadLineLike);
+            if (lines.some((v) => !v.info.idReplaced)) {
+                cad.errors.push("存在没有Id的线");
+            }
+        }
+        const [min, max] = LINE_LIMIT;
+        for (const e of entities.line) {
+            const {start, end} = e;
+            const dx = Math.abs(start.x - end.x);
+            const dy = Math.abs(start.y - end.y);
+            if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
+                cad.errors.push(`线段斜率不符合要求(线长: ${e.length.toFixed(2)})`);
+            }
+        }
+        for (const optionKey in data.options) {
+            if (["铰边", "锁边"].includes(optionKey)) {
+                continue;
+            }
+            const optionValues = data.options[optionKey].split(";");
+            if (this._optionsCache[optionKey] === undefined) {
+                const optionInfo = await this.dataService.getOptions(optionKey, "");
+                this._optionsCache[optionKey] = optionInfo.data.map((v) => v.name);
+            }
+            const optionsNotExist = difference(optionValues, this._optionsCache[optionKey], ["所有", "不选"]);
+            if (optionsNotExist.length > 0) {
+                cad.errors.push(`选项[${optionKey}]不存在: ${optionsNotExist.join(", ")}`);
+            }
+        }
+        if (cad.errors.length > 0) {
+            this.hasError = true;
+        }
+
+        const infoObj: ObjectOf<PeiheInfo[]> = {
+            锁企料: [
+                {type: "锁框", options: {contains: ["门扇厚度", "开启"]}},
+                {type: "顶框", options: {contains: ["门扇厚度", "开启"]}},
+                {type: "小锁料", options: {contains: ["门扇厚度", "开启"], isNot: {产品分类: ["单门", "", undefined, null]}}}
+            ],
+            铰企料: [{type: "小铰料", options: {contains: ["门扇厚度", "开启", "门铰"]}}]
+        };
+        if (data.info.锁边自动绑定可搭配铰边) {
+            data.info.锁边自动绑定可搭配铰边.split(";").forEach((v) => {
+                infoObj.锁企料.push({type: "铰企料", options: {contains: ["门扇厚度", "开启"], is: {铰边: v}}, hint: v});
+            });
+        }
+        if (infoObj[data.type] !== undefined) {
+            for (const info of infoObj[data.type]) {
+                const hasPeiheCad = await this._hasPeiheCad(info, data.options);
+                if (!hasPeiheCad) {
+                    let error = `缺少对应${info.type}`;
+                    if (info.hint) {
+                        error += `: ${info.hint}`;
+                    }
+                    cad.errors.push(error);
+                }
+            }
+        }
+    }
+
+    private async _hasPeiheCad(info: PeiheInfo, options: ObjectOf<string>) {
+        const containsOptions = (optionValue1: string | undefined, optionValue2: string | undefined) => {
+            const values1 = (optionValue1 || "").split(";").map((v) => v.trim());
+            const values2 = (optionValue2 || "").split(";").map((v) => v.trim());
+            return values2.every((v) => values1.includes(v));
+        };
+        const {contains, is, isNot} = info.options;
+        const found = this.cads.find(({data}) => {
+            if (data.type !== info.type) {
+                return false;
+            }
+            if (contains) {
+                for (const optionName of contains) {
+                    if (!containsOptions(data.options[optionName], options[optionName])) {
+                        return false;
+                    }
+                }
+            }
+            if (is) {
+                for (const optionName in is) {
+                    if (!is[optionName].includes(data.options[optionName])) {
+                        return false;
+                    }
+                }
+            }
+            if (isNot) {
+                for (const optionName in isNot) {
+                    if (isNot[optionName].includes(data.options[optionName])) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
+        return !!found || this._matchPeiheCad(info, options);
+    }
+
+    private async _matchPeiheCad(info: PeiheInfo, options: ObjectOf<string>) {
+        const key = md5(JSON.stringify({info, options}));
+        if (this._peiheCadCache[key] === undefined) {
+            const response = await this.dataService.post<boolean>("peijian/cad/matchPeiheCad", {info, options}, "no");
+            this._peiheCadCache[key] = !!response?.data;
+        }
+        return this._peiheCadCache[key];
     }
 }
