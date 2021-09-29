@@ -13,6 +13,7 @@ type ExportType = "包边正面" | "框型和企料" | "指定型号" | "自由�
 
 interface ExportParams {
     ids: string[];
+    direct?: boolean;
 }
 
 @Component({
@@ -25,17 +26,17 @@ export class ExportComponent implements OnInit {
     progressBarStatus: ProgressBarStatus = "hidden";
     msg = "";
     exportParams: ExportParams | null = null;
+    direct = false;
 
-    constructor(private dialog: MatDialog, private dataService: CadDataService) {
-        (async () => {
-            // const data = await this.dataService.queryMySql({table: "p_miaoshu"});
-            // console.log(data);
-        })();
-    }
+    constructor(private dialog: MatDialog, private dataService: CadDataService) {}
 
     ngOnInit() {
         this.exportParams = session.load<ExportParams>("exportParams");
+        this.direct = !!this.exportParams?.direct;
         session.remove("exportParams");
+        if (this.direct) {
+            this.exportCads("导出选中");
+        }
     }
 
     private async _queryIds(where: ObjectOf<any>) {
@@ -76,9 +77,11 @@ export class ExportComponent implements OnInit {
                 const data = await this._joinCad(ids);
                 this.msg = "正在下载dxf文件";
                 await this.dataService.downloadDxf(data);
+                this.progressBar.end();
                 this.progressBarStatus = "success";
                 this.msg = "导出完成";
             } catch (error) {
+                this.progressBar.end();
                 this.progressBarStatus = "error";
                 this.msg = "导出失败";
             }
@@ -230,6 +233,9 @@ export class ExportComponent implements OnInit {
             const zhankai = cad.zhankai[0] ?? new CadZhankai();
             texts.push(`展开高: ${zhankai.zhankaigao}`);
             texts.push(`展开宽: ${zhankai.zhankaikuan}`);
+            if (cad.shuangxiangzhewan) {
+                texts.push("双向折弯: 是");
+            }
             if (cad.info.修改包边正面宽规则) {
                 texts.push(`\n修改包边正面宽规则: \n${cad.info.修改包边正面宽规则}`);
             }

@@ -97,6 +97,7 @@ export class ImportComponent implements OnInit {
             if (hasLoader) {
                 this.loader.stopLoader(this.loaderId);
             }
+            this.progressBar.end();
             this.progressBarStatus = progressBarStatus;
             this.msg = typeof msg === "string" ? msg : "";
             el.value = "";

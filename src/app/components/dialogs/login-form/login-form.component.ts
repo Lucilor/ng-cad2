@@ -38,7 +38,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
     passwordVisible = false;
     private _ngxLoaderDisplay = "";
     private get _masterLoader() {
-        return document.querySelector("ngx-ui-loader[ng-reflect-loader-id='master']") as HTMLElement;
+        return document.querySelector("ngx-ui-loader") as HTMLElement;
     }
 
     constructor(
