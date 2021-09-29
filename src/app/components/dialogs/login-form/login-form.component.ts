@@ -1,5 +1,5 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, Inject} from "@angular/core";
+import {Component, Inject, OnDestroy, OnInit} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf} from "@utils";
@@ -30,12 +30,16 @@ export interface LoginResponse {
     templateUrl: "./login-form.component.html",
     styleUrls: ["./login-form.component.scss"]
 })
-export class LoginFormComponent {
+export class LoginFormComponent implements OnInit, OnDestroy {
     form = typedFormGroup({
         user: typedFormControl(""),
         password: typedFormControl("")
     }) as TypedFormGroup<LoginForm>;
     passwordVisible = false;
+    private _ngxLoaderDisplay = "";
+    private get _masterLoader() {
+        return document.querySelector("ngx-ui-loader[ng-reflect-loader-id='master']") as HTMLElement;
+    }
 
     constructor(
         public dialogRef: MatDialogRef<LoginFormComponent, boolean>,
@@ -48,6 +52,16 @@ export class LoginFormComponent {
         if (!this.data) {
             this.data = {project: {id: "?", name: "???"}, baseUrl: ""};
         }
+    }
+
+    ngOnInit() {
+        const loader = this._masterLoader;
+        this._ngxLoaderDisplay = loader.style.display;
+        loader.style.display = "none";
+    }
+
+    ngOnDestroy() {
+        this._masterLoader.style.display = this._ngxLoaderDisplay;
     }
 
     async submit() {
@@ -83,7 +97,6 @@ export class LoginFormComponent {
         } else if (response.code === 0) {
             this.message.snack(response.msg);
             this.dialogRef.close(true);
-            location.reload();
         } else {
             this.message.alert(response.msg);
             this.dialogRef.close(false);

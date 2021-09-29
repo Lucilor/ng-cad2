@@ -86,7 +86,13 @@ export class HttpService {
         }
     }
 
-    async request<T>(url: string, method: "GET" | "POST", data?: any, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
+    async request<T>(
+        url: string,
+        method: "GET" | "POST",
+        data?: any,
+        encrypt: DataEncrpty = "yes",
+        options?: HttpOptions
+    ): Promise<CustomResponse<T> | null> {
         if (environment.unitTest) {
             return null;
         }
@@ -167,8 +173,8 @@ export class HttpService {
                     }
                     return null;
                 } else if (code === -2) {
-                    this._waitForLogin((response.data as any)?.project || {id: -1, name: "无"});
-                    return null; //this.request(url, method, data, encrypt, options);
+                    await this._waitForLogin((response.data as any)?.project || {id: -1, name: "无"});
+                    return this.request(url, method, data, encrypt, options);
                 } else {
                     throw new Error(response.msg);
                 }
