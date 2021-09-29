@@ -3,12 +3,8 @@ import {LocalStorage, ObjectOf, SessionStorage, Timer} from "@utils";
 declare global {
     interface Window {
         parseBaobianzhengmianRules(content: string, vars: ObjectOf<any>): {errors: string[]};
+        batchCheck(data: ObjectOf<any>[]): ObjectOf<string[]>;
     }
-}
-if (typeof window.parseBaobianzhengmianRules !== "function") {
-    window.parseBaobianzhengmianRules = () => {
-        throw new Error("parseBaobianzhengmianRules is not defined!");
-    };
 }
 
 export const projectName = "NgCad2";

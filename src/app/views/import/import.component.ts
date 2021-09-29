@@ -11,12 +11,13 @@ import {
     CadMtext,
     CadZhankai,
     generatePointsMap,
-    LINE_LIMIT,
-    sortLines
+    sortLines,
+    validateLines
 } from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {isBetween, Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
+import {MessageService} from "@modules/message/services/message.service";
+import {Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
@@ -71,7 +72,7 @@ export class ImportComponent implements OnInit {
         return requireLineId !== null && pruneLines !== null;
     }
 
-    constructor(private loader: NgxUiLoaderService, private dataService: CadDataService) {}
+    constructor(private loader: NgxUiLoaderService, private dataService: CadDataService, private message: MessageService) {}
 
     ngOnInit() {
         const cads: ImportComponentCad[] | null = session.load<any[]>(this._cadsKey);
@@ -217,6 +218,33 @@ export class ImportComponent implements OnInit {
             await this._validateCad(this.cads[i], uniqCodesCount, requireLineId);
         }
 
+        const data = this.cads.map((v) => {
+            const json = v.data.export();
+            json.选项 = json.options;
+            json.条件 = json.conditions;
+            return {
+                json,
+                _id: json.id,
+                选项: json.options,
+                条件: json.conditions,
+                名字: json.name,
+                显示名字: json.xianshimingzi,
+                分类: json.type,
+                分类2: json.type2
+            };
+        });
+        try {
+            console.log(window.batchCheck(data));
+        } catch (error) {
+            console.error(error);
+            // if (error instanceof Error) {
+            //     this.message.alert(error.message);
+            // } else {
+            //     this.message.alert(error as any);
+            // }
+            // this.hasError = true;
+        }
+
         session.save(
             this._cadsKey,
             this.cads.map((v) => ({...v, data: environment.production ? null : v.data.export()}))
@@ -334,7 +362,8 @@ export class ImportComponent implements OnInit {
             开料排版方式: "kailiaopaibanfangshi",
             默认开料板材: "morenkailiaobancai",
             算料处理: "suanliaochuli",
-            显示宽度标注: "showKuandubiaozhu"
+            显示宽度标注: "showKuandubiaozhu",
+            双向折弯: "shuangxiangzhewan"
         };
         const zhankaiFields: ObjectOf<keyof CadZhankai> = {
             展开高: "zhankaigao",
@@ -459,15 +488,7 @@ export class ImportComponent implements OnInit {
                 cad.errors.push("存在没有Id的线");
             }
         }
-        const [min, max] = LINE_LIMIT;
-        for (const e of entities.line) {
-            const {start, end} = e;
-            const dx = Math.abs(start.x - end.x);
-            const dy = Math.abs(start.y - end.y);
-            if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
-                cad.errors.push(`线段斜率不符合要求(线长: ${e.length.toFixed(2)})`);
-            }
-        }
+        cad.errors = cad.errors.concat(validateLines(data).errMsg);
         for (const optionKey in data.options) {
             if (["铰边", "锁边"].includes(optionKey)) {
                 continue;
@@ -500,16 +521,24 @@ export class ImportComponent implements OnInit {
             });
         }
         if (infoObj[data.type] !== undefined) {
+            const infoArray: PeiheInfo[] = [];
             for (const info of infoObj[data.type]) {
                 const hasPeiheCad = await this._hasPeiheCad(info, data.options);
                 if (!hasPeiheCad) {
+                    infoArray.push(info);
+                }
+            }
+            const result = await this._matchPeiheCad(infoArray, data.options);
+            result.forEach((matched, i) => {
+                const info = infoObj[data.type][i];
+                if (!matched) {
                     let error = `缺少对应${info.type}`;
                     if (info.hint) {
                         error += `: ${info.hint}`;
                     }
                     cad.errors.push(error);
                 }
-            }
+            });
         }
     }
 
@@ -520,7 +549,7 @@ export class ImportComponent implements OnInit {
             return values2.every((v) => values1.includes(v));
         };
         const {contains, is, isNot} = info.options;
-        const found = this.cads.find(({data}) => {
+        const found = this.cads.findIndex(({data}) => {
             if (data.type !== info.type) {
                 return false;
             }
@@ -547,15 +576,40 @@ export class ImportComponent implements OnInit {
             }
             return true;
         });
-        return !!found || this._matchPeiheCad(info, options);
+        return found >= 0;
     }
 
-    private async _matchPeiheCad(info: PeiheInfo, options: ObjectOf<string>) {
-        const key = md5(JSON.stringify({info, options}));
-        if (this._peiheCadCache[key] === undefined) {
-            const response = await this.dataService.post<boolean>("peijian/cad/matchPeiheCad", {info, options}, "no");
-            this._peiheCadCache[key] = !!response?.data;
+    private async _matchPeiheCad(infoArray: PeiheInfo[], options: ObjectOf<string>) {
+        const result: boolean[] = [];
+        const indice: number[] = [];
+        const cache = this._peiheCadCache;
+        const keys = infoArray.map((info, i) => {
+            const key = md5(JSON.stringify({info, options}));
+            if (cache[key] !== undefined) {
+                result[i] = cache[key];
+            } else {
+                indice.push(i);
+            }
+            return key;
+        });
+        infoArray.forEach((info, i) => {
+            if (cache[keys[i]] !== undefined) {
+                result[i] = cache[keys[i]];
+            } else {
+                indice.push(i);
+            }
+        });
+        if (indice.length > 0) {
+            infoArray = infoArray.filter((_, i) => indice.includes(i));
+            const response = await this.dataService.post<boolean[]>("peijian/cad/matchPeiheCad", {infoArray, options}, "no");
+            if (response?.data) {
+                response.data.forEach((matched, i) => {
+                    const j = indice[i];
+                    result[j] = matched;
+                    cache[keys[j]] = matched;
+                });
+            }
         }
-        return this._peiheCadCache[key];
+        return result;
     }
 }
