@@ -93,6 +93,7 @@ export class HttpService {
         encrypt: DataEncrpty = "yes",
         options?: HttpOptions
     ): Promise<CustomResponse<T> | null> {
+        const rawData = {...data};
         if (environment.unitTest) {
             return null;
         }
@@ -174,7 +175,7 @@ export class HttpService {
                     return null;
                 } else if (code === -2) {
                     await this._waitForLogin((response.data as any)?.project || {id: -1, name: "无"});
-                    return this.request(url, method, data, encrypt, options);
+                    return this.request(url, method, rawData, encrypt, options);
                 } else {
                     throw new Error(response.msg);
                 }
