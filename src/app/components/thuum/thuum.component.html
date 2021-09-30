@@ -1,4 +1,12 @@
 <div class="container">
-    <div class="placeholder"></div>
-    <div class="thuum">{{ currThuum.text }}</div>
+    <div class="thuum" [ngStyle]="thuumStyle" [style.opacity]="isProd ? 0 : 1">
+        <div class="thuum-chars">
+            <ng-container *ngFor="let char of thuumChars">
+                <span class="thuum-char" [ngStyle]="char.charStyle">
+                    <span>{{ char.content }}</span>
+                    <div class="thuum-layer" [ngStyle]="char.layerStyle"></div>
+                </span>
+            </ng-container>
+        </div>
+    </div>
 </div>
