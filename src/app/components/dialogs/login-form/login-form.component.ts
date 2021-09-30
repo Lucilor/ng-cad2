@@ -38,7 +38,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
     passwordVisible = false;
     private _ngxLoaderDisplay = "";
     private get _masterLoader() {
-        return document.querySelector("ngx-ui-loader") as HTMLElement;
+        return document.querySelector("ngx-ui-loader") as HTMLElement | null;
     }
 
     constructor(
@@ -56,12 +56,17 @@ export class LoginFormComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         const loader = this._masterLoader;
-        this._ngxLoaderDisplay = loader.style.display;
-        loader.style.display = "none";
+        if (loader) {
+            this._ngxLoaderDisplay = loader.style.display;
+            loader.style.display = "none";
+        }
     }
 
     ngOnDestroy() {
-        this._masterLoader.style.display = this._ngxLoaderDisplay;
+        const loader = this._masterLoader;
+        if (loader) {
+            loader.style.display = this._ngxLoaderDisplay;
+        }
     }
 
     async submit() {
