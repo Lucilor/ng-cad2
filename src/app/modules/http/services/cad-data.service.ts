@@ -100,7 +100,7 @@ export class CadDataService extends HttpService {
     }
 
     async getCad(params: GetCadParams): Promise<{cads: CadData[]; total: number}> {
-        const response = await this.post<any[]>("peijian/cad/getCad", params);
+        const response = await this.post<any[]>("peijian/cad/getCad", params, "no");
         const result: {cads: CadData[]; total: number} = {cads: [], total: 0};
         if (response && response.data) {
             const restore = await this._resolveMissingCads(response);

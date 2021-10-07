@@ -48,7 +48,6 @@ export class CadListComponent extends Utils() implements AfterViewInit {
     width = 300;
     height = 150;
     searchField = "选项";
-    searchForm: ObjectOf<string> = {};
     searchNameInput = "";
     checkedIndex = new BehaviorSubject<number>(-1);
     checkedItems: CadData[] = [];
@@ -129,7 +128,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         }
         const limit = this.paginator.pageSize;
         const collection = this.data.collection;
-        const params: GetCadParams = {collection, page, limit, search: this.searchForm};
+        const params: GetCadParams = {collection, page, limit, search: this.data.search};
         if (this.data.selectMode === "table") {
             this.status.startLoader({id: "cadList"});
             const result = await this.dataService.getYuanshicadwenjian(params);
@@ -145,7 +144,6 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             if (this.showCheckedOnly) {
                 params.ids = this.checkedItems.map((v) => v.id);
             }
-            params.search = this.data.search;
             this.status.startLoader({id: "cadList"});
             const result = await this.dataService.getCad(params);
             this.status.stopLoader();
@@ -176,8 +174,8 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         if (!this.paginator) {
             return;
         }
-        this.searchForm = {};
-        this.searchForm[this.searchField] = this.searchNameInput;
+        this.data.search = {};
+        this.data.search[this.searchField] = this.searchNameInput;
         this.paginator.pageIndex = 0;
         const options = withOption ? this.data.options : {};
         this.getData(this.paginator.pageIndex + 1, options, matchType);
