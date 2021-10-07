@@ -364,7 +364,8 @@ export class ImportComponent implements OnInit {
             默认开料板材: "morenkailiaobancai",
             算料处理: "suanliaochuli",
             显示宽度标注: "showKuandubiaozhu",
-            双向折弯: "shuangxiangzhewan"
+            双向折弯: "shuangxiangzhewan",
+            算料特殊要求: "算料特殊要求"
         };
         const zhankaiFields: ObjectOf<keyof CadZhankai> = {
             展开高: "zhankaigao",
@@ -376,34 +377,56 @@ export class ImportComponent implements OnInit {
         result.forEach((v) => {
             let toRemove = -1;
             this._removeLeaders(v);
+            v.info.errors = [];
             v.entities.mtext.some((e, i) => {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
                     const obj = getObject(e.text);
-                    const zhankaiObj: ObjectOf<string> = {};
+                    const zhankaiObjs: ObjectOf<string>[] = [];
                     for (const key in obj) {
                         const value = obj[key];
-                        if (zhankaiFields[key] !== undefined) {
-                            zhankaiObj[zhankaiFields[key]] = value;
-                        } else {
-                            obj[key] = value;
-                            const key2 = fields[key];
-                            if (key2) {
-                                if (typeof v[key2] === "string") {
-                                    (v[key2] as string) = value;
-                                } else if (typeof v[key2] === "boolean") {
-                                    (v[key2] as boolean) = value === "是";
+                        let isZhankaiKey = false;
+                        for (const zhankaiKey of Object.keys(zhankaiFields)) {
+                            if (key === zhankaiKey) {
+                                if (!zhankaiObjs[0]) {
+                                    zhankaiObjs[0] = {};
                                 }
-                            } else if (infoKeys.includes(key)) {
-                                v.info[key] = value;
-                            } else if (key === "条件") {
-                                v.conditions = value.split(";");
-                            } else {
-                                v.options[key] = value;
+                                zhankaiObjs[0][zhankaiFields[key]] = value;
+                                isZhankaiKey = true;
+                            } else if (key.startsWith(zhankaiKey)) {
+                                const num = Number(key.replace(zhankaiKey, "")) - 1;
+                                if (num > 0) {
+                                    if (!zhankaiObjs[num]) {
+                                        zhankaiObjs[num] = {};
+                                    }
+                                    zhankaiObjs[num][zhankaiFields[zhankaiKey]] = value;
+                                    if (zhankaiObjs[num - 1][zhankaiFields[zhankaiKey]] === undefined) {
+                                        v.info.errors.push(`有${key}但没有${zhankaiKey + (num - 1 > 0 ? num - 1 : "")}`);
+                                    }
+                                    isZhankaiKey = true;
+                                }
                             }
                         }
+                        if (isZhankaiKey) {
+                            continue;
+                        }
+                        obj[key] = value;
+                        const key2 = fields[key];
+                        if (key2) {
+                            if (typeof v[key2] === "string") {
+                                (v[key2] as string) = value;
+                            } else if (typeof v[key2] === "boolean") {
+                                (v[key2] as boolean) = value === "是";
+                            }
+                        } else if (infoKeys.includes(key)) {
+                            v.info[key] = value;
+                        } else if (key === "条件") {
+                            v.conditions = value.split(";");
+                        } else {
+                            v.options[key] = value;
+                        }
                     }
-                    v.zhankai = [new CadZhankai(zhankaiObj)];
+                    v.zhankai = zhankaiObjs.map((o) => new CadZhankai(o));
                     return true;
                 }
                 return false;
@@ -452,6 +475,10 @@ export class ImportComponent implements OnInit {
         ];
         const namesReg = new RegExp(names.join("|"));
 
+        if (Array.isArray(data.info.errors)) {
+            cad.errors = cad.errors.concat(data.info.errors);
+            delete data.info.errors;
+        }
         const uniqCode = data.info.唯一码;
         if (!uniqCode) {
             cad.errors.push("没有唯一码");
