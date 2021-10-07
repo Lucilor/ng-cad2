@@ -36,11 +36,7 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
     ) {}
 
     async ngAfterViewInit() {
-        const response = await this.dataService.post<PreviewData>(
-            "order/printCode/printA4A015Preview",
-            this.route.snapshot.queryParams,
-            "no"
-        );
+        const response = await this.dataService.post<PreviewData>("order/printCode/printA4A015Preview", this.route.snapshot.queryParams);
         if (!response?.data) {
             return;
         }

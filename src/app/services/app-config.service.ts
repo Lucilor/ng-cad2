@@ -140,7 +140,7 @@ export class AppConfigService {
     }
 
     async getUserConfig(key?: string) {
-        const response = await this.dataService.post<Partial<AppConfig>>("ngcad/getUserConfig", {key}, "no");
+        const response = await this.dataService.post<Partial<AppConfig>>("ngcad/getUserConfig", {key});
         const config = response?.data;
         if (config) {
             this._userConfig = this._purgeUserConfig(config);
@@ -155,7 +155,7 @@ export class AppConfigService {
     async setUserConfig(config: Partial<AppConfig>) {
         config = this._purgeUserConfig(config);
         if (Object.keys(config).length) {
-            const response = await this.dataService.post("ngcad/setUserConfig", {config: this._purgeUserConfig(config)}, "no");
+            const response = await this.dataService.post("ngcad/setUserConfig", {config: this._purgeUserConfig(config)});
             local.save("userConfig", {...(local.load<Partial<AppConfig>>("userConfig") || {}), ...config});
             return response && response.code === 0;
         }

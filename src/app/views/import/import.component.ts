@@ -629,7 +629,7 @@ export class ImportComponent implements OnInit {
         });
         if (indice.length > 0) {
             infoArray = infoArray.filter((_, i) => indice.includes(i));
-            const response = await this.dataService.post<boolean[]>("peijian/cad/matchPeiheCad", {infoArray, options}, "no");
+            const response = await this.dataService.post<boolean[]>("peijian/cad/matchPeiheCad", {infoArray, options});
             if (response?.data) {
                 response.data.forEach((matched, i) => {
                     const j = indice[i];

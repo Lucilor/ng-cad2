@@ -97,7 +97,7 @@ export class BackupComponent implements AfterViewInit {
         this.searchParams.time = this.searchTime.getTime();
         this.loaderText = "正在获取数据";
         this.loader.startLoader(this.loaderId);
-        const response = await this.dataService.post<BackupCadsResult>("peijian/cad/getBackupCads", this.searchParams, "no");
+        const response = await this.dataService.post<BackupCadsResult>("peijian/cad/getBackupCads", this.searchParams);
         this.loader.stopLoader(this.loaderId);
         if (response?.data) {
             const {data, count} = response;

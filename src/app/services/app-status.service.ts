@@ -116,7 +116,7 @@ export class AppStatusService {
             this.dataService.baseURL = `${origin}/n/${project}/index/`;
             this.startLoader();
             if (!action) {
-                const response = await this.dataService.get("user/user/isAdmin", {nothing: null}, "no");
+                const response = await this.dataService.get("user/user/isAdmin", {nothing: null});
                 this.isAdmin$.next(!!response?.data);
                 await this.config.getUserConfig();
             }

@@ -51,6 +51,8 @@ export class HttpService {
     strict = true;
     private _loginPromise: ReturnType<typeof openLoginFormDialog> | null = null;
     lastResponse: CustomResponse<any> | null = null;
+    encrypt: DataEncrpty = "no";
+    private _nextEncrypt: DataEncrpty | null = null;
 
     constructor(injector: Injector) {
         this.dialog = injector.get(MatDialog);
@@ -86,13 +88,11 @@ export class HttpService {
         }
     }
 
-    async request<T>(
-        url: string,
-        method: "GET" | "POST",
-        data?: any,
-        encrypt: DataEncrpty = "yes",
-        options?: HttpOptions
-    ): Promise<CustomResponse<T> | null> {
+    setNextEncrypt(encrypt: DataEncrpty) {
+        this._nextEncrypt = encrypt;
+    }
+
+    async request<T>(url: string, method: "GET" | "POST", data?: ObjectOf<any>, options?: HttpOptions): Promise<CustomResponse<T> | null> {
         const rawData = {...data};
         if (environment.unitTest) {
             return null;
@@ -104,6 +104,7 @@ export class HttpService {
             url = `${this.baseURL}${url}`;
         }
         let response: CustomResponse<T> | null = null;
+        const encrypt = this._nextEncrypt ?? this.encrypt;
         try {
             if (method === "GET") {
                 if (data) {
@@ -175,7 +176,7 @@ export class HttpService {
                     return null;
                 } else if (code === -2) {
                     await this._waitForLogin((response.data as any)?.project || {id: -1, name: "无"});
-                    return this.request(url, method, rawData, encrypt, options);
+                    return this.request(url, method, rawData, options);
                 } else {
                     throw new Error(response.msg);
                 }
@@ -188,14 +189,15 @@ export class HttpService {
         } finally {
             this.lastResponse = response;
             timer.end(timerName, `${method} ${rawUrl}`);
+            this._nextEncrypt = null;
         }
     }
 
-    async get<T>(url: string, data?: ObjectOf<any>, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
-        return await this.request<T>(url, "GET", data, encrypt, options);
+    async get<T>(url: string, data?: ObjectOf<any>, options?: HttpOptions) {
+        return await this.request<T>(url, "GET", data, options);
     }
 
-    async post<T>(url: string, data?: ObjectOf<any>, encrypt: DataEncrpty = "yes", options?: HttpOptions) {
-        return await this.request<T>(url, "POST", data, encrypt, options);
+    async post<T>(url: string, data?: ObjectOf<any>, options?: HttpOptions) {
+        return await this.request<T>(url, "POST", data, options);
     }
 }
