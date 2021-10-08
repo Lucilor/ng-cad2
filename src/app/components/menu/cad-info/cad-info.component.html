@@ -345,5 +345,13 @@
             <mat-label>算料特殊要求</mat-label>
             <input type="text" matInput [(ngModel)]="cad['算料特殊要求']" name="算料特殊要求" />
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>正面宽差值</mat-label>
+            <input type="number" matInput [value]="cad['正面宽差值']" (change)="setNumberValue(cad, '正面宽差值', $event)" />
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>墙厚差值</mat-label>
+            <input type="number" matInput [value]="cad['墙厚差值']" (change)="setNumberValue(cad, '墙厚差值', $event)" />
+        </mat-form-field>
     </form>
 </div>
