@@ -28,6 +28,20 @@
         </mat-form-field>
     </div>
     <div class="form-item">
+        <mat-form-field>
+            <mat-label>显示线长</mat-label>
+            <input
+                matInput
+                type="text"
+                [value]="getLineText('显示线长')"
+                (input)="setLineText($event, '显示线长')"
+                (focus)="focusedField = '显示线长'"
+                (blur)="focusedField = ''"
+                name="显示线长"
+            />
+        </mat-form-field>
+    </div>
+    <div class="form-item">
         <mat-form-field floatLabel="always">
             <mat-label>是否隐藏线长</mat-label>
             <mat-slide-toggle [checked]="getHideLength()" (change)="setHideLength($event)" name="hideLength"></mat-slide-toggle>
