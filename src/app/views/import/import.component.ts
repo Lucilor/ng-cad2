@@ -413,10 +413,10 @@ export class ImportComponent implements OnInit {
                         obj[key] = value;
                         const key2 = fields[key];
                         if (key2) {
-                            if (typeof v[key2] === "string") {
-                                (v[key2] as string) = value;
-                            } else if (typeof v[key2] === "boolean") {
+                            if (typeof value === "boolean") {
                                 (v[key2] as boolean) = value === "是";
+                            } else {
+                                (v[key2] as string) = value;
                             }
                         } else if (infoKeys.includes(key)) {
                             v.info[key] = value;
@@ -496,12 +496,15 @@ export class ImportComponent implements OnInit {
         } else if (!data.name.match(this._cadNameRegex)) {
             cad.errors.push("CAD名字只能是：中文、英文字母、数字、下划线");
         }
-        if (data.info.修改包边正面宽规则) {
-            if (!data.options["包边"]) {
-                cad.errors.push("没有[包边选项]时不能有[修改包边正面宽规则]");
+        if (data.type === "包边正面") {
+            if (data.info.修改包边正面宽规则) {
+                const 修改包边正面宽规则 = "修改包边正面宽规则:\n" + data.info.修改包边正面宽规则;
+                cad.errors = cad.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, data.info.vars).errors);
+            } else {
+                cad.errors.push("分类为包边正面必须写修改包边正面宽规则");
             }
-            const 修改包边正面宽规则 = "修改包边正面宽规则:\n" + data.info.修改包边正面宽规则;
-            cad.errors = cad.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, data.info.vars).errors);
+        } else if (data.info.修改包边正面宽规则) {
+            cad.errors.push("分类不为包边正面不能写修改包边正面宽规则");
         }
         if (data.info.锁边自动绑定可搭配铰边 && data.type !== "锁企料") {
             cad.errors.push("分类不为[锁企料]时不能有[锁边自动绑定可搭配铰边]");
