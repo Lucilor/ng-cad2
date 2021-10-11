@@ -22,6 +22,7 @@ import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {environment} from "src/environments/environment";
+import {fields, zhankaiFields} from "./import.config";
 
 export interface ImportComponentCad {
     data: CadData;
@@ -55,6 +56,7 @@ export class ImportComponent implements OnInit {
     private _cadNameRegex = /^(?!\d)[\da-zA-Z\u4e00-\u9fa5_]*$/u;
     private _optionsCache: ObjectOf<string[]> = {};
     private _peiheCadCache: ObjectOf<boolean> = {};
+    private _slgsArr: ObjectOf<string>[] = [];
 
     loaderId = "importLoader";
     msg = "";
@@ -116,35 +118,44 @@ export class ImportComponent implements OnInit {
             return;
         }
         const cads = this._splitCad(data);
-        const total = cads.length;
-        this.progressBar.start(total * 2);
+        const totalCad = cads.length;
+        const totalSlgs = this._slgsArr.length;
+        this.progressBar.start(totalCad * 2 + totalSlgs);
         this.msg = "正在检查数据";
         await this.parseCads(cads);
         if (this.hasError) {
             finish(true, "error", "数据有误");
             return;
         }
-        const skipped = [];
+        let skipped = 0;
         const silent = this.dataService.silent;
         this.dataService.silent = true;
         const {pruneLines} = this._getConfig();
-        for (let i = 0; i < total; i++) {
+        for (let i = 0; i < totalCad; i++) {
             const result = await this.dataService.setCad({
                 collection: "cad",
                 cadData: cads[i],
                 force: true,
                 importConfig: {pruneLines}
             });
-            this.msg = `正在导入dxf数据(${i + 1}/${total})`;
+            this.msg = `正在导入dxf数据(${i + 1}/${totalCad})`;
             if (!result) {
-                skipped.push(cads[i].name);
-                this.msg += `\n ${skipped.join(", ")} 保存失败`;
+                skipped++;
                 this.cads[i].errors.push(this.dataService.lastResponse?.msg || "保存失败");
             }
             this.progressBar.forward();
         }
+        for (let i = 0; i < totalSlgs; i++) {
+            const response = await this.dataService.post("ngcad/updateSuanliaogonshi", {data: this._slgsArr[i]});
+            this.msg = `正在导入算料公式(${i + 1}/${totalSlgs})`;
+            if (!response?.data) {
+                skipped++;
+            }
+            this.progressBar.forward();
+        }
         this.dataService.silent = silent;
-        finish(true, "success", `导入结束, ${total - skipped.length}个成功(共${total}个)`);
+        const total = totalCad + totalSlgs;
+        finish(true, "success", `导入结束, ${total - skipped}个成功(共${total}个)`);
     }
 
     private _getMd5(cad: CadData) {
@@ -317,12 +328,36 @@ export class ImportComponent implements OnInit {
         });
 
         const result = rects.map(() => new CadData());
+        this._slgsArr = [];
         data.getAllEntities().forEach((e) => {
             if (lineIds.includes(e.id)) {
                 return;
             }
             if (e instanceof CadMtext && e.text.includes("算料公式")) {
-                console.log(getObject(e.text));
+                const obj = getObject(e.text);
+                const slgs: ObjectOf<any> = {};
+                for (const key in obj) {
+                    const value = obj[key];
+                    if (["名字", "条件"].includes(key)) {
+                        slgs[key] = value;
+                    } else if (key === "算料公式") {
+                        slgs.公式 = {};
+                        value
+                            .split("\n")
+                            .filter((v) => v)
+                            .forEach((v) => {
+                                const [key2, value2] = v.split("=").map((vv) => vv.trim());
+                                slgs.公式[key2] = value2;
+                            });
+                    } else {
+                        if (!slgs.选项) {
+                            slgs.选项 = {};
+                        }
+                        slgs.选项[key] = value;
+                    }
+                }
+                this._slgsArr.push(slgs);
+                return;
             }
             rects.forEach((rect, i) => {
                 if (e instanceof CadLine && rect.contains(new Line(e.start, e.end))) {
@@ -352,26 +387,6 @@ export class ImportComponent implements OnInit {
             });
         });
 
-        const fields: ObjectOf<keyof CadData> = {
-            名字: "name",
-            分类: "type",
-            分类2: "type2",
-            模板放大: "mubanfangda",
-            全部刨坑: "kailiaoshibaokeng",
-            变形方式: "baseLines",
-            板材纹理方向: "bancaiwenlifangxiang",
-            开料排版方式: "kailiaopaibanfangshi",
-            默认开料板材: "morenkailiaobancai",
-            算料处理: "suanliaochuli",
-            显示宽度标注: "showKuandubiaozhu",
-            双向折弯: "shuangxiangzhewan",
-            算料特殊要求: "算料特殊要求"
-        };
-        const zhankaiFields: ObjectOf<keyof CadZhankai> = {
-            展开高: "zhankaigao",
-            展开宽: "zhankaikuan",
-            数量: "shuliang"
-        };
         const infoKeys = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
 
         result.forEach((v) => {
@@ -413,8 +428,10 @@ export class ImportComponent implements OnInit {
                         obj[key] = value;
                         const key2 = fields[key];
                         if (key2) {
-                            if (typeof value === "boolean") {
-                                (v[key2] as boolean) = value === "是";
+                            if (value === "是") {
+                                (v[key2] as boolean) = true;
+                            } else if (value === "否") {
+                                (v[key2] as boolean) = false;
                             } else {
                                 (v[key2] as string) = value;
                             }
@@ -619,6 +636,7 @@ export class ImportComponent implements OnInit {
             if (cache[key] !== undefined) {
                 result[i] = cache[key];
             } else {
+                result[i] = false;
                 indice.push(i);
             }
             return key;

@@ -6,6 +6,7 @@ import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {Line, ObjectOf, Point, ProgressBar} from "@utils";
+import {fields} from "@views/import/import.config";
 import Color from "color";
 import {intersection} from "lodash";
 
@@ -217,18 +218,18 @@ export class ExportComponent implements OnInit {
             cad.transform({translate}, true);
             rect.transform({translate});
 
-            const texts = [
-                `唯一码: ${cad.info.唯一码}`,
-                `名字: ${cad.name}`,
-                `分类: ${cad.type}`,
-                `分类2: ${cad.type2}`,
-                `条件: ${cad.conditions.join(",")}`
-            ];
+            const texts = [`唯一码: ${cad.info.唯一码}`];
+            for (const key in fields) {
+                const value = cad[fields[key]];
+                if (typeof value === "string" && value) {
+                    texts.push(`${key}: ${value}`);
+                } else if (typeof value === "boolean") {
+                    texts.push(`${key}: ${value ? "是" : "否"}`);
+                }
+            }
+            texts.push(`条件: ${cad.conditions.join(",")}`);
             for (const optionName in cad.options) {
                 texts.push(`${optionName}: ${cad.options[optionName]}`);
-            }
-            if (cad.kailiaoshibaokeng) {
-                texts.push("全部刨坑: 是");
             }
             const zhankai = cad.zhankai[0] ?? new CadZhankai();
             texts.push(`展开高: ${zhankai.zhankaigao}`);
