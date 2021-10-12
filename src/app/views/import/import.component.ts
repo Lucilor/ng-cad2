@@ -441,7 +441,7 @@ export class ImportComponent implements OnInit {
                         } else if (key === "条件") {
                             v.conditions = value.split(";");
                         } else {
-                            v.options[key] = value;
+                            v.options[key] = value.replaceAll(" ", "");
                         }
                     }
                     v.zhankai = zhankaiObjs.map((o) => new CadZhankai(o));
@@ -524,7 +524,7 @@ export class ImportComponent implements OnInit {
         } else if (data.info.修改包边正面宽规则) {
             cad.errors.push("分类不为包边正面不能写修改包边正面宽规则");
         }
-        if (data.info.锁边自动绑定可搭配铰边 && data.type !== "锁企料") {
+        if (data.info.锁边自动绑定可搭配铰边 && !["锁企料", "扇锁企料"].includes(data.type)) {
             cad.errors.push("分类不为[锁企料]时不能有[锁边自动绑定可搭配铰边]");
         }
         if (data.kailiaoshibaokeng && data.zhidingweizhipaokeng.length > 0) {
@@ -569,6 +569,7 @@ export class ImportComponent implements OnInit {
                 infoObj.锁企料.push({type: "铰企料", options: {contains: ["门扇厚度", "开启"], is: {铰边: v}}, hint: v});
             });
         }
+        infoObj.扇锁企料 = [...infoObj.锁企料];
         if (infoObj[data.type] !== undefined) {
             const infoArray: PeiheInfo[] = [];
             for (const info of infoObj[data.type]) {

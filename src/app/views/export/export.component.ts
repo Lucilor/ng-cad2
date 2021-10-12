@@ -54,7 +54,7 @@ export class ExportComponent implements OnInit {
                 ids = await this._queryIds({分类: "包边正面"});
                 break;
             case "框型和企料":
-                ids = await this._queryIds({分类: {$regex: "^锁框|铰框|顶框|锁企料|铰企料$"}});
+                ids = await this._queryIds({分类: {$regex: "^锁框|铰框|顶框|锁企料|扇锁企料|铰企料$"}});
                 break;
             case "指定型号":
                 ids = await this._queryIds({分类: "算料", "选项.型号": {$regex: "^.+$"}});
