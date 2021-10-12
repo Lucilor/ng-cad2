@@ -37,16 +37,20 @@ export class MessageService {
         return {...data, type} as MessageData as MessageDataMap[K];
     }
 
-    async alert(data: string | MessageDataParams<AlertMessageData>) {
-        await this.open({data: this._getData(data, "alert")});
+    async alert(data: string | MessageDataParams<AlertMessageData>, others: Omit<MatDialogConfig<AlertMessageData>, "data"> = {}) {
+        await this.open({data: this._getData(data, "alert"), ...others});
     }
 
     async confirm(data: string | MessageDataParams<ConfirmMessageData>) {
         return !!(await this.open({data: this._getData(data, "confirm")}));
     }
 
-    async prompt(data: string | MessageDataParams<PromptMessageData>) {
-        return String(await this.open({data: this._getData(data, "prompt")}));
+    async prompt(data: string | MessageDataParams<PromptMessageData>, others: Omit<MatDialogConfig<PromptMessageData>, "data"> = {}) {
+        const result = await this.open({data: this._getData(data, "prompt"), ...others});
+        if (typeof result === "string") {
+            return result;
+        }
+        return null;
     }
 
     async book(data: string | MessageDataParams<BookMessageData>) {

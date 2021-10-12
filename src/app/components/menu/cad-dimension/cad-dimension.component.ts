@@ -1,5 +1,6 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
+import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {CadDimension, CadData, CadLine, CadEventCallBack} from "@cad-viewer";
 import {openCadDimensionFormDialog} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
@@ -23,72 +24,74 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
         this.dimensions = this.status.cad.data.getAllEntities().dimension;
     }).bind(this);
 
-    onEntitiesSelect = (((entities) => {
-        const cad = this.status.cad;
-        const data = cad.data.components.data;
-        const cadStatus = this.status.cadStatus;
-        const dimensions = this.dimensions;
-        const entity = entities.line[0];
-        if (cadStatus instanceof CadStatusEditDimension && entity) {
-            let thatData: CadData | undefined;
-            let thatIndex = -1;
-            cad.data.components.data.some((d, i) => {
-                if (d.findEntity(entity.id)) {
-                    thatData = d;
-                    thatIndex = i;
-                    return true;
+    onEntitiesSelect = (
+        ((entities) => {
+            const cad = this.status.cad;
+            const data = cad.data.components.data;
+            const cadStatus = this.status.cadStatus;
+            const dimensions = this.dimensions;
+            const entity = entities.line[0];
+            if (cadStatus instanceof CadStatusEditDimension && entity) {
+                let thatData: CadData | undefined;
+                let thatIndex = -1;
+                cad.data.components.data.some((d, i) => {
+                    if (d.findEntity(entity.id)) {
+                        thatData = d;
+                        thatIndex = i;
+                        return true;
+                    }
+                    return false;
+                });
+                if (thatIndex < 0 || !thatData) {
+                    return;
                 }
-                return false;
-            });
-            if (thatIndex < 0 || !thatData) {
-                return;
-            }
-            for (const d of cad.data.components.data) {
-                if (d.findEntity(entity.id)) {
-                    thatData = d;
-                    break;
-                }
-            }
-            let dimension = dimensions[cadStatus.index];
-            if (!dimension) {
-                dimension = new CadDimension();
-                dimension.color = new Color(0x00ff00);
-                let newIndex = 0;
-                for (let i = 0; i < thatIndex; i++) {
-                    newIndex += data[i].entities.dimension.length;
-                }
-                newIndex += thatData.entities.dimension.push(dimension) - 1;
-                this.status.setCadStatus(new CadStatusEditDimension(newIndex));
-            }
-            if (!dimension.entity1.id) {
-                dimension.entity1 = {id: entity.id, location: "start"};
-                dimension.cad1 = thatData.name;
-            } else if (!dimension.entity2.id) {
-                dimension.entity2 = {id: entity.id, location: "end"};
-                dimension.cad2 = thatData.name;
-            } else {
-                dimension.entity1 = dimension.entity2;
-                dimension.entity2 = {id: entity.id, location: "end"};
-                dimension.cad2 = thatData.name;
-            }
-            const e1 = cad.data.findEntity(dimension.entity1.id);
-            const e2 = cad.data.findEntity(dimension.entity2.id);
-            if (e1 instanceof CadLine && e2 instanceof CadLine) {
-                const slope1 = e1.slope;
-                const slope2 = e2.slope;
-                // * default axis: x
-                if (Math.abs(slope1 - slope2) <= 1) {
-                    if (Math.abs(slope1) <= 1) {
-                        dimension.axis = "y";
-                    } else {
-                        dimension.axis = "x";
+                for (const d of cad.data.components.data) {
+                    if (d.findEntity(entity.id)) {
+                        thatData = d;
+                        break;
                     }
                 }
+                let dimension = dimensions[cadStatus.index];
+                if (!dimension) {
+                    dimension = new CadDimension();
+                    dimension.color = new Color(0x00ff00);
+                    let newIndex = 0;
+                    for (let i = 0; i < thatIndex; i++) {
+                        newIndex += data[i].entities.dimension.length;
+                    }
+                    newIndex += thatData.entities.dimension.push(dimension) - 1;
+                    this.status.setCadStatus(new CadStatusEditDimension(newIndex));
+                }
+                if (!dimension.entity1.id) {
+                    dimension.entity1 = {id: entity.id, location: "start"};
+                    dimension.cad1 = thatData.name;
+                } else if (!dimension.entity2.id) {
+                    dimension.entity2 = {id: entity.id, location: "end"};
+                    dimension.cad2 = thatData.name;
+                } else {
+                    dimension.entity1 = dimension.entity2;
+                    dimension.entity2 = {id: entity.id, location: "end"};
+                    dimension.cad2 = thatData.name;
+                }
+                const e1 = cad.data.findEntity(dimension.entity1.id);
+                const e2 = cad.data.findEntity(dimension.entity2.id);
+                if (e1 instanceof CadLine && e2 instanceof CadLine) {
+                    const slope1 = e1.slope;
+                    const slope2 = e2.slope;
+                    // * default axis: x
+                    if (Math.abs(slope1 - slope2) <= 1) {
+                        if (Math.abs(slope1) <= 1) {
+                            dimension.axis = "y";
+                        } else {
+                            dimension.axis = "x";
+                        }
+                    }
+                }
+                this.focus(dimension);
+                cad.render(dimension);
             }
-            this.focus(dimension);
-            cad.render(dimension);
-        }
-    }) as CadEventCallBack<"entitiesselect">).bind(this);
+        }) as CadEventCallBack<"entitiesselect">
+    ).bind(this);
 
     constructor(private status: AppStatusService, private dialog: MatDialog, private config: AppConfigService) {
         super();
@@ -219,5 +222,14 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                 delete e.info.prevOpacity;
             }
         }, true);
+    }
+
+    getHideDimLines(i: number) {
+        return this.dimensions[i].hideDimLines;
+    }
+
+    setHideDimLines(event: MatSlideToggleChange, i: number) {
+        this.dimensions[i].hideDimLines = (event.checked);
+        this.status.cad.render(this.dimensions[i]);
     }
 }

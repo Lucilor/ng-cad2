@@ -56,6 +56,13 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         const {canConfirm, confirmWithEnter} = this.status.cadStatus;
         return canConfirm && confirmWithEnter;
     }
+    get type() {
+        const data = this.status.cad.data.components.data;
+        if (data.length > 0) {
+            return data[0].type;
+        }
+        return "";
+    }
 
     onKeyDown = ((event: KeyboardEvent) => {
         const {ctrlKey} = event;
@@ -305,8 +312,24 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         const line = await this._checkSelectedOnlyOne();
         if (line) {
             const gongshi = await this.message.prompt({title: "编辑公式", promptData: {value: line.gongshi, placeholder: "公式"}});
-            line.gongshi = gongshi;
-            this.status.cad.render(line);
+            if (gongshi !== null) {
+                line.gongshi = gongshi;
+                this.status.cad.render(line);
+            }
+        }
+    }
+
+    async editBbzhmkgz() {
+        const data = this.status.cad.data.components.data[0];
+        if (!data) {
+            return;
+        }
+        const result = await this.message.prompt(
+            {promptData: {type: "textarea", value: data.info.修改包边正面宽规则}},
+            {width: "80%", height: "75%"}
+        );
+        if (result !== null) {
+            data.info.修改包边正面宽规则 = result;
         }
     }
 

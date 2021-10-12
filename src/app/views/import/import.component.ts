@@ -430,6 +430,7 @@ export class ImportComponent implements OnInit {
                         if (key2) {
                             if (value === "是") {
                                 (v[key2] as boolean) = true;
+                                console.log(value, key, key2, v[key2]);
                             } else if (value === "否") {
                                 (v[key2] as boolean) = false;
                             } else {

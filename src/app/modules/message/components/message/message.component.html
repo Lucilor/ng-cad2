@@ -7,8 +7,22 @@
     <ng-template #notEditor>
         <perfect-scrollbar>
             <div [innerHTML]="contentHTML"></div>
-            <mat-form-field *ngIf="data.type === 'prompt'">
-                <input matInput [formControl]="input" [type]="promptData.type || ''" [placeholder]="promptData.placeholder || ''" />
+            <mat-form-field *ngIf="data.type === 'prompt'" [ngSwitch]="promptData.type">
+                <textarea
+                    matInput
+                    *ngSwitchCase="'textarea'"
+                    cdkTextareaAutosize
+                    [formControl]="input"
+                    [type]="promptData.type || ''"
+                    [placeholder]="promptData.placeholder || ''"
+                ></textarea>
+                <input
+                    matInput
+                    *ngSwitchDefault
+                    [formControl]="input"
+                    [type]="promptData.type || ''"
+                    [placeholder]="promptData.placeholder || ''"
+                />
                 <mat-hint>{{ promptData.hint || "" }}</mat-hint>
                 <mat-error *ngIf="this.input.invalid">{{ getErrorText() }}</mat-error>
             </mat-form-field>

@@ -93,7 +93,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
                 promptData: {placeholder: "验证码"},
                 cancelable: false
             });
-            data.set("phonecode", phonecode);
+            data.set("phonecode", phonecode || "");
             response = await this.http.post(`${baseUrl}/login/in`, data).toPromise();
         }
         if (response.status === 0) {

@@ -18,6 +18,8 @@
             <mat-hint [align]="'start'">
                 <button mat-raised-button color="primary" (click)="editDimension(i)">编辑</button>
                 <button mat-raised-button [color]="dimLineSelecting === i ? 'accent' : 'primary'" (click)="selectDimLine(i)">选线</button>
+                <label>隐藏尺寸线</label>
+                <mat-slide-toggle [checked]="getHideDimLines(i)" (change)="setHideDimLines($event, i)"></mat-slide-toggle>
             </mat-hint>
         </mat-form-field>
     </div>
