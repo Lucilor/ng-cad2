@@ -187,6 +187,9 @@ export class ExportComponent implements OnInit {
         if (e.children.line.find((v) => v.宽高虚线)) {
             texts.push("显示斜线宽高");
         }
+        if (e.显示线长) {
+            texts.push(`显示线长: ${e.显示线长}`);
+        }
         dimension.mingzi = texts.join("\n");
 
         const e2 = e instanceof CadLine ? e : new CadLine({start: e.start, end: e.end});
