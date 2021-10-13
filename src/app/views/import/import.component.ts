@@ -245,17 +245,13 @@ export class ImportComponent implements OnInit {
                 分类2: json.type2
             };
         });
-        try {
-            console.log(window.batchCheck(data));
-        } catch (error) {
-            console.error(error);
-            // if (error instanceof Error) {
-            //     this.message.alert(error.message);
-            // } else {
-            //     this.message.alert(error as any);
-            // }
-            // this.hasError = true;
-        }
+        const checkResult = window.batchCheck(data);
+        this.cads.forEach((cad) => {
+            const errors = checkResult[cad.data.id];
+            if (errors && errors.length > 0) {
+                cad.errors = cad.errors.concat(errors);
+            }
+        });
 
         session.save(
             this._cadsKey,
