@@ -544,7 +544,15 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 } else {
                     (e as any)[field] = value;
                 }
-                const keys: (keyof CadLineLike)[] = ["mingzi", "gongshi", "guanlianbianhuagongshi", "lengthTextSize", "linewidth", "显示线长"];
+                const keys: (keyof CadLineLike)[] = [
+                    "mingzi",
+                    "gongshi",
+                    "guanlianbianhuagongshi",
+                    "lengthTextSize",
+                    "linewidth",
+                    "显示线长",
+                    "圆弧显示"
+                ];
                 if (keys.includes(field as keyof CadLineLike)) {
                     this.status.cad.render(e);
                 }
