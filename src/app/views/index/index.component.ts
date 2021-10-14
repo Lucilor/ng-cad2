@@ -76,10 +76,10 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     loaderId = "saveCadLoader";
     tabIndex = 0;
     cadLength = "0.00";
-    menuPaddingBase = [10, 10, 10, 10];
+    menuPaddingBase = [20, 20, 20, 20];
     leftMenuWidth$ = new BehaviorSubject<number>(this.config.getConfig("leftMenuWidth"));
     rightMenuWidth$ = new BehaviorSubject<number>(this.config.getConfig("rightMenuWidth"));
-    topMenuHeight$ = new BehaviorSubject<number>(40);
+    topMenuHeight$ = new BehaviorSubject<number>(80);
     bottomMenuHeight$ = new BehaviorSubject<number>(20);
     dragDataLeft: DragData = {width: 0};
     dragDataRight: DragData = {width: 0};

@@ -18,8 +18,8 @@ export const Utils = <T extends Constructor>(base: T = class {} as T) =>
             delete obj[key];
         }
 
-        keysOf<K>(obj: ObjectOf<K>) {
-            return Object.keys(obj);
+        keysOf<K>(obj: K) {
+            return Object.keys(obj) as (keyof K)[];
         }
 
         changeObjectKey<K>(obj: ObjectOf<K>, oldKey: string, newKey: string | Event) {

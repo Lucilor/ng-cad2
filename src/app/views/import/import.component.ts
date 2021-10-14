@@ -15,6 +15,7 @@ import {
     validateLines
 } from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
+import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {Line, ObjectOf, Point, ProgressBar, Rectangle} from "@utils";
@@ -30,11 +31,7 @@ export interface ImportComponentCad {
 }
 
 export type ImportComponentConfigName = "requireLineId" | "pruneLines";
-export type ImportComponentConfig = {
-    name: ImportComponentConfigName;
-    label: string;
-    value: boolean | null;
-}[];
+export type ImportComponentConfig = Record<ImportComponentConfigName, {label: string; value: boolean | null}>;
 
 interface PeiheInfo {
     type: string;
@@ -51,53 +48,59 @@ interface PeiheInfo {
     templateUrl: "./import.component.html",
     styleUrls: ["./import.component.scss"]
 })
-export class ImportComponent implements OnInit {
+export class ImportComponent extends Utils() implements OnInit {
     private _cadsKey = "import-cads";
     private _cadNameRegex = /^(?!\d)[\da-zA-Z\u4e00-\u9fa5_]*$/u;
     private _optionsCache: ObjectOf<string[]> = {};
     private _peiheCadCache: ObjectOf<boolean> = {};
     private _slgsArr: ObjectOf<string>[] = [];
 
-    loaderId = "importLoader";
+    loaderIds = {importLoader: "importLoader", importSuanliaoLoader: "importSuanliaoLoader"};
     msg = "";
     cads: ImportComponentCad[] = [];
     cadsParsed = false;
     hasError = false;
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
-    importConfig: ImportComponentConfig = [
-        {name: "requireLineId", label: "上传线必须全部带ID", value: null},
-        {name: "pruneLines", label: "后台线在上传数据中没有时删除", value: null}
-    ];
-    get canSubmit() {
-        const {requireLineId, pruneLines} = this._getConfig();
-        return requireLineId !== null && pruneLines !== null;
-    }
+    importConfigNormal: ImportComponentConfig = {
+        requireLineId: {label: "上传线必须全部带ID", value: null},
+        pruneLines: {label: "后台线在上传数据中没有时删除", value: null}
+    };
+    importConfigSuanliao: ImportComponentConfig = {
+        requireLineId: {label: "上传线必须全部带ID", value: false},
+        pruneLines: {label: "后台线在上传数据中没有时删除", value: true}
+    };
 
-    constructor(private loader: NgxUiLoaderService, private dataService: CadDataService, private message: MessageService) {}
+    constructor(private loader: NgxUiLoaderService, private dataService: CadDataService, private message: MessageService) {
+        super();
+    }
 
     ngOnInit() {
-        const cads: ImportComponentCad[] | null = session.load<any[]>(this._cadsKey);
-        if (cads && !environment.production) {
-            this.cads = cads.map((v) => ({...v, data: new CadData(v.data)}));
-        }
         if (!environment.production) {
-            this.importConfig[0].value = false;
-            this.importConfig[1].value = true;
+            const cads: ImportComponentCad[] | null = session.load<any[]>(this._cadsKey);
+            if (cads) {
+                this.cads = cads.map((v) => ({...v, data: new CadData(v.data)}));
+            }
+            this.importConfigNormal.requireLineId.value = false;
+            this.importConfigNormal.pruneLines.value = true;
         }
     }
 
-    private _getConfig() {
-        const result: ObjectOf<boolean | null> = {};
-        this.importConfig.forEach((v) => (result[v.name] = v.value));
-        return result as Record<ImportComponentConfigName, boolean>;
+    private _getImportConfig(isSuanliao: boolean) {
+        return isSuanliao ? this.importConfigSuanliao : this.importConfigNormal;
     }
 
-    async importDxf(event: Event) {
+    canSubmit(isSuanliao: boolean) {
+        const {requireLineId, pruneLines} = this._getImportConfig(isSuanliao);
+        return requireLineId.value !== null && pruneLines.value !== null;
+    }
+
+    async importDxf(event: Event, isSuanliao: boolean) {
         const el = event.target as HTMLInputElement;
+        const loaderId = isSuanliao ? this.loaderIds.importSuanliaoLoader : this.loaderIds.importLoader;
         const finish = (hasLoader: boolean, progressBarStatus: ProgressBarStatus, msg?: string) => {
             if (hasLoader) {
-                this.loader.stopLoader(this.loaderId);
+                this.loader.stopLoader(loaderId);
             }
             this.progressBar.end();
             this.progressBarStatus = progressBarStatus;
@@ -111,18 +114,18 @@ export class ImportComponent implements OnInit {
         this.progressBar.start(1);
         this.progressBarStatus = "progress";
         this.msg = "正在获取数据";
-        this.loader.startLoader(this.loaderId);
+        this.loader.startLoader(loaderId);
         const data = await this.dataService.uploadDxf(el.files[0]);
         if (!data) {
             finish(true, "error", "读取文件失败");
             return;
         }
-        const cads = this._splitCad(data);
+        const cads = this._splitCad(data, isSuanliao);
         const totalCad = cads.length;
         const totalSlgs = this._slgsArr.length;
         this.progressBar.start(totalCad * 2 + totalSlgs);
         this.msg = "正在检查数据";
-        await this.parseCads(cads);
+        await this.parseCads(cads, isSuanliao);
         if (this.hasError) {
             finish(true, "error", "数据有误");
             return;
@@ -130,7 +133,7 @@ export class ImportComponent implements OnInit {
         let skipped = 0;
         const silent = this.dataService.silent;
         this.dataService.silent = true;
-        const {pruneLines} = this._getConfig();
+        const pruneLines = this._getImportConfig(isSuanliao).pruneLines.value ?? false;
         for (let i = 0; i < totalCad; i++) {
             const result = await this.dataService.setCad({
                 collection: "cad",
@@ -180,7 +183,7 @@ export class ImportComponent implements OnInit {
         this._peiheCadCache = {};
     }
 
-    async parseCads(cads: CadData[]) {
+    async parseCads(cads: CadData[], isSuanliao: boolean) {
         this.cadsParsed = false;
         this.hasError = false;
         this._clearCache();
@@ -223,7 +226,7 @@ export class ImportComponent implements OnInit {
                 });
             }
         }
-        const {requireLineId} = this._getConfig();
+        const requireLineId = this._getImportConfig(isSuanliao).requireLineId.value ?? false;
         for (let i = 0; i < total; i++) {
             this.msg = `正在检查dxf数据(${i + 1}/${total})`;
             this.progressBar.forward();
@@ -274,7 +277,7 @@ export class ImportComponent implements OnInit {
         });
     }
 
-    private _splitCad(data: CadData) {
+    private _splitCad(data: CadData, isSuanliao: boolean) {
         const lines = data.entities.line.filter((v) => v.color.rgbNumber() === 0x00ff00);
         const lineIds = lines.map((v) => v.id);
         const dumpData = new CadData();
@@ -329,23 +332,32 @@ export class ImportComponent implements OnInit {
             if (lineIds.includes(e.id)) {
                 return;
             }
-            if (e instanceof CadMtext && e.text.includes("算料公式")) {
+            if (isSuanliao && e instanceof CadMtext && e.text.includes("算料公式")) {
                 const obj = getObject(e.text);
                 const slgs: ObjectOf<any> = {};
                 for (const key in obj) {
                     const value = obj[key];
-                    if (["名字", "条件"].includes(key)) {
-                        slgs[key] = value;
+                    const key2 = fields[key];
+                    if (key2) {
+                        if (value === "是") {
+                            (slgs[key] as boolean) = true;
+                        } else if (value === "否") {
+                            (slgs[key] as boolean) = false;
+                        } else {
+                            (slgs[key] as string) = value;
+                        }
+                    } else if (key === "条件") {
+                        slgs.条件 = value;
                     } else if (key === "算料公式") {
                         slgs.公式 = {};
                         value
                             .split("\n")
                             .filter((v) => v)
                             .forEach((v) => {
-                                const [key2, value2] = v.split("=").map((vv) => vv.trim());
-                                slgs.公式[key2] = value2;
+                                const [kk, vv] = v.split("=").map((vvv) => vvv.trim());
+                                slgs.公式[kk] = vv;
                             });
-                    } else {
+                    } else if (key !== "唯一码") {
                         if (!slgs.选项) {
                             slgs.选项 = {};
                         }
@@ -426,7 +438,6 @@ export class ImportComponent implements OnInit {
                         if (key2) {
                             if (value === "是") {
                                 (v[key2] as boolean) = true;
-                                console.log(value, key, key2, v[key2]);
                             } else if (value === "否") {
                                 (v[key2] as boolean) = false;
                             } else {
@@ -583,6 +594,15 @@ export class ImportComponent implements OnInit {
                         error += `: ${info.hint}`;
                     }
                     cad.errors.push(error);
+                }
+            });
+        }
+
+        if (this._slgsArr.length > 0) {
+            const optionKeys = ["型号", "产品分类"];
+            optionKeys.forEach((key) => {
+                if (!data.options[key]) {
+                    cad.errors.push(`缺少选项: ${key}`);
                 }
             });
         }

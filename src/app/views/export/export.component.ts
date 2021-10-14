@@ -28,6 +28,7 @@ export class ExportComponent implements OnInit {
     msg = "";
     exportParams: ExportParams | null = null;
     direct = false;
+    exportIds = true;
 
     constructor(private dialog: MatDialog, private dataService: CadDataService) {}
 
@@ -37,6 +38,11 @@ export class ExportComponent implements OnInit {
         session.remove("exportParams");
         if (this.direct) {
             this.exportCads("导出选中");
+        } else if (this.exportParams) {
+            const ids = this.exportParams.ids;
+            if (!Array.isArray(ids) || ids.length < 1) {
+                this.exportParams = null;
+            }
         }
     }
 
@@ -151,7 +157,10 @@ export class ExportComponent implements OnInit {
         dimension.entity1 = {id: e.id, location: "start"};
         dimension.entity2 = {id: e.id, location: "end"};
 
-        const texts = [`{\\H0.1x;id:${e.id}}`];
+        const texts = [];
+        if (this.exportIds) {
+            texts.push(`{\\H0.1x;id:${e.id}}`);
+        }
         let mingzi = e.mingzi;
         const vars = cad.info.vars;
         if (vars) {

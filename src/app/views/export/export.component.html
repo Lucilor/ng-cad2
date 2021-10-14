@@ -1,5 +1,15 @@
 <div class="container">
     <div class="btn-group">
+        <div>
+            <mat-form-field>
+                <mat-label>导出ID</mat-label>
+                <input type="text" matInput value="1" hidden />
+                <mat-radio-group [(ngModel)]="exportIds" required>
+                    <mat-radio-button [value]="true">是</mat-radio-button>
+                    <mat-radio-button [value]="false">否</mat-radio-button>
+                </mat-radio-group>
+            </mat-form-field>
+        </div>
         <ng-container *ngIf="!direct">
             <button mat-raised-button color="primary" (click)="exportCads('包边正面')">包边正面</button>
             <button mat-raised-button color="primary" (click)="exportCads('框型和企料')">框型和企料</button>

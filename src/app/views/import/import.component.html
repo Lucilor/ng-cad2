@@ -1,26 +1,49 @@
 <div class="container">
-    <mat-card class="toolbar">
-        <mat-card-content class="content">
-            <div>
-                <button mat-raised-button color="primary" (click)="fileInput.click()" [disabled]="!canSubmit">
-                    选择dxf文件
-                    <app-loader-inline [loaderId]="loaderId"></app-loader-inline>
-                </button>
-            </div>
-            <div class="form">
-                <mat-form-field *ngFor="let config of importConfig">
-                    <mat-label>{{ config.label }}</mat-label>
-                    <input type="text" matInput value="1" hidden />
-                    <mat-radio-group [(ngModel)]="config.value" required>
-                        <mat-radio-button [value]="true">是</mat-radio-button>
-                        <mat-radio-button [value]="false">否</mat-radio-button>
-                    </mat-radio-group>
-                </mat-form-field>
-            </div>
-            <input #fileInput type="file" accept=".dxf" hidden (change)="importDxf($event)" />
-            <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
-        </mat-card-content>
-    </mat-card>
+    <div class="toolbars">
+        <mat-card class="toolbar">
+            <input #fileInputNormal type="file" accept=".dxf" hidden (change)="importDxf($event, false)" />
+            <mat-card-content class="content">
+                <div>
+                    <button mat-raised-button color="primary" (click)="fileInputNormal.click()" [disabled]="!canSubmit(false)">
+                        导入文件
+                        <app-loader-inline [loaderId]="loaderIds.importLoader"></app-loader-inline>
+                    </button>
+                </div>
+                <div class="form">
+                    <mat-form-field *ngFor="let name of keysOf(importConfigNormal)">
+                        <mat-label>{{ importConfigNormal[name].label }}</mat-label>
+                        <input type="text" matInput value="1" hidden />
+                        <mat-radio-group [(ngModel)]="importConfigNormal[name].value" required>
+                            <mat-radio-button [value]="true">是</mat-radio-button>
+                            <mat-radio-button [value]="false">否</mat-radio-button>
+                        </mat-radio-group>
+                    </mat-form-field>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        <mat-card class="toolbar">
+            <input #fileInputSuanliao type="file" accept=".dxf" hidden (change)="importDxf($event, true)" />
+            <mat-card-content class="content">
+                <div>
+                    <button mat-raised-button color="primary" (click)="fileInputSuanliao.click()" [disabled]="!canSubmit(true)">
+                        替换导入型号算料dxf文件
+                        <app-loader-inline [loaderId]="loaderIds.importSuanliaoLoader"></app-loader-inline>
+                    </button>
+                </div>
+                <div class="form">
+                    <mat-form-field *ngFor="let name of keysOf(importConfigSuanliao)">
+                        <mat-label>{{ importConfigSuanliao[name].label }}</mat-label>
+                        <input type="text" matInput value="1" hidden />
+                        <mat-radio-group [(ngModel)]="importConfigSuanliao[name].value" required>
+                            <mat-radio-button [value]="true">是</mat-radio-button>
+                            <mat-radio-button [value]="false">否</mat-radio-button>
+                        </mat-radio-group>
+                    </mat-form-field>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
 
     <perfect-scrollbar style="flex: 1 1 0">
         <div class="cads">

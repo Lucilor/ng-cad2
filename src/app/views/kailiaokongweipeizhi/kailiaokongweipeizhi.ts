@@ -110,13 +110,13 @@ export class Kailiaokongweipeizhi {
         return gongshi;
     }
 
-    private _trimObjGongshi<T>(obj: T, keys: (keyof T)[] = keysOf(obj)) {
+    private _trimObjGongshi<T>(obj: T, keys = keysOf(obj)) {
         keys.forEach((key) => {
             obj[key] = this._trimGongshi((obj as any)[key]) as any;
         });
     }
 
-    private _purgeObj<T>(obj: T, keys: (keyof T)[] = keysOf(obj)) {
+    private _purgeObj<T>(obj: T, keys = keysOf(obj)) {
         keys.forEach((key) => {
             let value: any = obj[key];
             if (typeof value === "object") {
