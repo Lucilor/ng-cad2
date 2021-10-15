@@ -40,6 +40,8 @@ export class SelectBancaiComponent implements OnInit {
         {value: "H-O2", label: "高压氧气"},
         {value: "H-N2", label: "高压氮气"}
     ];
+    kailiaokongweipeizhiUrl = "";
+    kailiaocanshuzhiUrl = "";
 
     get currList(): BancaiList {
         const form = this.bancaiForms[this.formIdx];
@@ -99,6 +101,8 @@ export class SelectBancaiComponent implements OnInit {
                 });
                 this.updateSortedCads(result.bancaiCads);
                 this.updateBancaiForms();
+                this.kailiaokongweipeizhiUrl = result.开料孔位配置;
+                this.kailiaocanshuzhiUrl = result.开料参数;
             }
         } else {
             this.message.alert("缺少参数");
@@ -310,5 +314,9 @@ export class SelectBancaiComponent implements OnInit {
                 }
             }
         }
+    }
+
+    open(url: string) {
+        window.open(url);
     }
 }

@@ -2,6 +2,8 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
+    max-width: 1000px;
+    margin: auto;
 }
 
 .bancai {
@@ -30,4 +32,16 @@
 
 perfect-scrollbar {
     height: auto;
+}
+
+.links {
+    float: right;
+    padding-right: 15px;
+
+    .link {
+        cursor: pointer;
+        &:not(:last-child) {
+            margin-right: 10px;
+        }
+    }
 }

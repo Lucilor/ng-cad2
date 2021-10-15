@@ -231,7 +231,12 @@ export class CadDataService extends HttpService {
     }
 
     async getBancais(table: string, codes: string[]) {
-        const response = await this.post<{bancaiList: BancaiList[]; bancaiCads: BancaiCad[]}>("order/order/getBancais", {table, codes});
+        const response = await this.post<{
+            bancaiList: BancaiList[];
+            bancaiCads: BancaiCad[];
+            开料孔位配置: string;
+            开料参数: string;
+        }>("order/order/getBancais", {table, codes});
         if (response?.data) {
             return response.data;
         }

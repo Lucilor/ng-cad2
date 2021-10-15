@@ -1,7 +1,13 @@
 <div class="title">
     <div>订单编号: {{ codes.join(",") }}</div>
 </div>
-<div><mat-slide-toggle [(ngModel)]="autoGuige">自动选择最合适的板材规格</mat-slide-toggle></div>
+<div>
+    <mat-slide-toggle [(ngModel)]="autoGuige">自动选择最合适的板材规格</mat-slide-toggle>
+    <span class="links">
+        <span class="link" (click)="open(kailiaokongweipeizhiUrl)">开料孔位配置</span>
+        <span class="link" (click)="open(kailiaocanshuzhiUrl)">开料参数</span>
+    </span>
+</div>
 
 <perfect-scrollbar>
     <div class="bancais">
