@@ -5,7 +5,6 @@ export const fields: ObjectOf<keyof CadData> = {
     名字: "name",
     分类: "type",
     分类2: "type2",
-    模板放大: "mubanfangda",
     全部刨坑: "kailiaoshibaokeng",
     变形方式: "bianxingfangshi",
     板材纹理方向: "bancaiwenlifangxiang",

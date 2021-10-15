@@ -35,7 +35,7 @@ export class ExportComponent implements OnInit {
     ngOnInit() {
         this.exportParams = session.load<ExportParams>("exportParams");
         this.direct = !!this.exportParams?.direct;
-        session.remove("exportParams");
+        // session.remove("exportParams");
         if (this.direct) {
             this.exportCads("导出选中");
         } else if (this.exportParams) {
@@ -200,14 +200,15 @@ export class ExportComponent implements OnInit {
             texts.push(`显示线长: ${e.显示线长}`);
         }
         dimension.mingzi = texts.join("\n");
-
-        const e2 = e instanceof CadLine ? e : new CadLine({start: e.start, end: e.end});
-        if (e2.isHorizontal()) {
-            dimension.axis = "x";
-        } else if (e2.isVertical()) {
-            dimension.axis = "y";
+        if (dimension.mingzi.length > 0) {
+            const e2 = e instanceof CadLine ? e : new CadLine({start: e.start, end: e.end});
+            if (e2.isHorizontal()) {
+                dimension.axis = "x";
+            } else if (e2.isVertical()) {
+                dimension.axis = "y";
+            }
+            cad.entities.add(dimension);
         }
-        cad.entities.add(dimension);
     }
 
     private async _joinCad(ids: string[]) {

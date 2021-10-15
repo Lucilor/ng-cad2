@@ -465,6 +465,9 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             this.status.validate();
         }
         cad.render();
+        if (lines.some((v) => v.zhankaifangshi === "指定长度")) {
+            this.message.snack("线的展开方式为指定长度");
+        }
     }
 
     getCssColor() {
