@@ -23,7 +23,7 @@ import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {environment} from "src/environments/environment";
-import {fields, zhankaiFields} from "./import.config";
+import {fields, skipFields, zhankaiFields} from "./import.config";
 
 export interface ImportComponentCad {
     data: CadData;
@@ -407,6 +407,9 @@ export class ImportComponent extends Utils() implements OnInit {
                     const obj = getObject(e.text);
                     const zhankaiObjs: ObjectOf<string>[] = [];
                     for (const key in obj) {
+                        if (skipFields.includes(key)) {
+                            continue;
+                        }
                         const value = obj[key];
                         let isZhankaiKey = false;
                         for (const zhankaiKey of Object.keys(zhankaiFields)) {
@@ -496,7 +499,8 @@ export class ImportComponent extends Utils() implements OnInit {
             "方通",
             "花件",
             "孔",
-            "算料"
+            "算料",
+            "示意图"
         ];
         const namesReg = new RegExp(names.join("|"));
 
@@ -544,7 +548,9 @@ export class ImportComponent extends Utils() implements OnInit {
                 cad.errors.push("存在没有Id的线");
             }
         }
-        cad.errors = cad.errors.concat(validateLines(data).errMsg);
+        if (data.type !== "示意图") {
+            cad.errors = cad.errors.concat(validateLines(data).errMsg);
+        }
         for (const optionKey in data.options) {
             if (["铰边", "锁边"].includes(optionKey)) {
                 continue;

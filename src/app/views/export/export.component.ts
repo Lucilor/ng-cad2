@@ -1,12 +1,12 @@
 import {Component, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {session} from "@app/app.common";
-import {CadData, CadDimension, CadLeader, CadLine, CadLineLike, CadMtext, CadZhankai, sortLines} from "@cad-viewer";
+import {CadData, CadDimension, CadLeader, CadLine, CadLineLike, CadMtext, CadVersion, CadZhankai, sortLines} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {Line, ObjectOf, Point, ProgressBar} from "@utils";
-import {fields} from "@views/import/import.config";
+import {fields, skipFields} from "@views/import/import.config";
 import Color from "color";
 import {intersection} from "lodash";
 
@@ -213,6 +213,7 @@ export class ExportComponent implements OnInit {
 
     private async _joinCad(ids: string[]) {
         const result = new CadData();
+        result.info.version = CadVersion.DXF2010;
         const total = ids.length;
         const margin = 300;
         const padding = 80;
@@ -233,6 +234,9 @@ export class ExportComponent implements OnInit {
 
             const texts = [`唯一码: ${cad.info.唯一码}`];
             for (const key in fields) {
+                if (skipFields.includes(key)) {
+                    continue;
+                }
                 const value = cad[fields[key]];
                 if (typeof value === "string" && value) {
                     texts.push(`${key}: ${value}`);

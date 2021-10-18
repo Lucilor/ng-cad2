@@ -16,6 +16,8 @@ export const fields: ObjectOf<keyof CadData> = {
     算料特殊要求: "算料特殊要求"
 };
 
+export const skipFields = ["模板放大"];
+
 export const zhankaiFields: ObjectOf<keyof CadZhankai> = {
     展开高: "zhankaigao",
     展开宽: "zhankaikuan",
