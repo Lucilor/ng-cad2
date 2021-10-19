@@ -23,7 +23,7 @@ import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {environment} from "src/environments/environment";
-import {fields, skipFields, zhankaiFields} from "./import.config";
+import {fields, skipFields} from "./import.config";
 
 export interface ImportComponentCad {
     data: CadData;
@@ -405,35 +405,21 @@ export class ImportComponent extends Utils() implements OnInit {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
                     const obj = getObject(e.text);
-                    const zhankaiObjs: ObjectOf<string>[] = [];
+                    let zhankaiObjs: ObjectOf<any>[] = [];
                     for (const key in obj) {
                         if (skipFields.includes(key)) {
                             continue;
                         }
                         const value = obj[key];
-                        let isZhankaiKey = false;
-                        for (const zhankaiKey of Object.keys(zhankaiFields)) {
-                            if (key === zhankaiKey) {
-                                if (!zhankaiObjs[0]) {
-                                    zhankaiObjs[0] = {};
+                        if (key === "展开") {
+                            zhankaiObjs = Array.from(value.matchAll(/\[([^\]]*)\]/g)).map((vv) => {
+                                const [zhankaikuan, zhankaigao, shuliang, conditions] = vv[1].split(/[,，]/);
+                                if (!zhankaikuan || !zhankaigao || !shuliang) {
+                                    v.info.errors.push(`展开信息不全`);
+                                    return {};
                                 }
-                                zhankaiObjs[0][zhankaiFields[key]] = value;
-                                isZhankaiKey = true;
-                            } else if (key.startsWith(zhankaiKey)) {
-                                const num = Number(key.replace(zhankaiKey, "")) - 1;
-                                if (num > 0) {
-                                    if (!zhankaiObjs[num]) {
-                                        zhankaiObjs[num] = {};
-                                    }
-                                    zhankaiObjs[num][zhankaiFields[zhankaiKey]] = value;
-                                    if (zhankaiObjs[num - 1][zhankaiFields[zhankaiKey]] === undefined) {
-                                        v.info.errors.push(`有${key}但没有${zhankaiKey + (num - 1 > 0 ? num - 1 : "")}`);
-                                    }
-                                    isZhankaiKey = true;
-                                }
-                            }
-                        }
-                        if (isZhankaiKey) {
+                                return {zhankaikuan, zhankaigao, shuliang, conditions: conditions ? [conditions] : undefined};
+                            });
                             continue;
                         }
                         obj[key] = value;

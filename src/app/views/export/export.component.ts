@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {session} from "@app/app.common";
-import {CadData, CadDimension, CadLeader, CadLine, CadLineLike, CadMtext, CadVersion, CadZhankai, sortLines} from "@cad-viewer";
+import {CadData, CadDimension, CadLeader, CadLine, CadLineLike, CadMtext, CadVersion, sortLines} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -248,9 +248,14 @@ export class ExportComponent implements OnInit {
             for (const optionName in cad.options) {
                 texts.push(`${optionName}: ${cad.options[optionName]}`);
             }
-            const zhankai = cad.zhankai[0] ?? new CadZhankai();
-            texts.push(`展开高: ${zhankai.zhankaigao}`);
-            texts.push(`展开宽: ${zhankai.zhankaikuan}`);
+            const zhankaiStr = cad.zhankai.map((v) => {
+                const arr = [v.zhankaikuan, v.zhankaigao, v.shuliang];
+                if (v.conditions.length > 0) {
+                    arr.push(v.conditions[0]);
+                }
+                return `[${arr.join(", ")}]`;
+            }).join(", ");
+            texts.push(`展开: ${zhankaiStr}`);
             if (cad.shuangxiangzhewan) {
                 texts.push("双向折弯: 是");
             }

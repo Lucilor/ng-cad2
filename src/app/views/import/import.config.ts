@@ -1,4 +1,4 @@
-import {CadData, CadZhankai} from "@cad-viewer";
+import {CadData} from "@cad-viewer";
 import {ObjectOf} from "@utils";
 
 export const fields: ObjectOf<keyof CadData> = {
@@ -17,9 +17,3 @@ export const fields: ObjectOf<keyof CadData> = {
 };
 
 export const skipFields = ["模板放大"];
-
-export const zhankaiFields: ObjectOf<keyof CadZhankai> = {
-    展开高: "zhankaigao",
-    展开宽: "zhankaikuan",
-    数量: "shuliang"
-};
