@@ -353,5 +353,12 @@
             <mat-label>墙厚差值</mat-label>
             <input type="number" matInput [value]="cad['墙厚差值']" (change)="setNumberValue(cad, '墙厚差值', $event)" />
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>企料翻转</mat-label>
+            <mat-select type="text" [(ngModel)]="cad['企料翻转']" name="企料翻转">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
     </form>
 </div>
