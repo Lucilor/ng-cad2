@@ -3,10 +3,10 @@
 </div>
 <div>
     <mat-slide-toggle [(ngModel)]="autoGuige">自动选择最合适的板材规格</mat-slide-toggle>
-    <span class="links">
-        <span class="link" (click)="open(kailiaokongweipeizhiUrl)">开料孔位配置</span>
-        <span class="link" (click)="open(kailiaocanshuzhiUrl)">开料参数</span>
-    </span>
+    <div class="links">
+        <button mat-flat-button [disabled]="!kailiaokongweipeizhiUrl" (click)="open(kailiaokongweipeizhiUrl)">开料孔位配置</button>
+        <button mat-flat-button [disabled]="!kailiaocanshuzhiUrl" (click)="open(kailiaocanshuzhiUrl)">开料参数</button>
+    </div>
 </div>
 
 <perfect-scrollbar>
