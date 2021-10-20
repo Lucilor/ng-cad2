@@ -548,7 +548,7 @@ export class ImportComponent extends Utils() implements OnInit {
             }
             const optionsNotExist = difference(optionValues, this._optionsCache[optionKey], ["所有", "不选"]);
             if (optionsNotExist.length > 0) {
-                cad.errors.push(`选项[${optionKey}]不存在: ${optionsNotExist.join(", ")}`);
+                cad.errors.push(`选项[${optionKey}]不存在或已停用: ${optionsNotExist.join(", ")}`);
             }
         }
         if (cad.errors.length > 0) {
