@@ -22,13 +22,21 @@
             flex-wrap: wrap;
             align-items: center;
 
+            .halfwidth {
+                width: 50%;
+            }
+            .fullwidth {
+                width: 100%;
+            }
+
             .mat-form-field {
                 box-sizing: border-box;
                 padding: 5px;
+            }
 
-                &.halfwidth {
-                    width: 50%;
-                }
+            .btn-group {
+                width: 100%;
+                margin: 0;
             }
         }
     }

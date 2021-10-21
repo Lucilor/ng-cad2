@@ -94,24 +94,15 @@ export class CadZhankaiComponent extends Utils() {
         this.checkedIndices.clear();
     }
 
-    copyItems() {
-        const indices = this.checkedIndices;
-        if (indices.size) {
-            this.data = this.data.concat(cloneDeep(this.data.filter((_v, i) => indices.has(i))));
-        } else {
-            this.message.alert("没有选中");
-        }
+    copyItem(i: number) {
+        this.data.splice(i + 1, 0, cloneDeep(this.data[i]));
     }
 
-    removeItems() {
-        const indices = this.checkedIndices;
-        if (indices.has(0)) {
+    removeItem(i: number) {
+        if (i === 0) {
             this.message.alert("不能删除第一项");
-        } else if (indices.size) {
-            this.data = this.data.filter((_v, i) => !indices.has(i));
-            indices.clear();
         } else {
-            this.message.alert("没有选中");
+            this.data.splice(i, 1);
         }
     }
 

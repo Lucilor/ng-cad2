@@ -2,16 +2,21 @@
     <div class="cards">
         <mat-card *ngFor="let item of data; let i = index">
             <div class="zhankai-form">
-                <mat-checkbox
-                    class="fullwidth"
-                    (click)="onCheckboxChanglick($event)"
-                    [checked]="checkedIndices.has(i)"
-                    (change)="onCheckboxChange($event, i)"
-                ></mat-checkbox>
-                <mat-form-field style="font-weight: bold; color: #ff5e00">
-                    <mat-label>名字</mat-label>
-                    <input matInput type="text" [(ngModel)]="item.name" name="name" />
-                </mat-form-field>
+                <div class="fullwidth btn-group">
+                    <button mat-raised-button color="primary" (click)="copyItem(i)">复制</button>
+                    <button mat-raised-button color="primary" (click)="removeItem(i)">删除</button>
+                </div>
+                <div class="fullwidth" style="display: flex; align-items: center">
+                    <mat-checkbox
+                        (click)="onCheckboxChanglick($event)"
+                        [checked]="checkedIndices.has(i)"
+                        (change)="onCheckboxChange($event, i)"
+                    ></mat-checkbox>
+                    <mat-form-field style="font-weight: bold; color: #ff5e00">
+                        <mat-label>名字</mat-label>
+                        <input matInput type="text" [(ngModel)]="item.name" name="name" />
+                    </mat-form-field>
+                </div>
                 <mat-form-field class="halfwidth">
                     <mat-label>开料CAD模板</mat-label>
                     <input matInput type="text" [(ngModel)]="item.kailiaomuban" name="kailiaomuban" />
@@ -184,8 +189,6 @@
     <button mat-raised-button color="primary" (click)="addItem()">添加</button>
     <button mat-raised-button color="primary" (click)="selectAll()">全选</button>
     <button mat-raised-button color="primary" (click)="unselectAll()">全不选</button>
-    <button mat-raised-button color="primary" (click)="copyItems()">复制</button>
-    <button mat-raised-button color="primary" (click)="removeItems()">删除</button>
 </div>
 <div class="btn-group">
     <button mat-raised-button color="primary" (click)="submit()">确定</button>
