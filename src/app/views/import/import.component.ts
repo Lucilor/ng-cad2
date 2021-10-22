@@ -286,9 +286,9 @@ export class ImportComponent extends Utils() implements OnInit {
         const rects: Rectangle[] = [];
         const sorted = sortLines(dumpData);
 
-        const getObject = (text: string) => {
+        const getObject = (text: string, separator: string) => {
             text = text.replaceAll("：", ":").replaceAll("；", ";");
-            const strs = text.split(":");
+            const strs = text.split(separator);
             const keyValuePairs: [string, string][] = [];
             const obj: ObjectOf<string> = {};
             strs.forEach((str, j) => {
@@ -332,40 +332,35 @@ export class ImportComponent extends Utils() implements OnInit {
             if (lineIds.includes(e.id)) {
                 return;
             }
-            if (isSuanliao && e instanceof CadMtext && e.text.includes("算料公式")) {
-                const obj = getObject(e.text);
-                const slgs: ObjectOf<any> = {};
-                for (const key in obj) {
-                    const value = obj[key];
-                    const key2 = fields[key];
-                    if (key2) {
-                        if (value === "是") {
-                            (slgs[key] as boolean) = true;
-                        } else if (value === "否") {
-                            (slgs[key] as boolean) = false;
-                        } else {
-                            (slgs[key] as string) = value;
+            if (isSuanliao && e instanceof CadMtext) {
+                const slgsReg = /算料公式[:；]([\w\W]*)/;
+                const suanliaoMatch = e.text.match(slgsReg);
+                if (suanliaoMatch) {
+                    const obj = getObject(e.text.replace(slgsReg, ""), ":");
+                    const slgs: ObjectOf<any> = {公式: getObject(suanliaoMatch[1], "=")};
+                    for (const key in obj) {
+                        const value = obj[key];
+                        const key2 = fields[key];
+                        if (key2) {
+                            if (value === "是") {
+                                (slgs[key] as boolean) = true;
+                            } else if (value === "否") {
+                                (slgs[key] as boolean) = false;
+                            } else {
+                                (slgs[key] as string) = value;
+                            }
+                        } else if (key === "条件") {
+                            slgs.条件 = value;
+                        } else if (key !== "唯一码") {
+                            if (!slgs.选项) {
+                                slgs.选项 = {};
+                            }
+                            slgs.选项[key] = value;
                         }
-                    } else if (key === "条件") {
-                        slgs.条件 = value;
-                    } else if (key === "算料公式") {
-                        slgs.公式 = {};
-                        value
-                            .split("\n")
-                            .filter((v) => v)
-                            .forEach((v) => {
-                                const [kk, vv] = v.split("=").map((vvv) => vvv.trim());
-                                slgs.公式[kk] = vv;
-                            });
-                    } else if (key !== "唯一码") {
-                        if (!slgs.选项) {
-                            slgs.选项 = {};
-                        }
-                        slgs.选项[key] = value;
                     }
+                    this._slgsArr.push(slgs);
+                    return;
                 }
-                this._slgsArr.push(slgs);
-                return;
             }
             rects.forEach((rect, i) => {
                 if (e instanceof CadLine && rect.contains(new Line(e.start, e.end))) {
@@ -404,7 +399,7 @@ export class ImportComponent extends Utils() implements OnInit {
             v.entities.mtext.some((e, i) => {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
-                    const obj = getObject(e.text);
+                    const obj = getObject(e.text, ":");
                     let zhankaiObjs: ObjectOf<any>[] = [];
                     for (const key in obj) {
                         if (skipFields.includes(key)) {
