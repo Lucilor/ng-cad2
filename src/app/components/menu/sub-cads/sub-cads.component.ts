@@ -579,6 +579,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 const dy = rect1.y - rect2.y;
                 resData.entities.transform({translate: [dx, dy]}, true);
                 data.entities.merge(resData.entities);
+                data.blocks = resData.blocks;
                 this.status.openCad();
             }
         } else {
@@ -603,6 +604,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                         data.zhidingweizhipaokeng = resData.zhidingweizhipaokeng;
                         data.info = resData.info;
                     }
+                    data.blocks = resData.blocks;
                     this.status.openCad();
                 }
             }
