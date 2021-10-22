@@ -2,9 +2,9 @@
     <div class="cards">
         <mat-card *ngFor="let item of data; let i = index">
             <div class="zhankai-form">
-                <div class="fullwidth btn-group">
-                    <button mat-raised-button color="primary" (click)="copyItem(i)">复制</button>
-                    <button mat-raised-button color="primary" (click)="removeItem(i)">删除</button>
+                <div class="btn-group">
+                    <button mat-flat-button (click)="copyItem(i)">复制</button>
+                    <button mat-flat-button (click)="removeItem(i)">删除</button>
                 </div>
                 <div class="fullwidth" style="display: flex; align-items: center">
                     <mat-checkbox
