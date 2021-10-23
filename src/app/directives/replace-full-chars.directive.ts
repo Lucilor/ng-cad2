@@ -1,4 +1,5 @@
 import {Directive, HostListener, Input} from "@angular/core";
+import {replaceChars} from "@app/app.common";
 import {ObjectOf, timeout} from "@utils";
 
 @Directive({
@@ -24,26 +25,6 @@ export class ReplaceFullCharsDirective {
     }
 
     private replaceChars(str: string) {
-        const fullChars2HalfChars: ObjectOf<string> = {
-            "“": '"',
-            "”": '"',
-            "。": ".",
-            "，": ",",
-            "？": "?",
-            "！": "!",
-            "；": ";",
-            "：": ":",
-            "‘": "'",
-            "’": "'"
-        };
-        let tmp = "";
-        for (const char of str) {
-            if (typeof fullChars2HalfChars[char] === "string") {
-                tmp += fullChars2HalfChars[char];
-            } else {
-                tmp += char;
-            }
-        }
-        return tmp;
+        return replaceChars(str);
     }
 }

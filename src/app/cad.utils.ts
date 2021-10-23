@@ -13,6 +13,8 @@ import {timeout, getDPI, Point, isNearZero, loadImage, isBetween} from "@utils";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 
+export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
+
 export interface CadPreviewParams {
     fixedLengthTextSize?: number;
 }
@@ -244,7 +246,7 @@ export const printCads = async (params: PrintCadsParams) => {
             const colorNumber = e.color.rgbNumber();
             if (colorNumber === 0x808080) {
                 e.opacity = 0;
-            } else if (colorNumber !== 0xff0000){
+            } else if (colorNumber !== 0xff0000) {
                 e.color = new Color(0);
             }
             if (e instanceof CadLineLike && (colorNumber === 0x333333 || e.layer === "1")) {

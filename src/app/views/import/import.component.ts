@@ -1,5 +1,6 @@
 import {Component, OnInit} from "@angular/core";
-import {session} from "@app/app.common";
+import {replaceChars, session} from "@app/app.common";
+import {reservedDimNames} from "@app/cad.utils";
 import {
     CadArc,
     CadCircle,
@@ -23,14 +24,20 @@ import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {environment} from "src/environments/environment";
-import {fields, skipFields} from "./import.config";
+import {cadFields, skipFields, Slgs, slgsFields} from "./import.config";
 
 export interface ImportComponentCad {
     data: CadData;
     errors: string[];
+    skipErrorCheck: Set<string>;
 }
 
-export type ImportComponentConfigName = "requireLineId" | "pruneLines";
+export interface ImportComponentSlgs {
+    data: Slgs;
+    errors: string[];
+}
+
+export type ImportComponentConfigName = "requireLineId" | "pruneLines" | "addUniqCode";
 export type ImportComponentConfig = Record<ImportComponentConfigName, {label: string; value: boolean | null}>;
 
 interface PeiheInfo {
@@ -53,22 +60,24 @@ export class ImportComponent extends Utils() implements OnInit {
     private _cadNameRegex = /^(?!\d)[\da-zA-Z\u4e00-\u9fa5_]*$/u;
     private _optionsCache: ObjectOf<string[]> = {};
     private _peiheCadCache: ObjectOf<boolean> = {};
-    private _slgsArr: ObjectOf<string>[] = [];
 
     loaderIds = {importLoader: "importLoader", importSuanliaoLoader: "importSuanliaoLoader"};
     msg = "";
     cads: ImportComponentCad[] = [];
+    slgses: ImportComponentSlgs[] = [];
     cadsParsed = false;
     hasError = false;
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
     importConfigNormal: ImportComponentConfig = {
         requireLineId: {label: "上传线必须全部带ID", value: null},
-        pruneLines: {label: "后台线在上传数据中没有时删除", value: null}
+        pruneLines: {label: "后台线在上传数据中没有时删除", value: null},
+        addUniqCode: {label: "没有唯一码生成新CAD数据", value: false}
     };
     importConfigSuanliao: ImportComponentConfig = {
         requireLineId: {label: "上传线必须全部带ID", value: false},
-        pruneLines: {label: "后台线在上传数据中没有时删除", value: true}
+        pruneLines: {label: "后台线在上传数据中没有时删除", value: true},
+        addUniqCode: {label: "没有唯一码生成新CAD数据", value: true}
     };
 
     constructor(private loader: NgxUiLoaderService, private dataService: CadDataService, private message: MessageService) {
@@ -77,9 +86,10 @@ export class ImportComponent extends Utils() implements OnInit {
 
     ngOnInit() {
         if (!environment.production) {
-            const cads: ImportComponentCad[] | null = session.load<any[]>(this._cadsKey);
-            if (cads) {
-                this.cads = cads.map((v) => ({...v, data: new CadData(v.data)}));
+            const cache = session.load<[ImportComponentCad[], ImportComponentSlgs[]]>(this._cadsKey);
+            if (cache) {
+                this.cads = cache[0].map((v) => ({...v, data: new CadData(v.data)}));
+                this.slgses = cache[1];
             }
             this.importConfigNormal.requireLineId.value = false;
             this.importConfigNormal.pruneLines.value = true;
@@ -120,12 +130,12 @@ export class ImportComponent extends Utils() implements OnInit {
             finish(true, "error", "读取文件失败");
             return;
         }
-        const cads = this._splitCad(data, isSuanliao);
+        const {cads, slgses} = this._splitCad(data, isSuanliao);
         const totalCad = cads.length;
-        const totalSlgs = this._slgsArr.length;
-        this.progressBar.start(totalCad * 2 + totalSlgs);
+        const totalSlgs = slgses.length;
+        this.progressBar.start((totalCad + totalSlgs) * 2);
         this.msg = "正在检查数据";
-        await this.parseCads(cads, isSuanliao);
+        await this.parseCads(cads, slgses, isSuanliao);
         if (this.hasError) {
             finish(true, "error", "数据有误");
             return;
@@ -137,7 +147,7 @@ export class ImportComponent extends Utils() implements OnInit {
         for (let i = 0; i < totalCad; i++) {
             const result = await this.dataService.setCad({
                 collection: "cad",
-                cadData: cads[i],
+                cadData: cads[i].data,
                 force: true,
                 importConfig: {pruneLines}
             });
@@ -149,7 +159,7 @@ export class ImportComponent extends Utils() implements OnInit {
             this.progressBar.forward();
         }
         for (let i = 0; i < totalSlgs; i++) {
-            const response = await this.dataService.post("ngcad/updateSuanliaogonshi", {data: this._slgsArr[i]});
+            const response = await this.dataService.post("ngcad/updateSuanliaogonshi", {data: this.slgses[i].data});
             this.msg = `正在导入算料公式(${i + 1}/${totalSlgs})`;
             if (!response?.data) {
                 skipped++;
@@ -183,13 +193,13 @@ export class ImportComponent extends Utils() implements OnInit {
         this._peiheCadCache = {};
     }
 
-    async parseCads(cads: CadData[], isSuanliao: boolean) {
+    async parseCads(cads: ImportComponentCad[], slgses: ImportComponentSlgs[], isSuanliao: boolean) {
         this.cadsParsed = false;
         this.hasError = false;
         this._clearCache();
         const uniqCodesCount: ObjectOf<number> = {};
         cads.forEach((v) => {
-            const uniqCode = v.info.唯一码;
+            const uniqCode = v.data.info.唯一码;
             if (!uniqCode) {
                 return;
             }
@@ -200,23 +210,17 @@ export class ImportComponent extends Utils() implements OnInit {
             }
         });
 
-        this.cads = [];
+        this.cads = cads;
+        this.slgses = slgses;
         const md5Map: ObjectOf<ImportComponentCad[]> = {};
-        const total = cads.length;
-        for (let i = 0; i < total; i++) {
-            const cad = cads[i];
-            const item: ImportComponentCad = {
-                data: cad,
-                errors: []
-            };
-            this.cads.push(item);
-            const md5Str = this._getMd5(cad);
+        cads.forEach((cad) => {
+            const md5Str = this._getMd5(cad.data);
             if (md5Map[md5Str]) {
-                md5Map[md5Str].push(item);
+                md5Map[md5Str].push(cad);
             } else {
-                md5Map[md5Str] = [item];
+                md5Map[md5Str] = [cad];
             }
-        }
+        });
         for (const md5Str in md5Map) {
             if (md5Map[md5Str].length > 1) {
                 this.hasError = true;
@@ -227,10 +231,18 @@ export class ImportComponent extends Utils() implements OnInit {
             }
         }
         const requireLineId = this._getImportConfig(isSuanliao).requireLineId.value ?? false;
-        for (let i = 0; i < total; i++) {
-            this.msg = `正在检查dxf数据(${i + 1}/${total})`;
+        const addUniqCode = this._getImportConfig(isSuanliao).addUniqCode.value ?? false;
+        const totalCad = cads.length;
+        const totalSlgs = slgses.length;
+        for (let i = 0; i < totalCad; i++) {
+            this.msg = `正在检查dxf数据(${i + 1}/${totalCad})`;
             this.progressBar.forward();
-            await this._validateCad(this.cads[i], uniqCodesCount, requireLineId);
+            await this._validateCad(cads[i], uniqCodesCount, requireLineId, addUniqCode);
+        }
+        for (let i = 0; i < totalSlgs; i++) {
+            this.msg = `正在检查dxf数据(${i + 1}/${totalSlgs})`;
+            this.progressBar.forward();
+            await this._validateSlgs(slgses[i]);
         }
 
         const data = this.cads.map((v) => {
@@ -256,10 +268,7 @@ export class ImportComponent extends Utils() implements OnInit {
             }
         });
 
-        session.save(
-            this._cadsKey,
-            this.cads.map((v) => ({...v, data: environment.production ? null : v.data.export()}))
-        );
+        session.save(this._cadsKey, [this.cads.map((v) => ({...v, data: environment.production ? null : v.data.export()})), this.slgses]);
         this.cadsParsed = true;
     }
 
@@ -277,8 +286,8 @@ export class ImportComponent extends Utils() implements OnInit {
         });
     }
 
-    private _splitCad(data: CadData, isSuanliao: boolean) {
-        const lines = data.entities.line.filter((v) => v.color.rgbNumber() === 0x00ff00);
+    private _splitCad(sourceData: CadData, isSuanliao: boolean) {
+        const lines = sourceData.entities.line.filter((v) => v.color.rgbNumber() === 0x00ff00);
         const lineIds = lines.map((v) => v.id);
         const dumpData = new CadData();
 
@@ -287,7 +296,6 @@ export class ImportComponent extends Utils() implements OnInit {
         const sorted = sortLines(dumpData);
 
         const getObject = (text: string, separator: string) => {
-            text = text.replaceAll("：", ":").replaceAll("；", ";");
             const strs = text.split(separator);
             const keyValuePairs: [string, string][] = [];
             const obj: ObjectOf<string> = {};
@@ -326,65 +334,73 @@ export class ImportComponent extends Utils() implements OnInit {
             return y1 - y2;
         });
 
-        const result = rects.map(() => new CadData());
-        this._slgsArr = [];
-        data.getAllEntities().forEach((e) => {
+        const cads: ImportComponentCad[] = rects.map(() => ({data: new CadData(), errors: [], skipErrorCheck: new Set()}));
+        const slgses: ImportComponentSlgs[] = [];
+        sourceData.getAllEntities().forEach((e) => {
             if (lineIds.includes(e.id)) {
                 return;
             }
             if (isSuanliao && e instanceof CadMtext) {
-                const slgsReg = /算料公式[:；]([\w\W]*)/;
-                const suanliaoMatch = e.text.match(slgsReg);
+                const text = replaceChars(e.text);
+                const slgsReg = /算料公式[:]?([\w\W]*)/;
+                const suanliaoMatch = text.match(slgsReg);
                 if (suanliaoMatch) {
-                    const obj = getObject(e.text.replace(slgsReg, ""), ":");
-                    const slgs: ObjectOf<any> = {公式: getObject(suanliaoMatch[1], "=")};
+                    const obj = getObject(text.replace(slgsReg, ""), ":");
+                    const slgsData: ObjectOf<any> = {公式: getObject(suanliaoMatch[1], "=")};
+                    const errors: string[] = [];
                     for (const key in obj) {
                         const value = obj[key];
-                        const key2 = fields[key];
+                        slgsFields.forEach((field) => {
+                            if (value.includes(field)) {
+                                errors.push(`${field}缺少冒号`);
+                            }
+                        });
+                        const key2 = cadFields[key];
                         if (key2) {
                             if (value === "是") {
-                                (slgs[key] as boolean) = true;
+                                (slgsData[key] as boolean) = true;
                             } else if (value === "否") {
-                                (slgs[key] as boolean) = false;
+                                (slgsData[key] as boolean) = false;
                             } else {
-                                (slgs[key] as string) = value;
+                                (slgsData[key] as string) = value;
                             }
                         } else if (key === "条件") {
-                            slgs.条件 = value;
+                            slgsData.条件 = value ? [value] : [];
                         } else if (key !== "唯一码") {
-                            if (!slgs.选项) {
-                                slgs.选项 = {};
+                            if (!slgsData.选项) {
+                                slgsData.选项 = {};
                             }
-                            slgs.选项[key] = value;
+                            slgsData.选项[key] = value;
                         }
                     }
-                    this._slgsArr.push(slgs);
+                    slgses.push({data: slgsData as Slgs, errors});
                     return;
                 }
             }
             rects.forEach((rect, i) => {
+                const entities = cads[i].data.entities;
                 if (e instanceof CadLine && rect.contains(new Line(e.start, e.end))) {
-                    result[i].entities.add(e);
+                    entities.add(e);
                 } else if (e instanceof CadMtext && rect.contains(e.insert)) {
-                    result[i].entities.add(e);
+                    entities.add(e);
                 } else if (e instanceof CadArc && rect.contains(new Line(e.start, e.end))) {
                     // ? 判断圆弧是否在矩形内, 此方法不严谨
-                    result[i].entities.add(e);
+                    entities.add(e);
                 } else if (e instanceof CadCircle) {
                     const min = e.center.clone().sub(e.radius);
                     const max = e.center.clone().add(e.radius);
                     if (rect.contains(new Rectangle(min, max))) {
-                        result[i].entities.add(e);
+                        entities.add(e);
                     }
                 } else if (e instanceof CadDimension) {
-                    const pts = data.getDimensionPoints(e);
+                    const pts = sourceData.getDimensionPoints(e);
                     if (pts.every((p) => rect.contains(p))) {
-                        result[i].entities.add(e);
+                        entities.add(e);
                     }
                 } else if (e instanceof CadLeader) {
                     const pts = e.vertices;
                     if (pts.length === 2 && rect.contains(pts[1])) {
-                        result[i].entities.add(e);
+                        entities.add(e);
                     }
                 }
             });
@@ -392,25 +408,36 @@ export class ImportComponent extends Utils() implements OnInit {
 
         const infoKeys = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
 
-        result.forEach((v) => {
+        cads.forEach((cad) => {
+            const data = cad.data;
             let toRemove = -1;
-            this._removeLeaders(v);
-            v.info.errors = [];
-            v.entities.mtext.some((e, i) => {
+            this._removeLeaders(data);
+            data.info.errors = [];
+            data.entities.mtext.some((e, i) => {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
-                    const obj = getObject(e.text, ":");
+                    const obj = getObject(replaceChars(e.text), ":");
                     let zhankaiObjs: ObjectOf<any>[] = [];
                     for (const key in obj) {
                         if (skipFields.includes(key)) {
                             continue;
                         }
                         const value = obj[key];
+                        for (const fieldKey in cadFields) {
+                            if (fieldKey === "分类" && value.includes("产品分类")) {
+                                continue;
+                            }
+                            if (value.includes(fieldKey)) {
+                                cad.errors.push(`${fieldKey}缺少冒号`);
+                                cad.skipErrorCheck.add(key);
+                                cad.skipErrorCheck.add(fieldKey);
+                            }
+                        }
                         if (key === "展开") {
                             zhankaiObjs = Array.from(value.matchAll(/\[([^\]]*)\]/g)).map((vv) => {
                                 const [zhankaikuan, zhankaigao, shuliang, conditions] = vv[1].split(/[,，]/);
                                 if (!zhankaikuan || !zhankaigao || !shuliang) {
-                                    v.info.errors.push(`展开信息不全`);
+                                    cad.errors.push(`展开信息不全`);
                                     return {};
                                 }
                                 return {zhankaikuan, zhankaigao, shuliang, conditions: conditions ? [conditions] : undefined};
@@ -418,45 +445,64 @@ export class ImportComponent extends Utils() implements OnInit {
                             continue;
                         }
                         obj[key] = value;
-                        const key2 = fields[key];
+                        const key2 = cadFields[key];
                         if (key2) {
                             if (value === "是") {
-                                (v[key2] as boolean) = true;
+                                (data[key2] as boolean) = true;
                             } else if (value === "否") {
-                                (v[key2] as boolean) = false;
+                                (data[key2] as boolean) = false;
                             } else {
-                                (v[key2] as string) = value;
+                                (data[key2] as string) = value;
                             }
                         } else if (infoKeys.includes(key)) {
-                            v.info[key] = value;
+                            data.info[key] = value;
                         } else if (key === "条件") {
-                            v.conditions = value.split(";");
+                            data.conditions = value.split(";");
                         } else {
-                            v.options[key] = value.replaceAll(" ", "");
+                            data.options[key] = value.replaceAll(" ", "");
                         }
                     }
-                    v.zhankai = zhankaiObjs.map((o) => new CadZhankai(o));
+                    data.zhankai = zhankaiObjs.map((o) => new CadZhankai(o));
                     return true;
                 }
                 return false;
             });
             if (toRemove >= 0) {
-                v.entities.mtext.splice(toRemove, 1);
+                data.entities.mtext.splice(toRemove, 1);
             }
 
-            v.info.vars = {};
-            [...v.entities.line, ...v.entities.arc].forEach((e) => {
+            data.info.vars = {};
+            [...data.entities.line, ...data.entities.arc].forEach((e) => {
                 const varName = e.info.varName;
                 if (varName) {
-                    v.info.vars[varName] = e.id;
+                    data.info.vars[varName] = e.id;
                 }
                 delete e.info.varName;
             });
         });
-        return result;
+        return {cads, slgses};
     }
 
-    private async _validateCad(cad: ImportComponentCad, uniqCodesCount: ObjectOf<number>, requireLineId: boolean) {
+    private async _validateOptions(options: ObjectOf<string>) {
+        const errors: string[] = [];
+        for (const optionKey in options) {
+            if (["铰边", "锁边"].includes(optionKey)) {
+                continue;
+            }
+            const optionValues = options[optionKey].split(";");
+            if (this._optionsCache[optionKey] === undefined) {
+                const optionInfo = await this.dataService.getOptions(optionKey, "");
+                this._optionsCache[optionKey] = optionInfo.data.map((v) => v.name);
+            }
+            const optionsNotExist = difference(optionValues, this._optionsCache[optionKey], ["所有", "不选"]);
+            if (optionsNotExist.length > 0) {
+                errors.push(`选项[${optionKey}]不存在或已停用: ${optionsNotExist.join(", ")}`);
+            }
+        }
+        return errors;
+    }
+
+    private async _validateCad(cad: ImportComponentCad, uniqCodesCount: ObjectOf<number>, requireLineId: boolean, addUniqCode: boolean) {
         const data = cad.data;
         const names = [
             "包边正面",
@@ -491,19 +537,30 @@ export class ImportComponent extends Utils() implements OnInit {
         }
         const uniqCode = data.info.唯一码;
         if (!uniqCode) {
-            cad.errors.push("没有唯一码");
+            if (addUniqCode) {
+                const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
+                    uniqCode: `型号${data.options.型号}${data.name}`
+                });
+                if (response?.data) {
+                    data.info.唯一码 = response.data;
+                } else {
+                    cad.errors.push("无法生成唯一码");
+                }
+            } else {
+                cad.errors.push("没有唯一码");
+            }
         } else if (uniqCodesCount[uniqCode] > 1) {
             cad.errors.push("唯一码重复: " + uniqCode);
         } else if (!uniqCode.match(namesReg)) {
             cad.errors.push("唯一码必须包含<br><br>" + names.join(", "));
         }
-        if (!data.type) {
+        if (!data.type && !cad.skipErrorCheck.has("分类")) {
             cad.errors.push("没有分类");
         }
         data.name = data.name.replaceAll("-", "_");
         if (data.name.match(/^\d+/)) {
             data.name = "_" + data.name;
-        } else if (!data.name.match(this._cadNameRegex)) {
+        } else if (!data.name.match(this._cadNameRegex) && !cad.skipErrorCheck.has("名字")) {
             cad.errors.push("CAD名字只能是：中文、英文字母、数字、下划线");
         }
         if (data.type === "包边正面") {
@@ -532,20 +589,7 @@ export class ImportComponent extends Utils() implements OnInit {
         if (data.type !== "示意图") {
             cad.errors = cad.errors.concat(validateLines(data).errMsg);
         }
-        for (const optionKey in data.options) {
-            if (["铰边", "锁边"].includes(optionKey)) {
-                continue;
-            }
-            const optionValues = data.options[optionKey].split(";");
-            if (this._optionsCache[optionKey] === undefined) {
-                const optionInfo = await this.dataService.getOptions(optionKey, "");
-                this._optionsCache[optionKey] = optionInfo.data.map((v) => v.name);
-            }
-            const optionsNotExist = difference(optionValues, this._optionsCache[optionKey], ["所有", "不选"]);
-            if (optionsNotExist.length > 0) {
-                cad.errors.push(`选项[${optionKey}]不存在或已停用: ${optionsNotExist.join(", ")}`);
-            }
-        }
+        cad.errors = cad.errors.concat(await this._validateOptions(data.options));
         if (cad.errors.length > 0) {
             this.hasError = true;
         }
@@ -585,13 +629,47 @@ export class ImportComponent extends Utils() implements OnInit {
             });
         }
 
-        if (this._slgsArr.length > 0) {
+        if (this.slgses.length > 0) {
             const optionKeys = ["型号", "产品分类"];
             optionKeys.forEach((key) => {
                 if (!data.options[key]) {
                     cad.errors.push(`缺少选项: ${key}`);
                 }
             });
+        }
+
+        data.entities.dimension.forEach((e) => {
+            if (reservedDimNames.includes(e.mingzi)) {
+                cad.errors.push(`标注名字不能是: ${e.mingzi}`);
+            }
+            const id1 = e.entity1.id;
+            const id2 = e.entity2.id;
+            if (e.info.isGongshi && (!(id1 && id2) || id1 !== id2)) {
+                if (data.type === "示意图") {
+                    e.mingzi = "显示公式: " + e.mingzi;
+                } else {
+                    cad.errors.push(`公式标注[=${e.mingzi}]识别错误, 必须标到同一条线的两个端点`);
+                }
+            }
+        });
+    }
+
+    private async _validateSlgs(slgs: ImportComponentSlgs) {
+        const data = slgs.data;
+        slgs.errors = slgs.errors.concat(await this._validateOptions(data.选项));
+        const silent = this.dataService.silent;
+        this.dataService.silent = true;
+        const strict = this.dataService.strict;
+        this.dataService.strict = false;
+        const response = await this.dataService.post("ngcad/validateFormulas", {formulas: data.公式});
+        this.dataService.silent = silent;
+        this.dataService.strict = strict;
+        if (response?.code !== 0) {
+            const msg = response?.msg || "验证算料公式时出错";
+            slgs.errors.push(msg);
+        }
+        if (slgs.errors.length > 0) {
+            this.hasError = true;
         }
     }
 

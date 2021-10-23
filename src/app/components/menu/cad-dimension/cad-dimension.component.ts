@@ -1,9 +1,11 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {reservedDimNames} from "@app/cad.utils";
 import {CadDimension, CadData, CadLine, CadEventCallBack} from "@cad-viewer";
 import {openCadDimensionFormDialog} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
+import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {AppStatusService, SelectedCadType, SelectedCads} from "@services/app-status.service";
 import {CadStatusEditDimension, CadStatusNormal} from "@services/cad-status";
@@ -93,7 +95,12 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
         }) as CadEventCallBack<"entitiesselect">
     ).bind(this);
 
-    constructor(private status: AppStatusService, private dialog: MatDialog, private config: AppConfigService) {
+    constructor(
+        private status: AppStatusService,
+        private dialog: MatDialog,
+        private config: AppConfigService,
+        private message: MessageService
+    ) {
         super();
     }
 
@@ -166,6 +173,10 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     // eslint-disable-next-line @typescript-eslint/member-ordering
     setDimensionName = debounce((event: Event, dimension: CadDimension) => {
         const str = (event.target as HTMLInputElement).value;
+        if (reservedDimNames.includes(str)) {
+            this.message.alert(`标注名字不能是: ${str}`);
+            return;
+        }
         dimension.mingzi = str;
         this.status.cad.render(dimension);
     }, 500);
@@ -229,7 +240,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     }
 
     setHideDimLines(event: MatSlideToggleChange, i: number) {
-        this.dimensions[i].hideDimLines = (event.checked);
+        this.dimensions[i].hideDimLines = event.checked;
         this.status.cad.render(this.dimensions[i]);
     }
 }

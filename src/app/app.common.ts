@@ -55,3 +55,27 @@ export const splitOptions = (str: string) => {
 };
 
 export const joinOptions = (options: string[]) => options.join(";");
+
+export const replaceChars = (str: string) => {
+    const fullChars2HalfChars: ObjectOf<string> = {
+        "“": '"',
+        "”": '"',
+        "。": ".",
+        "，": ",",
+        "？": "?",
+        "！": "!",
+        "；": ";",
+        "：": ":",
+        "‘": "'",
+        "’": "'"
+    };
+    let tmp = "";
+    for (const char of str) {
+        if (typeof fullChars2HalfChars[char] === "string") {
+            tmp += fullChars2HalfChars[char];
+        } else {
+            tmp += char;
+        }
+    }
+    return tmp;
+};

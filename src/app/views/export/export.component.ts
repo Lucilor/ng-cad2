@@ -6,7 +6,7 @@ import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {Line, ObjectOf, Point, ProgressBar} from "@utils";
-import {fields, skipFields} from "@views/import/import.config";
+import {cadFields, skipFields} from "@views/import/import.config";
 import Color from "color";
 import {intersection} from "lodash";
 
@@ -233,11 +233,11 @@ export class ExportComponent implements OnInit {
             rect.transform({translate});
 
             const texts = [`唯一码: ${cad.info.唯一码}`];
-            for (const key in fields) {
+            for (const key in cadFields) {
                 if (skipFields.includes(key)) {
                     continue;
                 }
-                const value = cad[fields[key]];
+                const value = cad[cadFields[key]];
                 if (typeof value === "string" && value) {
                     texts.push(`${key}: ${value}`);
                 } else if (typeof value === "boolean") {

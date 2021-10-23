@@ -56,6 +56,14 @@
                     </ul>
                 </div>
             </ng-container>
+            <ng-container *ngFor="let slgs of slgses">
+                <div *ngIf="slgs.errors.length > 0" class="cad">
+                    <div>名字: {{ slgs.data['名字'] }}</div>
+                    <ul>
+                        <li class="error" *ngFor="let error of slgs.errors" [innerHtml]="error"></li>
+                    </ul>
+                </div>
+            </ng-container>
         </div>
     </perfect-scrollbar>
     <app-thuum></app-thuum>
