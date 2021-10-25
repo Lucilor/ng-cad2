@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
-import {replaceChars, session} from "@app/app.common";
-import {reservedDimNames} from "@app/cad.utils";
+import {replaceChars} from "@app/app.common";
+import {reservedDimNames, validateLines} from "@app/cad.utils";
 import {
     CadArc,
     CadCircle,
@@ -13,8 +13,7 @@ import {
     CadZhankai,
     generateLineTexts,
     generatePointsMap,
-    sortLines,
-    validateLines
+    sortLines
 } from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {Utils} from "@mixins/utils.mixin";
@@ -87,11 +86,6 @@ export class ImportComponent extends Utils() implements OnInit {
 
     ngOnInit() {
         if (!environment.production) {
-            const cache = session.load<[ImportComponentCad[], ImportComponentSlgs[]]>(this._cadsKey);
-            if (cache) {
-                this.cads = cache[0].map((v) => ({...v, data: new CadData(v.data)}));
-                this.slgses = cache[1];
-            }
             this.importConfigNormal.requireLineId.value = false;
             this.importConfigNormal.pruneLines.value = true;
         }
@@ -268,8 +262,6 @@ export class ImportComponent extends Utils() implements OnInit {
                 cad.errors = cad.errors.concat(errors);
             }
         });
-
-        session.save(this._cadsKey, [this.cads.map((v) => ({...v, data: environment.production ? null : v.data.export()})), this.slgses]);
         this.cadsParsed = true;
     }
 
@@ -496,7 +488,7 @@ export class ImportComponent extends Utils() implements OnInit {
                 const optionInfo = await this.dataService.getOptions(optionKey, "");
                 this._optionsCache[optionKey] = optionInfo.data.map((v) => v.name);
             }
-            const optionsNotExist = difference(optionValues, this._optionsCache[optionKey], ["所有", "不选"]);
+            const optionsNotExist = difference(optionValues, this._optionsCache[optionKey], ["所有", "不选", "不选无"]);
             if (optionsNotExist.length > 0) {
                 errors.push(`选项[${optionKey}]不存在或已停用: ${optionsNotExist.join(", ")}`);
             }
@@ -585,12 +577,10 @@ export class ImportComponent extends Utils() implements OnInit {
         if (requireLineId) {
             const lines = entities.toArray((v) => v instanceof CadLineLike);
             if (lines.some((v) => !v.info.idReplaced)) {
-                cad.errors.push("存在没有Id的线");
+                cad.errors.push("存在没有id的线");
             }
         }
-        if (data.type !== "示意图") {
-            cad.errors = cad.errors.concat(validateLines(data).errMsg);
-        }
+        cad.errors = cad.errors.concat(validateLines(data).errMsg);
         cad.errors = cad.errors.concat(await this._validateOptions(data.options));
         if (cad.errors.length > 0) {
             this.hasError = true;

@@ -3,8 +3,8 @@ import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {autoFixLine, validColors} from "@app/cad.utils";
 import {
-    autoFixLine,
     CadArc,
     CadData,
     CadEntities,
@@ -17,7 +17,6 @@ import {
     linewidth2lineweight,
     PointsMap,
     setLinesLength,
-    validColors,
     变化方式
 } from "@cad-viewer";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";

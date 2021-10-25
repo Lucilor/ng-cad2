@@ -1,19 +1,8 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
 import {CadCollection, local, timer} from "@app/app.common";
-import {setCadData, addCadGongshi, prepareCadViewer} from "@app/cad.utils";
-import {
-    CadData,
-    CadLine,
-    CadViewer,
-    CadMtext,
-    validateLines,
-    generateLineTexts,
-    PointsMap,
-    CadEntities,
-    generatePointsMap,
-    ValidateResult
-} from "@cad-viewer";
+import {setCadData, addCadGongshi, prepareCadViewer, validateLines, ValidateResult} from "@app/cad.utils";
+import {CadData, CadLine, CadViewer, CadMtext, generateLineTexts, PointsMap, CadEntities, generatePointsMap} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, timeout} from "@utils";
