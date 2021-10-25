@@ -11,6 +11,7 @@ import {
     CadLineLike,
     CadMtext,
     CadZhankai,
+    generateLineTexts,
     generatePointsMap,
     sortLines,
     validateLines
@@ -479,6 +480,7 @@ export class ImportComponent extends Utils() implements OnInit {
                 }
                 delete e.info.varName;
             });
+            generateLineTexts(data);
         });
         return {cads, slgses};
     }

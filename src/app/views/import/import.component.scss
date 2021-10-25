@@ -17,6 +17,9 @@
 .toolbars {
     display: flex;
     justify-content: space-around;
+    > *:not(:last-child) {
+        margin-right: 10px;
+    }
 
     .toolbar {
         .content {

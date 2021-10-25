@@ -6,6 +6,6 @@
     (pointerup)="onPointerUp()"
     (pointerleave)="onPointerUp()"
 >
-    <div class="progress-bar-msg">{{ clickText || msg }}</div>
+    <div class="progress-bar-msg" [ngClass]="{click: clickText ? true : false}">{{ clickText || msg }}</div>
     <div class="progress-bar-layer" [style.width.%]="100 - progressBar.progress"></div>
 </div>

@@ -67,7 +67,9 @@ export const replaceChars = (str: string) => {
         "；": ";",
         "：": ":",
         "‘": "'",
-        "’": "'"
+        "’": "'",
+        "（": "(",
+        "）": ")"
     };
     let tmp = "";
     for (const char of str) {
