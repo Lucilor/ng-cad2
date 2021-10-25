@@ -1,9 +1,11 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, EventEmitter, OnInit} from "@angular/core";
 import {MatDialogRef} from "@angular/material/dialog";
 import {CadData} from "@cad-viewer";
 import {CadSearchData, CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, timeout} from "@utils";
+import {Observable} from "rxjs";
+import {map} from "rxjs/operators";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
@@ -13,8 +15,9 @@ import {getOpenDialogFunc} from "../dialog.common";
 })
 export class CadSearchFormComponent implements OnInit {
     data: CadSearchData = [];
-    form: ObjectOf<string[]> = {};
+    form: ObjectOf<string> = {};
     additional: CadSearchData[0] = {title: "自由选择", items: []};
+    options$: ObjectOf<{change$: EventEmitter<string>; options$: Observable<string[]>}> = {};
 
     constructor(
         public dialogRef: MatDialogRef<CadSearchFormComponent, CadData["options"]>,
@@ -26,6 +29,23 @@ export class CadSearchFormComponent implements OnInit {
         await timeout(0);
         this.data = await this.dataservice.getCadSearchForm();
         this.data.push(this.additional);
+        this.data.forEach((group) => {
+            group.items.forEach(({label, options}) => {
+                const optionValues = options.map((v) => v.label);
+                const change$ = new EventEmitter<string>();
+                const options$ = change$.pipe(
+                    map((value) => {
+                        if (!value) {
+                            return optionValues.slice();
+                        }
+                        value = value.toLowerCase();
+                        return optionValues.filter((v) => v.toLowerCase().includes(value));
+                    })
+                );
+                this.options$[label] = {change$, options$};
+            });
+        });
+        await timeout(0);
         this.reset();
     }
 
@@ -38,7 +58,7 @@ export class CadSearchFormComponent implements OnInit {
             const item = await this.dataservice.getCadSearchOptions(name);
             if (item) {
                 this.additional.items.push(item);
-                this.form[item.label] = [];
+                this.form[item.label] = "";
             }
         }
     }
@@ -47,8 +67,7 @@ export class CadSearchFormComponent implements OnInit {
         const result: CadData["options"] = {};
         for (const name in this.form) {
             if (this.form[name].length) {
-                const value = this.form[name].join(",");
-                result[name] = value;
+                result[name] = this.form[name];
             }
         }
         this.dialogRef.close(result);
@@ -60,7 +79,12 @@ export class CadSearchFormComponent implements OnInit {
 
     reset() {
         this.form = {};
-        this.data.forEach((v) => v.items.forEach((vv) => (this.form[vv.label] = [])));
+        this.data.forEach((v) =>
+            v.items.forEach(({label}) => {
+                this.form[label] = "";
+                this.options$[label].change$.emit("");
+            })
+        );
     }
 }
 

@@ -13,7 +13,8 @@ export const cadFields: ObjectOf<keyof CadData> = {
     算料处理: "suanliaochuli",
     显示宽度标注: "showKuandubiaozhu",
     双向折弯: "shuangxiangzhewan",
-    算料特殊要求: "算料特殊要求"
+    算料特殊要求: "算料特殊要求",
+    算料单显示: "suanliaodanxianshi"
 };
 export interface Slgs {
     名字: string;
