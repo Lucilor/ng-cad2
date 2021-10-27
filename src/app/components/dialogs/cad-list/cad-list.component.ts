@@ -24,6 +24,7 @@ export interface CadListData {
     collection: CadCollection;
     qiliao?: boolean;
     search?: ObjectOf<any>;
+    fixedSearch?: ObjectOf<any>;
 }
 
 export const customTooltipOptions: MatTooltipDefaultOptions = {
@@ -129,7 +130,8 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         }
         const limit = this.paginator.pageSize;
         const collection = this.data.collection;
-        const params: GetCadParams = {collection, page, limit, search: this.data.search};
+        const search = {...this.data.search, ...this.data.fixedSearch};
+        const params: GetCadParams = {collection, page, limit, search};
         if (this.data.selectMode === "table") {
             this.status.startLoader({id: "cadList"});
             const result = await this.dataService.getYuanshicadwenjian(params);
