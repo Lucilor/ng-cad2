@@ -1,8 +1,8 @@
 import {Injectable, Injector} from "@angular/core";
 import {CadCollection} from "@app/app.common";
 import {CadData} from "@cad-viewer";
+import {environment} from "@env";
 import {ObjectOf} from "@utils";
-import {environment} from "src/environments/environment";
 import {CustomResponse, HttpService} from "./http.service";
 
 export interface GetCadParams {

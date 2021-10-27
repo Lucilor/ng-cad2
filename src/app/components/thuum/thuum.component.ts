@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
+import {environment} from "@env";
 import {ListRandom, timeout} from "@utils";
-import {environment} from "src/environments/environment";
 
 interface Thuum {
     text: string;

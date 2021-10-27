@@ -45,6 +45,10 @@
     </div>
     <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
 
+    <button mat-raised-button (click)="downloadSourceCad()" [disabled]="!sourceCad || !cadsParsed">
+        下载dxf文件
+        <app-loader-inline [loaderId]="loaderIds.downloadSourceCad"></app-loader-inline>
+    </button>
     <perfect-scrollbar style="flex: 1 1 0">
         <div class="cads">
             <ng-container *ngFor="let cad of cads">
@@ -58,7 +62,7 @@
             </ng-container>
             <ng-container *ngFor="let slgs of slgses">
                 <div *ngIf="slgs.errors.length > 0" class="cad">
-                    <div>名字: {{ slgs.data['名字'] }}</div>
+                    <div>名字: {{ slgs.data["名字"] }}</div>
                     <ul>
                         <li class="error" *ngFor="let error of slgs.errors" [innerHtml]="error"></li>
                     </ul>
