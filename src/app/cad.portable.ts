@@ -3,6 +3,7 @@ import {
     CadCircle,
     CadData,
     CadDimension,
+    CadEntities,
     CadLeader,
     CadLine,
     CadLineLike,
@@ -26,6 +27,12 @@ export interface Slgs {
     选项: ObjectOf<string>;
     公式: ObjectOf<string>;
 }
+
+export type SourceCadMap = ObjectOf<{
+    rect: Rectangle;
+    rectLines: CadLineLike[];
+    entities: CadEntities;
+}>;
 
 export class CadPortable {
     static cadFields: ObjectOf<keyof CadData> = {
@@ -75,8 +82,7 @@ export class CadPortable {
             return obj;
         };
 
-        // this.sourceCad = sourceCad;
-        // this._sourceCadMap = {};
+        const sourceCadMap: SourceCadMap = {};
         sorted.forEach((group) => {
             const min = new Point(Infinity, Infinity);
             const max = new Point(-Infinity, -Infinity);
@@ -99,50 +105,57 @@ export class CadPortable {
 
         const cads: ImportComponentCad[] = rects.map((rect, i) => {
             const data = new CadData();
-            // this._sourceCadMap[data.id] = {rect, rectLines: sorted[i], entities: new CadEntities()};
+            sourceCadMap[data.id] = {rect, rectLines: sorted[i], entities: new CadEntities()};
             return {data, errors: [], skipErrorCheck: new Set()};
         });
         const slgses: ImportComponentSlgs[] = [];
         const {cadFields, slgsFields, skipFields} = this;
+        const globalOptions: CadData["options"] = {};
         sourceCad.getAllEntities().forEach((e) => {
             if (lineIds.includes(e.id)) {
                 return;
             }
-            if (isSuanliao && e instanceof CadMtext) {
+            if (e instanceof CadMtext) {
                 const text = replaceChars(e.text);
-                const slgsReg = /算料公式[:]?([\w\W]*)/;
-                const suanliaoMatch = text.match(slgsReg);
-                if (suanliaoMatch) {
-                    const obj = getObject(text.replace(slgsReg, ""), ":");
-                    const slgsData: ObjectOf<any> = {公式: getObject(suanliaoMatch[1], "=")};
-                    const errors: string[] = [];
-                    for (const key in obj) {
-                        const value = obj[key];
-                        slgsFields.forEach((field) => {
-                            if (value.includes(field)) {
-                                errors.push(`${field}缺少冒号`);
+                if (isSuanliao) {
+                    const slgsReg = /算料公式[:]?([\w\W]*)/;
+                    const suanliaoMatch = text.match(slgsReg);
+                    if (suanliaoMatch) {
+                        const obj = getObject(text.replace(slgsReg, ""), ":");
+                        const slgsData: ObjectOf<any> = {公式: getObject(suanliaoMatch[1], "=")};
+                        const errors: string[] = [];
+                        for (const key in obj) {
+                            const value = obj[key];
+                            slgsFields.forEach((field) => {
+                                if (value.includes(field)) {
+                                    errors.push(`${field}缺少冒号`);
+                                }
+                            });
+                            const key2 = cadFields[key];
+                            if (key2) {
+                                if (value === "是") {
+                                    (slgsData[key] as boolean) = true;
+                                } else if (value === "否") {
+                                    (slgsData[key] as boolean) = false;
+                                } else {
+                                    (slgsData[key] as string) = value;
+                                }
+                            } else if (key === "条件") {
+                                slgsData.条件 = value ? [value] : [];
+                            } else if (key !== "唯一码") {
+                                if (!slgsData.选项) {
+                                    slgsData.选项 = {};
+                                }
+                                slgsData.选项[key] = value;
                             }
-                        });
-                        const key2 = cadFields[key];
-                        if (key2) {
-                            if (value === "是") {
-                                (slgsData[key] as boolean) = true;
-                            } else if (value === "否") {
-                                (slgsData[key] as boolean) = false;
-                            } else {
-                                (slgsData[key] as string) = value;
-                            }
-                        } else if (key === "条件") {
-                            slgsData.条件 = value ? [value] : [];
-                        } else if (key !== "唯一码") {
-                            if (!slgsData.选项) {
-                                slgsData.选项 = {};
-                            }
-                            slgsData.选项[key] = value;
                         }
+                        slgses.push({data: slgsData as Slgs, errors});
+                        return;
                     }
-                    slgses.push({data: slgsData as Slgs, errors});
-                    return;
+                }
+                const xinghaoMatch = text.match(/型号[:]?([\w\W]*)/);
+                if (xinghaoMatch) {
+                    globalOptions.型号 = xinghaoMatch[1].trim();
                 }
             }
             rects.forEach((rect, i) => {
@@ -173,7 +186,7 @@ export class CadPortable {
                 }
                 if (isInRect) {
                     cads[i].data.entities.add(e.clone());
-                    // this._sourceCadMap[cads[i].data.id].entities.add(e);
+                    sourceCadMap[cads[i].data.id].entities.add(e);
                 }
             });
         });
@@ -185,6 +198,7 @@ export class CadPortable {
             let toRemove = -1;
             this._removeLeaders(data);
             data.info.errors = [];
+            data.options = {...globalOptions};
             data.entities.mtext.some((e, i) => {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
@@ -231,7 +245,11 @@ export class CadPortable {
                         } else if (key === "条件") {
                             data.conditions = value.split(";");
                         } else {
-                            data.options[key] = value.replaceAll(" ", "");
+                            if (globalOptions[key]) {
+                                cad.errors.push(`多余的选项[${key}]`);
+                            } else {
+                                data.options[key] = value.replaceAll(" ", "");
+                            }
                         }
                     }
                     data.zhankai = zhankaiObjs.map((o) => new CadZhankai(o));
@@ -253,7 +271,7 @@ export class CadPortable {
             });
             generateLineTexts(data);
         });
-        return {cads, slgses};
+        return {cads, slgses, sourceCadMap};
     }
 
     static export(cads: CadData[], exportIds: boolean) {

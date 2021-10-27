@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {CadPortable, Slgs} from "@app/cad.portable";
 import {reservedDimNames, validateLines} from "@app/cad.utils";
-import {CadData, CadEntities, CadLineLike, CadMtext} from "@cad-viewer";
+import {CadData, CadDimension, CadEntities, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {environment} from "@env";
 import {Utils} from "@mixins/utils.mixin";
@@ -43,11 +43,11 @@ interface PeiheInfo {
     styleUrls: ["./import.component.scss"]
 })
 export class ImportComponent extends Utils() implements OnInit {
-    private _cadsKey = "import-cads";
     private _cadNameRegex = /^(?!\d)[\da-zA-Z\u4e00-\u9fa5_]*$/u;
     private _optionsCache: ObjectOf<string[]> = {};
     private _peiheCadCache: ObjectOf<boolean> = {};
     private _sourceCadMap: ObjectOf<{rect: Rectangle; rectLines: CadLineLike[]; entities: CadEntities}> = {};
+    private _errorMsgLayer = "导出错误信息";
     sourceCad: CadData | null = null;
 
     loaderIds = {importLoader: "importLoader", importSuanliaoLoader: "importSuanliaoLoader", downloadSourceCad: "downloadSourceCad"};
@@ -114,7 +114,26 @@ export class ImportComponent extends Utils() implements OnInit {
             finish(true, "error", "读取文件失败");
             return;
         }
-        const {cads, slgses} = CadPortable.import(data, isSuanliao);
+        this.sourceCad = data;
+        const removedDimensions = data.info.removedDimensions;
+        let errorMsgLayer = data.layers.find((v) => v.name === this._errorMsgLayer);
+        if (!errorMsgLayer) {
+            errorMsgLayer = new CadLayer();
+            errorMsgLayer.name = this._errorMsgLayer;
+            data.layers.push(errorMsgLayer);
+        }
+        data.entities.toArray().forEach((e) => {
+            if (e.layer === this._errorMsgLayer) {
+                data.entities.remove(e);
+            }
+        });
+        if (Array.isArray(removedDimensions)) {
+            removedDimensions.forEach((v) => {
+                data.entities.dimension.push(new CadDimension(v));
+            });
+        }
+        const {cads, slgses, sourceCadMap} = CadPortable.import(data, isSuanliao);
+        this._sourceCadMap = sourceCadMap;
         const totalCad = cads.length;
         const totalSlgs = slgses.length;
         this.progressBar.start((totalCad + totalSlgs) * 2);
@@ -309,13 +328,17 @@ export class ImportComponent extends Utils() implements OnInit {
         const uniqCode = data.info.唯一码;
         if (!uniqCode) {
             if (addUniqCode) {
-                const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
-                    uniqCode: `型号${data.options.型号}${data.name}`
-                });
-                if (response?.data) {
-                    data.info.唯一码 = response.data;
+                if (data.type === "算料") {
+                    data.info.唯一码 = `算料${data.options.型号 || ""}${data.options.开启 || ""}${data.name}`;
                 } else {
-                    cad.errors.push("无法生成唯一码");
+                    const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
+                        uniqCode: `${data.type}${data.options.型号 || ""}${data.options.开启 || ""}${data.options.门扇厚度 || ""}${data.name}`
+                    });
+                    if (response?.data) {
+                        data.info.唯一码 = response.data;
+                    } else {
+                        cad.errors.push("无法生成唯一码");
+                    }
                 }
             } else {
                 cad.errors.push("没有唯一码");
@@ -426,11 +449,11 @@ export class ImportComponent extends Utils() implements OnInit {
 
         if (cad.errors.length > 0 && this.sourceCad) {
             const sourceCadInfo = this._sourceCadMap[data.id];
-            sourceCadInfo.rectLines.forEach((e) => (e.color = new Color("red")));
             const mtext = new CadMtext();
             mtext.text = cad.errors.join("\n");
             mtext.color = new Color("red");
-            mtext.insert.set(sourceCadInfo.rect.left, sourceCadInfo.rect.bottom);
+            mtext.layer = this._errorMsgLayer;
+            mtext.insert.set(sourceCadInfo.rect.left, sourceCadInfo.rect.bottom - 10);
             this.sourceCad.entities.add(mtext);
         }
     }
