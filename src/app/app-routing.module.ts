@@ -14,6 +14,7 @@ import {PrintA4A015PreviewComponent} from "@views/print-a4-a015-preview/print-a4
 import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
+import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
 import {routesInfo} from "./app.common";
 
 const routes: Routes = [
@@ -31,7 +32,8 @@ const routes: Routes = [
             {path: routesInfo.changelogAdmin.path, component: ChangelogAdminComponent},
             {path: routesInfo.kailiaokongweipeizhi.path, component: KailiaokongweipeizhiComponent},
             {path: routesInfo.replaceText.path, component: ReplaceTextComponent},
-            {path: routesInfo.piliangjianban.path, component: PiliangjianbanComponent}
+            {path: routesInfo.piliangjianban.path, component: PiliangjianbanComponent},
+            {path: routesInfo.selectCads.path, component: SelectCadsComponent}
         ],
         canActivate: [ProjectGuard]
     },

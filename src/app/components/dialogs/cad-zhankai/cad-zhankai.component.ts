@@ -62,7 +62,7 @@ export class CadZhankaiComponent extends Utils() {
     }
 
     async selectCadmuban(item: CadZhankai, key: "kailiaomuban" | "neikaimuban") {
-        const checkedItems = [new CadData({id: item[key]})];
+        const checkedItems = [item[key]];
         const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
         if (result?.length) {
             item[key] = result[0].id;

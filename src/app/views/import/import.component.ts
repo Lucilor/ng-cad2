@@ -413,7 +413,9 @@ export class ImportComponent extends Utils() implements OnInit {
             }
             const id1 = e.entity1.id;
             const id2 = e.entity2.id;
-            if (e.info.isGongshi && (!(id1 && id2) || id1 !== id2)) {
+            if (e.info.isGongshiForce) {
+                e.mingzi = "显示公式: " + e.mingzi;
+            } else if (e.info.isGongshi && (!(id1 && id2) || id1 !== id2)) {
                 if (data.type === "示意图") {
                     e.mingzi = "显示公式: " + e.mingzi;
                 } else {

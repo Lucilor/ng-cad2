@@ -1,8 +1,8 @@
 import {
     NgxMatDateFormats,
     NgxMatDatetimePickerModule,
-    NgxMatNativeDateModule,
     NgxMatTimepickerModule,
+    NgxMatNativeDateModule,
     NGX_MAT_DATE_FORMATS
 } from "@angular-material-components/datetime-picker";
 import {DragDropModule} from "@angular/cdk/drag-drop";
@@ -54,7 +54,8 @@ import {CadLineComponent} from "@components/menu/cad-line/cad-line.component";
 import {CadMtextComponent} from "@components/menu/cad-mtext/cad-mtext.component";
 import {SubCadsComponent} from "@components/menu/sub-cads/sub-cads.component";
 import {ToolbarComponent} from "@components/menu/toolbar/toolbar.component";
-import {ExportComponent} from "@views/export/export.component";
+import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
+import {ThuumComponent} from "@components/thuum/thuum.component";
 import {ReplaceFullCharsDirective} from "@directives/replace-full-chars.directive";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {HttpModule} from "@modules/http/http.module";
@@ -63,6 +64,7 @@ import {MessageModule} from "@modules/message/message.module";
 import {TableModule} from "@modules/table/table.module";
 import {BackupComponent} from "@views/backup/backup.component";
 import {ChangelogAdminComponent} from "@views/changelog-admin/changelog-admin.component";
+import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
@@ -72,16 +74,15 @@ import {PrintA4A015PreviewComponent} from "@views/print-a4-a015-preview/print-a4
 import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
+import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
 import {NgJsonEditorModule} from "ang-jsoneditor";
-import {RecaptchaV3Module, RECAPTCHA_BASE_URL, RECAPTCHA_V3_SITE_KEY} from "ng-recaptcha";
+import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_BASE_URL} from "ng-recaptcha";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {PerfectScrollbarConfigInterface, PerfectScrollbarModule, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
 import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
-import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
-import {ThuumComponent} from "@components/thuum/thuum.component";
 
 @Injectable()
 class MyMatPaginatorIntl extends MatPaginatorIntl {
@@ -163,7 +164,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         LoaderInlineComponent,
         ExportComponent,
         ProgressBarComponent,
-        ThuumComponent
+        ThuumComponent,
+        SelectCadsComponent
     ],
     imports: [
         HttpClientModule,

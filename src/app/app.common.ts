@@ -36,7 +36,8 @@ export const routesInfo = {
     changelogAdmin: {path: "changelog-admin", title: "编辑更新日志"},
     kailiaokongweipeizhi: {path: "kailiaokongweipeizhi", title: "开料孔位配置"},
     replaceText: {path: "replace-text", title: "文本替换"},
-    piliangjianban: {path: "piliangjianban", title: "批量剪板"}
+    piliangjianban: {path: "piliangjianban", title: "批量剪板"},
+    selectCads: {path: "select-cads", title: "选择CAD"}
 };
 
 export type CadCollection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";

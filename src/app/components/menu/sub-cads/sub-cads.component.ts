@@ -480,12 +480,12 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             return;
         }
         const data = this.contextMenuCad.data;
-        let checkedItems: CadData[] = [];
+        let checkedItems: string[] = [];
         if (type === "partners") {
-            checkedItems = [...data.partners];
+            checkedItems = data.partners.map((v) => v.id);
         }
         if (type === "components") {
-            checkedItems = [...data.components.data];
+            checkedItems = data.components.data.map((v) => v.id);
         }
         const qiliao = type === "components" && this.status.collection$.value === "qiliaozuhe";
         const cads = await openCadListDialog(this.dialog, {

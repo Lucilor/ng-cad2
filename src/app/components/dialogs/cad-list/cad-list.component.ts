@@ -12,13 +12,14 @@ import {CadDataService, GetCadParams} from "@modules/http/services/cad-data.serv
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf} from "@utils";
+import {difference} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
 export interface CadListData {
     selectMode: "single" | "multiple" | "table";
-    checkedItems?: CadData[];
+    checkedItems?: string[];
     options?: CadData["options"];
     collection: CadCollection;
     qiliao?: boolean;
@@ -50,7 +51,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
     searchField = "选项";
     searchNameInput = "";
     checkedIndex = new BehaviorSubject<number>(-1);
-    checkedItems: CadData[] = [];
+    checkedItems: string[] = [];
     checkedColumns: any[] = [];
     checkedInOtherPages = false;
     showCheckedOnly = false;
@@ -74,14 +75,14 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         }
         await this.paginator.initialized.toPromise();
         if (Array.isArray(this.data.checkedItems)) {
-            this.checkedItems = this.data.checkedItems.map((v) => v.clone());
+            this.checkedItems = this.data.checkedItems.slice();
         }
         this.data.qiliao = this.data.qiliao === true;
         this.getData(1);
         this.checkedIndex.subscribe((i) => {
             if (this.data.selectMode === "single") {
                 if (this.pageData[i]) {
-                    this.checkedItems = [this.pageData[i].data];
+                    this.checkedItems = [this.pageData[i].data.id];
                 } else {
                     // this.checkedItems = [];
                 }
@@ -99,24 +100,24 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             const toRemove: string[] = [];
             let checkedNum = 0;
             this.pageData.forEach((v) => {
-                const index = this.checkedItems.findIndex((vv) => vv.id === v.data.id);
+                const index = this.checkedItems.indexOf(v.data.id);
                 if (v.checked) {
                     if (index === -1) {
-                        this.checkedItems.push(v.data);
+                        this.checkedItems.push(v.data.id);
                     } else {
-                        this.checkedItems[index] = v.data;
+                        this.checkedItems[index] = v.data.id;
                     }
                     checkedNum++;
                 } else if (index > -1) {
                     toRemove.push(v.data.id);
                 }
             });
-            this.checkedItems = this.checkedItems.filter((v) => !toRemove.includes(v.id));
+            this.checkedItems = difference(this.checkedItems, toRemove);
             this.checkedInOtherPages = checkedNum < this.checkedItems.length;
         } else if (this.data.selectMode === "single") {
-            const data = this.checkedItems[0];
-            if (data) {
-                const index = this.pageData.findIndex((v) => v.data.id === data.id);
+            const id = this.checkedItems[0];
+            if (id) {
+                const index = this.pageData.findIndex((v) => v.data.id === id);
                 this.checkedIndex.next(index);
             }
         }
@@ -142,7 +143,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             params.options = options;
             params.optionsMatchType = matchType;
             if (this.showCheckedOnly) {
-                params.ids = this.checkedItems.map((v) => v.id);
+                params.ids = this.checkedItems.slice();
             }
             this.status.startLoader({id: "cadList"});
             const result = await this.dataService.getCad(params);
@@ -150,7 +151,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             this.length = result.total;
             this.pageData.length = 0;
             result.cads.forEach(async (d, i) => {
-                const checked = this.checkedItems.find((v) => v.id === d.id) ? true : false;
+                const checked = this.checkedItems.find((v) => v === d.id) ? true : false;
                 if (checked && this.data.selectMode === "single") {
                     this.checkedIndex.next(i);
                 }
@@ -229,7 +230,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         } else {
             this.syncCheckedItems();
             this.status.startLoader({id: "submitLoader"});
-            const result = await this.dataService.getCad({ids: this.checkedItems.map((v) => v.id), collection: this.data.collection});
+            const result = await this.dataService.getCad({ids: this.checkedItems.slice(), collection: this.data.collection});
             this.status.stopLoader();
             this.dialogRef.close(result.cads);
         }
@@ -247,10 +248,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             return;
         }
         if (await this.message.confirm(`确定要删除这${count}个CAD吗？`)) {
-            await this.dataService.removeCads(
-                this.data.collection,
-                this.checkedItems.map((v) => v.id)
-            );
+            await this.dataService.removeCads(this.data.collection, this.checkedItems.slice());
             this.search();
         }
     }
@@ -265,4 +263,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
     }
 }
 
-export const openCadListDialog = getOpenDialogFunc<CadListComponent, CadListData, CadData[]>(CadListComponent);
+export const openCadListDialog = getOpenDialogFunc<CadListComponent, CadListData, CadData[]>(CadListComponent, {
+    width: "80%",
+    height: "80%"
+});

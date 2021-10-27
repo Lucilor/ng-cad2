@@ -388,9 +388,9 @@ export class CadConsoleComponent implements OnInit {
             }
             const cad = this.status.cad;
             const selectMode = collection === "p_yuanshicadwenjian" ? "table" : "multiple";
-            let checkedItems: CadData[];
+            let checkedItems: string[];
             if (collection === this.status.collection$.value) {
-                checkedItems = cad.data.components.data;
+                checkedItems = cad.data.components.data.map((v) => v.id);
             } else {
                 checkedItems = [];
             }
