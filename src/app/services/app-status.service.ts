@@ -175,9 +175,6 @@ export class AppStatusService {
         } else {
             data = cad.data.components.data;
         }
-        if (data.length < 1) {
-            return;
-        }
         const newConfig: Partial<AppConfig> = {};
         const ids = data.map((v) => v.id);
         if (collection && this.collection$.value !== collection) {

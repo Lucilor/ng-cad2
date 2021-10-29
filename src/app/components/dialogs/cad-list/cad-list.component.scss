@@ -1,6 +1,6 @@
 :host {
-    width: calc(100% - 48px);
-    height: calc(100% - 24px);
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
 
@@ -73,14 +73,26 @@ mat-radio-group,
 }
 
 .mat-dialog-actions {
-    justify-content: center !important;
+    margin-bottom: 0;
+    box-sizing: border-box;
+    min-height: unset;
+
+    .btn-group {
+        flex: 1 1 0;
+        justify-content: center;
+    }
+
+    mat-paginator {
+        margin: -24px 0;
+    }
 }
 
 .search-input {
     display: flex;
+    align-items: center;
 
-    > * {
-        margin: 0 5px -20px 5px;
+    > *:not(:last-child) {
+        margin-right: 5px;
     }
 }
 

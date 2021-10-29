@@ -260,6 +260,10 @@ export class CadPortable {
                 }
                 return false;
             });
+            data.entities.dimension.forEach((e) => {
+                e.cad1 = data.name;
+                e.cad2 = data.name;
+            });
             if (toRemove >= 0) {
                 data.entities.mtext.splice(toRemove, 1);
             }

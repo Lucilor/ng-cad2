@@ -7,6 +7,7 @@ import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.compon
 import {openChangelogDialog} from "@components/dialogs/changelog/changelog.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadConsoleService} from "@modules/cad-console/services/cad-console.service";
+import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
@@ -92,7 +93,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         private message: MessageService,
         private config: AppConfigService,
         private status: AppStatusService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private dataService: CadDataService
     ) {
         super();
         this.subscribe(this.status.changelogTimeStamp$, (changelogTimeStamp) => {
@@ -346,5 +348,21 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         cads.forEach((cad) => cad.resetIds(true));
         await timeout(0);
         this.message.snack("重设ID完成");
+    }
+
+    async removeCads() {
+        const cads = this.status.getFlatSelectedCads();
+        if (cads.length < 1) {
+            this.message.alert("没有选择CAD");
+            return;
+        }
+        if (await this.message.confirm(`确定要删除选中的CAD吗？`)) {
+            const collection = this.status.collection$.getValue();
+            const ids = cads.map((v) => v.id);
+            const deletedIds = await this.dataService.removeCads(collection, ids);
+            if (deletedIds) {
+                await this.status.openCad(cads.filter((v) => !deletedIds.includes(v.id)));
+            }
+        }
     }
 }

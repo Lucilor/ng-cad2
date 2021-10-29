@@ -9,7 +9,6 @@ import {getCadPreview} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
 import {CadDataService, GetCadParams} from "@modules/http/services/cad-data.service";
-import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf} from "@utils";
 import {difference} from "lodash";
@@ -43,7 +42,7 @@ export const customTooltipOptions: MatTooltipDefaultOptions = {
 export class CadListComponent extends Utils() implements AfterViewInit {
     length = 100;
     pageSizeOptions = [1, 10, 20, 50, 100];
-    pageSize = 10;
+    pageSize = 20;
     pageData: {data: CadData; img: string; checked: boolean}[] = [];
     tableData: any = [];
     displayedColumns = ["select", "mingzi", "wenjian", "create_time", "modify_time"];
@@ -64,8 +63,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         private sanitizer: DomSanitizer,
         private status: AppStatusService,
         private dataService: CadDataService,
-        private dialog: MatDialog,
-        private message: MessageService
+        private dialog: MatDialog
     ) {
         super();
     }
@@ -242,19 +240,6 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         this.dialogRef.close();
     }
 
-    async remove() {
-        this.syncCheckedItems();
-        const count = this.checkedItems.length;
-        if (count < 1) {
-            this.message.alert("没有选择CAD");
-            return;
-        }
-        if (await this.message.confirm(`确定要删除这${count}个CAD吗？`)) {
-            await this.dataService.removeCads(this.data.collection, this.checkedItems.slice());
-            this.search();
-        }
-    }
-
     toggleShowCheckedOnly(evnet: MatSlideToggleChange) {
         this.showCheckedOnly = evnet.checked;
         this.search();
@@ -266,6 +251,6 @@ export class CadListComponent extends Utils() implements AfterViewInit {
 }
 
 export const openCadListDialog = getOpenDialogFunc<CadListComponent, CadListData, CadData[]>(CadListComponent, {
-    width: "80%",
-    height: "80%"
+    width: "85%",
+    height: "85%"
 });

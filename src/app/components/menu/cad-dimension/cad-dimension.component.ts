@@ -2,7 +2,7 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {reservedDimNames} from "@app/cad.utils";
-import {CadDimension, CadData, CadLine, CadEventCallBack} from "@cad-viewer";
+import {CadDimension, CadData, CadLine, CadEventCallBack, CadLineLike} from "@cad-viewer";
 import {openCadDimensionFormDialog} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
@@ -77,15 +77,11 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                 }
                 const e1 = cad.data.findEntity(dimension.entity1.id);
                 const e2 = cad.data.findEntity(dimension.entity2.id);
-                if (e1 instanceof CadLine && e2 instanceof CadLine) {
-                    const slope1 = e1.slope;
-                    const slope2 = e2.slope;
-                    // * default axis: x
-                    if (Math.abs(slope1 - slope2) <= 1) {
-                        if (Math.abs(slope1) <= 1) {
-                            dimension.axis = "y";
-                        } else {
-                            dimension.axis = "x";
+                if (e1 instanceof CadLineLike && e2 instanceof CadLineLike) {
+                    const points = cad.data.getDimensionPoints(dimension);
+                    if (points.length === 4) {
+                        if (points[0].equals(points[1])) {
+                            dimension.axis = dimension.axis === "x" ? "y" : "x";
                         }
                     }
                 }

@@ -127,12 +127,12 @@ export class ImportComponent extends Utils() implements OnInit {
                 data.entities.remove(e);
             }
         });
+        const {cads, slgses, sourceCadMap} = CadPortable.import(data, isSuanliao);
         if (Array.isArray(removedDimensions)) {
             removedDimensions.forEach((v) => {
                 data.entities.dimension.push(new CadDimension(v));
             });
         }
-        const {cads, slgses, sourceCadMap} = CadPortable.import(data, isSuanliao);
         this._sourceCadMap = sourceCadMap;
         const totalCad = cads.length;
         const totalSlgs = slgses.length;
@@ -240,7 +240,7 @@ export class ImportComponent extends Utils() implements OnInit {
         for (let i = 0; i < totalCad; i++) {
             this.msg = `正在检查dxf数据(${i + 1}/${totalCad})`;
             this.progressBar.forward();
-            await this._validateCad(cads[i], uniqCodesCount, requireLineId, addUniqCode);
+            await this._validateCad(cads[i], uniqCodesCount, requireLineId, addUniqCode, isSuanliao);
         }
         for (let i = 0; i < totalSlgs; i++) {
             this.msg = `正在检查dxf数据(${i + 1}/${totalSlgs})`;
@@ -292,7 +292,7 @@ export class ImportComponent extends Utils() implements OnInit {
         return errors;
     }
 
-    private async _validateCad(cad: ImportComponentCad, uniqCodesCount: ObjectOf<number>, requireLineId: boolean, addUniqCode: boolean) {
+    private async _validateCad(cad: ImportComponentCad, uniqCodesCount: ObjectOf<number>, requireLineId: boolean, addUniqCode: boolean, isSuanliao:boolean) {
         const data = cad.data;
         const names = [
             "包边正面",
@@ -328,8 +328,8 @@ export class ImportComponent extends Utils() implements OnInit {
         const uniqCode = data.info.唯一码;
         if (!uniqCode) {
             if (addUniqCode) {
-                if (data.type === "算料") {
-                    data.info.唯一码 = `算料${data.options.型号 || ""}${data.options.开启 || ""}${data.name}`;
+                if (isSuanliao) {
+                    data.info.唯一码 = `${data.type}${data.options.型号 || ""}${data.options.开启 || ""}${data.name}`;
                 } else {
                     const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
                         uniqCode: `${data.type}${data.options.型号 || ""}${data.options.开启 || ""}${data.options.门扇厚度 || ""}${

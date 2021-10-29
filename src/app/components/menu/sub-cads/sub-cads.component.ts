@@ -16,7 +16,7 @@ import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {SelectedCadType, AppStatusService, SelectedCads} from "@services/app-status.service";
 import {CadStatusSplit, CadStatusAssemble} from "@services/cad-status";
 import {downloadByString, ObjectOf, Point} from "@utils";
-import {concat, keyBy, pull, pullAll} from "lodash";
+import {concat, difference, isEqual, keyBy, pull, pullAll} from "lodash";
 
 interface CadNode {
     data: CadData;
@@ -312,7 +312,13 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         }
     }
 
-    selectAll(field: SelectedCadType = "cads") {
+    isAllSelected(field: SelectedCadType) {
+        const ids1 = this.status.selectedCads$.value[field];
+        const ids2 = this[field].map((v) => v.data.id);
+        return isEqual(ids1, ids2);
+    }
+
+    selectAll(field: SelectedCadType) {
         const selectedCads = this.status.selectedCads$.value;
         selectedCads[field] = this[field].map((v) => v.data.id);
         if (field === "cads") {
@@ -323,7 +329,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         this.status.selectedCads$.next(selectedCads);
     }
 
-    unselectAll(field: SelectedCadType = "cads") {
+    unselectAll(field: SelectedCadType) {
         const selectedCads = this.status.selectedCads$.value;
         selectedCads[field] = [];
         if (field === "cads") {
@@ -645,8 +651,13 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         }
     }
 
-    async deleteSelected() {
-        const checkedCads = this.cads.filter((v) => v.checked).map((v) => v.data);
+    async deleteSelected(field?: SelectedCadType) {
+        let checkedCads: CadData[];
+        if (field) {
+            checkedCads = this[field].filter((v) => v.checked).map((v) => v.data);
+        } else {
+            checkedCads = this.cads.filter((v) => v.checked).map((v) => v.data);
+        }
         const checkedIds = checkedCads.map((v) => v.id);
         const cadStatus = this.status.cadStatus;
         const cad = this.status.cad;
@@ -695,19 +706,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 }
                 this.status.openCad();
             }
-        }
-    }
-
-    editSelected() {
-        const selected = this.selected;
-        let ids = [];
-        if (selected.cads.length) {
-            ids = selected.cads.map((v) => v.id);
-        } else {
-            ids = selected.partners.concat(selected.components).map((v) => v.id);
-        }
-        if (ids.length) {
-            open(`index?ids=${ids.join(",")}&collection=cad`);
         }
     }
 

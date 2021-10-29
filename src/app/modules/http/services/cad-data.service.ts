@@ -227,7 +227,11 @@ export class CadDataService extends HttpService {
     }
 
     async removeCads(collection: string, ids: string[]) {
-        await this.post<never>("peijian/cad/removeCad", {collection, ids});
+        const response = await this.post<string[]>("peijian/cad/removeCad", {collection, ids});
+        if (response?.data) {
+            return response.data;
+        }
+        return null;
     }
 
     async getBancais(table: string, codes: string[]) {
