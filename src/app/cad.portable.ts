@@ -158,6 +158,9 @@ export class CadPortable {
                     globalOptions.型号 = xinghaoMatch[1].trim();
                 }
             }
+            slgses.forEach((slgs) => {
+                slgs.data.选项 = {...globalOptions, ...slgs.data.选项};
+            });
             rects.forEach((rect, i) => {
                 let isInRect = false;
                 if (e instanceof CadLine && rect.contains(new Line(e.start, e.end))) {
@@ -221,12 +224,12 @@ export class CadPortable {
                         }
                         if (key === "展开") {
                             zhankaiObjs = Array.from(value.matchAll(/\[([^\]]*)\]/g)).map((vv) => {
-                                const [zhankaikuan, zhankaigao, shuliang, conditions] = vv[1].split(/[,，]/);
-                                if (!zhankaikuan || !zhankaigao || !shuliang) {
-                                    cad.errors.push(`展开信息不全`);
-                                    return {};
-                                }
-                                return {zhankaikuan, zhankaigao, shuliang, conditions: conditions ? [conditions] : undefined};
+                                const arr = vv[1].split(",");
+                                const zhankaikuan = arr[0] || "ceil(总长)+0";
+                                const zhankaigao = arr[1] || "";
+                                const shuliang = arr[2] || "1";
+                                const conditions = arr[3] ? [arr[3]] : undefined;
+                                return {zhankaikuan, zhankaigao, shuliang, conditions};
                             });
                             continue;
                         }

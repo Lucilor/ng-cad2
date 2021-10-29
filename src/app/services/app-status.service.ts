@@ -185,6 +185,9 @@ export class AppStatusService {
         } else {
             collection = this.collection$.value;
         }
+        if (collection === "CADmuban") {
+            this.config.setConfig({hideLineLength: true, hideLineGongshi: true}, {sync: false});
+        }
 
         const {ids: ids2, collection: collection2} = this.route.snapshot.queryParams;
         if (ids.join(",") !== ids2 || collection !== collection2) {

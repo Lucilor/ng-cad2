@@ -332,7 +332,9 @@ export class ImportComponent extends Utils() implements OnInit {
                     data.info.唯一码 = `算料${data.options.型号 || ""}${data.options.开启 || ""}${data.name}`;
                 } else {
                     const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
-                        uniqCode: `${data.type}${data.options.型号 || ""}${data.options.开启 || ""}${data.options.门扇厚度 || ""}${data.name}`
+                        uniqCode: `${data.type}${data.options.型号 || ""}${data.options.开启 || ""}${data.options.门扇厚度 || ""}${
+                            data.name
+                        }`
                     });
                     if (response?.data) {
                         data.info.唯一码 = response.data;
@@ -382,9 +384,6 @@ export class ImportComponent extends Utils() implements OnInit {
         }
         cad.errors = cad.errors.concat(validateLines(data).errMsg);
         cad.errors = cad.errors.concat(await this._validateOptions(data.options));
-        if (cad.errors.length > 0) {
-            this.hasError = true;
-        }
 
         const infoObj: ObjectOf<PeiheInfo[]> = {
             锁企料: [
@@ -447,14 +446,17 @@ export class ImportComponent extends Utils() implements OnInit {
             }
         });
 
-        if (cad.errors.length > 0 && this.sourceCad) {
-            const sourceCadInfo = this._sourceCadMap[data.id];
-            const mtext = new CadMtext();
-            mtext.text = cad.errors.join("\n");
-            mtext.color = new Color("red");
-            mtext.layer = this._errorMsgLayer;
-            mtext.insert.set(sourceCadInfo.rect.left, sourceCadInfo.rect.bottom - 10);
-            this.sourceCad.entities.add(mtext);
+        if (cad.errors.length > 0) {
+            this.hasError = true;
+            if (this.sourceCad) {
+                const sourceCadInfo = this._sourceCadMap[data.id];
+                const mtext = new CadMtext();
+                mtext.text = cad.errors.join("\n");
+                mtext.color = new Color("red");
+                mtext.layer = this._errorMsgLayer;
+                mtext.insert.set(sourceCadInfo.rect.left, sourceCadInfo.rect.bottom - 10);
+                this.sourceCad.entities.add(mtext);
+            }
         }
     }
 
