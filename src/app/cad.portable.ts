@@ -153,13 +153,13 @@ export class CadPortable {
                         return;
                     }
                 }
-                const xinghaoMatch = text.match(/型号[:]?([\w\W]*)/);
+                const xinghaoMatch = text.match(/^型号[:]?([\w\W]*)/);
                 if (xinghaoMatch) {
                     globalOptions.型号 = xinghaoMatch[1].trim();
                 }
             }
             slgses.forEach((slgs) => {
-                slgs.data.选项 = {...globalOptions, ...slgs.data.选项};
+                slgs.data.选项 = {...slgs.data.选项, ...globalOptions};
             });
             rects.forEach((rect, i) => {
                 let isInRect = false;

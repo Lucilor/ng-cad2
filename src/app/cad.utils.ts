@@ -441,10 +441,12 @@ export interface ValidateResult {
     lines: CadLineLike[][];
 }
 
+export const isShiyitu = (data: CadData) => data.type.includes("示意图") || data.type2.includes("示意图");
+
 export const LINE_LIMIT = [0.01, 0.7];
 export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"];
 export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): ValidateResult => {
-    if (data.type === "示意图" || data.type2 === "示意图" || data.shuangxiangzhewan) {
+    if (isShiyitu(data) || data.shuangxiangzhewan) {
         return {valid: true, errMsg: [], lines: []};
     }
     const lines = sortLines(data, tolerance);

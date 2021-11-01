@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {CadPortable, Slgs} from "@app/cad.portable";
-import {reservedDimNames, validateLines} from "@app/cad.utils";
+import {isShiyitu, reservedDimNames, validateLines} from "@app/cad.utils";
 import {CadData, CadDimension, CadEntities, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {environment} from "@env";
@@ -166,6 +166,7 @@ export class ImportComponent extends Utils() implements OnInit {
             this.msg = `正在导入算料公式(${i + 1}/${totalSlgs})`;
             if (!response?.data) {
                 skipped++;
+                this.slgses[i].errors.push(this.dataService.lastResponse?.msg || "保存失败");
             }
             this.progressBar.forward();
         }
@@ -292,7 +293,13 @@ export class ImportComponent extends Utils() implements OnInit {
         return errors;
     }
 
-    private async _validateCad(cad: ImportComponentCad, uniqCodesCount: ObjectOf<number>, requireLineId: boolean, addUniqCode: boolean, isSuanliao:boolean) {
+    private async _validateCad(
+        cad: ImportComponentCad,
+        uniqCodesCount: ObjectOf<number>,
+        requireLineId: boolean,
+        addUniqCode: boolean,
+        isSuanliao: boolean
+    ) {
         const data = cad.data;
         const names = [
             "包边正面",
@@ -359,14 +366,11 @@ export class ImportComponent extends Utils() implements OnInit {
         } else if (!data.name.match(this._cadNameRegex) && !cad.skipErrorCheck.has("名字")) {
             cad.errors.push("CAD名字只能是：中文、英文字母、数字、下划线");
         }
+        let 修改包边正面宽规则 = data.info.修改包边正面宽规则;
         if (data.type === "包边正面") {
-            if (data.info.修改包边正面宽规则) {
-                const 修改包边正面宽规则 = "修改包边正面宽规则:\n" + data.info.修改包边正面宽规则;
-                cad.errors = cad.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, data.info.vars).errors);
-            } else {
-                cad.errors.push("分类为包边正面必须写修改包边正面宽规则");
-            }
-        } else if (data.info.修改包边正面宽规则) {
+            修改包边正面宽规则 = "修改包边正面宽规则:\n" + 修改包边正面宽规则;
+            cad.errors = cad.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, data.info.vars).errors);
+        } else if (修改包边正面宽规则) {
             cad.errors.push("分类不为包边正面不能写修改包边正面宽规则");
         }
         if (data.info.锁边自动绑定可搭配铰边 && !["锁企料", "扇锁企料"].includes(data.type)) {
@@ -433,14 +437,18 @@ export class ImportComponent extends Utils() implements OnInit {
             if (reservedDimNames.includes(e.mingzi)) {
                 cad.errors.push(`标注名字不能是: ${e.mingzi}`);
             }
-            const id1 = e.entity1.id;
-            const id2 = e.entity2.id;
-            if (e.info.isGongshiForce) {
-                e.mingzi = "显示公式: " + e.mingzi;
-            } else if (e.info.isGongshi && (!(id1 && id2) || id1 !== id2)) {
-                if (data.type === "示意图") {
-                    e.mingzi = "显示公式: " + e.mingzi;
+            if (isShiyitu(data)) {
+                if (e.mingzi.includes("=")) {
+                    cad.errors.push("示意图标注不能有=号");
                 } else {
+                    e.mingzi = "显示公式: " + e.mingzi;
+                }
+            } else {
+                const id1 = e.entity1.id;
+                const id2 = e.entity2.id;
+                if (e.info.isGongshiForce) {
+                    e.mingzi = "显示公式: " + e.mingzi;
+                } else if (e.info.isGongshi && (!(id1 && id2) || id1 !== id2)) {
                     cad.errors.push(`公式标注[=${e.mingzi}]识别错误, 必须标到同一条线的两个端点`);
                 }
             }
