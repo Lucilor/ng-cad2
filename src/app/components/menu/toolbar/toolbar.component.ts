@@ -2,6 +2,7 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {routesInfo, local} from "@app/app.common";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines, CadLine} from "@cad-viewer";
+import {openBbzhmkgzDialog} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
 import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {openChangelogDialog} from "@components/dialogs/changelog/changelog.component";
@@ -326,12 +327,17 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         if (!data) {
             return;
         }
-        const result = await this.message.prompt(
-            {promptData: {type: "textarea", value: data.info.修改包边正面宽规则}},
-            {width: "80%", height: "75%"}
-        );
-        if (result !== null) {
-            data.info.修改包边正面宽规则 = result;
+        const result = await openBbzhmkgzDialog(this.dialog, {
+            width: "80%",
+            height: "75%",
+            data: {value: data.info.修改包边正面宽规则 || "", vars: data.info.vars}
+        });
+        // const result = await this.message.prompt(
+        //     {promptData: {type: "textarea", value: data.info.修改包边正面宽规则}},
+        //     {width: "80%", height: "75%"}
+        // );
+        if (result) {
+            data.info.修改包边正面宽规则 = result.value;
         }
     }
 

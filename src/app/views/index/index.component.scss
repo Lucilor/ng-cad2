@@ -49,6 +49,10 @@
         padding: 10px;
         height: 100%;
         align-items: center;
+        .btn-group {
+            align-items: center;
+            justify-content: space-between;
+        }
     }
 
     &.left {
