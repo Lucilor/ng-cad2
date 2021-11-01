@@ -1,0 +1,17 @@
+<perfect-scrollbar>
+    <mat-form-field class="value">
+        <mat-label></mat-label>
+        <textarea matInput cdkTextareaAutosize [(ngModel)]="data.value"></textarea>
+    </mat-form-field>
+    <div class="vars">
+        <div class="var" *ngFor="let key of keysOf(data.vars)">
+            <span>{{ key }}</span>
+            :
+            <span>{{ data.vars[key] }}</span>
+        </div>
+    </div>
+    <div class="btn-group actions">
+        <button mat-raised-button (click)="submit()">确定</button>
+        <button mat-raised-button (click)="cancle()">取消</button>
+    </div>
+</perfect-scrollbar>

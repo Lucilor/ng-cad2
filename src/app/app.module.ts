@@ -34,6 +34,7 @@ import {BrowserModule} from "@angular/platform-browser";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
+import {BbzhmkgzComponent} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
 import {CadDataAttrsComponent} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
 import {CadDimensionFormComponent} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
 import {CadLineTjqzSelectComponent} from "@components/dialogs/cad-line-tjqz-select/cad-line-tjqz-select.component";
@@ -165,7 +166,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         ExportComponent,
         ProgressBarComponent,
         ThuumComponent,
-        SelectCadsComponent
+        SelectCadsComponent,
+        BbzhmkgzComponent
     ],
     imports: [
         HttpClientModule,
