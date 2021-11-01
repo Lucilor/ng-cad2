@@ -27,7 +27,6 @@ export class ProgressBarComponent {
         "ヽ(･ω･´ﾒ)",
         "(✪ω✪)",
         "(｡•ˇ‸ˇ•｡)",
-        "●'ω')_旦~ 请你喝茶",
         "o(ﾟДﾟ)っ！",
         "(❁´ω`❁)",
         "｡◕ᴗ◕｡",
@@ -37,7 +36,12 @@ export class ProgressBarComponent {
         "ヽ(^ω^)ﾉ ",
         "(*❦ω❦)",
         "(๑•ω•๑)",
-        "(o°ω°o)"
+        "(o°ω°o)",
+        "(╯︵╰)",
+        "❥(ゝω・✿ฺ)",
+        "✧(＾＿－✿ ",
+        "★(－ｏ⌒) ",
+        "(・ω<)"
     ]);
     clickText: string | null = null;
 

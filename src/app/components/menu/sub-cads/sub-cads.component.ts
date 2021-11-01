@@ -16,7 +16,7 @@ import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {SelectedCadType, AppStatusService, SelectedCads} from "@services/app-status.service";
 import {CadStatusSplit, CadStatusAssemble} from "@services/cad-status";
 import {downloadByString, ObjectOf, Point} from "@utils";
-import {concat, difference, isEqual, keyBy, pull, pullAll} from "lodash";
+import {concat, isEqual, keyBy, pull, pullAll} from "lodash";
 
 interface CadNode {
     data: CadData;

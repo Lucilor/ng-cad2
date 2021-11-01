@@ -40,9 +40,7 @@ export class CadPortable {
         分类: "type",
         分类2: "type2",
         全部刨坑: "kailiaoshibaokeng",
-        变形方式: "bianxingfangshi",
         板材纹理方向: "bancaiwenlifangxiang",
-        开料排版方式: "kailiaopaibanfangshi",
         默认开料板材: "morenkailiaobancai",
         算料处理: "suanliaochuli",
         显示宽度标注: "showKuandubiaozhu",
@@ -229,6 +227,12 @@ export class CadPortable {
                                 const zhankaigao = arr[1] || "";
                                 const shuliang = arr[2] || "1";
                                 const conditions = arr[3] ? [arr[3]] : undefined;
+                                for(const vvv of [zhankaikuan, zhankaigao, shuliang]){
+                                    if (vvv.match(/['"]/)) {
+                                        cad.errors.push("展开宽, 展开高和数量不能有引号");
+                                        break;
+                                    }
+                                }
                                 return {zhankaikuan, zhankaigao, shuliang, conditions};
                             });
                             continue;

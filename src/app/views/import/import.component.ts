@@ -9,7 +9,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, ProgressBar, Rectangle} from "@utils";
 import Color from "color";
-import {difference} from "lodash";
+import {difference, intersection} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
@@ -30,7 +30,6 @@ export type ImportComponentConfig = Record<ImportComponentConfigName, {label: st
 interface PeiheInfo {
     type: string;
     options: {
-        contains?: string[];
         is?: ObjectOf<string>;
         isNot?: ObjectOf<(string | null | undefined)[]>;
     };
@@ -391,29 +390,32 @@ export class ImportComponent extends Utils() implements OnInit {
 
         const infoObj: ObjectOf<PeiheInfo[]> = {
             锁企料: [
-                {type: "锁框", options: {contains: ["门扇厚度", "开启"]}},
-                {type: "顶框", options: {contains: ["门扇厚度", "开启"]}},
-                {type: "小锁料", options: {contains: ["门扇厚度", "开启"], isNot: {产品分类: ["单门", "", undefined, null]}}}
+                {type: "锁框", options: {}},
+                {type: "顶框", options: {}}
             ],
-            铰企料: [{type: "小铰料", options: {contains: ["门扇厚度", "开启", "门铰"]}}]
+            扇锁企料: [{type: "小锁料", options: {isNot: {产品分类: ["单门", "", undefined, null]}}}],
+            铰企料: [{type: "小铰料", options: {}}]
         };
-        if (data.info.锁边自动绑定可搭配铰边) {
-            data.info.锁边自动绑定可搭配铰边.split(";").forEach((v) => {
-                infoObj.锁企料.push({type: "铰企料", options: {contains: ["门扇厚度", "开启"], is: {铰边: v}}, hint: v});
-            });
+        data.info.锁边自动绑定可搭配铰边?.split(";").forEach((v) => {
+            infoObj.锁企料.push({type: "铰企料", options: {is: {铰边: v}}, hint: v});
+        });
+        let infoArray: PeiheInfo[];
+        if (data.type === "锁企料" && data.type2 === "扇锁企料") {
+            infoArray = infoObj[data.type2];
+        } else {
+            infoArray = infoObj[data.type];
         }
-        infoObj.扇锁企料 = [...infoObj.锁企料];
-        if (infoObj[data.type] !== undefined) {
-            const infoArray: PeiheInfo[] = [];
-            for (const info of infoObj[data.type]) {
+        if (infoArray !== undefined) {
+            const infoArray2: PeiheInfo[] = [];
+            for (const info of infoArray) {
                 const hasPeiheCad = await this._hasPeiheCad(info, data.options);
                 if (!hasPeiheCad) {
-                    infoArray.push(info);
+                    infoArray2.push(info);
                 }
             }
-            const result = await this._matchPeiheCad(infoArray, data.options);
+            const result = await this._matchPeiheCad(infoArray2, data.options);
             result.forEach((matched, i) => {
-                const info = infoObj[data.type][i];
+                const info = infoArray2[i];
                 if (!matched) {
                     let error = `缺少对应${info.type}`;
                     if (info.hint) {
@@ -487,41 +489,60 @@ export class ImportComponent extends Utils() implements OnInit {
         }
     }
 
+    private _getOptions(str: string | undefined | null) {
+        if (typeof str !== "string") {
+            return [];
+        }
+        return str.split(";").map((v) => v.trim());
+    }
+
     private async _hasPeiheCad(info: PeiheInfo, options: ObjectOf<string>) {
-        const containsOptions = (optionValue1: string | undefined, optionValue2: string | undefined) => {
-            const values1 = (optionValue1 || "").split(";").map((v) => v.trim());
-            const values2 = (optionValue2 || "").split(";").map((v) => v.trim());
-            return values2.every((v) => values1.includes(v));
-        };
-        const {contains, is, isNot} = info.options;
-        const found = this.cads.findIndex(({data}) => {
-            if (data.type !== info.type) {
-                return false;
-            }
-            if (contains) {
-                for (const optionName of contains) {
-                    if (!containsOptions(data.options[optionName], options[optionName])) {
-                        return false;
-                    }
-                }
+        const {is, isNot} = info.options;
+        const options2: ObjectOf<string[]> = {};
+        this.cads.forEach(({data}) => {
+            if (data.type !== info.type && data.type2 !== info.type) {
+                return;
             }
             if (is) {
                 for (const optionName in is) {
                     if (!is[optionName].includes(data.options[optionName])) {
-                        return false;
+                        return;
                     }
                 }
             }
             if (isNot) {
                 for (const optionName in isNot) {
                     if (isNot[optionName].includes(data.options[optionName])) {
-                        return false;
+                        return;
                     }
                 }
             }
-            return true;
+            for (const optionName in options) {
+                const values1 = this._getOptions(options[optionName]);
+                const values2 = this._getOptions(data.options[optionName]);
+                if (values2.length < 1 || data.options[optionName] === "所有") {
+                    continue;
+                }
+                if (intersection(values1, values2).length < 1) {
+                    return;
+                }
+            }
+            for (const optionName in options) {
+                this._getOptions(data.options[optionName]).forEach((v) => {
+                    if (!options2[optionName]) {
+                        options2[optionName] = [v];
+                    } else if (!options2[optionName].includes(v)) {
+                        options2[optionName].push(v);
+                    }
+                });
+            }
         });
-        return found >= 0;
+        for (const optionName in options) {
+            if (difference(options[optionName].split(";"), options2[optionName]).length > 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private async _matchPeiheCad(infoArray: PeiheInfo[], options: ObjectOf<string>) {
