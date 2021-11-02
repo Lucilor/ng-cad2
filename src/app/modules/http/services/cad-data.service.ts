@@ -50,6 +50,7 @@ export interface BancaiList {
 export interface BancaiCad {
     id: string;
     name: string;
+    peihe?: string;
     width: number;
     height: number;
     bancai: {mingzi: string; cailiao: string | null; houdu: string | null; guige: number[] | null; gas?: string};

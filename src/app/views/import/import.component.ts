@@ -46,7 +46,7 @@ export class ImportComponent extends Utils() implements OnInit {
     private _optionsCache: ObjectOf<string[]> = {};
     private _peiheCadCache: ObjectOf<boolean> = {};
     private _sourceCadMap: ObjectOf<{rect: Rectangle; rectLines: CadLineLike[]; entities: CadEntities}> = {};
-    private _errorMsgLayer = "导出错误信息";
+    private _errorMsgLayer = "导入错误信息";
     sourceCad: CadData | null = null;
 
     loaderIds = {importLoader: "importLoader", importSuanliaoLoader: "importSuanliaoLoader", downloadSourceCad: "downloadSourceCad"};
@@ -248,7 +248,11 @@ export class ImportComponent extends Utils() implements OnInit {
             await this._validateSlgs(slgses[i]);
         }
 
+        let hasEmptyCad = false;
         const data = this.cads.map((v) => {
+            if (v.data.entities.length < 1) {
+                hasEmptyCad = true;
+            }
             const json = v.data.export();
             json.选项 = json.options;
             json.条件 = json.conditions;
@@ -263,13 +267,24 @@ export class ImportComponent extends Utils() implements OnInit {
                 分类2: json.type2
             };
         });
-        const checkResult = window.batchCheck(data);
-        this.cads.forEach((cad) => {
-            const errors = checkResult[cad.data.id];
-            if (errors && errors.length > 0) {
-                cad.errors = cad.errors.concat(errors);
+        if (hasEmptyCad) {
+            this.message.alert("数据为空或绿色框不封闭");
+        } else {
+            try {
+                const checkResult = window.batchCheck(data);
+                this.cads.forEach((cad) => {
+                    const errors = checkResult[cad.data.id];
+                    if (errors && errors.length > 0) {
+                        cad.errors = cad.errors.concat(errors);
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+                if (error instanceof Error) {
+                    this.message.alert(error.message);
+                }
             }
-        });
+        }
         this.cadsParsed = true;
     }
 
@@ -279,7 +294,19 @@ export class ImportComponent extends Utils() implements OnInit {
             if (["铰边", "锁边"].includes(optionKey)) {
                 continue;
             }
-            const optionValues = options[optionKey].split(";");
+            const optionValues = this._getOptions(options[optionKey]);
+            const tmpVals: string[] = [];
+            const duplicateValues: string[] = [];
+            optionValues.forEach((v) => {
+                if (tmpVals.includes(v)) {
+                    duplicateValues.push(v);
+                } else {
+                    tmpVals.push(v);
+                }
+            });
+            if (duplicateValues.length > 0) {
+                errors.push(`选项[${optionKey}]重复: ${duplicateValues.join(", ")}`);
+            }
             if (this._optionsCache[optionKey] === undefined) {
                 const optionInfo = await this.dataService.getOptions(optionKey, "");
                 this._optionsCache[optionKey] = optionInfo.data.map((v) => v.name);
@@ -370,10 +397,10 @@ export class ImportComponent extends Utils() implements OnInit {
             修改包边正面宽规则 = "修改包边正面宽规则:\n" + 修改包边正面宽规则;
             cad.errors = cad.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, data.info.vars).errors);
         } else if (修改包边正面宽规则) {
-            cad.errors.push("分类不为包边正面不能写修改包边正面宽规则");
+            cad.errors.push("分类不为[包边正面]不能写[修改包边正面宽规则]");
         }
-        if (data.info.锁边自动绑定可搭配铰边 && !["锁企料", "扇锁企料"].includes(data.type)) {
-            cad.errors.push("分类不为[锁企料]时不能有[锁边自动绑定可搭配铰边]");
+        if (data.info.锁边自动绑定可搭配铰边 && !data.type.match(/锁企料|扇锁企料/)) {
+            cad.errors.push("分类不为[锁企料]或[扇锁企料]不能有[锁边自动绑定可搭配铰边]");
         }
         if (data.kailiaoshibaokeng && data.zhidingweizhipaokeng.length > 0) {
             cad.errors.push("不能同时设置[全部刨坑]和[指定位置刨坑]");
@@ -408,8 +435,9 @@ export class ImportComponent extends Utils() implements OnInit {
         if (infoArray !== undefined) {
             const infoArray2: PeiheInfo[] = [];
             for (const info of infoArray) {
-                const hasPeiheCad = await this._hasPeiheCad(info, data.options);
-                if (!hasPeiheCad) {
+                const {options, value} = await this._hasPeiheCad(info, data.options);
+                if (!value) {
+                    console.log(options, data.options);
                     infoArray2.push(info);
                 }
             }
@@ -446,12 +474,13 @@ export class ImportComponent extends Utils() implements OnInit {
                     e.mingzi = "显示公式: " + e.mingzi;
                 }
             } else {
-                const id1 = e.entity1.id;
-                const id2 = e.entity2.id;
-                if (e.info.isGongshiForce) {
+                if (e.info.isGongshi) {
                     e.mingzi = "显示公式: " + e.mingzi;
-                } else if (e.info.isGongshi && (!(id1 && id2) || id1 !== id2)) {
-                    cad.errors.push(`公式标注[=${e.mingzi}]识别错误, 必须标到同一条线的两个端点`);
+                    const id1 = e.entity1.id;
+                    const id2 = e.entity2.id;
+                    if (!(id1 && id2) || id1 !== id2) {
+                        cad.errors.push(`公式标注[=${e.mingzi}]识别错误, 必须标到同一条线的两个端点`);
+                    }
                 }
             }
         });
@@ -490,15 +519,15 @@ export class ImportComponent extends Utils() implements OnInit {
     }
 
     private _getOptions(str: string | undefined | null) {
-        if (typeof str !== "string") {
+        if (!str) {
             return [];
         }
-        return str.split(";").map((v) => v.trim());
+        return str.split(";");
     }
 
     private async _hasPeiheCad(info: PeiheInfo, options: ObjectOf<string>) {
         const {is, isNot} = info.options;
-        const options2: ObjectOf<string[]> = {};
+        const result: {options: ObjectOf<string[]>; value: boolean} = {options: {}, value: false};
         this.cads.forEach(({data}) => {
             if (data.type !== info.type && data.type2 !== info.type) {
                 return;
@@ -529,20 +558,27 @@ export class ImportComponent extends Utils() implements OnInit {
             }
             for (const optionName in options) {
                 this._getOptions(data.options[optionName]).forEach((v) => {
-                    if (!options2[optionName]) {
-                        options2[optionName] = [v];
-                    } else if (!options2[optionName].includes(v)) {
-                        options2[optionName].push(v);
+                    if (!result.options[optionName]) {
+                        result.options[optionName] = [v];
+                    } else if (!result.options[optionName].includes(v)) {
+                        result.options[optionName].push(v);
                     }
                 });
             }
         });
+        if (info.type === "小锁料") {
+            if (!result.options.产品分类) {
+                result.options.产品分类 = [];
+            }
+            result.options.产品分类.push("单门");
+        }
         for (const optionName in options) {
-            if (difference(options[optionName].split(";"), options2[optionName]).length > 0) {
-                return false;
+            if (difference(options[optionName].split(";"), result.options[optionName]).length > 0) {
+                return result;
             }
         }
-        return true;
+        result.value = true;
+        return result;
     }
 
     private async _matchPeiheCad(infoArray: PeiheInfo[], options: ObjectOf<string>) {

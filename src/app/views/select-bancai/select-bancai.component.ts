@@ -302,7 +302,8 @@ export class SelectBancaiComponent implements OnInit {
         this.loader.startLoader("submitLoader");
         const api = "order/order/selectBancai";
         const {codes, table, autoGuige, type} = this;
-        const response = await this.dataService.post<string | string[]>(api, {codes, bancaiCads, table, autoGuige, type});
+        const skipCads = this.sortedCads.map((v) => v.filter((vv) => vv.disabled).map((vv) => vv.id));
+        const response = await this.dataService.post<string | string[]>(api, {codes, bancaiCads, table, autoGuige, type, skipCads});
         this.loader.stopLoader("submitLoader");
         const url = response?.data;
         if (url) {

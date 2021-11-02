@@ -223,12 +223,14 @@ export class CadPortable {
                         if (key === "展开") {
                             zhankaiObjs = Array.from(value.matchAll(/\[([^\]]*)\]/g)).map((vv) => {
                                 const arr = vv[1].split(",");
-                                const zhankaikuan = arr[0] || "ceil(总长)+0";
-                                const zhankaigao = arr[1] || "";
-                                const shuliang = arr[2] || "1";
+                                const zhankaikuan = arr[0];
+                                const zhankaigao = arr[1];
+                                const shuliang = arr[2];
                                 const conditions = arr[3] ? [arr[3]] : undefined;
-                                for(const vvv of [zhankaikuan, zhankaigao, shuliang]){
-                                    if (vvv.match(/['"]/)) {
+                                for (const vvv of [zhankaikuan, zhankaigao, shuliang]) {
+                                    if (!vvv) {
+                                        cad.errors.push("展开宽, 展开高和数量不能为空");
+                                    } else if (vvv.match(/['"]/)) {
                                         cad.errors.push("展开宽, 展开高和数量不能有引号");
                                         break;
                                     }
@@ -255,7 +257,8 @@ export class CadPortable {
                             if (globalOptions[key]) {
                                 cad.errors.push(`多余的选项[${key}]`);
                             } else {
-                                data.options[key] = value.replaceAll(" ", "");
+                                const optionValues = value.split(";").map((v) => v.trim());
+                                data.options[key] = optionValues.filter((v) => v).join(";");
                             }
                         }
                     }
