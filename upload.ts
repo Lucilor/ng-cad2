@@ -33,7 +33,12 @@ const upload = async (url: string, zipPath: string) => {
 };
 
 (async () => {
-    const zipPath = await zip("C:/wamp64/www/static");
+    const baseDir = "C:/wamp64/www/static";
+    const changelogPath = path.join(baseDir, "ngcad2_changelog.json");
+    const changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
+    changelog[0].timeStamp = new Date().getTime();
+    fs.writeFileSync(changelogPath, JSON.stringify(changelog));
+    const zipPath = await zip(baseDir);
     await upload("https://www.let888.cn/n/gym/index/login/upload", zipPath);
     // await upload("https://localhost/n/gym/index/login/upload", zipPath);
 })();

@@ -34,14 +34,17 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         "名字+板材",
         "名字+展开宽",
         "名字+展开宽+展开高",
+        "名字+展开高+展开宽",
         "名字+展开高+板材",
         "名字+展开高",
         "展开宽",
         "展开高",
         "展开宽+展开高",
+        "展开高+展开宽",
         "展开宽+板材",
         "展开高+板材",
         "展开宽+展开高+板材",
+        "展开高+展开宽+板材",
         "都不显示"
     ];
     sldxs = this._算料单显示.slice();

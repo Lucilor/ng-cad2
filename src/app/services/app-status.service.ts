@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
 import {CadCollection, local, timer} from "@app/app.common";
-import {setCadData, addCadGongshi, prepareCadViewer, validateLines, ValidateResult} from "@app/cad.utils";
+import {setCadData, addCadGongshi, prepareCadViewer, validateLines, ValidateResult, isShiyitu} from "@app/cad.utils";
 import {CadData, CadLine, CadViewer, CadMtext, generateLineTexts, PointsMap, CadEntities, generatePointsMap} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -208,6 +208,15 @@ export class AppStatusService {
         await prepareCadViewer(cad);
         this.openCad$.next();
         await timeout(0);
+        cad.data.components.data.forEach((v) => {
+            v.components.data.forEach((vv) => {
+                if (isShiyitu(vv)) {
+                    vv.info.skipSuanliaodanZoom = true;
+                } else {
+                    delete vv.info.skipSuanliaodanZoom;
+                }
+            });
+        });
         cad.data.updatePartners().updateComponents();
         cad.reset().render().center();
         timer.end(timerName, "打开CAD");
