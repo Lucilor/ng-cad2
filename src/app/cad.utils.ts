@@ -427,12 +427,17 @@ export const setCadData = (data: CadData, project: string) => {
     if (data.jointPoints.length < 1) {
         data.jointPoints.push(new CadJointPoint());
     }
-    data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
-    data.partners.forEach((v) => setCadData(v, project));
-    data.components.data.forEach((v) => setCadData(v, project));
     if (data.算料单线长显示的最小长度 === null) {
         data.算料单线长显示的最小长度 = project === "yhmy" ? 5 : 6;
     }
+    if (isShiyitu(data)) {
+        data.info.skipSuanliaodanZoom = true;
+    } else {
+        delete data.info.skipSuanliaodanZoom;
+    }
+    data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
+    data.partners.forEach((v) => setCadData(v, project));
+    data.components.data.forEach((v) => setCadData(v, project));
 };
 
 export interface ValidateResult {

@@ -4,7 +4,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, timer} from "@app/app.common";
-import {removeCadGongshi, getCadPreview} from "@app/cad.utils";
+import {removeCadGongshi, getCadPreview, setCadData} from "@app/cad.utils";
 import {CadData, CadEntities, CadHatch} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
@@ -528,26 +528,26 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                         }
                     }
                     if (shouldPush) {
+                        setCadData(cad, this.status.project);
                         childrens.push(cad);
                     }
                 }
-                await this.status.openCad();
+                let timerContent = "";
                 if (type === "components") {
                     data.updateComponents();
-                    const entities = new CadEntities();
                     childrens.forEach((v) => {
                         if (v.id in positions) {
                             const {x: x1, y: y1} = v.getBoundingRect();
                             const [x2, y2] = positions[v.id];
                             v.transform({translate: [x2 - x1, y2 - y1]}, true);
-                            entities.merge(v.getAllEntities());
                         }
                     });
-                    this.status.cad.render(entities).center();
-                    timer.end(timerName, "编辑装配CAD");
+                    timerContent = "编辑装配CAD";
                 } else {
-                    timer.end(timerName, "编辑关联CAD");
+                    timerContent = "编辑关联CAD";
                 }
+                await this.status.openCad();
+                timer.end(timerName, timerContent);
             }
         }
     }
