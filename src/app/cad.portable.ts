@@ -46,7 +46,8 @@ export class CadPortable {
         显示宽度标注: "showKuandubiaozhu",
         双向折弯: "shuangxiangzhewan",
         算料特殊要求: "算料特殊要求",
-        算料单显示: "suanliaodanxianshi"
+        算料单显示: "suanliaodanxianshi",
+        装配位置: "装配位置"
     };
 
     static slgsFields = ["名字", "分类", "条件", "选项", "算料公式"];

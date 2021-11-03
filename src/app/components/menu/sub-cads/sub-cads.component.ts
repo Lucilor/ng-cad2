@@ -42,6 +42,9 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     partnersDisabled = false;
     componentsDisabled = false;
     needsReload: string | null = null;
+    cadsExpanded = true;
+    partnersExpanded = true;
+    componentsExpanded = true;
     @ViewChild(MatMenuTrigger) contextMenu!: MatMenuTrigger;
     @ViewChild("dxfInut", {read: ElementRef}) dxfInut!: ElementRef<HTMLElement>;
     contextMenuCad?: {field: SelectedCadType; data: CadData};
@@ -467,6 +470,9 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 this.components.push(this._getCadNode(dd, d.id));
             }
         }
+        this.cadsExpanded = this.cads.length > 0;
+        this.partnersExpanded = this.partners.length > 0;
+        this.componentsExpanded = this.components.length > 0;
         this.status.selectedCads$.next(selectedCads);
         if (this.cads.length && !this.cads[0].checked && selectFirstNode) {
             this.clickCad("cads", 0);
@@ -525,20 +531,23 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                         childrens.push(cad);
                     }
                 }
+                await this.status.openCad();
                 if (type === "components") {
                     data.updateComponents();
+                    const entities = new CadEntities();
                     childrens.forEach((v) => {
                         if (v.id in positions) {
                             const {x: x1, y: y1} = v.getBoundingRect();
                             const [x2, y2] = positions[v.id];
                             v.transform({translate: [x2 - x1, y2 - y1]}, true);
+                            entities.merge(v.getAllEntities());
                         }
                     });
+                    this.status.cad.render(entities).center();
                     timer.end(timerName, "编辑装配CAD");
                 } else {
                     timer.end(timerName, "编辑关联CAD");
                 }
-                await this.status.openCad();
             }
         }
     }

@@ -202,13 +202,7 @@ export class AppStatusService {
         }
         this.config.setUserConfig(newConfig);
         this.generateLineTexts();
-        const title = cad.data.components.data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
-        document.title = title;
-        cad.data.name = title;
-        await prepareCadViewer(cad);
-        this.openCad$.next();
-        await timeout(0);
-        cad.data.components.data.forEach((v) => {
+        data.forEach((v) => {
             v.components.data.forEach((vv) => {
                 if (isShiyitu(vv)) {
                     vv.info.skipSuanliaodanZoom = true;
@@ -217,6 +211,13 @@ export class AppStatusService {
                 }
             });
         });
+        const title = data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
+        document.title = title;
+        cad.data.name = title;
+        await prepareCadViewer(cad);
+        this.openCad$.next();
+        await timeout(0);
+        console.log(data);
         cad.data.updatePartners().updateComponents();
         cad.reset().render().center();
         timer.end(timerName, "打开CAD");
