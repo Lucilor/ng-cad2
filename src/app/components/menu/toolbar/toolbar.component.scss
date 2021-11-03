@@ -1,4 +1,4 @@
-::ng-deep {
+:host ::ng-deep {
     .mat-menu-item {
         display: flex !important;
         justify-content: space-between;
@@ -26,8 +26,8 @@
 
 .mat-divider {
     display: inline;
-	border-right-color: rgba(0, 0, 0, 0.25);
-	margin: 0 3px;
+    border-right-color: rgba(0, 0, 0, 0.25);
+    margin: 0 3px;
 }
 
 .toolbar {

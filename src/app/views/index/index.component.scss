@@ -24,7 +24,7 @@
 
 .menu {
     background-color: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.4);
+    box-shadow: inset 0 0 5px 1px rgb(0 0 0 / 20%);
     box-sizing: border-box;
 
     &.top {
@@ -71,7 +71,7 @@
         width: 100%;
         box-sizing: border-box;
         background-color: #fafafa;
-        padding: 10px;
+        padding: 5px;
         border-radius: 10px;
         flex: 1 1 0;
         display: flex;
@@ -84,7 +84,11 @@
     }
 }
 
-::ng-deep {
+:host-context(.mat-tab-label) {
+    color: red;
+}
+
+:host ::ng-deep {
     .mat-tab-label,
     .mat-tab-label-active {
         min-width: unset !important;
@@ -102,6 +106,10 @@
             }
         }
     }
+
+    .mat-form-field-suffix {
+        top: 8px;
+    }
 }
 
 .menu-icon {
@@ -111,7 +119,6 @@
     height: 30px;
     line-height: 30px;
     border-radius: 6px;
-    margin: 0 !important;
     &.left {
         float: right;
         &.closed {
@@ -129,10 +136,6 @@
     user-select: none;
     width: 100%;
     text-align: center;
-}
-
-::ng-deep .mat-form-field-suffix {
-    top: 8px;
 }
 
 .width-indicator {

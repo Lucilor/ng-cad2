@@ -26,6 +26,6 @@
     width: 70%;
 }
 
-::ng-deep .mat-paginator-container {
+:host ::ng-deep .mat-paginator-container {
     justify-content: center !important;
 }

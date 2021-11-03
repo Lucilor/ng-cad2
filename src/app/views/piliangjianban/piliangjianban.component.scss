@@ -73,7 +73,7 @@
         box-shadow: none;
     }
 }
-::ng-deep {
+:host ::ng-deep {
     @media print {
         .page .mat-expansion-indicator,
         .no-print {

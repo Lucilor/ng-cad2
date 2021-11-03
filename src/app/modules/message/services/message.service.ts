@@ -65,7 +65,11 @@ export class MessageService {
         return String(await this.open({data: this._getData(data, "button")}));
     }
 
-    snack(message: string, action?: string, config?: MatSnackBarConfig) {
-        this.snackBar.open(message, action, config);
+    async snack(message: string, action?: string, config?: MatSnackBarConfig) {
+        const snackBarRef = this.snackBar.open(message, action || "关闭", config);
+        await snackBarRef.onAction().toPromise();
+        if (!action) {
+            snackBarRef.dismiss();
+        }
     }
 }

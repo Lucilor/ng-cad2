@@ -3,7 +3,7 @@
 </div>
 <perfect-scrollbar>
     <mat-accordion multi>
-        <mat-expansion-panel expanded>
+        <mat-expansion-panel [expanded]="cadsExpanded">
             <mat-expansion-panel-header>
                 <mat-panel-title>主CAD</mat-panel-title>
             </mat-expansion-panel-header>
@@ -64,7 +64,7 @@
             </div>
         </mat-expansion-panel> -->
 
-        <mat-expansion-panel expanded>
+        <mat-expansion-panel [expanded]="componentsExpanded">
             <mat-expansion-panel-header>
                 <mat-panel-title>装配CAD</mat-panel-title>
             </mat-expansion-panel-header>
