@@ -84,7 +84,9 @@ export class ThuumComponent implements OnInit, OnDestroy {
             }));
         const charsDuration = this.thuumChars.length * charDuration;
         await timeout(charsDuration);
-        this.thuumStyle = {animation: `show-thuum ${mainDuration}ms`};
+        if (!this.isProd) {
+            this.thuumStyle = {animation: `show-thuum ${mainDuration}ms`};
+        }
         await timeout(mainDuration);
         this.thuumStyle = {};
         this.thuumChars.forEach((v, i) => {
