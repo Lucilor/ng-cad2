@@ -2,6 +2,7 @@ import archiver from "archiver";
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
+import minimist from "minimist";
 import path from "path";
 
 const zip = async (baseDir: string) => {
@@ -35,10 +36,19 @@ const upload = async (url: string, zipPath: string) => {
 (async () => {
     const baseDir = "C:/wamp64/www/static";
     const changelogPath = path.join(baseDir, "ngcad2_changelog.json");
-    const changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
+    const host = "https://www.let888.cn";
+    const {fetchChangelog} = minimist(process.argv.slice(2));
+    console.log(fetchChangelog);
+    let changelog: any;
+    if (fetchChangelog) {
+        const response = await axios.get(host + "/static/ngcad2_changelog.json");
+        changelog = response.data;
+    } else {
+        changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
+    }
     changelog[0].timeStamp = new Date().getTime();
     fs.writeFileSync(changelogPath, JSON.stringify(changelog));
     const zipPath = await zip(baseDir);
-    await upload("https://www.let888.cn/n/gym/index/login/upload", zipPath);
+    await upload(host + "/n/gym/index/login/upload", zipPath);
     // await upload("https://localhost/n/gym/index/login/upload", zipPath);
 })();
