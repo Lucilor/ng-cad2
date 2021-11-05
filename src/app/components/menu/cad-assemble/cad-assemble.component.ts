@@ -175,8 +175,13 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                 this.status.selectedCads$.next({cads: [data.id], partners: [], components: [], fullCads: [data.id]});
                 cad.data.updateComponents();
                 cad.data.components.data.forEach((v) => {
+                    const {top, bottom} = v.getBoundingRect();
+                    const y = top - (top - bottom) / 4;
                     v.entities.forEach((e) => {
                         if (!(e instanceof CadLine) || e.length < 1000) {
+                            if (e instanceof CadLine && e.minY <= y) {
+                                return;
+                            }
                             e.info.prevVisible = e.visible;
                             e.visible = false;
                             cad.render(e);
