@@ -56,7 +56,7 @@ import {MessageComponent} from "./components/message/message.component";
         {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {maxWidth: "unset"}},
         {
             provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-            useValue: {duration: 3000, verticalPosition: "top", panelClass: ["mat-toolbar", "mat-primary"]}
+            useValue: {duration: 1000, verticalPosition: "top", panelClass: ["mat-toolbar", "mat-primary"]}
         }
     ]
 })

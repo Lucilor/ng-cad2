@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadData, CadEventCallBack, CadEntity, CadConnection} from "@cad-viewer";
+import {CadData, CadEventCallBack, CadEntity, CadConnection, CadLine} from "@cad-viewer";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
@@ -23,39 +23,43 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         return this.data.components.connections;
     }
 
-    private _onEntitiesSelect = (((entities, multi) => {
-        const cadStatus = this.status.cadStatus;
-        if (!(cadStatus instanceof CadStatusAssemble)) {
-            return;
-        }
-        const cad = this.status.cad;
-        const data = cad.data.components.data[cadStatus.index];
-        const selected = cad.selected().toArray();
-        const ids = selected.map((e) => e.id);
-        if (multi) {
-            data.components.data.forEach((v) => {
-                for (const e of v.getAllEntities().toArray()) {
-                    if (ids.includes(e.id)) {
-                        const selectedCads = this.status.selectedCads$.value;
-                        if (selectedCads.components.includes(v.id)) {
-                            selectedCads.components = selectedCads.components.filter((vv) => vv !== v.id);
-                        } else {
-                            selectedCads.components.push(v.id);
+    private _onEntitiesSelect = (
+        ((entities, multi) => {
+            const cadStatus = this.status.cadStatus;
+            if (!(cadStatus instanceof CadStatusAssemble)) {
+                return;
+            }
+            const cad = this.status.cad;
+            const data = cad.data.components.data[cadStatus.index];
+            const selected = cad.selected().toArray();
+            const ids = selected.map((e) => e.id);
+            if (multi) {
+                data.components.data.forEach((v) => {
+                    for (const e of v.getAllEntities().toArray()) {
+                        if (ids.includes(e.id)) {
+                            const selectedCads = this.status.selectedCads$.value;
+                            if (selectedCads.components.includes(v.id)) {
+                                selectedCads.components = selectedCads.components.filter((vv) => vv !== v.id);
+                            } else {
+                                selectedCads.components.push(v.id);
+                            }
+                            this.status.selectedCads$.next(selectedCads);
+                            break;
                         }
-                        this.status.selectedCads$.next(selectedCads);
-                        break;
                     }
-                }
-            });
-        } else {
-            this._selectEntity(entities.toArray()[0]);
-        }
-    }) as CadEventCallBack<"entitiesselect">).bind(this);
+                });
+            } else {
+                this._selectEntity(entities.toArray()[0]);
+            }
+        }) as CadEventCallBack<"entitiesselect">
+    ).bind(this);
 
-    private _onEntitiesUnselect = (((entities) => {
-        const ids = entities.toArray().map((v) => v.id);
-        this.lines = difference(this.lines, ids);
-    }) as CadEventCallBack<"entitiesunselect">).bind(this);
+    private _onEntitiesUnselect = (
+        ((entities) => {
+            const ids = entities.toArray().map((v) => v.id);
+            this.lines = difference(this.lines, ids);
+        }) as CadEventCallBack<"entitiesunselect">
+    ).bind(this);
 
     private _selectEntity(entity: CadEntity) {
         const cadStatus = this.status.cadStatus;
@@ -162,17 +166,28 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         let prevDisabledCadTypes: SelectedCadType[] | null = null;
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
+                const cad = this.status.cad;
                 const data = this.status.cad.data.components.data[cadStatus.index];
                 prevConfig = this.config.setConfig({selectMode: "multiple"}, {sync: false});
                 prevDisabledCadTypes = this.status.disabledCadTypes$.value;
                 this.status.disabledCadTypes$.next(["cads", "partners"]);
                 prevSelectedCads = this.status.selectedCads$.value;
                 this.status.selectedCads$.next({cads: [data.id], partners: [], components: [], fullCads: [data.id]});
-                this.status.cad.data.updateComponents();
+                cad.data.updateComponents();
+                cad.data.components.data.forEach((v) => {
+                    v.entities.forEach((e) => {
+                        if (!(e instanceof CadLine) || e.length < 1000) {
+                            e.info.prevVisible = e.visible;
+                            e.visible = false;
+                            cad.render(e);
+                        }
+                    });
+                });
             }
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
+                const cad = this.status.cad;
                 this.config.setConfig(prevConfig, {sync: false});
                 if (prevDisabledCadTypes) {
                     this.status.disabledCadTypes$.next(prevDisabledCadTypes);
@@ -182,12 +197,23 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                     this.status.selectedCads$.next(prevSelectedCads);
                     this.prevSelectedCads = null;
                 }
+                cad.data.components.data.forEach((v) => {
+                    v.entities.forEach((e) => {
+                        if (!(e instanceof CadLine) || e.length < 1000) {
+                            e.visible = e.info.prevVisible ?? true;
+                            delete e.info.prevVisible;
+                            cad.render(e);
+                        }
+                    });
+                });
             }
         });
 
-        const cad = this.status.cad;
-        cad.on("entitiesselect", this._onEntitiesSelect);
-        cad.on("entitiesunselect", this._onEntitiesUnselect);
+        {
+            const cad = this.status.cad;
+            cad.on("entitiesselect", this._onEntitiesSelect);
+            cad.on("entitiesunselect", this._onEntitiesUnselect);
+        }
     }
 
     ngOnDestroy() {
