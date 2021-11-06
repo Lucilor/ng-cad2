@@ -98,11 +98,11 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         if (selected.length < 1) {
             return "";
         } else if (selected.length === 1) {
-            color = new Color(selected[0].color);
+            color = new Color(selected[0].color.toString());
         } else if (selected.length) {
             const texts = Array.from(new Set(selected.map((v) => v.color.hex())));
             if (texts.length === 1) {
-                color = new Color(selected[0].color);
+                color = new Color(selected[0].color.toString());
             } else {
                 return "多个值";
             }
