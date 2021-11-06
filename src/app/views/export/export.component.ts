@@ -1,14 +1,12 @@
 import {Component, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {session} from "@app/app.common";
-import {CadPortable} from "@app/cad.portable";
+import {CadPortable, ExportType} from "@app/cad.portable";
 import {CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {ObjectOf, ProgressBar} from "@utils";
-
-type ExportType = "包边正面" | "框型和企料" | "指定型号" | "自由选择" | "导出选中";
 
 interface ExportParams {
     ids: string[];
@@ -55,13 +53,18 @@ export class ExportComponent implements OnInit {
         let ids: string[];
         switch (type) {
             case "包边正面":
-                ids = await this._queryIds({分类: "包边正面"});
+                ids = await this._queryIds({$or: [{分类: "包边正面"}, {分类2: "包边正面"}]});
                 break;
             case "框型和企料":
-                ids = await this._queryIds({分类: {$regex: "^锁框|铰框|顶框|锁企料|扇锁企料|铰企料$"}});
+                ids = await this._queryIds({
+                    $or: [
+                        {分类: {$regex: "^锁框|铰框|顶框|锁企料|扇锁企料|铰企料|中铰料|中锁料|小锁料$"}},
+                        {分类2: {$regex: "^锁框|铰框|顶框|锁企料|扇锁企料|铰企料|中铰料|中锁料|小锁料$"}}
+                    ]
+                });
                 break;
             case "指定型号":
-                ids = await this._queryIds({分类: "算料", "选项.型号": {$regex: "^.+$"}});
+                ids = await this._queryIds({$or: [{分类: "算料"}, {分类2: "算料"}], "选项.型号": {$regex: "^.+$"}});
                 break;
             case "自由选择":
                 ids = (
@@ -79,7 +82,7 @@ export class ExportComponent implements OnInit {
         if (ids.length > 0) {
             this.progressBar.start(ids.length + 1);
             const total = ids.length;
-            const step = 5;
+            const step = 20;
             const cads: CadData[] = [];
             for (let i = 0; i < total; i += step) {
                 const end = Math.min(total, i + step);
@@ -93,10 +96,10 @@ export class ExportComponent implements OnInit {
                 data.forEach((v) => cads.push(new CadData(v.json)));
                 this.progressBar.forward(end - i);
             }
+            const result = CadPortable.export(cads, type, this.exportIds);
             try {
-                const data = CadPortable.export(cads, this.exportIds);
                 this.msg = "正在下载dxf文件";
-                await this.dataService.downloadDxf(data);
+                await this.dataService.downloadDxf(result);
                 this.progressBar.end();
                 this.progressBarStatus = "success";
                 this.msg = "导出完成";

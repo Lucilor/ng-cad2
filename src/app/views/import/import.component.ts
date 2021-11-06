@@ -1,5 +1,5 @@
 import {Component, OnInit} from "@angular/core";
-import {CadPortable, Slgs} from "@app/cad.portable";
+import {CadPortable, CadInfo, SlgsInfo, PeiheInfo} from "@app/cad.portable";
 import {isShiyitu, reservedDimNames, validateLines} from "@app/cad.utils";
 import {CadData, CadDimension, CadEntities, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
@@ -9,32 +9,12 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, ProgressBar, Rectangle} from "@utils";
 import Color from "color";
-import {difference, intersection} from "lodash";
+import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
-export interface ImportComponentCad {
-    data: CadData;
-    errors: string[];
-    skipErrorCheck: Set<string>;
-}
-
-export interface ImportComponentSlgs {
-    data: Slgs;
-    errors: string[];
-}
-
 export type ImportComponentConfigName = "requireLineId" | "pruneLines" | "addUniqCode";
 export type ImportComponentConfig = Record<ImportComponentConfigName, {label: string; value: boolean | null}>;
-
-interface PeiheInfo {
-    type: string;
-    options: {
-        is?: ObjectOf<string>;
-        isNot?: ObjectOf<(string | null | undefined)[]>;
-    };
-    hint?: string;
-}
 
 @Component({
     selector: "app-import",
@@ -51,8 +31,8 @@ export class ImportComponent extends Utils() implements OnInit {
 
     loaderIds = {importLoader: "importLoader", importSuanliaoLoader: "importSuanliaoLoader", downloadSourceCad: "downloadSourceCad"};
     msg = "";
-    cads: ImportComponentCad[] = [];
-    slgses: ImportComponentSlgs[] = [];
+    cads: CadInfo[] = [];
+    slgses: SlgsInfo[] = [];
     cadsParsed = false;
     hasError = false;
     progressBar = new ProgressBar(0);
@@ -196,7 +176,7 @@ export class ImportComponent extends Utils() implements OnInit {
         this._peiheCadCache = {};
     }
 
-    async parseCads(cads: ImportComponentCad[], slgses: ImportComponentSlgs[], isSuanliao: boolean) {
+    async parseCads(cads: CadInfo[], slgses: SlgsInfo[], isSuanliao: boolean) {
         this.cadsParsed = false;
         this.hasError = false;
         this._clearCache();
@@ -215,7 +195,7 @@ export class ImportComponent extends Utils() implements OnInit {
 
         this.cads = cads;
         this.slgses = slgses;
-        const md5Map: ObjectOf<ImportComponentCad[]> = {};
+        const md5Map: ObjectOf<CadInfo[]> = {};
         cads.forEach((cad) => {
             const md5Str = this._getMd5(cad.data);
             if (md5Map[md5Str]) {
@@ -294,7 +274,7 @@ export class ImportComponent extends Utils() implements OnInit {
             if (["铰边", "锁边"].includes(optionKey)) {
                 continue;
             }
-            const optionValues = this._getOptions(options[optionKey]);
+            const optionValues = CadPortable.getOptionValues(options[optionKey]);
             const tmpVals: string[] = [];
             const duplicateValues: string[] = [];
             optionValues.forEach((v) => {
@@ -320,7 +300,7 @@ export class ImportComponent extends Utils() implements OnInit {
     }
 
     private async _validateCad(
-        cad: ImportComponentCad,
+        cad: CadInfo,
         uniqCodesCount: ObjectOf<number>,
         requireLineId: boolean,
         addUniqCode: boolean,
@@ -420,27 +400,30 @@ export class ImportComponent extends Utils() implements OnInit {
 
         const infoObj: ObjectOf<PeiheInfo[]> = {
             锁企料: [
-                {type: "锁框", options: {}},
-                {type: "顶框", options: {}}
+                "锁框",
+                "顶框"
+                // "中锁料",
             ],
-            扇锁企料: [{type: "小锁料", options: {isNot: {产品分类: ["单门", "", undefined, null]}}}],
-            铰企料: [{type: "小铰料", options: {}}]
+            扇锁企料: [{type: "小锁料", options: {isNot: {产品分类: ["单门", "", undefined, null]}}}]
+            // 铰企料: ["中铰料"]
         };
         data.info.锁边自动绑定可搭配铰边?.split(";").forEach((v) => {
             infoObj.锁企料.push({type: "铰企料", options: {is: {铰边: v}}, hint: v});
         });
-        let infoArray: PeiheInfo[];
-        if (data.type === "锁企料" && data.type2 === "扇锁企料") {
-            infoArray = infoObj[data.type2];
-        } else {
-            infoArray = infoObj[data.type];
+        let infoArray: PeiheInfo[] | undefined;
+        const types = CadPortable.getTypes(data);
+        for (const type of types) {
+            if (infoObj[type]) {
+                infoArray = infoObj[type];
+                break;
+            }
         }
         if (infoArray !== undefined) {
             const infoArray2: PeiheInfo[] = [];
             for (const info of infoArray) {
-                const {options, value} = await this._hasPeiheCad(info, data.options);
+                const dataArr = this.cads.map((v) => v.data);
+                const {value} = CadPortable.hasPeiheCad(dataArr, info, data.options);
                 if (!value) {
-                    console.log(options, data.options);
                     infoArray2.push(info);
                 }
             }
@@ -448,11 +431,15 @@ export class ImportComponent extends Utils() implements OnInit {
             result.forEach((matched, i) => {
                 const info = infoArray2[i];
                 if (!matched) {
-                    let error = `缺少对应${info.type}`;
-                    if (info.hint) {
-                        error += `: ${info.hint}`;
+                    if (typeof info === "string") {
+                        cad.errors.push(`缺少对应${info}`);
+                    } else {
+                        let error = `缺少对应${info.type}`;
+                        if (info.hint) {
+                            error += `: ${info.hint}`;
+                        }
+                        cad.errors.push(error);
                     }
-                    cad.errors.push(error);
                 }
             });
         }
@@ -502,7 +489,7 @@ export class ImportComponent extends Utils() implements OnInit {
         }
     }
 
-    private async _validateSlgs(slgs: ImportComponentSlgs) {
+    private async _validateSlgs(slgs: SlgsInfo) {
         const data = slgs.data;
         slgs.errors = slgs.errors.concat(await this._validateOptions(data.选项));
         const silent = this.dataService.silent;
@@ -519,69 +506,6 @@ export class ImportComponent extends Utils() implements OnInit {
         if (slgs.errors.length > 0) {
             this.hasError = true;
         }
-    }
-
-    private _getOptions(str: string | undefined | null) {
-        if (!str) {
-            return [];
-        }
-        return str.split(";");
-    }
-
-    private async _hasPeiheCad(info: PeiheInfo, options: ObjectOf<string>) {
-        const {is, isNot} = info.options;
-        const result: {options: ObjectOf<string[]>; value: boolean} = {options: {}, value: false};
-        this.cads.forEach(({data}) => {
-            if (data.type !== info.type && data.type2 !== info.type) {
-                return;
-            }
-            if (is) {
-                for (const optionName in is) {
-                    if (!is[optionName].includes(data.options[optionName])) {
-                        return;
-                    }
-                }
-            }
-            if (isNot) {
-                for (const optionName in isNot) {
-                    if (isNot[optionName].includes(data.options[optionName])) {
-                        return;
-                    }
-                }
-            }
-            for (const optionName in options) {
-                const values1 = this._getOptions(options[optionName]);
-                const values2 = this._getOptions(data.options[optionName]);
-                if (values2.length < 1 || data.options[optionName] === "所有") {
-                    continue;
-                }
-                if (intersection(values1, values2).length < 1) {
-                    return;
-                }
-            }
-            for (const optionName in options) {
-                this._getOptions(data.options[optionName]).forEach((v) => {
-                    if (!result.options[optionName]) {
-                        result.options[optionName] = [v];
-                    } else if (!result.options[optionName].includes(v)) {
-                        result.options[optionName].push(v);
-                    }
-                });
-            }
-        });
-        if (info.type === "小锁料") {
-            if (!result.options.产品分类) {
-                result.options.产品分类 = [];
-            }
-            result.options.产品分类.push("单门");
-        }
-        for (const optionName in options) {
-            if (difference(options[optionName].split(";"), result.options[optionName]).length > 0) {
-                return result;
-            }
-        }
-        result.value = true;
-        return result;
     }
 
     private async _matchPeiheCad(infoArray: PeiheInfo[], options: ObjectOf<string>) {

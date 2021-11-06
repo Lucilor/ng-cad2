@@ -38,7 +38,6 @@ const upload = async (url: string, zipPath: string) => {
     const changelogPath = path.join(baseDir, "ngcad2_changelog.json");
     const host = "https://www.let888.cn";
     const {fetchChangelog} = minimist(process.argv.slice(2));
-    console.log(fetchChangelog);
     let changelog: any;
     if (fetchChangelog) {
         const response = await axios.get(host + "/static/ngcad2_changelog.json");

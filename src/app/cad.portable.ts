@@ -14,10 +14,9 @@ import {
     generatePointsMap,
     sortLines
 } from "@cad-viewer";
-import {Line, ObjectOf, Point, Rectangle} from "@utils";
-import {ImportComponentCad, ImportComponentSlgs} from "@views/import/import.component";
+import {keysOf, Line, ObjectOf, Point, Rectangle} from "@utils";
 import Color from "color";
-import {intersection} from "lodash";
+import {difference, intersection} from "lodash";
 import {replaceChars} from "./app.common";
 
 export interface Slgs {
@@ -28,11 +27,34 @@ export interface Slgs {
     公式: ObjectOf<string>;
 }
 
+export interface CadInfo {
+    data: CadData;
+    errors: string[];
+    skipErrorCheck: Set<string>;
+}
+
+export interface SlgsInfo {
+    data: Slgs;
+    errors: string[];
+}
+
 export type SourceCadMap = ObjectOf<{
     rect: Rectangle;
     rectLines: CadLineLike[];
     entities: CadEntities;
 }>;
+
+export interface PeiheInfoObj {
+    type: string;
+    options?: {
+        is?: ObjectOf<string>;
+        isNot?: ObjectOf<(string | null | undefined)[]>;
+    };
+    hint?: string;
+}
+export type PeiheInfo = PeiheInfoObj | string;
+
+export type ExportType = "包边正面" | "框型和企料" | "指定型号" | "自由选择" | "导出选中";
 
 export class CadPortable {
     static cadFields: ObjectOf<keyof CadData> = {
@@ -102,12 +124,12 @@ export class CadPortable {
             return y1 - y2;
         });
 
-        const cads: ImportComponentCad[] = rects.map((rect, i) => {
+        const cads: CadInfo[] = rects.map((rect, i) => {
             const data = new CadData();
             sourceCadMap[data.id] = {rect, rectLines: sorted[i], entities: new CadEntities()};
             return {data, errors: [], skipErrorCheck: new Set()};
         });
-        const slgses: ImportComponentSlgs[] = [];
+        const slgses: SlgsInfo[] = [];
         const {cadFields, slgsFields, skipFields} = this;
         const globalOptions: CadData["options"] = {};
         sourceCad.getAllEntities().forEach((e) => {
@@ -289,7 +311,7 @@ export class CadPortable {
         return {cads, slgses, sourceCadMap};
     }
 
-    static export(cads: CadData[], exportIds: boolean) {
+    static export(cads: CadData[], type: ExportType, exportIds: boolean) {
         const result = new CadData();
         result.info.version = CadVersion.DXF2010;
         const margin = 300;
@@ -297,106 +319,179 @@ export class CadPortable {
         const width = 855;
         const height = 1700;
         const cols = 10;
+        cads = cads.filter((v) => v.entities.length > 0 && Object.keys(v.options).length > 0);
 
-        const join = (cad: CadData, i: number) => {
-            this._addLeaders(cad);
-            const rect = cad.getBoundingRect();
-            const offsetX = (i % cols) * (width + margin);
-            const offsetY = -Math.floor(i / cols) * (height + margin);
-            const translate = new Point(offsetX + (width - rect.width - padding * 2) / 2, offsetY + height - padding);
-            translate.sub(rect.left, rect.top);
-            cad.transform({translate}, true);
-            rect.transform({translate});
-
-            const texts = [`唯一码: ${cad.info.唯一码}`];
-            const {cadFields, skipFields} = CadPortable;
-            for (const key in cadFields) {
-                if (skipFields.includes(key)) {
-                    continue;
-                }
-                const value = cad[cadFields[key]];
-                if (typeof value === "string" && value) {
-                    texts.push(`${key}: ${value}`);
-                } else if (typeof value === "boolean") {
-                    texts.push(`${key}: ${value ? "是" : "否"}`);
-                }
-            }
-            texts.push(`条件: ${cad.conditions.join(",")}`);
-            for (const optionName in cad.options) {
-                texts.push(`${optionName}: ${cad.options[optionName]}`);
-            }
-            const zhankaiStr = cad.zhankai
-                .map((v) => {
-                    const arr = [v.zhankaikuan, v.zhankaigao, v.shuliang];
-                    if (v.conditions.length > 0) {
-                        arr.push(v.conditions[0]);
+        const groupedCads: (CadData[] | null)[] = [];
+        if (type === "框型和企料") {
+            const infoObj: ObjectOf<PeiheInfo[]> = {
+                锁企料: ["锁框", "顶框", "小锁料", "扇锁企料", "中锁料"],
+                铰企料: ["中铰料", "铰框"]
+            };
+            const groups = {
+                锁企料: [] as CadData[],
+                铰企料: [] as CadData[]
+            };
+            const others: CadData[] = [];
+            cads.forEach((cad) => {
+                const types = this.getTypes(cad);
+                let found = false;
+                for (const key of keysOf(groups)) {
+                    if (types.includes(key)) {
+                        groups[key].push(cad);
+                        found = true;
+                        break;
                     }
-                    return `[${arr.join(", ")}]`;
-                })
-                .join(", ");
-            texts.push(`展开: ${zhankaiStr}`);
-            if (cad.shuangxiangzhewan) {
-                texts.push("双向折弯: 是");
-            }
-            if (cad.info.修改包边正面宽规则) {
-                texts.push(`\n修改包边正面宽规则: \n${cad.info.修改包边正面宽规则}`);
-            }
-            if (cad.info.锁边自动绑定可搭配铰边) {
-                texts.push(`锁边自动绑定可搭配铰边: \n${cad.info.锁边自动绑定可搭配铰边}`);
-            }
-            cad.entities.add(
-                new CadMtext({
-                    text: texts.join("\n"),
-                    insert: [offsetX + padding, rect.bottom - padding],
-                    anchor: [0, 0]
-                })
-            );
-
-            const {line: lines, arc: arcs} = cad.getAllEntities();
-            [...lines, ...arcs].forEach((e) => this._addDimension(cad, e, exportIds));
-
-            [
-                [0, 0, width, 0],
-                [width, 0, width, height],
-                [width, height, 0, height],
-                [0, height, 0, 0]
-            ].forEach((v) => {
-                const start = [v[0] + offsetX, v[1] + offsetY];
-                const end = [v[2] + offsetX, v[3] + offsetY];
-                cad.entities.add(new CadLine({color: 3, start, end}));
-            });
-
-            result.entities.merge(cad.getAllEntities());
-        };
-
-        // for (let i = 0; i < total; i += step) {
-        //     const end = Math.min(total, i + step);
-        //     const currIds = ids.slice(i, end);
-        //     if (i + 1 === end) {
-        //         this.msg = `正在导出数据(${end}/${total})`;
-        //     } else {
-        //         this.msg = `正在导出数据((${i + 1}~${end})/${total})`;
-        //     }
-        //     const data = await this.dataService.queryMongodb({collection: "cad", where: {_id: {$in: currIds}}, genUnqiCode: true});
-        //     data.forEach((v) => cads.push(new CadData(v.json)));
-        //     this.progressBar.forward(end - i);
-        // }
-        const keys: string[] = ["锁边", "铰边", "开启", "包边"];
-        cads.sort((a, b) => {
-            for (const k of keys) {
-                const v1 = a.options[k];
-                const v2 = b.options[k];
-                if (v1 !== v2) {
-                    return v1 > v2 ? 1 : -1;
                 }
+                if (!found) {
+                    others.push(cad);
+                }
+            });
+            const othersIds = new Set<string>();
+            for (const key of keysOf(groups)) {
+                groups[key].forEach((cad) => {
+                    const arr = [cad];
+                    groupedCads.push(arr);
+                    const options1 = this.getOptions(cad.options);
+                    const types = infoObj[key].map((v) => (typeof v === "string" ? v : v.type));
+                    for (const cad2 of others) {
+                        if (intersection(this.getTypes(cad2), types).length < 1) {
+                            continue;
+                        }
+                        const options2 = this.getOptions(cad2.options);
+                        let found = true;
+                        for (const key2 in options1) {
+                            if (!options2[key2] || options2[key2].length < 1) {
+                                continue;
+                            }
+                            if (intersection(options1[key2], options2[key2]).length < 1) {
+                                found = false;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            othersIds.add(cad2.id);
+                            arr.push(cad2.clone(true));
+                        }
+                    }
+                });
             }
-            if (a.name !== b.name) {
-                return a.name > b.name ? 1 : -1;
-            }
-            return 0;
-        }).forEach((v, i) => join(v, i));
+            groupedCads.push(null);
+            groupedCads.push(others.filter((v) => !othersIds.has(v.id)));
+        } else {
+            cads.forEach((cad, i) => {
+                if (i % cols === 0) {
+                    groupedCads.push([cad]);
+                } else {
+                    groupedCads[groupedCads.length - 1]?.push(cad);
+                }
+            });
+        }
 
+        const rect = new Rectangle();
+        const ids = [] as string[];
+        const dividers = [] as number[];
+        groupedCads.forEach((group, i) => {
+            if (group === null) {
+                dividers.push(rect.bottom - margin / 2);
+                return;
+            }
+
+            group.forEach((cad, j) => {
+                this._addLeaders(cad);
+                const cadRect = cad.getBoundingRect();
+                const offsetX = j * (width + margin);
+                const offsetY = -(i - dividers.length) * (height + margin);
+                const translate = new Point(offsetX + (width - cadRect.width - padding * 2) / 2, offsetY + height - padding);
+                translate.sub(cadRect.left, cadRect.top);
+                cad.transform({translate}, true);
+                cadRect.transform({translate});
+
+                const texts = [`唯一码: ${cad.info.唯一码}`];
+                const {cadFields, skipFields} = CadPortable;
+                for (const key in cadFields) {
+                    if (skipFields.includes(key)) {
+                        continue;
+                    }
+                    const value = cad[cadFields[key]];
+                    if (typeof value === "string" && value) {
+                        texts.push(`${key}: ${value}`);
+                    } else if (typeof value === "boolean") {
+                        texts.push(`${key}: ${value ? "是" : "否"}`);
+                    }
+                }
+                texts.push(`条件: ${cad.conditions.join(",")}`);
+                for (const optionName in cad.options) {
+                    texts.push(`${optionName}: ${cad.options[optionName]}`);
+                }
+                const zhankaiStr = cad.zhankai
+                    .map((v) => {
+                        const arr = [v.zhankaikuan, v.zhankaigao, v.shuliang];
+                        if (v.conditions.length > 0) {
+                            arr.push(v.conditions[0]);
+                        }
+                        return `[${arr.join(", ")}]`;
+                    })
+                    .join(", ");
+                texts.push(`展开: ${zhankaiStr}`);
+                if (cad.shuangxiangzhewan) {
+                    texts.push("双向折弯: 是");
+                }
+                if (cad.info.修改包边正面宽规则) {
+                    texts.push(`\n修改包边正面宽规则: \n${cad.info.修改包边正面宽规则}`);
+                }
+                if (cad.info.锁边自动绑定可搭配铰边) {
+                    texts.push(`锁边自动绑定可搭配铰边: \n${cad.info.锁边自动绑定可搭配铰边}`);
+                }
+                cad.entities.add(
+                    new CadMtext({
+                        text: texts.join("\n"),
+                        insert: [offsetX + padding, cadRect.bottom - padding],
+                        anchor: [0, 0]
+                    })
+                );
+
+                const {line: lines, arc: arcs} = cad.getAllEntities();
+                [...lines, ...arcs].forEach((e) => this._addDimension(cad, e, exportIds));
+
+                let color: number;
+                if (ids.includes(cad.id)) {
+                    color = 7;
+                } else {
+                    ids.push(cad.id);
+                    color = 3;
+                }
+                [
+                    [0, 0, width, 0],
+                    [width, 0, width, height],
+                    [width, height, 0, height],
+                    [0, height, 0, 0]
+                ].forEach((v) => {
+                    const start = [v[0] + offsetX, v[1] + offsetY];
+                    const end = [v[2] + offsetX, v[3] + offsetY];
+                    cad.entities.add(new CadLine({color, start, end}));
+                });
+                rect.expand(new Point(offsetX, offsetY));
+                rect.expand(new Point(offsetX + width, offsetY + height));
+
+                result.entities.merge(cad.getAllEntities());
+            });
+        });
+
+        dividers.forEach((y) => {
+            const divider = new CadLine({color: 6});
+            divider.start.set(rect.left - margin, y);
+            divider.end.set(rect.right + margin, y);
+            result.entities.add(divider);
+        });
         return result;
+    }
+
+    static getTypes(cad: CadData) {
+        let types = Array.from(new Set(cad.type.split(";").concat(cad.type2.split(";"))));
+        if (intersection(types, ["锁企料", "扇锁企料"]).length === 2) {
+            types = difference(types, ["锁企料"]);
+        }
+        return types;
     }
 
     static addLineId(cad: CadData) {
@@ -431,6 +526,81 @@ export class CadPortable {
                 }
             });
         });
+    }
+
+    static getOptionValues(str: string | undefined | null) {
+        if (!str) {
+            return [];
+        }
+        return str.split(";");
+    }
+
+    static getOptions(options: CadData["options"]) {
+        const result: ObjectOf<string[]> = {};
+        for (const key in options) {
+            result[key] = this.getOptionValues(options[key]);
+        }
+        return result;
+    }
+
+    static hasPeiheCad(cads: CadData[], info: PeiheInfo, options: ObjectOf<string>) {
+        if (typeof info === "string") {
+            info = {type: info, options: {}};
+        }
+        const type = info.type;
+        const {is, isNot} = info.options || {};
+        const result: {options: ObjectOf<string[]>; value: boolean} = {options: {}, value: false};
+        cads.forEach((cad) => {
+            if (cad.type !== type && cad.type2 !== type) {
+                return;
+            }
+            if (is) {
+                for (const optionName in is) {
+                    if (!is[optionName].includes(cad.options[optionName])) {
+                        return;
+                    }
+                }
+            }
+            if (isNot) {
+                for (const optionName in isNot) {
+                    if (isNot[optionName].includes(cad.options[optionName])) {
+                        return;
+                    }
+                }
+            }
+            for (const optionName in options) {
+                const values1 = this.getOptionValues(options[optionName]);
+                const values2 = this.getOptionValues(cad.options[optionName]);
+                if (values2.length < 1 || cad.options[optionName] === "所有") {
+                    continue;
+                }
+                if (intersection(values1, values2).length < 1) {
+                    return;
+                }
+            }
+            for (const optionName in options) {
+                this.getOptionValues(cad.options[optionName]).forEach((v) => {
+                    if (!result.options[optionName]) {
+                        result.options[optionName] = [v];
+                    } else if (!result.options[optionName].includes(v)) {
+                        result.options[optionName].push(v);
+                    }
+                });
+            }
+        });
+        if (info.type === "小锁料") {
+            if (!result.options.产品分类) {
+                result.options.产品分类 = [];
+            }
+            result.options.产品分类.push("单门");
+        }
+        for (const optionName in options) {
+            if (difference(options[optionName].split(";"), result.options[optionName]).length > 0) {
+                return result;
+            }
+        }
+        result.value = true;
+        return result;
     }
 
     private static _removeLeaders(cad: CadData) {
