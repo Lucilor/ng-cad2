@@ -32,7 +32,7 @@ export const routesInfo = {
     import: {path: "import", title: "导入CAD"},
     export: {path: "export", title: "导出CAD"},
     backup: {path: "backup", title: "备份CAD"},
-    selectBancai: {path: "select-bancai", title: ""},
+    selectBancai: {path: "select-bancai", title: "激光开料排版"},
     changelogAdmin: {path: "changelog-admin", title: "编辑更新日志"},
     kailiaokongweipeizhi: {path: "kailiaokongweipeizhi", title: "开料孔位配置"},
     replaceText: {path: "replace-text", title: "文本替换"},

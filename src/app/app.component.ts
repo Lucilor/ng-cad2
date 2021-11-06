@@ -1,5 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {NavigationEnd, Router} from "@angular/router";
+import {environment} from "@env";
+import {Utils} from "@mixins/utils.mixin";
 import {routesInfo} from "./app.common";
 import {AppStatusService} from "./services/app-status.service";
 
@@ -8,11 +10,15 @@ import {AppStatusService} from "./services/app-status.service";
     templateUrl: "./app.component.html",
     styleUrls: ["./app.component.scss"]
 })
-export class AppComponent implements OnInit {
+export class AppComponent extends Utils() implements OnInit {
     title = "ng-cad2";
     loaderText = "";
+    isProd = environment.production;
+    routesInfo = routesInfo;
 
-    constructor(private status: AppStatusService, private router: Router) {}
+    constructor(private status: AppStatusService, private router: Router) {
+        super();
+    }
 
     ngOnInit() {
         this.status.loaderText$.subscribe((loaderText) => {

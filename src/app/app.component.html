@@ -1,2 +1,10 @@
 <router-outlet></router-outlet>
 <ngx-ui-loader [loaderId]="'master'" [text]="loaderText"></ngx-ui-loader>
+<div class="nav" *ngIf="!isProd" cdkDrag>
+    <mat-icon color="primary" [matMenuTriggerFor]="links">apps</mat-icon>
+    <mat-menu #links="matMenu">
+        <button mat-menu-item *ngFor="let name of keysOf(routesInfo)" [routerLink]="routesInfo[name].path" [queryParamsHandling]="'merge'">
+            {{ routesInfo[name].title || routesInfo[name].path }}
+        </button>
+    </mat-menu>
+</div>
