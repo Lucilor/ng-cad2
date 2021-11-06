@@ -69,7 +69,9 @@ export class CadPortable {
         双向折弯: "shuangxiangzhewan",
         算料特殊要求: "算料特殊要求",
         算料单显示: "suanliaodanxianshi",
-        装配位置: "装配位置"
+        装配位置: "装配位置",
+        企料包边门框配合位增加值: "企料包边门框配合位增加值",
+        对应门扇厚度: "对应门扇厚度"
     };
 
     static slgsFields = ["名字", "分类", "条件", "选项", "算料公式"];

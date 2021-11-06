@@ -58,8 +58,8 @@ export class ExportComponent implements OnInit {
             case "框型和企料":
                 ids = await this._queryIds({
                     $or: [
-                        {分类: {$regex: "^锁框|铰框|顶框|锁企料|扇锁企料|铰企料|中铰料|中锁料|小锁料$"}},
-                        {分类2: {$regex: "^锁框|铰框|顶框|锁企料|扇锁企料|铰企料|中铰料|中锁料|小锁料$"}}
+                        {分类: {$regex: "^锁企料|扇锁企料|小锁料|中锁料|铰企料|中铰料$"}},
+                        {分类2: {$regex: "^锁企料|扇锁企料|小锁料|中锁料|铰企料|中铰料$"}}
                     ]
                 });
                 break;
