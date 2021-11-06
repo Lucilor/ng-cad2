@@ -358,6 +358,7 @@ export class ImportComponent extends Utils() implements OnInit {
             cad.errors = cad.errors.concat(data.info.errors);
             delete data.info.errors;
         }
+
         const uniqCode = data.info.唯一码;
         if (!uniqCode) {
             if (addUniqCode) {
@@ -386,6 +387,8 @@ export class ImportComponent extends Utils() implements OnInit {
         if (!data.type && !cad.skipErrorCheck.has("分类")) {
             cad.errors.push("没有分类");
         }
+        CadPortable.addLineId(data);
+
         data.name = data.name.replaceAll("-", "_");
         if (data.name.match(/^\d+/)) {
             data.name = "_" + data.name;

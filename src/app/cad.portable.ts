@@ -399,6 +399,40 @@ export class CadPortable {
         return result;
     }
 
+    static addLineId(cad: CadData) {
+        const lineGroups = sortLines(cad);
+        if (lineGroups.length < 1 || lineGroups.length > 2) {
+            return;
+        }
+        lineGroups.sort((a, b) => {
+            const {left: left1, top: top1} = new CadEntities().fromArray(a).getBoundingRect();
+            const {left: left2, top: top2} = new CadEntities().fromArray(b).getBoundingRect();
+            return left1 === left2 ? top1 - top2 : left1 - left2;
+        });
+        const uniqCode = cad.info.唯一码 || "";
+
+        lineGroups.forEach((lines, i) => {
+            const prefix = lineGroups.length > 1 ? `${uniqCode}-${i + 1}` : uniqCode;
+            const l1 = lines[0];
+            const l2 = lines[lines.length - 1];
+            const p1 = new Point(l1.minX, l1.minY);
+            const p2 = new Point(l2.minX, l2.minY);
+            if (p1.x === p2.x ? p1.y > p2.y : p1.x > p2.x) {
+                lines = lines.reverse();
+            }
+            lines.forEach((line, j) => {
+                if (line.线id) {
+                    return;
+                }
+                if (line.mingzi) {
+                    line.线id = `${prefix}-${line.mingzi}`;
+                } else {
+                    line.线id = `${prefix}-${j + 1}`;
+                }
+            });
+        });
+    }
+
     private static _removeLeaders(cad: CadData) {
         const leaders = cad.entities.leader;
         const map = generatePointsMap(cad.entities);
@@ -474,7 +508,11 @@ export class CadPortable {
 
         const texts = [];
         if (exportIds) {
-            texts.push(`{\\H0.1x;id:${e.id}}`);
+            if (e.线id) {
+                texts.push(`{\\H0.1x;线id:${e.线id}}`);
+            } else {
+                texts.push(`{\\H0.1x;id:${e.id}}`);
+            }
         }
         let mingzi = e.mingzi;
         const vars = cad.info.vars;
