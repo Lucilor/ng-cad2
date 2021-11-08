@@ -51,6 +51,7 @@ const originThuums: Thuum[] = [
 export class ThuumComponent implements OnInit, OnDestroy {
     private _intervalId = -1;
     thuumRandom = new ListRandom(originThuums);
+    thuum: Thuum = this.thuumRandom.list[0];
     thuumChars: ThuumChar[] = [];
     layerStyle: Partial<CSSStyleDeclaration> = {};
     animationDuration = {main: 1200, char: 360};
@@ -69,19 +70,17 @@ export class ThuumComponent implements OnInit, OnDestroy {
 
     async loop() {
         const {main: mainDuration, char: charDuration} = this.animationDuration;
-        this.thuumChars = this.thuumRandom
-            .next()
-            .text.split("")
-            .map((v, i) => ({
-                content: v,
-                charStyle: {opacity: "0", animation: `fade-in ${charDuration}ms ${charDuration * i}ms forwards`},
-                layerStyle: {
-                    left: "unset",
-                    right: "0",
-                    width: "100%",
-                    animation: `slide-out ${charDuration}ms ${charDuration * i}ms forwards`
-                }
-            }));
+        this.thuum = this.thuumRandom.next();
+        this.thuumChars = this.thuum.text.split("").map((v, i) => ({
+            content: v,
+            charStyle: {opacity: "0", animation: `fade-in ${charDuration}ms ${charDuration * i}ms forwards`},
+            layerStyle: {
+                left: "unset",
+                right: "0",
+                width: "100%",
+                animation: `slide-out ${charDuration}ms ${charDuration * i}ms forwards`
+            }
+        }));
         const charsDuration = this.thuumChars.length * charDuration;
         await timeout(charsDuration);
         if (!this.isProd) {

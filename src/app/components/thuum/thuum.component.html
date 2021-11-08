@@ -1,5 +1,5 @@
 <div class="container">
-    <div class="thuum" [ngStyle]="thuumStyle" [class.hidden]="isProd">
+    <div class="thuum" [ngStyle]="thuumStyle" [class.hidden]="isProd" [attr.thuum]="thuum.text">
         <div class="thuum-chars">
             <ng-container *ngFor="let char of thuumChars">
                 <span class="thuum-char" [ngStyle]="char.charStyle">
