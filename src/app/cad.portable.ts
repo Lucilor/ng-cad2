@@ -16,7 +16,7 @@ import {
 } from "@cad-viewer";
 import {keysOf, Line, ObjectOf, Point, Rectangle} from "@utils";
 import Color from "color";
-import {difference, intersection} from "lodash";
+import {difference, intersection, isEqual} from "lodash";
 import {replaceChars} from "./app.common";
 
 export interface Slgs {
@@ -71,9 +71,11 @@ export class CadPortable {
         算料单显示: "suanliaodanxianshi",
         装配位置: "装配位置",
         企料包边门框配合位增加值: "企料包边门框配合位增加值",
-        对应门扇厚度: "对应门扇厚度"
+        对应门扇厚度: "对应门扇厚度",
+        主CAD: "主CAD",
+        条件: "conditions"
     };
-
+    static infoFields = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
     static slgsFields = ["名字", "分类", "条件", "选项", "算料公式"];
     static skipFields = ["模板放大"];
 
@@ -217,8 +219,7 @@ export class CadPortable {
             });
         });
 
-        const infoKeys = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
-
+        const emptyCad = new CadData();
         cads.forEach((cad) => {
             const data = cad.data;
             let toRemove = -1;
@@ -267,17 +268,16 @@ export class CadPortable {
                         obj[key] = value;
                         const key2 = cadFields[key];
                         if (key2) {
-                            if (value === "是") {
-                                (data[key2] as boolean) = true;
-                            } else if (value === "否") {
-                                (data[key2] as boolean) = false;
+                            const defaultValue = emptyCad[key2];
+                            if (typeof defaultValue === "boolean") {
+                                (data[key2] as boolean) = value === "是";
+                            } else if (Array.isArray(defaultValue)) {
+                                (data[key2] as string[]) = value.split(";").map((v) => v.trim());
                             } else {
                                 (data[key2] as string) = value;
                             }
-                        } else if (infoKeys.includes(key)) {
+                        } else if (this.infoFields.includes(key)) {
                             data.info[key] = value;
-                        } else if (key === "条件") {
-                            data.conditions = value.split(";");
                         } else {
                             if (globalOptions[key]) {
                                 cad.errors.push(`多余的选项[${key}]`);
@@ -322,6 +322,7 @@ export class CadPortable {
         const height = 1700;
         const cols = 10;
         cads = cads.filter((v) => v.entities.length > 0 && Object.keys(v.options).length > 0);
+        const emptyData = new CadData();
 
         const groupedCads: (CadData[] | null)[] = [];
         if (type === "框型和企料") {
@@ -409,19 +410,23 @@ export class CadPortable {
                 cadRect.transform({translate});
 
                 const texts = [`唯一码: ${cad.info.唯一码}`];
-                const {cadFields, skipFields} = CadPortable;
+                const {cadFields, skipFields} = this;
                 for (const key in cadFields) {
                     if (skipFields.includes(key)) {
                         continue;
                     }
                     const value = cad[cadFields[key]];
-                    if (typeof value === "string" && value) {
-                        texts.push(`${key}: ${value}`);
-                    } else if (typeof value === "boolean") {
-                        texts.push(`${key}: ${value ? "是" : "否"}`);
+                    const defaultValue = emptyData[cadFields[key]];
+                    if (!isEqual(value, defaultValue)) {
+                        if (typeof value === "boolean") {
+                            texts.push(`${key}: ${value ? "是" : "否"}`);
+                        } else if (Array.isArray(value)) {
+                            texts.push(`${key}: ${value.join(",")}`);
+                        } else {
+                            texts.push(`${key}: ${value}`);
+                        }
                     }
                 }
-                texts.push(`条件: ${cad.conditions.join(",")}`);
                 for (const optionName in cad.options) {
                     texts.push(`${optionName}: ${cad.options[optionName]}`);
                 }
@@ -438,11 +443,14 @@ export class CadPortable {
                 if (cad.shuangxiangzhewan) {
                     texts.push("双向折弯: 是");
                 }
-                if (cad.info.修改包边正面宽规则) {
-                    texts.push(`\n修改包边正面宽规则: \n${cad.info.修改包边正面宽规则}`);
-                }
-                if (cad.info.锁边自动绑定可搭配铰边) {
-                    texts.push(`锁边自动绑定可搭配铰边: \n${cad.info.锁边自动绑定可搭配铰边}`);
+                for (const key of this.infoFields) {
+                    if (key === "唯一码") {
+                        continue;
+                    }
+                    const value = cad.info[key];
+                    if (value) {
+                        texts.push(`${key}: ${value}`);
+                    }
                 }
                 cad.entities.add(
                     new CadMtext({

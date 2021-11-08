@@ -3,6 +3,7 @@ import {ActivatedRoute, Router, Params} from "@angular/router";
 import {CadCollection, local, timer} from "@app/app.common";
 import {setCadData, addCadGongshi, prepareCadViewer, validateLines, ValidateResult} from "@app/cad.utils";
 import {CadData, CadLine, CadViewer, CadMtext, generateLineTexts, PointsMap, CadEntities, generatePointsMap} from "@cad-viewer";
+import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, timeout} from "@utils";
@@ -115,7 +116,7 @@ export class AppStatusService {
                 changelogTimeStamp = changelog[0]?.timeStamp || 0;
             }
             this.stopLoader();
-            if (changelogTimeStamp > this._refreshTimeStamp) {
+            if (environment.production && changelogTimeStamp > this._refreshTimeStamp) {
                 this.message.snack("版本更新，自动刷新页面");
                 local.save("refreshTimeStamp", new Date().getTime());
                 await timeout(1000);

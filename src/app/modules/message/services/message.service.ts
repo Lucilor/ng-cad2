@@ -66,7 +66,7 @@ export class MessageService {
     }
 
     async snack(message: string, action?: string, config?: MatSnackBarConfig) {
-        const snackBarRef = this.snackBar.open(message, action || "关闭", config);
+        const snackBarRef = this.snackBar.open(message, action, config);
         await snackBarRef.onAction().toPromise();
         if (!action) {
             snackBarRef.dismiss();
