@@ -480,8 +480,8 @@ export class CadPortable {
                     const end = [v[2] + offsetX, v[3] + offsetY];
                     cad.entities.add(new CadLine({color, start, end}));
                 });
-                rect.expand(new Point(offsetX, offsetY));
-                rect.expand(new Point(offsetX + width, offsetY + height));
+                rect.expandByPoint([offsetX, offsetY]);
+                rect.expandByPoint([offsetX + width, offsetY + height]);
 
                 result.entities.merge(cad.getAllEntities());
             });

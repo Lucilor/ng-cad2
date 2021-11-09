@@ -185,14 +185,28 @@ export class CadConsoleComponent implements OnInit {
                 if (l1.theta.equals(l2.theta)) {
                     l3 = l1.clone().transform({rotate: Math.PI / 2, origin: l1.start});
                     l4 = l1.clone().transform({rotate: Math.PI / 2, origin: l1.end});
-                    l3.end.copy(l3.intersects(l2, true));
-                    l4.reverse().end.copy(l4.intersects(l2, true));
+                    const p5 = l3.intersects(l2, true);
+                    if (p5) {
+                        l3.end.copy(p5);
+                    }
+                    l4.reverse();
+                    const p6 = l4.intersects(l2, true);
+                    if (p6) {
+                        l4.end.copy(p6);
+                    }
                     reverse = 1;
                 } else {
                     l3 = l1.clone().transform({rotate: Math.PI / 2, origin: l1.end});
                     l4 = l1.clone().transform({rotate: Math.PI / 2, origin: l1.start});
-                    l3.reverse().end.copy(l3.intersects(l2, true));
-                    l4.end.copy(l4.intersects(l2, true));
+                    l3.reverse();
+                    const p5 = l3.intersects(l2, true);
+                    if (p5) {
+                        l3.end.copy(p5);
+                    }
+                    const p6 = l4.intersects(l2, true);
+                    if (p6) {
+                        l4.end.copy(p6);
+                    }
                     reverse = -1;
                 }
                 const d1 = l3.end.distanceTo(l2.start);
@@ -218,13 +232,13 @@ export class CadConsoleComponent implements OnInit {
                         return;
                     }
                 }
-                l1.start.set(point);
-                l2.start.set(point);
+                l1.start.copy(point);
+                l2.start.copy(point);
                 if (p1.distanceTo(point) > p2.distanceTo(point)) {
-                    l1.end.set(p1);
+                    l1.end.copy(p1);
                 }
                 if (p3.distanceTo(point) > p4.distanceTo(point)) {
-                    l2.end.set(p3);
+                    l2.end.copy(p3);
                 }
                 const theta1 = l1.theta.rad;
                 const theta2 = l2.theta.rad;

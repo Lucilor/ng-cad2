@@ -14,7 +14,7 @@ import {
     generatePointsMap,
     findAllAdjacentLines
 } from "@cad-viewer";
-import {timeout, getDPI, Point, isNearZero, loadImage, isBetween, DEFAULT_TOLERANCE} from "@utils";
+import {getDPI, Point, isNearZero, loadImage, isBetween, DEFAULT_TOLERANCE} from "@utils";
 import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 
@@ -37,10 +37,7 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
     cad.appendTo(document.body);
     await prepareCadViewer(cad);
     cad.data = data.clone();
-    cad.render().center();
-    // ? ?? ???
-    await timeout(0);
-    cad.center();
+    cad.render().center().center();
     if (fixedLengthTextSize) {
         const resize = () => {
             const zoom = cad.zoom();
@@ -317,9 +314,8 @@ export const printCads = async (params: PrintCadsParams) => {
         }
         cadPrint.reset();
         cadPrint.data = data;
-        cadPrint.center().render();
         data.updatePartners().updateComponents();
-        cadPrint.render().center();
+        cadPrint.render().center().center();
         cadPrint.draw.find("[type='DIMENSION']").forEach((el) => {
             el.children().forEach((child) => {
                 if (child.node.tagName === "text") {

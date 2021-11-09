@@ -210,7 +210,7 @@ export class AppStatusService {
         await prepareCadViewer(cad);
         this.openCad$.next();
         await timeout(0);
-        cad.reset().render().center();
+        cad.reset().render().center().center();
         timer.end(timerName, "打开CAD");
     }
 
