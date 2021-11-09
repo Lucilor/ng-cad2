@@ -40,7 +40,7 @@ export const customTooltipOptions: MatTooltipDefaultOptions = {
     providers: [{provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: customTooltipOptions}]
 })
 export class CadListComponent extends Utils() implements AfterViewInit {
-    length = 100;
+    length = 0;
     pageSizeOptions = [1, 10, 20, 50, 100];
     pageSize = 20;
     pageData: {data: CadData; img: string; checked: boolean}[] = [];

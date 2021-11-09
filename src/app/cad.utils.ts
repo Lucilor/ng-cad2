@@ -524,3 +524,33 @@ export const autoFixLine = (cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
     entities.forEach((e) => e.transform({translate}, true));
     line.end.add(translate);
 };
+
+export const suanliaodanZoomIn = (cad: CadData) => {
+    cad.components.data.forEach((v) => {
+        if (v.info.skipSuanliaodanZoom) {
+            return;
+        }
+        const lastSuanliaodanZoom = v.info.lastSuanliaodanZoom ?? 1;
+        const rect = v.getBoundingRect();
+        if (lastSuanliaodanZoom !== v.suanliaodanZoom) {
+            v.info.lastSuanliaodanZoom = v.suanliaodanZoom;
+            v.transform({scale: v.suanliaodanZoom / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
+        }
+    });
+    cad.updateComponents();
+};
+
+export const suanliaodanZoomOut = (cad: CadData) => {
+    cad.components.data.forEach((v) => {
+        if (v.info.skipSuanliaodanZoom) {
+            return;
+        }
+        const lastSuanliaodanZoom = v.info.lastSuanliaodanZoom ?? 1;
+        const rect = v.getBoundingRect();
+        if (lastSuanliaodanZoom !== 1) {
+            delete v.info.lastSuanliaodanZoom;
+            v.transform({scale: 1 / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
+        }
+    });
+    cad.updateComponents();
+};

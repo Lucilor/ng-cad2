@@ -2,7 +2,7 @@ import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {getList, CadCollection} from "@app/app.common";
-import {removeCadGongshi, printCads, addCadGongshi} from "@app/cad.utils";
+import {removeCadGongshi, printCads, addCadGongshi, suanliaodanZoomOut} from "@app/cad.utils";
 import {CadArc, CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
@@ -465,15 +465,20 @@ export class CadConsoleComponent implements OnInit {
                         }
                     }
                 }
-                data.forEach((v) => removeCadGongshi(v));
-                const total = data.length;
+                const cads = data.map((v) => {
+                    const v2 = v.clone();
+                    removeCadGongshi(v2);
+                    suanliaodanZoomOut(v2);
+                    return v2;
+                });
+                const total = cads.length;
                 status.startLoader({id: loaderId, text: `正在保存CAD(0/${total})`});
                 for (let i = 0; i < total; i++) {
-                    const resData = await dataService.setCad({collection, cadData: data[i], force: true});
+                    const resData = await dataService.setCad({collection, cadData: cads[i], force: true});
                     if (resData) {
                         result.push(resData);
                     } else {
-                        skipped.push(data[i].name);
+                        skipped.push(cads[i].name);
                     }
                     status.loaderText$.next(`正在保存CAD(${i + 1}/${total})`);
                 }
