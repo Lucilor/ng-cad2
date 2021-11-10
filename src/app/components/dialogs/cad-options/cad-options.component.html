@@ -9,12 +9,14 @@
 </form>
 
 <perfect-scrollbar class="content">
-    <ngx-ui-loader [loaderId]="loaderId"></ngx-ui-loader>
+    <ngx-ui-loader [loaderId]="loaderIds.optionsLoader"></ngx-ui-loader>
     <div class="checkbox-group add-empty-msg">
-        <div class="data-container" *ngFor="let item of pageData; let i = index" [matTooltip]="item.value" [matTooltipPosition]="'above'">
-            <mat-checkbox [checked]="item.checked" (change)="onCheckboxChange(item, $event)">{{ item.value }}</mat-checkbox>
+        <div class="data-container" *ngFor="let item of pageData; let i = index" [matTooltip]="item.name" [matTooltipPosition]="'above'">
+            <mat-checkbox [checked]="item.checked" (change)="onCheckboxChange(item, $event)" [disabled]="item.disabled && !item.checked">
+                {{ item.name }}
+            </mat-checkbox>
             <br />
-            <app-image [src]="item.img" (click)="onCheckboxChange(item)"></app-image>
+            <app-image *ngIf="item.img" [src]="item.img" (click)="onCheckboxChange(item)"></app-image>
         </div>
     </div>
 </perfect-scrollbar>
@@ -29,6 +31,9 @@
 ></mat-paginator>
 
 <div mat-dialog-actions>
-    <button mat-raised-button color="primary" (click)="submit()">确定</button>
+    <button mat-raised-button color="primary" (click)="submit()">
+        <app-loader-inline [loaderId]="loaderIds.submitLoaderId"></app-loader-inline>
+        确定
+    </button>
     <button mat-raised-button color="primary" (click)="close()">取消</button>
 </div>

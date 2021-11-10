@@ -3,7 +3,7 @@ import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {CadData} from "@cad-viewer";
-import {CadDataService} from "@modules/http/services/cad-data.service";
+import {CadDataService, OptionsData} from "@modules/http/services/cad-data.service";
 import {AppStatusService} from "@services/app-status.service";
 import {getOpenDialogFunc} from "../dialog.common";
 
@@ -21,14 +21,14 @@ interface CadOptionsData {
     styleUrls: ["./cad-options.component.scss"]
 })
 export class CadOptionsComponent implements AfterViewInit {
-    pageData: {value: string; img: string; checked: boolean}[] = [];
+    pageData: (OptionsData["data"][0] & {checked: boolean})[] = [];
     searchInput = "";
     searchValue = "";
     length = 100;
     pageSizeOptions = [50, 100, 200, 500];
     pageSize = 50;
     checkedItems: string[] = [];
-    loaderId = "OptionsLoader";
+    loaderIds = {optionsLoader: "optionsLoader", submitLoaderId: "submitLoaderId"};
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
     constructor(
         public dialogRef: MatDialogRef<CadOptionsComponent, string[]>,
@@ -45,8 +45,18 @@ export class CadOptionsComponent implements AfterViewInit {
         this.getData(1);
     }
 
-    submit() {
-        this.dialogRef.close(this.checkedItems.filter((v) => v));
+    async submit() {
+        this.status.startLoader({id: this.loaderIds.submitLoaderId});
+        const data = await this.dataService.getOptions({
+            name: this.data.name,
+            search: this.searchValue,
+            data: this.data.data,
+            xinghao: this.data.xinghao,
+            includeTingyong: true,
+            values: this.checkedItems
+        });
+        this.status.stopLoader();
+        this.dialogRef.close(data.data.map((v) => v.name));
     }
 
     close() {
@@ -73,21 +83,20 @@ export class CadOptionsComponent implements AfterViewInit {
     }
 
     async getData(page: number) {
-        this.status.startLoader({id: this.loaderId, text: "获取CAD数据"});
-        const data = await this.dataService.getOptions(
-            this.data.name,
-            this.searchValue,
+        this.status.startLoader({id: this.loaderIds.optionsLoader, text: "获取CAD数据"});
+        const data = await this.dataService.getOptions({
+            name: this.data.name,
+            search: this.searchValue,
             page,
-            this.paginator?.pageSize,
-            this.data.data,
-            this.data.xinghao
-        );
+            limit: this.paginator?.pageSize,
+            data: this.data.data,
+            xinghao: this.data.xinghao
+            // includeTingyong: true
+        });
+        console.log(data.data.filter((v) => v.disabled));
         this.status.stopLoader();
         this.length = data.count;
-        this.pageData.length = 0;
-        data.data.forEach((v) => {
-            this.pageData.push({value: v.name, img: v.img, checked: this.checkedItems.includes(v.name)});
-        });
+        this.pageData = data.data.map((v) => ({...v, checked: this.checkedItems.includes(v.name)}));
         return data;
     }
 
@@ -100,9 +109,9 @@ export class CadOptionsComponent implements AfterViewInit {
         } else {
             item.checked = !item.checked;
         }
-        const index = this.checkedItems.findIndex((v) => v === item.value);
+        const index = this.checkedItems.findIndex((v) => v === item.name);
         if (item.checked && index < 0) {
-            this.checkedItems.push(item.value);
+            this.checkedItems.push(item.name);
         }
         if (!item.checked && index >= 0) {
             this.checkedItems.splice(index, 1);

@@ -1,7 +1,6 @@
 import {Component, OnInit, OnDestroy, Output, EventEmitter} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
-import {ActivatedRoute} from "@angular/router";
 import {splitOptions, joinOptions} from "@app/app.common";
 import {getCadGongshiText} from "@app/cad.utils";
 import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity, sortLines} from "@cad-viewer";
@@ -90,12 +89,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
     }).bind(this);
 
-    constructor(
-        private status: AppStatusService,
-        private dialog: MatDialog,
-        private message: MessageService,
-        private route: ActivatedRoute
-    ) {
+    constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
         super();
     }
 

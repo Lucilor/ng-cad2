@@ -36,8 +36,19 @@ export type CadSearchData = {
     }[];
 }[];
 
+export interface GetOptionsParams {
+    name: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    data?: CadData;
+    xinghao?: string;
+    includeTingyong?: boolean;
+    values?: string[];
+}
+
 export interface OptionsData {
-    data: {name: string; img: string}[];
+    data: {name: string; img: string | null; disabled: boolean}[];
     count: number;
 }
 
@@ -187,16 +198,11 @@ export class CadDataService extends HttpService {
         return null;
     }
 
-    async getOptions(name: string, search: string, page?: number, limit?: number, data?: CadData, xinghao?: string): Promise<OptionsData> {
-        const postData: ObjectOf<any> = {
-            name,
-            search,
-            page,
-            limit,
-            xinghao
-        };
-        if (data) {
-            const exportData = data.export();
+    async getOptions(params: GetOptionsParams): Promise<OptionsData> {
+        const postData: ObjectOf<any> = {...params};
+        if (params.data) {
+            delete postData.data;
+            const exportData = params.data.export();
             postData.mingzi = exportData.name;
             postData.fenlei = exportData.type;
             postData.xuanxiang = exportData.options;
@@ -205,7 +211,10 @@ export class CadDataService extends HttpService {
         const response = await this.post<any>("peijian/cad/getOptions", postData);
         if (response && response.data) {
             return {
-                data: (response.data as any[]).map((v: any) => ({name: v.mingzi, img: `${origin}/filepath/${v.xiaotu}`})),
+                data: (response.data as any[]).map((v: any) => {
+                    const img = v.xiaotu ? `${origin}/filepath/${v.xiaotu}` : null;
+                    return {name: v.mingzi, img, disabled: !!v.tingyong};
+                }),
                 count: response.count || 0
             };
         }

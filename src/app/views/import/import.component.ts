@@ -288,7 +288,7 @@ export class ImportComponent extends Utils() implements OnInit {
                 errors.push(`选项[${optionKey}]重复: ${duplicateValues.join(", ")}`);
             }
             if (this._optionsCache[optionKey] === undefined) {
-                const optionInfo = await this.dataService.getOptions(optionKey, "");
+                const optionInfo = await this.dataService.getOptions({name: optionKey});
                 this._optionsCache[optionKey] = optionInfo.data.map((v) => v.name);
             }
             const optionsNotExist = difference(optionValues, this._optionsCache[optionKey], ["所有", "不选", "不选无"]);
