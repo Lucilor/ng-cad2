@@ -1,12 +1,12 @@
 import {Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {CadData} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
-import {ObjectOf} from "@utils";
 import {getOpenDialogFunc} from "../dialog.common";
 
 export interface BbzhmkgzComponentData {
     value: string;
-    vars: ObjectOf<string>;
+    vars: CadData["info"]["vars"];
 }
 
 @Component({

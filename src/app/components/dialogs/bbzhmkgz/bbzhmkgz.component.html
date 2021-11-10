@@ -7,7 +7,7 @@
         <div class="var" *ngFor="let key of keysOf(data.vars)">
             <span>{{ key }}</span>
             :
-            <span>{{ data.vars[key] }}</span>
+            <span>{{ (data.vars || {})[key] }}</span>
         </div>
     </div>
     <div class="btn-group actions">

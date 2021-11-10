@@ -301,13 +301,13 @@ export class CadPortable {
             }
 
             data.info.vars = {};
-            [...data.entities.line, ...data.entities.arc].forEach((e) => {
+            for (const e of [...data.entities.line, ...data.entities.arc]) {
                 const varName = e.info.varName;
                 if (varName) {
                     data.info.vars[varName] = e.id;
                 }
                 delete e.info.varName;
-            });
+            }
             generateLineTexts(data);
         });
         return {cads, slgses, sourceCadMap};
