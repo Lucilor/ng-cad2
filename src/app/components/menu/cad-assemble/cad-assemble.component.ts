@@ -18,6 +18,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
     names: string[] = [];
     lines: string[] = [];
     data = new CadData();
+    private _leftTopArr = [] as number[][];
 
     get connections() {
         return this.data.components.connections;
@@ -174,12 +175,34 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                 prevSelectedCads = this.status.selectedCads$.value;
                 this.status.selectedCads$.next({cads: [data.id], partners: [], components: [], fullCads: [data.id]});
                 cad.data.updateComponents();
+                this._leftTopArr = [];
                 cad.data.components.data.forEach((v) => {
-                    const {top, bottom} = v.getBoundingRect();
+                    const {top, bottom, left, right} = v.entities.getBoundingRect();
                     const y = top - (top - bottom) / 4;
+                    let hasTop = false;
+                    let hasBottom = false;
+                    let hasLeft = false;
+                    let hasRight = false;
                     v.entities.forEach((e) => {
                         if (!(e instanceof CadLine) || e.length < 1000) {
                             if (e instanceof CadLine && e.minY <= y) {
+                                return;
+                            }
+                            const {top: top2, bottom: bottom2, left: left2, right: right2} = e.boundingRect;
+                            if (top2 >= top && !hasTop) {
+                                hasTop = true;
+                                return;
+                            }
+                            if (bottom2 <= bottom && !hasBottom) {
+                                hasBottom = true;
+                                return;
+                            }
+                            if (left2 <= left && !hasLeft) {
+                                hasLeft = true;
+                                return;
+                            }
+                            if (right2 >= right && !hasRight) {
+                                hasRight = true;
                                 return;
                             }
                             e.info.prevVisible = e.visible;
