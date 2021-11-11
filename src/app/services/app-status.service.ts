@@ -191,6 +191,13 @@ export class AppStatusService {
         if (ids.join(",") !== ids2 || collection !== collection2) {
             this.router.navigate(["/index"], {queryParams: {id: undefined, ids: ids.join(","), collection}, queryParamsHandling: "merge"});
         }
+        this.config.setUserConfig(newConfig);
+        const title = data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
+        document.title = title;
+        cad.data.name = title;
+        await prepareCadViewer(cad);
+        this.openCad$.next();
+        await timeout(0);
         data.forEach((v) => {
             setCadData(v, this.project);
             addCadGongshi(v, this.config.getConfig("showCadGongshis"), collection === "CADmuban");
@@ -198,18 +205,12 @@ export class AppStatusService {
                 this._replaceText(v, key, replaceMap[key]);
             }
             suanliaodanZoomIn(v);
+            if (collection === "cad") {
+                validateLines(v);
+            }
         });
-        if (collection === "cad") {
-            data.forEach((v) => validateLines(v));
-        }
-        this.config.setUserConfig(newConfig);
         this.generateLineTexts();
-        const title = data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
-        document.title = title;
-        cad.data.name = title;
-        await prepareCadViewer(cad);
-        this.openCad$.next();
-        await timeout(0);
+        // cad.data.updateComponents();
         cad.reset().render().center().center();
         timer.end(timerName, "打开CAD");
     }
