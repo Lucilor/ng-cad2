@@ -11,7 +11,7 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {SelectCadsComponent} from "./select-cads.component";
 
@@ -36,8 +36,8 @@ describe("SelectCadsComponent", () => {
                 MatPaginatorModule,
                 HttpModule,
                 MessageModule,
-                NgxUiLoaderModule,
-                PerfectScrollbarModule
+                NgScrollbarModule,
+                NgxUiLoaderModule
             ]
         }).compileComponents();
     });

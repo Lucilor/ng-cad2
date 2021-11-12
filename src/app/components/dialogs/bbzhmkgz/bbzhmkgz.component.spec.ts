@@ -4,7 +4,7 @@ import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {BbzhmkgzComponent, BbzhmkgzComponentData} from "./bbzhmkgz.component";
 
 const data: BbzhmkgzComponentData = {value: "test", vars: {a: "1", b: "2"}};
@@ -15,7 +15,7 @@ describe("BbzhmkgzComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [BbzhmkgzComponent],
-            imports: [BrowserAnimationsModule, FormsModule, MatFormFieldModule, MatInputModule, PerfectScrollbarModule],
+            imports: [BrowserAnimationsModule, FormsModule, MatFormFieldModule, MatInputModule, NgScrollbarModule],
             providers: [
                 {provide: MatDialogRef, useValue: {}},
                 {provide: MAT_DIALOG_DATA, useValue: data}

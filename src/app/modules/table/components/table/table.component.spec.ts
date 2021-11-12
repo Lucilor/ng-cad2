@@ -3,7 +3,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatTableModule} from "@angular/material/table";
 import {MessageModule} from "@modules/message/message.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {TableComponent} from "./table.component";
 
 describe("TableComponent", () => {
@@ -13,7 +13,7 @@ describe("TableComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [TableComponent],
-            imports: [MatCheckboxModule, MatSlideToggleModule, MatTableModule, MessageModule, PerfectScrollbarModule]
+            imports: [MatCheckboxModule, MatSlideToggleModule, MatTableModule, MessageModule, NgScrollbarModule]
         }).compileComponents();
     });
 

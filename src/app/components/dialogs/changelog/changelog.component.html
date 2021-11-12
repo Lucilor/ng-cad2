@@ -12,19 +12,23 @@
         编辑
     </a>
 </div>
-<perfect-scrollbar (psYReachEnd)="onYReachEnd()">
-    <ng-container *ngFor="let v of changelog">
-        <div class="changelog">
-            <div class="title">{{ getTitle(v.timeStamp) }}</div>
-            <div *ngFor="let w of v.content">
-                <div class="type">{{ getType(w.type) }}</div>
-                <ul class="items">
-                    <li class="item" *ngFor="let item of w.items">{{ item }}</li>
-                </ul>
-            </div>
+<ng-scrollbar>
+    <div infiniteScroll [scrollWindow]="false" scrollViewport (scrolled)="onYReachEnd()">
+        <div>
+            <ng-container *ngFor="let v of changelog">
+                <div class="changelog">
+                    <div class="title">{{ getTitle(v.timeStamp) }}</div>
+                    <div *ngFor="let w of v.content">
+                        <div class="type">{{ getType(w.type) }}</div>
+                        <ul class="items">
+                            <li class="item" *ngFor="let item of w.items">{{ item }}</li>
+                        </ul>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+            </ng-container>
+            <div class="footer" *ngIf="loading">正在加载...</div>
+            <div class="footer" *ngIf="currentPage >= maxPage">没有更多了</div>
         </div>
-        <mat-divider></mat-divider>
-    </ng-container>
-    <div class="footer" *ngIf="loading">正在加载...</div>
-    <div class="footer" *ngIf="currentPage >= maxPage">没有更多了</div>
-</perfect-scrollbar>
+    </div>
+</ng-scrollbar>

@@ -60,24 +60,24 @@
                 <!-- <mat-slide-toggle [checked]="!!entityDraggable" (change)="toggleEntityDraggable()"> 实体拖动 </mat-slide-toggle> -->
                 <mat-tab-group #infoTabs [disablePagination]="true" dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
                     <mat-tab label="CAD">
-                        <perfect-scrollbar (psScrollY)="onScrollChange($event)">
+                        <ng-scrollbar>
                             <app-cad-info (cadLengthsChange)="onCadLengthsChange($event)"></app-cad-info>
-                        </perfect-scrollbar>
+                        </ng-scrollbar>
                     </mat-tab>
                     <mat-tab label="线段">
-                        <perfect-scrollbar (psScrollY)="onScrollChange($event)">
+                        <ng-scrollbar>
                             <app-cad-line></app-cad-line>
-                        </perfect-scrollbar>
+                        </ng-scrollbar>
                     </mat-tab>
                     <mat-tab label="文本">
-                        <perfect-scrollbar (psScrollY)="onScrollChange($event)">
+                        <ng-scrollbar>
                             <app-cad-mtext></app-cad-mtext>
-                        </perfect-scrollbar>
+                        </ng-scrollbar>
                     </mat-tab>
                     <mat-tab label="标注">
-                        <perfect-scrollbar (psScrollY)="onScrollChange($event)">
+                        <ng-scrollbar>
                             <app-cad-dimension></app-cad-dimension>
-                        </perfect-scrollbar>
+                        </ng-scrollbar>
                     </mat-tab>
                 </mat-tab-group>
             </div>

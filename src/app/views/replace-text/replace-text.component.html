@@ -30,7 +30,7 @@
     </div>
     <div>替换所有{{ replacerDesc[0] }}的文本为{{ replacerDesc[1] }}</div>
     <div>匹配到的模板：</div>
-    <perfect-scrollbar>
+    <ng-scrollbar>
         <div class="to-be-replaced-list">
             <mat-card *ngFor="let item of toBeReplacedList">
                 <mat-card-header>
@@ -48,6 +48,6 @@
                 </mat-card-content>
             </mat-card>
         </div>
-    </perfect-scrollbar>
+    </ng-scrollbar>
 </ng-container>
 <ngx-ui-loader [loaderId]="'replace-text'"></ngx-ui-loader>

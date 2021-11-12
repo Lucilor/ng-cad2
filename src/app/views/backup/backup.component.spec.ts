@@ -11,7 +11,7 @@ import {CadData} from "@cad-viewer";
 import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
 import {MessageModule} from "@modules/message/message.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {BackupComponent} from "./backup.component";
 
@@ -33,10 +33,10 @@ describe("BackupComponent", () => {
                 MatInputModule,
                 MatPaginatorModule,
                 MessageModule,
+                NgScrollbarModule,
                 NgxMatDatetimePickerModule,
                 NgxMatNativeDateModule,
-                NgxUiLoaderModule,
-                PerfectScrollbarModule
+                NgxUiLoaderModule
             ]
         }).compileComponents();
     });

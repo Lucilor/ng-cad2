@@ -5,7 +5,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 
 import {CadDataAttrsComponent, CadDataAttrsComponentData} from "./cad-data-attrs.component";
 
@@ -17,7 +17,7 @@ describe("CadDataAttrsComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [CadDataAttrsComponent],
-            imports: [BrowserAnimationsModule, FormsModule, MatFormFieldModule, MatIconModule, MatInputModule, PerfectScrollbarModule],
+            imports: [BrowserAnimationsModule, FormsModule, MatFormFieldModule, MatIconModule, MatInputModule, NgScrollbarModule],
             providers: [
                 {provide: MatDialogRef, useValue: {}},
                 {provide: MAT_DIALOG_DATA, useValue: data}

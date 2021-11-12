@@ -97,14 +97,12 @@
         flex: 1 1 0;
     }
 
+    .mat-tab-body-wrapper {
+        flex: 1 1 0;
+    }
+
     .mat-tab-body-content {
         padding: 10px 0;
-
-        perfect-scrollbar {
-            .ps-content > * > * {
-                padding-right: 10px;
-            }
-        }
     }
 
     .mat-form-field-suffix {

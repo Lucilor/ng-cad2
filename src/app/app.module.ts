@@ -80,7 +80,8 @@ import {NgJsonEditorModule} from "ang-jsoneditor";
 import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_BASE_URL} from "ng-recaptcha";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
-import {PerfectScrollbarConfigInterface, PerfectScrollbarModule, PERFECT_SCROLLBAR_CONFIG} from "ngx-perfect-scrollbar";
+import {InfiniteScrollModule} from "ngx-infinite-scroll";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
@@ -98,10 +99,6 @@ class MyMatPaginatorIntl extends MatPaginatorIntl {
         return `第${page + 1}/${totalPage}页，共${length}条`;
     };
 }
-
-const perfectScrollbarConfig: PerfectScrollbarConfigInterface = {
-    wheelPropagation: true
-};
 
 const matFormFieldOptions: MatFormFieldDefaultOptions = {
     appearance: "standard"
@@ -170,14 +167,16 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         BbzhmkgzComponent
     ],
     imports: [
-        HttpClientModule,
-        FormsModule,
-        ReactiveFormsModule,
-        BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,
+        BrowserModule,
+        ColorChromeModule,
+        ColorCircleModule,
         DragDropModule,
+        FormsModule,
+        HttpClientModule,
         ImageModule,
+        InfiniteScrollModule,
         MatAutocompleteModule,
         MatButtonModule,
         MatCardModule,
@@ -198,13 +197,11 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         MatTableModule,
         MatTabsModule,
         MatTooltipModule,
-        ColorChromeModule,
-        ColorCircleModule,
         NgJsonEditorModule,
         NgxMatDatetimePickerModule,
         NgxMatTimepickerModule,
         NgxMatNativeDateModule,
-        PerfectScrollbarModule,
+        NgScrollbarModule,
         NgxUiLoaderModule.forRoot({
             fgsColor: "#2196f3",
             bgsColor: "#2196f3",
@@ -213,6 +210,7 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
             bgsType: SPINNER.ballScaleMultiple,
             minTime: 100
         }),
+        ReactiveFormsModule,
         RecaptchaV3Module,
         CadConsoleModule,
         HttpModule,
@@ -221,7 +219,6 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
     ],
     providers: [
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
-        {provide: PERFECT_SCROLLBAR_CONFIG, useValue: perfectScrollbarConfig},
         {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matFormFieldOptions},
         {provide: NGX_MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS},
         {provide: MAT_DATE_LOCALE, useValue: "zh-CN"},

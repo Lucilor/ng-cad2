@@ -1,4 +1,4 @@
-<perfect-scrollbar>
+<ng-scrollbar>
     <div class="page" *ngFor="let page of data; let i = index">
         <div class="card" [style.margin-top]="getTop(j)" [style.margin-left]="getLeft(j)" *ngFor="let card of page; let j = index">
             <ng-container *ngIf="card.type === '说明'">
@@ -20,7 +20,7 @@
             </ng-container>
         </div>
     </div>
-</perfect-scrollbar>
+</ng-scrollbar>
 <div class="btn-group menu">
     <button mat-raised-button color="primary" (click)="printPages()">打印预览</button>
 </div>

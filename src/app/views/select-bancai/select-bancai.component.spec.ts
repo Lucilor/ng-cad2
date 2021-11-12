@@ -6,7 +6,7 @@ import {RouterTestingModule} from "@angular/router/testing";
 import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {SelectBancaiComponent} from "./select-bancai.component";
 
@@ -23,8 +23,8 @@ describe("SelectBancaiComponent", () => {
                 MatAutocompleteModule,
                 MatSlideToggleModule,
                 MessageModule,
+                NgScrollbarModule,
                 NgxUiLoaderModule,
-                PerfectScrollbarModule,
                 RouterTestingModule
             ]
         }).compileComponents();

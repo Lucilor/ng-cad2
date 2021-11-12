@@ -9,7 +9,7 @@ import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.com
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
 import {ThuumComponent} from "@components/thuum/thuum.component";
 import {HttpModule} from "@modules/http/http.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {ImportComponent} from "./import.component";
 
@@ -28,8 +28,8 @@ describe("ImportComponent", () => {
                 MatInputModule,
                 MatRadioModule,
                 HttpModule,
-                NgxUiLoaderModule,
-                PerfectScrollbarModule
+                NgScrollbarModule,
+                NgxUiLoaderModule
             ]
         }).compileComponents();
     });

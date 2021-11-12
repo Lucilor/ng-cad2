@@ -7,7 +7,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CadDimension} from "@cad-viewer";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {CadDimensionData, CadDimensionFormComponent} from "./cad-dimension-form.component";
 
 const data: CadDimensionData = {data: new CadDimension()};
@@ -19,13 +19,13 @@ describe("CadDimensionFormComponent", () => {
         await TestBed.configureTestingModule({
             declarations: [CadDimensionFormComponent],
             imports: [
-                ReactiveFormsModule,
+                BrowserAnimationsModule,
                 MatInputModule,
                 MatFormFieldModule,
                 MatSelectModule,
                 MatSlideToggleModule,
-                BrowserAnimationsModule,
-                PerfectScrollbarModule
+                NgScrollbarModule,
+                ReactiveFormsModule,
             ],
             providers: [
                 {provide: MatDialogRef, useValue: {}},

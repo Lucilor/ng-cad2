@@ -13,7 +13,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {ChangelogAdminComponent} from "./changelog-admin.component";
 
@@ -37,11 +37,11 @@ describe("ChangelogAdminComponent", () => {
                 MatPaginatorModule,
                 MatSelectModule,
                 MessageModule,
+                NgScrollbarModule,
                 NgxMatDatetimePickerModule,
                 NgxMatTimepickerModule,
                 NgxMatNativeDateModule,
-                NgxUiLoaderModule,
-                PerfectScrollbarModule
+                NgxUiLoaderModule
             ]
         }).compileComponents();
     });

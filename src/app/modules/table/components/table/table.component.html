@@ -10,7 +10,7 @@
 		<mat-icon>error</mat-icon>
 		<div>{{ item.msg }}</div>
 	</div>
-	<perfect-scrollbar class="table-body">
+	<ng-scrollbar class="table-body">
 		<mat-table [dataSource]="data" matSort>
 			<ng-container matColumnDef="select">
 				<th mat-header-cell *matHeaderCellDef [style.width.px]="checkBoxSize">
@@ -91,7 +91,7 @@
 			<tr mat-header-row *matHeaderRowDef="columnFields; sticky: true"></tr>
 			<tr [class.active]="activeRows?.includes(i)" mat-row *matRowDef="let row; columns: columnFields; let i = index"></tr>
 		</mat-table>
-	</perfect-scrollbar>
+	</ng-scrollbar>
 </div>
 
 <input #input type="file" hidden accept=".json" />

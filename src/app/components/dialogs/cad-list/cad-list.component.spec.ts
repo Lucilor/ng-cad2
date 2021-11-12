@@ -13,7 +13,7 @@ import {MAT_TOOLTIP_DEFAULT_OPTIONS} from "@angular/material/tooltip";
 import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {CadListComponent, CadListData, customTooltipOptions} from "./cad-list.component";
 
@@ -37,8 +37,8 @@ describe("CadListComponent", () => {
                 MatPaginatorModule,
                 HttpModule,
                 MessageModule,
-                NgxUiLoaderModule,
-                PerfectScrollbarModule
+                NgScrollbarModule,
+                NgxUiLoaderModule
             ],
             providers: [
                 {provide: MatDialogRef, useValue: {}},

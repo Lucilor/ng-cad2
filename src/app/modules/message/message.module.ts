@@ -7,7 +7,6 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS} from "@angular/material/snack-bar";
 import hljs from "highlight.js";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {QuillModule} from "ngx-quill";
 import {MessageComponent} from "./components/message/message.component";
 
@@ -23,7 +22,6 @@ import {MessageComponent} from "./components/message/message.component";
         MatDialogModule,
         MatInputModule,
         MatSnackBarModule,
-        PerfectScrollbarModule,
         QuillModule.forRoot({
             format: "json",
             modules: {

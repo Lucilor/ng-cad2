@@ -13,7 +13,7 @@
     <button mat-raised-button color="primary" (click)="directAssemble()">快速装配</button>
 </div>
 
-<perfect-scrollbar class="connections" *ngIf="connections.length">
+<ng-scrollbar class="connections" *ngIf="connections.length">
     <div class="btn-group">
         <button mat-raised-button color="primary" (click)="clearConnections()">清空</button>
     </div>
@@ -24,4 +24,4 @@
         <p>定位: {{ c.position === "relative" ? "相对定位" : "绝对定位" }}</p>
         <button mat-raised-button color="primary" (click)="removeConnection(i)">删除</button>
     </div>
-</perfect-scrollbar>
+</ng-scrollbar>

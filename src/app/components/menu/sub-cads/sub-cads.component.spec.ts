@@ -6,7 +6,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 
 import {SubCadsComponent} from "./sub-cads.component";
 
@@ -18,14 +18,14 @@ describe("SubCadsComponent", () => {
         await TestBed.configureTestingModule({
             declarations: [SubCadsComponent],
             imports: [
+                HttpModule,
                 MatDialogModule,
                 MatDividerModule,
                 MatExpansionModule,
                 MatMenuModule,
                 MatSlideToggleModule,
-                HttpModule,
                 MessageModule,
-                PerfectScrollbarModule
+                NgScrollbarModule
             ]
         }).compileComponents();
     });

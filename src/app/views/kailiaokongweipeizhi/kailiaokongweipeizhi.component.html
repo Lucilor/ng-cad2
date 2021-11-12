@@ -6,7 +6,7 @@
     <button mat-raised-button color="primary" (click)="copyT1()">复制<mat-icon>content_copy</mat-icon></button>
     <button mat-raised-button color="primary" (click)="pasteT1()">粘贴<mat-icon>content_copy</mat-icon></button>
 </div>
-<perfect-scrollbar>
+<ng-scrollbar>
     <div *ngIf="data.length === 0">
         <button mat-icon-button color="primary" (click)="arrayAdd(data, emptyItem1)">
             <mat-icon>add_circle</mat-icon>
@@ -254,4 +254,4 @@
             </ng-template>
         </mat-expansion-panel>
     </mat-accordion>
-</perfect-scrollbar>
+</ng-scrollbar>

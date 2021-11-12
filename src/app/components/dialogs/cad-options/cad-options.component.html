@@ -8,7 +8,7 @@
     </mat-form-field>
 </form>
 
-<perfect-scrollbar class="content">
+<ng-scrollbar class="content">
     <ngx-ui-loader [loaderId]="loaderIds.optionsLoader"></ngx-ui-loader>
     <div class="checkbox-group add-empty-msg">
         <div class="data-container" *ngFor="let item of pageData; let i = index" [matTooltip]="item.name" [matTooltipPosition]="'above'">
@@ -19,7 +19,7 @@
             <app-image *ngIf="item.img" [src]="item.img" (click)="onCheckboxChange(item)"></app-image>
         </div>
     </div>
-</perfect-scrollbar>
+</ng-scrollbar>
 
 <mat-paginator
     #paginator

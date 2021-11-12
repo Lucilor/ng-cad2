@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>编辑标注</h1>
 <div mat-dialog-content>
-    <perfect-scrollbar>
+    <ng-scrollbar>
         <form [formGroup]="form">
             <mat-form-field>
                 <mat-label>名字</mat-label>
@@ -97,7 +97,7 @@
                 </mat-select>
             </mat-form-field>
         </form>
-    </perfect-scrollbar>
+    </ng-scrollbar>
 </div>
 <div mat-dialog-actions>
     <button mat-raised-button color="primary" (click)="submit()">确定</button>

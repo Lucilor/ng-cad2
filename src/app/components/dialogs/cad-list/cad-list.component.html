@@ -39,7 +39,7 @@
 </form>
 
 <div class="content" [ngSwitch]="data.selectMode">
-    <perfect-scrollbar *ngSwitchCase="'single'">
+    <ng-scrollbar *ngSwitchCase="'single'">
         <mat-radio-group class="add-empty-msg" [value]="checkedIndex.getValue()" (change)="checkedIndex.next($event.value)">
             <div class="data-container" *ngFor="let item of pageData; let i = index">
                 <mat-radio-button class="example-radio-button" [value]="i" [matTooltip]="item.data.name">
@@ -49,9 +49,9 @@
                 <ng-container *ngTemplateOutlet="details; context: {$implicit: item.data}"></ng-container>
             </div>
         </mat-radio-group>
-    </perfect-scrollbar>
+    </ng-scrollbar>
 
-    <perfect-scrollbar *ngSwitchCase="'multiple'">
+    <ng-scrollbar *ngSwitchCase="'multiple'">
         <div class="checkbox-group add-empty-msg">
             <div class="data-container" *ngFor="let item of pageData; let i = index">
                 <mat-checkbox [(ngModel)]="item.checked" [matTooltip]="item.data.name">
@@ -63,9 +63,9 @@
                 <ng-container *ngTemplateOutlet="details; context: {$implicit: item.data}"></ng-container>
             </div>
         </div>
-    </perfect-scrollbar>
+    </ng-scrollbar>
 
-    <perfect-scrollbar *ngSwitchCase="'table'">
+    <ng-scrollbar *ngSwitchCase="'table'">
         <table mat-table [dataSource]="tableData">
             <ng-container matColumnDef="select">
                 <th mat-header-cell *matHeaderCellDef></th>
@@ -93,7 +93,7 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
-    </perfect-scrollbar>
+    </ng-scrollbar>
 
     <ngx-ui-loader [loaderId]="'cadList'" [text]="'正在加载CAD'"></ngx-ui-loader>
 </div>

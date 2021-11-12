@@ -1,7 +1,7 @@
 <div style="margin: 10px">
     <mat-slide-toggle [checked]="multiSelect" (change)="toggleMultiSelect()">{{ multiSelect ? "多选" : "单选" }}</mat-slide-toggle>
 </div>
-<perfect-scrollbar>
+<ng-scrollbar>
     <mat-accordion multi>
         <mat-expansion-panel [expanded]="cadsExpanded">
             <mat-expansion-panel-header>
@@ -107,7 +107,7 @@
             </div>
         </mat-expansion-panel>
     </mat-accordion>
-</perfect-scrollbar>
+</ng-scrollbar>
 
 <div
     style="visibility: hidden; position: fixed"

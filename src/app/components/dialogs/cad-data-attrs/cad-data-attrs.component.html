@@ -1,4 +1,4 @@
-<perfect-scrollbar>
+<ng-scrollbar>
     <div class="btn-group" *ngIf="list.length < 1">
         <button mat-icon-button color="primary" (click)="arrayAdd(list, {key: '', value: ''})">
             <mat-icon>add_circle</mat-icon>
@@ -21,7 +21,7 @@
             <input matInput type="text" [(ngModel)]="item.value" name="value" />
         </mat-form-field>
     </div>
-</perfect-scrollbar>
+</ng-scrollbar>
 <div class="btn-group" style="text-align: center">
     <button mat-raised-button color="primary" (click)="submit()">确定</button>
     <button mat-raised-button color="primary" (click)="cancle()">取消</button>

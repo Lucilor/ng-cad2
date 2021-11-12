@@ -27,7 +27,7 @@ import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {IndexComponent} from "./index.component";
 
@@ -68,8 +68,8 @@ describe("IndexComponent", () => {
                 MatSlideToggleModule,
                 MatTabsModule,
                 MessageModule,
+                NgScrollbarModule,
                 NgxUiLoaderModule,
-                PerfectScrollbarModule,
                 RouterTestingModule.withRoutes([{path: "index", component: IndexComponent}])
             ]
         }).compileComponents();

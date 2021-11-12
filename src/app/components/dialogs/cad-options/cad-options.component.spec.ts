@@ -8,7 +8,7 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {NgxUiLoaderModule} from "ngx-ui-loader";
 
 import {CadOptionsComponent} from "./cad-options.component";
@@ -28,7 +28,7 @@ describe("CadOptionsComponent", () => {
                 MatPaginatorModule,
                 HttpModule,
                 MessageModule,
-                PerfectScrollbarModule,
+                NgScrollbarModule,
                 NgxUiLoaderModule
             ],
             providers: [

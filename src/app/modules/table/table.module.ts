@@ -8,7 +8,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatSortModule} from "@angular/material/sort";
 import {MatTableModule} from "@angular/material/table";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {TableComponent} from "./components/table/table.component";
 
 @NgModule({
@@ -23,7 +23,7 @@ import {TableComponent} from "./components/table/table.component";
         MatSlideToggleModule,
         MatSortModule,
         MatTableModule,
-        PerfectScrollbarModule
+        NgScrollbarModule
     ],
     exports: [TableComponent]
 })

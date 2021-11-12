@@ -125,26 +125,23 @@ form {
     color: black;
 }
 
-// perfect scrollbar
-.ps__thumb-x,
-.ps__thumb-y {
-    background-color: rgba(0, 0, 0, 0.5) !important;
-}
-.ps__thumb-y {
-    width: 3px !important;
-}
-.ps__rail-y.ps--clicking .ps__thumb-x,
-.ps__rail-y:focus > .ps__thumb-x,
-.ps__rail-y:hover > .ps__thumb-x,
-.ps__rail-y.ps--clicking .ps__thumb-y,
-.ps__rail-y:focus > .ps__thumb-y,
-.ps__rail-y:hover > .ps__thumb-y {
-    background-color: rgba(0, 0, 0, 0.8) !important;
-    width: 6px !important;
-}
-.ps__rail-x,
-.ps__rail-y {
-    background: transparent !important;
+// ngx scrollbar
+ng-scrollbar.ng-scrollbar {
+    --scrollbar-border-radius: 7px;
+    --scrollbar-padding: 0px;
+    --scrollbar-viewport-margin: 0;
+    --scrollbar-track-color: transparent;
+    --scrollbar-wrapper-color: transparent;
+    --scrollbar-thumb-color: rgba(0, 0, 0, 0.3);
+    --scrollbar-thumb-hover-color: rgba(0, 0, 0, 0.5);
+    --scrollbar-size: 3px;
+    --scrollbar-hover-size: 5px;
+    --scrollbar-thumb-transition: height ease-out 150ms, width ease-out 150ms;
+    --scrollbar-track-transition: height ease-out 150ms, width ease-out 150ms;
+    .ng-scroll-content {
+        display: block;
+        min-width: unset;
+    }
 }
 
 .sub-form-field,

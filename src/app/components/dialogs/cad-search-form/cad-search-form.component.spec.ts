@@ -9,7 +9,7 @@ import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
-import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
+import {NgScrollbarModule} from "ngx-scrollbar";
 
 import {CadSearchFormComponent} from "./cad-search-form.component";
 
@@ -22,15 +22,15 @@ describe("CadSearchFormComponent", () => {
             declarations: [CadSearchFormComponent],
             imports: [
                 FormsModule,
+                HttpModule,
                 MatButtonModule,
                 MatCardModule,
                 MatIconModule,
                 MatInputModule,
                 MatFormFieldModule,
                 MatSelectModule,
-                HttpModule,
                 MessageModule,
-                PerfectScrollbarModule
+                NgScrollbarModule
             ],
             providers: [
                 {provide: MatDialogRef, useValue: {}},

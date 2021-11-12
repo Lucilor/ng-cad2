@@ -26,7 +26,7 @@ import {AppStatusService} from "@services/app-status.service";
 import {CadStatusAssemble} from "@services/cad-status";
 import {log} from "@utils";
 import {debounce} from "lodash";
-import {PerfectScrollbarComponent} from "ngx-perfect-scrollbar";
+import {NgScrollbar} from "ngx-scrollbar";
 import {BehaviorSubject} from "rxjs";
 
 interface DragData {
@@ -100,8 +100,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer!: ElementRef<HTMLElement>;
     @ViewChild(CadConsoleComponent) consoleComponent!: CadConsoleComponent;
     @ViewChild(MatTabGroup) infoTabs!: MatTabGroup;
-    @ViewChildren(PerfectScrollbarComponent)
-    private _scrollbars!: QueryList<PerfectScrollbarComponent>;
+    @ViewChildren(NgScrollbar)
+    private _scrollbars!: QueryList<NgScrollbar>;
     private get _scrollbar() {
         const scrollbar = this._scrollbars.get(this.tabIndex);
         if (!scrollbar) {
@@ -123,16 +123,14 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         super();
     }
 
-    onScrollChange = debounce((event: CustomEvent) => {
+    onScrollChange = debounce(() => {
         if (this._scrollChangeLock) {
-            this._scrollChangeLock = false;
             return;
         }
         const scroll = this.config.getConfig("scroll");
-        const el = event.target as HTMLDivElement;
-        scroll["tab" + this.tabIndex] = el.scrollTop;
+        scroll["tab" + this.tabIndex] = this._scrollbar.viewport.nativeElement.scrollTop;
         this.config.setConfig("scroll", scroll);
-    }, 500);
+    }, 1000);
 
     private _resize = debounce(() => this.config.setConfig({width: innerWidth, height: innerHeight}), 500);
     private _onEntitiesCopy: CadEventCallBack<"entitiescopy"> = (entities) => {
@@ -219,6 +217,10 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             }
         });
 
+        this._scrollbars.forEach((scrollbar) => {
+            this.subscribe(scrollbar.scrolled, this.onScrollChange);
+        });
+
         window.addEventListener("resize", this._resize);
     }
 
@@ -288,7 +290,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         const key = "tab" + this.tabIndex;
         if (scroll[key] !== undefined) {
             this._scrollChangeLock = true;
-            this._scrollbar.directiveRef?.scrollToTop(scroll[key]);
+            this._scrollbar.scrollTo({top: scroll[key]});
+            this._scrollChangeLock = false;
         }
     }
 
