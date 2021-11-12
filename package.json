@@ -8,10 +8,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "upload": "pnpx ts-node --project tsconfig.upload.json upload.ts",
-    "upload:fc": "pnpx ts-node --project tsconfig.upload.json upload.ts --fetchChangelog",
-    "bu": "pnpm build && pnpm upload",
-    "postinstall": "ngcc"
+    "upload": "npx ts-node --project tsconfig.upload.json upload.ts",
+    "upload:fc": "npx ts-node --project tsconfig.upload.json upload.ts --fetchChangelog",
+    "bu": "pnpm build && pnpm upload"
   },
   "private": true,
   "dependencies": {

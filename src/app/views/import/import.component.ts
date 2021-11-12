@@ -474,12 +474,18 @@ export class ImportComponent extends Utils() implements OnInit {
                     e.mingzi = "显示公式: " + e.mingzi;
                     const id1 = e.entity1.id;
                     const id2 = e.entity2.id;
-                    if (!(id1 && id2) || id1 !== id2) {
-                        cad.errors.push(`公式标注[=${e.mingzi}]识别错误, 必须标到同一条线的两个端点`);
+                    if (!(id1 && id2)) {
+                        cad.errors.push(`公式标注[=${e.mingzi}]识别错误, 必须标到两个端点`);
                     }
                 }
             }
         });
+        for (const e of data.entities.line) {
+            if (e.gongshi.match(/[,.;，。；]/)) {
+                cad.errors.push(`线公式不能包含逗号、句号或分号`);
+                break;
+            }
+        }
 
         if (cad.errors.length > 0) {
             this.hasError = true;
