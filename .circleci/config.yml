@@ -1,5 +1,5 @@
 version: 2.1
-var_1: &cache_key ng-cad2-{{ .Branch }}-{{ checksum "pnpm-lock.yaml" }}
+var_1: &cache_key ng-cad2-{{ .Branch }}-{{ checksum "package-lock.json" }}
 var_2: &cache_fallback_key ng-cad2
 var_3: &restore_cache
     restore_cache:
@@ -15,60 +15,56 @@ executors:
     ng-cad2:
         working_directory: ~/ng-cad2
         docker:
-            - image: circleci/node:latest-browsers
+            - image: circleci/node:16-browsers
 jobs:
     build:
         executor: ng-cad2
         steps:
-            - run: npm install --prefix=$HOME/.local -g pnpm
             - checkout
             - *restore_cache
             # - run: git submodule update --init --recursive
             - run:
                   name: Install local dependencies
-                  command: pnpm install
+                  command: npm install
             - *save_cache
     unit-test:
         executor: ng-cad2
         steps:
-            - run: npm install --prefix=$HOME/.local -g pnpm
             - checkout
             - *restore_cache
             - run: git submodule update --init --recursive
             - run:
-                  name: Install cad-viewer dependencies
-                  command: cd ./src/cad-viewer && pnpm install
-            - run:
                   name: Install utils dependencies
-                  command: cd ./src/cad-viewer/src/utils && pnpm install
+                  command: cd ./src/cad-viewer/src/utils && npm install
+            - run:
+                  name: Install cad-viewer dependencies
+                  command: cd ./src/cad-viewer && npm install
             - run:
                   name: Unit test
-                  command: pnpm run test -- --no-watch --no-progress --browsers=ChromeHeadless
+                  command: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless
     e2e:
         executor: ng-cad2
         steps:
-            - run: npm install --prefix=$HOME/.local -g pnpm
             - checkout
             - *restore_cache
             - run:
                   name: End to end
-                  command: pnpm run e2e -- --protractor-config=e2e/protractor.conf.js
+                  command: npm run e2e -- --protractor-config=e2e/protractor.conf.js
     lint:
         executor: ng-cad2
         steps:
-            - run: npm install --prefix=$HOME/.local -g pnpm
             - checkout
             - *restore_cache
             - run:
                   name: Lint
-                  command: pnpm run lint
+                  command: npm run lint
 workflows:
     build-test-lint:
         jobs:
             - build
-            # - unit-test:
-            #       requires:
-            #           - build
+            - unit-test:
+                  requires:
+                      - build
             # - e2e:
             #       requires:
             #           - build

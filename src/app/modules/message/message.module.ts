@@ -6,7 +6,7 @@ import {MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS} from "@angular/material/dia
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS} from "@angular/material/snack-bar";
-import * as hljs from "highlight.js";
+import hljs from "highlight.js";
 import {PerfectScrollbarModule} from "ngx-perfect-scrollbar";
 import {QuillModule} from "ngx-quill";
 import {MessageComponent} from "./components/message/message.component";
