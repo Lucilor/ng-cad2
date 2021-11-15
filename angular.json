@@ -35,7 +35,7 @@
                             "src/mat-theme.scss"
                         ],
                         "scripts": [],
-                        "allowedCommonJsDependencies": ["lodash", "color", "highlight.js", "@lucilor/utils"],
+                        "allowedCommonJsDependencies": ["pdfmake/build/pdfmake", "color", "md5"],
                         "vendorChunk": true,
                         "extractLicenses": false,
                         "buildOptimizer": false,

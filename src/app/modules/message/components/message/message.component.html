@@ -9,6 +9,7 @@
         <mat-form-field *ngIf="data.type === 'prompt'" [ngSwitch]="promptData.type">
             <textarea
                 matInput
+                #contentInput
                 *ngSwitchCase="'textarea'"
                 cdkTextareaAutosize
                 [formControl]="input"
@@ -17,10 +18,12 @@
             ></textarea>
             <input
                 matInput
+                #contentInput
                 *ngSwitchDefault
                 [formControl]="input"
                 [type]="promptData.type || ''"
                 [placeholder]="promptData.placeholder || ''"
+                (keydown)="onKeyDown($event)"
             />
             <mat-hint>{{ promptData.hint || "" }}</mat-hint>
             <mat-error *ngIf="this.input.invalid">{{ getErrorText() }}</mat-error>

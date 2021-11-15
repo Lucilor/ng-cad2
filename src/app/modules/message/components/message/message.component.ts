@@ -1,8 +1,9 @@
 import {HttpErrorResponse} from "@angular/common/http";
-import {Component, OnInit, Inject, ViewChild, OnDestroy} from "@angular/core";
+import {Component, OnInit, Inject, ViewChild, OnDestroy, ElementRef, AfterViewInit} from "@angular/core";
 import {FormControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
+import {timeout} from "@utils";
 import {clamp, cloneDeep, debounce} from "lodash";
 import {QuillEditorComponent, QuillViewComponent} from "ngx-quill";
 import {ButtonMessageData, MessageData, MessageDataMap, PromptData} from "./message-types";
@@ -12,13 +13,14 @@ import {ButtonMessageData, MessageData, MessageDataMap, PromptData} from "./mess
     templateUrl: "./message.component.html",
     styleUrls: ["./message.component.scss"]
 })
-export class MessageComponent implements OnInit, OnDestroy {
+export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
     input = new FormControl();
     titleHTML: SafeHtml = "";
     subTitleHTML: SafeHtml = "";
     contentHTML: SafeHtml = "";
     page = 0;
     @ViewChild(QuillEditorComponent) editor?: QuillViewComponent;
+    @ViewChild("contentInput") contentInput?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
 
     private get _editorToolbarHeight() {
         if (this.editor) {
@@ -147,6 +149,13 @@ export class MessageComponent implements OnInit, OnDestroy {
         window.addEventListener("resize", this._resizeEditor);
     }
 
+    async ngAfterViewInit() {
+        if (this.contentInput) {
+            await timeout(0);
+            this.contentInput.nativeElement.focus();
+        }
+    }
+
     ngOnDestroy() {
         window.removeEventListener("resize", this._resizeEditor);
     }
@@ -184,14 +193,6 @@ export class MessageComponent implements OnInit, OnDestroy {
     }
 
     cancle() {
-        if (this.data.type === "prompt") {
-            if (this.input.untouched) {
-                this.input.markAsTouched();
-            }
-            if (this.input.invalid) {
-                return;
-            }
-        }
         this.dialogRef.close(false);
     }
 
@@ -217,5 +218,11 @@ export class MessageComponent implements OnInit, OnDestroy {
 
     getButtonLabel(button: ButtonMessageData["buttons"][0]) {
         return typeof button === "string" ? button : button.label;
+    }
+
+    onKeyDown(event: KeyboardEvent) {
+        if (event.key === "Enter") {
+            this.submit();
+        }
     }
 }
