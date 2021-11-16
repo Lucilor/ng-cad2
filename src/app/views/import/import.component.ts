@@ -1,5 +1,5 @@
 import {Component, OnInit} from "@angular/core";
-import {CadPortable, CadInfo, SlgsInfo, PeiheInfo} from "@app/cad.portable";
+import {CadPortable, CadInfo, SlgsInfo, PeiheInfo, XhpzInfo} from "@app/cad.portable";
 import {isShiyitu, reservedDimNames, validateLines} from "@app/cad.utils";
 import {CadData, CadDimension, CadEntities, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
@@ -25,6 +25,7 @@ export class ImportComponent extends Utils() implements OnInit {
     private _cadNameRegex = /^(?!\d)[\da-zA-Z\u4e00-\u9fa5_]*$/u;
     private _optionsCache: ObjectOf<string[]> = {};
     private _peiheCadCache: ObjectOf<boolean> = {};
+    private _sourceFile: File | null = null;
     private _sourceCadMap: ObjectOf<{rect: Rectangle; rectLines: CadLineLike[]; entities: CadEntities}> = {};
     private _errorMsgLayer = "导入错误信息";
     sourceCad: CadData | null = null;
@@ -33,6 +34,7 @@ export class ImportComponent extends Utils() implements OnInit {
     msg = "";
     cads: CadInfo[] = [];
     slgses: SlgsInfo[] = [];
+    xhpzInfo: XhpzInfo | null = null;
     cadsParsed = false;
     hasError = false;
     progressBar = new ProgressBar(0);
@@ -59,18 +61,18 @@ export class ImportComponent extends Utils() implements OnInit {
         }
     }
 
-    private _getImportConfig(isSuanliao: boolean) {
-        return isSuanliao ? this.importConfigSuanliao : this.importConfigNormal;
+    private _getImportConfig(isXinghao: boolean) {
+        return isXinghao ? this.importConfigSuanliao : this.importConfigNormal;
     }
 
-    canSubmit(isSuanliao: boolean) {
-        const {requireLineId, pruneLines} = this._getImportConfig(isSuanliao);
+    canSubmit(isXinghao: boolean) {
+        const {requireLineId, pruneLines} = this._getImportConfig(isXinghao);
         return requireLineId.value !== null && pruneLines.value !== null;
     }
 
-    async importDxf(event: Event, isSuanliao: boolean) {
+    async importDxf(event: Event, isXinghao: boolean) {
         const el = event.target as HTMLInputElement;
-        const loaderId = isSuanliao ? this.loaderIds.importSuanliaoLoader : this.loaderIds.importLoader;
+        const loaderId = isXinghao ? this.loaderIds.importSuanliaoLoader : this.loaderIds.importLoader;
         const finish = (hasLoader: boolean, progressBarStatus: ProgressBarStatus, msg?: string) => {
             if (hasLoader) {
                 this.loader.stopLoader(loaderId);
@@ -80,15 +82,16 @@ export class ImportComponent extends Utils() implements OnInit {
             this.msg = typeof msg === "string" ? msg : "";
             el.value = "";
         };
-        if (!el.files?.length) {
+        if (!el.files || el.files.length < 1) {
             finish(false, "hidden");
             return;
         }
+        this._sourceFile = el.files[0];
         this.progressBar.start(1);
         this.progressBarStatus = "progress";
         this.msg = "正在获取数据";
         this.loader.startLoader(loaderId);
-        const data = await this.dataService.uploadDxf(el.files[0]);
+        const data = await this.dataService.uploadDxf(this._sourceFile);
         if (!data) {
             finish(true, "error", "读取文件失败");
             return;
@@ -106,7 +109,7 @@ export class ImportComponent extends Utils() implements OnInit {
                 data.entities.remove(e);
             }
         });
-        const {cads, slgses, sourceCadMap} = CadPortable.import(data, isSuanliao);
+        const {cads, slgses, sourceCadMap, xhpzInfo} = CadPortable.import({sourceCad: data, isXinghao});
         if (Array.isArray(removedDimensions)) {
             removedDimensions.forEach((v) => {
                 data.entities.dimension.push(new CadDimension(v));
@@ -115,9 +118,16 @@ export class ImportComponent extends Utils() implements OnInit {
         this._sourceCadMap = sourceCadMap;
         const totalCad = cads.length;
         const totalSlgs = slgses.length;
-        this.progressBar.start((totalCad + totalSlgs) * 2);
+        let totalSteps = (totalCad + totalSlgs) * 2;
+        if (isXinghao) {
+            totalSteps++;
+            if (xhpzInfo) {
+                totalSteps++;
+            }
+        }
+        this.progressBar.start(totalSteps);
         this.msg = "正在检查数据";
-        await this.parseCads(cads, slgses, isSuanliao);
+        await this.parseCads(cads, slgses, isXinghao,xhpzInfo);
         if (this.hasError) {
             finish(true, "error", "数据有误");
             return;
@@ -125,7 +135,7 @@ export class ImportComponent extends Utils() implements OnInit {
         let skipped = 0;
         const silent = this.dataService.silent;
         this.dataService.silent = true;
-        const pruneLines = this._getImportConfig(isSuanliao).pruneLines.value ?? false;
+        const pruneLines = this._getImportConfig(isXinghao).pruneLines.value ?? false;
         for (let i = 0; i < totalCad; i++) {
             const result = await this.dataService.setCad({
                 collection: "cad",
@@ -150,6 +160,15 @@ export class ImportComponent extends Utils() implements OnInit {
             this.progressBar.forward();
         }
         this.dataService.silent = silent;
+        this.msg = `正在保存dxf文件`;
+        if (isXinghao) {
+            const xinghao = this.cads[0].data.options.型号;
+            const result = await this.dataService.post<boolean>("ngcad/setImportDxf", {file: this._sourceFile, xinghao});
+            if (!result) {
+                finish(true, "error", this.dataService.lastResponse?.msg || "保存失败");
+                return;
+            }
+        }
         const total = totalCad + totalSlgs;
         finish(true, "success", `导入结束, ${total - skipped}个成功(共${total}个)`);
     }
@@ -176,7 +195,7 @@ export class ImportComponent extends Utils() implements OnInit {
         this._peiheCadCache = {};
     }
 
-    async parseCads(cads: CadInfo[], slgses: SlgsInfo[], isSuanliao: boolean) {
+    async parseCads(cads: CadInfo[], slgses: SlgsInfo[], isXinghao: boolean, xhpzInfo: XhpzInfo | null) {
         this.cadsParsed = false;
         this.hasError = false;
         this._clearCache();
@@ -195,6 +214,7 @@ export class ImportComponent extends Utils() implements OnInit {
 
         this.cads = cads;
         this.slgses = slgses;
+        this.xhpzInfo = xhpzInfo;
         const md5Map: ObjectOf<CadInfo[]> = {};
         cads.forEach((cad) => {
             const md5Str = this._getMd5(cad.data);
@@ -207,23 +227,23 @@ export class ImportComponent extends Utils() implements OnInit {
         for (const md5Str in md5Map) {
             if (md5Map[md5Str].length > 1) {
                 this.hasError = true;
-                const uniCodes = md5Map[md5Str].map((v) => v.data.info.唯一码);
+                const uniqCodes = md5Map[md5Str].map((v) => v.data.info.唯一码);
                 md5Map[md5Str].forEach((cad) => {
-                    cad.errors.push(`数据重复: ${uniCodes.filter((v) => v !== cad.data.info.唯一码).join(", ")}`);
+                    cad.errors.push(`数据重复: ${uniqCodes.filter((v) => v !== cad.data.info.唯一码).join(", ")}`);
                 });
             }
         }
-        const requireLineId = this._getImportConfig(isSuanliao).requireLineId.value ?? false;
-        const addUniqCode = this._getImportConfig(isSuanliao).addUniqCode.value ?? false;
+        const requireLineId = this._getImportConfig(isXinghao).requireLineId.value ?? false;
+        const addUniqCode = this._getImportConfig(isXinghao).addUniqCode.value ?? false;
         const totalCad = cads.length;
         const totalSlgs = slgses.length;
         for (let i = 0; i < totalCad; i++) {
             this.msg = `正在检查dxf数据(${i + 1}/${totalCad})`;
             this.progressBar.forward();
-            await this._validateCad(cads[i], uniqCodesCount, requireLineId, addUniqCode, isSuanliao);
+            await this._validateCad(cads[i], uniqCodesCount, requireLineId, addUniqCode, isXinghao);
         }
         for (let i = 0; i < totalSlgs; i++) {
-            this.msg = `正在检查dxf数据(${i + 1}/${totalSlgs})`;
+            this.msg = `正在检查算料公式数据(${i + 1}/${totalSlgs})`;
             this.progressBar.forward();
             await this._validateSlgs(slgses[i]);
         }
@@ -265,6 +285,15 @@ export class ImportComponent extends Utils() implements OnInit {
                 }
             }
         }
+
+        if (xhpzInfo) {
+            this.msg = `正在检查型号配置`;
+            this.progressBar.forward();
+            if (xhpzInfo.errors.length>0) {
+                this.hasError = true;
+            }
+        }
+
         this.cadsParsed = true;
     }
 
@@ -304,7 +333,7 @@ export class ImportComponent extends Utils() implements OnInit {
         uniqCodesCount: ObjectOf<number>,
         requireLineId: boolean,
         addUniqCode: boolean,
-        isSuanliao: boolean
+        isXinghao: boolean
     ) {
         const data = cad.data;
         const names = [
@@ -342,13 +371,11 @@ export class ImportComponent extends Utils() implements OnInit {
         const uniqCode = data.info.唯一码;
         if (!uniqCode) {
             if (addUniqCode) {
-                if (isSuanliao) {
-                    data.info.唯一码 = `${data.type}${data.options.型号 || ""}${data.options.开启 || ""}${data.name}`;
+                if (isXinghao) {
+                    data.info.唯一码 = CadPortable.getUniqCode(data, isXinghao);
                 } else {
                     const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
-                        uniqCode: `${data.type}${data.options.型号 || ""}${data.options.开启 || ""}${data.options.门扇厚度 || ""}${
-                            data.name
-                        }`
+                        uniqCode: CadPortable.getUniqCode(data, isXinghao)
                     });
                     if (response?.data) {
                         data.info.唯一码 = response.data;
@@ -534,7 +561,7 @@ export class ImportComponent extends Utils() implements OnInit {
             }
             return key;
         });
-        infoArray.forEach((info, i) => {
+        infoArray.forEach((_, i) => {
             if (cache[keys[i]] !== undefined) {
                 result[i] = cache[keys[i]];
             } else {

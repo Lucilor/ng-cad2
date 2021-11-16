@@ -248,7 +248,10 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             const data: CadData[] = cachedData.map((v: any) => new CadData(v));
             this.status.openCad(data, params.collection ?? "cad");
         } else {
-            const {id, ids, collection} = this.route.snapshot.queryParams;
+            const {id, ids, collection, errorMessage} = this.route.snapshot.queryParams;
+            if (errorMessage) {
+                this.message.alert(errorMessage);
+            }
             if ((id || ids) && collection) {
                 const getParams: GetCadParams = {collection, sync: true};
                 this.status.collection$.next(collection);

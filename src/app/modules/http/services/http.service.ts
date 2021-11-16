@@ -125,15 +125,15 @@ export class HttpService {
                 response = await this.http.get<CustomResponse<T>>(url, options).toPromise();
             }
             if (method === "POST") {
-                let files: File[] = [];
+                let files: {file: File; key: string}[] = [];
                 for (const key in data) {
                     const value = data[key];
                     if (value instanceof FileList) {
-                        files = Array.from(value);
+                        files = Array.from(value).map((file, i) => ({file, key: `${key}${i}`}));
                         delete data[key];
                     }
                     if (value instanceof File) {
-                        files = [value];
+                        files = [{file: value, key}];
                         delete data[key];
                     }
                 }
@@ -151,7 +151,7 @@ export class HttpService {
                         formData.append(key, data[key]);
                     }
                 }
-                files.forEach((v, i) => formData.append("file" + i, v));
+                files.forEach((v) => formData.append(v.key, v.file));
                 response = await this.http.post<CustomResponse<T>>(url, formData, options).toPromise();
             }
             if (!response) {

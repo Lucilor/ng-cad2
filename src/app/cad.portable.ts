@@ -33,8 +33,19 @@ export interface CadInfo {
     skipErrorCheck: Set<string>;
 }
 
+/**
+ * 算料公式
+ */
 export interface SlgsInfo {
     data: Slgs;
+    errors: string[];
+}
+
+/**
+ * 型号配置
+ */
+export interface XhpzInfo {
+    data: ObjectOf<string>;
     errors: string[];
 }
 
@@ -42,6 +53,7 @@ export type SourceCadMap = ObjectOf<{
     rect: Rectangle;
     rectLines: CadLineLike[];
     entities: CadEntities;
+    text: CadMtext;
 }>;
 
 export interface PeiheInfoObj {
@@ -55,6 +67,19 @@ export interface PeiheInfoObj {
 export type PeiheInfo = PeiheInfoObj | string;
 
 export type ExportType = "包边正面" | "框型和企料" | "指定型号" | "自由选择" | "导出选中";
+
+export interface CadImportParams {
+    sourceCad: CadData;
+    isXinghao: boolean;
+}
+
+export interface CadExportParams {
+    cads: CadData[];
+    type: ExportType;
+    exportIds: boolean;
+    sourceCad?: CadData | null;
+    xinghaoInfo?: ObjectOf<any> | null;
+}
 
 export class CadPortable {
     static cadFields: ObjectOf<keyof CadData> = {
@@ -78,8 +103,41 @@ export class CadPortable {
     static infoFields = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
     static slgsFields = ["名字", "分类", "条件", "选项", "算料公式"];
     static skipFields = ["模板放大"];
+    static xinghaoFields = [
+        "门窗",
+        "工艺",
+        "产品分类",
+        "门扇厚度",
+        "指定可选锁边",
+        "指定可选锁边",
+        "默认锁边",
+        "默认铰边",
+        "大扇做法",
+        "小扇做法",
+        "门中门门扇背面",
+        "框扇同板材",
+        "门扇相同",
+        "中空高比例",
+        "花件前压条",
+        "花件后压条",
+        "门扇正面压条",
+        "门扇背面压条",
+        "有背封板",
+        "背封板压条",
+        "做平开门中门时无背封板",
+        "默认花件数量",
+        "需要配置花件",
+        "独立板材企料分类",
+        "使用企料包边做主CAD",
+        "前后企料结构指定企料分类",
+        "默认前企料结构",
+        "默认后企料后结构",
+        "企料包边无上下包"
+    ];
+    static xinghaoFieldsRequired = ["门窗", "工艺", "产品分类", "门扇厚度", "指定可选锁边", "指定可选锁边"];
 
-    static import(sourceCad: CadData, isSuanliao: boolean) {
+    static import(params: CadImportParams) {
+        const {sourceCad, isXinghao} = params;
         const lines = sourceCad.entities.line.filter((v) => v.color.rgbNumber() === 0x00ff00);
         const lineIds = lines.map((v) => v.id);
         const dumpData = new CadData();
@@ -130,19 +188,20 @@ export class CadPortable {
 
         const cads: CadInfo[] = rects.map((rect, i) => {
             const data = new CadData();
-            sourceCadMap[data.id] = {rect, rectLines: sorted[i], entities: new CadEntities()};
+            sourceCadMap[data.id] = {rect, rectLines: sorted[i], entities: new CadEntities(), text: new CadMtext()};
             return {data, errors: [], skipErrorCheck: new Set()};
         });
         const slgses: SlgsInfo[] = [];
         const {cadFields, slgsFields, skipFields} = this;
         const globalOptions: CadData["options"] = {};
-        sourceCad.getAllEntities().forEach((e) => {
+        let xhpzInfo: XhpzInfo | null = null;
+        for (const e of sourceCad.entities.toArray()) {
             if (lineIds.includes(e.id)) {
-                return;
+                continue;
             }
             if (e instanceof CadMtext) {
                 const text = replaceChars(e.text);
-                if (isSuanliao) {
+                if (isXinghao) {
                     const slgsReg = /算料公式[:]?([\w\W]*)/;
                     const suanliaoMatch = text.match(slgsReg);
                     if (suanliaoMatch) {
@@ -175,12 +234,26 @@ export class CadPortable {
                             }
                         }
                         slgses.push({data: slgsData as Slgs, errors});
-                        return;
+                        continue;
                     }
-                }
-                const xinghaoMatch = text.match(/^型号[:]?([\w\W]*)/);
-                if (xinghaoMatch) {
-                    globalOptions.型号 = xinghaoMatch[1].trim();
+                    const xinghaoMatch = text.match(/^型号:([\w\W]*)/);
+                    if (xinghaoMatch) {
+                        globalOptions.型号 = xinghaoMatch[1].trim();
+                    }
+                    const xinghaoInfoReg = /型号配置:([\w\W]*)/;
+                    const xinghaoInfoMatch = text.match(xinghaoInfoReg);
+                    if (xinghaoInfoMatch) {
+                        xhpzInfo = {data: {}, errors: []};
+                        const obj = getObject(xinghaoInfoMatch[1], ":");
+                        for (const field of this.xinghaoFields) {
+                            xhpzInfo.data[field] = obj[field] || "";
+                        }
+                        const missingXinghaoFields = this.xinghaoFieldsRequired.filter((v) => !xhpzInfo?.data[v]);
+                        if (missingXinghaoFields.length > 0) {
+                            xhpzInfo.errors.push(`型号配置缺少以下字段:\n${missingXinghaoFields.join(", ")}`);
+                        }
+                        continue;
+                    }
                 }
             }
             slgses.forEach((slgs) => {
@@ -217,7 +290,7 @@ export class CadPortable {
                     sourceCadMap[cads[i].data.id].entities.add(e);
                 }
             });
-        });
+        }
 
         const emptyCad = new CadData();
         cads.forEach((cad) => {
@@ -229,6 +302,7 @@ export class CadPortable {
             data.entities.mtext.some((e, i) => {
                 if (e.text.startsWith("唯一码")) {
                     toRemove = i;
+                    sourceCadMap[data.id].text = e;
                     const obj = getObject(replaceChars(e.text), ":");
                     let zhankaiObjs: ObjectOf<any>[] = [];
                     for (const key in obj) {
@@ -310,18 +384,17 @@ export class CadPortable {
             }
             generateLineTexts(data);
         });
-        return {cads, slgses, sourceCadMap};
+        return {cads, slgses, sourceCadMap, xhpzInfo};
     }
 
-    static export(cads: CadData[], type: ExportType, exportIds: boolean) {
-        const result = new CadData();
-        result.info.version = CadVersion.DXF2010;
+    static export(params: CadExportParams) {
         const margin = 300;
         const padding = 80;
         const width = 855;
         const height = 1700;
         const cols = 10;
-        cads = cads.filter((v) => v.entities.length > 0 && Object.keys(v.options).length > 0);
+        const {type, exportIds, sourceCad, xinghaoInfo} = params;
+        const cads = params.cads.filter((v) => v.entities.length > 0 && Object.keys(v.options).length > 0);
         const emptyData = new CadData();
 
         const groupedCads: (CadData[] | null)[] = [];
@@ -393,6 +466,17 @@ export class CadPortable {
         const rect = new Rectangle();
         const ids = [] as string[];
         const dividers = [] as number[];
+        let result: CadData;
+        let imported: ReturnType<typeof CadPortable.import> | undefined;
+        const isXinghao = !!xinghaoInfo;
+        if (sourceCad) {
+            result = sourceCad;
+            imported = this.import({sourceCad, isXinghao});
+            rect.copy(sourceCad.entities.getBoundingRect());
+        } else {
+            result = new CadData();
+        }
+        result.info.version = CadVersion.DXF2010;
         groupedCads.forEach((group, i) => {
             if (group === null) {
                 dividers.push(rect.bottom - margin / 2);
@@ -452,38 +536,63 @@ export class CadPortable {
                         texts.push(`${key}: ${value}`);
                     }
                 }
-                cad.entities.add(
-                    new CadMtext({
-                        text: texts.join("\n"),
-                        insert: [offsetX + padding, cadRect.bottom - padding],
-                        anchor: [0, 0]
-                    })
-                );
 
-                const {line: lines, arc: arcs} = cad.getAllEntities();
-                [...lines, ...arcs].forEach((e) => this._addDimension(cad, e, exportIds));
-
-                let color: number;
-                if (ids.includes(cad.id)) {
-                    color = 7;
+                if (imported) {
+                    const uniqCode = cad.info.唯一码;
+                    for (const cad2 of imported.cads) {
+                        const uniqCode2 = this.getUniqCode(cad2.data, isXinghao);
+                        if (uniqCode === uniqCode2) {
+                            const entities1 = cad.entities;
+                            const entities2 = cad2.data.entities;
+                            const rect1 = entities1.getBoundingRect();
+                            const rect2 = entities2.getBoundingRect();
+                            const dx = rect2.left - rect1.left;
+                            const dy = rect2.top - rect1.top;
+                            entities1.transform({translate: [dx, dy]}, true);
+                            const text = imported.sourceCadMap[cad2.data.id].text;
+                            result.entities.separate(entities2);
+                            result.entities.merge(entities1);
+                            for (const e of result.entities.mtext) {
+                                if (e.id === text.id) {
+                                    e.text = texts.join("\n");
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 } else {
-                    ids.push(cad.id);
-                    color = 3;
-                }
-                [
-                    [0, 0, width, 0],
-                    [width, 0, width, height],
-                    [width, height, 0, height],
-                    [0, height, 0, 0]
-                ].forEach((v) => {
-                    const start = [v[0] + offsetX, v[1] + offsetY];
-                    const end = [v[2] + offsetX, v[3] + offsetY];
-                    cad.entities.add(new CadLine({color, start, end}));
-                });
-                rect.expandByPoint([offsetX, offsetY]);
-                rect.expandByPoint([offsetX + width, offsetY + height]);
+                    cad.entities.add(
+                        new CadMtext({
+                            text: texts.join("\n"),
+                            insert: [offsetX + padding, cadRect.bottom - padding],
+                            anchor: [0, 0]
+                        })
+                    );
+                    const {line: lines, arc: arcs} = cad.getAllEntities();
+                    [...lines, ...arcs].forEach((e) => this._addDimension(cad, e, exportIds));
 
-                result.entities.merge(cad.getAllEntities());
+                    let color: number;
+                    if (ids.includes(cad.id)) {
+                        color = 7;
+                    } else {
+                        ids.push(cad.id);
+                        color = 3;
+                    }
+                    [
+                        [0, 0, width, 0],
+                        [width, 0, width, height],
+                        [width, height, 0, height],
+                        [0, height, 0, 0]
+                    ].forEach((v) => {
+                        const start = [v[0] + offsetX, v[1] + offsetY];
+                        const end = [v[2] + offsetX, v[3] + offsetY];
+                        cad.entities.add(new CadLine({color, start, end}));
+                    });
+                    rect.expandByPoint([offsetX, offsetY]);
+                    rect.expandByPoint([offsetX + width, offsetY + height]);
+
+                    result.entities.merge(cad.getAllEntities());
+                }
             });
         });
 
@@ -493,6 +602,21 @@ export class CadPortable {
             divider.end.set(rect.right + margin, y);
             result.entities.add(divider);
         });
+        if (xinghaoInfo) {
+            let mtext = result.entities.mtext.find((e) => e.text.startsWith("型号配置"));
+            if (!mtext) {
+                mtext = new CadMtext();
+                mtext.anchor.set(0, 0);
+                mtext.insert.set(rect.left - 1000, rect.top);
+                mtext.font_size = 50;
+                result.entities.add(mtext);
+            }
+            const strs = [] as string[];
+            this.xinghaoFields.forEach((field) => {
+                strs.push(`${field}: ${xinghaoInfo[field] || ""}`);
+            });
+            mtext.text = `型号配置: \n\n${strs.join("\n")}`;
+        }
         return result;
     }
 
@@ -611,6 +735,17 @@ export class CadPortable {
         }
         result.value = true;
         return result;
+    }
+
+    static getUniqCode(cad: CadData, isXinghao: boolean) {
+        const {name, type} = cad;
+        const {型号, 开启} = cad.options;
+        if (isXinghao) {
+            return `${type}${型号 || ""}${开启 || ""}${name}`;
+        } else {
+            const {门扇厚度} = cad.options;
+            return `${type}${型号 || ""}${开启 || ""}${门扇厚度 || ""}${name}`;
+        }
     }
 
     private static _removeLeaders(cad: CadData) {

@@ -1,4 +1,5 @@
 import {Component, OnInit} from "@angular/core";
+import {AbstractControl} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {session} from "@app/app.common";
 import {CadPortable, ExportType} from "@app/cad.portable";
@@ -6,6 +7,7 @@ import {CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, ProgressBar} from "@utils";
 
 interface ExportParams {
@@ -25,8 +27,10 @@ export class ExportComponent implements OnInit {
     exportParams: ExportParams | null = null;
     direct = false;
     exportIds = true;
+    sourceCad?: CadData;
+    xinghaoInfo?: ObjectOf<any>;
 
-    constructor(private dialog: MatDialog, private dataService: CadDataService) {}
+    constructor(private dialog: MatDialog, private dataService: CadDataService, private message: MessageService) {}
 
     ngOnInit() {
         this.exportParams = session.load<ExportParams>("exportParams");
@@ -51,6 +55,11 @@ export class ExportComponent implements OnInit {
         this.progressBarStatus = "progress";
         this.msg = "正在获取数据";
         let ids: string[];
+        const finish = (progressBarStatus: ProgressBarStatus, msg?: string) => {
+            this.progressBar.end();
+            this.progressBarStatus = progressBarStatus;
+            this.msg = typeof msg === "string" ? msg : "";
+        };
         switch (type) {
             case "包边正面":
                 ids = await this._queryIds({$or: [{分类: "包边正面"}, {分类2: "包边正面"}]});
@@ -63,9 +72,42 @@ export class ExportComponent implements OnInit {
                     ]
                 });
                 break;
-            case "指定型号":
-                ids = await this._queryIds({$or: [{分类: "算料"}, {分类2: "算料"}], "选项.型号": {$regex: "^.+$"}});
+            case "指定型号": {
+                const xinghao = await this.message.prompt({
+                    title: "请输入型号",
+                    promptData: {
+                        type: "text",
+                        placeholder: "请输入型号",
+                        validators: (control: AbstractControl) => {
+                            if (!control.value) {
+                                return {required: true};
+                            }
+                            return null;
+                        }
+                    }
+                });
+                if (!xinghao) {
+                    finish("hidden");
+                    return;
+                }
+                const response = await this.dataService.post<{cad: ObjectOf<any>; xinghaoInfo: ObjectOf<any>}>("ngcad/getImportDxf", {
+                    xinghao
+                });
+                if (response && response.code === 0 && response.data) {
+                    this.xinghaoInfo = response.data.xinghaoInfo;
+                    try {
+                        this.sourceCad = new CadData(response.data.cad);
+                    } catch (error) {
+                        finish("error", "CAD数据错误");
+                        return;
+                    }
+                } else {
+                    finish("error", this.dataService.lastResponse?.msg || "读取文件失败");
+                    return;
+                }
+                ids = await this._queryIds({"选项.型号": {$regex: `^${xinghao}$`}});
                 break;
+            }
             case "自由选择":
                 ids = (
                     (await openCadListDialog(this.dialog, {
@@ -96,21 +138,17 @@ export class ExportComponent implements OnInit {
                 data.forEach((v) => cads.push(new CadData(v.json)));
                 this.progressBar.forward(end - i);
             }
-            const result = CadPortable.export(cads, type, this.exportIds);
-            try {
-                this.msg = "正在下载dxf文件";
-                await this.dataService.downloadDxf(result);
-                this.progressBar.end();
-                this.progressBarStatus = "success";
-                this.msg = "导出完成";
-            } catch (error) {
-                this.progressBar.end();
-                this.progressBarStatus = "error";
-                this.msg = "导出失败";
+            const {exportIds, sourceCad, xinghaoInfo} = this;
+            const result = CadPortable.export({cads, type, exportIds, sourceCad, xinghaoInfo});
+            this.msg = "正在下载dxf文件";
+            const downloadResult = await this.dataService.downloadDxf(result);
+            if (downloadResult) {
+                finish("success", "导出成功");
+            } else {
+                finish("error", "导出失败");
             }
         } else {
-            this.progressBarStatus = "error";
-            this.msg = "没有CAD数据";
+            finish("error", "没有CAD数据");
         }
     }
 }

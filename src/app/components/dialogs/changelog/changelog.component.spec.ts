@@ -4,6 +4,7 @@ import {MatDividerModule} from "@angular/material/divider";
 import {RouterTestingModule} from "@angular/router/testing";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {InfiniteScrollModule} from "ngx-infinite-scroll";
 import {NgScrollbarModule} from "ngx-scrollbar";
 
 import {ChangelogComponent} from "./changelog.component";
@@ -15,7 +16,7 @@ describe("ChangelogComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ChangelogComponent],
-            imports: [HttpModule, MatDividerModule, MessageModule, NgScrollbarModule, RouterTestingModule],
+            imports: [HttpModule, InfiniteScrollModule, MatDividerModule, MessageModule, NgScrollbarModule, RouterTestingModule],
             providers: [{provide: MatDialogRef, useValue: {}}]
         }).compileComponents();
     });
