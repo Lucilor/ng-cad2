@@ -211,7 +211,7 @@ export class AppStatusService {
         });
         this.generateLineTexts();
         // cad.data.updateComponents();
-        cad.reset().render().center().center();
+        cad.reset().render().center();
         timer.end(timerName, "打开CAD");
     }
 

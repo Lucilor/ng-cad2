@@ -37,7 +37,7 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
     cad.appendTo(document.body);
     await prepareCadViewer(cad);
     cad.data = data.clone();
-    cad.render().center().center();
+    cad.render().center();
     if (fixedLengthTextSize) {
         const resize = () => {
             const zoom = cad.zoom();
@@ -315,7 +315,7 @@ export const printCads = async (params: PrintCadsParams) => {
         cadPrint.reset();
         cadPrint.data = data;
         data.updatePartners().updateComponents();
-        cadPrint.render().center().center();
+        cadPrint.render().center();
         cadPrint.draw.find("[type='DIMENSION']").forEach((el) => {
             el.children().forEach((child) => {
                 if (child.node.tagName === "text") {
