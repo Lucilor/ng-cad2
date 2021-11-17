@@ -147,21 +147,16 @@ export class CadPortable {
         const sorted = sortLines(dumpData);
 
         const getObject = (text: string, separator: string) => {
-            const strs = text.split(separator);
-            const keyValuePairs: [string, string][] = [];
+            const strs = text.split("\n");
             const obj: ObjectOf<string> = {};
-            strs.forEach((str, j) => {
-                if (j === 0) {
-                    keyValuePairs[j] = [str.trim(), ""];
-                } else if (j === strs.length - 1) {
-                    keyValuePairs[j - 1][1] = str.trim();
-                } else {
-                    const arr = str.split("\n");
-                    keyValuePairs[j - 1][1] = arr.slice(0, -1).join("\n").trim();
-                    keyValuePairs[j] = [arr[arr.length - 1].trim(), ""];
+            strs.forEach((str) => {
+                const index = str.indexOf(separator);
+                if (index > 0) {
+                    const key = str.substring(0, index).trim();
+                    const value = str.substring(index + 1).trim();
+                    obj[key] = value;
                 }
             });
-            keyValuePairs.forEach(([k, v]) => (obj[k] = v));
             return obj;
         };
 
