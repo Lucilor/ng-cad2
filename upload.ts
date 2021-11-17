@@ -45,6 +45,12 @@ const upload = async (url: string, zipPath: string) => {
     } else {
         changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
     }
+    const now = new Date();
+    const then = new Date(changelog[0].timeStamp);
+    if (now.getFullYear() !== then.getFullYear() || now.getMonth() !== then.getMonth() || now.getDate() !== then.getDate()) {
+        console.error("changelog time error");
+        return;
+    }
     changelog[0].timeStamp = new Date().getTime();
     fs.writeFileSync(changelogPath, JSON.stringify(changelog));
     const zipPath = await zip(baseDir);
