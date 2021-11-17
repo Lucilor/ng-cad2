@@ -1,7 +1,16 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
 import {CadCollection, local, timer} from "@app/app.common";
-import {setCadData, addCadGongshi, prepareCadViewer, validateLines, ValidateResult, suanliaodanZoomIn} from "@app/cad.utils";
+import {
+    setCadData,
+    addCadGongshi,
+    prepareCadViewer,
+    validateLines,
+    ValidateResult,
+    suanliaodanZoomIn,
+    removeCadGongshi,
+    suanliaodanZoomOut
+} from "@app/cad.utils";
 import {CadData, CadLine, CadViewer, CadMtext, generateLineTexts, PointsMap, CadEntities, generatePointsMap} from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -213,6 +222,18 @@ export class AppStatusService {
         // cad.data.updateComponents();
         cad.reset().render().center();
         timer.end(timerName, "打开CAD");
+    }
+
+    closeCad(data?: CadData[]) {
+        if (!data) {
+            data = this.cad.data.components.data;
+        }
+        return data.map((v) => {
+            const v2 = v.clone();
+            removeCadGongshi(v2);
+            suanliaodanZoomOut(v2);
+            return v2;
+        });
     }
 
     startLoader(config: {id?: string; text?: string} = {}) {

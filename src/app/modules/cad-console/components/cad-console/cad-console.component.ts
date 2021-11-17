@@ -2,7 +2,7 @@ import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {getList, CadCollection} from "@app/app.common";
-import {removeCadGongshi, printCads, addCadGongshi, suanliaodanZoomOut} from "@app/cad.utils";
+import {removeCadGongshi, printCads, addCadGongshi} from "@app/cad.utils";
 import {CadArc, CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
@@ -479,12 +479,7 @@ export class CadConsoleComponent implements OnInit {
                         }
                     }
                 }
-                const cads = data.map((v) => {
-                    const v2 = v.clone();
-                    removeCadGongshi(v2);
-                    suanliaodanZoomOut(v2);
-                    return v2;
-                });
+                const cads = this.status.closeCad(data);
                 const total = cads.length;
                 status.startLoader({id: loaderId, text: `正在保存CAD(0/${total})`});
                 for (let i = 0; i < total; i++) {

@@ -127,7 +127,7 @@ export class ImportComponent extends Utils() implements OnInit {
         }
         this.progressBar.start(totalSteps);
         this.msg = "正在检查数据";
-        await this.parseCads(cads, slgses, isXinghao,xhpzInfo);
+        await this.parseCads(cads, slgses, isXinghao, xhpzInfo);
         if (this.hasError) {
             finish(true, "error", "数据有误");
             return;
@@ -289,7 +289,7 @@ export class ImportComponent extends Utils() implements OnInit {
         if (xhpzInfo) {
             this.msg = `正在检查型号配置`;
             this.progressBar.forward();
-            if (xhpzInfo.errors.length>0) {
+            if (xhpzInfo.errors.length > 0) {
                 this.hasError = true;
             }
         }
@@ -404,8 +404,10 @@ export class ImportComponent extends Utils() implements OnInit {
         }
         let 修改包边正面宽规则 = data.info.修改包边正面宽规则;
         if (data.type === "包边正面") {
-            修改包边正面宽规则 = "修改包边正面宽规则:\n" + 修改包边正面宽规则;
-            cad.errors = cad.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, data.info.vars).errors);
+            if (修改包边正面宽规则) {
+                修改包边正面宽规则 = "修改包边正面宽规则:\n" + 修改包边正面宽规则;
+                cad.errors = cad.errors.concat(window.parseBaobianzhengmianRules(修改包边正面宽规则, data.info.vars).errors);
+            }
         } else if (修改包边正面宽规则) {
             cad.errors.push("分类不为[包边正面]不能写[修改包边正面宽规则]");
         }

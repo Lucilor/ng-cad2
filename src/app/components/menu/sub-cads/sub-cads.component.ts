@@ -638,6 +638,27 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         console.log(data);
     }
 
+    async setJson() {
+        if (!this.contextMenuCad) {
+            return;
+        }
+        const data = this.status.closeCad([this.contextMenuCad.data])[0];
+        const json = await navigator.clipboard.readText();
+        if (!json) {
+            this.message.alert("内容为空");
+            return;
+        }
+        let obj: any;
+        try {
+            obj = JSON.parse(json);
+        } catch (e) {
+            this.message.alert("内容不是有效的JSON");
+        }
+        obj.id = data.id;
+        data.init(obj);
+        this.status.openCad();
+    }
+
     async downloadJson() {
         if (!this.contextMenuCad) {
             return;
@@ -646,12 +667,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         downloadByString(JSON.stringify(data.export()), `${data.name}.json`);
     }
 
-    async setJson() {
+    async editJson() {
         if (!this.contextMenuCad) {
             return;
         }
-        const data = this.contextMenuCad.data.clone();
-        removeCadGongshi(data);
+        const data = this.status.closeCad([this.contextMenuCad.data])[0];
         const result = await openJsonEditorDialog(this.dialog, {data: {json: data.export()}});
         if (result) {
             result.id = this.contextMenuCad.data.id;

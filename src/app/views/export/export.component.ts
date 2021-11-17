@@ -6,6 +6,7 @@ import {CadPortable, ExportType} from "@app/cad.portable";
 import {CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
+import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, ProgressBar} from "@utils";
@@ -26,7 +27,7 @@ export class ExportComponent implements OnInit {
     msg = "";
     exportParams: ExportParams | null = null;
     direct = false;
-    exportIds = true;
+    exportIds = environment.production;
     sourceCad?: CadData;
     xinghaoInfo?: ObjectOf<any>;
 
