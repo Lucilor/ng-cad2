@@ -631,18 +631,16 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         if (!this.contextMenuCad) {
             return;
         }
-        const data = this.contextMenuCad.data.clone();
-        removeCadGongshi(data);
+        const data = this.status.closeCad([this.contextMenuCad.data])[0];
         await navigator.clipboard.writeText(JSON.stringify(data.export()));
         this.message.snack("内容已复制");
-        console.log(data);
     }
 
     async setJson() {
         if (!this.contextMenuCad) {
             return;
         }
-        const data = this.status.closeCad([this.contextMenuCad.data])[0];
+        const data = this.contextMenuCad.data;
         const json = await navigator.clipboard.readText();
         if (!json) {
             this.message.alert("内容为空");

@@ -528,6 +528,9 @@ export const suanliaodanZoomIn = (cad: CadData) => {
         }
         const lastSuanliaodanZoom = v.info.lastSuanliaodanZoom ?? 1;
         const rect = v.getBoundingRect();
+        if (!rect.isFinite) {
+            return;
+        }
         if (lastSuanliaodanZoom !== v.suanliaodanZoom) {
             v.info.lastSuanliaodanZoom = v.suanliaodanZoom;
             v.transform({scale: v.suanliaodanZoom / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
@@ -543,6 +546,9 @@ export const suanliaodanZoomOut = (cad: CadData) => {
         }
         const lastSuanliaodanZoom = v.info.lastSuanliaodanZoom ?? 1;
         const rect = v.getBoundingRect();
+        if (!rect.isFinite) {
+            return;
+        }
         if (lastSuanliaodanZoom !== 1) {
             delete v.info.lastSuanliaodanZoom;
             v.transform({scale: 1 / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
