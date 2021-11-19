@@ -121,7 +121,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                             data.assembleComponents(new CadConnection({ids, names, lines, space, position}));
                             cad.render();
                         } catch (error) {
-                            this.message.alert(error.message);
+                            this.message.alert({content: error});
                         } finally {
                             ids.length = 0;
                             names.length = 0;
@@ -265,7 +265,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
             try {
                 data.directAssemble(v);
             } catch (error) {
-                this.message.alert(error);
+                this.message.alert({content: error});
             }
         });
         this.status.cad.render();

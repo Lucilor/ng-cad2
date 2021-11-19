@@ -9,6 +9,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {timeout} from "@utils";
 import {NgxUiLoaderService} from "ngx-ui-loader";
+import {lastValueFrom} from "rxjs";
 
 export interface BackupCadsSearchParams {
     name: string;
@@ -65,7 +66,7 @@ export class BackupComponent implements AfterViewInit {
     }
 
     async ngAfterViewInit() {
-        await this.paginator.initialized.toPromise();
+        await lastValueFrom(this.paginator.initialized);
         this.paginator.nextPage();
     }
 
@@ -105,7 +106,7 @@ export class BackupComponent implements AfterViewInit {
             this.data.length = 0;
             this.minTime.setTime(data.minTime);
             this.maxTime.setTime(data.maxTime);
-            if (this.searchTime.getTime()>data.maxTime) {
+            if (this.searchTime.getTime() > data.maxTime) {
                 this.searchTime.setTime(data.maxTime);
             }
             for (const v of data.cads) {
@@ -162,7 +163,7 @@ export class BackupComponent implements AfterViewInit {
         this.message.alert({content, title: data.name});
     }
 
-    resetSearchTime(){
+    resetSearchTime() {
         this.searchTime.setTime(this.maxTime.getTime());
     }
 }

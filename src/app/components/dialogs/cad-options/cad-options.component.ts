@@ -5,6 +5,7 @@ import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {CadData} from "@cad-viewer";
 import {CadDataService, OptionsData} from "@modules/http/services/cad-data.service";
 import {AppStatusService} from "@services/app-status.service";
+import {lastValueFrom} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
 
 interface CadOptionsData {
@@ -41,7 +42,10 @@ export class CadOptionsComponent implements AfterViewInit {
     }
 
     async ngAfterViewInit() {
-        await this.paginator?.initialized.toPromise();
+        if (!this.paginator) {
+            return;
+        }
+        await lastValueFrom(this.paginator.initialized);
         this.getData(1);
     }
 

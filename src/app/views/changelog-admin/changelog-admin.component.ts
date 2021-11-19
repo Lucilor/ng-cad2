@@ -8,6 +8,7 @@ import {Changelog, CadDataService} from "@modules/http/services/cad-data.service
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf} from "@utils";
+import {lastValueFrom} from "rxjs";
 
 export const changelogTypes: ObjectOf<string> = {
     feat: "✨新特性",
@@ -44,7 +45,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
         if (!this.paginator) {
             return;
         }
-        await this.paginator.initialized.toPromise();
+        await lastValueFrom(this.paginator.initialized);
         this.getChangelog(1);
     }
 

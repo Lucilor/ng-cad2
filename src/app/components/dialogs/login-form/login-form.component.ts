@@ -7,6 +7,7 @@ import md5 from "md5";
 import {ReCaptchaV3Service} from "ng-recaptcha";
 import {typedFormGroup, typedFormControl, TypedFormGroup} from "ngx-forms-typed";
 import {NgxUiLoaderService} from "ngx-ui-loader";
+import {lastValueFrom} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
 
 interface LoginForm {
@@ -77,7 +78,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
         if (!form.valid) {
             return;
         }
-        const token = await this.recaptcha.execute("submit").toPromise();
+        const token = await lastValueFrom(this.recaptcha.execute("submit"));
         const baseUrl = this.data.baseUrl;
         const data = new FormData();
         data.append("username", form.value.user);
@@ -85,7 +86,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
         data.append("phonecode", "");
         data.append("recaptcha_token", token);
         this.loader.start();
-        let response: ObjectOf<any> = await this.http.post(`${baseUrl}/login/in`, data).toPromise();
+        let response: ObjectOf<any> = await lastValueFrom(this.http.post(`${baseUrl}/login/in`, data));
         this.loader.stop();
         if (response.status === -1) {
             const phonecode = await this.message.prompt({
@@ -94,7 +95,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
                 cancelable: false
             });
             data.set("phonecode", phonecode || "");
-            response = await this.http.post(`${baseUrl}/login/in`, data).toPromise();
+            response = await lastValueFrom(this.http.post(`${baseUrl}/login/in`, data));
         }
         if (response.status === 0) {
             this.message.alert(response.msg);

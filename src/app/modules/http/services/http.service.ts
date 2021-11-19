@@ -7,6 +7,7 @@ import {LoginFormData, openLoginFormDialog} from "@components/dialogs/login-form
 import {environment} from "@env";
 import {MessageService} from "@modules/message/services/message.service";
 import {RSA, ObjectOf} from "@utils";
+import {lastValueFrom} from "rxjs";
 
 export interface CustomResponse<T> {
     code: number;
@@ -122,7 +123,7 @@ export class HttpService {
                         }
                     }
                 }
-                response = await this.http.get<CustomResponse<T>>(url, options).toPromise();
+                response = await lastValueFrom(this.http.get<CustomResponse<T>>(url, options));
             }
             if (method === "POST") {
                 let files: {file: File; key: string}[] = [];
@@ -152,7 +153,7 @@ export class HttpService {
                     }
                 }
                 files.forEach((v) => formData.append(v.key, v.file));
-                response = await this.http.post<CustomResponse<T>>(url, formData, options).toPromise();
+                response = await lastValueFrom(this.http.post<CustomResponse<T>>(url, formData, options));
             }
             if (!response) {
                 throw new Error("请求错误");

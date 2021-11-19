@@ -12,7 +12,7 @@ import {CadDataService, GetCadParams} from "@modules/http/services/cad-data.serv
 import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf} from "@utils";
 import {difference} from "lodash";
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, lastValueFrom} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
@@ -72,7 +72,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         if (!this.paginator) {
             return;
         }
-        await this.paginator.initialized.toPromise();
+        await lastValueFrom(this.paginator.initialized);
         if (Array.isArray(this.data.checkedItems)) {
             this.checkedItems = this.data.checkedItems.slice();
         }

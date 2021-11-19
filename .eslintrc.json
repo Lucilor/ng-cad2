@@ -37,13 +37,13 @@
                         "style": "kebab-case"
                     }
                 ],
-                "@typescript-eslint/indent": [
-                    "error",
-                    4,
-                    {
-                        "SwitchCase": 1
-                    }
-                ],
+                // "@typescript-eslint/indent": [
+                //     "error",
+                //     4,
+                //     {
+                //         "SwitchCase": 1
+                //     }
+                // ],
                 "@typescript-eslint/naming-convention": [
                     "error",
                     {
