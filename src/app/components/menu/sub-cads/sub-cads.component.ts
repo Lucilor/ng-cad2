@@ -556,8 +556,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         if (!this.contextMenuCad) {
             return;
         }
-        const data = this.contextMenuCad.data.clone();
-        removeCadGongshi(data);
+        const data = this.status.closeCad([this.contextMenuCad.data])[0];
         this.dataService.downloadDxf(data);
     }
 
@@ -661,7 +660,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         if (!this.contextMenuCad) {
             return;
         }
-        const data = this.contextMenuCad.data.clone();
+        const data = this.status.closeCad([this.contextMenuCad.data])[0];
         downloadByString(JSON.stringify(data.export()), `${data.name}.json`);
     }
 
