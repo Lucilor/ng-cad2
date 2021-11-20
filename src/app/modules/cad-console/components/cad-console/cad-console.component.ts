@@ -271,7 +271,7 @@ export class CadConsoleComponent implements OnInit {
                 endAngle = new Line(center, endPoint).theta.deg;
             }
             if (radius > 0) {
-                const cadArc = new CadArc({center: center.toArray(), radius, color: lines[0].color});
+                const cadArc = new CadArc({center: center.toArray(), radius, color: lines[0].getColor()});
                 cadArc.start_angle = startAngle;
                 cadArc.end_angle = endAngle;
                 cadArc.clockwise = clockwise;
@@ -418,9 +418,8 @@ export class CadConsoleComponent implements OnInit {
         async print() {
             this.status.startLoader({text: "正在打印..."});
             const cad = this.status.cad;
-            const data = cad.data.clone();
-            removeCadGongshi(data);
-            const url = await printCads({cads: [data], config: cad.config()});
+            const cads = this.status.closeCad([cad.data.clone()]);
+            const url = await printCads({cads, config: cad.config()});
             this.status.stopLoader();
             printJS({printable: url, type: "pdf"});
         },

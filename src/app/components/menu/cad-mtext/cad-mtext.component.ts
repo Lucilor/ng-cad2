@@ -1,10 +1,9 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadData, CadEntity, CadMtext} from "@cad-viewer";
+import {CadData, CadEntity, CadMtext, ColoredObject} from "@cad-viewer";
 import {AnchorEvent} from "@components/anchor-selector/anchor-selector.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {AppStatusService} from "@services/app-status.service";
 import {Point} from "@utils";
-import Color from "color";
 import {debounce} from "lodash";
 import {ColorEvent} from "ngx-color";
 
@@ -32,8 +31,8 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
     set colorText(value) {
         this._colorText = value.toUpperCase();
         try {
-            const c = new Color(value);
-            if (c.isLight()) {
+            const c = new ColoredObject(value);
+            if (c.getColor().isLight()) {
                 this.colorBg = "black";
             } else {
                 this.colorBg = "white";
@@ -94,25 +93,23 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
 
     getColor() {
         const selected = this.selected;
-        let color = new Color(0);
-        if (selected.length < 1) {
-            return "";
-        } else if (selected.length === 1) {
-            color = new Color(selected[0].color.toString());
+        let color = "";
+        if (selected.length === 1) {
+            color = selected[0].getColor().hex();
         } else if (selected.length) {
-            const texts = Array.from(new Set(selected.map((v) => v.color.hex())));
+            const texts = Array.from(new Set(selected.map((v) => v.getColor().hex())));
             if (texts.length === 1) {
-                color = new Color(selected[0].color.toString());
+                color = texts[0];
             } else {
                 return "多个值";
             }
         }
-        return color.hex();
+        return color;
     }
 
     setColor(event: ColorEvent) {
         const value = event.color.hex;
-        this.selected.forEach((e) => (e.color = new Color(value)));
+        this.selected.forEach((e) => e.setColor(value));
         this.status.cad.render(this.selected);
         this.colorText = value;
     }

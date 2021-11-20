@@ -11,6 +11,7 @@ import {
     CadLine,
     CadLineLike,
     CadViewerConfig,
+    ColoredObject,
     DEFAULT_DASH_ARRAY,
     generateLineTexts,
     lineweight2linewidth,
@@ -26,7 +27,6 @@ import {MessageService} from "@modules/message/services/message.service";
 import {CadPoints, AppStatusService} from "@services/app-status.service";
 import {CadStatusDrawLine, CadStatusMoveLines, CadStatusCutLine, CadStatusIntersection} from "@services/cad-status";
 import {Point} from "@utils";
-import Color from "color";
 import {debounce, uniq} from "lodash";
 import {ColorEvent} from "ngx-color";
 
@@ -91,8 +91,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     set colorText(value) {
         this._colorText = value.toUpperCase();
         try {
-            const c = new Color(value);
-            if (c.isLight()) {
+            const c = new ColoredObject(value);
+            if (c.getColor().isLight()) {
                 this.colorBg = "black";
             } else {
                 this.colorBg = "white";
@@ -310,7 +310,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                             if (line.curve.contains(point)) {
                                 split1 = new CadLine(line.export(), [], true);
                                 split2 = new CadLine();
-                                split2.color = line.color;
+                                split2.setColor(line.getColor());
                                 split2.zhankaixiaoshuchuli = line.zhankaixiaoshuchuli;
                                 split1.end.copy(point);
                                 split2.start.copy(point);
@@ -472,10 +472,10 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     getCssColor() {
         const lines = this.selected;
         if (lines.length === 1) {
-            return lines[0].color.hex();
+            return lines[0].getColor().hex();
         }
         if (lines.length) {
-            const strs = Array.from(new Set(lines.map((l) => l.color.hex())));
+            const strs = Array.from(new Set(lines.map((l) => l.getColor().hex())));
             if (strs.length === 1) {
                 return strs[0];
             } else {
@@ -488,7 +488,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     setLineColor(event: ColorEvent) {
         const value = event.color.hex;
         this.colorText = value;
-        this.selected.forEach((e) => (e.color = new Color(value)));
+        this.selected.forEach((e) => e.setColor(value));
         this.status.cad.render();
     }
 

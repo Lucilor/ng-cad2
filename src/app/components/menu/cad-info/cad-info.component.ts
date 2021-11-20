@@ -47,10 +47,11 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         "都不显示"
     ];
     sldxs = this._算料单显示.slice();
+    qlbmlx = ["自动判断", "胶条位包", "外面包", "胶条位包+外面包", "无"];
     @Output() cadLengthsChange = new EventEmitter<string[]>();
 
     private _onEntityClick = (
-        ((entity) => {
+        ((_, entity) => {
             const cadStatus = this.status.cadStatus;
             const data = this.status.getFlatSelectedCads()[0];
             if (cadStatus instanceof CadStatusSelectBaseline) {

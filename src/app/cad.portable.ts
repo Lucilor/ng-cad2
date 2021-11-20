@@ -15,7 +15,6 @@ import {
     sortLines
 } from "@cad-viewer";
 import {keysOf, Line, ObjectOf, Point, Rectangle} from "@utils";
-import Color from "color";
 import {difference, intersection, isEqual} from "lodash";
 import {replaceChars} from "./app.common";
 
@@ -138,7 +137,7 @@ export class CadPortable {
 
     static import(params: CadImportParams) {
         const {sourceCad, isXinghao} = params;
-        const lines = sourceCad.entities.line.filter((v) => v.color.rgbNumber() === 0x00ff00);
+        const lines = sourceCad.entities.line.filter((v) => v.getColor().rgbNumber() === 0x00ff00);
         const lineIds = lines.map((v) => v.id);
         const dumpData = new CadData();
 
@@ -801,7 +800,7 @@ export class CadPortable {
             const leader = new CadLeader();
             leader.vertices = [line.end, line.start];
             leader.size = 15;
-            leader.color = new Color("red");
+            leader.setColor("red");
             cad.entities.add(leader);
         }
     }
@@ -812,7 +811,7 @@ export class CadPortable {
         dimension.dimstyle = "line-info";
         dimension.distance = 10;
         dimension.font_size = 0;
-        dimension.color = new Color("red");
+        dimension.setColor("red");
         dimension.entity1 = {id: e.id, location: "start"};
         dimension.entity2 = {id: e.id, location: "end"};
 

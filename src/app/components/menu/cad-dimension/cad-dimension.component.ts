@@ -9,7 +9,6 @@ import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {AppStatusService, SelectedCadType, SelectedCads} from "@services/app-status.service";
 import {CadStatusEditDimension, CadStatusNormal} from "@services/cad-status";
-import Color from "color";
 import {debounce} from "lodash";
 
 @Component({
@@ -56,7 +55,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                 let dimension = dimensions[cadStatus.index];
                 if (!dimension) {
                     dimension = new CadDimension();
-                    dimension.color = new Color(0x00ff00);
+                    dimension.setColor(0x00ff00);
                     let newIndex = 0;
                     for (let i = 0; i < thatIndex; i++) {
                         newIndex += data[i].entities.dimension.length;

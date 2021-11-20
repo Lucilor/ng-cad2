@@ -15,7 +15,6 @@ import {
     findAllAdjacentLines
 } from "@cad-viewer";
 import {getDPI, Point, isNearZero, loadImage, isBetween, DEFAULT_TOLERANCE} from "@utils";
-import Color from "color";
 import {createPdf} from "pdfmake/build/pdfmake";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
@@ -245,11 +244,11 @@ export const printCads = async (params: PrintCadsParams) => {
         const data = cads[i];
         const es = data.getAllEntities().toArray();
         for (const e of es) {
-            const colorNumber = e.color.rgbNumber();
+            const colorNumber = e.getColor().rgbNumber();
             if (colorNumber === 0x808080) {
                 e.opacity = 0;
-            } else if (colorNumber !== 0xff0000) {
-                e.color = new Color(0);
+            } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
+                e.setColor(0);
             }
             if (e instanceof CadLineLike && (colorNumber === 0x333333 || e.layer === "1")) {
                 e.linewidth = linewidth;
@@ -306,7 +305,7 @@ export const printCads = async (params: PrintCadsParams) => {
                             .join("\n");
                     } catch (error) {
                         wrapedText = "花件信息自动换行时出错\n" + wrapedText;
-                        e.color = new Color("red");
+                        e.setColor("red");
                     }
                     e.text = wrapedText;
                 }
@@ -431,7 +430,7 @@ export const setCadData = (data: CadData, project: string) => {
     } else {
         delete data.info.skipSuanliaodanZoom;
     }
-    data.entities.dimension.forEach((e) => (e.color = new Color(0x00ff00)));
+    data.entities.dimension.forEach((e) => (e.setColor(0x00ff00)));
     data.partners.forEach((v) => setCadData(v, project));
     data.components.data.forEach((v) => setCadData(v, project));
 };

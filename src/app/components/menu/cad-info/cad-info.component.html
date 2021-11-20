@@ -374,5 +374,11 @@
                 name="企料包边门框配合位增加值"
             />
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>企料包边类型</mat-label>
+            <mat-select type="text" [(ngModel)]="cad['企料包边类型']" name="企料包边类型">
+                <mat-option *ngFor="let item of qlbmlx" [value]="item">{{ item }}</mat-option>
+            </mat-select>
+        </mat-form-field>
     </form>
 </div>

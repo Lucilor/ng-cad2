@@ -8,7 +8,6 @@ import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, ProgressBar, Rectangle} from "@utils";
-import Color from "color";
 import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
@@ -522,7 +521,7 @@ export class ImportComponent extends Utils() implements OnInit {
                 const sourceCadInfo = this._sourceCadMap[data.id];
                 const mtext = new CadMtext();
                 mtext.text = cad.errors.join("\n");
-                mtext.color = new Color("red");
+                mtext.setColor("red");
                 mtext.layer = this._errorMsgLayer;
                 mtext.insert.set(sourceCadInfo.rect.left, sourceCadInfo.rect.bottom - 10);
                 this.sourceCad.entities.add(mtext);
