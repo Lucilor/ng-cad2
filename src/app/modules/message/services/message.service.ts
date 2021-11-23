@@ -68,7 +68,9 @@ export class MessageService {
 
     async snack(message: string, action?: string, config?: MatSnackBarConfig) {
         const snackBarRef = this.snackBar.open(message, action, config);
-        await lastValueFrom(snackBarRef.onAction());
+        try {
+            await lastValueFrom(snackBarRef.onAction());
+        } catch (error) {}
         if (!action) {
             snackBarRef.dismiss();
         }

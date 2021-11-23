@@ -29,13 +29,20 @@ export class ImportComponent extends Utils() implements OnInit {
     private _errorMsgLayer = "导入错误信息";
     sourceCad: CadData | null = null;
 
-    loaderIds = {importLoader: "importLoader", importSuanliaoLoader: "importSuanliaoLoader", downloadSourceCad: "downloadSourceCad"};
+    loaderIds = {
+        importLoader: "importLoader",
+        reimportLoader: "reimportLoader",
+        importSuanliaoLoader: "importSuanliaoLoader",
+        reimportSuanliaoLoader: "reimportSuanliaoLoader",
+        downloadSourceCad: "downloadSourceCad"
+    };
     msg = "";
     cads: CadInfo[] = [];
     slgses: SlgsInfo[] = [];
     xhpzInfo: XhpzInfo | null = null;
     cadsParsed = false;
     hasError = false;
+    isImporting = false;
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
     importConfigNormal: ImportComponentConfig = {
@@ -65,13 +72,15 @@ export class ImportComponent extends Utils() implements OnInit {
     }
 
     canSubmit(isXinghao: boolean) {
+        if (this.isImporting) {
+            return false;
+        }
         const {requireLineId, pruneLines} = this._getImportConfig(isXinghao);
         return requireLineId.value !== null && pruneLines.value !== null;
     }
 
-    async importDxf(event: Event, isXinghao: boolean) {
-        const el = event.target as HTMLInputElement;
-        const loaderId = isXinghao ? this.loaderIds.importSuanliaoLoader : this.loaderIds.importLoader;
+    async importDxf(event: Event | null, isXinghao: boolean, loaderId: string) {
+        let el: HTMLInputElement | undefined;
         const finish = (hasLoader: boolean, progressBarStatus: ProgressBarStatus, msg?: string) => {
             if (hasLoader) {
                 this.loader.stopLoader(loaderId);
@@ -79,13 +88,22 @@ export class ImportComponent extends Utils() implements OnInit {
             this.progressBar.end();
             this.progressBarStatus = progressBarStatus;
             this.msg = typeof msg === "string" ? msg : "";
-            el.value = "";
+            if (el) {
+                el.value = "";
+            }
+            this.isImporting = false;
         };
-        if (!el.files || el.files.length < 1) {
-            finish(false, "hidden");
+        if (event) {
+            el = event.target as HTMLInputElement;
+            if (!el.files || el.files.length < 1) {
+                finish(false, "hidden");
+                return;
+            }
+            this._sourceFile = el.files[0];
+        } else if (!this._sourceFile) {
             return;
         }
-        this._sourceFile = el.files[0];
+        this.isImporting = true;
         this.progressBar.start(1);
         this.progressBarStatus = "progress";
         this.msg = "正在获取数据";

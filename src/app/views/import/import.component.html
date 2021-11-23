@@ -2,12 +2,21 @@
     <div class="container max-width">
         <div class="toolbars">
             <mat-card class="toolbar">
-                <input #fileInputNormal type="file" accept=".dxf" hidden (change)="importDxf($event, false)" />
+                <input #fileInputNormal type="file" accept=".dxf" hidden (change)="importDxf($event, false, loaderIds.importLoader)" />
                 <mat-card-content class="content">
-                    <div>
+                    <div class="btn-group">
                         <button mat-raised-button color="primary" (click)="fileInputNormal.click()" [disabled]="!canSubmit(false)">
                             导入文件
                             <app-loader-inline [loaderId]="loaderIds.importLoader"></app-loader-inline>
+                        </button>
+                        <button
+                            mat-raised-button
+                            color="primary"
+                            (click)="importDxf(null, false, loaderIds.reimportLoader)"
+                            [disabled]="!sourceCad || !canSubmit(true)"
+                        >
+                            重新导入选中文件
+                            <app-loader-inline [loaderId]="loaderIds.reimportLoader"></app-loader-inline>
                         </button>
                     </div>
                     <div class="form">
@@ -23,12 +32,27 @@
                 </mat-card-content>
             </mat-card>
             <mat-card class="toolbar">
-                <input #fileInputSuanliao type="file" accept=".dxf" hidden (change)="importDxf($event, true)" />
+                <input
+                    #fileInputSuanliao
+                    type="file"
+                    accept=".dxf"
+                    hidden
+                    (change)="importDxf($event, true, loaderIds.importSuanliaoLoader)"
+                />
                 <mat-card-content class="content">
-                    <div>
+                    <div class="btn-group">
                         <button mat-raised-button color="primary" (click)="fileInputSuanliao.click()" [disabled]="!canSubmit(true)">
                             替换导入型号算料dxf文件
                             <app-loader-inline [loaderId]="loaderIds.importSuanliaoLoader"></app-loader-inline>
+                        </button>
+                        <button
+                            mat-raised-button
+                            color="primary"
+                            (click)="importDxf(null, true, loaderIds.reimportSuanliaoLoader)"
+                            [disabled]="!sourceCad || !canSubmit(true)"
+                        >
+                            重新导入选中文件
+                            <app-loader-inline [loaderId]="loaderIds.reimportSuanliaoLoader"></app-loader-inline>
                         </button>
                     </div>
                     <div class="form">
