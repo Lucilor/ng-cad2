@@ -138,6 +138,13 @@ export class ImportComponent extends Utils() implements OnInit {
             }
         });
         const {cads, slgses, sourceCadMap, xhpzInfo} = CadPortable.import({sourceCad: data, isXinghao});
+        if (isXinghao) {
+            const xinghaos = cads.map((v) => v.data.options.型号).filter((v) => v);
+            if (xinghaos.length < 1) {
+                finish(true, "error", "没写型号");
+                return;
+            }
+        }
         if (Array.isArray(removedDimensions)) {
             removedDimensions.forEach((v) => {
                 data.entities.dimension.push(new CadDimension(v));

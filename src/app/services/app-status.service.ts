@@ -3,7 +3,6 @@ import {ActivatedRoute, Router, Params} from "@angular/router";
 import {CadCollection, local, timer} from "@app/app.common";
 import {
     setCadData,
-    addCadGongshi,
     prepareCadViewer,
     validateLines,
     ValidateResult,
@@ -87,11 +86,14 @@ export class AppStatusService {
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
             cad.config(newVal);
-            const showCadGongshis = newVal.showCadGongshis ?? this.config.getConfig("showCadGongshis");
+            if (typeof newVal.showCadGongshis === "boolean") {
+                console.warn("showCadGongshis is deprecated!");
+            }
             const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
             cadGongshis.forEach((e) => {
-                e.visible = showCadGongshis;
+                e.visible = false;
                 e.selectable = false;
+                e.calcBoundingRect = false;
             });
             cad.render(cadGongshis);
         });
@@ -209,7 +211,6 @@ export class AppStatusService {
         await timeout(0);
         data.forEach((v) => {
             setCadData(v, this.project);
-            addCadGongshi(v, this.config.getConfig("showCadGongshis"), collection === "CADmuban");
             for (const key in replaceMap) {
                 this._replaceText(v, key, replaceMap[key]);
             }

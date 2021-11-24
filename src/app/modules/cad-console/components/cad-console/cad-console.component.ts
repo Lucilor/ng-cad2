@@ -2,7 +2,7 @@ import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {getList, CadCollection} from "@app/app.common";
-import {removeCadGongshi, printCads, addCadGongshi} from "@app/cad.utils";
+import {removeCadGongshi, printCads} from "@app/cad.utils";
 import {CadArc, CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
@@ -800,7 +800,6 @@ export class CadConsoleComponent implements OnInit {
                     });
                 }
                 removeCadGongshi(data);
-                addCadGongshi(data, this.config.getConfig("showCadGongshis"), this.status.collection$.value === "CADmuban");
             };
             const selectedCads = this.status.getFlatSelectedCads();
             if (selectedCads.length) {

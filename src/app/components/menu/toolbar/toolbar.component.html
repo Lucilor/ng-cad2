@@ -57,9 +57,6 @@
         <button mat-button (click)="toggleShowDimensions()" [disabled]="!isStatusNormal">
             {{ getConfig("hideDimensions") ? "隐藏" : "显示" }}标注
         </button>
-        <button mat-button (click)="toggleShowCadGongshis()" [disabled]="!isStatusNormal">
-            {{ getConfig("showCadGongshis") ? "显示" : "隐藏" }}展开表达式
-        </button>
         <button mat-button (click)="toggleValidateLines()" [disabled]="!isStatusNormal">
             {{ getConfig("validateLines") ? "" : "不" }}验证线段
         </button>

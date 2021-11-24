@@ -330,8 +330,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         this.cadConsole.execute("save");
     }
 
-    refresh() {
-        this.status.openCad();
+    async refresh() {
+        await this._initCad();
     }
 
     zoomAll() {

@@ -168,10 +168,6 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         this.config.setConfig("hideDimensions", !this.config.getConfig("hideDimensions"));
     }
 
-    toggleShowCadGongshis() {
-        this.config.setConfig("showCadGongshis", !this.config.getConfig("showCadGongshis"));
-    }
-
     toggleValidateLines() {
         const value = !this.config.getConfig("validateLines");
         this.config.setConfig("validateLines", value);

@@ -373,7 +373,11 @@ export const printCads = async (params: PrintCadsParams) => {
     return url;
 };
 
+/**
+ * @deprecated
+ */
 export const addCadGongshi = (data: CadData, visible: boolean, ignoreTop: boolean) => {
+    console.warn("addCadGongshi is deprecated!");
     removeCadGongshi(data);
     if (!ignoreTop) {
         const mtext = new CadMtext();
