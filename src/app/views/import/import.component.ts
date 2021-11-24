@@ -12,7 +12,7 @@ import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 
-export type ImportComponentConfigName = "requireLineId" | "pruneLines" | "addUniqCode";
+export type ImportComponentConfigName = "requireLineId" | "pruneLines" | "addUniqCode" | "dryRun";
 export type ImportComponentConfig = Record<ImportComponentConfigName, {label: string; value: boolean | null}>;
 
 @Component({
@@ -48,12 +48,14 @@ export class ImportComponent extends Utils() implements OnInit {
     importConfigNormal: ImportComponentConfig = {
         requireLineId: {label: "上传线必须全部带ID", value: null},
         pruneLines: {label: "后台线在上传数据中没有时删除", value: null},
-        addUniqCode: {label: "没有唯一码生成新CAD数据", value: false}
+        addUniqCode: {label: "没有唯一码生成新CAD数据", value: false},
+        dryRun: {label: "仅检查数据，不导入", value: false}
     };
     importConfigSuanliao: ImportComponentConfig = {
         requireLineId: {label: "上传线必须全部带ID", value: false},
         pruneLines: {label: "后台线在上传数据中没有时删除", value: true},
-        addUniqCode: {label: "没有唯一码生成新CAD数据", value: true}
+        addUniqCode: {label: "没有唯一码生成新CAD数据", value: true},
+        dryRun: {label: "仅检查数据，不导入", value: false}
     };
 
     constructor(private loader: NgxUiLoaderService, private dataService: CadDataService, private message: MessageService) {
@@ -71,12 +73,21 @@ export class ImportComponent extends Utils() implements OnInit {
         return isXinghao ? this.importConfigSuanliao : this.importConfigNormal;
     }
 
+    private _getImportConfigValues(isXinghao: boolean) {
+        const config = this._getImportConfig(isXinghao);
+        const values: ObjectOf<boolean | null> = {};
+        Object.keys(config).forEach((key) => {
+            values[key] = config[key as keyof ImportComponentConfig].value;
+        });
+        return values;
+    }
+
     canSubmit(isXinghao: boolean) {
         if (this.isImporting) {
             return false;
         }
-        const {requireLineId, pruneLines} = this._getImportConfig(isXinghao);
-        return requireLineId.value !== null && pruneLines.value !== null;
+        const {requireLineId, pruneLines} = this._getImportConfigValues(isXinghao);
+        return requireLineId !== null && pruneLines !== null;
     }
 
     async importDxf(event: Event | null, isXinghao: boolean, loaderId: string) {
@@ -149,16 +160,21 @@ export class ImportComponent extends Utils() implements OnInit {
             finish(true, "error", "数据有误");
             return;
         }
+
+        const {pruneLines, dryRun} = this._getImportConfig(isXinghao);
+        if (dryRun) {
+            finish(true, "success", `检查结束`);
+            return;
+        }
         let skipped = 0;
         const silent = this.dataService.silent;
         this.dataService.silent = true;
-        const pruneLines = this._getImportConfig(isXinghao).pruneLines.value ?? false;
         for (let i = 0; i < totalCad; i++) {
             const result = await this.dataService.setCad({
                 collection: "cad",
                 cadData: cads[i].data,
                 force: true,
-                importConfig: {pruneLines}
+                importConfig: {pruneLines: !!pruneLines}
             });
             this.msg = `正在导入dxf数据(${i + 1}/${totalCad})`;
             if (!result) {
@@ -176,6 +192,7 @@ export class ImportComponent extends Utils() implements OnInit {
             }
             this.progressBar.forward();
         }
+
         this.dataService.silent = silent;
         this.msg = `正在保存dxf文件`;
         if (isXinghao) {
