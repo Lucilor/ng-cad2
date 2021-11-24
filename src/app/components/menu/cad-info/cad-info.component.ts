@@ -48,6 +48,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     ];
     sldxs = this._算料单显示.slice();
     qlbmlx = ["自动判断", "胶条位包", "外面包", "胶条位包+外面包", "无"];
+    sldzkxswz = ["CAD上面", "CAD下面", "CAD中间", "CAD左边", "CAD右边"];
     @Output() cadLengthsChange = new EventEmitter<string[]>();
 
     private _onEntityClick = (

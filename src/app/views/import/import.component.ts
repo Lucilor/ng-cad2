@@ -75,19 +75,19 @@ export class ImportComponent extends Utils() implements OnInit {
 
     private _getImportConfigValues(isXinghao: boolean) {
         const config = this._getImportConfig(isXinghao);
-        const values: ObjectOf<boolean | null> = {};
+        const values: ObjectOf<boolean> = {};
         Object.keys(config).forEach((key) => {
-            values[key] = config[key as keyof ImportComponentConfig].value;
+            values[key] = !!config[key as keyof ImportComponentConfig].value;
         });
-        return values;
+        return values as Record<ImportComponentConfigName, boolean>;
     }
 
     canSubmit(isXinghao: boolean) {
         if (this.isImporting) {
             return false;
         }
-        const {requireLineId, pruneLines} = this._getImportConfigValues(isXinghao);
-        return requireLineId !== null && pruneLines !== null;
+        const {requireLineId, pruneLines} = this._getImportConfig(isXinghao);
+        return requireLineId.value !== null && pruneLines.value !== null;
     }
 
     async importDxf(event: Event | null, isXinghao: boolean, loaderId: string) {
@@ -161,7 +161,7 @@ export class ImportComponent extends Utils() implements OnInit {
             return;
         }
 
-        const {pruneLines, dryRun} = this._getImportConfig(isXinghao);
+        const {pruneLines, dryRun} = this._getImportConfigValues(isXinghao);
         if (dryRun) {
             finish(true, "success", `检查结束`);
             return;
@@ -174,7 +174,7 @@ export class ImportComponent extends Utils() implements OnInit {
                 collection: "cad",
                 cadData: cads[i].data,
                 force: true,
-                importConfig: {pruneLines: !!pruneLines}
+                importConfig: {pruneLines}
             });
             this.msg = `正在导入dxf数据(${i + 1}/${totalCad})`;
             if (!result) {
@@ -267,8 +267,7 @@ export class ImportComponent extends Utils() implements OnInit {
                 });
             }
         }
-        const requireLineId = this._getImportConfig(isXinghao).requireLineId.value ?? false;
-        const addUniqCode = this._getImportConfig(isXinghao).addUniqCode.value ?? false;
+        const {requireLineId, addUniqCode} = this._getImportConfigValues(isXinghao);
         const totalCad = cads.length;
         const totalSlgs = slgses.length;
         for (let i = 0; i < totalCad; i++) {
