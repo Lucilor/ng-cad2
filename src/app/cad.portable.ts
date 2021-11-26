@@ -146,16 +146,37 @@ export class CadPortable {
         const sorted = sortLines(dumpData);
 
         const getObject = (text: string, separator: string) => {
-            const strs = text.split("\n");
+            text = text + "\n";
+            let separatorIndex = -1;
+            let key = "";
+            let lastKey = "";
+            let value = "";
             const obj: ObjectOf<string> = {};
-            strs.forEach((str) => {
-                const index = str.indexOf(separator);
-                if (index > 0) {
-                    const key = str.substring(0, index).trim();
-                    const value = str.substring(index + 1).trim();
-                    obj[key] = value;
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (separatorIndex === -1) {
+                    key += char;
+                } else {
+                    value += char;
                 }
-            });
+                if (char === separator) {
+                    separatorIndex = i;
+                }
+                if (char === "\n" && key) {
+                    if (separatorIndex === -1) {
+                        if (lastKey) {
+                            obj[lastKey] = `${obj[lastKey]}\n${key}`.trim();
+                        }
+                    } else {
+                        key = key.slice(0, -1).trim();
+                        obj[key] = value.trim();
+                        separatorIndex = -1;
+                        lastKey = key;
+                    }
+                    key = "";
+                    value = "";
+                }
+            }
             return obj;
         };
 
@@ -294,10 +315,11 @@ export class CadPortable {
             data.info.errors = [];
             data.options = {...globalOptions};
             data.entities.mtext.some((e, i) => {
-                if (e.text.startsWith("唯一码")) {
+                const text = replaceChars(e.text);
+                if (text.startsWith("唯一码")) {
                     toRemove = i;
                     sourceCadMap[data.id].text = e;
-                    const obj = getObject(replaceChars(e.text), ":");
+                    const obj = getObject(text, ":");
                     let zhankaiObjs: ObjectOf<any>[] = [];
                     for (const key in obj) {
                         if (skipFields.includes(key)) {
