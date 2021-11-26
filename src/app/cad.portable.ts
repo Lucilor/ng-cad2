@@ -12,11 +12,13 @@ import {
     CadZhankai,
     generateLineTexts,
     generatePointsMap,
+    setLinesLength,
     sortLines
 } from "@cad-viewer";
 import {keysOf, Line, ObjectOf, Point, Rectangle} from "@utils";
 import {difference, intersection, isEqual} from "lodash";
 import {replaceChars} from "./app.common";
+import {isShiyitu} from "./cad.utils";
 
 export interface Slgs {
     名字: string;
@@ -70,6 +72,7 @@ export type ExportType = "包边正面" | "框型和企料" | "指定型号" | "
 export interface CadImportParams {
     sourceCad: CadData;
     isXinghao: boolean;
+    maxLineLength?: number;
 }
 
 export interface CadExportParams {
@@ -136,7 +139,7 @@ export class CadPortable {
     static xinghaoFieldsRequired = ["门窗", "工艺", "产品分类", "门扇厚度", "指定可选锁边", "指定可选锁边"];
 
     static import(params: CadImportParams) {
-        const {sourceCad, isXinghao} = params;
+        const {sourceCad, isXinghao, maxLineLength} = params;
         const lines = sourceCad.entities.line.filter((v) => v.getColor().rgbNumber() === 0x00ff00);
         const lineIds = lines.map((v) => v.id);
         const dumpData = new CadData();
@@ -397,6 +400,11 @@ export class CadPortable {
                     data.info.vars[varName] = e.id;
                 }
                 delete e.info.varName;
+            }
+
+            if (typeof maxLineLength === "number" && !isShiyitu(data) && !data.shuangxiangzhewan) {
+                const linesToSet = data.entities.line.filter((e) => e.length > maxLineLength);
+                setLinesLength(data, linesToSet, maxLineLength);
             }
             generateLineTexts(data);
         });

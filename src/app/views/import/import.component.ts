@@ -57,6 +57,7 @@ export class ImportComponent extends Utils() implements OnInit {
         addUniqCode: {label: "没有唯一码生成新CAD数据", value: true},
         dryRun: {label: "仅检查数据，不导入", value: false}
     };
+    maxLineLength = 160;
 
     constructor(private loader: NgxUiLoaderService, private dataService: CadDataService, private message: MessageService) {
         super();
@@ -137,7 +138,7 @@ export class ImportComponent extends Utils() implements OnInit {
                 data.entities.remove(e);
             }
         });
-        const {cads, slgses, sourceCadMap, xhpzInfo} = CadPortable.import({sourceCad: data, isXinghao});
+        const {cads, slgses, sourceCadMap, xhpzInfo} = CadPortable.import({sourceCad: data, isXinghao, maxLineLength: this.maxLineLength});
         if (isXinghao) {
             const xinghaos = cads.map((v) => v.data.options.型号).filter((v) => v);
             if (xinghaos.length < 1) {

@@ -64,6 +64,16 @@
                                 <mat-radio-button [value]="false">否</mat-radio-button>
                             </mat-radio-group>
                         </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>线段最大长度</mat-label>
+                            <mat-hint *ngIf="maxLineLength > 0; else ignoreMaxLength">
+                                长于{{ maxLineLength }}的线段会被调整至{{ maxLineLength }}
+                            </mat-hint>
+                            <ng-template #ignoreMaxLength>
+                                <mat-hint>最大长度不大于0则不调整</mat-hint>
+                            </ng-template>
+                            <input type="number" step="1" matInput [(ngModel)]="maxLineLength" />
+                        </mat-form-field>
                     </div>
                 </mat-card-content>
             </mat-card>
