@@ -100,7 +100,8 @@ export class CadPortable {
         企料包边门框配合位增加值: "企料包边门框配合位增加值",
         对应门扇厚度: "对应门扇厚度",
         主CAD: "主CAD",
-        条件: "conditions"
+        固定开料板材: "gudingkailiaobancai",
+        条件: "conditions",
     };
     static infoFields = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
     static slgsFields = ["名字", "分类", "条件", "选项", "算料公式"];

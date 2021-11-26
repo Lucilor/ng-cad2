@@ -112,15 +112,19 @@ export class CadDataService extends HttpService {
     }
 
     async getCad(params: GetCadParams): Promise<{cads: CadData[]; total: number}> {
-        const response = await this.post<any[]>("peijian/cad/getCad", params);
+        const response = await this.post<any>("peijian/cad/getCad", params, {bypassCodes: [10]});
         const result: {cads: CadData[]; total: number} = {cads: [], total: 0};
         if (response && response.data) {
-            const restore = await this._resolveMissingCads(response);
-            if (typeof restore === "boolean") {
-                return await this.getCad({...params, restore});
+            if (response.code === 10) {
+                result.cads = [new CadData(response.data.cad)];
             } else {
-                result.cads = response.data.map((v) => new CadData(v));
-                result.total = response.count || 0;
+                const restore = await this._resolveMissingCads(response);
+                if (typeof restore === "boolean") {
+                    return await this.getCad({...params, restore});
+                } else {
+                    result.cads = response.data.map((v: any) => new CadData(v));
+                    result.total = response.count || 0;
+                }
             }
         }
         return result;

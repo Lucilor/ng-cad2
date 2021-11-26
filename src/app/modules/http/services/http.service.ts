@@ -35,6 +35,7 @@ export interface HttpOptions {
     reportProgress?: boolean;
     responseType?: "json";
     withCredentials?: boolean;
+    bypassCodes?: number[];
 }
 /* eslint-enable @typescript-eslint/indent */
 
@@ -160,9 +161,14 @@ export class HttpService {
             }
             if (this.strict) {
                 const code = response.code;
-                if (code === 0) {
+                const bypassCodes = options?.bypassCodes ?? [];
+                if (code === 0 || bypassCodes.includes(code)) {
                     if (typeof response.msg === "string" && response.msg) {
-                        this.snack(response.msg);
+                        if (response.msg.match(/\n|<br>/)) {
+                            this.alert(response.msg);
+                        } else {
+                            this.snack(response.msg);
+                        }
                     }
                     return response;
                 } else if (code === 2) {
