@@ -12,10 +12,13 @@ import {
     sortLines,
     CadLine,
     generatePointsMap,
-    findAllAdjacentLines
+    findAllAdjacentLines,
+    DEFAULT_DASH_ARRAY
 } from "@cad-viewer";
 import {getDPI, Point, isNearZero, loadImage, isBetween, DEFAULT_TOLERANCE} from "@utils";
+import {cloneDeep} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
+import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
@@ -198,7 +201,7 @@ export interface PrintCadsParams {
     cads: CadData[];
     config?: Partial<CadViewerConfig>;
     linewidth?: number;
-    renderStyle?: CadDimension["renderStyle"];
+    dimStyle?: CadDimensionStyle;
     designPics?: {urls: (string | string[])[]; margin: number};
     extra?: {拉手信息宽度?: number};
     url?: string;
@@ -212,7 +215,7 @@ export const printCads = async (params: PrintCadsParams) => {
     const cads = params.cads.map((v) => v.clone());
     const config = params.config || {};
     const linewidth = params.linewidth || 1;
-    const renderStyle = params.renderStyle || 2;
+    const dimStyle = params.dimStyle;
     const designPics = params.designPics;
     const extra = params.extra || {};
     let [dpiX, dpiY] = getDPI();
@@ -245,18 +248,31 @@ export const printCads = async (params: PrintCadsParams) => {
         const es = data.getAllEntities().toArray();
         for (const e of es) {
             const colorNumber = e.getColor().rgbNumber();
-            if (colorNumber === 0x808080) {
-                e.opacity = 0;
-            } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
-                e.setColor(0);
-            }
             if (e instanceof CadLineLike && (colorNumber === 0x333333 || e.layer === "1")) {
                 e.linewidth = linewidth;
             }
             if (e instanceof CadDimension) {
                 e.linewidth = linewidth;
-                e.renderStyle = renderStyle;
+                e.style = dimStyle;
                 e.selected = true;
+                e.style = cloneDeep(dimStyle || {});
+                if (!e.style.dimensionLine) {
+                    e.style.dimensionLine = {};
+                }
+                e.style.dimensionLine.color = "#505050";
+                e.style.dimensionLine.dashArray = DEFAULT_DASH_ARRAY;
+                if (!e.style.extensionLines) {
+                    e.style.extensionLines = {};
+                }
+                e.style.extensionLines.color = "#505050";
+                e.style.extensionLines.length = 12;
+                if (!e.style.arrows) {
+                    e.style.arrows = {};
+                }
+                e.style.arrows.color = "#505050";
+                if (colorNumber === 0xff00ff) {
+                    e.style.arrows.hidden = true;
+                }
             } else if (e instanceof CadMtext) {
                 const {text, insert} = e;
                 if (e.text.includes("     ") && !isNaN(Number(e.text))) {
@@ -310,24 +326,15 @@ export const printCads = async (params: PrintCadsParams) => {
                     e.text = wrapedText;
                 }
             }
+            if (colorNumber === 0x808080) {
+                e.opacity = 0;
+            } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
+                e.setColor(0);
+            }
         }
-        cadPrint.reset();
-        cadPrint.data = data;
         data.updatePartners().updateComponents();
-        cadPrint.render().center();
-        cadPrint.draw.find("[type='DIMENSION']").forEach((el) => {
-            el.children().forEach((child) => {
-                if (child.node.tagName === "text") {
-                    return;
-                }
-                if (child.hasClass("stroke")) {
-                    child.stroke("#505050");
-                }
-                if (child.hasClass("fill")) {
-                    child.fill("#505050");
-                }
-            });
-        });
+        cadPrint.data = data;
+        cadPrint.reset().render().center();
         const {拉手信息宽度} = extra;
         if (typeof 拉手信息宽度 === "number" && 拉手信息宽度 > 0) {
             for (const cad of cads) {
@@ -434,7 +441,6 @@ export const setCadData = (data: CadData, project: string) => {
     } else {
         delete data.info.skipSuanliaodanZoom;
     }
-    data.entities.dimension.forEach((e) => (e.setColor(0x00ff00)));
     data.partners.forEach((v) => setCadData(v, project));
     data.components.data.forEach((v) => setCadData(v, project));
 };
