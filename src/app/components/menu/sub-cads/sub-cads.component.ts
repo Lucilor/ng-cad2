@@ -501,7 +501,17 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         }
         const qiliao = type === "components" && this.status.collection$.value === "qiliaozuhe";
         const cads = await openCadListDialog(this.dialog, {
-            data: {selectMode: "multiple", checkedItems, options: data.options, collection: "cad", qiliao}
+            data: {
+                selectMode: "multiple",
+                checkedItems,
+                options: data.options,
+                collection: "cad",
+                qiliao,
+                search: {
+                    _id: {$ne: data.id},
+                    分类: {$regex: "^((?!示意图).)*$"}
+                }
+            }
         });
         const shouldReplace = (cad1: CadData, cad2: CadData) => cad1.id === cad2.id;
         if (Array.isArray(cads)) {
