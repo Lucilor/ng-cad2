@@ -66,7 +66,13 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
 };
 
 const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], margin: number) => {
-    const img = await loadImage(mubanUrl);
+    let img: HTMLImageElement;
+    try {
+        img = await loadImage(mubanUrl);
+    } catch (error) {
+        console.warn(`无法加载模板: ${mubanUrl}`);
+        return null;
+    }
     const rectData = muban.getBoundingRect();
     const rect = rectData.clone();
     const lines = muban.entities.line.filter((line) => line.isHorizontal() && isNearZero(line.length - rectData.width, 1));
@@ -127,7 +133,14 @@ const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], 
 
     const imgs: HTMLImageElement[] = [];
     for (const src of urls) {
-        imgs.push(await loadImage(src));
+        try {
+            imgs.push(await loadImage(src));
+        } catch (error) {
+            console.warn(`无法加载设计图: ${src}`);
+        }
+    }
+    if (imgs.length === 0) {
+        return null;
     }
 
     const getDrawArea = (sw: number, sh: number, dw: number, dh: number) => {
@@ -360,7 +373,10 @@ export const printCads = async (params: PrintCadsParams) => {
                 if (typeof designPicsGroup === "string") {
                     designPicsGroup = [designPicsGroup];
                 }
-                imgs.push(await drawDesignPics(data, img, designPicsGroup, designPics.margin));
+                const designPic = await drawDesignPics(data, img, designPicsGroup, designPics.margin);
+                if (designPic) {
+                    imgs.push(designPic);
+                }
             }
         }
     }
