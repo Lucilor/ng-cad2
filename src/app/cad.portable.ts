@@ -101,7 +101,7 @@ export class CadPortable {
         对应门扇厚度: "对应门扇厚度",
         主CAD: "主CAD",
         固定开料板材: "gudingkailiaobancai",
-        条件: "conditions",
+        条件: "conditions"
     };
     static infoFields = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
     static slgsFields = ["名字", "分类", "条件", "选项", "算料公式"];
@@ -764,12 +764,11 @@ export class CadPortable {
 
     static getUniqCode(cad: CadData, isXinghao: boolean) {
         const {name, type} = cad;
-        const {型号, 开启} = cad.options;
+        const get = (key: string) => cad.options[key] || "";
         if (isXinghao) {
-            return `${type}${型号 || ""}${开启 || ""}${name}`;
+            return [type, get("型号"), get("开启"), get("门铰"), name].join("");
         } else {
-            const {门扇厚度} = cad.options;
-            return `${type}${型号 || ""}${开启 || ""}${门扇厚度 || ""}${name}`;
+            return [type, get("型号"), get("开启"), get("门扇厚度"), name].join("");
         }
     }
 
