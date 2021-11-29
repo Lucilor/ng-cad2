@@ -41,7 +41,8 @@ const upload = async (url: string, zipPath: string) => {
     let changelog: any;
     if (fetchChangelog) {
         const response = await axios.get(host + "/static/ngcad2_changelog.json");
-        changelog = response.data;
+        fs.writeFileSync(changelogPath, JSON.stringify(response.data));
+        return;
     } else {
         changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
     }
