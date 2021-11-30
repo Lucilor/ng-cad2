@@ -138,7 +138,8 @@ export class ImportComponent extends Utils() implements OnInit {
                 data.entities.remove(e);
             }
         });
-        const {cads, slgses, sourceCadMap, xhpzInfo} = CadPortable.import({sourceCad: data, isXinghao, maxLineLength: this.maxLineLength});
+        const maxLineLength = isXinghao ? this.maxLineLength : 0;
+        const {cads, slgses, sourceCadMap, xhpzInfo} = CadPortable.import({sourceCad: data, isXinghao, maxLineLength});
         if (isXinghao) {
             const xinghaos = cads.map((v) => v.data.options.型号).filter((v) => v);
             if (xinghaos.length < 1) {
