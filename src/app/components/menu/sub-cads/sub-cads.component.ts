@@ -500,6 +500,21 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             checkedItems = data.components.data.map((v) => v.id);
         }
         const qiliao = type === "components" && this.status.collection$.value === "qiliaozuhe";
+        const feilei = [
+            "铰框",
+            "锁框",
+            "顶框",
+            "边铰料",
+            "边锁料",
+            "中铰料",
+            "中锁料",
+            "小铰料",
+            "小锁料",
+            "锁企料",
+            "扇锁企料",
+            "示意图",
+            "装配示意图"
+        ];
         const cads = await openCadListDialog(this.dialog, {
             data: {
                 selectMode: "multiple",
@@ -509,7 +524,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 qiliao,
                 search: {
                     _id: {$ne: data.id},
-                    分类: {$regex: "^((?!示意图).)*$"}
+                    分类: {$not: {$in: feilei}}
                 }
             }
         });
