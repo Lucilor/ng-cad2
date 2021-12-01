@@ -207,7 +207,7 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
         if (typeof this.dataTransformer === "function") {
             selected = this.dataTransformer("export", selected);
         }
-        downloadByString(JSON.stringify(selected), (this.title ?? "table") + ".json");
+        downloadByString(JSON.stringify(selected), {filename: (this.title ?? "table") + ".json"});
     }
 
     import() {

@@ -686,7 +686,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             return;
         }
         const data = this.status.closeCad([this.contextMenuCad.data])[0];
-        downloadByString(JSON.stringify(data.export()), `${data.name}.json`);
+        downloadByString(JSON.stringify(data.export()), {filename: `${data.name}.json`});
     }
 
     async editJson() {
