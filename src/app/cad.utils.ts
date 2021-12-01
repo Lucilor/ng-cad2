@@ -266,9 +266,8 @@ export const printCads = async (params: PrintCadsParams) => {
             }
             if (e instanceof CadDimension) {
                 e.linewidth = linewidth;
-                e.style = dimStyle;
                 e.selected = true;
-                e.style = cloneDeep(dimStyle || {});
+                e.style = {...e.style, ...cloneDeep(dimStyle || {})};
                 if (!e.style.dimensionLine) {
                     e.style.dimensionLine = {};
                 }
