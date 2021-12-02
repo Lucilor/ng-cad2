@@ -2,7 +2,7 @@ import {Injectable, Injector} from "@angular/core";
 import {CadCollection} from "@app/app.common";
 import {CadData} from "@cad-viewer";
 import {environment} from "@env";
-import {ObjectOf} from "@utils";
+import {downloadByUrl, DownloadOptions, ObjectOf} from "@utils";
 import {CustomResponse, HttpService} from "./http.service";
 
 export interface GetCadParams {
@@ -173,12 +173,12 @@ export class CadDataService extends HttpService {
         return null;
     }
 
-    async downloadDxf(data: CadData) {
+    async downloadDxf(data: CadData, downloadOptions?: DownloadOptions) {
         const result = await this.post<any>("peijian/cad/downloadDxf", {cadData: JSON.stringify(data.export())});
         const host = environment.production ? origin : "//localhost";
         if (result) {
             try {
-                open(host + "/" + result.data.path);
+                downloadByUrl(host + "/" + result.data.path, downloadOptions);
                 return true;
             } catch (error) {
                 console.error(error);

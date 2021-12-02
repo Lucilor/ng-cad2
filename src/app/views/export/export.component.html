@@ -4,7 +4,7 @@
             <mat-form-field>
                 <mat-label>导出ID</mat-label>
                 <input type="text" matInput value="1" hidden />
-                <mat-radio-group [(ngModel)]="exportIds" required>
+                <mat-radio-group [(ngModel)]="exportParams.exportIds" required>
                     <mat-radio-button [value]="true">是</mat-radio-button>
                     <mat-radio-button [value]="false">否</mat-radio-button>
                 </mat-radio-group>

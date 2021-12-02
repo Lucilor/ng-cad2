@@ -102,10 +102,10 @@
                     </ul>
                 </div>
             </ng-container>
-            <div *ngIf="xhpzInfo && xhpzInfo.errors.length > 0" class="cad">
+            <div *ngIf="xinghaoInfo && xinghaoInfo.errors.length > 0" class="cad">
                 <div>型号配置</div>
                 <ul>
-                    <li class="error" *ngFor="let error of xhpzInfo.errors" [innerHtml]="error"></li>
+                    <li class="error" *ngFor="let error of xinghaoInfo.errors" [innerHtml]="error"></li>
                 </ul>
             </div>
         </div>

@@ -2,7 +2,7 @@ import {Component, OnInit} from "@angular/core";
 import {AbstractControl} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {session} from "@app/app.common";
-import {CadPortable, ExportType} from "@app/cad.portable";
+import {CadExportParams, CadPortable, CadSourceParams, ExportType} from "@app/cad.portable";
 import {CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
@@ -11,7 +11,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, ProgressBar} from "@utils";
 
-interface ExportParams {
+interface ExportCache {
     ids: string[];
     direct?: boolean;
 }
@@ -25,24 +25,22 @@ export class ExportComponent implements OnInit {
     progressBar = new ProgressBar(0);
     progressBarStatus: ProgressBarStatus = "hidden";
     msg = "";
-    exportParams: ExportParams | null = null;
+    exportCache: ExportCache | null = null;
     direct = false;
-    exportIds = environment.production;
-    sourceCad?: CadData;
-    xinghaoInfo?: ObjectOf<any>;
+    exportParams: CadExportParams = {cads: [], type: "自由选择", exportIds: environment.production};
 
     constructor(private dialog: MatDialog, private dataService: CadDataService, private message: MessageService) {}
 
     ngOnInit() {
-        this.exportParams = session.load<ExportParams>("exportParams");
-        this.direct = !!this.exportParams?.direct;
+        this.exportCache = session.load<ExportCache>("exportParams");
+        this.direct = !!this.exportCache?.direct;
         // session.remove("exportParams");
         if (this.direct) {
             this.exportCads("导出选中");
-        } else if (this.exportParams) {
-            const ids = this.exportParams.ids;
+        } else if (this.exportCache) {
+            const ids = this.exportCache.ids;
             if (!Array.isArray(ids) || ids.length < 1) {
-                this.exportParams = null;
+                this.exportCache = null;
             }
         }
     }
@@ -61,9 +59,13 @@ export class ExportComponent implements OnInit {
             this.progressBarStatus = progressBarStatus;
             this.msg = typeof msg === "string" ? msg : "";
         };
+        this.exportParams.type = type;
+        delete this.exportParams.sourceParams;
+        let filename: string;
         switch (type) {
             case "包边正面":
                 ids = await this._queryIds({$or: [{分类: "包边正面"}, {分类2: "包边正面"}]});
+                filename = "包边正面";
                 break;
             case "框型和企料":
                 ids = await this._queryIds({
@@ -72,6 +74,7 @@ export class ExportComponent implements OnInit {
                         {分类2: {$regex: "^锁企料|扇锁企料|小锁料|中锁料|铰企料|中铰料$"}}
                     ]
                 });
+                filename = "框型和企料";
                 break;
             case "指定型号": {
                 const xinghao = await this.message.prompt({
@@ -91,22 +94,36 @@ export class ExportComponent implements OnInit {
                     finish("hidden");
                     return;
                 }
-                const response = await this.dataService.post<{cad: ObjectOf<any>; xinghaoInfo: ObjectOf<any>}>("ngcad/getImportDxf", {
+                const response = await this.dataService.post<any>("ngcad/getImportDxf", {
                     xinghao
                 });
                 if (response && response.code === 0 && response.data) {
-                    this.xinghaoInfo = response.data.xinghaoInfo;
+                    const xinghaoInfo = response.data.xinghaoInfo;
+                    let sourceCad: CadData;
                     try {
-                        this.sourceCad = new CadData(response.data.cad);
+                        sourceCad = new CadData(response.data.cad);
                     } catch (error) {
                         finish("error", "CAD数据错误");
                         return;
                     }
+                    const importResult = CadPortable.import({sourceCad, isXinghao: true});
+                    const slgses = [] as CadSourceParams["slgses"];
+                    console.log(importResult);
+                    for (const slgs of importResult.slgses) {
+                        const where = {...slgs.data} as ObjectOf<any>;
+                        delete where.公式;
+                        const slgsRecords = await this.dataService.queryMongodb({collection: "material", where});
+                        if (slgsRecords.length > 0) {
+                            slgses.push(slgsRecords[0]);
+                        }
+                    }
+                    this.exportParams.sourceParams = {sourceCad, importResult, xinghaoInfo, slgses};
                 } else {
                     finish("error", this.dataService.lastResponse?.msg || "读取文件失败");
                     return;
                 }
                 ids = await this._queryIds({"选项.型号": {$regex: `^${xinghao}$`}});
+                filename = xinghao;
                 break;
             }
             case "自由选择":
@@ -115,9 +132,11 @@ export class ExportComponent implements OnInit {
                         data: {selectMode: "multiple", collection: "cad", search: {分类: "^.+$"}}
                     })) ?? []
                 ).map((v) => v.id);
+                filename = "自由选择";
                 break;
             case "导出选中":
-                ids = this.exportParams?.ids || [];
+                ids = this.exportCache?.ids || [];
+                filename = "导出选中";
                 break;
             default:
                 return;
@@ -139,10 +158,11 @@ export class ExportComponent implements OnInit {
                 data.forEach((v) => cads.push(new CadData(v.json)));
                 this.progressBar.forward(end - i);
             }
-            const {exportIds, sourceCad, xinghaoInfo} = this;
-            const result = CadPortable.export({cads, type, exportIds, sourceCad, xinghaoInfo});
+            this.exportParams.cads = cads;
+            const result = CadPortable.export(this.exportParams);
             this.msg = "正在下载dxf文件";
-            const downloadResult = await this.dataService.downloadDxf(result);
+            filename += `@${new Date().format("yyyy-MM-dd")}.dxf`;
+            const downloadResult = await this.dataService.downloadDxf(result, {filename});
             if (downloadResult) {
                 finish("success", "导出成功");
             } else {

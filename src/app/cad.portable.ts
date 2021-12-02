@@ -45,17 +45,22 @@ export interface SlgsInfo {
 /**
  * 型号配置
  */
-export interface XhpzInfo {
+export interface XinghaoInfo {
     data: ObjectOf<string>;
     errors: string[];
 }
 
-export type SourceCadMap = ObjectOf<{
-    rect: Rectangle;
-    rectLines: CadLineLike[];
-    entities: CadEntities;
-    text: CadMtext;
-}>;
+export type SourceCadMap = {
+    cads: ObjectOf<{
+        rect: Rectangle;
+        rectLines: CadLineLike[];
+        entities: CadEntities;
+        text: CadMtext;
+    }>;
+    slgses: ObjectOf<{text: CadMtext}>;
+    xinghao?: {text: CadMtext};
+    xinghaoInfo?: {text: CadMtext};
+};
 
 export interface PeiheInfoObj {
     type: string;
@@ -75,12 +80,25 @@ export interface CadImportParams {
     maxLineLength?: number;
 }
 
+export interface CadImportResult {
+    cads: CadInfo[];
+    slgses: SlgsInfo[];
+    sourceCadMap: SourceCadMap;
+    xinghaoInfo?: XinghaoInfo;
+}
+
+export interface CadSourceParams {
+    sourceCad: CadData;
+    importResult: CadImportResult;
+    xinghaoInfo: ObjectOf<string>;
+    slgses: ObjectOf<any>[];
+}
+
 export interface CadExportParams {
     cads: CadData[];
     type: ExportType;
     exportIds: boolean;
-    sourceCad?: CadData | null;
-    xinghaoInfo?: ObjectOf<any> | null;
+    sourceParams?: CadSourceParams;
 }
 
 export class CadPortable {
@@ -139,7 +157,7 @@ export class CadPortable {
     ];
     static xinghaoFieldsRequired = ["门窗", "工艺", "产品分类", "门扇厚度", "指定可选锁边", "指定可选锁边"];
 
-    static import(params: CadImportParams) {
+    static import(params: CadImportParams): CadImportResult {
         const {sourceCad, isXinghao, maxLineLength} = params;
         const lines = sourceCad.entities.line.filter((v) => v.getColor().rgbNumber() === 0x00ff00);
         const lineIds = lines.map((v) => v.id);
@@ -184,7 +202,7 @@ export class CadPortable {
             return obj;
         };
 
-        const sourceCadMap: SourceCadMap = {};
+        const sourceCadMap: SourceCadMap = {cads: {}, slgses: {}};
         sorted.forEach((group) => {
             const min = new Point(Infinity, Infinity);
             const max = new Point(-Infinity, -Infinity);
@@ -207,13 +225,13 @@ export class CadPortable {
 
         const cads: CadInfo[] = rects.map((rect, i) => {
             const data = new CadData();
-            sourceCadMap[data.id] = {rect, rectLines: sorted[i], entities: new CadEntities(), text: new CadMtext()};
+            sourceCadMap.cads[data.id] = {rect, rectLines: sorted[i], entities: new CadEntities(), text: new CadMtext()};
             return {data, errors: [], skipErrorCheck: new Set()};
         });
         const slgses: SlgsInfo[] = [];
         const {cadFields, slgsFields, skipFields} = this;
         const globalOptions: CadData["options"] = {};
-        let xhpzInfo: XhpzInfo | null = null;
+        let xinghaoInfo: XinghaoInfo | undefined;
         for (const e of sourceCad.entities.toArray()) {
             if (lineIds.includes(e.id)) {
                 continue;
@@ -227,6 +245,7 @@ export class CadPortable {
                         const obj = getObject(text.replace(slgsReg, ""), ":");
                         const slgsData: ObjectOf<any> = {公式: getObject(suanliaoMatch[1], "=")};
                         const errors: string[] = [];
+                        sourceCadMap.slgses[obj.名字] = {text: e};
                         for (const key in obj) {
                             const value = obj[key];
                             slgsFields.forEach((field) => {
@@ -257,19 +276,21 @@ export class CadPortable {
                     }
                     const xinghaoMatch = text.match(/^型号:([\w\W]*)/);
                     if (xinghaoMatch) {
+                        sourceCadMap.xinghao = {text: e};
                         globalOptions.型号 = xinghaoMatch[1].trim();
                     }
                     const xinghaoInfoReg = /型号配置:([\w\W]*)/;
                     const xinghaoInfoMatch = text.match(xinghaoInfoReg);
                     if (xinghaoInfoMatch) {
-                        xhpzInfo = {data: {}, errors: []};
+                        sourceCadMap.xinghaoInfo = {text: e};
+                        xinghaoInfo = {data: {}, errors: []};
                         const obj = getObject(xinghaoInfoMatch[1], ":");
                         for (const field of this.xinghaoFields) {
-                            xhpzInfo.data[field] = obj[field] || "";
+                            xinghaoInfo.data[field] = obj[field] || "";
                         }
-                        const missingXinghaoFields = this.xinghaoFieldsRequired.filter((v) => !xhpzInfo?.data[v]);
+                        const missingXinghaoFields = this.xinghaoFieldsRequired.filter((v) => !xinghaoInfo?.data[v]);
                         if (missingXinghaoFields.length > 0) {
-                            xhpzInfo.errors.push(`型号配置缺少以下字段:\n${missingXinghaoFields.join(", ")}`);
+                            xinghaoInfo.errors.push(`型号配置缺少以下字段:\n${missingXinghaoFields.join(", ")}`);
                         }
                         continue;
                     }
@@ -306,7 +327,7 @@ export class CadPortable {
                 }
                 if (isInRect) {
                     cads[i].data.entities.add(e.clone());
-                    sourceCadMap[cads[i].data.id].entities.add(e);
+                    sourceCadMap.cads[cads[i].data.id].entities.add(e);
                 }
             });
         }
@@ -322,7 +343,7 @@ export class CadPortable {
                 const text = replaceChars(e.text);
                 if (text.startsWith("唯一码")) {
                     toRemove = i;
-                    sourceCadMap[data.id].text = e;
+                    sourceCadMap.cads[data.id].text = e;
                     const obj = getObject(text, ":");
                     let zhankaiObjs: ObjectOf<any>[] = [];
                     for (const key in obj) {
@@ -409,7 +430,7 @@ export class CadPortable {
             }
             generateLineTexts(data);
         });
-        return {cads, slgses, sourceCadMap, xhpzInfo};
+        return {cads, slgses, sourceCadMap, xinghaoInfo};
     }
 
     static export(params: CadExportParams) {
@@ -418,7 +439,8 @@ export class CadPortable {
         const width = 855;
         const height = 1700;
         const cols = 10;
-        const {type, exportIds, sourceCad, xinghaoInfo} = params;
+        const {type, exportIds} = params;
+        const {sourceCad, importResult, xinghaoInfo, slgses} = params.sourceParams || {};
         const cads = params.cads.filter((v) => v.entities.length > 0 && Object.keys(v.options).length > 0);
         const emptyData = new CadData();
 
@@ -492,11 +514,9 @@ export class CadPortable {
         const ids = [] as string[];
         const dividers = [] as number[];
         let result: CadData;
-        let imported: ReturnType<typeof CadPortable.import> | undefined;
         const isXinghao = !!xinghaoInfo;
         if (sourceCad) {
             result = sourceCad;
-            imported = this.import({sourceCad, isXinghao});
             rect.copy(sourceCad.entities.getBoundingRect());
         } else {
             result = new CadData();
@@ -508,11 +528,17 @@ export class CadPortable {
                 return;
             }
 
-            group.forEach((cad, j) => {
+            const group2 = [] as CadData[];
+            const right = rect.right + padding;
+            const draw = (cad: CadData, j: number, isGroup2: boolean) => {
                 this._addLeaders(cad);
                 const cadRect = cad.getBoundingRect();
-                const offsetX = j * (width + margin);
-                const offsetY = -(i - dividers.length) * (height + margin);
+                let offsetX = j * (width + margin);
+                let offsetY = -(i - dividers.length) * (height + margin);
+                if (isGroup2) {
+                    offsetX += right + margin + 1000;
+                    offsetY += rect.top - (offsetY + height);
+                }
                 const translate = new Point(offsetX + (width - cadRect.width - padding * 2) / 2, offsetY + height - padding);
                 translate.sub(cadRect.left, cadRect.top);
                 cad.transform({translate}, true);
@@ -537,6 +563,9 @@ export class CadPortable {
                     }
                 }
                 for (const optionName in cad.options) {
+                    if (isXinghao && optionName === "型号") {
+                        continue;
+                    }
                     texts.push(`${optionName}: ${cad.options[optionName]}`);
                 }
                 const zhankaiStr = cad.zhankai
@@ -562,11 +591,13 @@ export class CadPortable {
                     }
                 }
 
-                if (imported) {
+                if (importResult && !isGroup2) {
                     const uniqCode = cad.info.唯一码;
-                    for (const cad2 of imported.cads) {
+                    let found = false;
+                    for (const cad2 of importResult.cads) {
                         const uniqCode2 = this.getUniqCode(cad2.data, isXinghao);
                         if (uniqCode === uniqCode2) {
+                            found = true;
                             const entities1 = cad.entities;
                             const entities2 = cad2.data.entities;
                             const rect1 = entities1.getBoundingRect();
@@ -574,7 +605,7 @@ export class CadPortable {
                             const dx = rect2.left - rect1.left;
                             const dy = rect2.top - rect1.top;
                             entities1.transform({translate: [dx, dy]}, true);
-                            const text = imported.sourceCadMap[cad2.data.id].text;
+                            const text = importResult.sourceCadMap.cads[cad2.data.id].text;
                             result.entities.separate(entities2);
                             result.entities.merge(entities1);
                             for (const e of result.entities.mtext) {
@@ -584,6 +615,9 @@ export class CadPortable {
                                 }
                             }
                         }
+                    }
+                    if (!found) {
+                        group2.push(cad);
                     }
                 } else {
                     cad.entities.add(
@@ -618,7 +652,9 @@ export class CadPortable {
 
                     result.entities.merge(cad.getAllEntities());
                 }
-            });
+            };
+            group.forEach((cad, j) => draw(cad, j, false));
+            group2.forEach((cad, j) => draw(cad, j, true));
         });
 
         dividers.forEach((y) => {
@@ -627,20 +663,47 @@ export class CadPortable {
             divider.end.set(rect.right + margin, y);
             result.entities.add(divider);
         });
-        if (xinghaoInfo) {
-            let mtext = result.entities.mtext.find((e) => e.text.startsWith("型号配置"));
-            if (!mtext) {
-                mtext = new CadMtext();
-                mtext.anchor.set(0, 0);
-                mtext.insert.set(rect.left - 1000, rect.top);
-                mtext.font_size = 50;
-                result.entities.add(mtext);
+
+        if (importResult) {
+            const {sourceCadMap} = importResult;
+            if (xinghaoInfo) {
+                let mtext = sourceCadMap.xinghaoInfo?.text;
+                if (!mtext) {
+                    mtext = new CadMtext();
+                    mtext.anchor.set(0, 0);
+                    mtext.insert.set(rect.left - 3000, rect.top);
+                    mtext.font_size = 50;
+                    result.entities.add(mtext);
+                }
+                const strs = [] as string[];
+                this.xinghaoFields.forEach((field) => {
+                    strs.push(`${field}: ${xinghaoInfo[field] || ""}`);
+                });
+                mtext.text = `型号配置: \n\n${strs.join("\n")}`;
             }
-            const strs = [] as string[];
-            this.xinghaoFields.forEach((field) => {
-                strs.push(`${field}: ${xinghaoInfo[field] || ""}`);
-            });
-            mtext.text = `型号配置: \n\n${strs.join("\n")}`;
+            if (slgses) {
+                for (const slgs of slgses) {
+                    const mtext = sourceCadMap.slgses[slgs.名字].text;
+                    if (mtext) {
+                        const obj = {名字: slgs.名字, 分类: slgs.分类, 条件: slgs.条件} as ObjectOf<string>;
+                        for (const optionName in slgs.选项) {
+                            if (isXinghao && optionName === "型号") {
+                                continue;
+                            }
+                            obj[optionName] = slgs.选项[optionName];
+                        }
+                        mtext.text = "";
+                        for (const key in obj) {
+                            mtext.text += `${key}: ${obj[key]}\n`;
+                        }
+                        mtext.text += "算料公式:\n";
+                        for (const key in slgs.公式) {
+                            mtext.text += `${key} = ${slgs.公式[key]}\n`;
+                        }
+                    }
+                    console.log(mtext);
+                }
+            }
         }
         return result;
     }

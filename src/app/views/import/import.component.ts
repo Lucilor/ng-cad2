@@ -1,13 +1,13 @@
 import {Component, OnInit} from "@angular/core";
-import {CadPortable, CadInfo, SlgsInfo, PeiheInfo, XhpzInfo} from "@app/cad.portable";
+import {CadPortable, CadInfo, SlgsInfo, PeiheInfo, XinghaoInfo, SourceCadMap} from "@app/cad.portable";
 import {isShiyitu, reservedDimNames, validateLines} from "@app/cad.utils";
-import {CadData, CadDimension, CadEntities, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
+import {CadData, CadDimension, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {environment} from "@env";
 import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
-import {ObjectOf, ProgressBar, Rectangle} from "@utils";
+import {ObjectOf, ProgressBar} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";
 import {NgxUiLoaderService} from "ngx-ui-loader";
@@ -25,7 +25,7 @@ export class ImportComponent extends Utils() implements OnInit {
     private _optionsCache: ObjectOf<string[]> = {};
     private _peiheCadCache: ObjectOf<boolean> = {};
     private _sourceFile: File | null = null;
-    private _sourceCadMap: ObjectOf<{rect: Rectangle; rectLines: CadLineLike[]; entities: CadEntities}> = {};
+    private _sourceCadMap: SourceCadMap = {cads: {}, slgses: {}};
     private _errorMsgLayer = "导入错误信息";
     sourceCad: CadData | null = null;
 
@@ -39,7 +39,7 @@ export class ImportComponent extends Utils() implements OnInit {
     msg = "";
     cads: CadInfo[] = [];
     slgses: SlgsInfo[] = [];
-    xhpzInfo: XhpzInfo | null = null;
+    xinghaoInfo: XinghaoInfo | undefined;
     cadsParsed = false;
     hasError = false;
     isImporting = false;
@@ -139,7 +139,7 @@ export class ImportComponent extends Utils() implements OnInit {
             }
         });
         const maxLineLength = isXinghao ? this.maxLineLength : 0;
-        const {cads, slgses, sourceCadMap, xhpzInfo} = CadPortable.import({sourceCad: data, isXinghao, maxLineLength});
+        const {cads, slgses, sourceCadMap, xinghaoInfo} = CadPortable.import({sourceCad: data, isXinghao, maxLineLength});
         if (isXinghao) {
             const xinghaos = cads.map((v) => v.data.options.型号).filter((v) => v);
             if (xinghaos.length < 1) {
@@ -158,13 +158,13 @@ export class ImportComponent extends Utils() implements OnInit {
         let totalSteps = (totalCad + totalSlgs) * 2;
         if (isXinghao) {
             totalSteps++;
-            if (xhpzInfo) {
+            if (xinghaoInfo) {
                 totalSteps++;
             }
         }
         this.progressBar.start(totalSteps);
         this.msg = "正在检查数据";
-        await this.parseCads(cads, slgses, isXinghao, xhpzInfo);
+        await this.parseCads(cads, slgses, isXinghao, xinghaoInfo);
         if (this.hasError) {
             finish(true, "error", "数据有误");
             return;
@@ -238,7 +238,7 @@ export class ImportComponent extends Utils() implements OnInit {
         this._peiheCadCache = {};
     }
 
-    async parseCads(cads: CadInfo[], slgses: SlgsInfo[], isXinghao: boolean, xhpzInfo: XhpzInfo | null) {
+    async parseCads(cads: CadInfo[], slgses: SlgsInfo[], isXinghao: boolean, xinghaoInfo?: XinghaoInfo) {
         this.cadsParsed = false;
         this.hasError = false;
         this._clearCache();
@@ -257,7 +257,7 @@ export class ImportComponent extends Utils() implements OnInit {
 
         this.cads = cads;
         this.slgses = slgses;
-        this.xhpzInfo = xhpzInfo;
+        this.xinghaoInfo = xinghaoInfo;
         const md5Map: ObjectOf<CadInfo[]> = {};
         cads.forEach((cad) => {
             const md5Str = this._getMd5(cad.data);
@@ -328,10 +328,10 @@ export class ImportComponent extends Utils() implements OnInit {
             }
         }
 
-        if (xhpzInfo) {
+        if (xinghaoInfo) {
             this.msg = `正在检查型号配置`;
             this.progressBar.forward();
-            if (xhpzInfo.errors.length > 0) {
+            if (xinghaoInfo.errors.length > 0) {
                 this.hasError = true;
             }
         }
@@ -561,7 +561,7 @@ export class ImportComponent extends Utils() implements OnInit {
         if (cad.errors.length > 0) {
             this.hasError = true;
             if (this.sourceCad) {
-                const sourceCadInfo = this._sourceCadMap[data.id];
+                const sourceCadInfo = this._sourceCadMap.cads[data.id];
                 const mtext = new CadMtext();
                 mtext.text = cad.errors.join("\n");
                 mtext.setColor("red");

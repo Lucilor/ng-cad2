@@ -40,7 +40,15 @@ export const routesInfo = {
     selectCads: {path: "select-cads", title: "选择CAD"}
 };
 
-export type CadCollection = "p_yuanshicadwenjian" | "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban";
+export type CadCollection =
+    | "p_yuanshicadwenjian"
+    | "cad"
+    | "CADmuban"
+    | "qiliaozuhe"
+    | "qieliaocad"
+    | "order"
+    | "kailiaocadmuban"
+    | "material";
 
 export const timer = new Timer();
 Object.assign(window, {timer});
