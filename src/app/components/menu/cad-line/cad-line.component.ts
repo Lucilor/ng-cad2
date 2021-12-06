@@ -1,8 +1,8 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
+import {MatCheckboxChange} from "@angular/material/checkbox";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
-import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {autoFixLine, validColors} from "@app/cad.utils";
 import {
     CadArc,
@@ -657,11 +657,15 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         }
     }
 
-    getHideLength() {
-        return this.selected.some((v) => v.hideLength);
+    getHideLengthChecked() {
+        return this.selected.length > 0 && this.selected.every((v) => v.hideLength);
     }
 
-    setHideLength(event: MatSlideToggleChange) {
+    getHideLengthIndeterminate() {
+        return !this.getHideLengthChecked() && this.selected.some((v) => v.hideLength);
+    }
+
+    setHideLength(event: MatCheckboxChange) {
         this.selected.forEach((v) => (v.hideLength = event.checked));
         this.status.cad.render(this.selected);
     }
