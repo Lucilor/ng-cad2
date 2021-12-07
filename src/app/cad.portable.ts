@@ -522,6 +522,7 @@ export class CadPortable {
             result = new CadData();
         }
         result.info.version = CadVersion.DXF2010;
+        const toRemove = new Set(Object.keys(importResult?.sourceCadMap.cads || []));
         groupedCads.forEach((group, i) => {
             if (group === null) {
                 dividers.push(rect.bottom - margin / 2);
@@ -598,6 +599,7 @@ export class CadPortable {
                         const uniqCode2 = this.getUniqCode(cad2.data, isXinghao);
                         if (uniqCode === uniqCode2) {
                             found = true;
+                            toRemove.delete(cad2.data.id);
                             const entities1 = cad.entities;
                             const entities2 = cad2.data.entities;
                             const rect1 = entities1.getBoundingRect();
@@ -656,6 +658,13 @@ export class CadPortable {
             group.forEach((cad, j) => draw(cad, j, false));
             group2.forEach((cad, j) => draw(cad, j, true));
         });
+        if (importResult) {
+            toRemove.forEach((id) => {
+                const {entities, rectLines} = importResult.sourceCadMap.cads[id];
+                entities.forEach((e) => result.entities.remove(e));
+                rectLines.forEach((e) => result.entities.remove(e));
+            });
+        }
 
         dividers.forEach((y) => {
             const divider = new CadLine({color: 6});
@@ -701,7 +710,6 @@ export class CadPortable {
                             mtext.text += `${key} = ${slgs.公式[key]}\n`;
                         }
                     }
-                    console.log(mtext);
                 }
             }
         }

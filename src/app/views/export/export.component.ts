@@ -108,7 +108,6 @@ export class ExportComponent implements OnInit {
                     }
                     const importResult = CadPortable.import({sourceCad, isXinghao: true});
                     const slgses = [] as CadSourceParams["slgses"];
-                    console.log(importResult);
                     for (const slgs of importResult.slgses) {
                         const where = {...slgs.data} as ObjectOf<any>;
                         delete where.公式;
@@ -122,7 +121,7 @@ export class ExportComponent implements OnInit {
                     finish("error", this.dataService.lastResponse?.msg || "读取文件失败");
                     return;
                 }
-                ids = await this._queryIds({"选项.型号": {$regex: `^${xinghao}$`}});
+                ids = await this._queryIds({$where: `this.选项&&this.选项.型号&&this.选项.型号.split(";").indexOf("${xinghao}")>-1`});
                 filename = xinghao;
                 break;
             }
