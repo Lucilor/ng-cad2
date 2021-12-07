@@ -111,6 +111,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     async uploadDxf(event: Event) {
         const input = event.target as HTMLInputElement;
         const file = input.files?.item(0);
+        input.value = "";
         if (!file) {
             return;
         }

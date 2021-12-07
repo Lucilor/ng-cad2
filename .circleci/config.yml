@@ -41,7 +41,7 @@ jobs:
                   command: cd ./src/cad-viewer && npm install
             - run:
                   name: Unit test
-                  command: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless
+                  command: npm run test:ci
     e2e:
         executor: ng-cad2
         steps:

@@ -6,11 +6,13 @@
     "start": "ng serve",
     "build": "ng build --configuration production",
     "test": "ng test",
+    "test:ci": "ng test --no-watch --no-progress --browsers=ChromeHeadless",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "upload": "npx ts-node --project tsconfig.upload.json upload.ts",
     "upload:fc": "npx ts-node --project tsconfig.upload.json upload.ts --fetchChangelog",
-    "bu": "npm run build && npm run upload"
+    "bu": "npm run build && npm run upload",
+    "prepare": "husky install"
   },
   "private": true,
   "dependencies": {
@@ -77,6 +79,7 @@
     "eslint-plugin-jsdoc": "37.1.0",
     "eslint-plugin-prefer-arrow": "1.2.3",
     "form-data": "^4.0.0",
+    "husky": "^7.0.4",
     "jasmine-core": "~3.10.1",
     "jasmine-spec-reporter": "~7.0.0",
     "karma": "~6.3.9",
