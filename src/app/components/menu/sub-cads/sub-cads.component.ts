@@ -4,7 +4,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, timer} from "@app/app.common";
-import {removeCadGongshi, getCadPreview, setCadData} from "@app/cad.utils";
+import {getCadPreview, setCadData} from "@app/cad.utils";
 import {CadData, CadEntities, CadHatch} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
@@ -267,7 +267,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     }
 
     private _getCadNode(data: CadData, parent?: string) {
-        removeCadGongshi(data);
         const node: CadNode = {data, img: imgLoading, checked: false, indeterminate: false, parent};
         setTimeout(() => {
             getCadPreview(node.data).then((img) => {
@@ -279,7 +278,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
     private focus(entities = this.status.cad.data.getAllEntities()) {
         entities.forEach((e) => {
-            e.selectable = !e.info.isCadGongshi && !(e instanceof CadHatch);
+            e.selectable = !(e instanceof CadHatch);
             e.selected = false;
             e.opacity = 1;
         });
@@ -287,7 +286,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
 
     private blur(entities = this.status.cad.data.getAllEntities()) {
         entities.forEach((e) => {
-            e.selectable = !e.info.isCadGongshi && !(e instanceof CadHatch);
+            e.selectable = !(e instanceof CadHatch);
             e.selected = false;
             e.opacity = 0.3;
         });
@@ -545,7 +544,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                     let shouldPush = true;
                     for (let i = 0; i < length; i++) {
                         if (shouldReplace(childrens[i], cad)) {
-                            const {x, y} = removeCadGongshi(childrens[i]).getBoundingRect();
+                            const {x, y} = childrens[i].getBoundingRect();
                             positions[childrens[i].id] = [x, y];
                             childrens[i] = cad;
                             shouldPush = false;

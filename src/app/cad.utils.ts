@@ -5,7 +5,6 @@ import {
     CadDimension,
     CadLineLike,
     CadMtext,
-    CadZhankai,
     CadBaseLine,
     CadJointPoint,
     getLinesDistance,
@@ -393,52 +392,6 @@ export const printCads = async (params: PrintCadsParams) => {
         pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
     });
     return url;
-};
-
-/**
- * @deprecated
- */
-export const addCadGongshi = (data: CadData, visible: boolean, ignoreTop: boolean) => {
-    console.warn("addCadGongshi is deprecated!");
-    removeCadGongshi(data);
-    if (!ignoreTop) {
-        const mtext = new CadMtext();
-        const {left, bottom} = data.getBoundingRect();
-        mtext.text = getCadGongshiText(data);
-        mtext.insert = new Point(left, bottom - 30);
-        mtext.selectable = false;
-        mtext.font_size = 16;
-        mtext.anchor.set(0, 0);
-        mtext.info.isCadGongshi = true;
-        mtext.visible = visible;
-        data.entities.add(mtext);
-    }
-    data.partners.forEach((d) => addCadGongshi(d, visible, false));
-    data.components.data.forEach((d) => addCadGongshi(d, visible, false));
-    return data;
-};
-
-export const removeCadGongshi = (data: CadData) => {
-    data.entities.mtext = data.entities.mtext.filter((e) => {
-        if (e.info.isCadGongshi) {
-            e.el?.remove();
-            return false;
-        }
-        return true;
-    });
-    data.partners.forEach((d) => removeCadGongshi(d));
-    data.components.data.forEach((d) => removeCadGongshi(d));
-    return data;
-};
-
-export const getCadGongshiText = (data: CadData) => {
-    const zhankai = data.zhankai.length > 0 ? data.zhankai[0] : new CadZhankai();
-    const {zhankaikuan, zhankaigao, shuliang, shuliangbeishu} = zhankai;
-    let text = `${zhankaikuan} × ${zhankaigao} = ${shuliang}`;
-    if (Number(shuliangbeishu) > 1) {
-        text += " × " + shuliangbeishu;
-    }
-    return text;
 };
 
 export const setCadData = (data: CadData, project: string) => {

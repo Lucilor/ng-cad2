@@ -1,15 +1,7 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
 import {CadCollection, local, timer} from "@app/app.common";
-import {
-    setCadData,
-    prepareCadViewer,
-    validateLines,
-    ValidateResult,
-    suanliaodanZoomIn,
-    removeCadGongshi,
-    suanliaodanZoomOut
-} from "@app/cad.utils";
+import {setCadData, prepareCadViewer, validateLines, ValidateResult, suanliaodanZoomIn, suanliaodanZoomOut} from "@app/cad.utils";
 import {CadData, CadLine, CadViewer, CadMtext, generateLineTexts, PointsMap, CadEntities, generatePointsMap} from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -86,16 +78,6 @@ export class AppStatusService {
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
             cad.config(newVal);
-            if (typeof newVal.showCadGongshis === "boolean") {
-                console.warn("showCadGongshis is deprecated!");
-            }
-            const cadGongshis = cad.data.getAllEntities().mtext.filter((e) => e.info.isCadGongshi);
-            cadGongshis.forEach((e) => {
-                e.visible = false;
-                e.selectable = false;
-                e.calcBoundingRect = false;
-            });
-            cad.render(cadGongshis);
         });
     }
 
@@ -231,7 +213,6 @@ export class AppStatusService {
         }
         return data.map((v) => {
             const v2 = v.clone();
-            removeCadGongshi(v2);
             suanliaodanZoomOut(v2);
             return v2;
         });

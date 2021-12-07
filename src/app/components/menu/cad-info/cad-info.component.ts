@@ -2,7 +2,6 @@ import {Component, OnInit, OnDestroy, Output, EventEmitter} from "@angular/core"
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {splitOptions, joinOptions} from "@app/app.common";
-import {getCadGongshiText} from "@app/cad.utils";
 import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity, sortLines} from "@cad-viewer";
 import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
@@ -280,14 +279,6 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
 
     selectJointPoint(i: number) {
         this.status.toggleCadStatus(new CadStatusSelectJointpoint(i));
-    }
-
-    updateCadGongshi(data: CadData) {
-        const mtext = data.entities.mtext.find((e) => e.info.isCadGongshi);
-        if (mtext) {
-            mtext.text = getCadGongshiText(data);
-            this.status.cad.render(mtext);
-        }
     }
 
     offset(event: MatSelectChange) {
