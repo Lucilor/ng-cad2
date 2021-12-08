@@ -263,9 +263,6 @@ export const printCads = async (params: PrintCadsParams) => {
             if (e instanceof CadLineLike && (colorNumber === 0x333333 || e.layer === "1")) {
                 e.linewidth = linewidth;
             }
-            if (e.layer === "不显示") {
-                e.visible = false;
-            }
             if (e instanceof CadDimension) {
                 e.linewidth = linewidth;
                 e.selected = true;
@@ -340,8 +337,8 @@ export const printCads = async (params: PrintCadsParams) => {
                     e.text = wrapedText;
                 }
             }
-            if (colorNumber === 0x808080) {
-                e.opacity = 0;
+            if (colorNumber === 0x808080 || e.layer === "不显示") {
+                e.visible = false;
             } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
                 e.setColor(0);
             }
