@@ -74,10 +74,10 @@ export class AppStatusService {
         private dataService: CadDataService,
         private message: MessageService
     ) {
-        this.cad.config(this.config.getConfig());
+        this.cad.setConfig(this.config.getConfig());
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
-            cad.config(newVal);
+            cad.setConfig(newVal);
         });
     }
 

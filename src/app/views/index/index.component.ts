@@ -87,10 +87,10 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     isDraggingRight = false;
 
     get multiSelect() {
-        return this.status.cad.config("selectMode") === "multiple";
+        return this.status.cad.getConfig("selectMode") === "multiple";
     }
     get entityDraggable() {
-        return this.status.cad.config("entityDraggable");
+        return this.status.cad.getConfig("entityDraggable");
     }
     get cadStatusStr() {
         return this.status.cadStatus.name;
@@ -153,27 +153,21 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
 
     ngOnInit() {
         const cad = this.status.cad;
-        Reflect.defineProperty(window, "cad", {value: cad});
-        Reflect.defineProperty(window, "getConfig", {value: this.config.getConfig.bind(this.config)});
-        Reflect.defineProperty(window, "setConfig", {value: this.config.setConfig.bind(this.config)});
-        Reflect.defineProperty(window, "status", {value: this.status});
-        Reflect.defineProperty(window, "data0", {get: () => cad.data.components.data[0]});
-        Reflect.defineProperty(window, "data0Ex", {get: () => cad.data.components.data[0].export()});
-        Reflect.defineProperty(window, "selected", {get: () => cad.selected()});
-        Reflect.defineProperty(window, "selected0", {get: () => cad.selected().toArray()[0]});
-        console.groupCollapsed("全局变量");
-        const arr = [
-            ["cad", "当前CAD实例"],
-            ["getConfig", "获取当前配置"],
-            ["setConfig", "设置当前配置"],
-            ["status", "状态管理实例"],
-            ["data0", "第一个CAD数据"],
-            ["data0Ex", "第一个CAD数据(的导出数据)"],
-            ["selected", "当前选中的所有实体"],
-            ["selected0", "当前选中的第一个实体"]
+        const globalVars: {name: string; desc: string; attrs: PropertyDescriptor}[] = [
+            {name: "cad", desc: "当前CAD实例", attrs: {value: cad}},
+            {name: "getConfig", desc: "获取当前配置", attrs: {value: this.config.getConfig.bind(this.config)}},
+            {name: "setConfig", desc: "设置当前配置", attrs: {value: this.config.setConfig.bind(this.config)}},
+            {name: "data0", desc: "第一个CAD数据", attrs: {get: () => cad.data.components.data[0]}},
+            {name: "data0Ex", desc: "第一个CAD的导出数据", attrs: {get: () => cad.data.components.data[0].export()}},
+            {name: "selected", desc: "当前选中的所有实体", attrs: {get: () => cad.selected()}},
+            {name: "selected0", desc: "当前选中的第一个实体", attrs: {get: () => cad.selected().toArray()[0]}}
         ];
-        const maxLen = arr.reduce((prev, curr) => Math.max(prev, curr[0].length), 0);
-        arr.forEach((v) => log(`${v[0].padEnd(maxLen, " ")} -- %c${v[1]}`, "", {fontStyle: "italic", paddingRight: "5px"}));
+        console.groupCollapsed("全局变量");
+        const maxLen = globalVars.reduce((prev, curr) => Math.max(prev, curr.name.length), 0);
+        globalVars.forEach((v) => {
+            log(`${v.name.padEnd(maxLen, " ")} -- %c${v.desc}`, "", {fontStyle: "italic", paddingRight: "5px"});
+            Reflect.defineProperty(window, v.name, v.attrs);
+        });
         console.groupEnd();
         this._setCadPadding();
         this._initCad();

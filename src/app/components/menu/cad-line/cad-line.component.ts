@@ -258,8 +258,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             cad = this.status.cad;
             if (cadStatus instanceof CadStatusDrawLine) {
-                prevSelectMode = cad.config("selectMode");
-                cad.config("selectMode", "none");
+                prevSelectMode = cad.getConfig("selectMode");
+                cad.setConfig("selectMode", "none");
                 cad.traverse((e) => {
                     e.info.prevSelectable = e.selectable;
                     e.selectable = false;
@@ -291,7 +291,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     e.selectable = e.info.prevSelectable ?? true;
                     delete e.info.prevSelectable;
                 });
-                cad.config("selectMode", prevSelectMode);
+                cad.setConfig("selectMode", prevSelectMode);
                 this.lineDrawing = null;
                 this.status.setCadPoints();
             } else if (cadStatus instanceof CadStatusMoveLines) {
@@ -460,7 +460,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         const cad = this.status.cad;
         const lines = selected.filter((v) => v instanceof CadLine) as CadLine[];
         setLinesLength(cad.data, lines, Number((event.target as HTMLInputElement).value));
-        if (cad.config("validateLines")) {
+        if (cad.getConfig("validateLines")) {
             this.status.validate();
         }
         cad.render();
@@ -640,7 +640,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 autoFixLine(cad, e);
             }
         });
-        if (cad.config("validateLines")) {
+        if (cad.getConfig("validateLines")) {
             this.status.validate();
         }
         cad.render();

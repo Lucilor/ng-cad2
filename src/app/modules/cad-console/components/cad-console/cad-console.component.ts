@@ -47,7 +47,6 @@ interface CadViewerConfig {
     fontFamily: string; // 设置字体
     fontWeight: string; // 设置字体粗细
     enableZoom: boolean; // 是否启用缩放
-	showCadGongshis: boolean; // 是否显示CAD公式
 	infoTabIndex: number; // 右侧菜单当前选中的tab
 	cadIds: string[]; // 已打开CAD的ids
 	collection: CadCollection; // 已打开CAD的collection
@@ -278,7 +277,7 @@ export class CadConsoleComponent implements OnInit {
                 const data = this.status.getFlatSelectedCads()[0];
                 data.entities.add(cadArc);
             }
-            if (cad.config("validateLines")) {
+            if (cad.getConfig("validateLines")) {
                 this.status.validate();
             }
             cad.unselectAll().render();
@@ -419,7 +418,7 @@ export class CadConsoleComponent implements OnInit {
             this.status.startLoader({text: "正在打印..."});
             const cad = this.status.cad;
             const cads = this.status.closeCad([cad.data.clone()]);
-            const url = await printCads({cads, config: cad.config()});
+            const url = await printCads({cads, config: cad.getConfig()});
             this.status.stopLoader();
             printJS({printable: url, type: "pdf"});
         },
@@ -469,7 +468,7 @@ export class CadConsoleComponent implements OnInit {
                 status.stopLoader();
                 status.setCadStatus(new CadStatusNormal());
             } else {
-                if (cad.config("validateLines")) {
+                if (cad.getConfig("validateLines")) {
                     const validateResults = this.status.validate();
                     if (validateResults.some((v) => !v.valid)) {
                         const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");

@@ -7,7 +7,6 @@ import {cloneDeep, isEqual} from "lodash";
 import {BehaviorSubject} from "rxjs";
 
 export interface AppConfig extends CadViewerConfig {
-    showCadGongshis: boolean;
     infoTabIndex: number;
     leftMenuWidth: number;
     rightMenuWidth: number;
@@ -28,43 +27,53 @@ export type AppConfigChangeOptions = Partial<Omit<AppConfigChange, "oldVal" | "n
     providedIn: "root"
 })
 export class AppConfigService {
-    private config$ = new BehaviorSubject<AppConfig>({
-        width: innerWidth,
-        height: innerHeight,
-        backgroundColor: "black",
-        reverseSimilarColor: true,
-        validateLines: false,
-        padding: [0],
-        dragAxis: "xy",
-        selectMode: "multiple",
-        entityDraggable: ["MTEXT", "DIMENSION"],
-        hideDimensions: false,
-        lineGongshi: 8,
-        hideLineLength: false,
-        hideLineGongshi: false,
-        minLinewidth: 2,
-        fontFamily: "微软雅黑",
-        fontWeight: "normal",
-        enableZoom: true,
-        dashedLinePadding: 2,
-        // 分界线
-        showCadGongshis: true,
-        infoTabIndex: 0,
-        leftMenuWidth: 200,
-        rightMenuWidth: 300,
-        scroll: {},
-        subCadsMultiSelect: true,
-        ...(local.load("userConfig") || {})
-    });
-    configChange$ = new BehaviorSubject<AppConfigChange>({
-        oldVal: {},
-        newVal: this.config$.value,
-        sync: false,
-        isUserConfig: true
-    });
+    private config$: BehaviorSubject<AppConfig>;
+    configChange$: BehaviorSubject<AppConfigChange>;
     private _userConfig: Partial<AppConfig> = {};
+    private _configKeys: (keyof AppConfig)[];
 
     constructor(private dataService: CadDataService) {
+        const defaultConfig: AppConfig = {
+            width: innerWidth,
+            height: innerHeight,
+            backgroundColor: "black",
+            reverseSimilarColor: true,
+            validateLines: false,
+            padding: [0],
+            dragAxis: "xy",
+            selectMode: "multiple",
+            entityDraggable: ["MTEXT", "DIMENSION"],
+            hideDimensions: false,
+            lineGongshi: 8,
+            hideLineLength: false,
+            hideLineGongshi: false,
+            minLinewidth: 2,
+            fontFamily: "微软雅黑",
+            fontWeight: "normal",
+            enableZoom: true,
+            dashedLinePadding: 2,
+            // 分界线
+            infoTabIndex: 0,
+            leftMenuWidth: 200,
+            rightMenuWidth: 300,
+            scroll: {},
+            subCadsMultiSelect: true
+        };
+        this._configKeys = keysOf(defaultConfig);
+        const localUserConfig = local.load<Partial<AppConfig>>("userConfig") || {};
+        for (const key of this._configKeys) {
+            if (localUserConfig[key] !== undefined) {
+                (defaultConfig[key] as any) = localUserConfig[key];
+            }
+        }
+        this.config$ = new BehaviorSubject<AppConfig>(defaultConfig);
+        this.configChange$ = new BehaviorSubject<AppConfigChange>({
+            oldVal: {},
+            newVal: this.config$.value,
+            sync: false,
+            isUserConfig: true
+        });
+
         const setConfigInterval = 1000;
         let id = -1;
         let config: Partial<AppConfig> = {};
@@ -87,7 +96,10 @@ export class AppConfigService {
         const newVal2 = cloneDeep(newVal);
         const keys = keysOf(oldVal).concat(keysOf(newVal));
         for (const key of keys) {
-            if (oldVal2[key] === undefined) {
+            if (!this._configKeys.includes(key)) {
+                delete oldVal2[key];
+                delete newVal2[key];
+            } else if (oldVal2[key] === undefined) {
                 (oldVal2 as any)[key] = this.getConfig(key);
             } else if (newVal2[key] === undefined || isEqual(oldVal2[key], newVal2[key])) {
                 delete newVal2[key];
@@ -111,7 +123,7 @@ export class AppConfigService {
         if (typeof key === "string") {
             return cloneDeep(this.config$.value[key]);
         } else {
-            return cloneDeep(this.config$.value);
+            return cloneDeep({...this.config$.value});
         }
     }
 

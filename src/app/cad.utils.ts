@@ -263,6 +263,9 @@ export const printCads = async (params: PrintCadsParams) => {
             if (e instanceof CadLineLike && (colorNumber === 0x333333 || e.layer === "1")) {
                 e.linewidth = linewidth;
             }
+            if (e.layer === "不显示") {
+                e.visible = false;
+            }
             if (e instanceof CadDimension) {
                 e.linewidth = linewidth;
                 e.selected = true;

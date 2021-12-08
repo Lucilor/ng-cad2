@@ -203,7 +203,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
     async resetLineLength() {
         const cad = this.status.cad;
-        if (cad.config("hideLineLength")) {
+        if (cad.getConfig("hideLineLength")) {
             return;
         }
         cad.traverse((e) => {
