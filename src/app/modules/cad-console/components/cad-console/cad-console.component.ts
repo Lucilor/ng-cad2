@@ -369,7 +369,7 @@ export class CadConsoleComponent implements OnInit {
                     }
                 ];
             }
-            this.message.book({content: data, title: "帮助手册"});
+            this.message.book({bookData: data, title: "帮助手册"});
         },
         newCad() {
             const data = this.status.cad.data.components.data;

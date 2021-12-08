@@ -15,7 +15,7 @@ import {
 import {MessageComponent} from "../components/message/message.component";
 import {MessageModule} from "../message.module";
 
-export type MessageDataParams<T> = Partial<Omit<T, "type">>;
+export type MessageDataParams<T> = Omit<T, "type">;
 
 @Injectable({
     providedIn: MessageModule
