@@ -1,0 +1,137 @@
+[
+    {
+        "name": "Dur Neh Viir",
+        "translation": "Summon Durnehviir",
+        "description": "A Shout to the skies, a cry to the clouds, that awakens the destructive force of Skyrim's lightning."
+    },
+    {
+        "name": "Faas Ru Maar",
+        "translation": "Dismay",
+        "description": "And the weak shall fear the Thu'um, and flee in Terror."
+    },
+    {
+        "name": "Feim Zii Gron",
+        "translation": "Become Ethereal",
+        "description": "The Thu'um reaches out to the Void, changing your form to one that cannot harm, or be harmed."
+    },
+    {
+        "name": "Fo Krah Diin",
+        "translation": "Frost Breath",
+        "description": "Your breath is winter, your Thu'um a blizzard."
+    },
+    {
+        "name": "Fus Ro Dah",
+        "translation": "Unrelenting Force",
+        "description": "The Thu'um is heard, but its source unknown, fooling those into seeking it out."
+    },
+    {
+        "name": "Gaan Lah Haas",
+        "translation": "Drain Vitality",
+        "description": "Coax both magical and mortal energies from your hapless opponent."
+    },
+    {
+        "name": "Gol Hah Dov",
+        "translation": "Bend Will",
+        "description": "Your voice bends the very stones to your will. As it gains power, animals, people, and even dragons must do your bidding."
+    },
+    {
+        "name": "Hun Kaal Zoor",
+        "translation": "Call of Valor",
+        "description": "The valiant of Sovngarde hear your Voice, and journey beyond space and time to lend aid."
+    },
+    {
+        "name": "Iiz Slen Nus",
+        "translation": "Ice Form",
+        "description": "Your Thu'um freezes an opponent solid."
+    },
+    {
+        "name": "Joor Zah Frul",
+        "translation": "Dragonrend",
+        "description": "Your Voice lashes out at a dragon's very soul, forcing the beast to land."
+    },
+    {
+        "name": "Kaan Drem Ov",
+        "translation": "Kyne's Peace",
+        "description": "The Voice soothes wild beasts, who lose their desire to fight or flee."
+    },
+    {
+        "name": "Krii Lun Aus",
+        "translation": "Marked for Death",
+        "description": "Speak, and let your Voice herald doom, as an opponent's armor and lifeforce are weakened."
+    },
+    {
+        "name": "Laas Yah Nir",
+        "translation": "Aura Whisper",
+        "description": "Your Voice is not a Shout, but a whisper, revealing the life forces of any and all."
+    },
+    {
+        "name": "Lok Vah Koor",
+        "translation": "Clear Skies",
+        "description": "The valiant of Sovngarde hear your Voice, and journey beyond space and time to lend aid."
+    },
+    {
+        "name": "Mid Vur Shaan",
+        "translation": "Battle Fury",
+        "description": "Your Thu'um enchants your nearby allies' weapons, allowing them to attack faster."
+    },
+    {
+        "name": "Mul Qah Diiv",
+        "translation": "Dragon Aspect",
+        "description": "Once a day, take on the mighty aspect of a dragon, delivering colossal blows, with an armored hide, and more powerful shouts."
+    },
+    {
+        "name": "Od Ah Viing",
+        "translation": "Call Dragon",
+        "description": "Odahviing! Hear my Voice and come forth. I summon you in my time of need."
+    },
+    {
+        "name": "Raan Mir Tah",
+        "translation": "Animal Allegiance",
+        "description": "A Shout for help from the beasts of the wild, who come to fight in your defense."
+    },
+    {
+        "name": "Rii Vaaz Zol",
+        "translation": "Soul Tear",
+        "description": "Your Thu'um cuts through flesh and shatters soul, commanding the will of the fallen."
+    },
+    {
+        "name": "Strun Bah Qo",
+        "translation": "Storm Call",
+        "description": "A Shout to the skies, a cry to the clouds, that awakens the destructive force of Skyrim's lightning."
+    },
+    {
+        "name": "Su Grah Dun",
+        "translation": "Elemental Fury",
+        "description": "Coax both magical and mortal energies from your hapless opponent."
+    },
+    {
+        "name": "Tiid Klo Ul",
+        "translation": "Slow Time",
+        "description": "Shout at time, and command it to obey, as the world around you stands still."
+    },
+    {
+        "name": "Ven Gaar Nos",
+        "translation": "Cyclone",
+        "description": "Your Thu'um creates a whirling cyclone that sows chaos among your enemies."
+    },
+    {
+        "name": "Wuld Nah Kest",
+        "translation": "Whirlwind Sprint",
+        "description": "The Thu'um is heard, but its source unknown, fooling those into seeking it out."
+    },
+    {
+        "name": "Yol Toor Shol",
+        "translation": "Fire Breath",
+        "description": "Inhale air, exhale flame, and behold the Thu'um as inferno."
+    },
+    {
+        "name": "Zul Mey Gut",
+        "translation": "Throw Voice",
+        "description": "The Thu'um is heard, but its source unknown, fooling those into seeking it out."
+    },
+    {
+        "name": "Zun Haal Viik",
+        "translation": "Disarm",
+        "description": "Shout defies steel, as you rip the weapon from an opponent's grasp."
+    }
+]

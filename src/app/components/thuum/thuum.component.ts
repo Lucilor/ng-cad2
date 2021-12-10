@@ -1,10 +1,13 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {environment} from "@env";
+import {MessageService} from "@modules/message/services/message.service";
 import {ListRandom, timeout} from "@utils";
+import originThuums from "./thuums.json";
 
 interface Thuum {
-    text: string;
+    name: string;
     translation: string;
+    description: string;
 }
 
 interface ThuumChar {
@@ -12,36 +15,6 @@ interface ThuumChar {
     charStyle: Partial<CSSStyleDeclaration>;
     layerStyle: Partial<CSSStyleDeclaration>;
 }
-
-const originThuums: Thuum[] = [
-    {text: "Dur Neh Viir", translation: "Summon Durnehviir"},
-    {text: "Faas Ru Maar", translation: "Dismay"},
-    {text: "Feim Zii Gron", translation: "Become Ethereal"},
-    {text: "Fo Krah Diin", translation: "Frost Breath"},
-    {text: "Fus Ro Dah", translation: "Unrelenting Force"},
-    {text: "Gaan Lah Haas", translation: "Drain Vitality"},
-    {text: "Gol Hah Dov", translation: "Bend Will"},
-    {text: "Hun Kaal Zoor", translation: "Call of Valor"},
-    {text: "Iiz Slen Nus", translation: "Ice Form"},
-    {text: "Joor Zah Frul", translation: "Dragonrend"},
-    {text: "Kaan Drem Ov", translation: "Kyne's Peace"},
-    {text: "Krii Lun Aus", translation: "Marked for Death"},
-    {text: "Laas Yah Nir", translation: "Aura Whisper"},
-    {text: "Lok Vah Koor", translation: "Clear Skies"},
-    {text: "Mid Vur Shaan", translation: "Battle Fury"},
-    {text: "Mul Qah Diiv", translation: "Dragon Aspect"},
-    {text: "Od Ah Viing", translation: "Call Dragon"},
-    {text: "Raan Mir Tah", translation: "Animal Allegiance"},
-    {text: "Rii Vaaz Zol", translation: "Soul Tear"},
-    {text: "Strun Bah Qo", translation: "Storm Call"},
-    {text: "Su Grah Dun", translation: "Elemental Fury"},
-    {text: "Tiid Klo Ul", translation: "Slow Time"},
-    {text: "Ven Gaar Nos", translation: "Cyclone"},
-    {text: "Wuld Nah Kest", translation: "Whirlwind Sprint"},
-    {text: "Yol Toor Shol", translation: "Fire Breath"},
-    {text: "Zul Mey Gut", translation: "Throw Voice"},
-    {text: "Zun Haal Viik", translation: "Disarm"}
-];
 
 @Component({
     selector: "app-thuum",
@@ -54,11 +27,14 @@ export class ThuumComponent implements OnInit, OnDestroy {
     thuum: Thuum = this.thuumRandom.list[0];
     thuumChars: ThuumChar[] = [];
     layerStyle: Partial<CSSStyleDeclaration> = {};
-    animationDuration = {main: 1200, char: 360};
+    animationDuration = {main: 2000, char: 360};
     thuumStyle: Partial<CSSStyleDeclaration> = {};
     isProd = environment.production;
+    get thuumTitle() {
+        return `${this.thuum.name} - ${this.thuum.translation}`;
+    }
 
-    constructor() {}
+    constructor(private message: MessageService) {}
 
     ngOnInit() {
         this.loop();
@@ -71,7 +47,7 @@ export class ThuumComponent implements OnInit, OnDestroy {
     async loop() {
         const {main: mainDuration, char: charDuration} = this.animationDuration;
         this.thuum = this.thuumRandom.next();
-        this.thuumChars = this.thuum.text.split("").map((v, i) => ({
+        this.thuumChars = this.thuum.name.split("").map((v, i) => ({
             content: v,
             charStyle: {opacity: "0", animation: `fade-in ${charDuration}ms ${charDuration * i}ms forwards`},
             layerStyle: {
@@ -99,5 +75,14 @@ export class ThuumComponent implements OnInit, OnDestroy {
         });
         await timeout(charsDuration);
         this.loop();
+    }
+
+    showDetails() {
+        const {name, translation, description} = this.thuum;
+        this.message.alert({
+            title: name,
+            titleClass: "thuum-title",
+            content: `${name} - ${translation}<br>${description}`
+        });
     }
 }

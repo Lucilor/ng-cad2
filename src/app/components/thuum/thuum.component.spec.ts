@@ -1,4 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
+import {MatTooltipModule} from "@angular/material/tooltip";
+import {MessageModule} from "@modules/message/message.module";
 
 import {ThuumComponent} from "./thuum.component";
 
@@ -8,7 +10,8 @@ describe("ThuumComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ThuumComponent]
+            declarations: [ThuumComponent],
+            imports: [MessageModule, MatTooltipModule]
         }).compileComponents();
     });
 

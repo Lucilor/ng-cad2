@@ -1,5 +1,5 @@
 <div class="container">
-    <div class="thuum" [ngStyle]="thuumStyle" [class.hidden]="isProd" [attr.thuum]="thuum.text">
+    <div class="thuum" [ngStyle]="thuumStyle" [class.hidden]="isProd" [attr.thuum]="thuum.name" [matTooltip]="thuumTitle">
         <div class="thuum-chars">
             <ng-container *ngFor="let char of thuumChars">
                 <span class="thuum-char" [ngStyle]="char.charStyle">
@@ -9,4 +9,5 @@
             </ng-container>
         </div>
     </div>
+    <button mat-raised-button (click)="showDetails()">?</button>
 </div>
