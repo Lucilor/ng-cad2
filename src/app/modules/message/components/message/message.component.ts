@@ -76,6 +76,13 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
         return false;
     }
 
+    get titleClass() {
+        return this.data.titleClass || "";
+    }
+    get contentClass() {
+        return this.data.contentClass || "";
+    }
+
     constructor(
         public dialogRef: MatDialogRef<MessageComponent, boolean | string>,
         private sanitizer: DomSanitizer,

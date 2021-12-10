@@ -5,6 +5,8 @@ export interface BaseMessageData {
     title?: string;
     content?: any;
     cancelable?: boolean;
+    titleClass?: string;
+    contentClass?: string;
 }
 
 export interface AlertMessageData extends BaseMessageData {
