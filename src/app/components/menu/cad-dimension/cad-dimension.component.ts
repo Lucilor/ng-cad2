@@ -60,7 +60,8 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
                     for (let i = 0; i < thatIndex; i++) {
                         newIndex += data[i].entities.dimension.length;
                     }
-                    newIndex += thatData.entities.dimension.push(dimension) - 1;
+                    newIndex += thatData.entities.dimension.length;
+                    thatData.entities.add(dimension);
                     this.status.setCadStatus(new CadStatusEditDimension(newIndex));
                 }
                 if (!dimension.entity1.id) {
