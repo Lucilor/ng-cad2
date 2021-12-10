@@ -106,7 +106,7 @@ export class ExportComponent implements OnInit {
                         finish("error", "CAD数据错误");
                         return;
                     }
-                    const importResult = CadPortable.import({sourceCad, isXinghao: true});
+                    const importResult = CadPortable.import({sourceCad});
                     const slgses = [] as CadSourceParams["slgses"];
                     for (const slgs of importResult.slgses) {
                         const where = {...slgs.data} as ObjectOf<any>;

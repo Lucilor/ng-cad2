@@ -91,7 +91,7 @@ export class ImportComponent extends Utils() implements OnInit {
         return requireLineId.value !== null && pruneLines.value !== null;
     }
 
-    async importDxf(event: Event | null, isXinghao: boolean, loaderId: string) {
+    async importDxf(event: Event | null, isXinghao: boolean, loaderId: string): Promise<boolean> {
         let el: HTMLInputElement | undefined;
         const finish = (hasLoader: boolean, progressBarStatus: ProgressBarStatus, msg?: string) => {
             if (hasLoader) {
@@ -104,16 +104,16 @@ export class ImportComponent extends Utils() implements OnInit {
                 el.value = "";
             }
             this.isImporting = false;
+            return progressBarStatus === "success";
         };
         if (event) {
             el = event.target as HTMLInputElement;
             if (!el.files || el.files.length < 1) {
-                finish(false, "hidden");
-                return;
+                return finish(false, "hidden");
             }
             this._sourceFile = el.files[0];
         } else if (!this._sourceFile) {
-            return;
+            return false;
         }
         this.isImporting = true;
         this.progressBar.start(1);
@@ -122,8 +122,7 @@ export class ImportComponent extends Utils() implements OnInit {
         this.loader.startLoader(loaderId);
         const data = await this.dataService.uploadDxf(this._sourceFile);
         if (!data) {
-            finish(true, "error", "读取文件失败");
-            return;
+            return finish(true, "error", "读取文件失败");
         }
         this.sourceCad = data;
         const removedDimensions = data.info.removedDimensions;
@@ -139,12 +138,28 @@ export class ImportComponent extends Utils() implements OnInit {
             }
         });
         const maxLineLength = isXinghao ? this.maxLineLength : 0;
-        const {cads, slgses, sourceCadMap, xinghaoInfo} = CadPortable.import({sourceCad: data, isXinghao, maxLineLength});
+        const {cads, slgses, sourceCadMap, xinghaoInfo} = CadPortable.import({sourceCad: data, maxLineLength});
         if (isXinghao) {
-            const xinghaos = cads.map((v) => v.data.options.型号).filter((v) => v);
+            if (!sourceCadMap.xinghao) {
+                this.message.alert("导入文件为非型号文件，请使用左侧按钮。");
+                return finish(true, "error", "点错了?");
+            }
+            const xinghaos = Array.from(new Set(cads.map((v) => v.data.options.型号).filter((v) => v)));
             if (xinghaos.length < 1) {
-                finish(true, "error", "没写型号");
-                return;
+                return finish(true, "error", "没写型号");
+            } else if (xinghaos.length > 1) {
+                return finish(true, "error", "型号不一致");
+            }
+            const xinghao = xinghaos[0];
+            const isXinghaoDoneRes = await this.dataService.post<boolean>("ngcad/isXinghaoDone", {xinghao});
+            if (isXinghaoDoneRes?.data === true) {
+                this.message.alert("型号已经检查完成，不允许导入。如果需要导入，请先设置型号进度为否。");
+                return finish(true, "error", "型号已经检查完成");
+            }
+        } else {
+            if (sourceCadMap.xinghao) {
+                this.message.alert("导入文件为型号文件，请使用右侧按钮。");
+                return finish(true, "error", "点错了?");
             }
         }
         if (Array.isArray(removedDimensions)) {
@@ -166,14 +181,12 @@ export class ImportComponent extends Utils() implements OnInit {
         this.msg = "正在检查数据";
         await this.parseCads(cads, slgses, isXinghao, xinghaoInfo);
         if (this.hasError) {
-            finish(true, "error", "数据有误");
-            return;
+            return finish(true, "error", "数据有误");
         }
 
         const {pruneLines, dryRun} = this._getImportConfigValues(isXinghao);
         if (dryRun) {
-            finish(true, "success", `检查结束`);
-            return;
+            return finish(true, "success", `检查结束`);
         }
         let skipped = 0;
         const silent = this.dataService.silent;
@@ -208,12 +221,11 @@ export class ImportComponent extends Utils() implements OnInit {
             const xinghao = this.cads[0].data.options.型号;
             const result = await this.dataService.post<boolean>("ngcad/setImportDxf", {file: this._sourceFile, xinghao});
             if (!result) {
-                finish(true, "error", this.dataService.lastResponse?.msg || "保存失败");
-                return;
+                return finish(true, "error", this.dataService.lastResponse?.msg || "保存失败");
             }
         }
         const total = totalCad + totalSlgs;
-        finish(true, "success", `导入结束, ${total - skipped}个成功(共${total}个)`);
+        return finish(true, "success", `导入结束, ${total - skipped}个成功(共${total}个)`);
     }
 
     private _getMd5(cad: CadData) {

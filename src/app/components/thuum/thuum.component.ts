@@ -30,9 +30,6 @@ export class ThuumComponent implements OnInit, OnDestroy {
     animationDuration = {main: 2000, char: 360};
     thuumStyle: Partial<CSSStyleDeclaration> = {};
     isProd = environment.production;
-    get thuumTitle() {
-        return `${this.thuum.name} - ${this.thuum.translation}`;
-    }
 
     constructor(private message: MessageService) {}
 

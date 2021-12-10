@@ -5,7 +5,6 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatRadioModule} from "@angular/material/radio";
-import {MatTooltipModule} from "@angular/material/tooltip";
 import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
 import {ThuumComponent} from "@components/thuum/thuum.component";
@@ -28,7 +27,6 @@ describe("ImportComponent", () => {
                 MatFormFieldModule,
                 MatInputModule,
                 MatRadioModule,
-                MatTooltipModule,
                 HttpModule,
                 NgScrollbarModule,
                 NgxUiLoaderModule

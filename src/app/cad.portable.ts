@@ -76,7 +76,6 @@ export type ExportType = "包边正面" | "框型和企料" | "指定型号" | "
 
 export interface CadImportParams {
     sourceCad: CadData;
-    isXinghao: boolean;
     maxLineLength?: number;
 }
 
@@ -158,7 +157,7 @@ export class CadPortable {
     static xinghaoFieldsRequired = ["门窗", "工艺", "产品分类", "门扇厚度", "指定可选锁边", "指定可选锁边"];
 
     static import(params: CadImportParams): CadImportResult {
-        const {sourceCad, isXinghao, maxLineLength} = params;
+        const {sourceCad, maxLineLength} = params;
         const lines = sourceCad.entities.line.filter((v) => v.getColor().rgbNumber() === 0x00ff00);
         const lineIds = lines.map((v) => v.id);
         const dumpData = new CadData();
@@ -238,62 +237,60 @@ export class CadPortable {
             }
             if (e instanceof CadMtext) {
                 const text = replaceChars(e.text);
-                if (isXinghao) {
-                    const slgsReg = /算料公式[:]?([\w\W]*)/;
-                    const suanliaoMatch = text.match(slgsReg);
-                    if (suanliaoMatch) {
-                        const obj = getObject(text.replace(slgsReg, ""), ":");
-                        const slgsData: ObjectOf<any> = {公式: getObject(suanliaoMatch[1], "=")};
-                        const errors: string[] = [];
-                        sourceCadMap.slgses[obj.名字] = {text: e};
-                        for (const key in obj) {
-                            const value = obj[key];
-                            slgsFields.forEach((field) => {
-                                if (value.includes(field)) {
-                                    errors.push(`${field}缺少冒号`);
-                                }
-                            });
-                            const key2 = cadFields[key];
-                            if (key2) {
-                                if (value === "是") {
-                                    (slgsData[key] as boolean) = true;
-                                } else if (value === "否") {
-                                    (slgsData[key] as boolean) = false;
-                                } else {
-                                    (slgsData[key] as string) = value;
-                                }
-                            } else if (key === "条件") {
-                                slgsData.条件 = value ? [value] : [];
-                            } else if (key !== "唯一码") {
-                                if (!slgsData.选项) {
-                                    slgsData.选项 = {};
-                                }
-                                slgsData.选项[key] = value;
+                const slgsReg = /算料公式[:]?([\w\W]*)/;
+                const suanliaoMatch = text.match(slgsReg);
+                if (suanliaoMatch) {
+                    const obj = getObject(text.replace(slgsReg, ""), ":");
+                    const slgsData: ObjectOf<any> = {公式: getObject(suanliaoMatch[1], "=")};
+                    const errors: string[] = [];
+                    sourceCadMap.slgses[obj.名字] = {text: e};
+                    for (const key in obj) {
+                        const value = obj[key];
+                        slgsFields.forEach((field) => {
+                            if (value.includes(field)) {
+                                errors.push(`${field}缺少冒号`);
                             }
+                        });
+                        const key2 = cadFields[key];
+                        if (key2) {
+                            if (value === "是") {
+                                (slgsData[key] as boolean) = true;
+                            } else if (value === "否") {
+                                (slgsData[key] as boolean) = false;
+                            } else {
+                                (slgsData[key] as string) = value;
+                            }
+                        } else if (key === "条件") {
+                            slgsData.条件 = value ? [value] : [];
+                        } else if (key !== "唯一码") {
+                            if (!slgsData.选项) {
+                                slgsData.选项 = {};
+                            }
+                            slgsData.选项[key] = value;
                         }
-                        slgses.push({data: slgsData as Slgs, errors});
-                        continue;
                     }
-                    const xinghaoMatch = text.match(/^型号:([\w\W]*)/);
-                    if (xinghaoMatch) {
-                        sourceCadMap.xinghao = {text: e};
-                        globalOptions.型号 = xinghaoMatch[1].trim();
+                    slgses.push({data: slgsData as Slgs, errors});
+                    continue;
+                }
+                const xinghaoMatch = text.match(/^型号:([\w\W]*)/);
+                if (xinghaoMatch) {
+                    sourceCadMap.xinghao = {text: e};
+                    globalOptions.型号 = xinghaoMatch[1].trim();
+                }
+                const xinghaoInfoReg = /型号配置:([\w\W]*)/;
+                const xinghaoInfoMatch = text.match(xinghaoInfoReg);
+                if (xinghaoInfoMatch) {
+                    sourceCadMap.xinghaoInfo = {text: e};
+                    xinghaoInfo = {data: {}, errors: []};
+                    const obj = getObject(xinghaoInfoMatch[1], ":");
+                    for (const field of this.xinghaoFields) {
+                        xinghaoInfo.data[field] = obj[field] || "";
                     }
-                    const xinghaoInfoReg = /型号配置:([\w\W]*)/;
-                    const xinghaoInfoMatch = text.match(xinghaoInfoReg);
-                    if (xinghaoInfoMatch) {
-                        sourceCadMap.xinghaoInfo = {text: e};
-                        xinghaoInfo = {data: {}, errors: []};
-                        const obj = getObject(xinghaoInfoMatch[1], ":");
-                        for (const field of this.xinghaoFields) {
-                            xinghaoInfo.data[field] = obj[field] || "";
-                        }
-                        const missingXinghaoFields = this.xinghaoFieldsRequired.filter((v) => !xinghaoInfo?.data[v]);
-                        if (missingXinghaoFields.length > 0) {
-                            xinghaoInfo.errors.push(`型号配置缺少以下字段:\n${missingXinghaoFields.join(", ")}`);
-                        }
-                        continue;
+                    const missingXinghaoFields = this.xinghaoFieldsRequired.filter((v) => !xinghaoInfo?.data[v]);
+                    if (missingXinghaoFields.length > 0) {
+                        xinghaoInfo.errors.push(`型号配置缺少以下字段:\n${missingXinghaoFields.join(", ")}`);
                     }
+                    continue;
                 }
             }
             slgses.forEach((slgs) => {
