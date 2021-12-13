@@ -410,7 +410,6 @@ export const setCadData = (data: CadData, project: string) => {
         delete data.info.skipSuanliaodanZoom;
     }
     data.partners.forEach((v) => setCadData(v, project));
-    data.components.data.forEach((v) => setCadData(v, project));
 };
 
 export interface ValidateResult {
@@ -500,6 +499,9 @@ export const autoFixLine = (cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
 
 export const suanliaodanZoomIn = (cad: CadData) => {
     cad.components.data.forEach((v) => {
+        v.entities.forEach((e) => {
+            e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
+        });
         if (v.info.skipSuanliaodanZoom) {
             return;
         }
@@ -521,6 +523,9 @@ export const suanliaodanZoomOut = (cad: CadData) => {
         if (v.info.skipSuanliaodanZoom) {
             return;
         }
+        v.entities.forEach((e) => {
+            e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
+        });
         const lastSuanliaodanZoom = v.info.lastSuanliaodanZoom ?? 1;
         const rect = v.getBoundingRect();
         if (!rect.isFinite) {
