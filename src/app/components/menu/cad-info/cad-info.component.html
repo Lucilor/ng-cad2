@@ -379,5 +379,9 @@
                 <mat-option *ngFor="let item of qlbmlx" [value]="item">{{ item }}</mat-option>
             </mat-select>
         </mat-form-field>
+        <mat-form-field>
+            <mat-label>指定封口厚度</mat-label>
+            <input type="text" matInput [(ngModel)]="cad['指定封口厚度']" name="指定封口厚度" />
+        </mat-form-field>
     </form>
 </div>
