@@ -338,11 +338,14 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     async resetIds() {
-        const cads = this.status.getFlatSelectedCads();
+        let cads = this.status.getFlatSelectedCads();
+        if (cads.length < 1) {
+            cads = this.status.cad.data.components.data;
+        }
         const names = cads.map((v) => v.name);
         const yes = await this.message.confirm({
             title: "重设ID",
-            content: `重新生成<span style="color:red">${names.join("，")}</span>的实体ID，是否确定？`
+            content: `重新生成<span style="color:red">${names.join("，")}</span>的所有实体ID，是否确定？`
         });
         if (!yes) {
             return;
@@ -364,6 +367,27 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
             const deletedIds = await this.dataService.removeCads(collection, ids);
             if (deletedIds) {
                 await this.status.openCad(cads.filter((v) => !deletedIds.includes(v.id)));
+            }
+        }
+    }
+
+    async copyCads() {
+        const cads = this.status.getFlatSelectedCads();
+        if (cads.length < 1) {
+            this.message.alert("没有选择CAD");
+            return;
+        }
+        const collection = this.status.collection$.getValue();
+        this.status.startLoader();
+        const response = await this.dataService.post<string[]>("ngcad/copyCads", {collection, vids: cads.map((v) => v.id)});
+        this.status.stopLoader();
+        if (response?.code === 0) {
+            const yes = await this.message.confirm({title: response.msg, content: "是否跳转至新的CAD？"});
+            if (yes) {
+                this.status.startLoader();
+                const cads2 = await this.dataService.getCad({ids: response.data, collection});
+                await this.status.openCad(cads2.cads);
+                this.status.stopLoader();
             }
         }
     }
