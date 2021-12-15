@@ -6,6 +6,7 @@ import {CadData} from "@cad-viewer";
 import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
 import {Bancai, PiliangjianbanComponent} from "./piliangjianban.component";
 
@@ -43,7 +44,7 @@ describe("PiliangjianbanComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [PiliangjianbanComponent],
-            imports: [HttpModule, ImageModule, MatCardModule, MatExpansionModule, MessageModule, NgScrollbarModule]
+            imports: [HttpModule, ImageModule, MatCardModule, MatExpansionModule, MessageModule, NgScrollbarModule, SpinnerModule]
         }).compileComponents();
     });
 

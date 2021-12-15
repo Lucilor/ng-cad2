@@ -8,7 +8,6 @@ import {MatInputModule} from "@angular/material/input";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MessageModule} from "@modules/message/message.module";
 import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY} from "ng-recaptcha";
-import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {LoginFormComponent, LoginFormData} from "./login-form.component";
 
 const data: LoginFormData = {project: {id: "test", name: "测试"}, baseUrl: ""};
@@ -27,7 +26,6 @@ describe("LoginFormComponent", () => {
                 MatIconModule,
                 MatInputModule,
                 MessageModule,
-                NgxUiLoaderModule,
                 ReactiveFormsModule,
                 RecaptchaV3Module
             ],

@@ -7,10 +7,10 @@ import {environment} from "@env";
 import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf, ProgressBar} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";
-import {NgxUiLoaderService} from "ngx-ui-loader";
 
 export type ImportComponentConfigName = "requireLineId" | "pruneLines" | "addUniqCode" | "dryRun";
 export type ImportComponentConfig = Record<ImportComponentConfigName, {label: string; value: boolean | null}>;
@@ -59,7 +59,7 @@ export class ImportComponent extends Utils() implements OnInit {
     };
     maxLineLength = 200;
 
-    constructor(private loader: NgxUiLoaderService, private dataService: CadDataService, private message: MessageService) {
+    constructor(private dataService: CadDataService, private message: MessageService, private spinner: SpinnerService) {
         super();
     }
 
@@ -95,7 +95,7 @@ export class ImportComponent extends Utils() implements OnInit {
         let el: HTMLInputElement | undefined;
         const finish = (hasLoader: boolean, progressBarStatus: ProgressBarStatus, msg?: string) => {
             if (hasLoader) {
-                this.loader.stopLoader(loaderId);
+                this.spinner.hide(loaderId);
             }
             this.progressBar.end();
             this.progressBarStatus = progressBarStatus;
@@ -119,7 +119,7 @@ export class ImportComponent extends Utils() implements OnInit {
         this.progressBar.start(1);
         this.progressBarStatus = "progress";
         this.msg = "正在获取数据";
-        this.loader.startLoader(loaderId);
+        this.spinner.show(loaderId);
         const data = await this.dataService.uploadDxf(this._sourceFile);
         if (!data) {
             return finish(true, "error", "读取文件失败");
@@ -642,8 +642,8 @@ export class ImportComponent extends Utils() implements OnInit {
         if (!this.sourceCad) {
             return;
         }
-        this.loader.startLoader(this.loaderIds.downloadSourceCad);
+        this.spinner.show(this.loaderIds.downloadSourceCad);
         await this.dataService.downloadDxf(this.sourceCad);
-        this.loader.stopLoader(this.loaderIds.downloadSourceCad);
+        this.spinner.hide(this.loaderIds.downloadSourceCad);
     }
 }

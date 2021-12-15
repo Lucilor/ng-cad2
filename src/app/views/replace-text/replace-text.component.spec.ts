@@ -7,9 +7,8 @@ import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {NgxUiLoaderModule} from "ngx-ui-loader";
-
 import {ReplaceTextComponent} from "./replace-text.component";
 
 describe("ReplaceTextComponent", () => {
@@ -28,8 +27,8 @@ describe("ReplaceTextComponent", () => {
                 HttpModule,
                 MessageModule,
                 NgScrollbarModule,
-                NgxUiLoaderModule,
-                ReactiveFormsModule
+                ReactiveFormsModule,
+                SpinnerModule
             ]
         }).compileComponents();
     });

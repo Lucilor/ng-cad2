@@ -5,6 +5,7 @@ import {imgLoading} from "@app/app.common";
 import {getCadPreview} from "@app/cad.utils";
 import {CadData, CadViewerConfig} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {timeout} from "@utils";
 import {cloneDeep} from "lodash";
@@ -52,7 +53,8 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private dataService: CadDataService,
         private status: AppStatusService,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        private spinner: SpinnerService
     ) {}
 
     private _beforePrint = (() => {
@@ -75,10 +77,10 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
         }
         const url = "order/order/piliangjianban";
         const params = this.route.snapshot.queryParams;
-        this.status.startLoader({text: "获取数据..."});
+        this.spinner.show(this.spinner.defaultLoaderId, {text: "获取数据..."});
         const response = await this.dataService.post<Bancai[]>(url, params);
         if (response?.data) {
-            this.status.loaderText$.next("生成预览图...");
+            this.spinner.show(this.spinner.defaultLoaderId, {text: "生成预览图..."});
             this.bancais.length = 0;
             response.data.forEach((bancai) => {
                 const data: Bancai["data"] = [];
@@ -121,13 +123,13 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
             const getImg = async (data: CadData) =>
                 this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data, config, {fixedLengthTextSize}));
             await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.cad))));
-            this.status.stopLoader();
+            this.spinner.hide(this.spinner.defaultLoaderId);
             await timeout(0);
             config.width = innerWidth * 0.85;
             config.height = innerHeight * 0.85;
             await Promise.all(dataAll.map(async (v) => (v.imgLarge = await getImg(v.cad))));
         } else {
-            this.status.stopLoader();
+            this.spinner.hide(this.spinner.defaultLoaderId);
         }
     }
 

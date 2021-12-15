@@ -10,11 +10,10 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSelectModule} from "@angular/material/select";
-import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {ChangelogAdminComponent} from "./changelog-admin.component";
 
 describe("ChangelogAdminComponent", () => {
@@ -23,7 +22,7 @@ describe("ChangelogAdminComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ChangelogAdminComponent, LoaderInlineComponent],
+            declarations: [ChangelogAdminComponent],
             imports: [
                 DragDropModule,
                 HttpModule,
@@ -41,7 +40,7 @@ describe("ChangelogAdminComponent", () => {
                 NgxMatDatetimePickerModule,
                 NgxMatTimepickerModule,
                 NgxMatNativeDateModule,
-                NgxUiLoaderModule
+                SpinnerModule
             ]
         }).compileComponents();
     });

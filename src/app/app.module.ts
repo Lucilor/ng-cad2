@@ -47,7 +47,6 @@ import {ChangelogComponent} from "@components/dialogs/changelog/changelog.compon
 import {JsonEditorComponent} from "@components/dialogs/json-editor/json-editor.component";
 import {LoginFormComponent} from "@components/dialogs/login-form/login-form.component";
 import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
-import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {CadAssembleComponent} from "@components/menu/cad-assemble/cad-assemble.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
@@ -62,6 +61,7 @@ import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {TableModule} from "@modules/table/table.module";
 import {BackupComponent} from "@views/backup/backup.component";
 import {ChangelogAdminComponent} from "@views/changelog-admin/changelog-admin.component";
@@ -82,7 +82,6 @@ import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {InfiniteScrollModule} from "ngx-infinite-scroll";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
 
@@ -159,7 +158,6 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         ReplaceTextComponent,
         PiliangjianbanComponent,
         LoginFormComponent,
-        LoaderInlineComponent,
         ExportComponent,
         ProgressBarComponent,
         ThuumComponent,
@@ -202,20 +200,13 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         NgxMatTimepickerModule,
         NgxMatNativeDateModule,
         NgScrollbarModule,
-        NgxUiLoaderModule.forRoot({
-            fgsColor: "#2196f3",
-            bgsColor: "#2196f3",
-            pbColor: "#2196f3",
-            fgsType: SPINNER.threeStrings,
-            bgsType: SPINNER.ballScaleMultiple,
-            minTime: 100
-        }),
         ReactiveFormsModule,
         RecaptchaV3Module,
         CadConsoleModule,
         HttpModule,
         MessageModule,
-        TableModule
+        TableModule,
+        SpinnerModule
     ],
     providers: [
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},

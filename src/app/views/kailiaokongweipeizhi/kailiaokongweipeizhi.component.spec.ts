@@ -8,11 +8,10 @@ import {MatInputModule} from "@angular/material/input";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatSelectModule} from "@angular/material/select";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
-import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {KailiaokongweipeizhiComponent} from "./kailiaokongweipeizhi.component";
 
 describe("KailiaokongweipeizhiComponent", () => {
@@ -21,7 +20,7 @@ describe("KailiaokongweipeizhiComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [KailiaokongweipeizhiComponent, AnchorSelectorComponent, LoaderInlineComponent],
+            declarations: [KailiaokongweipeizhiComponent, AnchorSelectorComponent],
             imports: [
                 FormsModule,
                 HttpModule,
@@ -34,7 +33,7 @@ describe("KailiaokongweipeizhiComponent", () => {
                 MatSelectModule,
                 MessageModule,
                 NgScrollbarModule,
-                NgxUiLoaderModule
+                SpinnerModule
             ]
         }).compileComponents();
     });

@@ -103,8 +103,7 @@ export class CadLineTjqzComponent {
             this.message.alert("当前数据存在错误");
         } else {
             this.data.tiaojianquzhi = this.dataLeft.data;
-            this.status.loaderId$.next(this.loaderId);
-            this.console.execute("save");
+            this.console.execute("save", {loaderId: this.loaderId});
         }
     }
 

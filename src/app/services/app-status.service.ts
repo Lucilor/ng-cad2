@@ -6,9 +6,9 @@ import {CadData, CadLine, CadViewer, CadMtext, generateLineTexts, PointsMap, Cad
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf, timeout} from "@utils";
 import {difference, differenceWith, clamp} from "lodash";
-import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject, Subject} from "rxjs";
 import {AppConfigService, AppConfig} from "./app-config.service";
 import {CadStatus, CadStatusNormal} from "./cad-status";
@@ -56,8 +56,6 @@ export class AppStatusService {
     cadStatusEnter$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
     cadStatusExit$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
     cad = new CadViewer();
-    loaderId$ = new BehaviorSubject<string>("master");
-    loaderText$ = new BehaviorSubject<string>("");
     openCad$ = new Subject<void>();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
     project = "";
@@ -68,11 +66,11 @@ export class AppStatusService {
 
     constructor(
         private config: AppConfigService,
-        private loaderService: NgxUiLoaderService,
         private route: ActivatedRoute,
         private router: Router,
         private dataService: CadDataService,
-        private message: MessageService
+        private message: MessageService,
+        private spinner: SpinnerService
     ) {
         this.cad.setConfig(this.config.getConfig());
         this.config.configChange$.subscribe(({newVal}) => {
@@ -97,7 +95,7 @@ export class AppStatusService {
         if (project && project !== this.project) {
             this.project = project;
             this.dataService.baseURL = `${origin}/n/${project}/index/`;
-            this.startLoader();
+            this.spinner.show(this.spinner.defaultLoaderId);
             if (!action) {
                 const response = await this.dataService.get("user/user/isAdmin", {nothing: null});
                 this.isAdmin$.next(!!response?.data);
@@ -108,7 +106,7 @@ export class AppStatusService {
                 const {changelog} = await this.dataService.getChangelog(1, 1);
                 changelogTimeStamp = changelog[0]?.timeStamp || 0;
             }
-            this.stopLoader();
+            this.spinner.hide(this.spinner.defaultLoaderId);
             if (environment.production && changelogTimeStamp > this._refreshTimeStamp) {
                 this.message.snack("版本更新，自动刷新页面");
                 local.save("refreshTimeStamp", new Date().getTime());
@@ -216,23 +214,6 @@ export class AppStatusService {
             suanliaodanZoomOut(v2);
             return v2;
         });
-    }
-
-    startLoader(config: {id?: string; text?: string} = {}) {
-        const {id, text} = config;
-        if (typeof id === "string") {
-            this.loaderId$.next(id);
-        }
-        if (typeof text === "string") {
-            this.loaderText$.next(text);
-        }
-        this.loaderService.startLoader(this.loaderId$.value);
-    }
-
-    stopLoader() {
-        this.loaderService.stopLoader(this.loaderId$.value);
-        this.loaderId$.next("master");
-        this.loaderText$.next("");
     }
 
     generateLineTexts() {

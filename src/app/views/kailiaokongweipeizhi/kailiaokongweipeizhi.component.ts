@@ -3,7 +3,7 @@ import {ActivatedRoute} from "@angular/router";
 import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
-import {AppStatusService} from "@services/app-status.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
 import {Kailiaokongweipeizhi, KailiaokongweipeizhiSource, KlkwpzItem, KlkwpzItemMatrixBase} from "./kailiaokongweipeizhi";
 
@@ -15,6 +15,7 @@ import {Kailiaokongweipeizhi, KailiaokongweipeizhiSource, KlkwpzItem, KlkwpzItem
 export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
     id = "";
     klkwpz = new Kailiaokongweipeizhi();
+    loaderId = "kailiaokongweipeizhi";
     get data() {
         return this.klkwpz.data;
     }
@@ -41,8 +42,8 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private dataService: CadDataService,
-        private status: AppStatusService,
-        private message: MessageService
+        private message: MessageService,
+        private spinner: SpinnerService
     ) {
         super();
     }
@@ -60,9 +61,9 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
     }
 
     async submit() {
-        this.status.startLoader({id: "submit"});
+        this.spinner.show(this.loaderId);
         await this.dataService.post("peijian/kailiaokongweipeizhi/set", {id: this.id, data: this.klkwpz.export()});
-        this.status.stopLoader();
+        this.spinner.hide(this.loaderId);
     }
 
     getItemMatrix(item: KlkwpzItem, key: keyof KlkwpzItemMatrixBase) {

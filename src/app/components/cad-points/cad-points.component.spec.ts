@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
-
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {CadPointsComponent} from "./cad-points.component";
 
 describe("CadPointsComponent", () => {
@@ -11,7 +11,7 @@ describe("CadPointsComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [CadPointsComponent],
-            imports: [HttpModule, MessageModule]
+            imports: [HttpModule, MessageModule, SpinnerModule]
         }).compileComponents();
     });
 

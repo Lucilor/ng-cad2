@@ -6,8 +6,8 @@ import {ActivatedRoute} from "@angular/router";
 import {openSelectBancaiCadsDialog} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {BancaiCad, BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
-import {NgxUiLoaderService} from "ngx-ui-loader";
 
 const houduPattern = /^[0-9]+([.]{1}[0-9]+){0,1}$/;
 const guigePattern = /^([0-9]+([.]{1}[0-9]+){0,1})[^0-9^.]+([0-9]+([.]{1}[0-9]+){0,1})$/;
@@ -42,6 +42,8 @@ export class SelectBancaiComponent implements OnInit {
     ];
     kailiaokongweipeizhiUrl = "";
     kailiaocanshuzhiUrl = "";
+    loaderId = "selectBancai";
+    submitLoaderId = "selectBancaiSubmit";
 
     get currList(): BancaiList {
         const form = this.bancaiForms[this.formIdx];
@@ -63,19 +65,19 @@ export class SelectBancaiComponent implements OnInit {
         private formBuilder: FormBuilder,
         private dialog: MatDialog,
         private cd: ChangeDetectorRef,
-        private loader: NgxUiLoaderService
+        private spinner: SpinnerService
     ) {}
 
     async ngOnInit() {
         const {codes, table, type} = this.route.snapshot.queryParams;
         if (codes && table && type) {
-            this.loader.startLoader("bancaiLoader");
+            this.spinner.show(this.loaderId);
             this.codes = codes.split(",");
             this.table = table;
             document.title = type;
             this.type = type;
             const result = await this.dataService.getBancais(this.table, this.codes);
-            this.loader.stopLoader("bancaiLoader");
+            this.spinner.hide(this.loaderId);
             if (result) {
                 result.bancaiCads.forEach((cad) => {
                     const list = result.bancaiList.find((v) => v.mingzi === cad.bancai.mingzi);
@@ -299,12 +301,12 @@ export class SelectBancaiComponent implements OnInit {
                     })
             )
             .flat();
-        this.loader.startLoader("submitLoader");
+        this.spinner.show(this.submitLoaderId);
         const api = "order/order/selectBancai";
         const {codes, table, autoGuige, type} = this;
         const skipCads = this.sortedCads.map((v) => v.filter((vv) => vv.disabled).map((vv) => vv.name)).flat();
         const response = await this.dataService.post<string | string[]>(api, {codes, bancaiCads, table, autoGuige, type, skipCads});
-        this.loader.stopLoader("submitLoader");
+        this.spinner.hide(this.submitLoaderId);
         const url = response?.data;
         if (url) {
             if (Array.isArray(url)) {

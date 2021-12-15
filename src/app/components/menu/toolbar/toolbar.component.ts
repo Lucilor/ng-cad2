@@ -10,6 +10,7 @@ import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadConsoleService} from "@modules/cad-console/services/cad-console.service";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusNormal} from "@services/cad-status";
@@ -95,7 +96,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         private config: AppConfigService,
         private status: AppStatusService,
         private dialog: MatDialog,
-        private dataService: CadDataService
+        private dataService: CadDataService,
+        private spinner: SpinnerService
     ) {
         super();
         this.subscribe(this.status.changelogTimeStamp$, (changelogTimeStamp) => {
@@ -379,16 +381,17 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
             return;
         }
         const collection = this.status.collection$.getValue();
-        this.status.startLoader();
+        const loaderId = this.spinner.defaultLoaderId;
+        this.spinner.show(loaderId);
         const response = await this.dataService.post<string[]>("ngcad/copyCads", {collection, vids: cads.map((v) => v.id)});
-        this.status.stopLoader();
+        this.spinner.hide(loaderId);
         if (response?.code === 0) {
             const yes = await this.message.confirm({title: response.msg, content: "是否跳转至新的CAD？"});
             if (yes) {
-                this.status.startLoader();
+                this.spinner.show(loaderId);
                 const cads2 = await this.dataService.getCad({ids: response.data, collection});
                 await this.status.openCad(cads2.cads);
-                this.status.stopLoader();
+                this.spinner.hide(loaderId);
             }
         }
     }

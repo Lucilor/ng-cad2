@@ -10,6 +10,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {ColorCircleModule} from "ngx-color/circle";
 import {CadLineComponent} from "./cad-line.component";
 
@@ -32,7 +33,8 @@ describe("CadLineComponent", () => {
                 MatInputModule,
                 MatMenuModule,
                 MatSelectModule,
-                MessageModule
+                MessageModule,
+                SpinnerModule
             ]
         }).compileComponents();
     });

@@ -38,7 +38,7 @@
                         <mat-checkbox [checked]="item.checked" (change)="item.checked = $event.checked"></mat-checkbox>
                         <span>{{ item.name }}</span>
                     </mat-card-title>
-                    <mat-card-subtitle> 
+                    <mat-card-subtitle>
                         <button color="primary" mat-icon-button (click)="openCad(item.id)"><mat-icon>open_in_new</mat-icon></button>
                     </mat-card-subtitle>
                 </mat-card-header>
@@ -50,4 +50,3 @@
         </div>
     </ng-scrollbar>
 </ng-container>
-<ngx-ui-loader [loaderId]="'replace-text'"></ngx-ui-loader>

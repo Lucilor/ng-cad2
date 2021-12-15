@@ -3,7 +3,6 @@ import {NavigationEnd, Router} from "@angular/router";
 import {environment} from "@env";
 import {Utils} from "@mixins/utils.mixin";
 import {routesInfo} from "./app.common";
-import {AppStatusService} from "./services/app-status.service";
 
 @Component({
     selector: "app-root",
@@ -16,14 +15,11 @@ export class AppComponent extends Utils() implements OnInit {
     isProd = environment.production;
     routesInfo = routesInfo;
 
-    constructor(private status: AppStatusService, private router: Router) {
+    constructor(private router: Router) {
         super();
     }
 
     ngOnInit() {
-        this.status.loaderText$.subscribe((loaderText) => {
-            this.loaderText = loaderText;
-        });
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd) {
                 const url = event.urlAfterRedirects;

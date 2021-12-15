@@ -5,19 +5,23 @@
                 <input #fileInputNormal type="file" accept=".dxf" hidden (change)="importDxf($event, false, loaderIds.importLoader)" />
                 <mat-card-content class="content">
                     <div class="btn-group">
-                        <button mat-raised-button color="primary" (click)="fileInputNormal.click()" [disabled]="!canSubmit(false)">
-                            导入文件
-                            <app-loader-inline [loaderId]="loaderIds.importLoader"></app-loader-inline>
-                        </button>
-                        <button
-                            mat-raised-button
-                            color="primary"
-                            (click)="importDxf(null, false, loaderIds.reimportLoader)"
-                            [disabled]="!sourceCad || !canSubmit(true)"
-                        >
-                            重新导入选中文件
-                            <app-loader-inline [loaderId]="loaderIds.reimportLoader"></app-loader-inline>
-                        </button>
+                        <div class="spinner-container">
+                            <button mat-raised-button color="primary" (click)="fileInputNormal.click()" [disabled]="!canSubmit(false)">
+                                导入文件
+                            </button>
+                            <app-spinner [id]="loaderIds.importLoader" [inline]="true"></app-spinner>
+                        </div>
+                        <div class="spinner-container">
+                            <button
+                                mat-raised-button
+                                color="primary"
+                                (click)="importDxf(null, false, loaderIds.reimportLoader)"
+                                [disabled]="!sourceCad || !canSubmit(true)"
+                            >
+                                重新导入选中文件
+                            </button>
+                            <app-spinner [id]="loaderIds.reimportLoader" [inline]="true"></app-spinner>
+                        </div>
                     </div>
                     <div class="form">
                         <mat-form-field *ngFor="let name of keysOf(importConfigNormal)">
@@ -41,19 +45,23 @@
                 />
                 <mat-card-content class="content">
                     <div class="btn-group">
-                        <button mat-raised-button color="primary" (click)="fileInputSuanliao.click()" [disabled]="!canSubmit(true)">
-                            替换导入型号算料dxf文件
-                            <app-loader-inline [loaderId]="loaderIds.importSuanliaoLoader"></app-loader-inline>
-                        </button>
-                        <button
-                            mat-raised-button
-                            color="primary"
-                            (click)="importDxf(null, true, loaderIds.reimportSuanliaoLoader)"
-                            [disabled]="!sourceCad || !canSubmit(true)"
-                        >
-                            重新导入选中文件
-                            <app-loader-inline [loaderId]="loaderIds.reimportSuanliaoLoader"></app-loader-inline>
-                        </button>
+                        <div class="spinner-container">
+                            <button mat-raised-button color="primary" (click)="fileInputSuanliao.click()" [disabled]="!canSubmit(true)">
+                                替换导入型号算料dxf文件
+                            </button>
+                            <app-spinner [id]="loaderIds.importSuanliaoLoader" [inline]="true"></app-spinner>
+                        </div>
+                        <div class="spinner-container">
+                            <button
+                                mat-raised-button
+                                color="primary"
+                                (click)="importDxf(null, true, loaderIds.reimportSuanliaoLoader)"
+                                [disabled]="!sourceCad || !canSubmit(true)"
+                            >
+                                重新导入选中文件
+                            </button>
+                            <app-spinner [id]="loaderIds.reimportSuanliaoLoader" [inline]="true"></app-spinner>
+                        </div>
                     </div>
                     <div class="form">
                         <mat-form-field *ngFor="let name of keysOf(importConfigSuanliao)">
@@ -80,10 +88,10 @@
         </div>
         <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
 
-        <button mat-raised-button (click)="downloadSourceCad()" [disabled]="!sourceCad || !cadsParsed">
-            下载dxf文件
-            <app-loader-inline [loaderId]="loaderIds.downloadSourceCad"></app-loader-inline>
-        </button>
+        <div class="spinner-container">
+            <button mat-raised-button (click)="downloadSourceCad()" [disabled]="!sourceCad || !cadsParsed">下载dxf文件</button>
+            <app-spinner [id]="loaderIds.downloadSourceCad" [inline]="true"></app-spinner>
+        </div>
         <div class="cads">
             <ng-container *ngFor="let cad of cads">
                 <div *ngIf="cad.errors.length > 0" class="cad">

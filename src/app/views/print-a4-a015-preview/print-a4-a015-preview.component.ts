@@ -1,10 +1,10 @@
-import {Component, ChangeDetectorRef, OnDestroy, AfterViewInit} from "@angular/core";
+import {Component, OnDestroy, AfterViewInit} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
-import {NgxUiLoaderService} from "ngx-ui-loader";
 import {ActivatedRoute} from "@angular/router";
 import {CadViewer, CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {timeout} from "@utils";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 
 export type PreviewData = {
     CAD?: any;
@@ -25,14 +25,12 @@ export type PreviewData = {
 export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
     data: PreviewData = [];
     loaderId = "printPreview";
-    loadingText = "";
 
     constructor(
-        private cd: ChangeDetectorRef,
         private sanitizer: DomSanitizer,
         private dataService: CadDataService,
-        private loader: NgxUiLoaderService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private spinner: SpinnerService
     ) {}
 
     async ngAfterViewInit() {
@@ -43,8 +41,7 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
         this.data = response.data;
         const total = this.data.reduce((sum, v) => sum + v.length, 0);
         let done = 0;
-        this.loader.startLoader(this.loaderId);
-        this.loadingText = `0 / ${total}`;
+        this.spinner.show(this.loaderId, {text: `0 / ${total}`});
         for (const page of this.data) {
             for (const card of page) {
                 if (card.type === "CAD") {
@@ -62,12 +59,11 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
                     cad.destroy();
                 }
                 done++;
-                this.loadingText = `${done} / ${total}`;
+                this.spinner.show(this.loaderId, {text: `${done} / ${total}`});
             }
             await timeout(0);
         }
-        this.loader.stopLoader(this.loaderId);
-        this.loadingText = "";
+        this.spinner.hide(this.loaderId);
     }
 
     ngOnDestroy() {

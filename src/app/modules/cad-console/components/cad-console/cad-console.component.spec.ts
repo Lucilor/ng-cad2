@@ -1,6 +1,7 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {CadConsoleComponent} from "./cad-console.component";
 
 describe("CadConsoleComponent", () => {
@@ -10,7 +11,7 @@ describe("CadConsoleComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [CadConsoleComponent],
-            imports: [HttpModule, MessageModule]
+            imports: [HttpModule, MessageModule, SpinnerModule]
         }).compileComponents();
     });
 

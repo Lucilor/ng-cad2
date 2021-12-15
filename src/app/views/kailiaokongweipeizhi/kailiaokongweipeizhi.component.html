@@ -1,8 +1,8 @@
 <div class="btn-group">
-    <button mat-raised-button color="primary" (click)="submit()">
-        <app-loader-inline loaderId="submit"></app-loader-inline>
-        提交
-    </button>
+    <div class="spinner-container">
+        <button mat-raised-button color="primary" (click)="submit()">提交</button>
+        <app-spinner [id]="loaderId" [inline]="true"></app-spinner>
+    </div>
     <button mat-raised-button color="primary" (click)="copyT1()">复制<mat-icon>content_copy</mat-icon></button>
     <button mat-raised-button color="primary" (click)="pasteT1()">粘贴<mat-icon>content_copy</mat-icon></button>
 </div>

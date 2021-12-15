@@ -9,7 +9,7 @@ import {getCadPreview} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
 import {CadDataService, GetCadParams} from "@modules/http/services/cad-data.service";
-import {AppStatusService} from "@services/app-status.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
 import {difference} from "lodash";
 import {BehaviorSubject, lastValueFrom} from "rxjs";
@@ -54,15 +54,17 @@ export class CadListComponent extends Utils() implements AfterViewInit {
     checkedColumns: any[] = [];
     checkedInOtherPages = false;
     showCheckedOnly = false;
+    loaderId = "cadList";
+    loaderIdSubmit = "cadListSubmit";
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
 
     constructor(
         public dialogRef: MatDialogRef<CadListComponent, CadData[]>,
         @Inject(MAT_DIALOG_DATA) public data: CadListData,
         private sanitizer: DomSanitizer,
-        private status: AppStatusService,
         private dataService: CadDataService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private spinner: SpinnerService
     ) {
         super();
     }
@@ -131,9 +133,9 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         search[this.searchField] = this.searchNameInput;
         const params: GetCadParams = {collection, page, limit, search};
         if (this.data.selectMode === "table") {
-            this.status.startLoader({id: "cadList"});
+            this.spinner.show(this.loaderId);
             const result = await this.dataService.getYuanshicadwenjian(params);
-            this.status.stopLoader();
+            this.spinner.hide(this.loaderId);
             this.length = result.total;
             this.pageData.length = 0;
             this.tableData = result.cads;
@@ -145,9 +147,9 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             if (this.showCheckedOnly) {
                 params.ids = this.checkedItems.slice();
             }
-            this.status.startLoader({id: "cadList"});
+            this.spinner.show(this.loaderId);
             const result = await this.dataService.getCad(params);
-            this.status.stopLoader();
+            this.spinner.hide(this.loaderId);
             this.length = result.total;
             this.pageData.length = 0;
             result.cads.forEach(async (d, i) => {
@@ -221,15 +223,15 @@ export class CadListComponent extends Utils() implements AfterViewInit {
 
     async submit() {
         if (this.data.selectMode === "table") {
-            this.status.startLoader({id: "submitLoader"});
+            this.spinner.show(this.loaderIdSubmit);
             const result = await this.dataService.getCad({id: this.checkedColumns[0].vid, collection: "p_yuanshicadwenjian"});
-            this.status.stopLoader();
+            this.spinner.hide(this.loaderIdSubmit);
             this.dialogRef.close(result.cads);
         } else {
             this.syncCheckedItems();
-            this.status.startLoader({id: "submitLoader"});
+            this.spinner.show(this.loaderIdSubmit);
             const result = await this.dataService.getCad({ids: this.checkedItems.slice(), collection: this.data.collection});
-            this.status.stopLoader();
+            this.spinner.hide(this.loaderIdSubmit);
             this.dialogRef.close(result.cads);
         }
     }

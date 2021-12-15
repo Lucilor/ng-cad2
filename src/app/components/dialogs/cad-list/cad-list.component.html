@@ -95,15 +95,15 @@
         </table>
     </ng-scrollbar>
 
-    <ngx-ui-loader [loaderId]="'cadList'" [text]="'正在加载CAD'"></ngx-ui-loader>
+    <app-spinner [id]="loaderId" text="正在加载CAD"></app-spinner>
 </div>
 
 <div mat-dialog-actions>
     <div class="btn-group">
-        <button mat-raised-button color="primary" (click)="submit()">
-            <app-loader-inline [loaderId]="'submitLoader'"></app-loader-inline>
-            确定
-        </button>
+        <div class="spinner-container">
+            <button mat-raised-button color="primary" (click)="submit()">确定</button>
+            <app-spinner [id]="loaderIdSubmit" [inline]="true"></app-spinner>
+        </div>
         <button mat-raised-button color="primary" (click)="close()">取消</button>
     </div>
     <mat-paginator

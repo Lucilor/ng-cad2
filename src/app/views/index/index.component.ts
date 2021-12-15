@@ -15,6 +15,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabGroup, MatTabChangeEvent} from "@angular/material/tabs";
 import {ActivatedRoute} from "@angular/router";
 import {CadEventCallBack, CadData} from "@cad-viewer";
+import {environment} from "@env";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadConsoleComponent} from "@modules/cad-console/components/cad-console/cad-console.component";
@@ -162,6 +163,9 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             {name: "selected", desc: "当前选中的所有实体", attrs: {get: () => cad.selected()}},
             {name: "selected0", desc: "当前选中的第一个实体", attrs: {get: () => cad.selected().toArray()[0]}}
         ];
+        if (!environment.production) {
+            globalVars.push({name: "status", desc: "状态管理实例", attrs: {value: this.status}});
+        }
         console.groupCollapsed("全局变量");
         const maxLen = globalVars.reduce((prev, curr) => Math.max(prev, curr.name.length), 0);
         globalVars.forEach((v) => {
@@ -321,7 +325,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     }
 
     save() {
-        this.cadConsole.execute("save");
+        this.cadConsole.execute("save", {loaderId: this.loaderId});
     }
 
     async refresh() {

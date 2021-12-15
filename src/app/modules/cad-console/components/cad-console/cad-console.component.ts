@@ -11,6 +11,7 @@ import {getContent, getEmphasized, getBashStyle, spaceReplacer} from "@modules/c
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BookData} from "@modules/message/components/message/message-types";
 import {MessageService} from "@modules/message/services/message.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusAssemble, CadStatusNormal, CadStatusSplit} from "@services/cad-status";
@@ -88,7 +89,7 @@ interface CadViewerConfig {
     {name: "rotate", args: [{name: "degrees", defaultValue: "0", desc: "旋转角度（角度制）"}], desc: "旋转CAD"},
     {
         name: "save",
-        args: [],
+        args: [{name: "loaderId", defaultValue: "master", desc: "loaderId"}],
         desc: "保存当前所有CAD。"
     },
     {name: "split", args: [], desc: "进入/退出选取状态"},
@@ -415,11 +416,11 @@ export class CadConsoleComponent implements OnInit {
             this.openLock = false;
         },
         async print() {
-            this.status.startLoader({text: "正在打印..."});
+            this.spinner.show(this.spinner.defaultLoaderId, {text: "正在打印..."});
             const cad = this.status.cad;
             const cads = this.status.closeCad([cad.data.clone()]);
             const url = await printCads({cads, config: cad.getConfig()});
-            this.status.stopLoader();
+            this.spinner.hide(this.spinner.defaultLoaderId);
             printJS({printable: url, type: "pdf"});
         },
         rotate(degreesArg: string) {
@@ -427,8 +428,8 @@ export class CadConsoleComponent implements OnInit {
             const rotateDimension = Math.round(degrees / 90) % 2 !== 0;
             this.transform({rotate: new Angle(degrees, "deg").rad}, rotateDimension);
         },
-        async save() {
-            const {dataService, status, message} = this;
+        async save(loaderId = "master") {
+            const {dataService, status, message, spinner} = this;
             const cad = status.cad;
             const collection = this.status.collection$.value;
             const silent = dataService.silent;
@@ -436,10 +437,6 @@ export class CadConsoleComponent implements OnInit {
             const result: CadData[] = [];
             const skipped: string[] = [];
             const data = cad.data.components.data;
-            let loaderId = status.loaderId$.value;
-            if (loaderId === "master") {
-                loaderId = "saveCadLoader";
-            }
             if (collection === "p_yuanshicadwenjian") {
                 const cadStatus = status.cadStatus;
                 if (!(cadStatus instanceof CadStatusSplit)) {
@@ -455,7 +452,7 @@ export class CadConsoleComponent implements OnInit {
                 let cads: CadData[] = [];
                 indices.forEach((v) => (cads = cads.concat(data[v].components.data)));
                 const total = cads.length;
-                status.startLoader({id: loaderId, text: `正在保存CAD(0/${total})`});
+                spinner.show(loaderId, {text: `正在保存CAD(0/${total})`});
                 for (let i = 0; i < total; i++) {
                     const resData = await dataService.setCad({collection, cadData: cads[i], force: true});
                     if (resData) {
@@ -463,9 +460,9 @@ export class CadConsoleComponent implements OnInit {
                     } else {
                         skipped.push(cads[i].name);
                     }
-                    status.loaderText$.next(`正在保存CAD(${i + 1}/${total})`);
+                    spinner.show(loaderId, {text: `正在保存CAD(${i + 1}/${total})`});
                 }
-                status.stopLoader();
+                spinner.hide(loaderId);
                 status.setCadStatus(new CadStatusNormal());
             } else {
                 if (cad.getConfig("validateLines")) {
@@ -479,7 +476,7 @@ export class CadConsoleComponent implements OnInit {
                 }
                 const cads = this.status.closeCad(data);
                 const total = cads.length;
-                status.startLoader({id: loaderId, text: `正在保存CAD(0/${total})`});
+                spinner.show(loaderId, {text: `正在保存CAD(0/${total})`});
                 for (let i = 0; i < total; i++) {
                     const resData = await dataService.setCad({collection, cadData: cads[i], force: true});
                     if (resData) {
@@ -487,9 +484,9 @@ export class CadConsoleComponent implements OnInit {
                     } else {
                         skipped.push(cads[i].name);
                     }
-                    status.loaderText$.next(`正在保存CAD(${i + 1}/${total})`);
+                    spinner.show(loaderId, {text: `正在保存CAD(${i + 1}/${total})`});
                 }
-                status.stopLoader();
+                spinner.hide(loaderId);
             }
             if (result.length) {
                 status.openCad(result);
@@ -525,7 +522,8 @@ export class CadConsoleComponent implements OnInit {
         private config: AppConfigService,
         private message: MessageService,
         private dialog: MatDialog,
-        private dataService: CadDataService
+        private dataService: CadDataService,
+        private spinner: SpinnerService
     ) {}
 
     ngOnInit() {

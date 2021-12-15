@@ -5,6 +5,7 @@ import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 
 import {CadAssembleComponent} from "./cad-assemble.component";
 
@@ -15,7 +16,7 @@ describe("CadAssembleComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [CadAssembleComponent],
-            imports: [FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, HttpModule, MessageModule]
+            imports: [FormsModule, HttpModule, MatFormFieldModule, MatInputModule, MatSelectModule, MessageModule, SpinnerModule]
         }).compileComponents();
     });
 

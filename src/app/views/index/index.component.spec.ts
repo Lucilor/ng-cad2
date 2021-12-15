@@ -16,7 +16,6 @@ import {MatTabsModule} from "@angular/material/tabs";
 import {RouterTestingModule} from "@angular/router/testing";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
-import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
 import {CadLineComponent} from "@components/menu/cad-line/cad-line.component";
@@ -26,10 +25,10 @@ import {ToolbarComponent} from "@components/menu/toolbar/toolbar.component";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {IndexComponent} from "./index.component";
 
 describe("IndexComponent", () => {
@@ -47,8 +46,7 @@ describe("IndexComponent", () => {
                 CadLineComponent,
                 CadMtextComponent,
                 CadDimensionComponent,
-                AnchorSelectorComponent,
-                LoaderInlineComponent
+                AnchorSelectorComponent
             ],
             imports: [
                 CadConsoleModule,
@@ -71,8 +69,8 @@ describe("IndexComponent", () => {
                 MatTabsModule,
                 MessageModule,
                 NgScrollbarModule,
-                NgxUiLoaderModule,
-                RouterTestingModule.withRoutes([{path: "index", component: IndexComponent}])
+                RouterTestingModule.withRoutes([{path: "index", component: IndexComponent}]),
+                SpinnerModule
             ]
         }).compileComponents();
     });

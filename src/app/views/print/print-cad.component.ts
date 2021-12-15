@@ -6,6 +6,7 @@ import {printCads, PrintCadsParams} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {downloadByUrl, timeout} from "@utils";
 import {
     slideInDownOnEnterAnimation,
@@ -13,7 +14,6 @@ import {
     slideOutRightOnLeaveAnimation,
     slideOutUpOnLeaveAnimation
 } from "angular-animations";
-import {NgxUiLoaderService} from "ngx-ui-loader";
 import printJS from "print-js";
 
 const duration = 400;
@@ -30,7 +30,6 @@ const duration = 400;
 })
 export class PrintCadComponent implements AfterViewInit, OnDestroy {
     loaderId = "printLoader";
-    loaderText = "";
     pdfUrlRaw?: string;
     pdfUrl?: SafeUrl;
     showDxfInput = false;
@@ -56,11 +55,11 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     };
 
     constructor(
-        private loader: NgxUiLoaderService,
         private route: ActivatedRoute,
         private dataService: CadDataService,
         private sanitizer: DomSanitizer,
-        private message: MessageService
+        private message: MessageService,
+        private spinner: SpinnerService
     ) {}
 
     private _onKeyDown = ((event: KeyboardEvent) => {
@@ -83,14 +82,13 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             }
             return;
         }
-        this.loader.startLoader(this.loaderId);
-        this.loaderText = "正在获取数据...";
+        this.spinner.show(this.loaderId, {text: "正在获取数据..."});
         this.dataService.setNextEncrypt("both");
         const response = await this.dataService.post<PrintCadsParams>(action, queryParams);
         if (response?.data) {
             response.data.cads = response.data.cads.map((v) => new CadData(v));
             if (response.data.designPics) {
-                this.loader.stopLoader(this.loaderId);
+                this.spinner.hide(this.loaderId);
                 response.data.designPics.showLarge = await this.message.confirm("是否打印设计大图？");
             }
             this.downloadUrl = response.data.url || null;
@@ -122,10 +120,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
 
     async generateSuanliaodan(params: PrintCadsParams) {
         timer.start(this.loaderId);
-        this.loader.startLoader(this.loaderId);
-        this.loaderText = "正在生成算料单...";
+        this.spinner.show(this.loaderId, {text: "正在生成算料单..."});
         this.pdfUrlRaw = await printCads(params);
-        this.loader.stopLoader(this.loaderId);
+        this.spinner.hide(this.loaderId);
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
         timer.end(this.loaderId, "生成算料单");
     }
@@ -137,15 +134,14 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!file) {
             return;
         }
-        this.loader.startLoader(this.loaderId);
-        this.loaderText = "正在上传dxf文件";
+        this.spinner.show(this.loaderId, {text: "正在上传文件..."});
         const data = await this.dataService.uploadDxf(file);
         if (!data) {
             return;
         }
         this.printParams.cads = [data];
         await this.generateSuanliaodan(this.printParams);
-        this.loader.stopLoader(this.loaderId);
+        this.spinner.hide(this.loaderId);
         this._savePrintParams();
     }
 

@@ -5,12 +5,11 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatRadioModule} from "@angular/material/radio";
-import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
 import {ThuumComponent} from "@components/thuum/thuum.component";
 import {HttpModule} from "@modules/http/http.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {ImportComponent} from "./import.component";
 
 describe("ImportComponent", () => {
@@ -19,17 +18,17 @@ describe("ImportComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ImportComponent, LoaderInlineComponent, ProgressBarComponent, ThuumComponent],
+            declarations: [ImportComponent, ProgressBarComponent, ThuumComponent],
             imports: [
                 FormsModule,
+                HttpModule,
                 MatCardModule,
                 MatDialogModule,
                 MatFormFieldModule,
                 MatInputModule,
                 MatRadioModule,
-                HttpModule,
                 NgScrollbarModule,
-                NgxUiLoaderModule
+                SpinnerModule
             ]
         }).compileComponents();
     });

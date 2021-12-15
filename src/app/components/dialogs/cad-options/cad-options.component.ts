@@ -4,7 +4,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {CadData} from "@cad-viewer";
 import {CadDataService, OptionsData} from "@modules/http/services/cad-data.service";
-import {AppStatusService} from "@services/app-status.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {lastValueFrom} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
 
@@ -29,13 +29,13 @@ export class CadOptionsComponent implements AfterViewInit {
     pageSizeOptions = [50, 100, 200, 500];
     pageSize = 50;
     checkedItems: string[] = [];
-    loaderIds = {optionsLoader: "optionsLoader", submitLoaderId: "submitLoaderId"};
+    loaderIds = {optionsLoader: "cadOptions", submitLoaderId: "cadOptionsSubmit"};
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
     constructor(
         public dialogRef: MatDialogRef<CadOptionsComponent, string[]>,
         @Inject(MAT_DIALOG_DATA) public data: CadOptionsData,
-        private status: AppStatusService,
-        private dataService: CadDataService
+        private dataService: CadDataService,
+        private spinner: SpinnerService
     ) {
         this.data.multi = this.data.multi !== false;
         this.checkedItems = this.data.checkedItems?.slice() || [];
@@ -50,7 +50,7 @@ export class CadOptionsComponent implements AfterViewInit {
     }
 
     async submit() {
-        this.status.startLoader({id: this.loaderIds.submitLoaderId});
+        this.spinner.show(this.loaderIds.submitLoaderId);
         const data = await this.dataService.getOptions({
             name: this.data.name,
             search: this.searchValue,
@@ -59,7 +59,7 @@ export class CadOptionsComponent implements AfterViewInit {
             includeTingyong: true,
             values: this.checkedItems
         });
-        this.status.stopLoader();
+        this.spinner.hide(this.loaderIds.submitLoaderId);
         this.dialogRef.close(data.data.map((v) => v.name));
     }
 
@@ -87,7 +87,7 @@ export class CadOptionsComponent implements AfterViewInit {
     }
 
     async getData(page: number) {
-        this.status.startLoader({id: this.loaderIds.optionsLoader, text: "获取CAD数据"});
+        this.spinner.show(this.loaderIds.optionsLoader, {text: "获取CAD数据"});
         const data = await this.dataService.getOptions({
             name: this.data.name,
             search: this.searchValue,
@@ -95,10 +95,8 @@ export class CadOptionsComponent implements AfterViewInit {
             limit: this.paginator?.pageSize,
             data: this.data.data,
             xinghao: this.data.xinghao
-            // includeTingyong: true
         });
-        console.log(data.data.filter((v) => v.disabled));
-        this.status.stopLoader();
+        this.spinner.hide(this.loaderIds.optionsLoader);
         this.length = data.count;
         this.pageData = data.data.map((v) => ({...v, checked: this.checkedItems.includes(v.name)}));
         return data;

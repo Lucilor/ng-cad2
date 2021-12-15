@@ -9,8 +9,8 @@ import {MatSelectModule} from "@angular/material/select";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {ColorChromeModule} from "ngx-color/chrome";
-
 import {CadMtextComponent} from "./cad-mtext.component";
 
 describe("CadMtextComponent", () => {
@@ -30,7 +30,8 @@ describe("CadMtextComponent", () => {
                 MatFormFieldModule,
                 MatMenuModule,
                 MatSelectModule,
-                MessageModule
+                MessageModule,
+                SpinnerModule
             ]
         }).compileComponents();
     });

@@ -1,9 +1,9 @@
 <div class="title">条件取值设置</div>
 <div class="btn-group">
-    <button mat-raised-button color="accent" (click)="submit()">
-        <app-loader-inline [loaderId]="loaderId"></app-loader-inline>
-        保存
-    </button>
+    <div class="spinner-container">
+        <button mat-raised-button color="accent" (click)="submit()">保存</button>
+        <app-spinner [id]="loaderId" [inline]="true"></app-spinner>
+    </div>
     <button mat-raised-button color="normal" (click)="close()">关闭</button>
 </div>
 <div class="content">

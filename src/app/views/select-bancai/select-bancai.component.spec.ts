@@ -3,11 +3,10 @@ import {FormsModule} from "@angular/forms";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {RouterTestingModule} from "@angular/router/testing";
-import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {SelectBancaiComponent} from "./select-bancai.component";
 
 describe("SelectBancaiComponent", () => {
@@ -16,7 +15,7 @@ describe("SelectBancaiComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [SelectBancaiComponent, LoaderInlineComponent],
+            declarations: [SelectBancaiComponent],
             imports: [
                 FormsModule,
                 HttpModule,
@@ -24,8 +23,8 @@ describe("SelectBancaiComponent", () => {
                 MatSlideToggleModule,
                 MessageModule,
                 NgScrollbarModule,
-                NgxUiLoaderModule,
-                RouterTestingModule
+                RouterTestingModule,
+                SpinnerModule
             ]
         }).compileComponents();
     });

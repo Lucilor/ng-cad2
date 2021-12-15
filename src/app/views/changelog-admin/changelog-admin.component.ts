@@ -6,7 +6,7 @@ import {routesInfo} from "@app/app.common";
 import {Utils} from "@mixins/utils.mixin";
 import {Changelog, CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
-import {AppStatusService} from "@services/app-status.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
 import {lastValueFrom} from "rxjs";
 
@@ -29,6 +29,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     pageSizeOptions = [5, 10, 20, 50, 100];
     routesInfo = routesInfo;
     focusedContentText: number[] | null = null;
+    loaderId = "changelogAdmin";
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
     get page() {
         return (this.paginator?.pageIndex || 0) + 1;
@@ -37,7 +38,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
         return this.paginator?.pageSize || 5;
     }
 
-    constructor(private dataService: CadDataService, private message: MessageService, private status: AppStatusService) {
+    constructor(private dataService: CadDataService, private message: MessageService, private spinner: SpinnerService) {
         super();
     }
 
@@ -50,9 +51,9 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     }
 
     async getChangelog(page = this.page) {
-        this.status.startLoader({id: "changelog"});
+        this.spinner.show(this.loaderId);
         const {changelog, count} = await this.dataService.getChangelog(page, this.pageSize);
-        this.status.stopLoader();
+        this.spinner.hide(this.loaderId);
         this.changelog = changelog;
         this.length = count;
     }
@@ -119,22 +120,25 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     }
 
     async setChangelogItem(i: number) {
-        this.status.startLoader({id: "set" + i});
+        const loaderId = `${this.loaderId}Set${i}`;
+        this.spinner.show(loaderId);
         await this.dataService.setChangelogItem(this.changelog[i], (this.page - 1) * this.pageSize + i);
-        this.status.stopLoader();
+        this.spinner.hide(loaderId);
     }
 
     async addChangelogItem(i: number) {
-        this.status.startLoader({id: "add" + i});
+        const loaderId = `${this.loaderId}Add${i}`;
+        this.spinner.show(loaderId);
         await this.dataService.addChangelogItem({timeStamp: new Date().getTime(), content: []}, i);
-        this.status.stopLoader();
+        this.spinner.hide(loaderId);
         await this.getChangelog();
     }
 
     async removeChangelogItem(i: number) {
-        this.status.startLoader({id: "remove" + i});
+        const loaderId = `${this.loaderId}Remove${i}`;
+        this.spinner.show(loaderId);
         await this.dataService.removeChangelogItem(i);
-        this.status.stopLoader();
+        this.spinner.hide(loaderId);
         await this.getChangelog();
     }
 

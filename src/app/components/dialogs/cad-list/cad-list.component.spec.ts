@@ -10,11 +10,10 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS} from "@angular/material/tooltip";
-import {LoaderInlineComponent} from "@components/loader-inline/loader-inline.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {CadListComponent, CadListData, customTooltipOptions} from "./cad-list.component";
 
 const data: CadListData = {selectMode: "multiple", collection: "cad"};
@@ -24,9 +23,10 @@ describe("CadListComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [CadListComponent, LoaderInlineComponent],
+            declarations: [CadListComponent],
             imports: [
                 FormsModule,
+                HttpModule,
                 MatCheckboxModule,
                 MatDividerModule,
                 MatIconModule,
@@ -35,10 +35,9 @@ describe("CadListComponent", () => {
                 MatSelectModule,
                 MatSlideToggleModule,
                 MatPaginatorModule,
-                HttpModule,
                 MessageModule,
                 NgScrollbarModule,
-                NgxUiLoaderModule
+                SpinnerModule
             ],
             providers: [
                 {provide: MatDialogRef, useValue: {}},

@@ -5,6 +5,7 @@ import {RouterTestingModule} from "@angular/router/testing";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {ToolbarComponent} from "./toolbar.component";
 
 describe("ToolbarComponent", () => {
@@ -14,7 +15,7 @@ describe("ToolbarComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ToolbarComponent],
-            imports: [MatDividerModule, MatMenuModule, CadConsoleModule, HttpModule, MessageModule, RouterTestingModule]
+            imports: [MatDividerModule, MatMenuModule, CadConsoleModule, HttpModule, MessageModule, RouterTestingModule, SpinnerModule]
         }).compileComponents();
     });
 

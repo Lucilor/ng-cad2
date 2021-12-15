@@ -7,6 +7,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 
 import {CadInfoComponent} from "./cad-info.component";
 
@@ -17,7 +18,16 @@ describe("CadInfoComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [CadInfoComponent, CadPointsComponent],
-            imports: [FormsModule, MatDialogModule, MatIconModule, MatInputModule, MatSelectModule, HttpModule, MessageModule]
+            imports: [
+                FormsModule,
+                HttpModule,
+                MatDialogModule,
+                MatIconModule,
+                MatInputModule,
+                MatSelectModule,
+                MessageModule,
+                SpinnerModule
+            ]
         }).compileComponents();
     });
 

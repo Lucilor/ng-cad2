@@ -11,8 +11,8 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {NgxUiLoaderModule} from "ngx-ui-loader";
 import {SelectCadsComponent} from "./select-cads.component";
 
 describe("SelectCadsComponent", () => {
@@ -24,8 +24,8 @@ describe("SelectCadsComponent", () => {
             declarations: [SelectCadsComponent],
             imports: [
                 BrowserAnimationsModule,
-                MessageModule,
                 FormsModule,
+                HttpModule,
                 MatCheckboxModule,
                 MatDividerModule,
                 MatIconModule,
@@ -34,10 +34,10 @@ describe("SelectCadsComponent", () => {
                 MatSelectModule,
                 MatSlideToggleModule,
                 MatPaginatorModule,
-                HttpModule,
+                MessageModule,
                 MessageModule,
                 NgScrollbarModule,
-                NgxUiLoaderModule
+                SpinnerModule
             ]
         }).compileComponents();
     });

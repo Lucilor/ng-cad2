@@ -6,7 +6,7 @@ import {CadCollection, routesInfo} from "@app/app.common";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
-import {AppStatusService} from "@services/app-status.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {typedFormControl, TypedFormControl, typedFormGroup, TypedFormGroup} from "ngx-forms-typed";
 import {BehaviorSubject} from "rxjs";
 
@@ -70,7 +70,7 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
     constructor(
         private message: MessageService,
         private dataService: CadDataService,
-        private status: AppStatusService,
+        private spinner: SpinnerService,
         private router: Router
     ) {
         super();
@@ -132,9 +132,9 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
             replaceTo,
             regex: replacer.regex(replaceFrom).toString()
         };
-        this.status.startLoader();
+        this.spinner.show(this.spinner.defaultLoaderId);
         const response = await this.dataService.post<ToBeReplaced[]>("peijian/cad/replaceTextReady", postData);
-        this.status.stopLoader();
+        this.spinner.hide(this.spinner.defaultLoaderId);
         if (response?.data) {
             if (response.data.length < 1) {
                 this.message.alert("没有可替换的文本");
@@ -167,9 +167,9 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
             regex: replacer.regex(replaceFrom).toString(),
             ids: this.toBeReplacedList.filter((v) => v.checked).map((v) => v.id)
         };
-        this.status.startLoader();
+        this.spinner.show(this.spinner.defaultLoaderId);
         const response = await this.dataService.post<ToBeReplaced[]>("peijian/cad/replaceText", postData);
-        this.status.stopLoader();
+        this.spinner.hide(this.spinner.defaultLoaderId);
         if (response?.code === 0) {
             this.toBeReplacedList.length = 0;
             this.step.next(1);

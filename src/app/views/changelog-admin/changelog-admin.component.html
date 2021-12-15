@@ -1,12 +1,14 @@
 <ng-scrollbar>
     <mat-accordion>
         <div class="btn-group" *ngIf="page === 1">
-            <button mat-icon-button color="primary" (click)="addChangelogItem(0)">
-                <app-loader-inline [loaderId]="'add0'"></app-loader-inline>
-                <mat-icon>add_circle</mat-icon>
-            </button>
+            <div class="spinner-container">
+                <button mat-icon-button color="primary" (click)="addChangelogItem(0)">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+                <app-spinner [id]="loaderId + 'Add0'" [inline]="true"></app-spinner>
+            </div>
         </div>
-        <ngx-ui-loader [loaderId]="'changelog'"></ngx-ui-loader>
+        <app-spinner [id]="loaderId"></app-spinner>
         <mat-expansion-panel *ngFor="let v of changelog; let i = index">
             <mat-expansion-panel-header>
                 <mat-panel-title>{{ getDate(v.timeStamp).toLocaleDateString() }}</mat-panel-title>
@@ -35,14 +37,14 @@
                         </ngx-mat-datetime-picker>
                     </mat-form-field>
                     <div class="btn-group">
-                        <button mat-raised-button color="primary" (click)="setChangelogItem(i)">
-                            <app-loader-inline [loaderId]="'set' + i"></app-loader-inline>
-                            保存
-                        </button>
-                        <button mat-raised-button color="primary" (click)="removeChangelogItem(i)">
-                            <app-loader-inline [loaderId]="'remove' + i"></app-loader-inline>
-                            删除
-                        </button>
+                        <div class="spinner-container">
+                            <button mat-raised-button color="primary" (click)="setChangelogItem(i)">保存</button>
+                            <app-spinner [id]="loaderId + 'Set' + i" [inline]="true"></app-spinner>
+                        </div>
+                        <div class="spinner-container">
+                            <button mat-raised-button color="primary" (click)="removeChangelogItem(i)">删除</button>
+                            <app-spinner [id]="loaderId + 'Remove' + i" [inline]="true"></app-spinner>
+                        </div>
                     </div>
                 </div>
                 <div class="btn-group" *ngIf="v.content.length === 0">

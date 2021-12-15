@@ -9,7 +9,7 @@
 </form>
 
 <ng-scrollbar class="content">
-    <ngx-ui-loader [loaderId]="loaderIds.optionsLoader"></ngx-ui-loader>
+    <app-spinner [id]="loaderIds.optionsLoader"></app-spinner>
     <div class="checkbox-group add-empty-msg">
         <div class="data-container" *ngFor="let item of pageData; let i = index" [matTooltip]="item.name" [matTooltipPosition]="'above'">
             <mat-checkbox [checked]="item.checked" (change)="onCheckboxChange(item, $event)" [disabled]="item.disabled && !item.checked">
@@ -30,10 +30,10 @@
     (page)="changePage($event)"
 ></mat-paginator>
 
-<div mat-dialog-actions>
-    <button mat-raised-button color="primary" (click)="submit()">
-        <app-loader-inline [loaderId]="loaderIds.submitLoaderId"></app-loader-inline>
-        确定
-    </button>
+<div class="btn-group" mat-dialog-actions>
+    <div class="spinner-container">
+        <button mat-raised-button color="primary" (click)="submit()">确定</button>
+        <app-spinner [id]="loaderIds.submitLoaderId" [inline]="true"></app-spinner>
+    </div>
     <button mat-raised-button color="primary" (click)="close()">取消</button>
 </div>
