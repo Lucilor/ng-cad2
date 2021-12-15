@@ -5,11 +5,16 @@
     <ng-container *ngIf="showDxfInput">
         <input #uploadInput type="file" hidden accept=".dxf" (input)="uploadDxf($event)" />
         <button mat-raised-button color="primary" (click)="uploadInput.click()">上传dxf</button>
-        <span>打印效果图</span>
-        <mat-slide-toggle [checked]="showDesignPics" (change)="setShowDesignPics($event)"></mat-slide-toggle>
+        <span>打印效果小图</span>
+        <mat-slide-toggle [(ngModel)]="printParams.designPics.showSmall"></mat-slide-toggle>
+        <span>打印效果大图</span>
+        <mat-slide-toggle [(ngModel)]="printParams.designPics.showLarge"></mat-slide-toggle>
         <mat-form-field style="width: 150px">
             <mat-label>字体</mat-label>
-            <input type="text" matInput [(ngModel)]="fontFamily" />
+            <input type="text" matInput [(ngModel)]="printParams.config.fontFamily" [matAutocomplete]="auto"/>
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let font of fonts" [value]="font">{{font}}</mat-option>
+            </mat-autocomplete>
         </mat-form-field>
     </ng-container>
     <button mat-raised-button color="primary" (click)="downloadDxf()" [disabled]="!downloadUrl">下载dxf</button>

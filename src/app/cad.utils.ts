@@ -14,9 +14,10 @@ import {
     findAllAdjacentLines,
     DEFAULT_DASH_ARRAY
 } from "@cad-viewer";
-import {getDPI, Point, isNearZero, loadImage, isBetween, DEFAULT_TOLERANCE} from "@utils";
+import {getDPI, Point, isNearZero, loadImage, isBetween, DEFAULT_TOLERANCE, getImageDataUrl} from "@utils";
 import {cloneDeep} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
+import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
@@ -38,7 +39,8 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
     cad.appendTo(document.body);
     await prepareCadViewer(cad);
     cad.data = data.clone();
-    cad.render().center();
+    await cad.render();
+    cad.center();
     if (fixedLengthTextSize) {
         const resize = () => {
             const zoom = cad.zoom();
@@ -64,119 +66,146 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
     return src;
 };
 
-const drawDesignPics = async (muban: CadData, mubanUrl: string, urls: string[], margin: number) => {
-    let img: HTMLImageElement;
-    try {
-        img = await loadImage(mubanUrl);
-    } catch (error) {
-        console.warn(`无法加载模板: ${mubanUrl}`);
-        return null;
-    }
-    const rectData = muban.getBoundingRect();
+const drawDesignPics = async (data: CadData, urls: string[], margin: number, findLocator: boolean) => {
+    const rectData = data.getBoundingRect();
     const rect = rectData.clone();
-    const lines = muban.entities.line.filter((line) => line.isHorizontal() && isNearZero(line.length - rectData.width, 1));
-    lines.sort((a, b) => b.start.y - a.start.y);
-    for (let i = 0; i < lines.length - 1; i++) {
-        if (lines[i].start.y - lines[i + 1].start.y > 500) {
-            rect.top = lines[i].start.y;
-            break;
-        }
-    }
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-        throw new Error("failed to get 2d context of canvas");
-    }
-    const {width, height} = img;
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.width = "100%";
-    ctx.drawImage(img, 0, 0);
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const getColor = (x: number, y: number) => {
-        const i = (y * width + x) * 4;
-        return imageData.data.slice(i, i + 4);
-    };
-    const isBlank = (color: Uint8ClampedArray) => {
-        const [r, g, b, a] = color;
-        return a === 0 || (r === 255 && g === 255 && b === 255);
-    };
-    let offsetX = 0;
-    let offsetY = 0;
-    const midX = Math.floor(width / 2);
-    const midY = Math.floor(height / 2);
-    for (let x = 0; x < width; x++) {
-        if (!isBlank(getColor(x, midY))) {
-            offsetX = x;
-            break;
+    const vLines: CadLine[] = [];
+    const hLines: CadLine[] = [];
+    data.entities.line.forEach((e) => {
+        if (e.isVertical()) {
+            vLines.push(e);
+        } else if (e.isHorizontal()) {
+            hLines.push(e);
         }
+    });
+    if (vLines.length < 1) {
+        console.warn("模板没有垂直线");
+        return;
     }
-    for (let y = 0; y < height; y++) {
-        if (!isBlank(getColor(midX, y))) {
-            offsetY = y;
-            break;
-        }
+    if (hLines.length < 1) {
+        console.warn("模板没有水平线");
+        return;
     }
-    offsetX += 4;
-    offsetY += 4;
+    vLines.sort((a, b) => a.start.x - b.start.x);
+    hLines.sort((a, b) => a.start.y - b.start.y);
 
-    const yPercent1 = (rectData.top - rect.top) / rectData.height;
-    const yPercent2 = (rectData.top - rect.bottom) / rectData.height;
-    const hPercent = yPercent2 - yPercent1;
-    const width2 = width - offsetX * 2;
-    const height2 = (height - offsetY * 2) * hPercent;
-    offsetY += (height - offsetY * 2) * yPercent1;
-    ctx.fillStyle = "white";
-    ctx.fillRect(offsetX, offsetY, width2, height2);
-
-    const imgs: HTMLImageElement[] = [];
-    for (const src of urls) {
-        try {
-            imgs.push(await loadImage(src));
-        } catch (error) {
-            console.warn(`无法加载设计图: ${src}`);
+    if (findLocator) {
+        const locator = data.entities.mtext.find((e) => e.text === "#设计图#");
+        if (!locator) {
+            console.warn("没有找到设计图标识");
+            return;
         }
-    }
-    if (imgs.length === 0) {
-        return null;
-    }
-
-    const getDrawArea = (sw: number, sh: number, dw: number, dh: number) => {
-        let x = 0;
-        let y = 0;
-        let w = 0;
-        let h = 0;
-        if (sw / sh > dw / dh) {
-            w = dw - margin * 2;
-            h = w * (sh / sw);
-        } else {
-            h = dh - margin * 2;
-            w = h * (sw / sh);
-        }
-        x = (dw - w) / 2;
-        y = (dh - h) / 2;
-        return {x, y, w, h};
-    };
-    if (rectData.width > rectData.height) {
-        const dw = width2 / imgs.length;
-        const dh = height2;
-        imgs.forEach((img2, i) => {
-            const {width: sw, height: sh} = img2;
-            const {x, y, w, h} = getDrawArea(sw, sh, dw, dh);
-            ctx.drawImage(img2, 0, 0, sw, sh, x + offsetX + dw * i, y + offsetY, w, h);
+        const {
+            left: locatorLeft,
+            right: locatorRight,
+            top: locatorTop,
+            bottom: locatorBottom,
+            width: locatorWidth,
+            height: locatorHeight
+        } = locator.boundingRect;
+        locator.remove();
+        let leftLines: CadLine[] = [];
+        let rightLines: CadLine[] = [];
+        let topLines: CadLine[] = [];
+        let bottomLines: CadLine[] = [];
+        vLines.forEach((e) => {
+            if (e.length < locatorHeight) {
+                return;
+            }
+            if (e.maxY < locatorBottom || e.minY > locatorTop) {
+                return;
+            }
+            if (e.minX < locatorLeft) {
+                leftLines.push(e);
+            }
+            if (e.maxX > locatorRight) {
+                rightLines.push(e);
+            }
         });
+        hLines.forEach((e) => {
+            if (e.length < locatorWidth) {
+                return;
+            }
+            if (e.maxX < locatorLeft || e.minX > locatorRight) {
+                return;
+            }
+            if (e.minY < locatorTop) {
+                bottomLines.push(e);
+            }
+            if (e.maxY > locatorBottom) {
+                topLines.push(e);
+            }
+        });
+        const instersects = (e: CadLine, es: CadLine[]) => es.some((e2) => e.curve.intersects(e2.curve));
+        leftLines = leftLines.filter((e) => instersects(e, topLines) || instersects(e, bottomLines));
+        rightLines = rightLines.filter((e) => instersects(e, topLines) || instersects(e, bottomLines));
+        topLines = topLines.filter((e) => instersects(e, leftLines) || instersects(e, rightLines));
+        bottomLines = bottomLines.filter((e) => instersects(e, leftLines) || instersects(e, rightLines));
+        rect.left = leftLines[leftLines.length - 1].minX;
+        rect.right = rightLines[0].maxX;
+        rect.top = topLines[0].minY;
+        rect.bottom = bottomLines[bottomLines.length - 1].maxY;
     } else {
-        const dw = width2;
-        const dh = height2 / imgs.length;
-        imgs.forEach((img2, i) => {
-            const {width: sw, height: sh} = img2;
-            const {x, y, w, h} = getDrawArea(sw, sh, dw, dh);
-            ctx.drawImage(img2, 0, 0, sw, sh, x + offsetX, y + offsetY + dh * i, w, h);
-        });
+        rect.left = vLines[0].start.x;
+        rect.right = vLines[vLines.length - 1].start.x;
+        const vLinesDx = vLines[vLines.length - 1].start.x - vLines[0].start.x;
+        const hLines2 = hLines.filter((e) => isNearZero(e.length - vLinesDx, 1)).reverse();
+        for (let i = 0; i < hLines2.length - 1; i++) {
+            const l1 = hLines2[i];
+            const l2 = hLines2[i + 1];
+            if (l1.start.y - l2.start.y > 500) {
+                rect.top = l1.start.y;
+                break;
+            }
+        }
+        rect.bottom = hLines2[hLines2.length - 1].start.y;
     }
 
-    return canvas.toDataURL();
+    const {top, bottom, left, right} = rect;
+    data.entities = data.entities.filter((e) => {
+        if (e instanceof CadMtext) {
+            return !isBetween(e.insert.y, top, bottom);
+        }
+        if (e instanceof CadLine) {
+            if (e.isHorizontal()) {
+                return e.minY >= top || e.maxY <= bottom;
+            } else if (e.isVertical()) {
+                if (e.maxY > top || e.minY < bottom) {
+                    return true;
+                }
+                if (e.maxY === top || e.minY === bottom) {
+                    return e.minX <= left || e.maxX >= right;
+                }
+                return false;
+            }
+        }
+        const eRect = e.boundingRect;
+        return eRect.top < bottom || eRect.bottom > top;
+    });
+
+    let {width, height} = rect;
+    const {x, y} = rect;
+    let getX: (i: number) => number;
+    let getY: (i: number) => number;
+    if (rect.width > rect.height) {
+        width = rect.width / urls.length;
+        getX = (i) => left + width / 2 + width * i;
+        getY = (i) => y;
+    } else {
+        height = rect.height / urls.length;
+        getX = (i) => x;
+        getY = (i) => top - height / 2 - height * i;
+    }
+    for (let i = 0; i < urls.length; i++) {
+        const cadImage = new CadImage();
+        cadImage.url = getImageDataUrl(await loadImage(urls[i]));
+        cadImage.anchor.set(0.5, 0.5);
+        cadImage.targetSize = new Point(width - margin * 2, height - margin * 2);
+        cadImage.objectFit = "contain";
+        cadImage.transform({translate: [getX(i), getY(i)]}, true);
+        data.entities.add(cadImage);
+    }
 };
 
 export const prepareCadViewer = async (cad: CadViewer) => {
@@ -214,7 +243,7 @@ export interface PrintCadsParams {
     config?: Partial<CadViewerConfig>;
     linewidth?: number;
     dimStyle?: CadDimensionStyle;
-    designPics?: {urls: (string | string[])[]; margin: number};
+    designPics?: {urls: (string | string[])[]; margin: number; showSmall: boolean; showLarge: boolean};
     extra?: {拉手信息宽度?: number};
     url?: string;
 }
@@ -228,7 +257,6 @@ export const printCads = async (params: PrintCadsParams) => {
     const config = params.config || {};
     const linewidth = params.linewidth || 1;
     const dimStyle = params.dimStyle;
-    const designPics = params.designPics;
     const extra = params.extra || {};
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
@@ -345,7 +373,8 @@ export const printCads = async (params: PrintCadsParams) => {
         }
         data.updatePartners().updateComponents();
         cadPrint.data = data;
-        cadPrint.reset().render().center();
+        await cadPrint.render();
+        cadPrint.center();
         const {拉手信息宽度} = extra;
         if (typeof 拉手信息宽度 === "number" && 拉手信息宽度 > 0) {
             for (const cad of cads) {
@@ -363,19 +392,32 @@ export const printCads = async (params: PrintCadsParams) => {
                 }
             }
         }
-        const img = (await cadPrint.toCanvas()).toDataURL();
-        imgs.push(img);
+
+        const designPics = params.designPics;
         if (designPics) {
-            let designPicsGroup = designPics.urls[i];
-            if (designPicsGroup) {
-                if (typeof designPicsGroup === "string") {
-                    designPicsGroup = [designPicsGroup];
+            const {urls, margin, showSmall, showLarge} = designPics;
+            let urlGroup = urls[i];
+            if (urlGroup) {
+                if (typeof urlGroup === "string") {
+                    urlGroup = [urlGroup];
                 }
-                const designPic = await drawDesignPics(data, img, designPicsGroup, designPics.margin);
-                if (designPic) {
-                    imgs.push(designPic);
+                if (showSmall) {
+                    await drawDesignPics(data, urlGroup, margin, true);
+                    await cadPrint.reset().render();
+                    cadPrint.center();
+                    imgs.push(await cadPrint.toDataURL());
+                } else {
+                    imgs.push(await cadPrint.toDataURL());
+                }
+                if (showLarge) {
+                    await drawDesignPics(data, urlGroup, margin, false);
+                    await cadPrint.reset().render();
+                    cadPrint.center();
+                    imgs.push(await cadPrint.toDataURL());
                 }
             }
+        } else {
+            imgs.push(await cadPrint.toDataURL());
         }
     }
 

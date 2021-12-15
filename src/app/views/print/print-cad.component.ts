@@ -1,5 +1,4 @@
 import {AfterViewInit, Component, OnDestroy} from "@angular/core";
-import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, timer} from "@app/app.common";
@@ -35,20 +34,26 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     pdfUrlRaw?: string;
     pdfUrl?: SafeUrl;
     showDxfInput = false;
-    private _showDesignPicsKey = "printCad-showDesignPics";
     private _paramKey = "printCad-paramCache";
-    showDesignPics = Boolean(session.load(this._showDesignPicsKey));
-    private _fontFamilyKey = "printCad-fontFamily";
-    private _fontFamily = session.load(this._fontFamilyKey) || "微软雅黑";
-    get fontFamily() {
-        return this._fontFamily;
-    }
-    set fontFamily(value) {
-        this._fontFamily = value;
-        session.save(this._fontFamilyKey, value);
-    }
+    fonts = ["微软雅黑", "宋体", "锐字工房云字库魏体GBK"];
     toolbarVisible = true;
     downloadUrl: string | null = null;
+    printParams: Required<PrintCadsParams> = {
+        cads: [],
+        config: {fontFamily: this.fonts[0]},
+        linewidth: 2,
+        dimStyle: {},
+        designPics: {
+            urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],
+            margin: 10,
+            showSmall: false,
+            showLarge: false
+        },
+        extra: {
+            拉手信息宽度: 578
+        },
+        url: ""
+    };
 
     constructor(
         private loader: NgxUiLoaderService,
@@ -72,10 +77,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         delete queryParams.action;
         if (!action) {
             this.showDxfInput = true;
-            const param = session.load<PrintCadsParams>(this._paramKey);
-            if (param) {
-                param.cads = param.cads.map((v) => new CadData(v));
-                await this.generateSuanliaodan(param);
+            this._loadPrintParams();
+            if (this.printParams.cads.length > 0) {
+                await this.generateSuanliaodan(this.printParams);
             }
             return;
         }
@@ -85,10 +89,13 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const response = await this.dataService.post<PrintCadsParams>(action, queryParams);
         if (response?.data) {
             response.data.cads = response.data.cads.map((v) => new CadData(v));
+            if (response.data.designPics) {
+                this.loader.stopLoader(this.loaderId);
+                response.data.designPics.showLarge = await this.message.confirm("是否打印设计大图？");
+            }
             this.downloadUrl = response.data.url || null;
             await this.generateSuanliaodan(response.data);
         }
-        this.loader.stopLoader(this.loaderId);
         window.addEventListener("keydown", this._onKeyDown);
     }
 
@@ -96,14 +103,29 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         window.removeEventListener("keydown", this._onKeyDown);
     }
 
+    private _loadPrintParams() {
+        const params = session.load<Required<PrintCadsParams>>(this._paramKey);
+        if (params) {
+            this.printParams = params;
+            this.printParams.cads = params.cads.map((v) => new CadData(v));
+        }
+    }
+
+    private _savePrintParams() {
+        const cads = this.printParams.cads.map((v) => v.export());
+        session.save(this._paramKey, {...this.printParams, cads});
+    }
+
     async print() {
         printJS({printable: this.pdfUrlRaw, type: "pdf"});
     }
 
     async generateSuanliaodan(params: PrintCadsParams) {
-        this.loaderText = "正在生成算料单...";
         timer.start(this.loaderId);
+        this.loader.startLoader(this.loaderId);
+        this.loaderText = "正在生成算料单...";
         this.pdfUrlRaw = await printCads(params);
+        this.loader.stopLoader(this.loaderId);
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
         timer.end(this.loaderId, "生成算料单");
     }
@@ -116,33 +138,15 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this.loader.startLoader(this.loaderId);
+        this.loaderText = "正在上传dxf文件";
         const data = await this.dataService.uploadDxf(file);
         if (!data) {
             return;
         }
-        const param: PrintCadsParams = {
-            cads: [data],
-            linewidth: 2,
-            config: {fontFamily: this.fontFamily},
-            extra: {
-                拉手信息宽度: 578
-            }
-        };
-        if (this.showDesignPics) {
-            param.designPics = {
-                urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],
-                margin: 10
-            };
-        }
-        await this.generateSuanliaodan(param);
+        this.printParams.cads = [data];
+        await this.generateSuanliaodan(this.printParams);
         this.loader.stopLoader(this.loaderId);
-        const cads = param.cads.map((v) => v.export());
-        session.save(this._paramKey, {...param, cads});
-    }
-
-    setShowDesignPics(event: MatSlideToggleChange) {
-        this.showDesignPics = event.checked;
-        session.save(this._showDesignPicsKey, this.showDesignPics);
+        this._savePrintParams();
     }
 
     toggleToolbarVisible() {
