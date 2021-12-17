@@ -149,8 +149,14 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
     } else {
         rect.left = vLines[0].start.x;
         rect.right = vLines[vLines.length - 1].start.x;
-        const vLinesDx = vLines[vLines.length - 1].start.x - vLines[0].start.x;
+        const vLinesMinLength = rect.height / 2;
+        const vLines2 = vLines.filter((e) => e.length > vLinesMinLength);
+        const vLinesDx = vLines2[vLines2.length - 1].start.x - vLines2[0].start.x;
         const hLines2 = hLines.filter((e) => isNearZero(e.length - vLinesDx, 1)).reverse();
+        if (hLines2.length < 1) {
+            console.warn("模板没有合适的线");
+            return;
+        }
         for (let i = 0; i < hLines2.length - 1; i++) {
             const l1 = hLines2[i];
             const l2 = hLines2[i + 1];
@@ -168,6 +174,9 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
             return !isBetween(e.insert.y, top, bottom);
         }
         if (e instanceof CadLine) {
+            if (e.minX >= right || e.maxX <= left) {
+                return true;
+            }
             if (e.isHorizontal()) {
                 return e.minY >= top || e.maxY <= bottom;
             } else if (e.isVertical()) {
@@ -181,7 +190,7 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
             }
         }
         const eRect = e.boundingRect;
-        return eRect.top < bottom || eRect.bottom > top;
+        return eRect.left > right || eRect.right < left || eRect.top < bottom || eRect.bottom > top;
     });
 
     let {width, height} = rect;
@@ -199,7 +208,7 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
     }
     for (let i = 0; i < urls.length; i++) {
         const cadImage = new CadImage();
-        cadImage.url = getImageDataUrl(await loadImage(urls[i]));
+        cadImage.url = urls[i];
         cadImage.anchor.set(0.5, 0.5);
         cadImage.targetSize = new Point(width - margin * 2, height - margin * 2);
         cadImage.objectFit = "contain";
@@ -243,7 +252,7 @@ export interface PrintCadsParams {
     config?: Partial<CadViewerConfig>;
     linewidth?: number;
     dimStyle?: CadDimensionStyle;
-    designPics?: {urls: (string | string[])[]; margin: number; showSmall: boolean; showLarge: boolean};
+    designPics?: {urls: string[][]; margin: number; showSmall: boolean; showLarge: boolean};
     extra?: {拉手信息宽度?: number};
     url?: string;
 }
@@ -268,6 +277,7 @@ export const printCads = async (params: PrintCadsParams) => {
     const scaleX = 300 / dpiX / 0.75;
     const scaleY = 300 / dpiY / 0.75;
     const scale = Math.sqrt(scaleX * scaleY);
+    const errors: string[] = [];
 
     const cadPrint = new CadViewer(new CadData(), {
         ...config,
@@ -373,7 +383,7 @@ export const printCads = async (params: PrintCadsParams) => {
         }
         data.updatePartners().updateComponents();
         cadPrint.data = data;
-        await cadPrint.render();
+        await cadPrint.reset().render();
         cadPrint.center();
         const {拉手信息宽度} = extra;
         if (typeof 拉手信息宽度 === "number" && 拉手信息宽度 > 0) {
@@ -396,23 +406,33 @@ export const printCads = async (params: PrintCadsParams) => {
         const designPics = params.designPics;
         if (designPics) {
             const {urls, margin, showSmall, showLarge} = designPics;
-            let urlGroup = urls[i];
-            if (urlGroup) {
-                if (typeof urlGroup === "string") {
-                    urlGroup = [urlGroup];
+            if (Array.isArray(urls[i])) {
+                const urls2: string[] = [];
+                for (const url2 of urls[i]) {
+                    try {
+                        urls2.push(getImageDataUrl(await loadImage(url2)));
+                    } catch (error) {
+                        errors.push(`无法加载设计图: ${url2}`);
+                    }
                 }
-                if (showSmall) {
-                    await drawDesignPics(data, urlGroup, margin, true);
-                    await cadPrint.reset().render();
-                    cadPrint.center();
-                    imgs.push(await cadPrint.toDataURL());
+                if (urls2.length > 0) {
+                    const data2 = data.clone();
+                    if (showSmall) {
+                        await drawDesignPics(data, urls2, margin, true);
+                        await cadPrint.reset().render();
+                        cadPrint.center();
+                        imgs.push(await cadPrint.toDataURL());
+                    } else {
+                        imgs.push(await cadPrint.toDataURL());
+                    }
+                    if (showLarge) {
+                        await drawDesignPics(data2, urls2, margin, false);
+                        cadPrint.data = data2;
+                        await cadPrint.reset().render();
+                        cadPrint.center();
+                        imgs.push(await cadPrint.toDataURL());
+                    }
                 } else {
-                    imgs.push(await cadPrint.toDataURL());
-                }
-                if (showLarge) {
-                    await drawDesignPics(data, urlGroup, margin, false);
-                    await cadPrint.reset().render();
-                    cadPrint.center();
                     imgs.push(await cadPrint.toDataURL());
                 }
             }
@@ -433,7 +453,7 @@ export const printCads = async (params: PrintCadsParams) => {
     const url = await new Promise<string>((resolve) => {
         pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
     });
-    return url;
+    return {url, errors};
 };
 
 export const setCadData = (data: CadData, project: string) => {

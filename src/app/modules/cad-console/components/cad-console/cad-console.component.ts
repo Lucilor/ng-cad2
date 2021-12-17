@@ -419,8 +419,11 @@ export class CadConsoleComponent implements OnInit {
             this.spinner.show(this.spinner.defaultLoaderId, {text: "正在打印..."});
             const cad = this.status.cad;
             const cads = this.status.closeCad([cad.data.clone()]);
-            const url = await printCads({cads, config: cad.getConfig()});
+            const {url, errors} = await printCads({cads, config: cad.getConfig()});
             this.spinner.hide(this.spinner.defaultLoaderId);
+            if (errors.length > 0) {
+                console.warn(errors.join("\n"));
+            }
             printJS({printable: url, type: "pdf"});
         },
         rotate(degreesArg: string) {

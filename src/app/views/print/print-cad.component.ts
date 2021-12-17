@@ -87,10 +87,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const response = await this.dataService.post<PrintCadsParams>(action, queryParams);
         if (response?.data) {
             response.data.cads = response.data.cads.map((v) => new CadData(v));
-            if (response.data.designPics) {
-                this.spinner.hide(this.loaderId);
-                response.data.designPics.showLarge = await this.message.confirm("是否打印设计大图？");
-            }
             this.downloadUrl = response.data.url || null;
             await this.generateSuanliaodan(response.data);
         }
@@ -121,9 +117,12 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     async generateSuanliaodan(params: PrintCadsParams) {
         timer.start(this.loaderId);
         this.spinner.show(this.loaderId, {text: "正在生成算料单..."});
-        this.pdfUrlRaw = await printCads(params);
+        const {url, errors} = await printCads(params);
         this.spinner.hide(this.loaderId);
-        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfUrlRaw);
+        if (errors.length > 0) {
+            this.message.alert({content: new Error(errors.join("<br>"))});
+        }
+        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
         timer.end(this.loaderId, "生成算料单");
     }
 
@@ -154,6 +153,22 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             downloadByUrl(this.downloadUrl);
         } else {
             this.message.alert("没有提供下载地址");
+        }
+    }
+
+    async editDesignPics() {
+        const urls = await this.message.prompt(
+            {promptData: {type: "textarea", value: this.printParams.designPics.urls[0].join("\n")}},
+            {width: "50vw"}
+        );
+        if (urls !== null) {
+            this.printParams.designPics.urls = [
+                urls
+                    .split("\n")
+                    .map((v) => v.trim())
+                    .filter((v) => v !== "")
+            ];
+            this._savePrintParams();
         }
     }
 }
