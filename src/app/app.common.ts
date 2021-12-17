@@ -50,7 +50,7 @@ export type CadCollection =
     | "kailiaocadmuban"
     | "material";
 
-export const timer = new Timer();
+export const timer = new Timer({color: "deeppink"});
 Object.assign(window, {timer});
 
 export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;

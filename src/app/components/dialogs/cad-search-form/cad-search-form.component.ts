@@ -50,7 +50,10 @@ export class CadSearchFormComponent implements OnInit {
     }
 
     async addOption() {
-        const name = (await this.message.prompt({promptData: {placeholder: "请输入选项名字"}})) as string;
+        const name = await this.message.prompt({promptData: {placeholder: "请输入选项名字"}});
+        if (!name) {
+            return;
+        }
         const isExist = this.data.find((v) => v.items.some((vv) => vv.label === name));
         if (isExist) {
             this.message.alert("选项已存在");

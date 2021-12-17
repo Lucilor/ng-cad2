@@ -10,7 +10,6 @@ import {MatSelectModule} from "@angular/material/select";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-
 import {CadSearchFormComponent} from "./cad-search-form.component";
 
 describe("CadSearchFormComponent", () => {
