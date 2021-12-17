@@ -14,7 +14,15 @@
                     ></mat-checkbox>
                     <mat-form-field style="font-weight: bold; color: #ff5e00">
                         <mat-label>名字</mat-label>
-                        <input matInput type="text" [(ngModel)]="item.name" name="name" />
+                        <input
+                            matInput
+                            type="text"
+                            [(ngModel)]="item.name"
+                            (input)="validateNames()"
+                            name="name"
+                            [errorStateMatcher]="nameMatcher"
+                        />
+                        <mat-error *ngIf="nameErrorMsg[i]">{{ nameErrorMsg[i] }}</mat-error>
                     </mat-form-field>
                 </div>
                 <mat-form-field class="halfwidth">
@@ -191,6 +199,6 @@
     <button mat-raised-button color="primary" (click)="unselectAll()">全不选</button>
 </div>
 <div class="btn-group">
-    <button mat-raised-button color="primary" (click)="submit()">确定</button>
+    <button mat-raised-button color="primary" (click)="submit()" [disabled]="!valid">确定</button>
     <button mat-raised-button color="primary" (click)="cancle()">取消</button>
 </div>

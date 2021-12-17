@@ -1,11 +1,13 @@
 import {Component, Inject} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
+import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {splitOptions, joinOptions} from "@app/app.common";
 import {CadZhankai, CadData, FlipType} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
+import {ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
 import {openCadListDialog} from "../cad-list/cad-list.component";
 import {openCadOptionsDialog} from "../cad-options/cad-options.component";
@@ -32,6 +34,19 @@ export class CadZhankaiComponent extends Utils() {
     get emptyFlipItem(): CadZhankai["flip"][0] {
         return {kaiqi: "", chanpinfenlei: "", fanzhuanfangshi: ""};
     }
+    nameErrorMsg: string[] = [];
+    nameMatcher: ErrorStateMatcher = {
+        isErrorState: (control) => {
+            const value = control?.value;
+            if (!value) {
+                return true;
+            }
+            return this.data.filter((v) => v.name === value).length > 1;
+        }
+    };
+    get valid() {
+        return this.nameErrorMsg.every((v) => !v);
+    }
 
     constructor(
         public dialogRef: MatDialogRef<CadZhankaiComponent, CadZhankai[]>,
@@ -45,7 +60,9 @@ export class CadZhankaiComponent extends Utils() {
     }
 
     submit() {
-        this.dialogRef.close(this.data);
+        if (this.valid) {
+            this.dialogRef.close(this.data);
+        }
     }
 
     cancle() {
@@ -83,6 +100,7 @@ export class CadZhankaiComponent extends Utils() {
 
     addItem() {
         this.data.push(new CadZhankai());
+        this.validateNames();
     }
 
     selectAll() {
@@ -134,6 +152,27 @@ export class CadZhankaiComponent extends Utils() {
 
     removeFlipChai(i: number, key: string) {
         delete this.data[i].flipChai[key];
+    }
+
+    validateNames() {
+        const names: string[] = [];
+        this.nameErrorMsg = [];
+        this.data.forEach((v, i) => {
+            this.nameErrorMsg[i] = v.name ? "" : "名字不能为空";
+            if (v.name) {
+                this.nameErrorMsg[i] = "";
+                names.push(v.name);
+            } else {
+                this.nameErrorMsg[i] = "名字不能为空";
+            }
+        });
+        const map: ObjectOf<number[]> = {};
+        names.forEach((v, i) => (map[v] ? map[v].push(i) : (map[v] = [i])));
+        for (const v in map) {
+            if (map[v].length > 1) {
+                map[v].forEach((i) => (this.nameErrorMsg[i] = "名字不能重复"));
+            }
+        }
     }
 }
 
