@@ -2,7 +2,7 @@
     {
         "name": "Dur Neh Viir",
         "translation": "Summon Durnehviir",
-        "description": "A Shout to the skies, a cry to the clouds, that awakens the destructive force of Skyrim's lightning."
+        "description": "Durnehviir! Hear my Voice and come forth from the Soul Cairn. I summon you in my time of need."
     },
     {
         "name": "Faas Ru Maar",
@@ -22,7 +22,7 @@
     {
         "name": "Fus Ro Dah",
         "translation": "Unrelenting Force",
-        "description": "The Thu'um is heard, but its source unknown, fooling those into seeking it out."
+        "description": "Your Voice is raw power, pushing aside anything - or anyone - who stands in your path."
     },
     {
         "name": "Gaan Lah Haas",
@@ -67,7 +67,7 @@
     {
         "name": "Lok Vah Koor",
         "translation": "Clear Skies",
-        "description": "The valiant of Sovngarde hear your Voice, and journey beyond space and time to lend aid."
+        "description": "Skyrim itself yields before the Thu'um, as you clear away fog and inclement weather."
     },
     {
         "name": "Mid Vur Shaan",
@@ -102,7 +102,7 @@
     {
         "name": "Su Grah Dun",
         "translation": "Elemental Fury",
-        "description": "Coax both magical and mortal energies from your hapless opponent."
+        "description": "The Thu'um imbues your arms with the speed of wind, allowing for faster weapon strikes."
     },
     {
         "name": "Tiid Klo Ul",
@@ -117,7 +117,7 @@
     {
         "name": "Wuld Nah Kest",
         "translation": "Whirlwind Sprint",
-        "description": "The Thu'um is heard, but its source unknown, fooling those into seeking it out."
+        "description": "The Thu'um rushes forward, carrying you in its wake with the speed of a tempest."
     },
     {
         "name": "Yol Toor Shol",
