@@ -120,7 +120,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const {url, errors} = await printCads(params);
         this.spinner.hide(this.loaderId);
         if (errors.length > 0) {
-            this.message.alert({content: new Error(errors.join("<br>"))});
+            // this.message.alert({content: new Error(errors.join("<br>"))});
+            console.warn(errors);
         }
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
         timer.end(this.loaderId, "生成算料单");
