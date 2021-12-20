@@ -8,6 +8,7 @@ import {
     CadArc,
     CadData,
     CadEntities,
+    CadEventCallBack,
     CadLine,
     CadLineLike,
     CadViewerConfig,
@@ -106,138 +107,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
 
     readonly selectableColors = validColors;
 
-    private onPointerMove = (async ({clientX, clientY, shiftKey}: MouseEvent) => {
-        const lineDrawing = this.lineDrawing;
-        const cad = this.status.cad;
-        if (!lineDrawing) {
-            return;
-        }
-        let entity = lineDrawing.entity;
-        if (lineDrawing.oldEntity) {
-            if (!entity) {
-                return;
-            }
-            if (lineDrawing.start) {
-                entity.start.copy(cad.getWorldPoint(clientX, clientY));
-            } else if (lineDrawing.end) {
-                entity.end.copy(cad.getWorldPoint(clientX, clientY));
-            }
-        } else {
-            if (!lineDrawing.start) {
-                return;
-            }
-            lineDrawing.end = cad.getWorldPoint(clientX, clientY);
-            if (entity) {
-                entity.end = lineDrawing.end;
-            } else {
-                entity = new CadLine({...lineDrawing});
-                lineDrawing.entity = entity;
-                this.data?.entities.add(entity);
-                cad.render(entity);
-                entity.opacity = 0.6;
-                entity.selectable = false;
-            }
-        }
-        if (shiftKey) {
-            const {start, end} = entity;
-            const dx = Math.abs(start.x - end.x);
-            const dy = Math.abs(start.y - end.y);
-            if (dx < dy) {
-                end.x = start.x;
-            } else {
-                end.y = start.y;
-            }
-        }
-        cad.render(entity);
-    }).bind(this);
-
-    private onClick = ((_event: MouseEvent) => {
-        const lineDrawing = this.lineDrawing;
-        const cad = this.status.cad;
-        const entity = lineDrawing?.entity;
-        if (!lineDrawing || !entity) {
-            // this.status.addCadPoint({x: event.clientX, y: event.clientY, active: true});
-            return;
-        }
-        if (lineDrawing.oldEntity) {
-        } else {
-            setLinesLength(cad.data, [entity], Math.round(entity.length));
-            this.addLineDrawing();
-        }
-    }).bind(this);
-
-    private onEntitiesChange = (() => {
-        const {line, arc} = this.status.cad.selected();
-        const selected = [...line, ...arc];
-        this.selected = selected;
-        selected.forEach((e) => {
-            if (e instanceof CadLine) {
-                ["gongshi", "guanlianbianhuagongshi"].forEach((v) => this.validateLineText(v, e[v as keyof CadLine] as string));
-            }
-        });
-        if (selected.length < 1) {
-            this.editDiabled = true;
-        } else {
-            const cads = this.status.cad.data.components.data;
-            const ids: string[] = [];
-            cads.forEach((v) => v.entities.forEach((vv) => ids.push(vv.id)));
-            this.editDiabled = !selected.every((e) => ids.includes(e.id));
-        }
-        this.colorText = this.getCssColor();
-    }).bind(this);
-
-    private updateCadPoints = (() => {
-        const {lineDrawing, linesMoving, linesCutting, selected, WHDashedLines} = this;
-        const selected0 = selected[0];
-        if (lineDrawing) {
-            this.status.setCadPoints(this.data?.getAllEntities());
-            this.lineDrawing = {};
-        } else if (linesMoving) {
-            if (linesMoving.start) {
-                const exclude = this.status.getCadPoints(new CadEntities().fromArray(this.selected));
-                this.status.setCadPoints(this.data?.getAllEntities(), exclude);
-            } else {
-                if (selected.length < 1) {
-                    this.message.alert("没有选中线");
-                    this.moveLines();
-                    this.linesMoving = null;
-                } else {
-                    this.status.setCadPoints(new CadEntities().fromArray(this.selected));
-                }
-            }
-        } else if (linesCutting) {
-            if (!(selected0 instanceof CadLine)) {
-                this.message.alert("请先选中一条直线");
-                this.cutLine();
-                this.linesCutting = null;
-            } else {
-                if (!this.data) {
-                    throw new Error("no data");
-                }
-                const points: CadPoints = [];
-                const {curve, start, end} = selected0;
-                this.data.getAllEntities().line.forEach((l) => {
-                    if (l.id === selected0.id) {
-                        return;
-                    }
-                    const intersection = l.curve.intersects(curve);
-                    if (intersection && !intersection.equals(start) && !intersection.equals(end)) {
-                        const {x, y} = this.status.cad.getScreenPoint(intersection.x, intersection.y);
-                        points.push({x, y, active: false, lines: []});
-                    }
-                });
-                if (points.length) {
-                    this.status.cadPoints$.next(points);
-                    this.linesCutting = {lines: [selected0], points: []};
-                } else {
-                    this.message.alert("无法截这条线(相交的线不足)");
-                }
-            }
-        } else if (WHDashedLines) {
-            this.status.setCadPoints(WHDashedLines.map);
-        }
-    }).bind(this);
-
     constructor(
         private status: AppStatusService,
         private dialog: MatDialog,
@@ -265,13 +134,13 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     e.selectable = false;
                 });
                 this.lineDrawing = {};
-                this.updateCadPoints();
+                this._updateCadPoints();
             } else if (cadStatus instanceof CadStatusMoveLines) {
                 this.linesMoving = {};
-                this.updateCadPoints();
+                this._updateCadPoints();
             } else if (cadStatus instanceof CadStatusCutLine) {
                 this.linesCutting = {lines: [], points: []};
-                this.updateCadPoints();
+                this._updateCadPoints();
             } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo) {
                 this.addWHDashedLinesStart();
             }
@@ -351,7 +220,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                                 lineDrawing.end = entity.end;
                             }
                             oldEntity.opacity = 0.6;
-                            this.updateCadPoints();
+                            this._updateCadPoints();
                         } else {
                             if (lineDrawing.start) {
                                 entity.start.copy(worldPoints[0]);
@@ -412,16 +281,16 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         });
 
         this.subscribe(this.status.openCad$, () => {
-            this.onEntitiesChange();
+            this._onEntitiesChange();
         });
-        cad.on("pointermove", this.onPointerMove);
-        cad.on("click", this.onClick);
-        cad.on("entitiesselect", this.onEntitiesChange);
-        cad.on("entitiesunselect", this.onEntitiesChange);
-        cad.on("entitiesadd", this.onEntitiesChange);
-        cad.on("entitiesremove", this.onEntitiesChange);
-        cad.on("moveentities", this.updateCadPoints);
-        cad.on("zoom", this.updateCadPoints);
+        cad.on("pointermove", this._onPointerMove);
+        cad.on("click", this._onClick);
+        cad.on("entitiesselect", this._onEntitiesChange);
+        cad.on("entitiesunselect", this._onEntitiesChange);
+        cad.on("entitiesadd", this._onEntitiesChange);
+        cad.on("entitiesremove", this._onEntitiesChange);
+        cad.on("moveentities", this._updateCadPoints);
+        cad.on("zoom", this._updateCadPoints);
 
         const response = await this.dataService.get<number[]>("ngcad/getZhewan");
         if (response?.data) {
@@ -432,15 +301,147 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     ngOnDestroy() {
         super.ngOnDestroy();
         const cad = this.status.cad;
-        cad.off("pointermove", this.onPointerMove);
-        cad.off("click", this.onClick);
-        cad.off("entitiesselect", this.onEntitiesChange);
-        cad.off("entitiesunselect", this.onEntitiesChange);
-        cad.off("entitiesadd", this.onEntitiesChange);
-        cad.off("entitiesremove", this.onEntitiesChange);
-        cad.off("moveentities", this.updateCadPoints);
-        cad.off("zoom", this.updateCadPoints);
+        cad.off("pointermove", this._onPointerMove);
+        cad.off("click", this._onClick);
+        cad.off("entitiesselect", this._onEntitiesChange);
+        cad.off("entitiesunselect", this._onEntitiesChange);
+        cad.off("entitiesadd", this._onEntitiesChange);
+        cad.off("entitiesremove", this._onEntitiesChange);
+        cad.off("moveentities", this._updateCadPoints);
+        cad.off("zoom", this._updateCadPoints);
     }
+
+    private _onPointerMove: CadEventCallBack<"pointermove"> = async ({clientX, clientY, shiftKey}) => {
+        const lineDrawing = this.lineDrawing;
+        const cad = this.status.cad;
+        if (!lineDrawing) {
+            return;
+        }
+        let entity = lineDrawing.entity;
+        if (lineDrawing.oldEntity) {
+            if (!entity) {
+                return;
+            }
+            if (lineDrawing.start) {
+                entity.start.copy(cad.getWorldPoint(clientX, clientY));
+            } else if (lineDrawing.end) {
+                entity.end.copy(cad.getWorldPoint(clientX, clientY));
+            }
+        } else {
+            if (!lineDrawing.start) {
+                return;
+            }
+            lineDrawing.end = cad.getWorldPoint(clientX, clientY);
+            if (entity) {
+                entity.end = lineDrawing.end;
+            } else {
+                entity = new CadLine({...lineDrawing});
+                lineDrawing.entity = entity;
+                this.data?.entities.add(entity);
+                await cad.render(entity);
+                entity.opacity = 0.6;
+                entity.selectable = false;
+            }
+        }
+        if (shiftKey) {
+            const {start, end} = entity;
+            const dx = Math.abs(start.x - end.x);
+            const dy = Math.abs(start.y - end.y);
+            if (dx < dy) {
+                end.x = start.x;
+            } else {
+                end.y = start.y;
+            }
+        }
+        await cad.render(entity);
+    };
+
+    private _onClick: CadEventCallBack<"click"> = (_event: MouseEvent) => {
+        const lineDrawing = this.lineDrawing;
+        const cad = this.status.cad;
+        const entity = lineDrawing?.entity;
+        if (!lineDrawing || !entity) {
+            // this.status.addCadPoint({x: event.clientX, y: event.clientY, active: true});
+            return;
+        }
+        if (lineDrawing.oldEntity) {
+        } else {
+            setLinesLength(cad.data, [entity], Math.round(entity.length));
+            this.addLineDrawing();
+        }
+    };
+
+    private _onEntitiesChange = () => {
+        const {line, arc} = this.status.cad.selected();
+        const selected = [...line, ...arc];
+        this.selected = selected;
+        selected.forEach((e) => {
+            if (e instanceof CadLine) {
+                ["gongshi", "guanlianbianhuagongshi"].forEach((v) => this.validateLineText(v, e[v as keyof CadLine] as string));
+            }
+        });
+        if (selected.length < 1) {
+            this.editDiabled = true;
+        } else {
+            const cads = this.status.cad.data.components.data;
+            const ids: string[] = [];
+            cads.forEach((v) => v.entities.forEach((vv) => ids.push(vv.id)));
+            this.editDiabled = !selected.every((e) => ids.includes(e.id));
+        }
+        this.colorText = this.getCssColor();
+    };
+
+    private _updateCadPoints = () => {
+        const {lineDrawing, linesMoving, linesCutting, selected, WHDashedLines} = this;
+        const selected0 = selected[0];
+        if (lineDrawing) {
+            this.status.setCadPoints(this.data?.getAllEntities());
+            this.lineDrawing = {};
+        } else if (linesMoving) {
+            if (linesMoving.start) {
+                const exclude = this.status.getCadPoints(new CadEntities().fromArray(this.selected));
+                this.status.setCadPoints(this.data?.getAllEntities(), exclude);
+            } else {
+                if (selected.length < 1) {
+                    this.message.alert("没有选中线");
+                    this.moveLines();
+                    this.linesMoving = null;
+                } else {
+                    this.status.setCadPoints(new CadEntities().fromArray(this.selected));
+                }
+            }
+        } else if (linesCutting) {
+            if (!(selected0 instanceof CadLine)) {
+                this.message.alert("请先选中一条直线");
+                this.cutLine();
+                this.linesCutting = null;
+            } else {
+                if (!this.data) {
+                    throw new Error("no data");
+                }
+                const points: CadPoints = [];
+                const {curve, start, end} = selected0;
+                this.data.getAllEntities().line.forEach((l) => {
+                    if (l.id === selected0.id) {
+                        return;
+                    }
+                    const intersection = l.curve.intersects(curve);
+                    if (intersection && !intersection.equals(start) && !intersection.equals(end)) {
+                        const {x, y} = this.status.cad.getScreenPoint(intersection.x, intersection.y);
+                        points.push({x, y, active: false, lines: []});
+                    }
+                });
+                if (points.length) {
+                    this.status.cadPoints$.next(points);
+                    this.linesCutting = {lines: [selected0], points: []};
+                } else {
+                    this.message.alert("无法截这条线(相交的线不足)");
+                }
+            }
+        } else if (WHDashedLines) {
+            this.status.setCadPoints(WHDashedLines.map);
+        }
+    };
 
     getLineLength() {
         const lines = this.selected;

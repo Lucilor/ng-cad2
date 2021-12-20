@@ -42,7 +42,7 @@ export class AppConfigService {
             padding: [0],
             dragAxis: "xy",
             selectMode: "multiple",
-            entityDraggable: ["MTEXT", "DIMENSION"],
+            entityDraggable: ["MTEXT", "DIMENSION", "IMAGE"],
             hideDimensions: false,
             lineGongshi: 8,
             hideLineLength: false,
@@ -114,6 +114,7 @@ export class AppConfigService {
         delete config.height;
         delete config.padding;
         delete config.dragAxis;
+        delete config.entityDraggable;
         return config;
     }
 

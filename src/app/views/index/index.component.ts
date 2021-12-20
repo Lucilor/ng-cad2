@@ -134,23 +134,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     }, 1000);
 
     private _resize = debounce(() => this.config.setConfig({width: innerWidth, height: innerHeight}), 500);
-    private _onEntitiesCopy: CadEventCallBack<"entitiescopy"> = (entities) => {
-        const cad = this.status.cad;
-        const selectedCads = this.status.getFlatSelectedCads();
-        if (selectedCads.length !== 1) {
-            this.message.alert("请先选择且仅选择一个CAD");
-            cad.entitiesCopied = undefined;
-            return;
-        }
-        entities.forEach((e) => (e.opacity = 0.3));
-        selectedCads[0].entities.merge(entities);
-        cad.unselectAll();
-        cad.render(entities);
-    };
-    private _onEntitiesPaste: CadEventCallBack<"entitiespaste"> = (entities) => {
-        entities.forEach((e) => (e.opacity = 1));
-        this.status.cad.render(entities);
-    };
 
     ngOnInit() {
         const cad = this.status.cad;
@@ -229,6 +212,25 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         cad.off("entitiescopy", this._onEntitiesCopy);
         cad.off("entitiespaste", this._onEntitiesPaste);
     }
+
+    private _onEntitiesCopy: CadEventCallBack<"entitiescopy"> = (entities) => {
+        const cad = this.status.cad;
+        const selectedCads = this.status.getFlatSelectedCads();
+        if (selectedCads.length !== 1) {
+            this.message.alert("请先选择且仅选择一个CAD");
+            cad.entitiesCopied = undefined;
+            return;
+        }
+        entities.forEach((e) => (e.opacity = 0.3));
+        selectedCads[0].entities.merge(entities);
+        cad.unselectAll();
+        cad.render(entities);
+    };
+
+    private _onEntitiesPaste: CadEventCallBack<"entitiespaste"> = (entities) => {
+        entities.forEach((e) => (e.opacity = 1));
+        this.status.cad.render(entities);
+    };
 
     private async _initCad() {
         let cachedData: any = null;

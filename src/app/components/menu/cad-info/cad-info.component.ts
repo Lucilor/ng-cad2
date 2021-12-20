@@ -50,46 +50,6 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     sldzkxswz = ["CAD上面", "CAD下面", "CAD中间", "CAD左边", "CAD右边"];
     @Output() cadLengthsChange = new EventEmitter<string[]>();
 
-    private _onEntityClick = (
-        ((_, entity) => {
-            const cadStatus = this.status.cadStatus;
-            const data = this.status.getFlatSelectedCads()[0];
-            if (cadStatus instanceof CadStatusSelectBaseline) {
-                if (entity instanceof CadLine) {
-                    const baseLine = data.baseLines[cadStatus.index];
-                    if (entity.isHorizontal()) {
-                        baseLine.idY = entity.selected ? entity.id : "";
-                    }
-                    if (entity.isVertical()) {
-                        baseLine.idX = entity.selected ? entity.id : "";
-                    }
-                    data.updateBaseLines();
-                    data.getAllEntities().forEach((e) => {
-                        e.selected = [baseLine.idX, baseLine.idY].includes(e.id);
-                    });
-                    this.status.cad.render();
-                }
-            }
-        }) as CadEventCallBack<"entityclick">
-    ).bind(this);
-
-    private _updateCadPoints = (() => {
-        const cadStatus = this.status.cadStatus;
-        const data = this.cadsData[0];
-        if (cadStatus instanceof CadStatusSelectJointpoint) {
-            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities());
-            const {valueX, valueY} = data.jointPoints[cadStatus.index];
-            this._setActiveCadPoint({x: valueX, y: valueY}, points);
-            this._cadPointsLock = true;
-            this.status.cadPoints$.next(points);
-        } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo) {
-            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities()).filter((v) => v.lines.length > 1);
-            this._setActiveCadPoint({lines: data.zhidingweizhipaokeng[cadStatus.index]}, points);
-            this._cadPointsLock = true;
-            this.status.cadPoints$.next(points);
-        }
-    }).bind(this);
-
     constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
         super();
     }
@@ -180,6 +140,44 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         cad.off("moveentities", this._updateCadPoints);
         cad.off("zoom", this._updateCadPoints);
     }
+
+    private _onEntityClick: CadEventCallBack<"entityclick"> = (_, entity) => {
+        const cadStatus = this.status.cadStatus;
+        const data = this.status.getFlatSelectedCads()[0];
+        if (cadStatus instanceof CadStatusSelectBaseline) {
+            if (entity instanceof CadLine) {
+                const baseLine = data.baseLines[cadStatus.index];
+                if (entity.isHorizontal()) {
+                    baseLine.idY = entity.selected ? entity.id : "";
+                }
+                if (entity.isVertical()) {
+                    baseLine.idX = entity.selected ? entity.id : "";
+                }
+                data.updateBaseLines();
+                data.getAllEntities().forEach((e) => {
+                    e.selected = [baseLine.idX, baseLine.idY].includes(e.id);
+                });
+                this.status.cad.render();
+            }
+        }
+    };
+
+    private _updateCadPoints = () => {
+        const cadStatus = this.status.cadStatus;
+        const data = this.cadsData[0];
+        if (cadStatus instanceof CadStatusSelectJointpoint) {
+            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities());
+            const {valueX, valueY} = data.jointPoints[cadStatus.index];
+            this._setActiveCadPoint({x: valueX, y: valueY}, points);
+            this._cadPointsLock = true;
+            this.status.cadPoints$.next(points);
+        } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === cadStatusIntersectionInfo) {
+            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities()).filter((v) => v.lines.length > 1);
+            this._setActiveCadPoint({lines: data.zhidingweizhipaokeng[cadStatus.index]}, points);
+            this._cadPointsLock = true;
+            this.status.cadPoints$.next(points);
+        }
+    };
 
     private _setActiveCadPoint(point: Partial<CadPoints[0]>, points: CadPoints) {
         points.forEach((p) => (p.active = false));

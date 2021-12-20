@@ -5,7 +5,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, timer} from "@app/app.common";
 import {getCadPreview, setCadData} from "@app/cad.utils";
-import {CadData, CadEntities, CadHatch} from "@cad-viewer";
+import {CadData, CadEntities, CadEventCallBack, CadHatch} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {ContextMenu} from "@mixins/context-menu.mixin";
@@ -66,97 +66,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     set disabled(value) {
         this.status.disabledCadTypes$.next(value);
     }
-
-    private splitCad = (({key}: KeyboardEvent) => {
-        if (key !== "Enter") {
-            return;
-        }
-        const cadStatus = this.status.cadStatus;
-        if (!(cadStatus instanceof CadStatusSplit)) {
-            return;
-        }
-        const cad = this.status.cad;
-        const entities = cad.selected();
-        if (entities.length < 1) {
-            return;
-        }
-        const data = cad.data.findChild(this._prevId);
-        if (!data) {
-            return;
-        }
-        const cloneData = data.clone(true);
-        const collection = this.status.collection$.value;
-        const split = new CadData();
-        split.entities = entities.clone(true);
-        const node = this._getCadNode(split);
-        this.cads.push(node);
-        if (collection === "p_yuanshicadwenjian") {
-            data.addComponent(split);
-        } else {
-            // data.separate(split);
-            data.addComponent(split);
-            this.blur(split.entities);
-            cad.remove(entities);
-            split.conditions = cloneData.conditions;
-            split.options = cloneData.options;
-            split.type = cloneData.type;
-            try {
-                data.directAssemble(split);
-            } catch (error) {
-                this.message.snack("快速装配失败: " + (error as Error).message);
-            }
-        }
-    }).bind(this);
-
-    private onPointerDown = ((event: PointerEvent) => {
-        const {clientX, clientY, shiftKey, button} = event;
-        if (this.config.getConfig("dragAxis") !== "" || (button !== 1 && !(shiftKey && button === 0))) {
-            return;
-        }
-        this.lastPointer = new Point(clientX, clientY);
-        this.entitiesToMove = new CadEntities();
-        this.entitiesNotToMove = new CadEntities();
-        const selectedCads = this.status.getFlatSelectedCads();
-        selectedCads.forEach((v) => this.entitiesToMove?.merge(v.getAllEntities()));
-        const ids: string[] = [];
-        this.entitiesToMove.forEach((e) => ids.push(e.id));
-        this.status.cad.data.getAllEntities().forEach((e) => {
-            if (!ids.includes(e.id)) {
-                this.entitiesNotToMove?.add(e);
-            }
-        });
-    }).bind(this);
-
-    private onPointerMove = ((event: PointerEvent) => {
-        if (!this.lastPointer) {
-            return;
-        }
-        const {clientX, clientY} = event;
-        const cad = this.status.cad;
-        const selectedCads = this.status.selectedCads$.value;
-        const cadStatus = this.status.cadStatus;
-        const pointer = new Point(clientX, clientY);
-        const translate = this.lastPointer.sub(pointer).divide(cad.zoom());
-        translate.x = -translate.x;
-        if (cadStatus instanceof CadStatusAssemble && selectedCads.components.length) {
-            const data = cad.data.findChildren(selectedCads.components);
-            const parents = keyBy(cad.data.components.data, "id");
-            data.forEach((v) => {
-                const parent = parents[v.parent];
-                parent?.moveComponent(v, translate);
-            });
-        } else if (this.entitiesToMove && this.entitiesNotToMove) {
-            cad.moveEntities(this.entitiesToMove, this.entitiesNotToMove, translate.x, translate.y);
-        }
-        this.lastPointer.copy(pointer);
-    }).bind(this);
-
-    private onPointerUp = (() => {
-        if (this.lastPointer) {
-            this.lastPointer = null;
-            this.status.cad.render();
-        }
-    }).bind(this);
 
     constructor(
         private sanitizer: DomSanitizer,
@@ -251,20 +160,111 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         });
 
         const cad = this.status.cad;
-        cad.on("pointerdown", this.onPointerDown);
-        cad.on("pointermove", this.onPointerMove);
+        cad.on("pointerdown", this._onPointerDown);
+        cad.on("pointermove", this._onPointerMove);
         cad.on("pointerup", this.onPointerUp);
-        window.addEventListener("keydown", this.splitCad);
+        window.addEventListener("keydown", this._splitCad);
     }
 
     ngOnDestroy() {
         super.ngOnDestroy();
         const cad = this.status.cad;
-        cad.off("pointerdown", this.onPointerDown);
-        cad.off("pointermove", this.onPointerMove);
+        cad.off("pointerdown", this._onPointerDown);
+        cad.off("pointermove", this._onPointerMove);
         cad.off("pointerup", this.onPointerUp);
-        window.removeEventListener("keydown", this.splitCad);
+        window.removeEventListener("keydown", this._splitCad);
     }
+
+    private _splitCad = ({key}: KeyboardEvent) => {
+        if (key !== "Enter") {
+            return;
+        }
+        const cadStatus = this.status.cadStatus;
+        if (!(cadStatus instanceof CadStatusSplit)) {
+            return;
+        }
+        const cad = this.status.cad;
+        const entities = cad.selected();
+        if (entities.length < 1) {
+            return;
+        }
+        const data = cad.data.findChild(this._prevId);
+        if (!data) {
+            return;
+        }
+        const cloneData = data.clone(true);
+        const collection = this.status.collection$.value;
+        const split = new CadData();
+        split.entities = entities.clone(true);
+        const node = this._getCadNode(split);
+        this.cads.push(node);
+        if (collection === "p_yuanshicadwenjian") {
+            data.addComponent(split);
+        } else {
+            // data.separate(split);
+            data.addComponent(split);
+            this.blur(split.entities);
+            cad.remove(entities);
+            split.conditions = cloneData.conditions;
+            split.options = cloneData.options;
+            split.type = cloneData.type;
+            try {
+                data.directAssemble(split);
+            } catch (error) {
+                this.message.snack("快速装配失败: " + (error as Error).message);
+            }
+        }
+    };
+
+    private _onPointerDown: CadEventCallBack<"pointerdown"> = (event) => {
+        const {clientX, clientY, shiftKey, button} = event;
+        if (this.config.getConfig("dragAxis") !== "" || (button !== 1 && !(shiftKey && button === 0))) {
+            return;
+        }
+        this.lastPointer = new Point(clientX, clientY);
+        this.entitiesToMove = new CadEntities();
+        this.entitiesNotToMove = new CadEntities();
+        const selectedCads = this.status.getFlatSelectedCads();
+        selectedCads.forEach((v) => this.entitiesToMove?.merge(v.getAllEntities()));
+        const ids: string[] = [];
+        this.entitiesToMove.forEach((e) => ids.push(e.id));
+        this.status.cad.data.getAllEntities().forEach((e) => {
+            if (!ids.includes(e.id)) {
+                this.entitiesNotToMove?.add(e);
+            }
+        });
+    };
+
+    private _onPointerMove: CadEventCallBack<"pointermove"> = (event) => {
+        if (!this.lastPointer) {
+            return;
+        }
+        const {clientX, clientY} = event;
+        const cad = this.status.cad;
+        const selectedCads = this.status.selectedCads$.value;
+        const cadStatus = this.status.cadStatus;
+        const pointer = new Point(clientX, clientY);
+        const translate = this.lastPointer.sub(pointer).divide(cad.zoom());
+        translate.x = -translate.x;
+        if (cadStatus instanceof CadStatusAssemble && selectedCads.components.length) {
+            const data = cad.data.findChildren(selectedCads.components);
+            const parents = keyBy(cad.data.components.data, "id");
+            data.forEach((v) => {
+                const parent = parents[v.parent];
+                parent?.moveComponent(v, translate);
+            });
+        } else if (this.entitiesToMove && this.entitiesNotToMove) {
+            cad.moveEntities(this.entitiesToMove, this.entitiesNotToMove, translate.x, translate.y);
+        }
+        this.lastPointer.copy(pointer);
+    };
+
+    private onPointerUp: CadEventCallBack<"pointerup"> = () => {
+        if (this.lastPointer) {
+            this.lastPointer = null;
+            this.status.cad.render();
+        }
+    };
 
     private _getCadNode(data: CadData, parent?: string) {
         const node: CadNode = {data, img: imgLoading, checked: false, indeterminate: false, parent};

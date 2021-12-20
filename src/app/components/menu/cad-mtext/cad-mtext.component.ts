@@ -16,12 +16,6 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
     data?: CadData;
     selected: CadMtext[] = [];
     currAnchor = new Point();
-
-    private updateSelected = (() => {
-        this.selected = this.status.cad.selected().mtext;
-        this.colorText = this.getColor();
-    }).bind(this);
-
     private _colorText = "";
     colorValue = "";
     colorBg = "";
@@ -52,22 +46,27 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         this.subscribe(this.status.selectedCads$, () => {
             this.data = this.status.getFlatSelectedCads()[0];
         });
-        this.updateSelected();
+        this._updateSelected();
         const cad = this.status.cad;
-        cad.on("entitiesselect", this.updateSelected);
-        cad.on("entitiesunselect", this.updateSelected);
-        cad.on("entitiesadd", this.updateSelected);
-        cad.on("entitiesremove", this.updateSelected);
+        cad.on("entitiesselect", this._updateSelected);
+        cad.on("entitiesunselect", this._updateSelected);
+        cad.on("entitiesadd", this._updateSelected);
+        cad.on("entitiesremove", this._updateSelected);
     }
 
     ngOnDestroy() {
         super.ngOnDestroy();
         const cad = this.status.cad;
-        cad.off("entitiesselect", this.updateSelected);
-        cad.off("entitiesunselect", this.updateSelected);
-        cad.off("entitiesadd", this.updateSelected);
-        cad.off("entitiesremove", this.updateSelected);
+        cad.off("entitiesselect", this._updateSelected);
+        cad.off("entitiesunselect", this._updateSelected);
+        cad.off("entitiesadd", this._updateSelected);
+        cad.off("entitiesremove", this._updateSelected);
     }
+
+    private _updateSelected = () => {
+        this.selected = this.status.cad.selected().mtext;
+        this.colorText = this.getColor();
+    };
 
     getInfo(field: string) {
         const selected = this.selected;

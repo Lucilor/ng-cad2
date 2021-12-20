@@ -21,76 +21,6 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     dimLineSelecting = -1;
     dimensions: CadDimension[] = [];
 
-    private updateDimensions = (() => {
-        this.dimensions = this.status.cad.data.getAllEntities().dimension;
-    }).bind(this);
-
-    onEntitiesSelect = (
-        ((entities) => {
-            const cad = this.status.cad;
-            const data = cad.data.components.data;
-            const cadStatus = this.status.cadStatus;
-            const dimensions = this.dimensions;
-            const entity = entities.line[0];
-            if (cadStatus instanceof CadStatusEditDimension && entity) {
-                let thatData: CadData | undefined;
-                let thatIndex = -1;
-                cad.data.components.data.some((d, i) => {
-                    if (d.findEntity(entity.id)) {
-                        thatData = d;
-                        thatIndex = i;
-                        return true;
-                    }
-                    return false;
-                });
-                if (thatIndex < 0 || !thatData) {
-                    return;
-                }
-                for (const d of cad.data.components.data) {
-                    if (d.findEntity(entity.id)) {
-                        thatData = d;
-                        break;
-                    }
-                }
-                let dimension = dimensions[cadStatus.index];
-                if (!dimension) {
-                    dimension = new CadDimension();
-                    dimension.setColor(0x00ff00);
-                    let newIndex = 0;
-                    for (let i = 0; i < thatIndex; i++) {
-                        newIndex += data[i].entities.dimension.length;
-                    }
-                    newIndex += thatData.entities.dimension.length;
-                    thatData.entities.add(dimension);
-                    this.status.setCadStatus(new CadStatusEditDimension(newIndex));
-                }
-                if (!dimension.entity1.id) {
-                    dimension.entity1 = {id: entity.id, location: "start"};
-                    dimension.cad1 = thatData.name;
-                } else if (!dimension.entity2.id) {
-                    dimension.entity2 = {id: entity.id, location: "end"};
-                    dimension.cad2 = thatData.name;
-                } else {
-                    dimension.entity1 = dimension.entity2;
-                    dimension.entity2 = {id: entity.id, location: "end"};
-                    dimension.cad2 = thatData.name;
-                }
-                const e1 = cad.data.findEntity(dimension.entity1.id);
-                const e2 = cad.data.findEntity(dimension.entity2.id);
-                if (e1 instanceof CadLineLike && e2 instanceof CadLineLike) {
-                    const points = cad.data.getDimensionPoints(dimension);
-                    if (points.length === 4) {
-                        if (points[0].equals(points[1])) {
-                            dimension.axis = dimension.axis === "x" ? "y" : "x";
-                        }
-                    }
-                }
-                this.focus(dimension);
-                cad.render(dimension);
-            }
-        }) as CadEventCallBack<"entitiesselect">
-    ).bind(this);
-
     constructor(
         private status: AppStatusService,
         private dialog: MatDialog,
@@ -133,22 +63,90 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
             }
         });
 
-        this.updateDimensions();
+        this._updateDimensions();
         const cad = this.status.cad;
-        cad.on("entitiesselect", this.onEntitiesSelect);
-        cad.on("entitiesadd", this.updateDimensions);
-        cad.on("entitiesremove", this.updateDimensions);
-        cad.on("render", this.updateDimensions);
+        cad.on("entitiesselect", this._onEntitiesSelect);
+        cad.on("entitiesadd", this._updateDimensions);
+        cad.on("entitiesremove", this._updateDimensions);
+        cad.on("render", this._updateDimensions);
     }
 
     ngOnDestroy() {
         super.ngOnDestroy();
         const cad = this.status.cad;
-        cad.off("entitiesselect", this.onEntitiesSelect);
-        cad.off("entitiesadd", this.updateDimensions);
-        cad.off("entitiesremove", this.updateDimensions);
-        cad.off("render", this.updateDimensions);
+        cad.off("entitiesselect", this._onEntitiesSelect);
+        cad.off("entitiesadd", this._updateDimensions);
+        cad.off("entitiesremove", this._updateDimensions);
+        cad.off("render", this._updateDimensions);
     }
+
+    private _updateDimensions = () => {
+        this.dimensions = this.status.cad.data.getAllEntities().dimension;
+    };
+
+    private _onEntitiesSelect: CadEventCallBack<"entitiesselect"> = (entities) => {
+        const cad = this.status.cad;
+        const data = cad.data.components.data;
+        const cadStatus = this.status.cadStatus;
+        const dimensions = this.dimensions;
+        const entity = entities.line[0];
+        if (cadStatus instanceof CadStatusEditDimension && entity) {
+            let thatData: CadData | undefined;
+            let thatIndex = -1;
+            cad.data.components.data.some((d, i) => {
+                if (d.findEntity(entity.id)) {
+                    thatData = d;
+                    thatIndex = i;
+                    return true;
+                }
+                return false;
+            });
+            if (thatIndex < 0 || !thatData) {
+                return;
+            }
+            for (const d of cad.data.components.data) {
+                if (d.findEntity(entity.id)) {
+                    thatData = d;
+                    break;
+                }
+            }
+            let dimension = dimensions[cadStatus.index];
+            if (!dimension) {
+                dimension = new CadDimension();
+                dimension.setColor(0x00ff00);
+                let newIndex = 0;
+                for (let i = 0; i < thatIndex; i++) {
+                    newIndex += data[i].entities.dimension.length;
+                }
+                newIndex += thatData.entities.dimension.length;
+                thatData.entities.add(dimension);
+                this.status.setCadStatus(new CadStatusEditDimension(newIndex));
+            }
+            if (!dimension.entity1.id) {
+                dimension.entity1 = {id: entity.id, location: "start"};
+                dimension.cad1 = thatData.name;
+            } else if (!dimension.entity2.id) {
+                dimension.entity2 = {id: entity.id, location: "end"};
+                dimension.cad2 = thatData.name;
+            } else {
+                dimension.entity1 = dimension.entity2;
+                dimension.entity2 = {id: entity.id, location: "end"};
+                dimension.cad2 = thatData.name;
+            }
+            const e1 = cad.data.findEntity(dimension.entity1.id);
+            const e2 = cad.data.findEntity(dimension.entity2.id);
+            if (e1 instanceof CadLineLike && e2 instanceof CadLineLike) {
+                const points = cad.data.getDimensionPoints(dimension);
+                if (points.length === 4) {
+                    if (points[0].equals(points[1])) {
+                        dimension.axis = dimension.axis === "x" ? "y" : "x";
+                    }
+                }
+            }
+            this.focus(dimension);
+            cad.render(dimension);
+        }
+    };
 
     async editDimension(i: number) {
         const dimensions = this.dimensions;
