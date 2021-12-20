@@ -89,9 +89,11 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
     }
     vLines.sort((a, b) => a.start.x - b.start.x);
     hLines.sort((a, b) => a.start.y - b.start.y);
+    let deleteEntities: boolean;
 
     if (findLocator) {
-        const locator = data.entities.mtext.find((e) => e.text === "#设计图#");
+        const locatorIndex = data.entities.mtext.findIndex((e) => e.text === "#设计图#");
+        const locator = data.entities.mtext[locatorIndex];
         if (!locator) {
             console.warn("没有找到设计图标识");
             return;
@@ -104,7 +106,7 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
             width: locatorWidth,
             height: locatorHeight
         } = locator.boundingRect;
-        locator.remove();
+        data.entities.mtext.splice(locatorIndex, 1);
         let leftLines: CadLine[] = [];
         let rightLines: CadLine[] = [];
         let topLines: CadLine[] = [];
@@ -146,6 +148,7 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
         rect.right = rightLines[0].maxX;
         rect.top = topLines[0].minY;
         rect.bottom = bottomLines[bottomLines.length - 1].maxY;
+        deleteEntities = false;
     } else {
         rect.left = vLines[0].start.x;
         rect.right = vLines[vLines.length - 1].start.x;
@@ -166,32 +169,35 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
             }
         }
         rect.bottom = hLines2[hLines2.length - 1].start.y;
+        deleteEntities = true;
     }
 
     const {top, bottom, left, right} = rect;
-    data.entities = data.entities.filter((e) => {
-        if (e instanceof CadMtext) {
-            return !isBetween(e.insert.y, top, bottom);
-        }
-        if (e instanceof CadLine) {
-            if (e.minX >= right || e.maxX <= left) {
-                return true;
+    if (deleteEntities) {
+        data.entities = data.entities.filter((e) => {
+            if (e instanceof CadMtext) {
+                return !isBetween(e.insert.y, top, bottom);
             }
-            if (e.isHorizontal()) {
-                return e.minY >= top || e.maxY <= bottom;
-            } else if (e.isVertical()) {
-                if (e.maxY > top || e.minY < bottom) {
+            if (e instanceof CadLine) {
+                if (e.minX >= right || e.maxX <= left) {
                     return true;
                 }
-                if (e.maxY === top || e.minY === bottom) {
-                    return e.minX <= left || e.maxX >= right;
+                if (e.isHorizontal()) {
+                    return e.minY >= top || e.maxY <= bottom;
+                } else if (e.isVertical()) {
+                    if (e.maxY > top || e.minY < bottom) {
+                        return true;
+                    }
+                    if (e.maxY === top || e.minY === bottom) {
+                        return e.minX <= left || e.maxX >= right;
+                    }
+                    return false;
                 }
-                return false;
             }
-        }
-        const eRect = e.boundingRect;
-        return eRect.left > right || eRect.right < left || eRect.top < bottom || eRect.bottom > top;
-    });
+            const eRect = e.boundingRect;
+            return eRect.left > right || eRect.right < left || eRect.top < bottom || eRect.bottom > top;
+        });
+    }
 
     let {width, height} = rect;
     const {x, y} = rect;
