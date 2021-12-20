@@ -60,7 +60,7 @@ export class AppConfigService {
             subCadsMultiSelect: true
         };
         this._configKeys = keysOf(defaultConfig);
-        const localUserConfig = local.load<Partial<AppConfig>>("userConfig") || {};
+        const localUserConfig = this._purgeUserConfig(local.load<Partial<AppConfig>>("userConfig") || {});
         for (const key of this._configKeys) {
             if (localUserConfig[key] !== undefined) {
                 (defaultConfig[key] as any) = localUserConfig[key];

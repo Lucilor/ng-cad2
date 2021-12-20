@@ -123,6 +123,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             // this.message.alert({content: new Error(errors.join("<br>"))});
             console.warn(errors);
         }
+        this.pdfUrlRaw = url;
         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
         timer.end(this.loaderId, "生成算料单");
     }
