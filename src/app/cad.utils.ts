@@ -244,6 +244,9 @@ const getWrapedText = (cad: CadViewer, source: string, maxLength: number, mtext:
             if (start === end - 1) {
                 throw new Error("文字自动换行时出错");
             }
+            if (source.slice(end - 1).match(/(\d+(\.\d+)?)?=?\d+(\.\d+)?/)) {
+                end = sourceLength + 1;
+            }
             arr.push(source.slice(start, end - 1));
             start = end - 1;
         }
