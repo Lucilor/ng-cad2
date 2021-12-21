@@ -456,15 +456,13 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         return "";
     }
 
-    setLineLength(event: Event) {
+    async setLineLength(event: Event) {
         const {selected} = this;
         const cad = this.status.cad;
         const lines = selected.filter((v) => v instanceof CadLine) as CadLine[];
         setLinesLength(cad.data, lines, Number((event.target as HTMLInputElement).value));
-        if (cad.getConfig("validateLines")) {
-            this.status.validate();
-        }
-        cad.render();
+        this.status.validate();
+        await cad.render();
         if (lines.some((v) => v.zhankaifangshi === "指定长度")) {
             this.message.snack("线的展开方式为指定长度");
         }
@@ -633,7 +631,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         this.status.setCadPoints(this.data?.getAllEntities());
     }
 
-    autoFix() {
+    async autoFix() {
         const {selected} = this;
         const cad = this.status.cad;
         selected.forEach((e) => {
@@ -641,10 +639,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 autoFixLine(cad, e);
             }
         });
-        if (cad.getConfig("validateLines")) {
-            this.status.validate();
-        }
-        cad.render();
+        this.status.validate();
+        await cad.render();
     }
 
     async editTiaojianquzhi() {

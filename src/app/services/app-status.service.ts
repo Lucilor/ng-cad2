@@ -264,6 +264,9 @@ export class AppStatusService {
 
     validate() {
         const results: ValidateResult[] = [];
+        if (this.collection$.value !== "cad" || !this.config.getConfig("validateLines")) {
+            return results;
+        }
         this.cad.data.components.data.forEach((v) => {
             results.push(validateLines(v));
         });

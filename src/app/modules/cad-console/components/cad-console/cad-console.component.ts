@@ -278,10 +278,8 @@ export class CadConsoleComponent implements OnInit {
                 const data = this.status.getFlatSelectedCads()[0];
                 data.entities.add(cadArc);
             }
-            if (cad.getConfig("validateLines")) {
-                this.status.validate();
-            }
-            cad.unselectAll().render();
+            this.status.validate();
+            await cad.unselectAll().render();
         },
         flip(horizontal: string, vertival: string) {
             const scaleX = horizontal === "true" ? -1 : 1;
@@ -468,13 +466,11 @@ export class CadConsoleComponent implements OnInit {
                 spinner.hide(loaderId);
                 status.setCadStatus(new CadStatusNormal());
             } else {
-                if (cad.getConfig("validateLines")) {
-                    const validateResults = this.status.validate();
-                    if (validateResults.some((v) => !v.valid)) {
-                        const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
-                        if (!yes) {
-                            return;
-                        }
+                const validateResults = this.status.validate();
+                if (validateResults.some((v) => !v.valid)) {
+                    const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
+                    if (!yes) {
+                        return;
                     }
                 }
                 const cads = this.status.closeCad(data);
