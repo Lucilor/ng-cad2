@@ -19,6 +19,7 @@ import {
     linewidth2lineweight,
     PointsMap,
     setLinesLength,
+    企料位置识别,
     变化方式
 } from "@cad-viewer";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
@@ -59,6 +60,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     bhfs = 变化方式;
     zhewan = [1, 3];
     WHDashedLines: {line: CadLineLike; map: PointsMap} | null = null;
+    qlwzshb = 企料位置识别;
 
     get isDrawingLine() {
         return this.status.cadStatus instanceof CadStatusDrawLine;
