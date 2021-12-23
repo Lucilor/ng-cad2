@@ -259,13 +259,40 @@
             <div *ngFor="let v of cad.zhidingweizhipaokeng; let j = index">
                 <mat-form-field>
                     <input type="text" matInput [value]="v.length ? '已指定' : '未指定'" readonly />
-                    <button mat-icon-button matSuffix [color]="getZhidingweizhipaokengColor(j)" (click)="selectZhidingweizhipaokeng(j)">
+                    <button
+                        mat-icon-button
+                        matSuffix
+                        [color]="getPointColor(j, 'zhidingweizhipaokeng')"
+                        (click)="selectPoint(j, 'zhidingweizhipaokeng')"
+                    >
                         <mat-icon>linear_scale</mat-icon>
                     </button>
                     <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(cad.zhidingweizhipaokeng, [], j + 1)">
                         <mat-icon>add_circle</mat-icon>
                     </button>
                     <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(cad.zhidingweizhipaokeng, j)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="sub-form-field">
+            <div class="label">指定分体位置</div>
+            <div *ngIf="cad['指定分体位置'].length === 0">
+                <button mat-icon-button color="primary" (click)="arrayAdd(cad['指定分体位置'], [])">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+            </div>
+            <div *ngFor="let v of cad['指定分体位置']; let j = index">
+                <mat-form-field>
+                    <input type="text" matInput [value]="v.length ? '已指定' : '未指定'" readonly />
+                    <button mat-icon-button matSuffix [color]="getPointColor(j, '指定分体位置')" (click)="selectPoint(j, '指定分体位置')">
+                        <mat-icon>linear_scale</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(cad['指定分体位置'], [], j + 1)">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(cad['指定分体位置'], j)">
                         <mat-icon>remove_circle</mat-icon>
                     </button>
                 </mat-form-field>
