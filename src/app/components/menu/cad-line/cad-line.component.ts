@@ -84,6 +84,13 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         const cadStatus = this.status.cadStatus;
         return cadStatus instanceof CadStatusIntersection && cadStatus.info === "addWHDashedLines";
     }
+    get type() {
+        const data = this.status.cad.data.components.data;
+        if (data.length > 0) {
+            return data[0].type;
+        }
+        return "";
+    }
 
     private _colorText = "";
     colorValue = "";
@@ -496,6 +503,20 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     getLineText(field: string, i?: number) {
         const lines = this.selected;
         let result = "";
+        if (field === "kegaimingzi") {
+            if (lines.length === 1) {
+                const line = lines[0];
+                const vars = line.root?.root?.info.vars;
+                if (vars) {
+                    for (const key in vars) {
+                        if (vars[key] === line.id) {
+                            return key;
+                        }
+                    }
+                }
+            }
+            return "";
+        }
         if (lines.length === 1) {
             if (typeof i === "number") {
                 result = (lines as any)[0][field][i];
@@ -536,6 +557,23 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 value = target.value;
             }
         }
+        const cad = this.status.cad;
+        if (field === "kegaimingzi") {
+            const vars = this.selected[0].root?.root?.info.vars;
+            if (vars) {
+                const toRender: CadLineLike[] = [];
+                if (vars[value]) {
+                    const e = cad.data.getAllEntities().line.find((v) => v.id === vars[value]);
+                    if (e) {
+                        toRender.push(e);
+                    }
+                }
+                vars[value] = this.selected[0].id;
+                toRender.push(this.selected[0]);
+                cad.render(toRender);
+            }
+            return;
+        }
         if (field === "zhewanValue" && value < 0) {
             this.message.alert("指定折弯标记位置不能小于0");
             value = 0;
@@ -557,7 +595,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     "圆弧显示"
                 ];
                 if (keys.includes(field as keyof CadLineLike)) {
-                    this.status.cad.render(e);
+                    cad.render(e);
                 }
             });
         }
