@@ -227,7 +227,29 @@ export const prepareCadViewer = async (cad: CadViewer) => {
     await cad.loadFont({name: "喜鸿至简特殊字体", url: "assets/fonts/xhzj_sp.ttf"});
 };
 
-const getWrapedText = (cad: CadViewer, source: string, maxLength: number, mtext: CadMtext) => {
+interface GetWrapedTextOptions {
+    maxLength: number;
+    minLength?: number;
+    indent?: number;
+    separator?: string | RegExp;
+}
+const getWrapedTextOptions = (source: string, maxLength: number) => {
+    const options: GetWrapedTextOptions = {maxLength};
+    if (source.match(/\d+(\.\d+)?[x×]?\d+(\.\d+)?/)) {
+        options.minLength = 1;
+        options.indent = 4;
+        options.separator = /[,.，。]/;
+    }
+    return options;
+};
+const getWrapedText = (cad: CadViewer, source: string, mtext: CadMtext, options: GetWrapedTextOptions) => {
+    const defaultOptions: Required<GetWrapedTextOptions> = {
+        maxLength: 0,
+        minLength: 0,
+        indent: 0,
+        separator: ""
+    };
+    const {maxLength, minLength, indent, separator} = {...defaultOptions, ...options};
     const sourceLength = source.length;
     let start = 0;
     let end = 1;
@@ -235,8 +257,14 @@ const getWrapedText = (cad: CadViewer, source: string, maxLength: number, mtext:
     tmpText.text = source;
     cad.add(tmpText);
     const arr: string[] = [];
+    const getIndentText = (t: string) => {
+        if (indent > 0 && arr.length > 0) {
+            return Array(indent).fill(" ").join("") + t;
+        }
+        return t;
+    };
     while (end <= sourceLength) {
-        tmpText.text = source.slice(start, end);
+        tmpText.text = getIndentText(source.slice(start, end));
         cad.render(tmpText);
         if (tmpText.el && tmpText.el.width() < maxLength) {
             end++;
@@ -244,14 +272,25 @@ const getWrapedText = (cad: CadViewer, source: string, maxLength: number, mtext:
             if (start === end - 1) {
                 throw new Error("文字自动换行时出错");
             }
-            if (source.slice(end - 1).match(/(\d+(\.\d+)?)?=?\d+(\.\d+)?/)) {
-                end = sourceLength + 1;
+            let text = source.slice(start, end - 1);
+            const text2 = source.slice(end - 1);
+            if (text2.length <= minLength) {
+                break;
             }
-            arr.push(source.slice(start, end - 1));
+            if (separator) {
+                for (let i = end - 2; i >= start; i--) {
+                    if (source[i].match(separator)) {
+                        end = i + 2;
+                        text = source.slice(start, end - 1);
+                        break;
+                    }
+                }
+            }
+            arr.push(getIndentText(text));
             start = end - 1;
         }
     }
-    arr.push(source.slice(start));
+    arr.push(getIndentText(source.slice(start)));
     cad.remove(tmpText);
     return arr;
 };
@@ -375,11 +414,11 @@ export const printCads = async (params: PrintCadsParams) => {
                     try {
                         wrapedText = wrapedText
                             .split("\n")
-                            .map((v) => getWrapedText(cadPrint, v, dMin, e).join("\n"))
+                            .map((v) => getWrapedText(cadPrint, v, e, getWrapedTextOptions(v, dMin)).join("\n"))
                             .join("\n");
                     } catch (error) {
-                        wrapedText = "花件信息自动换行时出错\n" + wrapedText;
-                        e.setColor("red");
+                        console.warn("花件信息自动换行时出错");
+                        console.warn(error);
                     }
                     e.text = wrapedText;
                 }
@@ -402,10 +441,11 @@ export const printCads = async (params: PrintCadsParams) => {
                     const {el, text} = mtext;
                     if (el && el.width() >= 拉手信息宽度) {
                         try {
-                            mtext.text = getWrapedText(cadPrint, text, 拉手信息宽度, mtext).join("\n     ");
+                            mtext.text = getWrapedText(cadPrint, text, mtext, getWrapedTextOptions(text, 拉手信息宽度)).join("\n     ");
                             cadPrint.render(mtext);
                         } catch (error) {
                             console.warn("拉手信息自动换行出错");
+                            console.warn(error);
                         }
                     }
                 }

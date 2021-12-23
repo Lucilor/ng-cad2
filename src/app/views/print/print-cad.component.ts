@@ -34,7 +34,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     pdfUrl?: SafeUrl;
     showDxfInput = false;
     private _paramKey = "printCad-paramCache";
-    fonts = ["微软雅黑", "宋体", "锐字工房云字库魏体GBK"];
+    fonts = ["微软雅黑", "宋体", "锐字工房云字库魏体GBK", "等距更纱黑体 SC"];
     toolbarVisible = true;
     downloadUrl: string | null = null;
     printParams: Required<PrintCadsParams> = {
