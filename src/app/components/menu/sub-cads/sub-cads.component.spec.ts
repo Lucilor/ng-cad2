@@ -1,7 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatDividerModule} from "@angular/material/divider";
-import {MatExpansionModule} from "@angular/material/expansion";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {HttpModule} from "@modules/http/http.module";
@@ -22,7 +21,6 @@ describe("SubCadsComponent", () => {
                 HttpModule,
                 MatDialogModule,
                 MatDividerModule,
-                MatExpansionModule,
                 MatMenuModule,
                 MatSlideToggleModule,
                 MessageModule,

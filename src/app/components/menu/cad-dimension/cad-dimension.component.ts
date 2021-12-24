@@ -7,7 +7,7 @@ import {openCadDimensionFormDialog} from "@components/dialogs/cad-dimension-form
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
-import {AppStatusService, SelectedCadType, SelectedCads} from "@services/app-status.service";
+import {AppStatusService} from "@services/app-status.service";
 import {CadStatusEditDimension, CadStatusNormal} from "@services/cad-status";
 import {debounce} from "lodash";
 
@@ -32,18 +32,18 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 
     ngOnInit() {
         let prevConfig: Partial<AppConfig> = {};
-        let prevDisabledCadTypes: SelectedCadType[] | null = null;
-        let prevSelectedCads: SelectedCads | null = null;
+        let prevSelectedComponents: CadData[] | null = null;
+        let prevComponentsSelectable: boolean | null = null;
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusEditDimension) {
                 const index = cadStatus.index;
                 const dimension = this.dimensions[index];
                 this.dimLineSelecting = index;
                 prevConfig = this.config.setConfig({hideLineLength: true, lineGongshi: 0, selectMode: "single"}, {sync: false});
-                prevSelectedCads = this.status.selectedCads$.value;
-                this.status.clearSelectedCads();
-                prevDisabledCadTypes = this.status.disabledCadTypes$.value;
-                this.status.disabledCadTypes$.next(["cads", "partners", "components"]);
+                prevSelectedComponents = this.status.components.selected$.value;
+                this.status.components.selected$.next([]);
+                prevComponentsSelectable = this.status.components.selectable$.value;
+                this.status.components.selectable$.next(false);
                 this.focus(dimension);
             }
         });
@@ -51,13 +51,13 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
             if (cadStatus instanceof CadStatusEditDimension) {
                 this.dimLineSelecting = -1;
                 this.config.setConfig(prevConfig, {sync: false});
-                if (prevSelectedCads) {
-                    this.status.selectedCads$.next(prevSelectedCads);
-                    prevSelectedCads = null;
+                if (prevSelectedComponents !== null) {
+                    this.status.components.selected$.next(prevSelectedComponents);
+                    prevSelectedComponents = null;
                 }
-                if (prevDisabledCadTypes) {
-                    this.status.disabledCadTypes$.next(prevDisabledCadTypes);
-                    prevDisabledCadTypes = null;
+                if (prevComponentsSelectable !== null) {
+                    this.status.components.selectable$.next(prevComponentsSelectable);
+                    prevComponentsSelectable = null;
                 }
                 this.blur();
             }
@@ -86,52 +86,30 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
 
     private _onEntitiesSelect: CadEventCallBack<"entitiesselect"> = (entities) => {
         const cad = this.status.cad;
-        const data = cad.data.components.data;
+        const data = cad.data;
         const cadStatus = this.status.cadStatus;
         const dimensions = this.dimensions;
         const entity = entities.line[0];
         if (cadStatus instanceof CadStatusEditDimension && entity) {
-            let thatData: CadData | undefined;
-            let thatIndex = -1;
-            cad.data.components.data.some((d, i) => {
-                if (d.findEntity(entity.id)) {
-                    thatData = d;
-                    thatIndex = i;
-                    return true;
-                }
-                return false;
-            });
-            if (thatIndex < 0 || !thatData) {
-                return;
-            }
-            for (const d of cad.data.components.data) {
-                if (d.findEntity(entity.id)) {
-                    thatData = d;
-                    break;
-                }
-            }
             let dimension = dimensions[cadStatus.index];
             if (!dimension) {
                 dimension = new CadDimension();
                 dimension.setColor(0x00ff00);
                 let newIndex = 0;
-                for (let i = 0; i < thatIndex; i++) {
-                    newIndex += data[i].entities.dimension.length;
-                }
-                newIndex += thatData.entities.dimension.length;
-                thatData.entities.add(dimension);
+                newIndex += data.entities.dimension.length;
+                data.entities.add(dimension);
                 this.status.setCadStatus(new CadStatusEditDimension(newIndex));
             }
             if (!dimension.entity1.id) {
                 dimension.entity1 = {id: entity.id, location: "start"};
-                dimension.cad1 = thatData.name;
+                dimension.cad1 = data.name;
             } else if (!dimension.entity2.id) {
                 dimension.entity2 = {id: entity.id, location: "end"};
-                dimension.cad2 = thatData.name;
+                dimension.cad2 = data.name;
             } else {
                 dimension.entity1 = dimension.entity2;
                 dimension.entity2 = {id: entity.id, location: "end"};
-                dimension.cad2 = thatData.name;
+                dimension.cad2 = data.name;
             }
             const e1 = cad.data.findEntity(dimension.entity1.id);
             const e2 = cad.data.findEntity(dimension.entity2.id);

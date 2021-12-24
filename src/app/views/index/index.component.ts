@@ -1,16 +1,6 @@
 import {trigger, state, style, transition, animate} from "@angular/animations";
 import {CdkDragEnd, CdkDragMove, CdkDragStart} from "@angular/cdk/drag-drop";
-import {
-    Component,
-    OnInit,
-    AfterViewInit,
-    OnDestroy,
-    ViewChild,
-    ElementRef,
-    ChangeDetectorRef,
-    ViewChildren,
-    QueryList
-} from "@angular/core";
+import {Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, ViewChildren, QueryList} from "@angular/core";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabGroup, MatTabChangeEvent} from "@angular/material/tabs";
 import {ActivatedRoute} from "@angular/router";
@@ -118,8 +108,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         private cadConsole: CadConsoleService,
         private dataService: CadDataService,
         private route: ActivatedRoute,
-        private message: MessageService,
-        private cd: ChangeDetectorRef
+        private message: MessageService
     ) {
         super();
     }
@@ -141,8 +130,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             {name: "cad", desc: "当前CAD实例", attrs: {value: cad}},
             {name: "getConfig", desc: "获取当前配置", attrs: {value: this.config.getConfig.bind(this.config)}},
             {name: "setConfig", desc: "设置当前配置", attrs: {value: this.config.setConfig.bind(this.config)}},
-            {name: "data0", desc: "第一个CAD数据", attrs: {get: () => cad.data.components.data[0]}},
-            {name: "data0Ex", desc: "第一个CAD的导出数据", attrs: {get: () => cad.data.components.data[0].export()}},
+            {name: "data", desc: "CAD数据", attrs: {get: () => cad.data}},
+            {name: "dataEx", desc: "CAD的导出数据", attrs: {get: () => cad.data.export()}},
             {name: "selected", desc: "当前选中的所有实体", attrs: {get: () => cad.selected()}},
             {name: "selected0", desc: "当前选中的第一个实体", attrs: {get: () => cad.selected().toArray()[0]}}
         ];
@@ -166,6 +155,9 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             if (typeof rightMenuWidth === "number") {
                 this.rightMenuWidth$.next(rightMenuWidth);
             }
+        });
+        this.subscribe(this.status.cadTotalLength$, (length) => {
+            this.cadLength = length.toFixed(2);
         });
     }
 
@@ -215,14 +207,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
 
     private _onEntitiesCopy: CadEventCallBack<"entitiescopy"> = (entities) => {
         const cad = this.status.cad;
-        const selectedCads = this.status.getFlatSelectedCads();
-        if (selectedCads.length !== 1) {
-            this.message.alert("请先选择且仅选择一个CAD");
-            cad.entitiesCopied = undefined;
-            return;
-        }
         entities.forEach((e) => (e.opacity = 0.3));
-        selectedCads[0].entities.merge(entities);
+        cad.data.entities.merge(entities);
         cad.unselectAll();
         cad.render(entities);
     };
@@ -242,10 +228,10 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
             console.warn(error);
         }
         if (cachedData) {
-            if (!Array.isArray(cachedData)) {
-                cachedData = [cachedData];
+            if (Array.isArray(cachedData)) {
+                cachedData = cachedData[0];
             }
-            const data: CadData[] = cachedData.map((v: any) => new CadData(v));
+            const data: CadData = new CadData(cachedData);
             this.status.openCad(data, params.collection ?? "cad");
         } else {
             const {id, ids, collection, errorMessage} = this.route.snapshot.queryParams;
@@ -263,7 +249,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
                 }
                 getParams.collection = collection;
                 const result = await this.dataService.getCad(getParams);
-                this.status.openCad(result.cads);
+                this.status.openCad(result.cads[0]);
             }
         }
         const cad = this.status.cad;
@@ -352,11 +338,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
 
     toggleEntityDraggable() {
         this.config.setConfig("entityDraggable", !this.config.getConfig("entityDraggable"));
-    }
-
-    onCadLengthsChange(event: string[]) {
-        this.cadLength = event[0];
-        this.cd.detectChanges();
     }
 
     onResizeMenuStart(_event: CdkDragStart<DragData>, key: Dragkey) {

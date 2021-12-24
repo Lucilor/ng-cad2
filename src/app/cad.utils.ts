@@ -238,7 +238,7 @@ const getWrapedTextOptions = (source: string, maxLength: number) => {
     if (source.match(/\d+(\.\d+)?[x×]?\d+(\.\d+)?/)) {
         options.minLength = 1;
         options.indent = 4;
-        options.separator = /[,.，。]/;
+        options.separator = /[,，.。]/;
     }
     return options;
 };
@@ -608,8 +608,8 @@ export const autoFixLine = (cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
     line.end.add(translate);
 };
 
-export const suanliaodanZoomIn = (cad: CadData) => {
-    cad.components.data.forEach((v) => {
+export const suanliaodanZoomIn = (data: CadData) => {
+    data.components.data.forEach((v) => {
         v.entities.forEach((e) => {
             e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
         });
@@ -626,11 +626,11 @@ export const suanliaodanZoomIn = (cad: CadData) => {
             v.transform({scale: v.suanliaodanZoom / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
         }
     });
-    cad.updateComponents();
+    data.updateComponents();
 };
 
-export const suanliaodanZoomOut = (cad: CadData) => {
-    cad.components.data.forEach((v) => {
+export const suanliaodanZoomOut = (data: CadData) => {
+    data.components.data.forEach((v) => {
         if (v.info.skipSuanliaodanZoom) {
             return;
         }
@@ -647,5 +647,5 @@ export const suanliaodanZoomOut = (cad: CadData) => {
             v.transform({scale: 1 / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
         }
     });
-    cad.updateComponents();
+    data.updateComponents();
 };

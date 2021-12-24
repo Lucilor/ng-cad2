@@ -17,13 +17,11 @@
                 <mat-icon>search</mat-icon>
             </button>
         </mat-form-field>
-        <ng-container class="btn-group" *ngIf="data.selectMode !== 'table'">
-            <ng-container *ngIf="data.options">
-                <button mat-raised-button color="primary" (click)="search(true, 'and')">父级搜索</button>
-                <button mat-raised-button color="primary" (click)="search(true, 'or')">父级搜索2</button>
-            </ng-container>
-            <button mat-raised-button color="primary" (click)="advancedSearch()">高级搜索</button>
+        <ng-container *ngIf="data.options">
+            <button mat-raised-button color="primary" (click)="search(true, 'and')">父级搜索</button>
+            <button mat-raised-button color="primary" (click)="search(true, 'or')">父级搜索2</button>
         </ng-container>
+        <button mat-raised-button color="primary" (click)="advancedSearch()">高级搜索</button>
     </div>
     <div class="btn-group">
         <mat-slide-toggle [checked]="showCheckedOnly" (change)="toggleShowCheckedOnly($event)">只显示已选</mat-slide-toggle>

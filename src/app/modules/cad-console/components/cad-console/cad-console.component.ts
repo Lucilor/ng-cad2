@@ -80,7 +80,7 @@ interface CadViewerConfig {
             {
                 name: "collection",
                 defaultValue: "2",
-                desc: {content: "CAD集合名字", sub: ["1: p_yuanshicadwenjian", "2: cad", "3: CADmuban", "4: qiliaozuhe", "5: qieliaocad"]}
+                desc: {content: "CAD集合名字", sub: ["1: cad", "2: CADmuban", "3: qiliaozuhe", "4: qieliaocad"]}
             }
         ],
         desc: "打开一个或多个CAD"
@@ -139,10 +139,7 @@ export class CadConsoleComponent implements OnInit {
             if (cadStatus instanceof CadStatusAssemble) {
                 this.status.setCadStatus(new CadStatusNormal());
             } else {
-                const index = await this.takeOneMajorCad("装配");
-                if (typeof index === "number") {
-                    this.status.setCadStatus(new CadStatusAssemble(index));
-                }
+                this.status.setCadStatus(new CadStatusAssemble());
             }
         },
         async config() {
@@ -275,8 +272,7 @@ export class CadConsoleComponent implements OnInit {
                 cadArc.start_angle = startAngle;
                 cadArc.end_angle = endAngle;
                 cadArc.clockwise = clockwise;
-                const data = this.status.getFlatSelectedCads()[0];
-                data.entities.add(cadArc);
+                this.status.cad.data.entities.add(cadArc);
             }
             this.status.validate();
             await cad.unselectAll().render();
@@ -370,8 +366,7 @@ export class CadConsoleComponent implements OnInit {
             this.message.book({bookData: data, title: "帮助手册"});
         },
         newCad() {
-            const data = this.status.cad.data.components.data;
-            this.status.openCad([...data, new CadData()]);
+            this.status.openCad(new CadData());
         },
         async open(collectionArg: string) {
             if (this.openLock) {
@@ -380,18 +375,15 @@ export class CadConsoleComponent implements OnInit {
             let collection: CadCollection;
             switch (collectionArg) {
                 case "1":
-                    collection = "p_yuanshicadwenjian";
-                    break;
-                case "2":
                     collection = "cad";
                     break;
-                case "3":
+                case "2":
                     collection = "CADmuban";
                     break;
-                case "4":
+                case "3":
                     collection = "qiliaozuhe";
                     break;
-                case "5":
+                case "4":
                     collection = "qieliaocad";
                     break;
                 default:
@@ -399,25 +391,24 @@ export class CadConsoleComponent implements OnInit {
                     break;
             }
             const cad = this.status.cad;
-            const selectMode = collection === "p_yuanshicadwenjian" ? "table" : "multiple";
             let checkedItems: string[];
             if (collection === this.status.collection$.value) {
-                checkedItems = cad.data.components.data.map((v) => v.id);
+                checkedItems = [cad.data.id];
             } else {
                 checkedItems = [];
             }
             this.openLock = true;
-            const result = await openCadListDialog(this.dialog, {data: {collection, selectMode, checkedItems}});
-            if (result) {
-                this.status.openCad(result, collection);
+            const result = await openCadListDialog(this.dialog, {data: {collection, selectMode: "single", checkedItems}});
+            if (result && result.length > 0) {
+                this.status.openCad(result[0], collection);
             }
             this.openLock = false;
         },
         async print() {
             this.spinner.show(this.spinner.defaultLoaderId, {text: "正在打印..."});
             const cad = this.status.cad;
-            const cads = this.status.closeCad([cad.data.clone()]);
-            const {url, errors} = await printCads({cads, config: cad.getConfig()});
+            const data = this.status.closeCad();
+            const {url, errors} = await printCads({cads: [data], config: cad.getConfig()});
             this.spinner.hide(this.spinner.defaultLoaderId);
             if (errors.length > 0) {
                 console.warn(errors.join("\n"));
@@ -431,80 +422,36 @@ export class CadConsoleComponent implements OnInit {
         },
         async save(loaderId = "master") {
             const {dataService, status, message, spinner} = this;
-            const cad = status.cad;
             const collection = this.status.collection$.value;
             const silent = dataService.silent;
             dataService.silent = true;
-            const result: CadData[] = [];
-            const skipped: string[] = [];
-            const data = cad.data.components.data;
-            if (collection === "p_yuanshicadwenjian") {
-                const cadStatus = status.cadStatus;
-                if (!(cadStatus instanceof CadStatusSplit)) {
-                    this.message.alert("原始CAD文件只能在选取时保存");
+            let resData: CadData | null = null;
+            const validateResults = this.status.validate();
+            if (validateResults.some((v) => !v.valid)) {
+                const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
+                if (!yes) {
                     return;
                 }
-                let indices: number[];
-                if (typeof cadStatus.index === "number") {
-                    indices = [cadStatus.index];
-                } else {
-                    indices = [...Array(data.length).keys()];
-                }
-                let cads: CadData[] = [];
-                indices.forEach((v) => (cads = cads.concat(data[v].components.data)));
-                const total = cads.length;
-                spinner.show(loaderId, {text: `正在保存CAD(0/${total})`});
-                for (let i = 0; i < total; i++) {
-                    const resData = await dataService.setCad({collection, cadData: cads[i], force: true});
-                    if (resData) {
-                        result.push(resData);
-                    } else {
-                        skipped.push(cads[i].name);
-                    }
-                    spinner.show(loaderId, {text: `正在保存CAD(${i + 1}/${total})`});
-                }
-                spinner.hide(loaderId);
-                status.setCadStatus(new CadStatusNormal());
-            } else {
-                const validateResults = this.status.validate();
-                if (validateResults.some((v) => !v.valid)) {
-                    const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
-                    if (!yes) {
-                        return;
-                    }
-                }
-                const cads = this.status.closeCad(data);
-                const total = cads.length;
-                spinner.show(loaderId, {text: `正在保存CAD(0/${total})`});
-                for (let i = 0; i < total; i++) {
-                    const resData = await dataService.setCad({collection, cadData: cads[i], force: true});
-                    if (resData) {
-                        result.push(resData);
-                    } else {
-                        skipped.push(cads[i].name);
-                    }
-                    spinner.show(loaderId, {text: `正在保存CAD(${i + 1}/${total})`});
-                }
-                spinner.hide(loaderId);
             }
-            if (result.length) {
-                status.openCad(result);
+            const data = this.status.closeCad();
+            spinner.show(loaderId, {text: `正在保存CAD: ${data.name}`});
+            resData = await dataService.setCad({collection, cadData: data, force: true});
+            spinner.hide(loaderId);
+            if (resData) {
+                status.openCad(resData);
                 this.message.snack("保存成功");
             } else {
-                this.message.snack(`${skipped.join(", ")}保存失败`);
+                this.message.snack("保存失败");
             }
             dataService.silent = silent;
-            return result;
+            return resData;
         },
         async split() {
             const cadStatus = this.status.cadStatus;
             if (cadStatus instanceof CadStatusSplit) {
                 this.status.setCadStatus(new CadStatusNormal());
             } else {
-                const index = await this.takeOneMajorCad("选取");
-                if (typeof index === "number") {
-                    this.status.setCadStatus(new CadStatusSplit(index));
-                }
+                this.status.setCadStatus(new CadStatusSplit());
             }
         },
         test(qwer: string, asdf: string) {
@@ -753,29 +700,6 @@ export class CadConsoleComponent implements OnInit {
         }
     }
 
-    private async takeOneMajorCad(desc: string) {
-        const selectedCads = this.status.getFlatSelectedCads();
-        const ids = selectedCads.map((v) => v.id);
-        const selected: {names: string[]; indices: number[]} = {names: [], indices: []};
-        this.status.cad.data.components.data.forEach((v, i) => {
-            if (ids.includes(v.id)) {
-                selected.names.push(v.name);
-                selected.indices.push(i);
-            }
-        });
-        if (selected.indices.length < 1) {
-            this.message.alert("请先选择一个主CAD");
-            return null;
-        } else if (selected.indices.length > 1) {
-            const content = `你选择了多个主CAD。进入${desc}将自动选择<span style="color:red">${selected.names[0]}</span>，是否继续？`;
-            const yes = await this.message.confirm(content);
-            if (!yes) {
-                return;
-            }
-        }
-        return selected.indices[0];
-    }
-
     private async transform(matrix: MatrixLike, rotateDimension = false) {
         const cad = this.status.cad;
         const seleted = cad.selected();
@@ -796,11 +720,11 @@ export class CadConsoleComponent implements OnInit {
                     });
                 }
             };
-            const selectedCads = this.status.getFlatSelectedCads();
-            if (selectedCads.length) {
-                selectedCads.forEach((data) => t(data));
+            const selectedComponents = this.status.components.selected$.value;
+            if (selectedComponents.length) {
+                selectedComponents.forEach((data) => t(data));
             } else {
-                cad.data.components.data.forEach((data) => t(data));
+                t(cad.data);
             }
         }
         cad.data.updatePartners().updateComponents();
