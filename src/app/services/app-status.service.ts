@@ -2,13 +2,25 @@ import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
 import {CadCollection, local, timer} from "@app/app.common";
 import {setCadData, prepareCadViewer, validateLines, ValidateResult, suanliaodanZoomIn, suanliaodanZoomOut} from "@app/cad.utils";
-import {CadData, CadLine, CadViewer, CadMtext, generateLineTexts, PointsMap, CadEntities, generatePointsMap} from "@cad-viewer";
+import {
+    CadData,
+    CadLine,
+    CadViewer,
+    CadMtext,
+    generateLineTexts,
+    PointsMap,
+    CadEntities,
+    generatePointsMap,
+    setLinesLength,
+    CadHatch,
+    CadEntity
+} from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf, timeout} from "@utils";
-import {difference, differenceWith, clamp} from "lodash";
+import {differenceWith, clamp} from "lodash";
 import {BehaviorSubject, Subject} from "rxjs";
 import {AppConfigService, AppConfig} from "./app-config.service";
 import {CadStatus, CadStatusNormal} from "./cad-status";
@@ -23,15 +35,6 @@ const 合型板示意图 = new CadData();
 合型板示意图.entities.add(new CadLine({start: [20, 0], end: [20, 8]}));
 const replaceMap: ObjectOf<CadData> = {合型板示意图};
 
-export interface SelectedCads {
-    cads: string[];
-    partners: string[];
-    components: string[];
-    fullCads: string[];
-}
-
-export type SelectedCadType = "cads" | "partners" | "components";
-
 export interface Loader {
     id: string;
     start: boolean;
@@ -40,22 +43,27 @@ export interface Loader {
 
 export type CadPoints = {x: number; y: number; active: boolean; lines: string[]}[];
 
+export interface CadComponentsStatus {
+    selected: CadData[];
+    mode: "single" | "multiple";
+    selectable: boolean;
+}
+
 @Injectable({
     providedIn: "root"
 })
 export class AppStatusService {
     collection$ = new BehaviorSubject<CadCollection>("cad");
-    selectedCads$ = new BehaviorSubject<SelectedCads>({
-        cads: [],
-        partners: [],
-        components: [],
-        fullCads: []
-    });
-    disabledCadTypes$ = new BehaviorSubject<SelectedCadType[]>([]);
-    cadStatus: CadStatus = new CadStatusNormal();
+    cadTotalLength$ = new BehaviorSubject<number>(0);
+    cadStatus = new CadStatusNormal();
     cadStatusEnter$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
     cadStatusExit$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
-    cad = new CadViewer();
+    cad = new CadViewer(new CadData({name: "新建CAD"}));
+    components = {
+        selected$: new BehaviorSubject<CadData[]>([]),
+        mode$: new BehaviorSubject<"single" | "multiple">("single"),
+        selectable$: new BehaviorSubject<boolean>(true)
+    };
     openCad$ = new Subject<void>();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
     project = "";
@@ -76,6 +84,9 @@ export class AppStatusService {
         this.config.configChange$.subscribe(({newVal}) => {
             const cad = this.cad;
             cad.setConfig(newVal);
+        });
+        this.components.mode$.subscribe((mode) => {
+            this.config.setConfig("subCadsMultiSelect", mode === "multiple");
         });
     }
 
@@ -120,28 +131,6 @@ export class AppStatusService {
         return true;
     }
 
-    clearSelectedCads() {
-        this.selectedCads$.next({cads: [], partners: [], components: [], fullCads: []});
-    }
-
-    refreshSelectedCads() {
-        this.selectedCads$.next(this.selectedCads$.value);
-    }
-
-    getFlatSelectedCads() {
-        const currCads = this.selectedCads$.value;
-        const data = this.cad.data;
-        const {partners, components, fullCads} = currCads;
-        const fullCadsData = data.findChildren(fullCads);
-        let childrenIds: string[] = [];
-        fullCadsData.forEach((v) => {
-            childrenIds = childrenIds.concat(v.partners.map((vv) => vv.id));
-            childrenIds = childrenIds.concat(v.components.data.map((vv) => vv.id));
-        });
-        const ids = [...fullCads, ...difference([...partners, ...components], childrenIds)];
-        return data.findChildren(ids);
-    }
-
     setCadStatus(value: CadStatus, confirmed = false) {
         this.cadStatus.confirmed = confirmed;
         this.cadStatusExit$.next(this.cadStatus);
@@ -158,17 +147,16 @@ export class AppStatusService {
         }
     }
 
-    async openCad(data?: CadData[], collection?: CadCollection) {
+    async openCad(data?: CadData, collection?: CadCollection) {
         const timerName = "openCad";
         timer.start(timerName);
         const cad = this.cad;
         if (data) {
-            cad.data.components.data = data;
+            cad.data = data;
         } else {
-            data = cad.data.components.data;
+            data = cad.data;
         }
         const newConfig: Partial<AppConfig> = {};
-        const ids = data.map((v) => v.id);
         if (collection && this.collection$.value !== collection) {
             this.collection$.next(collection);
         } else {
@@ -178,54 +166,49 @@ export class AppStatusService {
             this.config.setConfig({hideLineLength: true, hideLineGongshi: true}, {sync: false});
         }
 
-        const {ids: ids2, collection: collection2} = this.route.snapshot.queryParams;
-        if (ids.join(",") !== ids2 || collection !== collection2) {
-            this.router.navigate(["/index"], {queryParams: {id: undefined, ids: ids.join(","), collection}, queryParamsHandling: "merge"});
+        const id = data.id;
+        const {id: id2, collection: collection2} = this.route.snapshot.queryParams;
+        if (id !== id2 || collection !== collection2) {
+            this.router.navigate(["/index"], {queryParams: {id, collection}, queryParamsHandling: "merge"});
         }
         this.config.setUserConfig(newConfig);
-        const title = data.map((v) => v.name || "(未命名)").join(",") || "未选择CAD";
-        document.title = title;
-        cad.data.name = title;
         await prepareCadViewer(cad);
         this.openCad$.next();
         await timeout(0);
-        data.forEach((v) => {
-            setCadData(v, this.project);
-            for (const key in replaceMap) {
-                this._replaceText(v, key, replaceMap[key]);
-            }
-            suanliaodanZoomIn(v);
-            if (collection === "cad") {
-                validateLines(v);
-            }
-        });
+        setCadData(data, this.project);
+        for (const key in replaceMap) {
+            this._replaceText(data, key, replaceMap[key]);
+        }
+        suanliaodanZoomIn(data);
+        if (collection === "cad") {
+            validateLines(data);
+        }
         this.generateLineTexts();
         await cad.reset().render();
         cad.center();
+        this._updateCadTotalLength();
+        this.updateTitle();
         timer.end(timerName, "打开CAD");
     }
 
-    closeCad(data?: CadData[]) {
+    closeCad(data?: CadData) {
         if (!data) {
-            data = this.cad.data.components.data;
+            data = this.cad.data;
         }
-        return data.map((v) => {
-            const v2 = v.clone();
-            suanliaodanZoomOut(v2);
-            return v2;
-        });
+        const data2 = data.clone();
+        suanliaodanZoomOut(data2);
+        return data2;
     }
 
     generateLineTexts() {
+        const data = this.cad.data;
         if (this.collection$.value === "CADmuban") {
-            this.cad.data.components.data.forEach((v) => {
-                v.entities.line.forEach((e) => {
-                    e.children.mtext = e.children.mtext.filter((mt) => !mt.info.isLengthText && !mt.info.isGongshiText);
-                });
-                v.components.data.forEach((vv) => generateLineTexts(vv));
+            data.entities.line.forEach((e) => {
+                e.children.mtext = e.children.mtext.filter((mt) => !mt.info.isLengthText && !mt.info.isGongshiText);
             });
+            data.components.data.forEach((v) => generateLineTexts(v));
         } else {
-            this.cad.data.components.data.forEach((v) => generateLineTexts(v));
+            generateLineTexts(data);
         }
     }
 
@@ -272,5 +255,44 @@ export class AppStatusService {
         });
         this.cad.render();
         return results;
+    }
+
+    private _updateCadTotalLength() {
+        let length = 0;
+        const data = this.cad.data;
+        const entities = data.getAllEntities();
+        entities.line.forEach((e) => (length += e.length));
+        entities.arc.forEach((e) => (length += e.length));
+        entities.circle.forEach((e) => (length += e.curve.length));
+        this.cadTotalLength$.next(length);
+    }
+
+    setLinesLength(lines: CadLine[], length: number) {
+        setLinesLength(this.cad.data, lines, length);
+        this._updateCadTotalLength();
+    }
+
+    updateTitle() {
+        document.title = this.cad.data.name || "无题";
+    }
+
+    focus(entities?: CadEntities | CadEntity[], opt?: {selected?: boolean | ((e: CadEntity) => boolean | null)}) {
+        entities = entities ?? this.cad.data.getAllEntities();
+        const selected = opt?.selected ?? false;
+        entities.forEach((e) => {
+            e.selectable = !(e instanceof CadHatch);
+            e.selected = (typeof selected === "function" ? selected(e) : selected) ?? false;
+            e.opacity = 1;
+        });
+    }
+
+    blur(entities?: CadEntities | CadEntity[], opt?: {selected?: boolean | ((e: CadEntity) => boolean | null)}) {
+        entities = entities ?? this.cad.data.getAllEntities();
+        const selected = opt?.selected ?? false;
+        entities.forEach((e) => {
+            e.selectable = false;
+            e.selected = (typeof selected === "function" ? selected(e) : selected) ?? false;
+            e.opacity = 0.3;
+        });
     }
 }

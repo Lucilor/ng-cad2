@@ -17,7 +17,7 @@ import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.compon
 import {getOpenDialogFunc} from "../dialog.common";
 
 export interface CadListData {
-    selectMode: "single" | "multiple" | "table";
+    selectMode: "single" | "multiple";
     checkedItems?: string[];
     options?: CadData["options"];
     collection: CadCollection;
@@ -132,45 +132,35 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         const search = {...this.data.search};
         search[this.searchField] = this.searchNameInput;
         const params: GetCadParams = {collection, page, limit, search};
-        if (this.data.selectMode === "table") {
-            this.spinner.show(this.loaderId);
-            const result = await this.dataService.getYuanshicadwenjian(params);
-            this.spinner.hide(this.loaderId);
-            this.length = result.total;
-            this.pageData.length = 0;
-            this.tableData = result.cads;
-            return result;
-        } else {
-            params.qiliao = this.data.qiliao;
-            params.options = options;
-            params.optionsMatchType = matchType;
-            if (this.showCheckedOnly) {
-                params.ids = this.checkedItems.slice();
-            }
-            this.spinner.show(this.loaderId);
-            const result = await this.dataService.getCad(params);
-            this.spinner.hide(this.loaderId);
-            this.length = result.total;
-            this.pageData.length = 0;
-            result.cads.forEach(async (d, i) => {
-                const checked = this.checkedItems.find((v) => v === d.id) ? true : false;
-                if (checked && this.data.selectMode === "single") {
-                    this.checkedIndex.next(i);
-                }
-                const pageData = {data: d, img: imgLoading, checked};
-                this.pageData.push(pageData);
-            });
-            this.checkedIndex.next(-1);
-            this.syncCheckedItems();
-            const timerName = "cad-list-getData";
-            timer.start(timerName);
-            for (const data of this.pageData) {
-                const url = await getCadPreview(data.data);
-                data.img = this.sanitizer.bypassSecurityTrustUrl(url) as string;
-            }
-            timer.end(timerName, "渲染CAD列表");
-            return result;
+        params.qiliao = this.data.qiliao;
+        params.options = options;
+        params.optionsMatchType = matchType;
+        if (this.showCheckedOnly) {
+            params.ids = this.checkedItems.slice();
         }
+        this.spinner.show(this.loaderId);
+        const result = await this.dataService.getCad(params);
+        this.spinner.hide(this.loaderId);
+        this.length = result.total;
+        this.pageData.length = 0;
+        result.cads.forEach(async (d, i) => {
+            const checked = this.checkedItems.find((v) => v === d.id) ? true : false;
+            if (checked && this.data.selectMode === "single") {
+                this.checkedIndex.next(i);
+            }
+            const pageData = {data: d, img: imgLoading, checked};
+            this.pageData.push(pageData);
+        });
+        this.checkedIndex.next(-1);
+        this.syncCheckedItems();
+        const timerName = "cad-list-getData";
+        timer.start(timerName);
+        for (const data of this.pageData) {
+            const url = await getCadPreview(data.data);
+            data.img = this.sanitizer.bypassSecurityTrustUrl(url) as string;
+        }
+        timer.end(timerName, "渲染CAD列表");
+        return result;
     }
 
     search(withOption = false, matchType: "and" | "or" = "and") {
@@ -222,18 +212,11 @@ export class CadListComponent extends Utils() implements AfterViewInit {
     }
 
     async submit() {
-        if (this.data.selectMode === "table") {
-            this.spinner.show(this.loaderIdSubmit);
-            const result = await this.dataService.getCad({id: this.checkedColumns[0].vid, collection: "p_yuanshicadwenjian"});
-            this.spinner.hide(this.loaderIdSubmit);
-            this.dialogRef.close(result.cads);
-        } else {
-            this.syncCheckedItems();
-            this.spinner.show(this.loaderIdSubmit);
-            const result = await this.dataService.getCad({ids: this.checkedItems.slice(), collection: this.data.collection});
-            this.spinner.hide(this.loaderIdSubmit);
-            this.dialogRef.close(result.cads);
-        }
+        this.syncCheckedItems();
+        this.spinner.show(this.loaderIdSubmit);
+        const result = await this.dataService.getCad({ids: this.checkedItems.slice(), collection: this.data.collection});
+        this.spinner.hide(this.loaderIdSubmit);
+        this.dialogRef.close(result.cads);
     }
 
     close() {

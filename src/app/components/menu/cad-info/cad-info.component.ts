@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, Output, EventEmitter} from "@angular/core";
+import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {splitOptions, joinOptions} from "@app/app.common";
@@ -21,8 +21,6 @@ type InsertsectionKey = "zhidingweizhipaokeng" | "指定分体位置";
     styleUrls: ["./cad-info.component.scss"]
 })
 export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnDestroy {
-    cadsData: CadData[] = [];
-    editDisabled = true;
     private _cadPointsLock = false;
     private _算料单显示 = [
         "尺寸",
@@ -48,26 +46,20 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     sldxs = this._算料单显示.slice();
     qlbmlx = ["自动判断", "胶条位包", "外面包", "胶条位包+外面包", "无"];
     sldzkxswz = ["CAD上面", "CAD下面", "CAD中间", "CAD左边", "CAD右边"];
-    @Output() cadLengthsChange = new EventEmitter<string[]>();
     cadStatusIntersectionInfo: InsertsectionKey | null = null;
+    get data() {
+        const components = this.status.components.selected$.value;
+        if (components.length === 1) {
+            return components[0];
+        }
+        return this.status.cad.data;
+    }
 
     constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
         super();
     }
 
     ngOnInit() {
-        this.subscribe(this.status.selectedCads$, () => {
-            this.cadsData = this.status.getFlatSelectedCads();
-            if (this.cadsData.length === 1) {
-                this.editDisabled = false;
-            } else {
-                this.editDisabled = true;
-                if (this.cadsData.length < 1) {
-                    this.cadsData = [new CadData()];
-                }
-            }
-            this.updateLengths(this.cadsData);
-        });
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusSelectJointpoint) {
                 this._updateCadPoints();
@@ -92,8 +84,9 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
                 this._cadPointsLock = false;
                 return;
             }
+            const data = this.data;
             if (cadStatus instanceof CadStatusSelectJointpoint) {
-                const jointPoint = this.cadsData[0].jointPoints[cadStatus.index];
+                const jointPoint = data.jointPoints[cadStatus.index];
                 if (activePoints.length < 1) {
                     jointPoint.valueX = NaN;
                     jointPoint.valueY = NaN;
@@ -112,24 +105,20 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === this.cadStatusIntersectionInfo) {
                 const key = this.cadStatusIntersectionInfo;
                 const index = cadStatus.index;
-                const lines = this.cadsData[0][key][index];
+                const lines = data[key][index];
                 if (activePoints.length < 1) {
-                    this.cadsData[0][key][index] = [];
+                    data[key][index] = [];
                 } else {
                     for (const p of activePoints) {
                         const p2 = this._setActiveCadPoint({lines}, points);
                         if (!p2 || !isEqual(p.lines, p2.lines)) {
-                            this.cadsData[0][key][index] = p.lines.slice();
+                            data[key][index] = p.lines.slice();
                             this._updateCadPoints();
                             break;
                         }
                     }
                 }
             }
-        });
-        this.subscribe(this.status.openCad$, () => {
-            const sldxsArr = this.status.cad.data.components.data.map((v) => v.suanliaodanxianshi);
-            this.sldxs = Array.from(new Set(sldxsArr.concat(this._算料单显示)));
         });
         const cad = this.status.cad;
         cad.on("entityclick", this._onEntityClick);
@@ -146,7 +135,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
 
     private _onEntityClick: CadEventCallBack<"entityclick"> = (_, entity) => {
         const cadStatus = this.status.cadStatus;
-        const data = this.status.getFlatSelectedCads()[0];
+        const data = this.data;
         if (cadStatus instanceof CadStatusSelectBaseline) {
             if (entity instanceof CadLine) {
                 const baseLine = data.baseLines[cadStatus.index];
@@ -167,16 +156,16 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
 
     private _updateCadPoints = () => {
         const cadStatus = this.status.cadStatus;
-        const data = this.cadsData[0];
+        const data = this.data;
         const key = this.cadStatusIntersectionInfo;
         if (cadStatus instanceof CadStatusSelectJointpoint) {
-            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities());
+            const points = this.status.getCadPoints(data.getAllEntities());
             const {valueX, valueY} = data.jointPoints[cadStatus.index];
             this._setActiveCadPoint({x: valueX, y: valueY}, points);
             this._cadPointsLock = true;
             this.status.cadPoints$.next(points);
         } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === key) {
-            const points = this.status.getCadPoints(this.cadsData[0].getAllEntities()).filter((v) => v.lines.length > 1);
+            const points = this.status.getCadPoints(data.getAllEntities()).filter((v) => v.lines.length > 1);
             this._setActiveCadPoint({lines: data[key][cadStatus.index]}, points);
             this._cadPointsLock = true;
             this.status.cadPoints$.next(points);
@@ -192,19 +181,6 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             }
         }
         return null;
-    }
-
-    updateLengths(cadsData: CadData[]) {
-        const lengths: string[] = [];
-        cadsData.forEach((v) => {
-            let length = 0;
-            const entities = v.getAllEntities();
-            entities.line.forEach((e) => (length += e.length));
-            entities.arc.forEach((e) => (length += e.length));
-            entities.circle.forEach((e) => (length += e.curve.length));
-            lengths.push(length.toFixed(2));
-        });
-        this.cadLengthsChange.emit(lengths);
     }
 
     async selectOptions(data: CadData, optionKey: string, key?: string) {
@@ -285,7 +261,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
 
     offset(event: MatSelectChange) {
         const value: CadData["bancaihoudufangxiang"] = event.value;
-        const data = this.status.getFlatSelectedCads()[0];
+        const data = this.data;
         const cad = this.status.cad;
         data.bancaihoudufangxiang = value;
         let direction = 0;
@@ -342,6 +318,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     setCadName(data: CadData, event: Event) {
         const name = (event.target as HTMLInputElement).value;
         data.name = name;
+        this.status.updateTitle();
         const zhankai = data.zhankai[0];
         if (zhankai) {
             zhankai.name = name;

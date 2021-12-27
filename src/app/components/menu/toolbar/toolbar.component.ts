@@ -59,12 +59,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         const {canConfirm, confirmWithEnter} = this.status.cadStatus;
         return canConfirm && confirmWithEnter;
     }
-    get type() {
-        const data = this.status.cad.data.components.data;
-        if (data.length > 0) {
-            return data[0].type;
-        }
-        return "";
+    get data() {
+        return this.status.cad.data;
     }
 
     onKeyDown = ((event: KeyboardEvent) => {
@@ -236,17 +232,15 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     setKailiaofangshi() {
-        this.status.getFlatSelectedCads().forEach((cad) => {
-            sortLines(cad).forEach((group) => {
-                const start = group[0];
-                const end = group[group.length - 1];
-                if (start) {
-                    start.zhankaifangshi = "使用线长";
-                }
-                if (end) {
-                    end.zhankaifangshi = "使用线长";
-                }
-            });
+        sortLines(this.status.cad.data).forEach((group) => {
+            const start = group[0];
+            const end = group[group.length - 1];
+            if (start) {
+                start.zhankaifangshi = "使用线长";
+            }
+            if (end) {
+                end.zhankaifangshi = "使用线长";
+            }
         });
     }
 
@@ -275,14 +269,12 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
                 return;
             }
         }
-        const cads = this.status.getFlatSelectedCads();
-        for (const cad of cads) {
-            for (const component of cad.components.data) {
-                const rect = component.getBoundingRect();
-                component.transform({scale: [factorNum, factorNum], origin: [rect.x, rect.y]}, true);
-            }
-            cad.updateComponents();
+        const data = this.status.cad.data;
+        for (const component of data.components.data) {
+            const rect = component.getBoundingRect();
+            component.transform({scale: [factorNum, factorNum], origin: [rect.x, rect.y]}, true);
         }
+        data.updateComponents();
         this.status.cad.render();
     }
 
@@ -297,10 +289,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     async editZhankai() {
-        const data = this.status.getFlatSelectedCads()[0];
-        if (data) {
-            await editCadZhankai(this.dialog, data);
-        }
+        await editCadZhankai(this.dialog, this.status.cad.data);
     }
 
     async editTiaojianquzhi() {
@@ -341,56 +330,31 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     async resetIds() {
-        let cads = this.status.getFlatSelectedCads();
-        if (cads.length < 1) {
-            cads = this.status.cad.data.components.data;
-        }
-        const names = cads.map((v) => v.name);
+        const data = this.status.cad.data;
         const yes = await this.message.confirm({
             title: "重设ID",
-            content: `重新生成<span style="color:red">${names.join("，")}</span>的所有实体ID，是否确定？`
+            content: `重新生成<span style="color:red">${data.name}</span>的所有实体ID，是否确定？`
         });
         if (!yes) {
             return;
         }
-        cads.forEach((cad) => cad.resetIds(true));
+        data.resetIds(true);
         await timeout(0);
         this.message.snack("重设ID完成");
     }
 
-    async removeCads() {
-        const cads = this.status.getFlatSelectedCads();
-        if (cads.length < 1) {
-            this.message.alert("没有选择CAD");
-            return;
-        }
-        if (await this.message.confirm(`确定要删除选中的CAD吗？`)) {
-            const collection = this.status.collection$.getValue();
-            const ids = cads.map((v) => v.id);
-            const deletedIds = await this.dataService.removeCads(collection, ids);
-            if (deletedIds) {
-                await this.status.openCad(cads.filter((v) => !deletedIds.includes(v.id)));
-            }
-        }
-    }
-
-    async copyCads() {
-        const cads = this.status.getFlatSelectedCads();
-        if (cads.length < 1) {
-            this.message.alert("没有选择CAD");
-            return;
-        }
+    async copyCad() {
         const collection = this.status.collection$.getValue();
         const loaderId = this.spinner.defaultLoaderId;
         this.spinner.show(loaderId);
-        const response = await this.dataService.post<string[]>("ngcad/copyCads", {collection, vids: cads.map((v) => v.id)});
+        const response = await this.dataService.post<string[]>("ngcad/copyCads", {collection, vids: [this.status.cad.data.id]});
         this.spinner.hide(loaderId);
         if (response?.code === 0) {
             const yes = await this.message.confirm({title: response.msg, content: "是否跳转至新的CAD？"});
             if (yes) {
                 this.spinner.show(loaderId);
                 const cads2 = await this.dataService.getCad({ids: response.data, collection});
-                await this.status.openCad(cads2.cads);
+                await this.status.openCad(cads2.cads[0]);
                 this.spinner.hide(loaderId);
             }
         }

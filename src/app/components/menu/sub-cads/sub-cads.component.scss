@@ -6,6 +6,20 @@
     flex: 1 1 0;
 }
 
+.section {
+    display: flex;
+    flex-direction: column;
+    padding-right: 5px;
+
+    .section-title {
+        padding: 5px;
+    }
+}
+
+.mat-divider {
+    margin: 5px 0;
+}
+
 button {
     min-width: unset !important;
     padding: 0 8px;

@@ -41,7 +41,6 @@ export const routesInfo = {
 };
 
 export type CadCollection =
-    | "p_yuanshicadwenjian"
     | "cad"
     | "CADmuban"
     | "qiliaozuhe"

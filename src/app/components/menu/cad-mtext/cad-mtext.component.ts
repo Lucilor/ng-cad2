@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadData, CadEntity, CadMtext, ColoredObject} from "@cad-viewer";
+import {CadEntity, CadMtext, ColoredObject} from "@cad-viewer";
 import {AnchorEvent} from "@components/anchor-selector/anchor-selector.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {AppStatusService} from "@services/app-status.service";
@@ -13,7 +13,6 @@ import {ColorEvent} from "ngx-color";
     styleUrls: ["./cad-mtext.component.scss"]
 })
 export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy {
-    data?: CadData;
     selected: CadMtext[] = [];
     currAnchor = new Point();
     private _colorText = "";
@@ -43,9 +42,6 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
     }
 
     ngOnInit() {
-        this.subscribe(this.status.selectedCads$, () => {
-            this.data = this.status.getFlatSelectedCads()[0];
-        });
         this._updateSelected();
         const cad = this.status.cad;
         cad.on("entitiesselect", this._updateSelected);
@@ -121,7 +117,7 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         mtext.anchor.set(0, 0);
         mtext.text = "新建文本";
         mtext.selected = true;
-        this.data?.entities.mtext.push(mtext);
+        this.status.cad.data.entities.mtext.push(mtext);
         cad.render(mtext);
     }
 
@@ -130,7 +126,7 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         const toRender: CadEntity[] = [];
         this.selected.forEach((mtext) => {
             const newText = mtext.clone(true);
-            this.data?.entities.mtext.push(newText);
+            this.status.cad.data.entities.mtext.push(newText);
             toRender.push(newText);
         });
         cad.render(toRender);

@@ -61,7 +61,7 @@
                 <mat-tab-group #infoTabs [disablePagination]="true" dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
                     <mat-tab label="CAD">
                         <ng-scrollbar>
-                            <app-cad-info (cadLengthsChange)="onCadLengthsChange($event)"></app-cad-info>
+                            <app-cad-info></app-cad-info>
                         </ng-scrollbar>
                     </mat-tab>
                     <mat-tab label="线段">
@@ -83,6 +83,9 @@
             </div>
             <div class="sub-menu" *ngIf="shownMenus.includes('cadAssemble')">
                 <app-cad-assemble></app-cad-assemble>
+            </div>
+            <div class="sub-menu" *ngIf="shownMenus.includes('cadSplit')" style="display: none">
+                <app-cad-split></app-cad-split>
             </div>
             <div class="width-indicator" @menuWidth *ngIf="isDraggingRight">{{ rightMenuWidth$ | async }}px</div>
             <div
