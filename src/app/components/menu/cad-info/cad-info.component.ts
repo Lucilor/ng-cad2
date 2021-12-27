@@ -48,6 +48,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     sldzkxswz = ["CAD上面", "CAD下面", "CAD中间", "CAD左边", "CAD右边"];
     cadStatusIntersectionInfo: InsertsectionKey | null = null;
     get data() {
+        const components = this.status.components.selected$.value;
+        if (components.length === 1) {
+            return components[0];
+        }
         return this.status.cad.data;
     }
 

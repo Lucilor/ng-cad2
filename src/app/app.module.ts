@@ -52,6 +52,7 @@ import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimensio
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
 import {CadLineComponent} from "@components/menu/cad-line/cad-line.component";
 import {CadMtextComponent} from "@components/menu/cad-mtext/cad-mtext.component";
+import {CadSplitComponent} from "@components/menu/cad-split/cad-split.component";
 import {SubCadsComponent} from "@components/menu/sub-cads/sub-cads.component";
 import {ToolbarComponent} from "@components/menu/toolbar/toolbar.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
@@ -162,7 +163,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         ProgressBarComponent,
         ThuumComponent,
         SelectCadsComponent,
-        BbzhmkgzComponent
+        BbzhmkgzComponent,
+        CadSplitComponent
     ],
     imports: [
         AppRoutingModule,

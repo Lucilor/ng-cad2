@@ -11,7 +11,9 @@ import {
     PointsMap,
     CadEntities,
     generatePointsMap,
-    setLinesLength
+    setLinesLength,
+    CadHatch,
+    CadEntity
 } from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -272,5 +274,25 @@ export class AppStatusService {
 
     updateTitle() {
         document.title = this.cad.data.name || "无题";
+    }
+
+    focus(entities?: CadEntities | CadEntity[], opt?: {selected?: boolean | ((e: CadEntity) => boolean | null)}) {
+        entities = entities ?? this.cad.data.getAllEntities();
+        const selected = opt?.selected ?? false;
+        entities.forEach((e) => {
+            e.selectable = !(e instanceof CadHatch);
+            e.selected = (typeof selected === "function" ? selected(e) : selected) ?? false;
+            e.opacity = 1;
+        });
+    }
+
+    blur(entities?: CadEntities | CadEntity[], opt?: {selected?: boolean | ((e: CadEntity) => boolean | null)}) {
+        entities = entities ?? this.cad.data.getAllEntities();
+        const selected = opt?.selected ?? false;
+        entities.forEach((e) => {
+            e.selectable = false;
+            e.selected = (typeof selected === "function" ? selected(e) : selected) ?? false;
+            e.opacity = 0.3;
+        });
     }
 }

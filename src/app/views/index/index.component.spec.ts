@@ -13,6 +13,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatTabsModule} from "@angular/material/tabs";
+import {MatTooltipModule} from "@angular/material/tooltip";
 import {RouterTestingModule} from "@angular/router/testing";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
@@ -67,6 +68,7 @@ describe("IndexComponent", () => {
                 MatSelectModule,
                 MatSlideToggleModule,
                 MatTabsModule,
+                MatTooltipModule,
                 MessageModule,
                 NgScrollbarModule,
                 RouterTestingModule.withRoutes([{path: "index", component: IndexComponent}]),

@@ -5,16 +5,16 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, timer} from "@app/app.common";
 import {getCadPreview, setCadData} from "@app/cad.utils";
-import {CadData, CadEntities, CadEventCallBack, CadHatch} from "@cad-viewer";
+import {CadData, CadEntities, CadEventCallBack} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
-import {AppConfigService, AppConfig} from "@services/app-config.service";
+import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
-import {CadStatusSplit, CadStatusAssemble} from "@services/cad-status";
+import {CadStatusAssemble} from "@services/cad-status";
 import {downloadByString, ObjectOf, Point} from "@utils";
 import {isEqual} from "lodash";
 
@@ -72,30 +72,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         this.updateData();
         this.subscribe(this.status.openCad$, () => this.updateData());
         this.subscribe(this.status.components.selected$, () => this.setSelectedComponents());
-        let prevConfig: Partial<AppConfig> = {};
-        this.subscribe(this.status.cadStatusEnter$, async (cadStatus) => {
-            if (cadStatus instanceof CadStatusSplit) {
-                prevConfig = this.config.setConfig("dragAxis", "xy", {sync: false});
-                return;
-            }
-        });
-        this.subscribe(this.status.cadStatusExit$, async (cadStatus) => {
-            if (cadStatus instanceof CadStatusSplit) {
-                cad.data.components.data.forEach((v) => {
-                    v.getAllEntities().forEach((e) => {
-                        if (typeof e.info.prevVisible === "boolean") {
-                            e.visible = e.info.prevVisible;
-                            delete e.info.prevVisible;
-                        } else {
-                            e.info.prevVisible = e.visible;
-                            e.visible = true;
-                        }
-                    }, true);
-                    return this;
-                });
-                this.config.setConfig(prevConfig, {sync: false});
-            }
-        });
 
         const setConfig = () => {
             const {subCadsMultiSelect} = this.config.getConfig();
@@ -113,7 +89,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         cad.on("pointerdown", this._onPointerDown);
         cad.on("pointermove", this._onPointerMove);
         cad.on("pointerup", this.onPointerUp);
-        window.addEventListener("keydown", this._splitCad);
     }
 
     ngOnDestroy() {
@@ -122,43 +97,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         cad.off("pointerdown", this._onPointerDown);
         cad.off("pointermove", this._onPointerMove);
         cad.off("pointerup", this.onPointerUp);
-        window.removeEventListener("keydown", this._splitCad);
     }
-
-    private _splitCad = ({key}: KeyboardEvent) => {
-        if (key !== "Enter") {
-            return;
-        }
-        const cadStatus = this.status.cadStatus;
-        if (!(cadStatus instanceof CadStatusSplit)) {
-            return;
-        }
-        const cad = this.status.cad;
-        const entities = cad.selected();
-        if (entities.length < 1) {
-            return;
-        }
-        const data = cad.data;
-        if (!data) {
-            return;
-        }
-        const cloneData = data.clone(true);
-        const split = new CadData();
-        split.entities = entities.clone(true);
-        const node = this._getCadNode(split);
-        this.components.push(node);
-        data.addComponent(split);
-        this.blur(split.entities);
-        cad.remove(entities);
-        split.conditions = cloneData.conditions;
-        split.options = cloneData.options;
-        split.type = cloneData.type;
-        try {
-            data.directAssemble(split);
-        } catch (error) {
-            this.message.snack("快速装配失败: " + (error as Error).message);
-        }
-    };
 
     private _onPointerDown: CadEventCallBack<"pointerdown"> = (event) => {
         const {clientX, clientY, shiftKey, button} = event;
@@ -215,22 +154,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         return node;
     }
 
-    private focus(entities = this.status.cad.data.getAllEntities()) {
-        entities.forEach((e) => {
-            e.selectable = !(e instanceof CadHatch);
-            e.selected = false;
-            e.opacity = 1;
-        });
-    }
-
-    private blur(entities = this.status.cad.data.getAllEntities()) {
-        entities.forEach((e) => {
-            e.selectable = !(e instanceof CadHatch);
-            e.selected = false;
-            e.opacity = 0.3;
-        });
-    }
-
     toggleMultiSelect() {
         this.componentsSelectable = !this.componentsSelectable;
         if (!this.componentsSelectable) {
@@ -279,14 +202,14 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         }
         const cad = this.status.cad;
         if (selectedComponents.length < 1) {
-            this.focus();
+            this.status.focus();
             this.config.setConfig("dragAxis", "xy");
         } else {
-            this.blur();
+            this.status.blur();
             this.config.setConfig("dragAxis", "");
             this.components.forEach((v) => {
                 if (selectedComponents.some((vv) => vv.id === v.data.id)) {
-                    this.focus(v.data.getAllEntities());
+                    this.status.focus(v.data.getAllEntities());
                 }
             });
         }

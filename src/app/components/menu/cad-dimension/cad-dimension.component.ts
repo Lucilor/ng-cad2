@@ -2,7 +2,7 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {reservedDimNames} from "@app/cad.utils";
-import {CadDimension, CadData, CadLine, CadEventCallBack, CadLineLike} from "@cad-viewer";
+import {CadDimension, CadData, CadLine, CadEventCallBack, CadLineLike, CadEntity} from "@cad-viewer";
 import {openCadDimensionFormDialog} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
@@ -179,32 +179,30 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
         if (!dimension) {
             return;
         }
+        const toFocus: CadEntity[] = [];
+        const toBlur: CadEntity[] = [];
         const {entity1, entity2} = dimension;
-        this.status.cad.traverse((e) => {
-            if (e instanceof CadLine) {
-                e.selectable = true;
-                e.selected = [entity1?.id, entity2?.id].includes(e.id);
-                e.opacity = 1;
-            } else if (e.id === dimension.id) {
-                e.opacity = 1;
+        const ids = [entity1?.id, entity2?.id];
+        this.status.cad.data.getAllEntities().forEach((e) => {
+            if (e instanceof CadLine || e.id === dimension.id) {
+                toFocus.push(e);
             } else {
-                e.info.prevSelectable = e.info.prevSelectable ?? e.selectable;
-                e.info.prevOpacity = e.info.prevOpacity ?? e.opacity;
-                e.selectable = false;
-                e.opacity = 0.3;
+                toBlur.push(e);
             }
-        }, true);
+        });
+        this.status.focus(toFocus, {
+            selected: (e) => {
+                if (e instanceof CadLine) {
+                    return ids.includes(e.id);
+                }
+                return null;
+            }
+        });
+        this.status.blur(toBlur);
     }
 
     blur() {
-        this.status.cad.traverse((e) => {
-            if (!(e instanceof CadLine)) {
-                e.selectable = e.info.prevSelectable ?? e.selectable;
-                e.opacity = e.info.prevOpacity ?? e.opacity;
-                delete e.info.prevSelectable;
-                delete e.info.prevOpacity;
-            }
-        }, true);
+        this.status.focus();
     }
 
     getHideDimLines(i: number) {

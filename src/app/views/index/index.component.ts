@@ -14,7 +14,7 @@ import {CadDataService, GetCadParams} from "@modules/http/services/cad-data.serv
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
-import {CadStatusAssemble} from "@services/cad-status";
+import {CadStatusAssemble, CadStatusSplit} from "@services/cad-status";
 import {log} from "@utils";
 import {debounce} from "lodash";
 import {NgScrollbar} from "ngx-scrollbar";
@@ -58,7 +58,7 @@ type Dragkey = keyof Pick<AppConfig, "leftMenuWidth" | "rightMenuWidth">;
     ]
 })
 export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit, AfterViewInit, OnDestroy {
-    shownMenus: ("cadInfo" | "entityInfo" | "cadAssemble")[] = ["cadInfo", "entityInfo"];
+    shownMenus: ("cadInfo" | "entityInfo" | "cadAssemble" | "cadSplit")[] = ["cadInfo", "entityInfo"];
     showTopMenu = true;
     showRightMenu = true;
     showBottomMenu = true;
@@ -167,6 +167,8 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
                 this.shownMenus = ["cadAssemble"];
+            } else if (cadStatus instanceof CadStatusSplit) {
+                this.shownMenus = ["cadInfo", "entityInfo", "cadSplit"];
             } else {
                 this.shownMenus = ["cadInfo", "entityInfo"];
             }
