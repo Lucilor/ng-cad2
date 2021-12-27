@@ -89,6 +89,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             response.data.cads = response.data.cads.map((v) => new CadData(v));
             this.downloadUrl = response.data.url || null;
             await this.generateSuanliaodan(response.data);
+        } else {
+            this.spinner.hide(this.loaderId);
         }
         window.addEventListener("keydown", this._onKeyDown);
     }

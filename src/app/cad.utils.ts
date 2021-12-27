@@ -238,7 +238,7 @@ const getWrapedTextOptions = (source: string, maxLength: number) => {
     if (source.match(/\d+(\.\d+)?[x×]?\d+(\.\d+)?/)) {
         options.minLength = 1;
         options.indent = 4;
-        options.separator = /[,，.。]/;
+        options.separator = /[,.，。:；]/;
     }
     return options;
 };

@@ -54,7 +54,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
         this.spinner.show(this.loaderId);
         const {changelog, count} = await this.dataService.getChangelog(page, this.pageSize);
         this.spinner.hide(this.loaderId);
-        this.changelog = changelog;
+        this.changelog = changelog.filter((v) => v && typeof v === "object");
         this.length = count;
     }
 
@@ -130,8 +130,8 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
         const loaderId = `${this.loaderId}Add${i}`;
         this.spinner.show(loaderId);
         await this.dataService.addChangelogItem({timeStamp: new Date().getTime(), content: []}, i);
-        this.spinner.hide(loaderId);
         await this.getChangelog();
+        this.spinner.hide(loaderId);
     }
 
     async removeChangelogItem(i: number) {
