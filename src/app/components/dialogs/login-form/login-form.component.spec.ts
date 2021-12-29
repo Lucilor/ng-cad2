@@ -7,6 +7,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY} from "ng-recaptcha";
 import {LoginFormComponent, LoginFormData} from "./login-form.component";
 
@@ -27,7 +28,8 @@ describe("LoginFormComponent", () => {
                 MatInputModule,
                 MessageModule,
                 ReactiveFormsModule,
-                RecaptchaV3Module
+                RecaptchaV3Module,
+                SpinnerModule
             ],
             providers: [
                 {provide: MatDialogRef, useValue: {}},

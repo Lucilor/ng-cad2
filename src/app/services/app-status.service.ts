@@ -108,8 +108,8 @@ export class AppStatusService {
             this.dataService.baseURL = `${origin}/n/${project}/index/`;
             this.spinner.show(this.spinner.defaultLoaderId);
             if (!action) {
-                const response = await this.dataService.get("user/user/isAdmin", {nothing: null});
-                this.isAdmin$.next(!!response?.data);
+                const response = await this.dataService.get<boolean>("user/user/isAdmin", {timeStamp: new Date().getTime()});
+                this.isAdmin$.next(response?.data === true);
                 await this.config.getUserConfig();
             }
             let changelogTimeStamp = this.changelogTimeStamp$.value;

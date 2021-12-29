@@ -1,12 +1,12 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, Inject, OnDestroy, OnInit} from "@angular/core";
+import {AfterViewInit, Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MessageService} from "@modules/message/services/message.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
 import md5 from "md5";
 import {ReCaptchaV3Service} from "ng-recaptcha";
 import {typedFormGroup, typedFormControl, TypedFormGroup} from "ngx-forms-typed";
-import {NgxUiLoaderService} from "ngx-ui-loader";
 import {lastValueFrom} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
 
@@ -31,16 +31,12 @@ export interface LoginResponse {
     templateUrl: "./login-form.component.html",
     styleUrls: ["./login-form.component.scss"]
 })
-export class LoginFormComponent implements OnInit, OnDestroy {
+export class LoginFormComponent implements AfterViewInit {
     form = typedFormGroup({
         user: typedFormControl(""),
         password: typedFormControl("")
     }) as TypedFormGroup<LoginForm>;
     passwordVisible = false;
-    private _ngxLoaderDisplay = "";
-    private get _masterLoader() {
-        return document.querySelector("ngx-ui-loader") as HTMLElement | null;
-    }
 
     constructor(
         public dialogRef: MatDialogRef<LoginFormComponent, boolean>,
@@ -48,26 +44,15 @@ export class LoginFormComponent implements OnInit, OnDestroy {
         private recaptcha: ReCaptchaV3Service,
         private http: HttpClient,
         private message: MessageService,
-        private loader: NgxUiLoaderService
+        private spinner: SpinnerService
     ) {
         if (!this.data) {
             this.data = {project: {id: "?", name: "???"}, baseUrl: ""};
         }
     }
 
-    ngOnInit() {
-        const loader = this._masterLoader;
-        if (loader) {
-            this._ngxLoaderDisplay = loader.style.display;
-            loader.style.display = "none";
-        }
-    }
-
-    ngOnDestroy() {
-        const loader = this._masterLoader;
-        if (loader) {
-            loader.style.display = this._ngxLoaderDisplay;
-        }
+    ngAfterViewInit() {
+        this.spinner.hide(this.spinner.defaultLoaderId);
     }
 
     async submit() {
@@ -85,9 +70,9 @@ export class LoginFormComponent implements OnInit, OnDestroy {
         data.append("password", md5(form.value.password));
         data.append("phonecode", "");
         data.append("recaptcha_token", token);
-        this.loader.start();
+        this.spinner.show(this.spinner.defaultLoaderId);
         let response: ObjectOf<any> = await lastValueFrom(this.http.post(`${baseUrl}/login/in`, data));
-        this.loader.stop();
+        this.spinner.hide(this.spinner.defaultLoaderId);
         if (response.status === -1) {
             const phonecode = await this.message.prompt({
                 title: "请输入验证码",
@@ -95,7 +80,9 @@ export class LoginFormComponent implements OnInit, OnDestroy {
                 cancelable: false
             });
             data.set("phonecode", phonecode || "");
+            this.spinner.show(this.spinner.defaultLoaderId);
             response = await lastValueFrom(this.http.post(`${baseUrl}/login/in`, data));
+            this.spinner.hide(this.spinner.defaultLoaderId);
         }
         if (response.status === 0) {
             this.message.alert(response.msg);
