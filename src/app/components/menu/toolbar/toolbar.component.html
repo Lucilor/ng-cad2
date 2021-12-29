@@ -12,11 +12,10 @@
             <button mat-menu-item (click)="resetIds()">重置实体ID</button>
         </mat-menu>
         <mat-menu #openType="matMenu">
-            <button mat-menu-item (click)="clickBtn('1')">原始CAD文件<span class="shortcut">Ctrl + 1</span></button>
-            <button mat-menu-item (click)="clickBtn('2')">CAD<span class="shortcut">Ctrl + 2</span></button>
-            <button mat-menu-item (click)="clickBtn('3')">CAD模板<span class="shortcut">Ctrl + 3</span></button>
-            <button mat-menu-item (click)="clickBtn('4')">企料组合<span class="shortcut">Ctrl + 4</span></button>
-            <button mat-menu-item (click)="clickBtn('5')">切料CAD<span class="shortcut">Ctrl + 5</span></button>
+            <button mat-menu-item (click)="clickBtn('1')">CAD<span class="shortcut">Ctrl + 1</span></button>
+            <button mat-menu-item (click)="clickBtn('2')">CAD模板<span class="shortcut">Ctrl + 2</span></button>
+            <button mat-menu-item (click)="clickBtn('3')">企料组合<span class="shortcut">Ctrl + 3</span></button>
+            <button mat-menu-item (click)="clickBtn('4')">切料CAD<span class="shortcut">Ctrl + 4</span></button>
         </mat-menu>
 
         <button mat-button [matMenuTriggerFor]="edit" [disabled]="!isStatusNormal">编辑</button>
