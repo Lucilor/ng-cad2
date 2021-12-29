@@ -7,7 +7,8 @@ import {Utils} from "@mixins/utils.mixin";
 import {Changelog, CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf} from "@utils";
+import {downloadByString, downloadByUrl, ObjectOf} from "@utils";
+import {cloneDeep} from "lodash";
 import {lastValueFrom} from "rxjs";
 
 export const changelogTypes: ObjectOf<string> = {
@@ -25,6 +26,7 @@ export const changelogTypes: ObjectOf<string> = {
 export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     changelogTypeKeys = Object.keys(changelogTypes);
     changelog: Changelog = [];
+    changelogRaw: Changelog | null = null;
     length = 0;
     pageSizeOptions = [5, 10, 20, 50, 100];
     routesInfo = routesInfo;
@@ -51,11 +53,17 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     }
 
     async getChangelog(page = this.page) {
-        this.spinner.show(this.loaderId);
-        const {changelog, count} = await this.dataService.getChangelog(page, this.pageSize);
-        this.spinner.hide(this.loaderId);
-        this.changelog = changelog.filter((v) => v && typeof v === "object");
-        this.length = count;
+        if (this.changelogRaw) {
+            const offset = (page - 1) * this.pageSize;
+            this.changelog = cloneDeep(this.changelogRaw.slice(offset, offset + this.pageSize));
+            this.length = this.changelogRaw.length;
+        } else {
+            this.spinner.show(this.loaderId);
+            const {changelog, count} = await this.dataService.getChangelog(page, this.pageSize);
+            this.spinner.hide(this.loaderId);
+            this.changelog = changelog.filter((v) => v && typeof v === "object");
+            this.length = count;
+        }
     }
 
     changePage(event: PageEvent) {
@@ -120,26 +128,43 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     }
 
     async setChangelogItem(i: number) {
-        const loaderId = `${this.loaderId}Set${i}`;
-        this.spinner.show(loaderId);
-        await this.dataService.setChangelogItem(this.changelog[i], (this.page - 1) * this.pageSize + i);
-        this.spinner.hide(loaderId);
+        const index = (this.page - 1) * this.pageSize + i;
+        if (this.changelogRaw) {
+            this.changelogRaw[index] = this.changelog[i];
+        } else {
+            const loaderId = `${this.loaderId}Set${i}`;
+            this.spinner.show(loaderId);
+            await this.dataService.setChangelogItem(this.changelog[i], index);
+            this.spinner.hide(loaderId);
+        }
     }
 
     async addChangelogItem(i: number) {
-        const loaderId = `${this.loaderId}Add${i}`;
-        this.spinner.show(loaderId);
-        await this.dataService.addChangelogItem({timeStamp: new Date().getTime(), content: []}, i);
-        await this.getChangelog();
-        this.spinner.hide(loaderId);
+        const newChangelog: Changelog[0] = {timeStamp: new Date().getTime(), content: []};
+        if (this.changelogRaw) {
+            this.changelogRaw.splice(i, 0, newChangelog);
+            await this.getChangelog();
+        } else {
+            const loaderId = `${this.loaderId}Add${i}`;
+            this.spinner.show(loaderId);
+            await this.dataService.addChangelogItem(newChangelog, i);
+            await this.getChangelog();
+            this.spinner.hide(loaderId);
+        }
     }
 
     async removeChangelogItem(i: number) {
-        const loaderId = `${this.loaderId}Remove${i}`;
-        this.spinner.show(loaderId);
-        await this.dataService.removeChangelogItem(i);
-        this.spinner.hide(loaderId);
-        await this.getChangelog();
+        const index = (this.page - 1) * this.pageSize + i;
+        if (this.changelogRaw) {
+            this.changelogRaw.splice(index, 1);
+            await this.getChangelog();
+        } else {
+            const loaderId = `${this.loaderId}Remove${i}`;
+            this.spinner.show(loaderId);
+            await this.dataService.removeChangelogItem(index);
+            this.spinner.hide(loaderId);
+            await this.getChangelog();
+        }
     }
 
     isDropListDisabled(i: number, j?: number) {
@@ -151,5 +176,48 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
             return i === i2;
         }
         return false;
+    }
+
+    setSourceData(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file) {
+            return;
+        }
+        this.spinner.show(this.loaderId);
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = () => {
+            let data: Changelog | undefined;
+            try {
+                data = JSON.parse(reader.result as string);
+            } catch (e) {
+                console.error(e);
+            }
+            this.spinner.hide(this.loaderId);
+            if (data) {
+                this.changelogRaw = data;
+                this.getChangelog(1);
+            }
+        };
+        reader.onerror = (ev) => {
+            console.error(ev);
+            this.spinner.hide(this.loaderId);
+        };
+        input.value = "";
+    }
+
+    fetchChangelog() {
+        downloadByUrl("https://www.let888.cn/n/static/ngcad2_changelog.json");
+    }
+
+    downloadChangelog() {
+        if (this.changelogRaw) {
+            for (let i = 0; i < this.changelog.length; i++) {
+                const index = (this.page - 1) * this.pageSize + i;
+                this.changelogRaw[index] = this.changelog[i];
+            }
+            downloadByString(JSON.stringify(this.changelogRaw), {filename: "ngcad2_changelog.json"});
+        }
     }
 }

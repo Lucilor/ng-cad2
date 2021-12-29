@@ -1,12 +1,16 @@
 <ng-scrollbar>
     <mat-accordion>
-        <div class="btn-group" *ngIf="page === 1">
-            <div class="spinner-container">
+        <div class="btn-group" style="padding-left: 20px">
+            <div class="spinner-container" *ngIf="page === 1">
                 <button mat-icon-button color="primary" (click)="addChangelogItem(0)">
                     <mat-icon>add_circle</mat-icon>
                 </button>
                 <app-spinner [id]="loaderId + 'Add0'" [inline]="true"></app-spinner>
             </div>
+            <button mat-raised-button color="primary" (click)="fetchChangelog()">获取文件</button>
+            <input type="file" #fileInput hidden (change)="setSourceData($event)" accept=".json" />
+            <button mat-raised-button color="primary" (click)="fileInput.click()">读取文件</button>
+            <button mat-raised-button color="primary" *ngIf="changelogRaw" (click)="downloadChangelog()">保存文件</button>
         </div>
         <app-spinner [id]="loaderId"></app-spinner>
         <mat-expansion-panel *ngFor="let v of changelog; let i = index">
