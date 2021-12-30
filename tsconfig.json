@@ -38,5 +38,12 @@
         "strictInjectionParameters": true,
         "strictInputAccessModifiers": true,
         "strictTemplates": true
+    },
+    "ts-node": {
+        "compilerOptions": {
+            "target": "esnext",
+            "module": "commonjs",
+            "esModuleInterop": true
+        }
     }
 }

@@ -1,0 +1,13 @@
+{
+    "$schema": "./gulp-task.schema.json",
+    "api": "https://www.let888.cn/n/gym/index/login",
+    "token": "wefarvwEFqwdWEFfefw!$#^##%!",
+    "tasks": {
+        "default": {
+            "baseUrl": "C:/wamp64/www/static",
+            "globs": ["ng-cad2/**/*", "ngcad2_changelog.json"],
+            "dest": "static",
+            "toDelete": ["ng-cad2"]
+        }
+    }
+}

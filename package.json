@@ -9,9 +9,6 @@
     "test:ci": "ng test --no-watch --no-progress --browsers=ChromeHeadless",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "upload": "npx ts-node --project tsconfig.upload.json upload.ts",
-    "upload:fc": "npx ts-node --project tsconfig.upload.json upload.ts --fetchChangelog",
-    "bu": "npm run build && npm run upload",
     "prepare": "husky install"
   },
   "private": true,
@@ -60,6 +57,8 @@
     "@angular/compiler-cli": "~13.1.1",
     "@types/archiver": "^5.1.1",
     "@types/color": "^3",
+    "@types/gulp": "^4.0.9",
+    "@types/gulp-zip": "^4.0.2",
     "@types/jasmine": "~3.10.2",
     "@types/jasminewd2": "~2.0.10",
     "@types/lodash": "^4.14.178",
@@ -79,6 +78,8 @@
     "eslint-plugin-jsdoc": "37.4.0",
     "eslint-plugin-prefer-arrow": "1.2.3",
     "form-data": "^4.0.0",
+    "gulp": "^4.0.2",
+    "gulp-zip": "^5.1.0",
     "husky": "^7.0.4",
     "jasmine-core": "~3.10.1",
     "jasmine-spec-reporter": "~7.0.0",
@@ -89,6 +90,7 @@
     "karma-jasmine-html-reporter": "^1.7.0",
     "minimist": "^1.2.5",
     "protractor": "~7.0.0",
+    "ts-node": "^10.4.0",
     "typescript": "~4.4.4"
   }
 }

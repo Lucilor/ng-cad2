@@ -1,0 +1,27 @@
+{
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["$schema", "api", "token"],
+    "properties": {
+        "$schema": {"type": "string", "format": "uri-reference"},
+        "api": {"type": "string", "description": "后台接口"},
+        "token": {"type": "string", "description": "token"},
+        "tasks": {
+            "type": "object",
+            "patternProperties": {
+                ".*": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["baseUrl", "globs", "dest"],
+                    "properties": {
+                        "baseUrl": {"type": "string", "format": "uri-reference"},
+                        "globs": {"type": "array", "items": {"type": "string", "format": "uri-reference"}},
+                        "dest": {"type": "string", "format": "uri-reference"},
+                        "toDelete": {"type": "array", "items": {"type": "string", "format": "uri-reference"}},
+                        "preTasks": {"type": "object", "patternProperties": {".*": {"type": "array", "items": {"type": "string"}}}}
+                    }
+                }
+            }
+        }
+    }
+}
