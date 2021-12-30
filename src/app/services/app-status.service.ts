@@ -107,7 +107,9 @@ export class AppStatusService {
             this.project = project;
             this.dataService.baseURL = `${origin}/n/${project}/index/`;
             this.spinner.show(this.spinner.defaultLoaderId);
-            if (!action) {
+            if (action) {
+                this.config.noUser = true;
+            } else {
                 const response = await this.dataService.get<boolean>("user/user/isAdmin", {timeStamp: new Date().getTime()});
                 this.isAdmin$.next(response?.data === true);
                 await this.config.getUserConfig();

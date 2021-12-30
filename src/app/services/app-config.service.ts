@@ -31,6 +31,7 @@ export class AppConfigService {
     configChange$: BehaviorSubject<AppConfigChange>;
     private _userConfig: Partial<AppConfig> = {};
     private _configKeys: (keyof AppConfig)[];
+    noUser = false;
 
     constructor(private dataService: CadDataService) {
         const defaultConfig: AppConfig = {
@@ -153,6 +154,9 @@ export class AppConfigService {
     }
 
     async getUserConfig(key?: string) {
+        if (this.noUser) {
+            return {};
+        }
         const response = await this.dataService.post<Partial<AppConfig>>("ngcad/getUserConfig", {key});
         const config = response?.data;
         if (config) {
@@ -166,6 +170,9 @@ export class AppConfigService {
     }
 
     async setUserConfig(config: Partial<AppConfig>) {
+        if (this.noUser) {
+            return false;
+        }
         config = this._purgeUserConfig(config);
         if (Object.keys(config).length) {
             const response = await this.dataService.post("ngcad/setUserConfig", {config: this._purgeUserConfig(config)});
