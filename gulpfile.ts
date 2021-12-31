@@ -47,10 +47,19 @@ const backupName = "ng_cad2";
 gulp.task("build", async () => {
     await execAsync("npm run build");
 });
-gulp.task("zipFile", () => {
+gulp.task("zipFile", (callback) => {
     const globs = ["ng-cad2/**/*"];
     if (!args.noChangelog) {
         globs.push(changelogName);
+        const changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
+        const now = new Date();
+        const then = new Date(changelog[0].timeStamp);
+        if (now.getFullYear() !== then.getFullYear() || now.getMonth() !== then.getMonth() || now.getDate() !== then.getDate()) {
+            console.error("changelog time error");
+            callback();
+        }
+        changelog[0].timeStamp = new Date().getTime();
+        fs.writeFileSync(changelogPath, JSON.stringify(changelog));
     }
     return gulp.src(globs, {dot: true, cwd: targetDir, base: targetDir}).pipe(zip(zipName)).pipe(gulp.dest(tmpDir));
 });
@@ -59,18 +68,6 @@ gulp.task("fetchChangelog", async () => {
     fs.writeFileSync(changelogPath, JSON.stringify(response.data));
 });
 gulp.task("upload", async () => {
-    if (!args.noChangelog) {
-        const changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
-        const now = new Date();
-        const then = new Date(changelog[0].timeStamp);
-        if (now.getFullYear() !== then.getFullYear() || now.getMonth() !== then.getMonth() || now.getDate() !== then.getDate()) {
-            console.error("changelog time error");
-            return;
-        }
-        changelog[0].timeStamp = new Date().getTime();
-        fs.writeFileSync(changelogPath, JSON.stringify(changelog));
-    }
-
     const url = host + "/n/kgs/index/login/upload";
     if (url.includes("localhost")) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
