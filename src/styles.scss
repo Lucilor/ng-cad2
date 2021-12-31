@@ -125,6 +125,19 @@ form {
     color: black;
 }
 
+.mat-menu-item {
+    display: flex !important;
+    justify-content: space-between;
+    padding: 0 10px;
+
+    .shortcut {
+        text-align: right;
+        font-size: 0.75rem;
+        color: #868686;
+        margin-left: 10px;
+    }
+}
+
 // ngx scrollbar
 ng-scrollbar.ng-scrollbar {
     --scrollbar-border-radius: 7px;
