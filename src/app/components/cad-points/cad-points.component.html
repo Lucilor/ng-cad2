@@ -1,8 +1,7 @@
 <div
-	*ngFor="let p of points; let i = index"
-	class="point"
-	[class.active]="p.active"
-	[style.left.px]="p.x"
-	[style.top.px]="p.y"
-	(click)="onPointClick(i)"
+    *ngFor="let p of points; let i = index"
+    class="point"
+    [class.active]="p.active"
+    [ngStyle]="getStyle(p)"
+    (click)="onPointClick(i)"
 ></div>

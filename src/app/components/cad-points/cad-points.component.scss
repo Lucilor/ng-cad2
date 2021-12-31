@@ -1,15 +1,10 @@
-$point-size: 20px;
 .point {
 	position: absolute;
-	width: $point-size;
-	height: $point-size;
 	border-radius: 20px;
 	background-color: white;
 	cursor: pointer;
 	transform: translate(-50%, -50%);
 	user-select: none;
-	top: -$point-size;
-	left: -$point-size;
 
 	$active-color: rgb(0, 0, 255);
 	animation: point 2.2s linear infinite;

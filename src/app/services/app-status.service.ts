@@ -13,7 +13,8 @@ import {
     generatePointsMap,
     setLinesLength,
     CadHatch,
-    CadEntity
+    CadEntity,
+    CadLineLike
 } from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -188,7 +189,7 @@ export class AppStatusService {
         this.generateLineTexts();
         await cad.reset().render();
         cad.center();
-        this._updateCadTotalLength();
+        this.updateCadTotalLength();
         this.updateTitle();
         timer.end(timerName, "打开CAD");
     }
@@ -214,21 +215,31 @@ export class AppStatusService {
         }
     }
 
-    getCadPoints(map?: PointsMap | CadEntities) {
+    getCadPoints(map?: PointsMap | CadEntities, mid?: boolean) {
         if (!map) {
             return [];
         }
         if (map instanceof CadEntities) {
-            map = generatePointsMap(map);
+            const midPoints: PointsMap = [];
+            if (mid) {
+                map.forEach((e) => {
+                    if (e instanceof CadLineLike) {
+                        midPoints.push({point: e.middle, lines: [e], selected: false});
+                    }
+                }, true);
+            }
+            map = generatePointsMap(map).concat(midPoints);
         }
         return map.map((v) => {
             const {x, y} = this.cad.getScreenPoint(v.point.x, v.point.y);
-            return {x, y, active: false, lines: v.lines.map((vv) => vv.id)} as CadPoints[0];
+            return {x, y, active: v.selected, lines: v.lines.map((vv) => vv.id)} as CadPoints[0];
         });
     }
 
-    setCadPoints(map: PointsMap | CadEntities = [], exclude: CadPoints = []) {
-        this.cadPoints$.next(differenceWith(this.getCadPoints(map), exclude, (a, b) => a.x === b.x && a.y === b.y));
+    setCadPoints(map: PointsMap | CadEntities = [], opts: {exclude?: CadPoints; mid?: boolean} = {}) {
+        const {exclude, mid} = opts;
+        const points = this.getCadPoints(map, mid);
+        this.cadPoints$.next(differenceWith(points, exclude || [], (a, b) => a.x === b.x && a.y === b.y));
     }
 
     addCadPoint(point: CadPoints[0], i?: number) {
@@ -259,7 +270,7 @@ export class AppStatusService {
         return results;
     }
 
-    private _updateCadTotalLength() {
+    updateCadTotalLength() {
         let length = 0;
         const data = this.cad.data;
         const entities = data.getAllEntities();
@@ -271,7 +282,7 @@ export class AppStatusService {
 
     setLinesLength(lines: CadLine[], length: number) {
         setLinesLength(this.cad.data, lines, length);
-        this._updateCadTotalLength();
+        this.updateCadTotalLength();
     }
 
     updateTitle() {

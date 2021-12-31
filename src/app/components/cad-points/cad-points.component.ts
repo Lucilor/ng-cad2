@@ -1,5 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {Subscribed} from "@mixins/subscribed.mixin";
+import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService, CadPoints} from "@services/app-status.service";
 
 @Component({
@@ -10,7 +11,7 @@ import {AppStatusService, CadPoints} from "@services/app-status.service";
 export class CadPointsComponent extends Subscribed() implements OnInit {
     points: CadPoints = [];
 
-    constructor(private status: AppStatusService) {
+    constructor(private config: AppConfigService, private status: AppStatusService) {
         super();
     }
 
@@ -22,5 +23,15 @@ export class CadPointsComponent extends Subscribed() implements OnInit {
         const points = this.points;
         points[index].active = !points[index].active;
         this.status.cadPoints$.next(points);
+    }
+
+    getStyle(p: CadPoints[0]) {
+        const size = this.config.getConfig("pointSize");
+        return {
+            width: `${size}px`,
+            height: `${size}px`,
+            left: `${p.x}px`,
+            top: `${p.y}px`
+        } as CSSStyleDeclaration;
     }
 }

@@ -199,6 +199,16 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         this.config.setConfig("lineGongshi", num);
     }
 
+    async setPointSize() {
+        const pointSize = this.config.getConfig("pointSize").toString();
+        const result = await this.message.prompt({promptData: {value: pointSize, type: "number", placeholder: "选取点大小"}});
+        const n = Number(result);
+        console.log(n);
+        if (!isNaN(n)) {
+            this.config.setConfig("pointSize", n);
+        }
+    }
+
     async resetLineLength() {
         const cad = this.status.cad;
         if (cad.getConfig("hideLineLength")) {

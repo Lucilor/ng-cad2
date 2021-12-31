@@ -14,6 +14,7 @@
 
 <div class="menus">
     <div class="cad-container" #cadContainer (contextmenu)="onContextMenu($event)"></div>
+    <app-cad-points></app-cad-points>
     <div class="menu top" [@closeTop]="showTopMenu ? 'open' : 'closed'">
         <app-toolbar></app-toolbar>
     </div>
@@ -104,5 +105,4 @@
         <div class="cad-status">当前状态：{{ cadStatusStr }}</div>
     </div>
     <app-cad-console></app-cad-console>
-    <app-cad-points></app-cad-points>
 </div>

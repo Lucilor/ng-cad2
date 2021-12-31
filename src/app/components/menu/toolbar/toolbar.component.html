@@ -39,6 +39,7 @@
         <button mat-button [matMenuTriggerFor]="view" [disabled]="!isStatusNormal">视图</button>
         <mat-menu #view="matMenu">
             <button mat-menu-item (click)="setShowGongshi()">设置公式显示</button>
+            <button mat-menu-item (click)="setPointSize()">设置选取点大小</button>
         </mat-menu>
 
         <!-- <button mat-button (click)="showManual()">帮助<span class="super">NEW!</span></button> -->
