@@ -1,6 +1,7 @@
 import {ObjectOf} from "@utils";
 import axios from "axios";
 import child_process from "child_process";
+import del from "del";
 import FormData from "form-data";
 import fs from "fs";
 import gulp from "gulp";
@@ -46,7 +47,12 @@ const backupName = "ng_cad2";
 
 gulp.task("build", async () => {
     await execAsync("npm run build");
+    const distSource = "./dist/**";
+    const distTarget = path.join(targetDir, "ng-cad2");
+    await del(path.join(distTarget).replaceAll("\\", "/"), {force: true});
+    return gulp.src(distSource).pipe(gulp.dest(distTarget));
 });
+
 gulp.task("zipFile", (callback) => {
     const globs = ["ng-cad2/**/*"];
     if (!args.noChangelog) {
@@ -63,10 +69,12 @@ gulp.task("zipFile", (callback) => {
     }
     return gulp.src(globs, {dot: true, cwd: targetDir, base: targetDir}).pipe(zip(zipName)).pipe(gulp.dest(tmpDir));
 });
+
 gulp.task("fetchChangelog", async () => {
     const response = await axios.get(host + "/static/ngcad2_changelog.json");
     fs.writeFileSync(changelogPath, JSON.stringify(response.data));
 });
+
 gulp.task("upload", async () => {
     const url = host + "/n/kgs/index/login/upload";
     if (url.includes("localhost")) {
@@ -76,8 +84,10 @@ gulp.task("upload", async () => {
     const response = await postFormData(url, data, fs.createReadStream(path.join(tmpDir, zipName)));
     console.log(response.data);
 });
+
 gulp.task("restore", async () => {
     const response = await postFormData(host + "/n/kgs/index/login/restore", {name: backupName});
     console.log(response.data);
 });
+
 gulp.task("default", gulp.series("build", "zipFile", "upload"));
