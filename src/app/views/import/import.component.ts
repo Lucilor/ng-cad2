@@ -471,12 +471,6 @@ export class ImportComponent extends Utils() implements OnInit {
         if (data.kailiaoshibaokeng && data.zhidingweizhipaokeng.length > 0) {
             cad.errors.push("不能同时设置[全部刨坑]和[指定位置刨坑]");
         }
-        for (const zhankai of data.zhankai) {
-            if (zhankai.shuliang.includes(`${data.name}数量`)) {
-                cad.errors.push(`展开数量不能包含[${data.name}数量]`);
-                break;
-            }
-        }
         const entities = data.getAllEntities();
         if (requireLineId) {
             const lines = entities.filter((v) => v instanceof CadLineLike).toArray();
