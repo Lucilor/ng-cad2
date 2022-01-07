@@ -9,23 +9,6 @@ import zip from "gulp-zip";
 import minimist from "minimist";
 import path from "path";
 
-const execAsync = (command: string) =>
-    new Promise((resolve, reject) => {
-        child_process.exec(command, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                stdout = stdout.trim();
-                stderr = stderr.trim();
-                if (stdout) {
-                    resolve(stdout);
-                } else {
-                    resolve(stderr);
-                }
-            }
-        });
-    });
-
 const postFormData = (url: string, data: ObjectOf<any>, file?: fs.ReadStream) => {
     const formData = new FormData();
     formData.append("data", JSON.stringify(data));
@@ -39,21 +22,18 @@ const args = minimist(process.argv.slice(2));
 const host = args.local ? "https://localhost" : "https://www.let888.cn";
 const token = "wefarvwEFqwdWEFfefw!$#^##%!";
 const targetDir = "C:/wamp64/www/static";
-const tmpDir = path.join(__dirname, ".tmp");
+const targetDistDir = targetDir + "/ng-cad2";
+const tmpDir = "./.tmp";
 const zipName = "upload.zip";
 const changelogName = "ngcad2_changelog.json";
 const changelogPath = path.join(targetDir, changelogName);
 const backupName = "ng_cad2";
 
-gulp.task("build", async () => {
-    await execAsync("npm run build");
-    const distSource = "./dist/**";
-    const distTarget = path.join(targetDir, "ng-cad2");
-    await del(path.join(distTarget).replaceAll("\\", "/"), {force: true});
-    return gulp.src(distSource).pipe(gulp.dest(distTarget));
-});
+gulp.task("build", () => child_process.exec("npm run build"));
+gulp.task("clean", () => del(targetDistDir, {force: true}));
+gulp.task("copy", () => gulp.src("./dist/**").pipe(gulp.dest(targetDistDir)));
 
-gulp.task("zipFile", (callback) => {
+gulp.task("zip", async (callback) => {
     const globs = ["ng-cad2/**/*"];
     if (!args.noChangelog) {
         globs.push(changelogName);
@@ -90,4 +70,4 @@ gulp.task("restore", async () => {
     console.log(response.data);
 });
 
-gulp.task("default", gulp.series("build", "zipFile", "upload"));
+gulp.task("default", gulp.series("build", "clean", "copy", "zip", "upload"));
