@@ -8,7 +8,7 @@ import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf, ProgressBar} from "@utils";
+import {downloadByString, ObjectOf, ProgressBar} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";
 
@@ -28,6 +28,7 @@ export class ImportComponent extends Utils() implements OnInit {
     private _sourceCadMap: SourceCadMap = {cads: {}, slgses: {}};
     private _errorMsgLayer = "导入错误信息";
     sourceCad: CadData | null = null;
+    batchCheckData: ObjectOf<any>[] | null = null;
 
     loaderIds = {
         importLoader: "importLoader",
@@ -325,6 +326,7 @@ export class ImportComponent extends Utils() implements OnInit {
             this.message.alert("数据为空或绿色框不封闭");
         } else {
             try {
+                this.batchCheckData = data;
                 const checkResult = window.batchCheck(data);
                 this.cads.forEach((cad) => {
                     const errors = checkResult[cad.data.id];
@@ -639,5 +641,13 @@ export class ImportComponent extends Utils() implements OnInit {
         this.spinner.show(this.loaderIds.downloadSourceCad);
         await this.dataService.downloadDxf(this.sourceCad);
         this.spinner.hide(this.loaderIds.downloadSourceCad);
+    }
+
+    downloadBatchCheckData() {
+        let filename: string | undefined;
+        if (this._sourceFile) {
+            filename = this._sourceFile.name.split(".")[0] + ".json";
+        }
+        downloadByString(JSON.stringify(this.batchCheckData), {filename});
     }
 }

@@ -88,9 +88,12 @@
         </div>
         <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
 
-        <div class="spinner-container">
-            <button mat-raised-button (click)="downloadSourceCad()" [disabled]="!sourceCad || !cadsParsed">下载dxf文件</button>
-            <app-spinner [id]="loaderIds.downloadSourceCad" [inline]="true"></app-spinner>
+        <div class="btn-group">
+            <div class="spinner-container">
+                <button mat-raised-button (click)="downloadSourceCad()" [disabled]="!sourceCad || !cadsParsed">下载dxf文件</button>
+                <app-spinner [id]="loaderIds.downloadSourceCad" [inline]="true"></app-spinner>
+            </div>
+            <button mat-raised-button (click)="downloadBatchCheckData()" [disabled]="!batchCheckData || !cadsParsed">下载json数据</button>
         </div>
         <div class="cads">
             <ng-container *ngFor="let cad of cads">
