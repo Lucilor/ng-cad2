@@ -369,4 +369,17 @@
             </mat-select>
         </mat-form-field>
     </div>
+    <div class="form-item">
+        <mat-form-field>
+            <mat-label>算料不要</mat-label>
+            <mat-select
+                name="算料不要"
+                [value]="getLineText('算料不要')"
+                (selectionChange)="setLineText($event, '算料不要')"
+            >
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
 </form>
