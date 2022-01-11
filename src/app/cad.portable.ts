@@ -333,7 +333,7 @@ export class CadPortable {
         cads.forEach((cad) => {
             const data = cad.data;
             let toRemove = -1;
-            this._removeLeaders(data);
+            this._extractIntersections(data);
             data.info.errors = [];
             data.options = {...globalOptions};
             data.entities.mtext.some((e, i) => {
@@ -529,7 +529,7 @@ export class CadPortable {
             const group2 = [] as CadData[];
             const right = rect.right + padding;
             const draw = (cad: CadData, j: number, isGroup2: boolean) => {
-                this._addLeaders(cad);
+                this._showIntersections(cad);
                 const cadRect = cad.getBoundingRect();
                 let offsetX = j * (width + margin);
                 let offsetY = -(i - dividers.length) * (height + margin);
@@ -840,11 +840,11 @@ export class CadPortable {
         }
     }
 
-    private static _removeLeaders(cad: CadData) {
-        const leaders = cad.entities.leader;
+    private static _extractIntersections(cad: CadData) {
+        const entities = cad.entities;
         const map = generatePointsMap(cad.entities);
-        leaders.forEach((e) => {
-            cad.entities.remove(e);
+        entities.leader.forEach((e) => {
+            entities.remove(e);
             for (const v of map) {
                 if (v.lines.length === 2 && e.vertices[0].distanceTo(v.point) <= 5) {
                     cad.zhidingweizhipaokeng.push([v.lines[0].id, v.lines[1].id]);
@@ -852,54 +852,73 @@ export class CadPortable {
                 }
             }
         });
+
+        // entities.filter((v) => v.layer === "分体").forEach((e) => {
+        //     entities.remove(e);
+        //     if (e instanceof CadCircle) {
+        //         console.log(e);
+        //     }
+        // });
     }
 
-    private static _addLeaders(cad: CadData) {
-        const arr = cad.zhidingweizhipaokeng;
-        const lines = sortLines(cad)[0];
-        if (!lines) {
+    private static _showIntersections(data: CadData) {
+        if (data.zhidingweizhipaokeng.length < 1 && data.指定分体位置.length < 1) {
             return;
         }
-
-        const length = 32;
-        const gap = 4;
-
-        for (let i = 0; i < lines.length - 1; i++) {
-            const e1 = lines[i];
-            const e2 = lines[i + 1];
-            let matched = false;
-            const id1 = e1.id;
-            const id2 = e2.id;
-            for (const ids of arr) {
-                if (intersection(ids, [id1, id2]).length === 2) {
-                    matched = true;
-                    break;
+        const sortedEntities = sortLines(data)[0];
+        const paokengLength = 32;
+        const paokengGap = 4;
+        // const fentiRadius = 8;
+        // const fentiFontSize = 16;
+        for (const key of ["zhidingweizhipaokeng", "指定分体位置"] as ("zhidingweizhipaokeng" | "指定分体位置")[]) {
+            const arr = data[key];
+            for (let i = 0; i < sortedEntities.length - 1; i++) {
+                const e1 = sortedEntities[i];
+                const e2 = sortedEntities[i + 1];
+                let matched = false;
+                const id1 = e1.id;
+                const id2 = e2.id;
+                for (const ids of arr) {
+                    if (intersection(ids, [id1, id2]).length === 2) {
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    continue;
+                }
+                const p1 = e1.start;
+                const p2 = e1.end;
+                const p3 = e2.end;
+                const p4 = p1.clone().sub(p2).normalize().add(p3.clone().sub(p2).normalize());
+                const p5 = p2.clone().add(p4);
+                const p6 = p2.clone().sub(p4);
+                const center = p1.clone().add(p3).divide(2);
+                let line: Line;
+                if (p5.distanceTo(center) > p6.distanceTo(center)) {
+                    line = new Line(p5, p2);
+                } else {
+                    line = new Line(p6, p2);
+                }
+                const theta = line.theta.rad;
+                const d = new Point(Math.cos(theta), Math.sin(theta));
+                if (key === "zhidingweizhipaokeng") {
+                    line.end.sub(d.clone().multiply(paokengGap));
+                    line.start.copy(line.end.clone().sub(d.clone().multiply(paokengLength)));
+                    data.entities.add(new CadLeader({vertices: [line.end.toArray(), line.start.toArray()], size: 15}));
+                } else if (key === "指定分体位置") {
+                    // data.entities.add(new CadCircle({layer: "分体", center: p2.toArray(), radius: fentiRadius, linetype: "DASHEDX2"}));
+                    // const anchor = [d.x > 0 ? 1 : 0, d.y > 0 ? 0 : 1];
+                    // const mtext = new CadMtext({
+                    //     layer: "分体",
+                    //     insert: p2.sub(d.clone().multiply(3)).toArray(),
+                    //     text: "分体",
+                    //     anchor,
+                    //     font_size: fentiFontSize
+                    // });
+                    // data.entities.add(mtext);
                 }
             }
-            if (!matched) {
-                continue;
-            }
-            const p1 = e1.start.clone();
-            const p2 = e1.end.clone();
-            const p3 = e2.end.clone();
-            const p4 = p1.clone().sub(p2).normalize().add(p3.clone().sub(p2).normalize());
-            const p5 = p2.clone().add(p4);
-            const p6 = p2.clone().sub(p4);
-            const center = p1.clone().add(p2).divide(2);
-            let line: Line;
-            if (p5.distanceTo(center) > p6.distanceTo(center)) {
-                line = new Line(p5, p2);
-            } else {
-                line = new Line(p6, p2);
-            }
-            const theta = line.theta.rad;
-            line.end.sub(new Point(Math.cos(theta), Math.sin(theta)).multiply(gap));
-            line.start.copy(line.end.clone().sub(new Point(Math.cos(theta), Math.sin(theta)).multiply(length)));
-            const leader = new CadLeader();
-            leader.vertices = [line.end, line.start];
-            leader.size = 15;
-            leader.setColor("red");
-            cad.entities.add(leader);
         }
     }
 

@@ -15,8 +15,10 @@
             <button mat-raised-button color="primary" (click)="exportCads('框型和企料')">框型和企料</button>
             <button mat-raised-button color="primary" (click)="exportCads('指定型号')">指定型号</button>
         </ng-container>
-        <button mat-raised-button *ngIf="exportParams" color="primary" (click)="exportCads('导出选中')">导出选中</button>
-        <button mat-raised-button *ngIf="!exportParams" color="primary" (click)="exportCads('自由选择')">自由选择</button>
+        <button mat-raised-button *ngIf="exportParams.cads.length > 0; else choose" color="primary" (click)="exportCads('导出选中')">
+            导出选中
+        </button>
+        <ng-template #choose><button mat-raised-button color="primary" (click)="exportCads('自由选择')">自由选择</button></ng-template>
     </div>
     <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
 </div>

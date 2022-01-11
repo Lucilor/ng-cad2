@@ -34,6 +34,7 @@ export class ExportComponent implements OnInit {
     ngOnInit() {
         this.exportCache = session.load<ExportCache>("exportParams");
         this.direct = !!this.exportCache?.direct;
+        console.log(this.exportCache);
         // session.remove("exportParams");
         if (this.direct) {
             this.exportCads("导出选中");

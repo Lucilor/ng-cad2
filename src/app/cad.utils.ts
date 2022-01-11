@@ -2,19 +2,20 @@ import {
     CadData,
     CadViewerConfig,
     CadViewer,
-    CadDimension,
     CadLineLike,
+    CadLine,
     CadMtext,
+    CadDimension,
+    Defaults,
     CadBaseLine,
     CadJointPoint,
-    getLinesDistance,
     sortLines,
-    CadLine,
+    getLinesDistance,
     generatePointsMap,
     findAllAdjacentLines,
-    DEFAULT_DASH_ARRAY
+    CadCircle
 } from "@cad-viewer";
-import {getDPI, Point, isNearZero, loadImage, isBetween, DEFAULT_TOLERANCE, getImageDataUrl} from "@utils";
+import {isNearZero, isBetween, getDPI, getImageDataUrl, loadImage, DEFAULT_TOLERANCE, Point} from "@utils";
 import {cloneDeep} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
@@ -357,7 +358,7 @@ export const printCads = async (params: PrintCadsParams) => {
                     e.style.dimensionLine = {};
                 }
                 e.style.dimensionLine.color = "#505050";
-                e.style.dimensionLine.dashArray = DEFAULT_DASH_ARRAY;
+                e.style.dimensionLine.dashArray = Defaults.DASH_ARRAY;
                 if (!e.style.extensionLines) {
                     e.style.extensionLines = {};
                 }
@@ -425,6 +426,12 @@ export const printCads = async (params: PrintCadsParams) => {
             }
             if (colorNumber === 0x808080 || e.layer === "不显示") {
                 e.visible = false;
+            } else if (e.layer === "分体") {
+                if (e instanceof CadCircle) {
+                    e.linewidth = Math.max(1, e.linewidth - 1);
+                    e.setColor("grey");
+                    e.dashArray = [10, 3];
+                }
             } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
                 e.setColor(0);
             }

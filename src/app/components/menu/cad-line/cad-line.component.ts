@@ -12,7 +12,7 @@ import {
     CadLineLike,
     CadViewerConfig,
     ColoredObject,
-    DEFAULT_DASH_ARRAY,
+    Defaults,
     generateLineTexts,
     lineweight2linewidth,
     linewidth2lineweight,
@@ -741,7 +741,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
 
         const lines = points.map((v) => {
             const l = new CadLine({start: v[0], end: v[1]});
-            l.dashArray = DEFAULT_DASH_ARRAY;
+            l.dashArray = Defaults.DASH_ARRAY;
             l.opacity = 0.7;
             l.宽高虚线 = {source: line.id, position: v[2]};
             return l;
