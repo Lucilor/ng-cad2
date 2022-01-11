@@ -321,19 +321,12 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     async editBbzhmkgz() {
-        const data = this.status.cad.data.components.data[0];
-        if (!data) {
-            return;
-        }
+        const data = this.status.cad.data;
         const result = await openBbzhmkgzDialog(this.dialog, {
             width: "80%",
             height: "75%",
             data: {value: data.info.修改包边正面宽规则 || "", vars: data.info.vars}
         });
-        // const result = await this.message.prompt(
-        //     {promptData: {type: "textarea", value: data.info.修改包边正面宽规则}},
-        //     {width: "80%", height: "75%"}
-        // );
         if (result) {
             data.info.修改包边正面宽规则 = result.value;
         }

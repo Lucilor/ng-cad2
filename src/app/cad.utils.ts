@@ -429,7 +429,7 @@ export const printCads = async (params: PrintCadsParams) => {
             } else if (e.layer === "分体") {
                 if (e instanceof CadCircle) {
                     e.linewidth = Math.max(1, e.linewidth - 1);
-                    e.setColor("grey");
+                    e.setColor("blue");
                     e.dashArray = [10, 3];
                 }
             } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
