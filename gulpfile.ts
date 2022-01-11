@@ -33,7 +33,7 @@ gulp.task("build", () => child_process.exec("npm run build"));
 gulp.task("clean", () => del(targetDistDir, {force: true}));
 gulp.task("copy", () => gulp.src("./dist/**").pipe(gulp.dest(targetDistDir)));
 
-gulp.task("zip", async (callback) => {
+gulp.task("zip", (callback) => {
     const globs = ["ng-cad2/**/*"];
     if (!args.noChangelog) {
         globs.push(changelogName);
@@ -43,6 +43,7 @@ gulp.task("zip", async (callback) => {
         if (now.getFullYear() !== then.getFullYear() || now.getMonth() !== then.getMonth() || now.getDate() !== then.getDate()) {
             console.error("changelog time error");
             callback();
+            return;
         }
         changelog[0].timeStamp = new Date().getTime();
         fs.writeFileSync(changelogPath, JSON.stringify(changelog));
