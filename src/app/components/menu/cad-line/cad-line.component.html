@@ -364,7 +364,7 @@
     <div class="form-item">
         <mat-form-field>
             <mat-label>企料位置识别</mat-label>
-            <mat-select name="企料位置识别" [value]="getLineText('企料位置识别')" (selectionChange)="setLineText($event, '变化方式')">
+            <mat-select name="企料位置识别" [value]="getLineText('企料位置识别')" (selectionChange)="setLineText($event, '企料位置识别')">
                 <mat-option *ngFor="let o of qlwzshb" [value]="o">{{ o }}</mat-option>
             </mat-select>
         </mat-form-field>
