@@ -47,9 +47,4 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# yarn
-.yarn/*
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
+/gulp.config.json

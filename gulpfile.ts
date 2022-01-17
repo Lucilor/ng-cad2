@@ -6,6 +6,7 @@ import FormData from "form-data";
 import fs from "fs";
 import gulp from "gulp";
 import zip from "gulp-zip";
+import {jsonc} from "jsonc";
 import minimist from "minimist";
 import path from "path";
 
@@ -15,13 +16,27 @@ const postFormData = (url: string, data: ObjectOf<any>, file?: fs.ReadStream) =>
     if (file) {
         formData.append("file", file);
     }
-    return axios.post(url, formData, {headers: formData.getHeaders()});
+    return axios.post(url, formData, {headers: formData.getHeaders(), maxBodyLength: Infinity});
 };
 
+const configPath = "./gulp.config.json";
+if (!fs.existsSync(configPath)) {
+    fs.writeFileSync(
+        configPath,
+        jsonc.stringify(
+            {
+                $schema: "./gulp.config.schema.json",
+                host: "",
+                token: "",
+                targetDir: ""
+            },
+            {space: 4}
+        )
+    );
+}
+const {host, token, targetDir} = jsonc.parse(fs.readFileSync("./gulp.config.json").toString());
+
 const args = minimist(process.argv.slice(2));
-const host = args.local ? "https://localhost" : "https://www.let888.cn";
-const token = "wefarvwEFqwdWEFfefw!$#^##%!";
-const targetDir = "C:/wamp64/www/static";
 const targetDistDir = targetDir + "/ng-cad2";
 const tmpDir = "./.tmp";
 const zipName = "upload.zip";

@@ -1,5 +1,4 @@
 {
-    "upgrade": true,
     "peer": true,
-    "reject": ["@angular/**", "@angular-devkit/**", "@angular-eslint/**", "@types/quill", "typescript", "rxjs"]
+    "reject": ["@angular/**", "@angular-devkit/**", "@angular-eslint/**", "@types/quill"]
 }
