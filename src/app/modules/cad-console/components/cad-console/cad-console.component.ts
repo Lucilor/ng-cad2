@@ -422,28 +422,19 @@ export class CadConsoleComponent implements OnInit {
         },
         async save(loaderId = "master") {
             const {dataService, status, message, spinner} = this;
-            const collection = this.status.collection$.value;
-            const silent = dataService.silent;
-            dataService.silent = true;
+            const collection = status.collection$.value;
             let resData: CadData | null = null;
-            const validateResults = this.status.validate();
+            const validateResults = status.validate();
             if (validateResults.some((v) => !v.valid)) {
                 const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
                 if (!yes) {
                     return;
                 }
             }
-            const data = this.status.closeCad();
+            const data = status.closeCad();
             spinner.show(loaderId, {text: `正在保存CAD: ${data.name}`});
             resData = await dataService.setCad({collection, cadData: data, force: true});
             spinner.hide(loaderId);
-            if (resData) {
-                status.openCad(resData);
-                this.message.snack("保存成功");
-            } else {
-                this.message.snack("保存失败");
-            }
-            dataService.silent = silent;
             return resData;
         },
         async split() {
