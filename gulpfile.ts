@@ -25,7 +25,7 @@ if (!fs.existsSync(configPath)) {
         configPath,
         jsonc.stringify(
             {
-                $schema: "./gulp.config.schema.json",
+                $schema: "./.schemas/gulp.config.schema.json",
                 host: "",
                 token: "",
                 targetDir: ""
