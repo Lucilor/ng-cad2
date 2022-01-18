@@ -4,6 +4,7 @@
 <div>
     <mat-slide-toggle [(ngModel)]="autoGuige">自动选择最合适的板材规格</mat-slide-toggle>
     <div class="links">
+        <button mat-flat-button [disabled]="!shuangxiazouxianUrl" (click)="open(shuangxiazouxianUrl)">上下走线</button>
         <button mat-flat-button [disabled]="!kailiaokongweipeizhiUrl" (click)="open(kailiaokongweipeizhiUrl)">开料孔位配置</button>
         <button mat-flat-button [disabled]="!kailiaocanshuzhiUrl" (click)="open(kailiaocanshuzhiUrl)">开料参数</button>
     </div>

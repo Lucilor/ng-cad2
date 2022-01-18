@@ -27,9 +27,7 @@ export class CadZhankaiComponent extends Utils() {
     };
     flipOptions: {name: string; value: FlipType}[] = [
         {name: "无", value: ""},
-        {name: "水平翻转", value: "h"},
-        {name: "垂直翻转", value: "v"},
-        {name: "水平垂直翻转", value: "vh"}
+        {name: "水平翻转", value: "h"}
     ];
     get emptyFlipItem(): CadZhankai["flip"][0] {
         return {kaiqi: "", chanpinfenlei: "", fanzhuanfangshi: ""};

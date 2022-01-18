@@ -259,6 +259,7 @@ export class CadDataService extends HttpService {
         const response = await this.post<{
             bancaiList: BancaiList[];
             bancaiCads: BancaiCad[];
+            上下走线: string;
             开料孔位配置: string;
             开料参数: string;
         }>("order/order/getBancais", {table, codes});

@@ -40,6 +40,7 @@ export class SelectBancaiComponent implements OnInit {
         {value: "H-O2", label: "高压氧气"},
         {value: "H-N2", label: "高压氮气"}
     ];
+    shuangxiazouxianUrl = "";
     kailiaokongweipeizhiUrl = "";
     kailiaocanshuzhiUrl = "";
     loaderId = "selectBancai";
@@ -103,6 +104,7 @@ export class SelectBancaiComponent implements OnInit {
                 });
                 this.updateSortedCads(result.bancaiCads);
                 this.updateBancaiForms();
+                this.shuangxiazouxianUrl = result.上下走线;
                 this.kailiaokongweipeizhiUrl = result.开料孔位配置;
                 this.kailiaocanshuzhiUrl = result.开料参数;
             }
