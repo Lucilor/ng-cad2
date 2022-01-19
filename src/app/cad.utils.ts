@@ -541,12 +541,13 @@ export const isShiyitu = (data: CadData) => data.type.includes("示意图") || d
 export const LINE_LIMIT = [0.01, 0.7];
 export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"];
 export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): ValidateResult => {
-    if (isShiyitu(data) || data.shuangxiangzhewan) {
+    if (isShiyitu(data)) {
         return {valid: true, errMsg: [], lines: []};
     }
     const lines = sortLines(data, tolerance);
     const result: ValidateResult = {valid: true, errMsg: [], lines};
     const [min, max] = LINE_LIMIT;
+    const groupMaxLength = data.shuangxiangzhewan ? 2 : 1;
     lines.forEach((v) =>
         v.forEach((vv) => {
             const {start, end} = vv;
@@ -563,7 +564,7 @@ export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): Val
     if (lines.length < 1) {
         result.valid = false;
         result.errMsg.push("没有线");
-    } else if (lines.length > 1) {
+    } else if (lines.length > groupMaxLength) {
         result.valid = false;
         result.errMsg.push("CAD分成了多段或线重叠");
         for (let i = 0; i < lines.length - 1; i++) {

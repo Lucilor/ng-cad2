@@ -413,4 +413,11 @@
         <mat-label>指定封口厚度</mat-label>
         <input type="text" matInput [(ngModel)]="data['指定封口厚度']" name="指定封口厚度" />
     </mat-form-field>
+    <mat-form-field>
+        <mat-label>拼接料拼接时垂直翻转</mat-label>
+        <mat-select type="text" [(ngModel)]="data['拼接料拼接时垂直翻转']" name="拼接料拼接时垂直翻转">
+            <mat-option [value]="true">是</mat-option>
+            <mat-option [value]="false">否</mat-option>
+        </mat-select>
+    </mat-form-field>
 </form>
