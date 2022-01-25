@@ -9,8 +9,8 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
 
-const houduPattern = /^[0-9]+([.]{1}[0-9]+){0,1}$/;
-const guigePattern = /^([0-9]+([.]{1}[0-9]+){0,1})[^0-9^.]+([0-9]+([.]{1}[0-9]+){0,1})$/;
+const houduPattern = /^\d+([.]{1}\d+){0,1}$/;
+const guigePattern = /^(\d+([.]{1}\d+){0,1})[^\d^.]+(\d+([.]{1}\d+){0,1})$/;
 
 export interface BancaiCadExtend extends BancaiCad {
     checked: boolean;

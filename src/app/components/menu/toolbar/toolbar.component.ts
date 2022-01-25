@@ -362,4 +362,16 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
             }
         }
     }
+
+    async removeCad() {
+        const data = this.status.cad.data;
+        if (await this.message.confirm(`确定要删除吗？`)) {
+            const collection = this.status.collection$.getValue();
+            const ids = [data.id];
+            const deletedIds = await this.dataService.removeCads(collection, ids);
+            if (deletedIds) {
+                document.body.innerHTML = "<h1>已删除</h1>";
+            }
+        }
+    }
 }

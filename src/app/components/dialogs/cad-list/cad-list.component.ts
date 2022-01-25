@@ -23,6 +23,7 @@ export interface CadListData {
     collection: CadCollection;
     qiliao?: boolean;
     search?: ObjectOf<any>;
+    fixedSearch?: ObjectOf<any>;
 }
 
 export const customTooltipOptions: MatTooltipDefaultOptions = {
@@ -137,6 +138,9 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         params.optionsMatchType = matchType;
         if (this.showCheckedOnly) {
             params.ids = this.checkedItems.slice();
+        }
+        if (this.data.fixedSearch) {
+            params.search = {...params.search, ...this.data.fixedSearch};
         }
         this.spinner.show(this.loaderId);
         const result = await this.dataService.getCad(params);

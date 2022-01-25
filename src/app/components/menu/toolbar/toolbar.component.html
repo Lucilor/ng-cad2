@@ -10,6 +10,7 @@
             <a mat-menu-item [routerLink]="'/' + routesInfo.import.path" queryParamsHandling="merge" target="_blank">导入</a>
             <a mat-menu-item [routerLink]="'/' + routesInfo.backup.path" queryParamsHandling="merge" target="_blank">备份</a>
             <button mat-menu-item (click)="resetIds()">重置实体ID</button>
+            <button mat-menu-item (click)="removeCad()">删除</button>
         </mat-menu>
         <mat-menu #openType="matMenu">
             <button mat-menu-item (click)="clickBtn('1')">CAD<span class="shortcut">Ctrl + 1</span></button>

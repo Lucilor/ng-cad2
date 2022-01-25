@@ -98,7 +98,7 @@ export class CadZhankaiComponent extends Utils() {
 
     addItem() {
         this.data.push(new CadZhankai());
-        this.validateNames();
+        this.validate();
     }
 
     selectAll() {
@@ -112,14 +112,17 @@ export class CadZhankaiComponent extends Utils() {
 
     copyItem(i: number) {
         this.data.splice(i + 1, 0, cloneDeep(this.data[i]));
+        this.validate();
     }
 
     removeItem(i: number) {
         if (i === 0) {
             this.message.alert("不能删除第一项");
+            return;
         } else {
             this.data.splice(i, 1);
         }
+        this.validate();
     }
 
     async selectOptions(obj: any, field: string) {
@@ -152,7 +155,7 @@ export class CadZhankaiComponent extends Utils() {
         delete this.data[i].flipChai[key];
     }
 
-    validateNames() {
+    validate() {
         const names: string[] = [];
         this.nameErrorMsg = [];
         this.data.forEach((v, i) => {
