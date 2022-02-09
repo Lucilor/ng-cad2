@@ -2,6 +2,7 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {environment} from "@env";
 import {MessageService} from "@modules/message/services/message.service";
 import {ListRandom, timeout} from "@utils";
+import CSS from "csstype";
 import originThuums from "./thuums.json";
 
 interface Thuum {
@@ -12,8 +13,8 @@ interface Thuum {
 
 interface ThuumChar {
     content: string;
-    charStyle: Partial<CSSStyleDeclaration>;
-    layerStyle: Partial<CSSStyleDeclaration>;
+    charStyle: CSS.Properties;
+    layerStyle: CSS.Properties;
 }
 
 @Component({
@@ -26,9 +27,9 @@ export class ThuumComponent implements OnInit, OnDestroy {
     thuumRandom = new ListRandom(originThuums);
     thuum: Thuum = this.thuumRandom.list[0];
     thuumChars: ThuumChar[] = [];
-    layerStyle: Partial<CSSStyleDeclaration> = {};
+    layerStyle: CSS.Properties = {};
     animationDuration = {main: 2000, char: 360};
-    thuumStyle: Partial<CSSStyleDeclaration> = {};
+    thuumStyle: CSS.Properties = {};
     isProd = environment.production;
 
     constructor(private message: MessageService) {}

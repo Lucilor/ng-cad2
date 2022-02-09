@@ -1,3 +1,8 @@
+<div class="btn-group">
+    <button mat-raised-button color="primary" (click)="addMtext()">添加文本</button>
+    <button mat-raised-button color="primary" (click)="cloneMtexts()">复制文本</button>
+</div>
+
 <form [class.not-allowed]="selected.length < 1">
     <div class="not-allowed-area" *ngIf="selected.length < 1"></div>
     <button hidden></button>
@@ -62,8 +67,3 @@
         </mat-form-field>
     </div>
 </form>
-
-<div class="btn-group">
-    <button mat-raised-button color="primary" (click)="addMtext()">添加文本</button>
-    <button mat-raised-button color="primary" (click)="cloneMtexts()">复制文本</button>
-</div>

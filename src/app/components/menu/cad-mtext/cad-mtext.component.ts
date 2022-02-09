@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadEntity, CadMtext, ColoredObject} from "@cad-viewer";
+import {CadMtext, ColoredObject} from "@cad-viewer";
 import {AnchorEvent} from "@components/anchor-selector/anchor-selector.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {AppStatusService} from "@services/app-status.service";
@@ -117,19 +117,14 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         mtext.anchor.set(0, 0);
         mtext.text = "新建文本";
         mtext.selected = true;
-        this.status.cad.data.entities.mtext.push(mtext);
-        cad.render(mtext);
+        this.status.cad.add(mtext);
     }
 
     async cloneMtexts() {
-        const cad = this.status.cad;
-        const toRender: CadEntity[] = [];
         this.selected.forEach((mtext) => {
             const newText = mtext.clone(true);
-            this.status.cad.data.entities.mtext.push(newText);
-            toRender.push(newText);
+            this.status.cad.add(newText);
         });
-        cad.render(toRender);
     }
 
     getAnchor() {

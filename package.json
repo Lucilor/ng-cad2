@@ -26,6 +26,7 @@
     "@angular/router": "~13.2.2",
     "ang-jsoneditor": "^1.10.5",
     "color": "^4.2.0",
+    "csstype": "^3.0.10",
     "highlight.js": "^11.4.0",
     "jsoneditor": "^9.7.0",
     "lodash": "^4.17.21",

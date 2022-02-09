@@ -8,6 +8,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {timeout} from "@utils";
+import CSS from "csstype";
 import {cloneDeep} from "lodash";
 
 export interface Bancai {
@@ -29,7 +30,7 @@ export interface Bancai {
     规格: number[];
     expanded: boolean;
     pageNum: number;
-    pageBreakAfter: CSSStyleDeclaration["pageBreakAfter"];
+    pageBreakAfter: CSS.Properties["pageBreakAfter"];
     printPageIndex: number;
 }
 
@@ -159,7 +160,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                 const currRows = Math.ceil(curr.data.length / cadsColNum);
                 const nextRows = Math.ceil(next.data.length / cadsColNum);
                 if (currRows + nextRows + 1 <= cadsRowNum) {
-                    curr.pageBreakAfter = "none";
+                    curr.pageBreakAfter = undefined;
                     next.printPageIndex = printPageIndex;
                     i++;
                 }
