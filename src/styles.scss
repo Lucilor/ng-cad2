@@ -105,11 +105,6 @@ form {
     }
 }
 
-.only-one-cad:empty::after {
-    content: "请先选择且仅选择一个CAD";
-    color: #888888;
-}
-
 .not-allowed::after {
     content: "DISABLED";
     cursor: not-allowed;

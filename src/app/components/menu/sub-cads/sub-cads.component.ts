@@ -257,7 +257,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             "锁企料",
             "扇锁企料",
             "示意图",
-            "装配示意图"
+            "装配示意图",
+            "包边正面"
         ];
         const cads = await openCadListDialog(this.dialog, {
             data: {

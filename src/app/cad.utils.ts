@@ -368,7 +368,7 @@ export const printCads = async (params: PrintCadsParams) => {
                     e.style.arrows = {};
                 }
                 e.style.arrows.color = "#505050";
-                if (colorNumber === 0xff00ff) {
+                if (colorNumber === 0xff00ff || e.layer === "门扇中间宽标注") {
                     e.style.arrows.hidden = true;
                 }
             } else if (e instanceof CadMtext) {

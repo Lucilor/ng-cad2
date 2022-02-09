@@ -63,10 +63,7 @@
     </div>
 </form>
 
-<span *ngIf="!data" style="color: #888888"> 若要添加或复制文本， </span>
-<div class="btn-group only-one-cad">
-    <ng-container *ngIf="data">
-        <button mat-raised-button color="primary" (click)="addMtext()">添加文本</button>
-        <button mat-raised-button color="primary" (click)="cloneMtexts()">复制文本</button>
-    </ng-container>
+<div class="btn-group">
+    <button mat-raised-button color="primary" (click)="addMtext()">添加文本</button>
+    <button mat-raised-button color="primary" (click)="cloneMtexts()">复制文本</button>
 </div>
