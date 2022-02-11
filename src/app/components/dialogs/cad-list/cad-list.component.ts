@@ -1,4 +1,4 @@
-import {Component, AfterViewInit, ViewChild, Inject} from "@angular/core";
+import {Component, AfterViewInit, ViewChild, Inject, ElementRef} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
@@ -9,8 +9,9 @@ import {getCadPreview} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
 import {CadDataService, GetCadParams} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf} from "@utils";
+import {isBetween, ObjectOf, timeout} from "@utils";
 import {difference} from "lodash";
 import {BehaviorSubject, lastValueFrom} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
@@ -19,6 +20,7 @@ import {getOpenDialogFunc} from "../dialog.common";
 export interface CadListData {
     selectMode: "single" | "multiple";
     checkedItems?: string[];
+    checkedItemsLimit?: number | number[];
     options?: CadData["options"];
     collection: CadCollection;
     qiliao?: boolean;
@@ -51,6 +53,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
     searchField = "选项";
     searchNameInput = "";
     checkedIndex = new BehaviorSubject<number>(-1);
+    checkedIndexForce = false;
     checkedItems: string[] = [];
     checkedColumns: any[] = [];
     checkedInOtherPages = false;
@@ -58,6 +61,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
     loaderId = "cadList";
     loaderIdSubmit = "cadListSubmit";
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
+    @ViewChild("singleSelectNone", {read: ElementRef}) singleSelectNone?: ElementRef<HTMLSpanElement>;
 
     constructor(
         public dialogRef: MatDialogRef<CadListComponent, CadData[]>,
@@ -65,7 +69,8 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         private sanitizer: DomSanitizer,
         private dataService: CadDataService,
         private dialog: MatDialog,
-        private spinner: SpinnerService
+        private spinner: SpinnerService,
+        private message: MessageService
     ) {
         super();
     }
@@ -80,10 +85,17 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         }
         this.data.qiliao = this.data.qiliao === true;
         this.getData(1);
-        this.checkedIndex.subscribe((i) => {
+        this.checkedIndex.subscribe(async (i) => {
             if (this.data.selectMode === "single") {
                 if (this.pageData[i]) {
-                    this.checkedItems = [this.pageData[i].data.id];
+                    const id = this.pageData[i].data.id;
+                    if (!this.checkedIndexForce && this.checkedItems[0] === id) {
+                        this.checkedItems = [];
+                        await timeout(0);
+                        this.singleSelectNone?.nativeElement.click();
+                    } else {
+                        this.checkedItems = [id];
+                    }
                 } else {
                     // this.checkedItems = [];
                 }
@@ -119,7 +131,13 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             const id = this.checkedItems[0];
             if (id) {
                 const index = this.pageData.findIndex((v) => v.data.id === id);
-                this.checkedIndex.next(index);
+                if (this.checkedIndex.value !== index) {
+                    this.checkedIndexForce = true;
+                    this.checkedIndex.next(index);
+                    this.checkedIndexForce = false;
+                }
+            } else if (this.checkedIndex.value !== -1) {
+                this.checkedIndex.next(-1);
             }
         }
     }
@@ -149,13 +167,9 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         this.pageData.length = 0;
         result.cads.forEach(async (d, i) => {
             const checked = this.checkedItems.find((v) => v === d.id) ? true : false;
-            if (checked && this.data.selectMode === "single") {
-                this.checkedIndex.next(i);
-            }
             const pageData = {data: d, img: imgLoading, checked};
             this.pageData.push(pageData);
         });
-        this.checkedIndex.next(-1);
         this.syncCheckedItems();
         const timerName = "cad-list-getData";
         timer.start(timerName);
@@ -217,6 +231,15 @@ export class CadListComponent extends Utils() implements AfterViewInit {
 
     async submit() {
         this.syncCheckedItems();
+        const limit = this.data.checkedItemsLimit;
+        if (typeof limit === "number" && this.checkedItems.length !== limit) {
+            this.message.alert(`请选择${limit}个cad`);
+            return;
+        }
+        if (Array.isArray(limit) && !isBetween(this.checkedItems.length, limit[0], limit[1])) {
+            this.message.alert(`请选择${limit[0]}~${limit[1]}个cad`);
+            return;
+        }
         this.spinner.show(this.loaderIdSubmit);
         const result = await this.dataService.getCad({ids: this.checkedItems.slice(), collection: this.data.collection});
         this.spinner.hide(this.loaderIdSubmit);

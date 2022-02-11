@@ -366,7 +366,7 @@ export class CadConsoleComponent implements OnInit {
             this.message.book({bookData: data, title: "帮助手册"});
         },
         newCad() {
-            this.status.openCad(new CadData());
+            this.status.openCad(new CadData({name: "新建CAD"}));
         },
         async open(collectionArg: string) {
             if (this.openLock) {
@@ -398,7 +398,9 @@ export class CadConsoleComponent implements OnInit {
                 checkedItems = [];
             }
             this.openLock = true;
-            const result = await openCadListDialog(this.dialog, {data: {collection, selectMode: "single", checkedItems}});
+            const result = await openCadListDialog(this.dialog, {
+                data: {collection, selectMode: "single", checkedItems, checkedItemsLimit: 1}
+            });
             if (result && result.length > 0) {
                 this.status.openCad(result[0], collection);
             }

@@ -38,9 +38,10 @@
 
 <div class="content" [ngSwitch]="data.selectMode">
     <ng-scrollbar *ngSwitchCase="'single'">
-        <mat-radio-group class="add-empty-msg" [value]="checkedIndex.getValue()" (change)="checkedIndex.next($event.value)">
+        <mat-radio-group class="add-empty-msg" [value]="checkedIndex.value">
+            <mat-radio-button [value]="-1" style="display: none"><span #singleSelectNone></span></mat-radio-button>
             <div class="data-container" *ngFor="let item of pageData; let i = index">
-                <mat-radio-button class="example-radio-button" [value]="i" [matTooltip]="item.data.name">
+                <mat-radio-button [value]="i" [matTooltip]="item.data.name" (click)="checkedIndex.next(i)">
                     {{ item.data.name }}
                 </mat-radio-button>
                 <img [src]="item.img" (click)="checkedIndex.next(i)" />
