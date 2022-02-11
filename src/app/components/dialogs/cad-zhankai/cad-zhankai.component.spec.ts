@@ -12,7 +12,9 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {RouterTestingModule} from "@angular/router/testing";
 import {CadData, CadZhankai} from "@cad-viewer";
 import {ReplaceFullCharsDirective} from "@directives/replace-full-chars.directive";
+import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
+import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
 import {CadZhankaiComponent} from "./cad-zhankai.component";
 
@@ -32,6 +34,7 @@ describe("CadZhankaiComponent", () => {
             imports: [
                 BrowserAnimationsModule,
                 FormsModule,
+                HttpModule,
                 MatCardModule,
                 MatCheckboxModule,
                 MatFormFieldModule,
@@ -42,7 +45,8 @@ describe("CadZhankaiComponent", () => {
                 MessageModule,
                 NgScrollbarModule,
                 ReactiveFormsModule,
-                RouterTestingModule
+                RouterTestingModule,
+                SpinnerModule
             ],
             providers: [
                 {provide: MatDialogRef, useValue: {}},

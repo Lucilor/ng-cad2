@@ -308,4 +308,12 @@ export class AppStatusService {
             e.opacity = 0.3;
         });
     }
+
+    openCadInNewTab(id: string, collection: CadCollection) {
+        if (!id) {
+            return;
+        }
+        const params = {...this.route.snapshot.queryParams, collection, id};
+        open("index?" + new URLSearchParams(params).toString());
+    }
 }

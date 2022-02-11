@@ -4,6 +4,7 @@ import {MatSelectChange} from "@angular/material/select";
 import {splitOptions, joinOptions} from "@app/app.common";
 import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity, sortLines} from "@cad-viewer";
 import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
+import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
@@ -347,5 +348,20 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
 
     async selectGensuiCad(cad: CadData) {
         console.log(cad.xinghaohuajian);
+    }
+
+    openCadmuban(id: string) {
+        this.status.openCadInNewTab(id, "kailiaocadmuban");
+    }
+
+    async selectCadmuban() {
+        const checkedItems = [];
+        if (this.data.info.正面线到见光线展开模板) {
+            checkedItems.push(this.data.info.正面线到见光线展开模板);
+        }
+        const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
+        if (result?.length) {
+            this.data.info.正面线到见光线展开模板 = result[0].id;
+        }
     }
 }

@@ -7,6 +7,7 @@ import {splitOptions, joinOptions} from "@app/app.common";
 import {CadZhankai, CadData, FlipType} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
+import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
 import {openCadListDialog} from "../cad-list/cad-list.component";
@@ -51,7 +52,8 @@ export class CadZhankaiComponent extends Utils() {
         @Inject(MAT_DIALOG_DATA) public data: CadData["zhankai"],
         private route: ActivatedRoute,
         private dialog: MatDialog,
-        private message: MessageService
+        private message: MessageService,
+        private status: AppStatusService
     ) {
         super();
         this.data = cloneDeep(this.data);
@@ -68,12 +70,7 @@ export class CadZhankaiComponent extends Utils() {
     }
 
     openCadmuban(item: CadZhankai, key: "kailiaomuban" | "neikaimuban") {
-        if (item[key]) {
-            const params = {...this.route.snapshot.queryParams};
-            params.collection = "kailiaocadmuban";
-            params.id = item[key];
-            open("index?" + new URLSearchParams(params).toString());
-        }
+        this.status.openCadInNewTab(item[key], "kailiaocadmuban");
     }
 
     async selectCadmuban(item: CadZhankai, key: "kailiaomuban" | "neikaimuban") {
