@@ -563,7 +563,13 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                         toRender.push(e);
                     }
                 }
-                vars[value] = this.selected[0].id;
+                const id = this.selected[0].id;
+                Object.keys(vars).forEach((key) => {
+                    if (vars[key] === id) {
+                        delete vars[key];
+                    }
+                });
+                vars[value] = id;
                 toRender.push(this.selected[0]);
                 cad.render(toRender);
             }
