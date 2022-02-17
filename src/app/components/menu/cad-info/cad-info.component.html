@@ -236,6 +236,13 @@
         </mat-select>
     </mat-form-field>
     <mat-form-field>
+        <mat-label>必须选择板材</mat-label>
+        <mat-select [(ngModel)]="data['必须选择板材']" name="必须选择板材">
+            <mat-option [value]="true">是</mat-option>
+            <mat-option [value]="false">否</mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field>
         <mat-label>双向折弯</mat-label>
         <mat-select [(ngModel)]="data.shuangxiangzhewan" name="shuangxiangzhewan">
             <mat-option [value]="true">是</mat-option>
