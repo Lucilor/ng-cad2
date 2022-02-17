@@ -73,9 +73,6 @@ gulp.task("fetchChangelog", async () => {
 
 gulp.task("upload", async () => {
     const url = host + "/n/kgs/index/login/upload";
-    if (url.includes("localhost")) {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    }
     const data = {dest: "static", token, toDelete: ["ng-cad2"], backup: backupName};
     const response = await postFormData(url, data, fs.createReadStream(path.join(tmpDir, zipName)));
     console.log(response.data);
