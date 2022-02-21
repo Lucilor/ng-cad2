@@ -137,8 +137,19 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!file) {
             return;
         }
-        this.spinner.show(this.loaderId, {text: "正在上传文件..."});
-        const data = await this.dataService.uploadDxf(file);
+        let data: CadData | null = null;
+        if (input.name.endsWith(".dxf")) {
+            this.spinner.show(this.loaderId, {text: "正在上传文件..."});
+            data = await this.dataService.uploadDxf(file);
+        } else {
+            data = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsText(file);
+                reader.onload = () => {
+                    resolve(new CadData(JSON.parse(reader.result as string)));
+                };
+            });
+        }
         if (!data) {
             return;
         }

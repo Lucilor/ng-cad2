@@ -3,8 +3,10 @@
 </div>
 <div class="toolbar btn-group" *ngIf="toolbarVisible" [@toolbarEnter] [@toolbarLeave]>
     <ng-container *ngIf="showDxfInput">
-        <input #uploadInput type="file" hidden accept=".dxf" (input)="uploadDxf($event)" />
-        <button mat-raised-button color="primary" (click)="uploadInput.click()">上传dxf</button>
+        <input #uploadDxfInput type="file" hidden accept=".dxf" (input)="uploadDxf($event)" />
+        <input #uploadJsonInput type="file" hidden accept=".json" (input)="uploadDxf($event)" />
+        <button mat-raised-button color="primary" (click)="uploadDxfInput.click()">上传dxf</button>
+        <button mat-raised-button color="primary" (click)="uploadJsonInput.click()">上传json</button>
         <span>打印效果小图</span>
         <mat-slide-toggle [(ngModel)]="printParams.designPics.showSmall"></mat-slide-toggle>
         <span>打印效果大图</span>
