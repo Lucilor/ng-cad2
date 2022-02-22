@@ -206,7 +206,11 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
     let getY: (i: number) => number;
     if (rect.width > rect.height) {
         width = rect.width / urls.length;
-        getX = (i) => left + width / 2 + width * i;
+        if (findLocator) {
+            getX = (i) => right - width * i - margin * (i + 1);
+        } else {
+            getX = (i) => left + width / 2 + width * i;
+        }
         getY = (i) => y;
     } else {
         height = rect.height / urls.length;
@@ -216,7 +220,11 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
     for (let i = 0; i < urls.length; i++) {
         const cadImage = new CadImage();
         cadImage.url = urls[i];
-        cadImage.anchor.set(0.5, 0.5);
+        if (findLocator) {
+            cadImage.anchor.set(1, 0.5);
+        } else {
+            cadImage.anchor.set(0.5, 0.5);
+        }
         cadImage.targetSize = new Point(width - margin * 2, height - margin * 2);
         cadImage.objectFit = "contain";
         cadImage.transform({translate: [getX(i), getY(i)]}, true);
