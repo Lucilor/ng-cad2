@@ -554,8 +554,12 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         }
         const cad = this.status.cad;
         if (field === "kegaimingzi") {
-            const vars = this.selected[0].root?.root?.info.vars;
-            if (vars) {
+            const info = cad.data.info;
+            if (info) {
+                if (!info.vars) {
+                    info.vars = {};
+                }
+                const vars = info.vars;
                 const toRender: CadLineLike[] = [];
                 if (vars[value]) {
                     const e = cad.data.getAllEntities().line.find((v) => v.id === vars[value]);
