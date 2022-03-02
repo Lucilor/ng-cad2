@@ -556,19 +556,21 @@ export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): Val
     const result: ValidateResult = {valid: true, errMsg: [], lines};
     const [min, max] = LINE_LIMIT;
     const groupMaxLength = data.shuangxiangzhewan ? 2 : 1;
-    lines.forEach((v) =>
-        v.forEach((vv) => {
-            const {start, end} = vv;
-            const dx = Math.abs(start.x - end.x);
-            const dy = Math.abs(start.y - end.y);
-            if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
-                vv.info.errors = ["斜率不符合要求"];
-                result.errMsg.push(`线段斜率不符合要求(线长: ${vv.length.toFixed(2)})`);
-            } else {
-                vv.info.errors = [];
-            }
-        })
-    );
+    if (!data.shuangxiangzhewan || data.suanliaochuli.includes("开料")) {
+        lines.forEach((v) =>
+            v.forEach((vv) => {
+                const {start, end} = vv;
+                const dx = Math.abs(start.x - end.x);
+                const dy = Math.abs(start.y - end.y);
+                if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
+                    vv.info.errors = ["斜率不符合要求"];
+                    result.errMsg.push(`线段斜率不符合要求(线长: ${vv.length.toFixed(2)})`);
+                } else {
+                    vv.info.errors = [];
+                }
+            })
+        );
+    }
     if (lines.length < 1) {
         result.valid = false;
         result.errMsg.push("没有线");
