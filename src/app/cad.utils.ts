@@ -549,28 +549,26 @@ export const isShiyitu = (data: CadData) => data.type.includes("示意图") || d
 export const LINE_LIMIT = [0.01, 0.7];
 export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"];
 export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): ValidateResult => {
-    if (isShiyitu(data)) {
+    if (isShiyitu(data) || (data.shuangxiangzhewan && !data.suanliaochuli.includes("开料"))) {
         return {valid: true, errMsg: [], lines: []};
     }
     const lines = sortLines(data, tolerance);
     const result: ValidateResult = {valid: true, errMsg: [], lines};
     const [min, max] = LINE_LIMIT;
     const groupMaxLength = data.shuangxiangzhewan ? 2 : 1;
-    if (!data.shuangxiangzhewan || data.suanliaochuli.includes("开料")) {
-        lines.forEach((v) =>
-            v.forEach((vv) => {
-                const {start, end} = vv;
-                const dx = Math.abs(start.x - end.x);
-                const dy = Math.abs(start.y - end.y);
-                if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
-                    vv.info.errors = ["斜率不符合要求"];
-                    result.errMsg.push(`线段斜率不符合要求(线长: ${vv.length.toFixed(2)})`);
-                } else {
-                    vv.info.errors = [];
-                }
-            })
-        );
-    }
+    lines.forEach((v) =>
+        v.forEach((vv) => {
+            const {start, end} = vv;
+            const dx = Math.abs(start.x - end.x);
+            const dy = Math.abs(start.y - end.y);
+            if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
+                vv.info.errors = ["斜率不符合要求"];
+                result.errMsg.push(`线段斜率不符合要求(线长: ${vv.length.toFixed(2)})`);
+            } else {
+                vv.info.errors = [];
+            }
+        })
+    );
     if (lines.length < 1) {
         result.valid = false;
         result.errMsg.push("没有线");
