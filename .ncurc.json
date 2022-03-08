@@ -1,4 +1,4 @@
 {
     "peer": true,
-    "reject": ["@angular/**", "@angular-devkit/**", "@angular-eslint/**", "@types/quill"]
+    "reject": ["@types/quill"]
 }
