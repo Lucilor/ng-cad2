@@ -15,6 +15,7 @@ import {CadStatusSelectBaseline, CadStatusSelectJointpoint, CadStatusIntersectio
 import {isEqual} from "lodash";
 
 type InsertsectionKey = "zhidingweizhipaokeng" | "指定分体位置";
+const insertsectionKeys = ["zhidingweizhipaokeng", "指定分体位置"];
 
 @Component({
     selector: "app-cad-info",
@@ -66,7 +67,8 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusSelectJointpoint) {
                 this._updateCadPoints();
-            } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === this.cadStatusIntersectionInfo) {
+            } else if (cadStatus instanceof CadStatusIntersection && insertsectionKeys.includes(cadStatus.info)) {
+                this.cadStatusIntersectionInfo = cadStatus.info as InsertsectionKey;
                 this._updateCadPoints();
             }
         });
