@@ -10,6 +10,7 @@ import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, ProgressBar} from "@utils";
+import {DateTime} from "luxon";
 
 interface ExportCache {
     ids: string[];
@@ -161,7 +162,7 @@ export class ExportComponent implements OnInit {
             this.exportParams.cads = cads;
             const result = CadPortable.export(this.exportParams);
             this.msg = "正在下载dxf文件";
-            filename += `@${new Date().format("yyyy-MM-dd")}.dxf`;
+            filename += `@${new DateTime().toFormat("yyyy-MM-dd")}.dxf`;
             const downloadResult = await this.dataService.downloadDxf(result, {filename});
             if (downloadResult) {
                 finish("success", "导出成功");
