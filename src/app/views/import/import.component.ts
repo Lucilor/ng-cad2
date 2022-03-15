@@ -600,38 +600,39 @@ export class ImportComponent extends Utils() implements OnInit {
     }
 
     private async _matchPeiheCad(infoArray: PeiheInfo[], options: ObjectOf<string>) {
-        const result: boolean[] = [];
-        const indice: number[] = [];
-        const cache = this._peiheCadCache;
-        const keys = infoArray.map((info, i) => {
-            const key = md5(JSON.stringify({info, options}));
-            if (cache[key] !== undefined) {
-                result[i] = cache[key];
-            } else {
-                result[i] = false;
-                indice.push(i);
-            }
-            return key;
-        });
-        infoArray.forEach((_, i) => {
-            if (cache[keys[i]] !== undefined) {
-                result[i] = cache[keys[i]];
-            } else {
-                indice.push(i);
-            }
-        });
-        if (indice.length > 0) {
-            infoArray = infoArray.filter((_, i) => indice.includes(i));
-            const response = await this.dataService.post<boolean[]>("peijian/cad/matchPeiheCad", {infoArray, options});
-            if (response?.data) {
-                response.data.forEach((matched, i) => {
-                    const j = indice[i];
-                    result[j] = matched;
-                    cache[keys[j]] = matched;
-                });
-            }
-        }
-        return result;
+        return infoArray.map(() => true);
+        // const result: boolean[] = [];
+        // const indice: number[] = [];
+        // const cache = this._peiheCadCache;
+        // const keys = infoArray.map((info, i) => {
+        //     const key = md5(JSON.stringify({info, options}));
+        //     if (cache[key] !== undefined) {
+        //         result[i] = cache[key];
+        //     } else {
+        //         result[i] = false;
+        //         indice.push(i);
+        //     }
+        //     return key;
+        // });
+        // infoArray.forEach((_, i) => {
+        //     if (cache[keys[i]] !== undefined) {
+        //         result[i] = cache[keys[i]];
+        //     } else {
+        //         indice.push(i);
+        //     }
+        // });
+        // if (indice.length > 0) {
+        //     infoArray = infoArray.filter((_, i) => indice.includes(i));
+        //     const response = await this.dataService.post<boolean[]>("peijian/cad/matchPeiheCad", {infoArray, options});
+        //     if (response?.data) {
+        //         response.data.forEach((matched, i) => {
+        //             const j = indice[i];
+        //             result[j] = matched;
+        //             cache[keys[j]] = matched;
+        //         });
+        //     }
+        // }
+        // return result;
     }
 
     async downloadSourceCad() {
