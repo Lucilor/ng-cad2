@@ -35,7 +35,6 @@ export class ExportComponent implements OnInit {
     ngOnInit() {
         this.exportCache = session.load<ExportCache>("exportParams");
         this.direct = !!this.exportCache?.direct;
-        console.log(this.exportCache);
         // session.remove("exportParams");
         if (this.direct) {
             this.exportCads("导出选中");
@@ -162,7 +161,7 @@ export class ExportComponent implements OnInit {
             this.exportParams.cads = cads;
             const result = CadPortable.export(this.exportParams);
             this.msg = "正在下载dxf文件";
-            filename += `@${new DateTime().toFormat("yyyy-MM-dd")}.dxf`;
+            filename += `@${DateTime.now().toFormat("yyyy-MM-dd")}.dxf`;
             const downloadResult = await this.dataService.downloadDxf(result, {filename});
             if (downloadResult) {
                 finish("success", "导出成功");
