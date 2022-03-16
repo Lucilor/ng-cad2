@@ -356,9 +356,6 @@ export class ImportComponent extends Utils() implements OnInit {
     private async _validateOptions(options: ObjectOf<string>) {
         const errors: string[] = [];
         for (const optionKey in options) {
-            if (["铰边", "锁边"].includes(optionKey)) {
-                continue;
-            }
             const optionValues = CadPortable.getOptionValues(options[optionKey]);
             const tmpVals: string[] = [];
             const duplicateValues: string[] = [];
