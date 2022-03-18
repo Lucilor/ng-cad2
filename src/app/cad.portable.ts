@@ -15,6 +15,7 @@ import {
     setLinesLength,
     sortLines
 } from "@cad-viewer";
+import {HttpService} from "@modules/http/services/http.service";
 import {keysOf, Line, ObjectOf, Point, Rectangle} from "@utils";
 import {difference, intersection, isEqual} from "lodash";
 import {replaceChars} from "./app.common";
@@ -155,6 +156,11 @@ export class CadPortable {
         "企料包边无上下包"
     ];
     static xinghaoFieldsRequired = ["门窗", "工艺", "产品分类", "门扇厚度", "指定可选锁边", "指定可选锁边"];
+    static intersectionLayers = ["指定位置刨坑", "分体"];
+    static intersectionLayersMap: ObjectOf<"zhidingweizhipaokeng" | "指定分体位置"> = {
+        指定位置刨坑: "zhidingweizhipaokeng",
+        分体: "指定分体位置"
+    };
 
     static import(params: CadImportParams): CadImportResult {
         const {sourceCad, maxLineLength} = params;
@@ -430,7 +436,7 @@ export class CadPortable {
         return {cads, slgses, sourceCadMap, xinghaoInfo};
     }
 
-    static export(params: CadExportParams) {
+    static async export(params: CadExportParams, http: HttpService) {
         const margin = 300;
         const padding = 80;
         const width = 855;
@@ -520,16 +526,17 @@ export class CadPortable {
         }
         result.info.version = CadVersion.DXF2010;
         const toRemove = new Set(Object.keys(importResult?.sourceCadMap.cads || []));
-        groupedCads.forEach((group, i) => {
+        for (let i = 0; i < groupedCads.length; i++) {
+            const group = groupedCads[i];
             if (group === null) {
                 dividers.push(rect.bottom - margin / 2);
-                return;
+                continue;
             }
 
             const group2 = [] as CadData[];
             const right = rect.right + padding;
-            const draw = (cad: CadData, j: number, isGroup2: boolean) => {
-                this._showIntersections(cad);
+            const draw = async (cad: CadData, j: number, isGroup2: boolean) => {
+                cad = await this._showIntersections(cad, http);
                 const cadRect = cad.getBoundingRect();
                 let offsetX = j * (width + margin);
                 let offsetY = -(i - dividers.length) * (height + margin);
@@ -652,9 +659,13 @@ export class CadPortable {
                     result.entities.merge(cad.getAllEntities());
                 }
             };
-            group.forEach((cad, j) => draw(cad, j, false));
-            group2.forEach((cad, j) => draw(cad, j, true));
-        });
+            for (let j = 0; j < group.length; j++) {
+                await draw(group[j], j, false);
+            }
+            for (let j = 0; j < group2.length; j++) {
+                await draw(group2[j], j, true);
+            }
+        }
         if (importResult) {
             toRemove.forEach((id) => {
                 const {entities, rectLines} = importResult.sourceCadMap.cads[id];
@@ -843,83 +854,46 @@ export class CadPortable {
     private static _extractIntersections(cad: CadData) {
         const entities = cad.entities;
         const map = generatePointsMap(cad.entities);
-        entities.leader.forEach((e) => {
+        const tol = 5;
+        entities.forEach((e) => {
+            if (!this.intersectionLayers.includes(e.layer)) {
+                return;
+            }
             entities.remove(e);
+            let p: Point | undefined;
+            if (e instanceof CadLeader) {
+                p = e.vertices[0];
+            } else if (e instanceof CadCircle) {
+                p = e.center;
+            }
+            if (!p) {
+                return;
+            }
             for (const v of map) {
-                if (v.lines.length === 2 && e.vertices[0].distanceTo(v.point) <= 5) {
-                    cad.zhidingweizhipaokeng.push([v.lines[0].id, v.lines[1].id]);
+                if (v.lines.length === 2 && p.distanceTo(v.point) <= tol) {
+                    cad[this.intersectionLayersMap[e.layer]].push([v.lines[0].id, v.lines[1].id]);
                     break;
                 }
             }
         });
-
-        // entities.filter((v) => v.layer === "分体").forEach((e) => {
-        //     entities.remove(e);
-        //     if (e instanceof CadCircle) {
-        //         console.log(e);
-        //     }
-        // });
     }
 
-    private static _showIntersections(data: CadData) {
-        if (data.zhidingweizhipaokeng.length < 1 && data.指定分体位置.length < 1) {
-            return;
-        }
-        const sortedEntities = sortLines(data)[0];
-        const paokengLength = 32;
-        const paokengGap = 4;
-        // const fentiRadius = 8;
-        // const fentiFontSize = 16;
-        for (const key of ["zhidingweizhipaokeng", "指定分体位置"] as ("zhidingweizhipaokeng" | "指定分体位置")[]) {
-            const arr = data[key];
-            for (let i = 0; i < sortedEntities.length - 1; i++) {
-                const e1 = sortedEntities[i];
-                const e2 = sortedEntities[i + 1];
-                let matched = false;
-                const id1 = e1.id;
-                const id2 = e2.id;
-                for (const ids of arr) {
-                    if (intersection(ids, [id1, id2]).length === 2) {
-                        matched = true;
-                        break;
-                    }
-                }
-                if (!matched) {
-                    continue;
-                }
-                const p1 = e1.start;
-                const p2 = e1.end;
-                const p3 = e2.end;
-                const p4 = p1.clone().sub(p2).normalize().add(p3.clone().sub(p2).normalize());
-                const p5 = p2.clone().add(p4);
-                const p6 = p2.clone().sub(p4);
-                const center = p1.clone().add(p3).divide(2);
-                let line: Line;
-                if (p5.distanceTo(center) > p6.distanceTo(center)) {
-                    line = new Line(p5, p2);
-                } else {
-                    line = new Line(p6, p2);
-                }
-                const theta = line.theta.rad;
-                const d = new Point(Math.cos(theta), Math.sin(theta));
-                if (key === "zhidingweizhipaokeng") {
-                    line.end.sub(d.clone().multiply(paokengGap));
-                    line.start.copy(line.end.clone().sub(d.clone().multiply(paokengLength)));
-                    data.entities.add(new CadLeader({vertices: [line.end.toArray(), line.start.toArray()], size: 15}));
-                } else if (key === "指定分体位置") {
-                    // data.entities.add(new CadCircle({layer: "分体", center: p2.toArray(), radius: fentiRadius, linetype: "DASHEDX2"}));
-                    // const anchor = [d.x > 0 ? 1 : 0, d.y > 0 ? 0 : 1];
-                    // const mtext = new CadMtext({
-                    //     layer: "分体",
-                    //     insert: p2.sub(d.clone().multiply(3)).toArray(),
-                    //     text: "分体",
-                    //     anchor,
-                    //     font_size: fentiFontSize
-                    // });
-                    // data.entities.add(mtext);
-                }
+    private static async _showIntersections(data: CadData, http: HttpService) {
+        let skip = true;
+        for (const layer of this.intersectionLayers) {
+            if (data[this.intersectionLayersMap[layer]]) {
+                skip = false;
+                break;
             }
         }
+        if (skip) {
+            return data;
+        }
+        const result = await http.post<CadData>("ngcad/showIntersections", {data: data.export()});
+        if (result?.data) {
+            return new CadData(result.data);
+        }
+        throw new Error("showIntersections error");
     }
 
     private static _addDimension(cad: CadData, e: CadLineLike, exportIds: boolean) {

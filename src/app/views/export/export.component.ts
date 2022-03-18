@@ -159,7 +159,13 @@ export class ExportComponent implements OnInit {
                 this.progressBar.forward(end - i);
             }
             this.exportParams.cads = cads;
-            const result = CadPortable.export(this.exportParams);
+            let result: CadData | undefined;
+            try {
+                result = await CadPortable.export(this.exportParams, this.dataService);
+            } catch (error) {
+                finish("error", this.dataService.lastResponse?.msg || "导出失败");
+                return;
+            }
             this.msg = "正在下载dxf文件";
             filename += `@${DateTime.now().toFormat("yyyy-MM-dd")}.dxf`;
             const downloadResult = await this.dataService.downloadDxf(result, {filename});
