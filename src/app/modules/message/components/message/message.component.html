@@ -15,6 +15,7 @@
                 [formControl]="input"
                 [type]="promptData.type || ''"
                 [placeholder]="promptData.placeholder || ''"
+                [matAutocomplete]="auto"
             ></textarea>
             <input
                 matInput
@@ -24,7 +25,13 @@
                 [type]="promptData.type || ''"
                 [placeholder]="promptData.placeholder || ''"
                 (keydown)="onKeyDown($event)"
+                [matAutocomplete]="auto"
             />
+            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+                <mat-option *ngFor="let option of autoCompleteOptions | async" [value]="option.value">
+                    {{ option.value }}<span *ngIf="option.label">({{ option.label }})</span>
+                </mat-option>
+            </mat-autocomplete>
             <mat-hint>{{ promptData.hint || "" }}</mat-hint>
             <mat-error *ngIf="this.input.invalid">{{ getErrorText() }}</mat-error>
         </mat-form-field>

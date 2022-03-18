@@ -6,6 +6,7 @@ import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
 import {timeout} from "@utils";
 import {clamp, cloneDeep, debounce} from "lodash";
 import {QuillEditorComponent, QuillViewComponent} from "ngx-quill";
+import {map, Observable, startWith} from "rxjs";
 import {ButtonMessageData, MessageData, MessageDataMap, PromptData} from "./message-types";
 
 @Component({
@@ -21,6 +22,7 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
     page = 0;
     @ViewChild(QuillEditorComponent) editor?: QuillViewComponent;
     @ViewChild("contentInput") contentInput?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
+    autoCompleteOptions?: Observable<Required<PromptData>["options"]>;
 
     private get _editorToolbarHeight() {
         if (this.editor) {
@@ -71,7 +73,7 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     get editable() {
         if (this.data.type === "editor") {
-            return this.data.editable;
+            return this.data.editable ?? true;
         }
         return false;
     }
@@ -140,6 +142,10 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
                 ...data.promptData
             };
             this.input = new FormControl(data.promptData.value, data.promptData.validators);
+            this.autoCompleteOptions = this.input.valueChanges.pipe(
+                startWith(data.promptData.value),
+                map((value) => this.filterAutoCompleteOptions(value))
+            );
         }
         if (data.type === "book") {
             if (!data.bookData) {
@@ -158,7 +164,7 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     async ngAfterViewInit() {
         if (this.contentInput) {
-            await timeout(0);
+            await timeout(500);
             this.contentInput.nativeElement.focus();
         }
     }
@@ -231,5 +237,14 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
         if (event.key === "Enter") {
             this.submit();
         }
+    }
+
+    filterAutoCompleteOptions(str: string) {
+        const options = this.promptData.options;
+        if (!options) {
+            return [];
+        }
+        str = str.toLowerCase();
+        return options.filter(({label, value}) => label?.toLowerCase().includes(str) || value.toLowerCase().includes(str));
     }
 }
