@@ -1,4 +1,4 @@
-import {Constructor, ObjectOf} from "@utils";
+import {Constructor, keysOf, ObjectOf} from "@utils";
 
 export const Utils = <T extends Constructor>(base: T = class {} as T) =>
     class extends base {
@@ -19,7 +19,7 @@ export const Utils = <T extends Constructor>(base: T = class {} as T) =>
         }
 
         keysOf<K>(obj: K) {
-            return Object.keys(obj) as (keyof K)[];
+            return keysOf(obj);
         }
 
         changeObjectKey<K>(obj: ObjectOf<K>, oldKey: string, newKey: string | Event) {

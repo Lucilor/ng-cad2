@@ -6,10 +6,21 @@ export const ContextMenu = <T extends Constructor>(base: T = class {} as T) =>
         contextMenu!: MatMenuTrigger;
         contextMenuPosition = {x: "0px", y: "0px"};
 
-        onContextMenu(event: MouseEvent, ..._args: any[]) {
+        onContextMenu(event: MouseEvent, ...args: any[]) {
             event.preventDefault();
-            this.contextMenuPosition.x = event.clientX + "px";
-            this.contextMenuPosition.y = event.clientY + "px";
+            const placeholder = args[0];
+            let dx = 0;
+            let dy = 0;
+            if (placeholder instanceof HTMLElement) {
+                const parent = placeholder.parentElement;
+                if (parent) {
+                    const rect = parent.getBoundingClientRect();
+                    dx -= rect.left;
+                    dy -= rect.top;
+                }
+            }
+            this.contextMenuPosition.x = event.clientX + dx + "px";
+            this.contextMenuPosition.y = event.clientY + dy + "px";
             this.contextMenu.openMenu();
         }
     };
