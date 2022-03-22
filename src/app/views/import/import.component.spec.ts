@@ -6,7 +6,6 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatRadioModule} from "@angular/material/radio";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
-import {ThuumComponent} from "@components/thuum/thuum.component";
 import {HttpModule} from "@modules/http/http.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
@@ -18,7 +17,7 @@ describe("ImportComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ImportComponent, ProgressBarComponent, ThuumComponent],
+            declarations: [ImportComponent, ProgressBarComponent],
             imports: [
                 FormsModule,
                 HttpModule,

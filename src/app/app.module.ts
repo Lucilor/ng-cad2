@@ -56,7 +56,6 @@ import {CadSplitComponent} from "@components/menu/cad-split/cad-split.component"
 import {SubCadsComponent} from "@components/menu/sub-cads/sub-cads.component";
 import {ToolbarComponent} from "@components/menu/toolbar/toolbar.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
-import {ThuumComponent} from "@components/thuum/thuum.component";
 import {ReplaceFullCharsDirective} from "@directives/replace-full-chars.directive";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {HttpModule} from "@modules/http/http.module";
@@ -161,7 +160,6 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         LoginFormComponent,
         ExportComponent,
         ProgressBarComponent,
-        ThuumComponent,
         SelectCadsComponent,
         BbzhmkgzComponent,
         CadSplitComponent
