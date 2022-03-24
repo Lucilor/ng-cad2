@@ -68,14 +68,40 @@ export class ExportComponent implements OnInit {
                 ids = await this._queryIds({$or: [{分类: "包边正面"}, {分类2: "包边正面"}]});
                 filename = "包边正面";
                 break;
-            case "框型和企料":
+            case "框型":
+                ids = await this._queryIds({
+                    $or: [
+                        {分类: {$regex: "^中横框|锁框|铰框|顶框|底框$"}},
+                        {分类2: {$regex: "^中横框|锁框|铰框|顶框|底框$"}}
+                    ]
+                });
+                filename = "框型";
+                break;
+            case "企料":
                 ids = await this._queryIds({
                     $or: [
                         {分类: {$regex: "^锁企料|扇锁企料|小锁料|中锁料|铰企料|中铰料$"}},
                         {分类2: {$regex: "^锁企料|扇锁企料|小锁料|中锁料|铰企料|中铰料$"}}
                     ]
                 });
+                filename = "企料";
+                break;
+            case "框型和企料":
+                ids = await this._queryIds({
+                    $or: [
+                        {分类: {$regex: "^中横框|锁框|铰框|顶框|底框|锁企料|扇锁企料|小锁料|中锁料|铰企料|中铰料$"}},
+                        {分类2: {$regex: "^中横框|锁框|铰框|顶框|底框|锁企料|扇锁企料|小锁料|中锁料|铰企料|中铰料$"}}
+                    ]
+                });
                 filename = "框型和企料";
+                break;
+            case "企料分体":
+                ids = await this._queryIds({
+                    $or: [
+                        {名字: {$regex: "分体1|分体2"}},
+                    ]
+                });
+                filename = "企料分体";
                 break;
             case "指定型号": {
                 const xinghao = await this.message.prompt({

@@ -56,8 +56,7 @@ gulp.task("zip", (callback) => {
         const now = new Date();
         const then = new Date(changelog[0].timeStamp);
         if (now.getFullYear() !== then.getFullYear() || now.getMonth() !== then.getMonth() || now.getDate() !== then.getDate()) {
-            console.error("changelog time error");
-            callback();
+            callback(new Error("changelog time error"));
             return;
         }
         changelog[0].timeStamp = new Date().getTime();
