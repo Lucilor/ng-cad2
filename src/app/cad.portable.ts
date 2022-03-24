@@ -122,7 +122,7 @@ export class CadPortable {
         固定开料板材: "gudingkailiaobancai",
         条件: "conditions"
     };
-    static infoFields = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边"];
+    static infoFields = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边", "使用模板开料"];
     static slgsFields = ["名字", "分类", "条件", "选项", "算料公式"];
     static skipFields = ["模板放大"];
     static xinghaoFields = [

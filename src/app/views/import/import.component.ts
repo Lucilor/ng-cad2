@@ -23,7 +23,7 @@ export type ImportComponentConfig = Record<ImportComponentConfigName, {label: st
 export class ImportComponent extends Utils() implements OnInit {
     private _cadNameRegex = /^(?!\d)[\da-zA-Z\u4e00-\u9fa5_]*$/u;
     private _optionsCache: ObjectOf<string[]> = {};
-    private _peiheCadCache: ObjectOf<boolean> = {};
+    // private _peiheCadCache: ObjectOf<boolean> = {};
     private _sourceFile: File | null = null;
     private _sourceCadMap: SourceCadMap = {cads: {}, slgses: {}};
     private _errorMsgLayer = "导入错误信息";
