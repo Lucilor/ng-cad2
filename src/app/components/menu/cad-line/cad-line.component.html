@@ -107,6 +107,20 @@
             />
         </mat-form-field>
     </div>
+    <div class="form-item">
+        <mat-form-field>
+            <mat-label>名字2</mat-label>
+            <input
+                matInput
+                type="text"
+                [value]="getLineText('mingzi2')"
+                (input)="setLineText($event, 'mingzi2')"
+                (focus)="focusedField = 'mingzi2'"
+                (blur)="focusedField = ''"
+                name="lineMingzi"
+            />
+        </mat-form-field>
+    </div>
     <div class="form-item" *ngIf="data.type === '包边正面'">
         <mat-form-field>
             <mat-label>可改名字</mat-label>
