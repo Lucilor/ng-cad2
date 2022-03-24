@@ -28,7 +28,7 @@ export class ExportComponent implements OnInit {
     msg = "";
     exportCache: ExportCache | null = null;
     direct = false;
-    exportParams: CadExportParams = {cads: [], type: "自由选择", exportIds: environment.production};
+    exportParams: CadExportParams = {cads: [], type: "自由选择", exportId: environment.production, exportUniqCode: true};
 
     constructor(private dialog: MatDialog, private dataService: CadDataService, private message: MessageService) {}
 
@@ -70,10 +70,7 @@ export class ExportComponent implements OnInit {
                 break;
             case "框型":
                 ids = await this._queryIds({
-                    $or: [
-                        {分类: {$regex: "^中横框|锁框|铰框|顶框|底框$"}},
-                        {分类2: {$regex: "^中横框|锁框|铰框|顶框|底框$"}}
-                    ]
+                    $or: [{分类: {$regex: "^中横框|锁框|铰框|顶框|底框$"}}, {分类2: {$regex: "^中横框|锁框|铰框|顶框|底框$"}}]
                 });
                 filename = "框型";
                 break;
@@ -97,9 +94,7 @@ export class ExportComponent implements OnInit {
                 break;
             case "企料分体":
                 ids = await this._queryIds({
-                    $or: [
-                        {名字: {$regex: "分体1|分体2"}},
-                    ]
+                    $or: [{名字: {$regex: "分体1|分体2"}}]
                 });
                 filename = "企料分体";
                 break;

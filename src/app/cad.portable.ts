@@ -97,7 +97,8 @@ export interface CadSourceParams {
 export interface CadExportParams {
     cads: CadData[];
     type: ExportType;
-    exportIds: boolean;
+    exportId: boolean;
+    exportUniqCode: boolean;
     sourceParams?: CadSourceParams;
 }
 
@@ -442,7 +443,7 @@ export class CadPortable {
         const width = 855;
         const height = 1700;
         const cols = 10;
-        const {type, exportIds} = params;
+        const {type, exportId, exportUniqCode} = params;
         const {sourceCad, importResult, xinghaoInfo, slgses} = params.sourceParams || {};
         const cads = params.cads.filter((v) => v.entities.length > 0 && Object.keys(v.options).length > 0);
         const emptyData = new CadData();
@@ -549,7 +550,10 @@ export class CadPortable {
                 cad.transform({translate}, true);
                 cadRect.transform({translate});
 
-                const texts = [`唯一码: ${cad.info.唯一码}`];
+                const texts = [];
+                if (exportUniqCode) {
+                    texts.push(`唯一码: ${cad.info.唯一码}`);
+                }
                 const {cadFields, skipFields} = this;
                 for (const key in cadFields) {
                     if (skipFields.includes(key)) {
@@ -634,7 +638,7 @@ export class CadPortable {
                         })
                     );
                     const {line: lines, arc: arcs} = cad.getAllEntities();
-                    [...lines, ...arcs].forEach((e) => this._addDimension(cad, e, exportIds));
+                    [...lines, ...arcs].forEach((e) => this._addDimension(cad, e, exportId));
 
                     let color: number;
                     if (ids.includes(cad.id)) {
@@ -896,7 +900,7 @@ export class CadPortable {
         throw new Error("showIntersections error");
     }
 
-    private static _addDimension(cad: CadData, e: CadLineLike, exportIds: boolean) {
+    private static _addDimension(cad: CadData, e: CadLineLike, exportId: boolean) {
         const dimension = new CadDimension();
         dimension.layer = "line-info";
         dimension.dimstyle = "line-info";
@@ -907,7 +911,7 @@ export class CadPortable {
         dimension.entity2 = {id: e.id, location: "end"};
 
         const texts = [];
-        if (exportIds) {
+        if (exportId) {
             if (e.线id) {
                 texts.push(`{\\H0.1x;线id:${e.线id}}`);
             } else {
