@@ -412,7 +412,10 @@ export class ImportComponent extends Utils() implements OnInit {
             "花件",
             "孔",
             "算料",
-            "示意图"
+            "示意图",
+            "小锁",
+            "中铰料",
+            "中锁料"
         ];
         const namesReg = new RegExp(names.join("|"));
 

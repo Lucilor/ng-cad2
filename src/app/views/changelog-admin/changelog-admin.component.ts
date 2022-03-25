@@ -208,7 +208,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     }
 
     fetchChangelog() {
-        downloadByUrl("https://www.let888.cn/n/static/ngcad2_changelog.json");
+        downloadByUrl("https://www.let888.cn/static/ngcad2_changelog.json");
     }
 
     downloadChangelog() {
