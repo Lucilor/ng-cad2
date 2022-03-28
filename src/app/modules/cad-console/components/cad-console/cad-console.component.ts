@@ -423,6 +423,7 @@ export class CadConsoleComponent implements OnInit {
             this.transform({rotate: new Angle(degrees, "deg").rad}, rotateDimension);
         },
         async save(loaderId = "master") {
+            await timeout(100); // 等待input事件触发
             const {dataService, status, message, spinner} = this;
             const collection = status.collection$.value;
             let resData: CadData | null = null;
