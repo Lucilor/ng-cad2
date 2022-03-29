@@ -388,6 +388,10 @@ export class ImportComponent extends Utils() implements OnInit {
         addUniqCode: boolean,
         isXinghao: boolean
     ) {
+        if (cad.data.info.isEmpty) {
+            cad.errors = cad.data.info.errors;
+            return;
+        }
         const data = cad.data;
         const names = [
             "包边正面",

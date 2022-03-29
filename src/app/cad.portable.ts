@@ -343,7 +343,7 @@ export class CadPortable {
             this._extractIntersections(data);
             data.info.errors = [];
             data.options = {...globalOptions};
-            data.entities.mtext.some((e, i) => {
+            const found = data.entities.mtext.some((e, i) => {
                 const text = replaceChars(e.text);
                 if (text.startsWith("唯一码")) {
                     toRemove = i;
@@ -411,6 +411,11 @@ export class CadPortable {
                 }
                 return false;
             });
+            if (!found) {
+                data.info.errors.push("找不到以唯一码开头的文本");
+                data.info.isEmpty = true;
+                return;
+            }
             data.entities.dimension.forEach((e) => {
                 e.cad1 = data.name;
                 e.cad2 = data.name;
