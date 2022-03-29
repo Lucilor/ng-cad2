@@ -546,7 +546,7 @@ export interface ValidateResult {
 
 export const isShiyitu = (data: CadData) => data.type.includes("示意图") || data.type2.includes("示意图");
 
-export const LINE_LIMIT = [0.01, 0.7];
+export const LINE_LIMIT = [0.01, 0.1];
 export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"];
 export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): ValidateResult => {
     if (isShiyitu(data) || (data.shuangxiangzhewan && (!data.suanliaochuli.includes("开料") || data.info.使用模板开料))) {
