@@ -597,7 +597,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                     "lengthTextSize",
                     "linewidth",
                     "显示线长",
-                    "圆弧显示"
+                    "圆弧显示",
+                    "开料不要"
                 ];
                 if (keys.includes(field as keyof CadLineLike)) {
                     cad.render(e);
