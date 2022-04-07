@@ -385,8 +385,12 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
     };
 
     private _onEntitiesChange = () => {
-        const {line, arc} = this.status.cad.selected();
-        const selected = [...line, ...arc];
+        const selected: CadLineLike[] = [];
+        this.status.cad.selected().forEach((e) => {
+            if (e instanceof CadLineLike) {
+                selected.push(e);
+            }
+        });
         this.selected = selected;
         selected.forEach((e) => {
             if (e instanceof CadLine) {
