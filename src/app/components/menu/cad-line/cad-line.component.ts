@@ -596,6 +596,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 }
                 const keys: (keyof CadLineLike)[] = [
                     "mingzi",
+                    "mingzi2",
                     "gongshi",
                     "guanlianbianhuagongshi",
                     "lengthTextSize",
