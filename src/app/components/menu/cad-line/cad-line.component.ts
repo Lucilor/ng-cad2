@@ -256,14 +256,13 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
                 if (worldPoints.length === 1) {
                     if (linesMoving.start) {
                         this.moveLines();
-                        this.status.setCadPoints();
                         const translate = worldPoints[0].sub(linesMoving.start).toArray();
                         new CadEntities().fromArray(this.selected).transform({translate}, true);
                         this.status.cad.render(this.selected);
                     } else {
                         linesMoving.start = worldPoints[0];
-                        this.status.setCadPoints(cad.data.getAllEntities(), {exclude: cadPoints});
                     }
+                    this._updateCadPoints();
                 }
             } else if (cadStatus instanceof CadStatusCutLine && linesCutting) {
                 linesCutting.points = worldPoints;
@@ -410,8 +409,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
             this.lineDrawing = {};
         } else if (linesMoving) {
             if (linesMoving.start) {
-                const exclude = this.status.getCadPoints(new CadEntities().fromArray(this.selected));
-                this.status.setCadPoints(cad.data.getAllEntities(), {exclude});
+                const {x, y} = cad.getScreenPoint(linesMoving.start.x, linesMoving.start.y);
+                this.status.setCadPoints(cad.data.getAllEntities(), {exclude: [{x, y}]});
             } else {
                 if (selected.length < 1) {
                     this.message.alert("没有选中线");

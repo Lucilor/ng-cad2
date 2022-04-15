@@ -236,7 +236,7 @@ export class AppStatusService {
         });
     }
 
-    setCadPoints(map: PointsMap | CadEntities = [], opts: {exclude?: CadPoints; mid?: boolean} = {}) {
+    setCadPoints(map: PointsMap | CadEntities = [], opts: {exclude?: {x: number; y: number}[]; mid?: boolean} = {}) {
         const {exclude, mid} = opts;
         const points = this.getCadPoints(map, mid);
         this.cadPoints$.next(differenceWith(points, exclude || [], (a, b) => a.x === b.x && a.y === b.y));
