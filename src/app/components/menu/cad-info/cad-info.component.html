@@ -255,50 +255,23 @@
             <mat-option *ngFor="let value of sldxs" [value]="value">{{ value }}</mat-option>
         </mat-select>
     </mat-form-field>
-    <div class="sub-form-field">
-        <div class="label">指定位置刨坑</div>
-        <div *ngIf="data.zhidingweizhipaokeng.length === 0">
-            <button mat-icon-button color="primary" (click)="arrayAdd(data.zhidingweizhipaokeng, [])">
+    <div class="sub-form-field" *ngFor="let info of insertsectionInfo">
+        <div class="label">{{ info.label }}</div>
+        <div *ngIf="data[info.key].length === 0">
+            <button mat-icon-button color="primary" (click)="arrayAdd(data[info.key], [])">
                 <mat-icon>add_circle</mat-icon>
             </button>
         </div>
-        <div *ngFor="let v of data.zhidingweizhipaokeng; let j = index">
+        <div *ngFor="let v of data[info.key]; let j = index">
             <mat-form-field>
                 <input type="text" matInput [value]="v.length ? '已指定' : '未指定'" readonly />
-                <button
-                    mat-icon-button
-                    matSuffix
-                    [color]="getPointColor(j, 'zhidingweizhipaokeng')"
-                    (click)="selectPoint(j, 'zhidingweizhipaokeng')"
-                >
+                <button mat-icon-button matSuffix [color]="getPointColor(j, info.key)" (click)="selectPoint(j, info.key)">
                     <mat-icon>linear_scale</mat-icon>
                 </button>
-                <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(data.zhidingweizhipaokeng, [], j + 1)">
+                <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(data[info.key], [], j + 1)">
                     <mat-icon>add_circle</mat-icon>
                 </button>
-                <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(data.zhidingweizhipaokeng, j)">
-                    <mat-icon>remove_circle</mat-icon>
-                </button>
-            </mat-form-field>
-        </div>
-    </div>
-    <div class="sub-form-field">
-        <div class="label">指定分体位置</div>
-        <div *ngIf="data['指定分体位置'].length === 0">
-            <button mat-icon-button color="primary" (click)="arrayAdd(data['指定分体位置'], [])">
-                <mat-icon>add_circle</mat-icon>
-            </button>
-        </div>
-        <div *ngFor="let v of data['指定分体位置']; let j = index">
-            <mat-form-field>
-                <input type="text" matInput [value]="v.length ? '已指定' : '未指定'" readonly />
-                <button mat-icon-button matSuffix [color]="getPointColor(j, '指定分体位置')" (click)="selectPoint(j, '指定分体位置')">
-                    <mat-icon>linear_scale</mat-icon>
-                </button>
-                <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(data['指定分体位置'], [], j + 1)">
-                    <mat-icon>add_circle</mat-icon>
-                </button>
-                <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(data['指定分体位置'], j)">
+                <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(data[info.key], j)">
                     <mat-icon>remove_circle</mat-icon>
                 </button>
             </mat-form-field>
@@ -430,7 +403,7 @@
     <mat-form-field>
         <mat-label>正面线到见光线展开模板</mat-label>
         <mat-hint>切框用的</mat-hint>
-        <input type="text" matInput [(ngModel)]="data.info['正面线到见光线展开模板']" name="正面线到见光线展开模板">
+        <input type="text" matInput [(ngModel)]="data.info['正面线到见光线展开模板']" name="正面线到见光线展开模板" />
         <button mat-icon-button matSuffix color="primary" (click)="openCadmuban(data.info['正面线到见光线展开模板'])">
             <mat-icon>open_in_new</mat-icon>
         </button>

@@ -14,8 +14,7 @@ import {AppStatusService, CadPoints} from "@services/app-status.service";
 import {CadStatusSelectBaseline, CadStatusSelectJointpoint, CadStatusIntersection} from "@services/cad-status";
 import {isEqual} from "lodash";
 
-type InsertsectionKey = "zhidingweizhipaokeng" | "指定分体位置";
-const insertsectionKeys = ["zhidingweizhipaokeng", "指定分体位置"];
+type InsertsectionKey = "zhidingweizhipaokeng" | "指定分体位置" | "指定位置不折";
 
 @Component({
     selector: "app-cad-info",
@@ -47,6 +46,11 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         "都不显示",
         "所有"
     ];
+    insertsectionInfo: {key: InsertsectionKey; label: string}[] = [
+        {key: "zhidingweizhipaokeng", label: "指定位置刨坑"},
+        {key: "指定分体位置", label: "指定分体位置"},
+        {key: "指定位置不折", label: "指定位置不折"},
+    ];
     sldxs = this._算料单显示.slice();
     qlbmlx = ["自动判断", "胶条位包", "外面包", "胶条位包+外面包", "无"];
     sldzkxswz = ["CAD上面", "CAD下面", "CAD中间", "CAD左边", "CAD右边"];
@@ -65,9 +69,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
 
     ngOnInit() {
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
+            const insertsectionKeys = this.insertsectionInfo.map((v) => v.key);
             if (cadStatus instanceof CadStatusSelectJointpoint) {
                 this._updateCadPoints();
-            } else if (cadStatus instanceof CadStatusIntersection && insertsectionKeys.includes(cadStatus.info)) {
+            } else if (cadStatus instanceof CadStatusIntersection && insertsectionKeys.includes(cadStatus.info as InsertsectionKey)) {
                 this.cadStatusIntersectionInfo = cadStatus.info as InsertsectionKey;
                 this._updateCadPoints();
             }
