@@ -239,10 +239,13 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    filterAutoCompleteOptions(str: string) {
+    filterAutoCompleteOptions(str = "") {
         const options = this.promptData.options;
         if (!options) {
             return [];
+        }
+        if (typeof str !== "string") {
+            str = "";
         }
         str = str.toLowerCase();
         return options.filter(({label, value}) => label?.toLowerCase().includes(str) || value.toLowerCase().includes(str));
