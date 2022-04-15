@@ -479,8 +479,8 @@ export class ImportComponent extends Utils() implements OnInit {
         }
         const entities = data.getAllEntities();
         if (requireLineId) {
-            const lines = entities.filter((v) => v instanceof CadLineLike).toArray();
-            if (lines.some((v) => !v.info.idReplaced)) {
+            const lines = entities.filter((v) => v instanceof CadLineLike).toArray() as CadLineLike[];
+            if (lines.some((v) => !v.线id)) {
                 cad.errors.push("存在没有id的线");
             }
         }
