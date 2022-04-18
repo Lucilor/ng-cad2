@@ -352,7 +352,14 @@
     </mat-form-field>
     <mat-form-field>
         <mat-label>算料特殊要求</mat-label>
-        <input type="text" matInput [(ngModel)]="data['算料特殊要求']" name="算料特殊要求" />
+        <textarea
+            type="text"
+            matInput
+            cdkTextareaAutosize
+            [cdkAutosizeMaxRows]="5"
+            [(ngModel)]="data['算料特殊要求']"
+            name="算料特殊要求"
+        ></textarea>
     </mat-form-field>
     <mat-form-field>
         <mat-label>正面宽差值</mat-label>
