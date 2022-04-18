@@ -29,6 +29,12 @@
     </div>
     <div class="form-item">
         <mat-form-field>
+            <mat-label>图层</mat-label>
+            <input matInput type="text" [value]="getLineText('layer')" (change)="setLineText($event, 'layer')" name="layer" />
+        </mat-form-field>
+    </div>
+    <div class="form-item">
+        <mat-form-field>
             <mat-label>显示线长</mat-label>
             <input
                 matInput

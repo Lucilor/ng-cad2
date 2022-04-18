@@ -450,29 +450,30 @@ export const printCads = async (params: PrintCadsParams) => {
         cadPrint.center();
         const {拉手信息宽度} = extra;
         if (typeof 拉手信息宽度 === "number" && 拉手信息宽度 > 0) {
-            for (const cad of cads) {
-                const 拉手信息 = cad.entities.mtext.filter((v) => v.text.startsWith("拉手:")).sort((v) => v.insert.x - v.insert.y);
-                for (const mtext of 拉手信息) {
-                    const {el, text} = mtext;
-                    if (el && el.width() >= 拉手信息宽度) {
-                        try {
-                            mtext.text = getWrapedText(cadPrint, text, mtext, getWrapedTextOptions(text, 拉手信息宽度)).join("\n     ");
-                            cadPrint.render(mtext);
-                        } catch (error) {
-                            console.warn("拉手信息自动换行出错");
-                            console.warn(error);
-                        }
+            const 拉手信息 = data.entities.mtext.filter((v) => v.text.startsWith("拉手:")).sort((v) => v.insert.x - v.insert.y);
+            for (const mtext of 拉手信息) {
+                const {el, text} = mtext;
+                if (el && el.width() >= 拉手信息宽度) {
+                    try {
+                        mtext.text = getWrapedText(cadPrint, text, mtext, getWrapedTextOptions(text, 拉手信息宽度)).join("\n     ");
+                        cadPrint.render(mtext);
+                    } catch (error) {
+                        console.warn("拉手信息自动换行出错");
+                        console.warn(error);
                     }
                 }
             }
         }
 
         const designPics = params.designPics;
+        let img: string | undefined;
+        let img2: string | undefined;
         if (designPics) {
             const {urls, margin, showSmall, showLarge} = designPics;
-            if (Array.isArray(urls[i])) {
+            const currUrls = urls[i] || urls[0];
+            if (Array.isArray(currUrls)) {
                 const urls2: string[] = [];
-                for (const url2 of urls[i]) {
+                for (const url2 of currUrls) {
                     try {
                         urls2.push(getImageDataUrl(await loadImage(url2)));
                     } catch (error) {
@@ -485,23 +486,26 @@ export const printCads = async (params: PrintCadsParams) => {
                         await drawDesignPics(data, urls2, margin, true);
                         await cadPrint.reset().render();
                         cadPrint.center();
-                        imgs.push(await cadPrint.toDataURL());
+                        img = await cadPrint.toDataURL();
                     } else {
-                        imgs.push(await cadPrint.toDataURL());
+                        img = await cadPrint.toDataURL();
                     }
                     if (showLarge) {
                         await drawDesignPics(data2, urls2, margin, false);
                         cadPrint.data = data2;
                         await cadPrint.reset().render();
                         cadPrint.center();
-                        imgs.push(await cadPrint.toDataURL());
+                        img2 = await cadPrint.toDataURL();
                     }
-                } else {
-                    imgs.push(await cadPrint.toDataURL());
                 }
             }
-        } else {
-            imgs.push(await cadPrint.toDataURL());
+        }
+        if (!img) {
+            img = await cadPrint.toDataURL();
+        }
+        imgs.push(img);
+        if (img2) {
+            imgs.push(img2);
         }
     }
 

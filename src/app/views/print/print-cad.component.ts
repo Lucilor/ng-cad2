@@ -119,7 +119,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     async generateSuanliaodan(params: PrintCadsParams) {
         timer.start(this.loaderId);
         this.spinner.show(this.loaderId, {text: "正在生成算料单..."});
-        const {url, errors} = await printCads(params);
+        const cads = this.splitCads(params.cads[0]);
+        const {url, errors} = await printCads({...params, cads});
         this.spinner.hide(this.loaderId);
         if (errors.length > 0) {
             // this.message.alert({content: new Error(errors.join("<br>"))});
@@ -138,7 +139,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         let data: CadData | null = null;
-        if (input.name.endsWith(".dxf")) {
+        if (file.name.endsWith(".dxf")) {
             this.spinner.show(this.loaderId, {text: "正在上传文件..."});
             data = await this.dataService.uploadDxf(file);
         } else {
@@ -185,5 +186,43 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             ];
             this._savePrintParams();
         }
+    }
+
+    splitCads(source: CadData) {
+        const {top, bottom} = source.getBoundingRect();
+        const yValues = [bottom - 500, top + 500];
+        const layerName = "分页线";
+        source.entities.line.forEach((e) => {
+            if (e.layer === layerName) {
+                yValues.push(e.start.y);
+            }
+        });
+        console.log(yValues);
+        if (yValues.length < 3) {
+            return [source];
+        }
+        yValues.sort();
+        const result: CadData[] = Array(yValues.length - 1);
+        for (let i = 0; i < yValues.length - 1; i++) {
+            result[i] = new CadData();
+        }
+        source.entities.forEach((e) => {
+            if (e.layer === layerName) {
+                return;
+            }
+            const {bottom: y1, top: y2} = e.boundingRect;
+            const index = yValues.findIndex((v, i) => {
+                if (i === 0) {
+                    return false;
+                }
+                return yValues[i - 1] < y1 && v > y2;
+            });
+            if (index < 1) {
+                return;
+            }
+            result[index - 1].entities.add(e);
+        });
+        console.log(result.map((v) => v.entities.length), source.entities.length);
+        return result;
     }
 }
