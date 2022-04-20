@@ -914,6 +914,7 @@ export class CadPortable {
         dimension.setColor("red");
         dimension.entity1 = {id: e.id, location: "start"};
         dimension.entity2 = {id: e.id, location: "end"};
+        const tmp = new CadLine();
 
         const texts = [];
         if (exportId) {
@@ -966,7 +967,7 @@ export class CadPortable {
         };
         for (const k in lineKeys) {
             const v = e[lineKeys[k]];
-            if (v) {
+            if (v && v !== tmp[lineKeys[k]]) {
                 texts.push(`${k}: ${v}`);
             }
         }
