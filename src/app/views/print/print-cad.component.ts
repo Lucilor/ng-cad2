@@ -119,7 +119,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     async generateSuanliaodan(params: PrintCadsParams) {
         timer.start(this.loaderId);
         this.spinner.show(this.loaderId, {text: "正在生成算料单..."});
-        const cads = this.splitCads(params.cads[0]);
+        const cads = params.cads.map((v) => this.splitCads(v)).flat();
         const {url, errors} = await printCads({...params, cads});
         this.spinner.hide(this.loaderId);
         if (errors.length > 0) {
@@ -222,7 +222,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             }
             result[index - 1].entities.add(e);
         });
-        console.log(result.map((v) => v.entities.length), source.entities.length);
+        console.log(
+            result.map((v) => v.entities.length),
+            source.entities.length
+        );
         return result;
     }
 }
