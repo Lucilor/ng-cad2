@@ -643,7 +643,7 @@ export class CadPortable {
                         })
                     );
                     const {line: lines, arc: arcs} = cad.getAllEntities();
-                    [...lines, ...arcs].forEach((e) => this._addDimension(cad, e, exportId));
+                    [...lines, ...arcs].forEach((e) => this._addLineInfoDimension(cad, e, exportId));
 
                     let color: number;
                     if (ids.includes(cad.id)) {
@@ -905,7 +905,7 @@ export class CadPortable {
         throw new Error("showIntersections error");
     }
 
-    private static _addDimension(cad: CadData, e: CadLineLike, exportId: boolean) {
+    private static _addLineInfoDimension(cad: CadData, e: CadLineLike, exportId: boolean) {
         const dimension = new CadDimension();
         dimension.layer = "line-info";
         dimension.dimstyle = "line-info";
@@ -958,8 +958,17 @@ export class CadPortable {
         if (e.children.line.find((v) => v.宽高虚线)) {
             texts.push("显示斜线宽高");
         }
-        if (e.显示线长) {
-            texts.push(`显示线长: ${e.显示线长}`);
+        const lineKeys: ObjectOf<keyof CadLineLike> = {
+            显示线长: "显示线长",
+            下一个折弯标线: "nextZhewan",
+            展开方式: "zhankaifangshi",
+            指定展开长: "zidingzhankaichang"
+        };
+        for (const k in lineKeys) {
+            const v = e[lineKeys[k]];
+            if (v) {
+                texts.push(`${k}: ${v}`);
+            }
         }
         dimension.mingzi = texts.join("\n");
         if (dimension.mingzi.length > 0) {
