@@ -197,7 +197,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 yValues.push(e.start.y);
             }
         });
-        console.log(yValues);
         if (yValues.length < 3) {
             return [source];
         }
@@ -222,10 +221,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             }
             result[index - 1].entities.add(e);
         });
-        console.log(
-            result.map((v) => v.entities.length),
-            source.entities.length
-        );
         return result;
     }
 }

@@ -1,5 +1,5 @@
 version: 2.1
-var_1: &cache_key ng-cad2-{{ .Branch }}-{{ checksum "package-lock.json" }}
+var_1: &cache_key ng-cad2-{{ .Branch }}-{{ checksum "yarn.lock" }}
 var_2: &cache_fallback_key ng-cad2
 var_3: &restore_cache
     restore_cache:
@@ -15,7 +15,9 @@ executors:
     ng-cad2:
         working_directory: ~/ng-cad2
         docker:
-            - image: circleci/node:16-browsers
+            - image: cimg/node:lts-browsers
+orbs: 
+    browser-tools: circleci/browser-tools@1.3.0
 jobs:
     build:
         executor: ng-cad2
@@ -24,8 +26,8 @@ jobs:
             - *restore_cache
             # - run: git submodule update --init --recursive
             - run:
-                  name: Install local dependencies
-                  command: npm install
+                name: Install local dependencies
+                command: yarn
             - *save_cache
     unit-test:
         executor: ng-cad2
@@ -34,40 +36,42 @@ jobs:
             - *restore_cache
             - run: git submodule update --init --recursive
             - run:
-                  name: Install utils dependencies
-                  command: cd ./src/cad-viewer/src/utils && npm install
+                name: Install utils dependencies
+                command: cd ./src/cad-viewer/src/utils && yarn
             - run:
-                  name: Install cad-viewer dependencies
-                  command: cd ./src/cad-viewer && npm install
+                name: Install cad-viewer dependencies
+                command: cd ./src/cad-viewer && yarn
+            - browser-tools/install-chrome
+            - browser-tools/install-chromedriver
             - run:
-                  name: Unit test
-                  command: npm run test:ci
-    e2e:
-        executor: ng-cad2
-        steps:
-            - checkout
-            - *restore_cache
-            - run:
-                  name: End to end
-                  command: npm run e2e -- --protractor-config=e2e/protractor.conf.js
+                name: Unit test
+                command: yarn test:ci
+    # e2e:
+    #     executor: ng-cad2
+    #     steps:
+    #         - checkout
+    #         - *restore_cache
+    #         - run:
+    #               name: End to end
+    #               command: yarn e2e -- --protractor-config=e2e/protractor.conf.js
     lint:
         executor: ng-cad2
         steps:
             - checkout
             - *restore_cache
             - run:
-                  name: Lint
-                  command: npm run lint
+                name: Lint
+                command: yarn lint
 workflows:
     build-test-lint:
         jobs:
             - build
             - unit-test:
-                  requires:
-                      - build
+                requires:
+                    - build
             # - e2e:
             #       requires:
             #           - build
             - lint:
-                  requires:
-                      - build
+                requires:
+                    - build

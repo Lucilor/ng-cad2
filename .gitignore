@@ -48,3 +48,10 @@ testem.log
 Thumbs.db
 
 /gulp.config.json
+
+# yarn
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions

@@ -12,6 +12,11 @@
     "prepare": "husky install"
   },
   "private": true,
+  "main": "index.js",
+  "repository": "https://github.com/Lucilor/ng-cad2.git",
+  "author": "Lucilor <lucilor@me.com>",
+  "license": "MIT",
+  "packageManager": "yarn@3.2.0",
   "dependencies": {
     "@angular-material-components/datetime-picker": "^7.0.1",
     "@angular/animations": "~13.3.3",
