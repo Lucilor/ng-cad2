@@ -196,11 +196,12 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 yValues.push(e.start.y);
             }
         });
-        if (yValues.length < 3) {
+        const count = yValues.length - 1;
+        if (count < 2) {
             return [source];
         }
         yValues.sort();
-        const result: CadData[] = Array(yValues.length - 1);
+        const result: CadData[] = Array(count);
         for (let i = 0; i < yValues.length - 1; i++) {
             result[i] = new CadData();
         }
@@ -218,7 +219,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             if (index < 1) {
                 return;
             }
-            result[index - 1].entities.add(e);
+            result[count - index].entities.add(e);
         });
         return result;
     }
