@@ -186,17 +186,19 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     async setShowGongshi() {
-        const num = Number(
-            await this.message.prompt({
-                promptData: {
-                    type: "number",
-                    hint: "若小于等于0则不显示",
-                    value: this.config.getConfig("lineGongshi").toString(),
-                    placeholder: "公式字体大小"
-                }
-            })
-        );
-        this.config.setConfig("lineGongshi", num);
+        const numStr = await this.message.prompt({
+            promptData: {
+                type: "number",
+                hint: "请输入大于0的数字",
+                value: this.config.getConfig("lineGongshi").toString(),
+                placeholder: "公式字体大小",
+                validators: [(control) => (control.value > 0 ? null : {公式字体大小必须大于0: true})]
+            }
+        });
+        if (numStr !== null) {
+            this.config.setConfig("lineGongshi", Number(numStr));
+            await this.status.cad.render();
+        }
     }
 
     async setPointSize() {

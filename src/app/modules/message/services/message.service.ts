@@ -13,12 +13,11 @@ import {
     ButtonMessageData
 } from "../components/message/message-types";
 import {MessageComponent} from "../components/message/message.component";
-import {MessageModule} from "../message.module";
 
 export type MessageDataParams<T> = Omit<T, "type">;
 
 @Injectable({
-    providedIn: MessageModule
+    providedIn: "root"
 })
 export class MessageService {
     constructor(private dialog: MatDialog, private snackBar: MatSnackBar) {}

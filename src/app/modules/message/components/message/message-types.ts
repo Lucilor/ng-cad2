@@ -1,5 +1,4 @@
 import {ValidatorFn} from "@angular/forms";
-import {ObjectOf} from "@utils";
 
 export interface BaseMessageData {
     title?: string;
@@ -30,7 +29,6 @@ export interface PromptData {
     value?: string;
     placeholder?: string;
     validators?: ValidatorFn | ValidatorFn[] | null;
-    errorText?: ObjectOf<string> | string;
     options?: {value: string; label?: string}[];
 }
 

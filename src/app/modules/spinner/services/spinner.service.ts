@@ -1,10 +1,9 @@
 import {Injectable} from "@angular/core";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject} from "rxjs";
-import {SpinnerModule} from "../spinner.module";
 
 @Injectable({
-    providedIn: SpinnerModule
+    providedIn: "root"
 })
 export class SpinnerService {
     spinnerShow$ = new BehaviorSubject<{id: string; text?: string}>({id: ""});

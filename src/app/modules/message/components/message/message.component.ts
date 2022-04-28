@@ -85,6 +85,14 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.data.contentClass || "";
     }
 
+    get inputErrors() {
+        const errors = this.input.errors;
+        if (!errors) {
+            return null;
+        }
+        return Object.keys(errors).join(", ");
+    }
+
     constructor(
         public dialogRef: MatDialogRef<MessageComponent, boolean | string>,
         private sanitizer: DomSanitizer,
@@ -173,19 +181,6 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
         window.removeEventListener("resize", this._resizeEditor);
     }
 
-    getErrorText() {
-        const errorText = this.promptData.errorText;
-        if (this.input.invalid) {
-            if (typeof errorText === "string") {
-                return errorText;
-            } else if (typeof errorText === "object") {
-                const keys = Object.keys(this.input.errors || {});
-                return errorText[keys[0]] || "";
-            }
-        }
-        return "";
-    }
-
     submit(button?: ButtonMessageData["buttons"][0]) {
         if (this.data.type === "confirm") {
             this.dialogRef.close(true);
@@ -194,7 +189,7 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.input.markAsTouched();
             }
             if (this.input.valid) {
-                this.dialogRef.close(this.input.value);
+                this.dialogRef.close(String(this.input.value));
             }
         } else if (this.data.type === "editor") {
             this.dialogRef.close(this.data.content);

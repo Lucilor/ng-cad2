@@ -118,6 +118,9 @@ export class AppConfigService {
         delete config.padding;
         delete config.dragAxis;
         delete config.entityDraggable;
+        if (typeof config.lineGongshi !== "number" || config.lineGongshi <= 0) {
+            delete config.lineGongshi;
+        }
         return config;
     }
 

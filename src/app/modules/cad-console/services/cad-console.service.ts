@@ -2,10 +2,9 @@ import {Injectable} from "@angular/core";
 import {ObjectOf} from "@utils";
 import {BehaviorSubject} from "rxjs";
 import {ValuedCommand} from "../cad-command-types";
-import {CadConsoleModule} from "../cad-console.module";
 
 @Injectable({
-    providedIn: CadConsoleModule
+    providedIn: "root"
 })
 export class CadConsoleService {
     command = new BehaviorSubject<ValuedCommand>({name: "", args: []});
