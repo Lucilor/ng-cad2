@@ -40,7 +40,6 @@ export class BackupComponent implements AfterViewInit {
     cadsCount = 100;
     pageSizeOptions = [20, 50, 100, 200, 500];
     cads: CadData[] = [];
-    cadPreviewSize = {width: 200, height: 100};
     @ViewChild("paginator", {read: MatPaginator}) paginator!: MatPaginator;
     minTime = new Date();
     maxTime = new Date();
@@ -119,7 +118,7 @@ export class BackupComponent implements AfterViewInit {
             await timeout();
             await Promise.all(
                 this.data.map(async (v) => {
-                    const url = await getCadPreview(v.data, this.cadPreviewSize);
+                    const url = await getCadPreview(v.data, this.dataService);
                     v.img = this.sanitizer.bypassSecurityTrustUrl(url);
                 })
             );

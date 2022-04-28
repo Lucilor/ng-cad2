@@ -3,7 +3,7 @@ import {CadCollection} from "@app/app.common";
 import {CadData} from "@cad-viewer";
 import {environment} from "@env";
 import {downloadByUrl, DownloadOptions, ObjectOf} from "@utils";
-import {CustomResponse, HttpService} from "./http.service";
+import {CustomResponse, HttpOptions, HttpService} from "./http.service";
 
 export interface GetCadParams {
     collection: CadCollection;
@@ -130,15 +130,15 @@ export class CadDataService extends HttpService {
         return result;
     }
 
-    async setCad(params: SetCadParams): Promise<CadData | null> {
+    async setCad(params: SetCadParams, options?: HttpOptions): Promise<CadData | null> {
         const cadData = params.cadData instanceof CadData ? params.cadData.export() : params.cadData;
         const data = {...params, cadData};
-        const response = await this.post<any>("peijian/cad/setCad", data);
+        const response = await this.post<any>("peijian/cad/setCad", data, options);
         if (response && response.data) {
             const resData = response.data;
             const restore = await this._resolveMissingCads(response);
             if (typeof restore === "boolean") {
-                return await this.setCad({...params, restore});
+                return await this.setCad({...params, restore}, options);
             } else {
                 return new CadData(resData);
             }

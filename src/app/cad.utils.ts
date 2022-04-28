@@ -15,6 +15,7 @@ import {
     findAllAdjacentLines,
     CadCircle
 } from "@cad-viewer";
+import {HttpService} from "@modules/http/services/http.service";
 import {isNearZero, isBetween, getDPI, getImageDataUrl, loadImage, DEFAULT_TOLERANCE, Point} from "@utils";
 import {cloneDeep} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
@@ -25,8 +26,16 @@ export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小�
 
 export interface CadPreviewParams {
     fixedLengthTextSize?: number;
+    config?: Omit<Partial<CadViewerConfig>, "width" | "height">;
+    disableCache?: boolean;
 }
-export const getCadPreview = async (data: CadData, config: Partial<CadViewerConfig> = {}, params: CadPreviewParams = {}) => {
+export const getCadPreview = async (data: CadData, http: HttpService, params: CadPreviewParams = {}) => {
+    if (!params?.disableCache) {
+        const response = await http.post<{url: string | null}>("ngcad/getCadImg", {id: data.id});
+        if (response?.data?.url) {
+            return response.data.url;
+        }
+    }
     const fixedLengthTextSize = params.fixedLengthTextSize;
     const cad = new CadViewer(new CadData(), {
         width: 300,
@@ -35,7 +44,7 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
         backgroundColor: "black",
         hideLineLength: true,
         hideLineGongshi: true,
-        ...config
+        ...params.config
     });
     cad.appendTo(document.body);
     await prepareCadViewer(cad);
@@ -62,9 +71,9 @@ export const getCadPreview = async (data: CadData, config: Partial<CadViewerConf
         resize();
         resize();
     }
-    const src = cad.toBase64();
+    const url = await cad.toDataURL();
     cad.destroy();
-    return src;
+    return url;
 };
 
 const drawDesignPics = async (data: CadData, urls: string[], margin: number, findLocator: boolean) => {

@@ -190,15 +190,16 @@ export class ImportComponent extends Utils() implements OnInit {
             return finish(true, "success", `检查结束`);
         }
         let skipped = 0;
-        const silent = this.dataService.silent;
-        this.dataService.silent = true;
         for (let i = 0; i < totalCad; i++) {
-            const result = await this.dataService.setCad({
-                collection: "cad",
-                cadData: cads[i].data,
-                force: true,
-                importConfig: {pruneLines}
-            });
+            const result = await this.dataService.setCad(
+                {
+                    collection: "cad",
+                    cadData: cads[i].data,
+                    force: true,
+                    importConfig: {pruneLines}
+                },
+                {silent: true}
+            );
             this.msg = `正在导入dxf数据(${i + 1}/${totalCad})`;
             if (!result) {
                 skipped++;
@@ -207,7 +208,7 @@ export class ImportComponent extends Utils() implements OnInit {
             this.progressBar.forward();
         }
         for (let i = 0; i < totalSlgs; i++) {
-            const response = await this.dataService.post("ngcad/updateSuanliaogonshi", {data: this.slgses[i].data});
+            const response = await this.dataService.post("ngcad/updateSuanliaogonshi", {data: this.slgses[i].data}, {silent: true});
             this.msg = `正在导入算料公式(${i + 1}/${totalSlgs})`;
             if (!response?.data) {
                 skipped++;
@@ -216,7 +217,6 @@ export class ImportComponent extends Utils() implements OnInit {
             this.progressBar.forward();
         }
 
-        this.dataService.silent = silent;
         this.msg = `正在保存dxf文件`;
         if (isXinghao) {
             const xinghao = this.cads[0].data.options.型号;
@@ -587,12 +587,9 @@ export class ImportComponent extends Utils() implements OnInit {
     private async _validateSlgs(slgs: SlgsInfo) {
         const data = slgs.data;
         slgs.errors = slgs.errors.concat(await this._validateOptions(data.选项));
-        const silent = this.dataService.silent;
-        this.dataService.silent = true;
         const strict = this.dataService.strict;
         this.dataService.strict = false;
-        const response = await this.dataService.post("ngcad/validateFormulas", {formulas: data.公式});
-        this.dataService.silent = silent;
+        const response = await this.dataService.post("ngcad/validateFormulas", {formulas: data.公式}, {silent: true});
         this.dataService.strict = strict;
         if (response?.code !== 0) {
             const msg = response?.msg || "验证算料公式时出错";

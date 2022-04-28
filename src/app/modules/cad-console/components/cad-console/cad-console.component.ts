@@ -2,7 +2,7 @@ import {trigger, transition, style, animate} from "@angular/animations";
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {getList, CadCollection} from "@app/app.common";
-import {printCads} from "@app/cad.utils";
+import {getCadPreview, printCads} from "@app/cad.utils";
 import {CadArc, CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
@@ -15,7 +15,7 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusAssemble, CadStatusNormal, CadStatusSplit} from "@services/cad-status";
-import {Angle, Line, MatrixLike, ObjectOf, Point, timeout} from "@utils";
+import {Angle, dataURLtoBlob, Line, MatrixLike, ObjectOf, Point, timeout} from "@utils";
 import hljs from "highlight.js";
 import {differenceWith} from "lodash";
 import printJS from "print-js";
@@ -437,6 +437,12 @@ export class CadConsoleComponent implements OnInit {
             const data = status.closeCad();
             spinner.show(loaderId, {text: `正在保存CAD: ${data.name}`});
             resData = await dataService.setCad({collection, cadData: data, force: true});
+            if (resData) {
+                const url = await getCadPreview(resData, dataService, {disableCache: true});
+                const blob = dataURLtoBlob(url);
+                const file = new File([blob], `${resData.id}.png`);
+                await dataService.post("ngcad/setCadImg", {id: resData.id, file}, {silent: true});
+            }
             spinner.hide(loaderId);
             return resData;
         },

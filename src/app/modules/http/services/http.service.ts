@@ -36,6 +36,8 @@ export interface HttpOptions {
     responseType?: "json";
     withCredentials?: boolean;
     bypassCodes?: number[];
+    silent?: boolean;
+    encrypt?: DataEncrpty;
 }
 /* eslint-enable @typescript-eslint/indent */
 
@@ -43,7 +45,6 @@ export interface HttpOptions {
     providedIn: "root"
 })
 export class HttpService {
-    silent = false;
     loaderId = "master";
     protected dialog: MatDialog;
     protected message: MessageService;
@@ -53,8 +54,6 @@ export class HttpService {
     strict = true;
     private _loginPromise: ReturnType<typeof openLoginFormDialog> | null = null;
     lastResponse: CustomResponse<any> | null = null;
-    encrypt: DataEncrpty = "no";
-    private _nextEncrypt: DataEncrpty | null = null;
 
     constructor(injector: Injector) {
         this.dialog = injector.get(MatDialog);
@@ -63,14 +62,14 @@ export class HttpService {
         this.snackBar = injector.get(MatSnackBar);
     }
 
-    protected alert(content: any) {
-        if (!this.silent) {
+    protected alert(content: any, silent: boolean) {
+        if (!silent) {
             this.message.alert({content});
         }
     }
 
-    protected snack(msg: string) {
-        if (!this.silent) {
+    protected snack(msg: string, silent: boolean) {
+        if (!silent) {
             this.message.snack(msg);
         }
     }
@@ -90,10 +89,6 @@ export class HttpService {
         }
     }
 
-    setNextEncrypt(encrypt: DataEncrpty) {
-        this._nextEncrypt = encrypt;
-    }
-
     async request<T>(url: string, method: "GET" | "POST", data?: ObjectOf<any>, options?: HttpOptions): Promise<CustomResponse<T> | null> {
         const rawData = {...data};
         if (environment.unitTest) {
@@ -106,7 +101,8 @@ export class HttpService {
             url = `${this.baseURL}${url}`;
         }
         let response: CustomResponse<T> | null = null;
-        const encrypt = this._nextEncrypt ?? this.encrypt;
+        const encrypt = options?.encrypt ?? "no";
+        const silent = !!options?.silent;
         try {
             if (method === "GET") {
                 if (data) {
@@ -165,9 +161,9 @@ export class HttpService {
                 if (code === 0 || bypassCodes.includes(code)) {
                     if (typeof response.msg === "string" && response.msg) {
                         if (response.msg.match(/\n|<br>/)) {
-                            this.alert(response.msg);
+                            this.alert(response.msg, silent);
                         } else {
-                            this.snack(response.msg);
+                            this.snack(response.msg, silent);
                         }
                     }
                     return response;
@@ -178,7 +174,7 @@ export class HttpService {
                         if (typeof data2?.name === "string") {
                             msg += "<br>" + data2.name;
                         }
-                        this.alert(msg);
+                        this.alert(msg, silent);
                     }
                     return null;
                 } else if (code === -2) {
@@ -191,12 +187,11 @@ export class HttpService {
                 return response;
             }
         } catch (error) {
-            this.alert(error);
+            this.alert(error, silent);
             return null;
         } finally {
             this.lastResponse = response;
             timer.end(timerName, `${method} ${rawUrl}`);
-            this._nextEncrypt = null;
         }
     }
 

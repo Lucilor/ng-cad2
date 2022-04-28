@@ -122,7 +122,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                 fontFamily: "宋体"
             };
             const getImg = async (data: CadData) =>
-                this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data, config, {fixedLengthTextSize}));
+                this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data, this.dataService, {fixedLengthTextSize, config}));
             await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.cad))));
             this.spinner.hide(this.spinner.defaultLoaderId);
             await timeout(0);
