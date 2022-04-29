@@ -33,6 +33,7 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 import {BrowserModule} from "@angular/platform-browser";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
+import {CadLayerInputComponent} from "@components/cad-layer-input/cad-layer-input.component";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
 import {BbzhmkgzComponent} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
 import {CadDataAttrsComponent} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
@@ -162,7 +163,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         ProgressBarComponent,
         SelectCadsComponent,
         BbzhmkgzComponent,
-        CadSplitComponent
+        CadSplitComponent,
+        CadLayerInputComponent
     ],
     imports: [
         AppRoutingModule,

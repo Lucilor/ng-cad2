@@ -229,8 +229,9 @@ export class CadPortable {
             return y1 - y2;
         });
 
+        const layers = sourceCad.export().layers;
         const cads: CadInfo[] = rects.map((rect, i) => {
-            const data = new CadData();
+            const data = new CadData({layers});
             sourceCadMap.cads[data.id] = {rect, rectLines: sorted[i], entities: new CadEntities(), text: new CadMtext()};
             return {data, errors: [], skipErrorCheck: new Set()};
         });

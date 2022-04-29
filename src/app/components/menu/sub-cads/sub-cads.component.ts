@@ -342,7 +342,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             return;
         }
         const append = input.hasAttribute("append");
-        const mainCad = input.hasAttribute("main-cad");
         const data = this.contextMenuCad.data;
         if (append) {
             const resData = await this.dataService.uploadDxf(file);
@@ -354,7 +353,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 resData.entities.transform({translate: [dx, dy]}, true);
                 data.entities.merge(resData.entities);
                 data.blocks = resData.blocks;
-                this.status.openCad();
+                await this.status.openCad();
             }
         } else {
             const content = `确定要上传<span style="color:red">${file.name}</span>并替换<span style="color:red">${data.name}</span>的数据吗？`;
@@ -362,24 +361,14 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             if (yes) {
                 const resData = await this.dataService.uploadDxf(file);
                 if (resData) {
-                    if (mainCad) {
-                        const data1 = new CadData();
-                        data1.entities = data.entities;
-                        const data2 = new CadData();
-                        data2.entities = resData.entities;
-                        const {min: min1} = data1.getBoundingRect();
-                        const {min: min2} = data2.getBoundingRect();
-                        data2.transform({translate: min1.sub(min2)}, true);
-                        data.entities = data2.entities;
-                    } else {
-                        data.entities = resData.entities;
-                        data.partners = resData.partners;
-                        data.components = resData.components;
-                        data.zhidingweizhipaokeng = resData.zhidingweizhipaokeng;
-                        data.info = resData.info;
-                    }
+                    data.entities = resData.entities;
+                    data.partners = resData.partners;
+                    data.components = resData.components;
+                    data.zhidingweizhipaokeng = resData.zhidingweizhipaokeng;
+                    data.info = resData.info;
                     data.blocks = resData.blocks;
-                    this.status.openCad();
+                    data.layers = resData.layers;
+                    await this.status.openCad();
                 }
             }
         }

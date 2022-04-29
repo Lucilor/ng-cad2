@@ -28,10 +28,7 @@
         </mat-form-field>
     </div>
     <div class="form-item">
-        <mat-form-field>
-            <mat-label>图层</mat-label>
-            <input matInput type="text" [value]="getLineText('layer')" (change)="setLineText($event, 'layer')" name="layer" />
-        </mat-form-field>
+        <app-cad-layer-input [entities]="selected"></app-cad-layer-input>
     </div>
     <div class="form-item">
         <mat-form-field>
