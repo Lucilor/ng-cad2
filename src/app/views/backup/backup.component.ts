@@ -8,6 +8,7 @@ import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {AppStatusService} from "@services/app-status.service";
 import {timeout} from "@utils";
 import {lastValueFrom} from "rxjs";
 
@@ -49,7 +50,8 @@ export class BackupComponent implements AfterViewInit {
         private dataService: CadDataService,
         private sanitizer: DomSanitizer,
         private route: ActivatedRoute,
-        private spinner: SpinnerService
+        private spinner: SpinnerService,
+        private status: AppStatusService
     ) {
         (async () => {
             const {ids, collection} = this.route.snapshot.queryParams;
@@ -116,9 +118,10 @@ export class BackupComponent implements AfterViewInit {
                 this.data.push(item);
             }
             await timeout();
+            const collection = this.status.collection$.value;
             await Promise.all(
                 this.data.map(async (v) => {
-                    const url = await getCadPreview(v.data, this.dataService);
+                    const url = await getCadPreview(collection, v.data, this.dataService);
                     v.img = this.sanitizer.bypassSecurityTrustUrl(url);
                 })
             );

@@ -21,15 +21,16 @@ import {cloneDeep} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
+import {CadCollection} from "./app.common";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
 export interface CadPreviewParams {
     fixedLengthTextSize?: number;
-    config?: Omit<Partial<CadViewerConfig>, "width" | "height">;
+    config?: Partial<CadViewerConfig>;
     disableCache?: boolean;
 }
-export const getCadPreview = async (data: CadData, http: HttpService, params: CadPreviewParams = {}) => {
+export const getCadPreview = async (collection: CadCollection, data: CadData, http: HttpService, params: CadPreviewParams = {}) => {
     if (!params?.disableCache) {
         const response = await http.post<{url: string | null}>("ngcad/getCadImg", {id: data.id});
         if (response?.data?.url) {
@@ -37,18 +38,23 @@ export const getCadPreview = async (data: CadData, http: HttpService, params: Ca
         }
     }
     const fixedLengthTextSize = params.fixedLengthTextSize;
+    const shiyitu = isShiyitu(data);
     const cad = new CadViewer(new CadData(), {
         width: 300,
         height: 150,
-        padding: [10],
+        padding: [5],
         backgroundColor: "black",
-        hideLineLength: true,
+        hideLineLength: collection === "CADmuban" || shiyitu,
         hideLineGongshi: true,
         ...params.config
     });
     cad.appendTo(document.body);
     await prepareCadViewer(cad);
     cad.data = data.clone();
+    if (shiyitu) {
+        cad.data.entities.dimension = [];
+    }
+    cad.data.entities.mtext = [];
     await cad.render();
     cad.center();
     if (fixedLengthTextSize) {

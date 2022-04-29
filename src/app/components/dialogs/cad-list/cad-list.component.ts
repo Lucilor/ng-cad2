@@ -174,7 +174,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         const timerName = "cad-list-getData";
         timer.start(timerName);
         for (const data of this.pageData) {
-            const url = await getCadPreview(data.data, this.dataService);
+            const url = await getCadPreview(collection, data.data, this.dataService);
             data.img = this.sanitizer.bypassSecurityTrustUrl(url) as string;
         }
         timer.end(timerName, "渲染CAD列表");

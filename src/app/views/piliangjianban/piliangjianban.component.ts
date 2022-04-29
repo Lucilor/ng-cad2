@@ -112,7 +112,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
             this.splitBancais();
             await timeout(0);
             const dataAll = this.bancais.map((v) => v.data).flat();
-            const {imgSize, fixedLengthTextSize} = this;
+            const {fixedLengthTextSize, imgSize} = this;
             const config: Partial<CadViewerConfig> = {
                 hideLineLength: false,
                 hideLineGongshi: true,
@@ -121,8 +121,11 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                 backgroundColor: "white",
                 fontFamily: "宋体"
             };
+            const collection = this.status.collection$.value;
             const getImg = async (data: CadData) =>
-                this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(data, this.dataService, {fixedLengthTextSize, config}));
+                this.sanitizer.bypassSecurityTrustUrl(
+                    await getCadPreview(collection, data, this.dataService, {fixedLengthTextSize, config})
+                );
             await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.cad))));
             this.spinner.hide(this.spinner.defaultLoaderId);
             await timeout(0);
