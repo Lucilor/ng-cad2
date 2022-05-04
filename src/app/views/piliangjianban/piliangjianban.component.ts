@@ -124,7 +124,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
             const collection = this.status.collection$.value;
             const getImg = async (data: CadData) =>
                 this.sanitizer.bypassSecurityTrustUrl(
-                    await getCadPreview(collection, data, this.dataService, {fixedLengthTextSize, config})
+                    await getCadPreview(collection, data, this.dataService, {fixedLengthTextSize, config, disableCache: true})
                 );
             await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.cad))));
             this.spinner.hide(this.spinner.defaultLoaderId);
