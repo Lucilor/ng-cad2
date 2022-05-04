@@ -1,4 +1,5 @@
 import {Component, Input} from "@angular/core";
+import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {CadEntity} from "@cad-viewer";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {AppStatusService} from "@services/app-status.service";
@@ -36,8 +37,13 @@ export class CadLayerInputComponent extends Subscribed() {
         });
     }
 
-    onLayerTextChange(event: Event) {
-        const input = event.target as HTMLInputElement;
-        this.entities.forEach((e) => (e.layer = input.value));
+    onLayerTextChange(event: Event | MatAutocompleteSelectedEvent) {
+        let value: string;
+        if (event instanceof MatAutocompleteSelectedEvent) {
+            value = event.option.value;
+        } else {
+            value = (event.target as HTMLInputElement).value;
+        }
+        this.entities.forEach((e) => (e.layer = value));
     }
 }

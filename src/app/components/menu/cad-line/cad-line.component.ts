@@ -557,29 +557,32 @@ export class CadLineComponent extends Subscribed() implements OnInit, OnDestroy 
         }
         const cad = this.status.cad;
         if (field === "kegaimingzi") {
+            if (!cad.data.info) {
+                cad.data.info = {};
+            }
             const info = cad.data.info;
-            if (info) {
-                if (!info.vars) {
-                    info.vars = {};
+            if (!info.vars) {
+                info.vars = {};
+            }
+            const vars = info.vars;
+            const line = this.selected[0];
+            const id = line.id;
+            const toRender: CadLineLike[] = [line];
+            Object.keys(vars).forEach((key) => {
+                if (vars[key] === id) {
+                    delete vars[key];
                 }
-                const vars = info.vars;
-                const toRender: CadLineLike[] = [];
+            });
+            if (value) {
                 if (vars[value]) {
                     const e = cad.data.getAllEntities().line.find((v) => v.id === vars[value]);
                     if (e) {
                         toRender.push(e);
                     }
                 }
-                const id = this.selected[0].id;
-                Object.keys(vars).forEach((key) => {
-                    if (vars[key] === id) {
-                        delete vars[key];
-                    }
-                });
                 vars[value] = id;
-                toRender.push(this.selected[0]);
-                cad.render(toRender);
             }
+            cad.render(toRender);
             return;
         }
         if (field === "zhewanValue" && value < 0) {
