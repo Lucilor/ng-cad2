@@ -37,6 +37,7 @@ export const routesInfo = {
     kailiaokongweipeizhi: {path: "kailiaokongweipeizhi", title: "开料孔位配置"},
     replaceText: {path: "replace-text", title: "文本替换"},
     piliangjianban: {path: "piliangjianban", title: "批量剪板"},
+    dingdanbiaoqian: {path: "dingdanbiaoqian", title: "订单标签"},
     selectCads: {path: "select-cads", title: "选择CAD"}
 };
 

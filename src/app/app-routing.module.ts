@@ -4,6 +4,7 @@ import {ProjectGuard} from "@guards/project.guard";
 import {PathResolveService} from "@services/path-resolve.service";
 import {BackupComponent} from "@views/backup/backup.component";
 import {ChangelogAdminComponent} from "@views/changelog-admin/changelog-admin.component";
+import {DingdanbiaoqianComponent} from "@views/dingdanbiaoqian/dingdanbiaoqian.component";
 import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
@@ -33,6 +34,7 @@ const routes: Routes = [
             {path: routesInfo.kailiaokongweipeizhi.path, component: KailiaokongweipeizhiComponent},
             {path: routesInfo.replaceText.path, component: ReplaceTextComponent},
             {path: routesInfo.piliangjianban.path, component: PiliangjianbanComponent},
+            {path: routesInfo.dingdanbiaoqian.path, component: DingdanbiaoqianComponent},
             {path: routesInfo.selectCads.path, component: SelectCadsComponent}
         ],
         canActivate: [ProjectGuard]

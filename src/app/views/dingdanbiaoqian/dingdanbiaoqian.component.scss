@@ -8,12 +8,11 @@
 
 .toolbar {
     position: fixed;
-    left: 830px;
-    top: 10px;
+    left: 1137px;
+    top: 60px;
 }
 
 .page {
-    width: 210mm;
     box-sizing: border-box;
     padding: 10px;
     margin: 10px !important;
@@ -27,32 +26,33 @@
 .cads {
     display: flex;
     flex-wrap: wrap;
+    flex: 1 1 0;
 
     .cad {
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
-        padding: 10px;
-        margin: 5px;
+        padding: 5px;
         box-sizing: border-box;
         box-shadow: none;
-        border: 1px solid lightgrey;
+        border: 1px solid grey;
+        border-radius: 0;
+        position: absolute;
 
         .header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
             width: 100%;
 
-            .title {
-                font-size: 22px;
-                text-align: left;
+            > * {
+                font-size: 17px;
+                line-height: 17px;
             }
-            .subtitle {
-                font-size: 11px;
-                text-align: right;
-            }
+        }
+
+        .img {
+            flex: 1 1 0;
         }
     }
 }
@@ -63,12 +63,7 @@
         overflow: hidden;
     }
 
-    .toolbar {
-        display: none;
-    }
-
     .page {
-        padding: 0;
         margin: 0 !important;
         box-shadow: none;
     }
@@ -81,25 +76,18 @@
         }
     }
 
+    .mat-expansion-panel-content {
+        height: 100%;
+    }
+
     .mat-expansion-panel-body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
         padding: 0;
     }
 }
 
-.mat-expansion-panel-header-title,
-.mat-expansion-panel-header-description {
-    font-size: 30px;
-    line-height: 30px;
-    align-items: center;
-}
-.mat-expansion-panel-header-title {
-    flex: 1 1 0;
-    justify-content: flex-end;
-    margin-right: 30px;
-}
-.mat-expansion-panel-header-description {
-    flex: 0 0 auto;
-}
 .mat-card {
     box-shadow: 0px 2px 6px -1px rgb(0 0 0 / 20%), 0px 1px 6px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
 }
@@ -107,9 +95,9 @@
     width: 100%;
 }
 .mat-card-footer {
-    margin: 5px -10px -10px -10px;
-    font-size: 18px;
-    line-height: 18px;
+    margin: 0;
+    font-size: 34px;
+    line-height: 34px;
 }
 
 .footer {

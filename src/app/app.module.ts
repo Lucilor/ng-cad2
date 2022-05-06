@@ -66,6 +66,7 @@ import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {TableModule} from "@modules/table/table.module";
 import {BackupComponent} from "@views/backup/backup.component";
 import {ChangelogAdminComponent} from "@views/changelog-admin/changelog-admin.component";
+import {DingdanbiaoqianComponent} from "@views/dingdanbiaoqian/dingdanbiaoqian.component";
 import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
@@ -164,7 +165,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
         SelectCadsComponent,
         BbzhmkgzComponent,
         CadSplitComponent,
-        CadLayerInputComponent
+        CadLayerInputComponent,
+        DingdanbiaoqianComponent
     ],
     imports: [
         AppRoutingModule,

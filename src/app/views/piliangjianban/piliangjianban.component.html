@@ -1,37 +1,35 @@
-<ng-scrollbar>
-    <mat-accordion multi>
-        <mat-expansion-panel
-            [(expanded)]="bancai.expanded"
-            [ngStyle]="{'page-break-after': bancai.pageBreakAfter}"
-            *ngFor="let bancai of bancais"
-            class="page"
-        >
-            <mat-expansion-panel-header>
-                <mat-panel-title>{{ bancai["厚度"] }}, {{ bancai["材料"] }}, {{ bancai["板材"] }}</mat-panel-title>
-                <mat-panel-description> {{ bancai["规格"][0] }}×{{ bancai["规格"][1] }}={{ bancai["数量"] }} </mat-panel-description>
-            </mat-expansion-panel-header>
-            <div class="cads">
-                <mat-card *ngFor="let data of bancai.data" class="cad" [ngStyle]="{width: cadElWidth}">
-                    <div class="header">
-                        <div class="title">{{ data.code }}</div>
-                        <div class="subtitle">{{ data.cad.name }}</div>
-                    </div>
-                    <app-image
-                        [src]="data.img"
-                        [bigPicSrc]="data.imgLarge"
-                        [ngStyle]="{maxWidth: imgSize[0] + 'px', maxHeight: imgSize[1] + 'px'}"
-                    ></app-image>
-                    <mat-card-footer>
-                        <div>{{ data.zhankaiSize[0] }}×{{ data.zhankaiSize[1] }}={{ data.num }}</div>
-                    </mat-card-footer>
-                </mat-card>
-            </div>
-            <div class="footer" [ngClass]="{'no-print':bancai.pageBreakAfter === undefined}">
-                第{{ bancai.printPageIndex }}页，共{{ printPageTotal }}页
-            </div>
-        </mat-expansion-panel>
-    </mat-accordion>
-</ng-scrollbar>
+<mat-accordion multi>
+    <mat-expansion-panel
+        [(expanded)]="bancai.expanded"
+        [ngStyle]="{'page-break-after': bancai.pageBreakAfter}"
+        *ngFor="let bancai of bancais"
+        class="page"
+    >
+        <mat-expansion-panel-header>
+            <mat-panel-title>{{ bancai["厚度"] }}, {{ bancai["材料"] }}, {{ bancai["板材"] }}</mat-panel-title>
+            <mat-panel-description> {{ bancai["规格"][0] }}×{{ bancai["规格"][1] }}={{ bancai["数量"] }} </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div class="cads">
+            <mat-card *ngFor="let data of bancai.data" class="cad" [ngStyle]="{width: cadElWidth}">
+                <div class="header">
+                    <div class="title">{{ data.code }}</div>
+                    <div class="subtitle">{{ data.cad.name }}</div>
+                </div>
+                <app-image
+                    [src]="data.img"
+                    [bigPicSrc]="data.imgLarge"
+                    [ngStyle]="{maxWidth: imgSize[0] + 'px', maxHeight: imgSize[1] + 'px'}"
+                ></app-image>
+                <mat-card-footer>
+                    <div>{{ data.zhankaiSize[0] }}×{{ data.zhankaiSize[1] }}={{ data.num }}</div>
+                </mat-card-footer>
+            </mat-card>
+        </div>
+        <div class="footer" [ngClass]="{'no-print': bancai.pageBreakAfter === undefined}">
+            第{{ bancai.printPageIndex }}页，共{{ printPageTotal }}页
+        </div>
+    </mat-expansion-panel>
+</mat-accordion>
 <div class="btn-group toolbar">
     <button mat-raised-button color="primary" (click)="print()">打印</button>
 </div>

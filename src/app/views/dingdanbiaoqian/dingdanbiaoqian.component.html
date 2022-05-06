@@ -1,0 +1,19 @@
+<mat-accordion multi>
+    <mat-expansion-panel class="page" [ngStyle]="order.style" expanded *ngFor="let order of orders; let i = index">
+        <div class="cads">
+            <mat-card *ngFor="let cad of order.cads" class="cad" [ngStyle]="cad.style">
+                <div class="header">
+                    <div *ngFor="let info of cad.data.info['标签信息']">{{ info.key }}: {{ info.value }}</div>
+                </div>
+                <app-image class="img" [src]="cad.img" [bigPicSrc]="cad.imgLarge" [ngStyle]="cad.imgStyle"></app-image>
+                <mat-card-footer>
+                    <div *ngIf="cad.calcW > 0 && cad.calcH > 0">{{ cad.calcW }}×{{ cad.calcH }}</div>
+                </mat-card-footer>
+            </mat-card>
+        </div>
+        <div class="footer">第{{ i + 1 }}页，共{{ orders.length }}页</div>
+    </mat-expansion-panel>
+</mat-accordion>
+<div class="btn-group toolbar no-print">
+    <button mat-raised-button color="primary" (click)="print()">打印</button>
+</div>
