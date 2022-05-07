@@ -22,7 +22,6 @@ export interface Order {
         calcH: number;
         style: CSS.Properties;
         imgStyle: CSS.Properties;
-        info: {key: string; value: string}[];
     }[];
     positions: number[][];
     style: CSS.Properties;
@@ -89,8 +88,7 @@ export class DingdanbiaoqianComponent implements OnInit {
                         calcW: cad.calcW,
                         calcH: cad.calcH,
                         style: {},
-                        imgStyle: {},
-                        info: []
+                        imgStyle: {}
                     };
                 });
                 return {
