@@ -15,7 +15,7 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusAssemble, CadStatusNormal, CadStatusSplit} from "@services/cad-status";
-import {Angle, dataURLtoBlob, Line, MatrixLike, ObjectOf, Point, timeout} from "@utils";
+import {Angle, dataURLtoBlob, Line, Matrix, MatrixLike, ObjectOf, Point, timeout} from "@utils";
 import hljs from "highlight.js";
 import {differenceWith} from "lodash";
 import printJS from "print-js";
@@ -703,6 +703,8 @@ export class CadConsoleComponent implements OnInit {
     private async transform(matrix: MatrixLike, rotateDimension = false) {
         const cad = this.status.cad;
         const seleted = cad.selected();
+        const m = new Matrix(matrix);
+        const scale = m.scale();
         if (seleted.length) {
             const {x, y} = seleted.getBoundingRect();
             seleted.transform({...matrix, origin: [x, y]}, true);
@@ -710,6 +712,13 @@ export class CadConsoleComponent implements OnInit {
             const t = (data: CadData) => {
                 const {x, y} = data.getBoundingRect();
                 data.transform({...matrix, origin: [x, y]}, true);
+                if (scale[0] * scale[1] < 0) {
+                    if (data.bancaihoudufangxiang === "gt0") {
+                        data.bancaihoudufangxiang = "lt0";
+                    } else if (data.bancaihoudufangxiang === "lt0") {
+                        data.bancaihoudufangxiang = "gt0";
+                    }
+                }
                 if (rotateDimension) {
                     data.getAllEntities().dimension.forEach((d) => {
                         if (d.axis === "x") {

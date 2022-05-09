@@ -18,6 +18,7 @@ export interface Order {
         isLarge: boolean;
         img: SafeUrl;
         imgLarge?: SafeUrl;
+        imgSize: [number, number];
         calcW: number;
         calcH: number;
         style: CSS.Properties;
@@ -36,7 +37,6 @@ export class DingdanbiaoqianComponent implements OnInit {
     orders: Order[] = [];
     cadsRowNum = 4;
     cadsColNum = 5;
-    imgSize = [218, 240];
     pageSize = [1122, 792];
     pagePadding = [17, 17, 5, 17];
     cadSize = [218, 186];
@@ -69,7 +69,7 @@ export class DingdanbiaoqianComponent implements OnInit {
                     const imgLarge = imgLoading;
                     const data = new CadData(cad);
 
-                    if (!data.type.includes("企料")) {
+                    if (!data.type.includes("企料") && !data.shouldShowIntersection) {
                         const lines: CadLine[] = [];
                         data.entities.line.forEach((e) => {
                             if (e.length > maxLength) {
@@ -80,11 +80,13 @@ export class DingdanbiaoqianComponent implements OnInit {
                         setLinesLength(data, lines, maxLength);
                     }
 
+                    const isLarge = !!data.info.isLarge;
                     return {
                         data,
                         img,
                         imgLarge,
-                        isLarge: !!data.info.isLarge,
+                        imgSize: isLarge ? [218, 240] : [218, 96],
+                        isLarge,
                         calcW: cad.calcW,
                         calcH: cad.calcH,
                         style: {},
@@ -101,28 +103,25 @@ export class DingdanbiaoqianComponent implements OnInit {
             this.splitOrders();
             await timeout(0);
 
-            const {fixedLengthTextSize, imgSize} = this;
-            const config: Partial<CadViewerConfig> = {
+            const {fixedLengthTextSize} = this;
+            const configBase: Partial<CadViewerConfig> = {
                 hideLineLength: false,
                 hideLineGongshi: true,
-                width: imgSize[0],
-                height: imgSize[1],
                 backgroundColor: "white",
                 fontFamily: "宋体"
             };
             const collection = this.status.collection$.value;
-            const getImg = async (data: CadData) =>
-                this.sanitizer.bypassSecurityTrustUrl(
-                    await getCadPreview(collection, data, this.dataService, {fixedLengthTextSize, config, disableCache: true})
-                );
+            const getImg = async (data: CadData, width: number, height: number) => {
+                const config: Partial<CadViewerConfig> = {...configBase, width, height};
+                const imgUrl = await getCadPreview(collection, data, this.dataService, {fixedLengthTextSize, config, disableCache: true});
+                return this.sanitizer.bypassSecurityTrustUrl(imgUrl);
+            };
             const dataAll = this.orders.map((v) => v.cads).flat();
-            await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.data))));
+            await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.data, v.imgSize[0], v.imgSize[1]))));
             // await Promise.all(dataAll.map(async (v) => (v.img = "assets/images/empty.jpg")));
             this.spinner.hide(this.spinner.defaultLoaderId);
             await timeout(0);
-            config.width = innerWidth * 0.85;
-            config.height = innerHeight * 0.85;
-            await Promise.all(dataAll.map(async (v) => (v.imgLarge = await getImg(v.data))));
+            await Promise.all(dataAll.map(async (v) => (v.imgLarge = await getImg(v.data, innerWidth * 0.85, innerHeight * 0.85))));
         } else {
             this.spinner.hide(this.spinner.defaultLoaderId);
         }

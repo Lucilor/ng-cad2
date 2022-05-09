@@ -3,7 +3,7 @@
         <div class="cads">
             <mat-card *ngFor="let cad of order.cads" class="cad" [ngStyle]="cad.style">
                 <div class="header">
-                    <div *ngFor="let info of cad.data.info['标签信息']">{{ info.key }}: {{ info.value }}</div>
+                    <div *ngFor="let str of cad.data.info['标签信息']">{{ str }}</div>
                 </div>
                 <app-image class="img" [src]="cad.img" [bigPicSrc]="cad.imgLarge" [ngStyle]="cad.imgStyle"></app-image>
                 <mat-card-footer>

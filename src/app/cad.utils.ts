@@ -54,7 +54,9 @@ export const getCadPreview = async (collection: CadCollection, data: CadData, ht
     if (shiyitu) {
         cad.data.entities.dimension = [];
     }
-    // cad.data.entities.mtext = [];
+    if (collection !== "cad") {
+        cad.data.entities.mtext = [];
+    }
     await cad.render();
     cad.center();
     if (fixedLengthTextSize) {
