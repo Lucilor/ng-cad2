@@ -1,19 +1,95 @@
 <mat-accordion multi>
-    <mat-expansion-panel class="page" [ngStyle]="order.style" expanded *ngFor="let order of orders; let i = index">
-        <div class="cads">
-            <mat-card *ngFor="let cad of order.cads" class="cad" [ngStyle]="cad.style">
-                <div class="header">
-                    <div *ngFor="let str of cad.data.info['标签信息']">{{ str }}</div>
+    <ng-container *ngFor="let order of orders; let i = index">
+        <mat-expansion-panel class="page" [ngStyle]="order.style" expanded>
+            <ng-container *ngIf="order.info; else cads">
+                <div class="info">
+                    <div class="section" *ngFor="let section of order.info">
+                        <div class="row" *ngFor="let row of sectionConfig.rows">
+                            <div class="cell border" *ngFor="let cell of row.cells">
+                                <div class="label center">{{ cell.label || cell.key }}</div>
+                                <div class="value center">{{ section[cell.key] }}</div>
+                            </div>
+                        </div>
+                        <div class="row flex-row">
+                            <div class="cell">
+                                <svg
+                                    class="barcode value"
+                                    [attr.jsbarcode-value]="order.code"
+                                    [attr.jsbarcode-displayvalue]="false"
+                                    [attr.jsbarcode-margin]="0"
+                                    [attr.jsbarcode-width]="2"
+                                    [attr.jsbarcode-height]="60"
+                                >
+                                </svg>
+                            </div>
+                            <div class="cell" style="flex: 0 0 auto">
+                                <div class="value">{{ section["花件名字"] }}</div>
+                            </div>
+                        </div>
+                        <div class="row flex-column">
+                            <div class="flex-row" style="width: 100%">
+                                <div class="flex-column flex-110 info-border-right">
+                                    <div class="cell">
+                                        <div class="value center">宽×高×厚</div>
+                                    </div>
+                                    <div class="flex-row cell">
+                                        <div class="label">外尺：&nbsp;</div>
+                                        <div class="value info-border-bottom">1111×1111×11</div>
+                                    </div>
+                                    <div class="flex-row cell">
+                                        <div class="label">外门板：</div>
+                                        <div class="value info-border-bottom">1111×1111×11</div>
+                                    </div>
+                                    <div class="flex-row cell">
+                                        <div class="label">内门板：</div>
+                                        <div class="value info-border-bottom">1111×1111×11</div>
+                                    </div>
+                                    <div class="flex-row cell">
+                                        <div class="label">门花：&nbsp;</div>
+                                        <div class="value info-border-bottom">1111×1111×11</div>
+                                    </div>
+                                    <div class="flex-row cell">
+                                        <div class="label">门头花：</div>
+                                        <div class="value">1111×1111×11</div>
+                                    </div>
+                                </div>
+                                <div class="flex-column flex-110">
+                                    <div class="cell">
+                                        <div class="value">{{ section["特别要求"] }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="height: 60px">
+                            <div class="cell">
+                                <div class="value center">{{ section["花件厚度"] }}mm花 {{ section["花件颜色"] }}</div>
+                            </div>
+                        </div>
+                        <div class="row flex-110"></div>
+                    </div>
                 </div>
-                <app-image class="img" [src]="cad.img" [bigPicSrc]="cad.imgLarge" [ngStyle]="cad.imgStyle"></app-image>
-                <mat-card-footer>
-                    <div *ngIf="cad.calcW > 0 && cad.calcH > 0">{{ cad.calcW }}×{{ cad.calcH }}</div>
-                </mat-card-footer>
-            </mat-card>
-        </div>
-        <div class="footer">第{{ i + 1 }}页，共{{ orders.length }}页</div>
-    </mat-expansion-panel>
+            </ng-container>
+            <ng-template #cads>
+                <div class="cads">
+                    <mat-card *ngFor="let cad of order.cads" class="cad" [ngStyle]="cad.style">
+                        <div class="header">
+                            <div *ngFor="let str of cad.data.info['标签信息']">{{ str }}</div>
+                        </div>
+                        <app-image class="img" [src]="cad.img" [bigPicSrc]="cad.imgLarge" [ngStyle]="cad.imgStyle"></app-image>
+                        <mat-card-footer>
+                            <div *ngIf="cad.calcW > 0 && cad.calcH > 0">{{ cad.calcW }}×{{ cad.calcH }}</div>
+                        </mat-card-footer>
+                    </mat-card>
+                </div>
+            </ng-template>
+            <div class="footer">第{{ i + 1 }}页，共{{ orders.length }}页</div>
+        </mat-expansion-panel>
+    </ng-container>
 </mat-accordion>
 <div class="btn-group toolbar no-print">
     <button mat-raised-button color="primary" (click)="print()">打印</button>
+    <ng-container *ngIf="!production">
+        <mat-slide-toggle [(ngModel)]="config.showCadSmallImg" (change)="onConfigChange()">渲染小图</mat-slide-toggle>
+        <mat-slide-toggle [(ngModel)]="config.showCadLargeImg" (change)="onConfigChange()">渲染大图</mat-slide-toggle>
+    </ng-container>
 </div>

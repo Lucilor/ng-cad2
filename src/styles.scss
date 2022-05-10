@@ -223,3 +223,15 @@ ng-scrollbar.ng-scrollbar {
     max-width: 1000px;
     margin: auto;
 }
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+.flex-110 {
+    flex: 1 1 0;
+}

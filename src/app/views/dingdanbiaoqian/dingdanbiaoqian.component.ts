@@ -1,14 +1,16 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {imgLoading} from "@app/app.common";
+import {imgLoading, session} from "@app/app.common";
 import {getCadPreview} from "@app/cad.utils";
 import {CadData, CadLine, CadViewerConfig, setLinesLength} from "@cad-viewer";
+import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf, timeout} from "@utils";
 import CSS from "csstype";
+import JsBarcode from "jsbarcode";
 import {cloneDeep} from "lodash";
 
 export interface Order {
@@ -26,6 +28,13 @@ export interface Order {
     }[];
     positions: number[][];
     style: CSS.Properties;
+    info: ObjectOf<string | number>[] | null;
+}
+
+export interface SectionConfig {
+    rows: {
+        cells: {key: string; label?: string; isBoolean?: boolean}[];
+    }[];
 }
 
 @Component({
@@ -41,6 +50,44 @@ export class DingdanbiaoqianComponent implements OnInit {
     pagePadding = [17, 17, 5, 17];
     cadSize = [218, 186];
     fixedLengthTextSize = 20;
+    sectionConfig: SectionConfig = {
+        rows: [
+            {
+                cells: [
+                    {key: "经销商名字", label: "客户"},
+                    {key: "订单编号", label: "编号"}
+                ]
+            },
+            {
+                cells: [{key: "款式"}, {key: "开式"}]
+            },
+            {cells: [{key: "锁型", label: "锁型"}]},
+            {cells: [{key: "底框"}, {key: "铰型"}, {key: "商标"}]},
+            {
+                cells: [
+                    {key: "猫眼", isBoolean: true},
+                    {key: "安装孔", isBoolean: true},
+                    {key: "拉片", isBoolean: true}
+                ]
+            },
+            {cells: [{key: "内门类型"}]},
+            {
+                cells: [
+                    {key: "内门锁型", label: "锁型"},
+                    {key: "内门猫眼", label: "猫眼"},
+                    {key: "内门页厚", label: "页厚"}
+                ]
+            }
+        ]
+    };
+    production = environment.production;
+    @ViewChildren("barcode") barcodeEls?: QueryList<HTMLDivElement>;
+
+    private _configKey = "订单标签配置";
+    config = {
+        showCadSmallImg: true,
+        showCadLargeImg: true
+    };
 
     constructor(
         private route: ActivatedRoute,
@@ -52,13 +99,26 @@ export class DingdanbiaoqianComponent implements OnInit {
 
     ngOnInit() {
         setTimeout(() => this.getOrders(), 0);
+        this._loadConfig();
+    }
+
+    private _saveConfig() {
+        console.log(this.config);
+        session.save<DingdanbiaoqianComponent["config"]>(this._configKey, this.config);
+    }
+
+    private _loadConfig() {
+        const config = session.load<DingdanbiaoqianComponent["config"]>(this._configKey);
+        if (config) {
+            this.config = config;
+        }
     }
 
     async getOrders() {
         const url = "order/order/dingdanbiaoqian";
         const params = this.route.snapshot.queryParams;
         this.spinner.show(this.spinner.defaultLoaderId, {text: "获取数据..."});
-        const response = await this.dataService.post<{code: string; cads: ObjectOf<any>[]}[]>(url, params);
+        const response = await this.dataService.post<{code: string; cads: ObjectOf<any>[]; 流程单数据: ObjectOf<string>}[]>(url, params);
         if (response?.data) {
             this.spinner.show(this.spinner.defaultLoaderId, {text: "生成预览图..."});
             const {cadsRowNum, cadsColNum} = this;
@@ -68,6 +128,7 @@ export class DingdanbiaoqianComponent implements OnInit {
                     const img = imgLoading;
                     const imgLarge = imgLoading;
                     const data = new CadData(cad);
+                    // JsBarcode("",) ;
 
                     if (!data.type.includes("企料") && !data.shouldShowIntersection) {
                         const lines: CadLine[] = [];
@@ -93,11 +154,19 @@ export class DingdanbiaoqianComponent implements OnInit {
                         imgStyle: {}
                     };
                 });
+                this.sectionConfig.rows.forEach((row) => {
+                    row.cells.forEach(({key, isBoolean}) => {
+                        if (isBoolean) {
+                            order.流程单数据[key] = order.流程单数据[key] ? "✔" : "✖";
+                        }
+                    });
+                });
                 return {
                     code: order.code,
                     cads,
                     positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
-                    style: {}
+                    style: {},
+                    info: Array(3).fill(order.流程单数据) || []
                 };
             });
             this.splitOrders();
@@ -117,14 +186,23 @@ export class DingdanbiaoqianComponent implements OnInit {
                 return this.sanitizer.bypassSecurityTrustUrl(imgUrl);
             };
             const dataAll = this.orders.map((v) => v.cads).flat();
-            await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.data, v.imgSize[0], v.imgSize[1]))));
-            // await Promise.all(dataAll.map(async (v) => (v.img = "assets/images/empty.jpg")));
+            const {showCadSmallImg, showCadLargeImg} = this.config;
+            if (showCadSmallImg) {
+                await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.data, v.imgSize[0], v.imgSize[1]))));
+            } else {
+                await Promise.all(dataAll.map(async (v) => (v.img = "assets/images/empty.jpg")));
+            }
             this.spinner.hide(this.spinner.defaultLoaderId);
             await timeout(0);
-            await Promise.all(dataAll.map(async (v) => (v.imgLarge = await getImg(v.data, innerWidth * 0.85, innerHeight * 0.85))));
+            if (showCadLargeImg) {
+                await Promise.all(dataAll.map(async (v) => (v.imgLarge = await getImg(v.data, innerWidth * 0.85, innerHeight * 0.85))));
+            } else {
+                await Promise.all(dataAll.map(async (v) => delete v.imgLarge));
+            }
         } else {
             this.spinner.hide(this.spinner.defaultLoaderId);
         }
+        JsBarcode(".barcode").init({displayValue: false, margin: 1000});
     }
 
     takeEmptyPosition(positions: Order["positions"], isLarge: boolean) {
@@ -169,6 +247,8 @@ export class DingdanbiaoqianComponent implements OnInit {
                 this.orders.push(o);
                 return o;
             };
+            pushOrder();
+            order.info = null;
             let orderCurr = pushOrder();
             let orderPrev: Order | null = null;
             for (let i = 0; i < cads.length; i++) {
@@ -223,5 +303,9 @@ export class DingdanbiaoqianComponent implements OnInit {
             width: `${pageSize[0]}px`,
             height: `${pageSize[1]}px`
         };
+    }
+
+    onConfigChange() {
+        this._saveConfig();
     }
 }

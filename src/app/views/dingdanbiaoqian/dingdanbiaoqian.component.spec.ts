@@ -1,6 +1,8 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
+import {FormsModule} from "@angular/forms";
 import {MatCardModule} from "@angular/material/card";
 import {MatExpansionModule} from "@angular/material/expansion";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {imgEmpty} from "@app/app.common";
 import {CadData} from "@cad-viewer";
 import {HttpModule} from "@modules/http/http.module";
@@ -18,6 +20,7 @@ const orders: Order[] = [
                 isLarge: true,
                 img: imgEmpty,
                 imgLarge: imgEmpty,
+                imgSize: [100, 100],
                 calcW: 100,
                 calcH: 100,
                 style: {},
@@ -25,7 +28,8 @@ const orders: Order[] = [
             }
         ],
         positions: [],
-        style: {}
+        style: {},
+        info: [{}, {}, {}]
     }
 ];
 
@@ -36,7 +40,16 @@ describe("DingdanbiaoqianComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [DingdanbiaoqianComponent],
-            imports: [HttpModule, ImageModule, MatCardModule, MatExpansionModule, MessageModule, SpinnerModule]
+            imports: [
+                FormsModule,
+                HttpModule,
+                ImageModule,
+                MatCardModule,
+                MatExpansionModule,
+                MatSlideToggleModule,
+                MessageModule,
+                SpinnerModule
+            ]
         }).compileComponents();
     });
 

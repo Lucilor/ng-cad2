@@ -10,3 +10,9 @@
         height: 30px;
     }
 }
+
+@media print {
+    .nav {
+        display: none;
+    }
+}

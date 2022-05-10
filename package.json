@@ -33,6 +33,7 @@
     "color": "^4.2.3",
     "csstype": "^3.0.11",
     "highlight.js": "^11.5.1",
+    "jsbarcode": "^3.11.5",
     "jsoneditor": "^9.7.4",
     "lodash": "^4.17.21",
     "luxon": "^2.3.2",
