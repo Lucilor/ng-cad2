@@ -138,8 +138,13 @@ export class CadLineTjqzComponent {
     async onCellFocusRight(event: CellEvent<RawDataRight>) {
         const {type, index} = this.openSelection;
         if (event.field === "name" && index > -1) {
-            const keys = this.dataLeft.data[index].key.split(/,|，/).filter((v) => v);
-            const values = event.item.name.split(/,|，/);
+            const keys = this.dataLeft.data[index].key.split(/;|；|,|，/).filter((v) => v);
+            let values: string[];
+            if (event.item.name.match(/;|；/)) {
+                values = event.item.name.split(/;|；/);
+            } else {
+                values = event.item.name.split(/,|，/);
+            }
             let data: CadLineTjqzSelectData;
             if (keys.length) {
                 if (type.includes("数值")) {
@@ -160,7 +165,7 @@ export class CadLineTjqzComponent {
                     if (result.value) {
                         arr.unshift(result.value);
                     }
-                    this.dataRight.data[event.rowIdx].name = arr.map((v) => v.value).join(",");
+                    this.dataRight.data[event.rowIdx].name = arr.map((v) => v.value).join(";");
                 }
             }
         }
