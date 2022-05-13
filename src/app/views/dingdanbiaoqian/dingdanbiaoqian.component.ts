@@ -128,8 +128,15 @@ export class DingdanbiaoqianComponent implements OnInit {
                     const img = imgLoading;
                     const imgLarge = imgLoading;
                     const data = new CadData(cad);
-                    // JsBarcode("",) ;
 
+                    data.entities.dimension = data.entities.dimension.filter((e) => {
+                        if (e.mingzi.match(/(铰|锁|顶)包边正面宽|活动标注|显示公式/)) {
+                            e.qujian = "";
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
                     if (!data.type.includes("企料") && !data.shouldShowIntersection) {
                         const lines: CadLine[] = [];
                         data.entities.line.forEach((e) => {
