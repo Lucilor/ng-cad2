@@ -81,8 +81,8 @@
                     "options": {
                         "browserTarget": "ng-cad2:build",
                         "ssl": true,
-                        "sslCert": "C:/Users/91197/Documents/ssl/localhost.crt",
-                        "sslKey": "C:/Users/91197/Documents/ssl/localhost.key",
+                        "sslCert": "ssl/localhost.crt",
+                        "sslKey": "ssl/localhost.key",
                         "proxyConfig": "proxy.config.json"
                     },
                     "configurations": {
