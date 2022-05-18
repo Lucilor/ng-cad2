@@ -8,7 +8,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {timeout} from "@utils";
-import CSS from "csstype";
+import {Properties} from "csstype";
 import {cloneDeep} from "lodash";
 
 export interface Bancai {
@@ -30,7 +30,7 @@ export interface Bancai {
     规格: number[];
     expanded: boolean;
     pageNum: number;
-    pageBreakAfter: CSS.Properties["pageBreakAfter"];
+    pageBreakAfter: Properties["pageBreakAfter"];
     printPageIndex: number;
 }
 
@@ -123,9 +123,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
             };
             const collection = this.status.collection$.value;
             const getImg = async (data: CadData) =>
-                this.sanitizer.bypassSecurityTrustUrl(
-                    await getCadPreview(collection, data, this.dataService, {fixedLengthTextSize, config, disableCache: true})
-                );
+                this.sanitizer.bypassSecurityTrustUrl(await getCadPreview(collection, data, {fixedLengthTextSize, config}));
             await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.cad))));
             this.spinner.hide(this.spinner.defaultLoaderId);
             await timeout(0);

@@ -2,7 +2,7 @@ import {Component, OnInit} from "@angular/core";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService, CadPoints} from "@services/app-status.service";
-import CSS from "csstype";
+import {Properties} from "csstype";
 
 @Component({
     selector: "app-cad-points",
@@ -33,6 +33,6 @@ export class CadPointsComponent extends Subscribed() implements OnInit {
             height: `${size}px`,
             left: `${p.x}px`,
             top: `${p.y}px`
-        } as CSS.Properties;
+        } as Properties;
     }
 }

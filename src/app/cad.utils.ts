@@ -25,25 +25,19 @@ import {CadCollection} from "./app.common";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
-export interface CadPreviewParams {
+export interface CadPreviewRawParams {
     fixedLengthTextSize?: number;
     config?: Partial<CadViewerConfig>;
-    disableCache?: boolean;
+    autoSize?: boolean;
 }
-export const getCadPreview = async (collection: CadCollection, data: CadData, http: HttpService, params: CadPreviewParams = {}) => {
-    if (!params?.disableCache) {
-        const response = await http.post<{url: string | null}>("ngcad/getCadImg", {id: data.id});
-        if (response?.data?.url) {
-            return response.data.url;
-        }
-    }
+export const getCadPreviewRaw = async (collection: CadCollection, data: CadData, params: CadPreviewRawParams = {}) => {
     const fixedLengthTextSize = params.fixedLengthTextSize;
     const shiyitu = isShiyitu(data);
     const cad = new CadViewer(new CadData(), {
         width: 300,
         height: 150,
         padding: [5],
-        backgroundColor: "black",
+        backgroundColor: "rgba(0,0,0,0)",
         hideLineLength: collection === "CADmuban" || shiyitu,
         hideLineGongshi: true,
         ...params.config
@@ -58,6 +52,10 @@ export const getCadPreview = async (collection: CadCollection, data: CadData, ht
         cad.data.entities.mtext = [];
     }
     await cad.render();
+    if (params.autoSize) {
+        const {width, height} = cad.data.getBoundingRect();
+        cad.resize(width, height);
+    }
     cad.center();
     if (fixedLengthTextSize) {
         const resize = () => {
@@ -79,6 +77,21 @@ export const getCadPreview = async (collection: CadCollection, data: CadData, ht
         resize();
         resize();
     }
+    return cad;
+};
+
+export interface CadPreviewParams extends CadPreviewRawParams {
+    http?: HttpService;
+}
+export const getCadPreview = async (collection: CadCollection, data: CadData, params: CadPreviewParams = {}) => {
+    const http = params.http;
+    if (http) {
+        const response = await http.post<{url: string | null}>("ngcad/getCadImg", {id: data.id}, {silent: true});
+        if (response?.data?.url) {
+            return response.data.url;
+        }
+    }
+    const cad = await getCadPreviewRaw(collection, data, params);
     const url = await cad.toDataURL();
     cad.destroy();
     return url;
@@ -556,7 +569,6 @@ export const setCadData = (data: CadData, project: string) => {
     } else {
         delete data.info.skipSuanliaodanZoom;
     }
-    data.partners.forEach((v) => setCadData(v, project));
 };
 
 export interface ValidateResult {
@@ -648,7 +660,7 @@ export const autoFixLine = (cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
 export const suanliaodanZoomIn = (data: CadData) => {
     data.components.data.forEach((v) => {
         v.entities.forEach((e) => {
-            e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
+            e.calcBoundingRect = e.calcBoundingRect && (e instanceof CadLineLike || e instanceof CadImage);
         });
         if (v.info.skipSuanliaodanZoom) {
             return;
@@ -686,3 +698,66 @@ export const suanliaodanZoomOut = (data: CadData) => {
     });
     data.updateComponents();
 };
+
+export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post") => {
+    let cadImage = data.entities.image.find((e) => e.info.isPreviewImg);
+    if (!cadImage && mode === "pre") {
+        return null;
+    }
+    if (cadImage) {
+        cadImage.calcBoundingRect = false;
+        cadImage.calcBoundingRectForce = false;
+        return cadImage;
+    }
+    cadImage = new CadImage();
+    cadImage.layer = "预览图";
+    cadImage.info.isPreviewImg = true;
+    cadImage.anchor.set(0.5, 0.5);
+    const cad = await getCadPreviewRaw("cad", data, {autoSize: true, config: {padding: [0]}});
+    cadImage.url = await cad.toDataURL();
+    const {x, y} = cad.data.getBoundingRect();
+    cad.destroy();
+    cadImage.position.set(x, y);
+
+    data.entities.forEach((e) => {
+        e.visible = false;
+        e.calcBoundingRectForce = true;
+    });
+    cadImage.calcBoundingRect = false;
+    cadImage.calcBoundingRectForce = false;
+    cadImage.visible = true;
+    data.entities.add(cadImage);
+    return cadImage;
+};
+// export const updateCadPreviewImg = async (data: CadData, http: HttpService, mode: "pre" | "post") => {
+//     let cadImage = data.entities.image.find((e) => e.info.isPreviewImg);
+//     if (!cadImage && mode === "pre") {
+//         return null;
+//     }
+//     if (cadImage) {
+//         cadImage.calcBoundingRect = false;
+//         cadImage.calcBoundingRectForce = false;
+//         return null;
+//     }
+//     if (!cadImage) {
+//         cadImage = new CadImage();
+//         cadImage.layer = "预览图";
+//         cadImage.info.isPreviewImg = true;
+//         cadImage.anchor.set(0.5, 0.5);
+//     }
+//     cadImage.url = await getCadPreview("cad", data, {http});
+//     const {x, y, width, height} = data.getBoundingRect();
+//     console.log(width, height);
+//     cadImage.position.set(x, y);
+
+//     data.entities.forEach((e) => {
+//         e.visible = true;
+//         e.calcBoundingRectForce = true;
+//     });
+//     cadImage.calcBoundingRect = false;
+//     cadImage.calcBoundingRectForce = false;
+//     cadImage.visible = true;
+//     cadImage.targetSize = new Point(width, height);
+//     data.entities.add(cadImage);
+//     return cadImage;
+// };

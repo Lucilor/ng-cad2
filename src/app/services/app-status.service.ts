@@ -1,7 +1,15 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
 import {CadCollection, local, timer} from "@app/app.common";
-import {setCadData, prepareCadViewer, validateLines, ValidateResult, suanliaodanZoomIn, suanliaodanZoomOut} from "@app/cad.utils";
+import {
+    setCadData,
+    prepareCadViewer,
+    validateLines,
+    ValidateResult,
+    suanliaodanZoomIn,
+    suanliaodanZoomOut,
+    updateCadPreviewImg
+} from "@app/cad.utils";
 import {
     CadData,
     CadLine,
@@ -169,6 +177,18 @@ export class AppStatusService {
             this.config.setConfig({hideLineLength: true, hideLineGongshi: true}, {sync: false});
         }
 
+        const shouldUpdatePreview = collection === "CADmuban" && (this.project === "hdmy" || !environment.production);
+        if (shouldUpdatePreview) {
+            await Promise.all(
+                data.components.data.map(async (v) => {
+                    const cadImage = await updateCadPreviewImg(v, "pre");
+                    if (cadImage) {
+                        await cad.render(cadImage);
+                    }
+                })
+            );
+        }
+
         const id = data.id;
         const {id: id2, collection: collection2} = this.route.snapshot.queryParams;
         if (id !== id2 || collection !== collection2) {
@@ -191,6 +211,18 @@ export class AppStatusService {
         cad.center();
         this.updateCadTotalLength();
         this.updateTitle();
+
+        if (shouldUpdatePreview) {
+            await Promise.all(
+                data.components.data.map(async (v) => {
+                    const cadImage = await updateCadPreviewImg(v, "post");
+                    if (cadImage) {
+                        await cad.render(cadImage);
+                    }
+                })
+            );
+        }
+
         timer.end(timerName, "打开CAD");
     }
 
@@ -293,6 +325,9 @@ export class AppStatusService {
         entities = entities ?? this.cad.data.getAllEntities();
         const selected = opt?.selected ?? false;
         entities.forEach((e) => {
+            if (!e.visible) {
+                return;
+            }
             e.selectable = !(e instanceof CadHatch);
             e.selected = (typeof selected === "function" ? selected(e) : selected) ?? false;
             e.opacity = 1;
@@ -303,6 +338,9 @@ export class AppStatusService {
         entities = entities ?? this.cad.data.getAllEntities();
         const selected = opt?.selected ?? false;
         entities.forEach((e) => {
+            if (!e.visible) {
+                return;
+            }
             e.selectable = false;
             e.selected = (typeof selected === "function" ? selected(e) : selected) ?? false;
             e.opacity = 0.3;

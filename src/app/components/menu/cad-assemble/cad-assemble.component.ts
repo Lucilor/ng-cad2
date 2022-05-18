@@ -6,6 +6,7 @@ import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusAssemble} from "@services/cad-status";
 import {difference} from "lodash";
+import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 
 @Component({
     selector: "app-cad-assemble",
@@ -35,7 +36,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             if (cadStatus instanceof CadStatusAssemble) {
                 const cad = this.status.cad;
-                prevConfig = this.config.setConfig({selectMode: "multiple"}, {sync: false});
+                prevConfig = this.config.setConfig({selectMode: "multiple", entityDraggable: []}, {sync: false});
                 prevSelectedComponents = this.status.components.selected$.value;
                 this.status.components.selected$.next([]);
                 prevComponentsSelectable = this.status.components.selectable$.value;
@@ -124,7 +125,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         const data = this.data;
         const selected = cad.selected().toArray();
         const ids = selected.map((e) => e.id);
-        if (multi) {
+        if (multi || (selected.length === 1 && selected[0] instanceof CadImage)) {
             data.components.data.forEach((v) => {
                 if (ids.some((id) => v.findEntity(id))) {
                     const selectedComponents = this.status.components.selected$.value;

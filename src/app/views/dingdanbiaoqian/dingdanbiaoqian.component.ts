@@ -9,7 +9,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf, timeout} from "@utils";
-import CSS from "csstype";
+import {Properties} from "csstype";
 import JsBarcode from "jsbarcode";
 import {cloneDeep} from "lodash";
 
@@ -23,11 +23,11 @@ export interface Order {
         imgSize: [number, number];
         calcW: number;
         calcH: number;
-        style: CSS.Properties;
-        imgStyle: CSS.Properties;
+        style: Properties;
+        imgStyle: Properties;
     }[];
     positions: number[][];
-    style: CSS.Properties;
+    style: Properties;
     info: ObjectOf<string | number>[] | null;
 }
 
@@ -189,7 +189,7 @@ export class DingdanbiaoqianComponent implements OnInit {
             const collection = this.status.collection$.value;
             const getImg = async (data: CadData, width: number, height: number) => {
                 const config: Partial<CadViewerConfig> = {...configBase, width, height};
-                const imgUrl = await getCadPreview(collection, data, this.dataService, {fixedLengthTextSize, config, disableCache: true});
+                const imgUrl = await getCadPreview(collection, data, {fixedLengthTextSize, config});
                 return this.sanitizer.bypassSecurityTrustUrl(imgUrl);
             };
             const dataAll = this.orders.map((v) => v.cads).flat();

@@ -148,7 +148,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const node: CadNode = {data, img: imgLoading, checked: false};
         const collection = this.status.collection$.value;
         setTimeout(() => {
-            getCadPreview(collection, node.data, this.dataService).then((img) => {
+            getCadPreview(collection, node.data, {http: this.dataService}).then((img) => {
                 node.img = this.sanitizer.bypassSecurityTrustUrl(img) as string;
             });
         }, 0);
@@ -242,7 +242,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             return;
         }
         const data = this.contextMenuCad.data;
-        console.log(data);
         const checkedItems = data.components.data.map((v) => v.id);
         const qiliao = this.status.collection$.value === "qiliaozuhe";
         const feilei = [

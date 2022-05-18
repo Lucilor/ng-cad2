@@ -94,15 +94,17 @@ export class HttpService {
         if (environment.unitTest) {
             return null;
         }
+        const encrypt = options?.encrypt ?? "no";
+        const silent = !!options?.silent;
         const timerName = `http.request.${url}.${timer.now}`;
-        timer.start(timerName);
+        if (!silent) {
+            timer.start(timerName);
+        }
         const rawUrl = url;
         if (!url.startsWith("http")) {
             url = `${this.baseURL}${url}`;
         }
         let response: CustomResponse<T> | null = null;
-        const encrypt = options?.encrypt ?? "no";
-        const silent = !!options?.silent;
         try {
             if (method === "GET") {
                 if (data) {
@@ -191,7 +193,9 @@ export class HttpService {
             return null;
         } finally {
             this.lastResponse = response;
-            timer.end(timerName, `${method} ${rawUrl}`);
+            if (!silent) {
+                timer.end(timerName, `${method} ${rawUrl}`);
+            }
         }
     }
 

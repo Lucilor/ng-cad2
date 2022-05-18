@@ -16,7 +16,7 @@
                 {{ main.data.name }}
             </span>
             <div class="content">
-                <img [src]="main.img" />
+                <img class="cad-preview" [src]="main.img" />
             </div>
         </div>
     </div>
@@ -56,7 +56,7 @@
                     {{ item.data.name }}
                 </mat-checkbox>
                 <div class="content">
-                    <img [src]="item.img" (click)="selectComponent(i)" />
+                    <img class="cad-preview" [src]="item.img" (click)="selectComponent(i)" />
                 </div>
             </div>
         </div>

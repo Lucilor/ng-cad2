@@ -138,6 +138,12 @@ export class CadDataService extends HttpService {
             const resData = response.data;
             const restore = await this._resolveMissingCads(response);
             if (typeof restore === "boolean") {
+                if (params.collection === "CADmuban") {
+                    params.cadData.components.data.forEach((v) => {
+                        const entities = v.entities;
+                        entities.image = entities.image.filter((e) => !e.info.convertCadToImage);
+                    });
+                }
                 return await this.setCad({...params, restore}, options);
             } else {
                 return new CadData(resData);

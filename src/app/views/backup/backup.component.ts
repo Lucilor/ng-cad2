@@ -121,7 +121,7 @@ export class BackupComponent implements AfterViewInit {
             const collection = this.status.collection$.value;
             await Promise.all(
                 this.data.map(async (v) => {
-                    const url = await getCadPreview(collection, v.data, this.dataService);
+                    const url = await getCadPreview(collection, v.data, {http: this.dataService});
                     v.img = this.sanitizer.bypassSecurityTrustUrl(url);
                 })
             );
