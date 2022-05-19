@@ -66,7 +66,7 @@
             {{ cast(data, "book").btnTexts?.prev || "上一页" }}
         </button>
         <button mat-raised-button (click)="setPage(page + 1)" [disabled]="page >= maxPage">
-            {{ cast(data, "book").btnTexts?.prev || "上一页" }}
+            {{ cast(data, "book").btnTexts?.prev || "下一页" }}
         </button>
         <button mat-raised-button (click)="cancle()">
             {{ cast(data, "book").btnTexts?.exit || "退出" }}
