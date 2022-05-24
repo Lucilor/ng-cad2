@@ -702,12 +702,23 @@ export const suanliaodanZoomOut = (data: CadData) => {
 export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post") => {
     let cadImage = data.entities.image.find((e) => e.info.isPreviewImg);
     if (!cadImage && mode === "pre") {
-        return null;
+        return;
     }
+
+    const finish = () => {
+        data.entities.forEach((e) => {
+            e.visible = false;
+            e.calcBoundingRectForce = true;
+        });
+        if (cadImage) {
+            cadImage.calcBoundingRect = false;
+            cadImage.calcBoundingRectForce = false;
+            cadImage.visible = true;
+        }
+    };
     if (cadImage) {
-        cadImage.calcBoundingRect = false;
-        cadImage.calcBoundingRectForce = false;
-        return cadImage;
+        finish();
+        return;
     }
     cadImage = new CadImage();
     cadImage.layer = "预览图";
@@ -718,16 +729,9 @@ export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post") =
     const {x, y} = cad.data.getBoundingRect();
     cad.destroy();
     cadImage.position.set(x, y);
-
-    data.entities.forEach((e) => {
-        e.visible = false;
-        e.calcBoundingRectForce = true;
-    });
-    cadImage.calcBoundingRect = false;
-    cadImage.calcBoundingRectForce = false;
-    cadImage.visible = true;
     data.entities.add(cadImage);
-    return cadImage;
+
+    finish();
 };
 // export const updateCadPreviewImg = async (data: CadData, http: HttpService, mode: "pre" | "post") => {
 //     let cadImage = data.entities.image.find((e) => e.info.isPreviewImg);

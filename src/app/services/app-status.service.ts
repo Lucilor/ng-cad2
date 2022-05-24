@@ -178,15 +178,14 @@ export class AppStatusService {
         }
 
         const shouldUpdatePreview = collection === "CADmuban" && (this.project === "hdmy" || !environment.production);
-        if (shouldUpdatePreview) {
+        const updatePreview = async (data2: CadData) =>
             await Promise.all(
-                data.components.data.map(async (v) => {
-                    const cadImage = await updateCadPreviewImg(v, "pre");
-                    if (cadImage) {
-                        await cad.render(cadImage);
-                    }
+                data2.components.data.map(async (v) => {
+                    await updateCadPreviewImg(v, "pre");
                 })
             );
+        if (shouldUpdatePreview) {
+            await updatePreview(data);
         }
 
         const id = data.id;
@@ -213,14 +212,8 @@ export class AppStatusService {
         this.updateTitle();
 
         if (shouldUpdatePreview) {
-            await Promise.all(
-                data.components.data.map(async (v) => {
-                    const cadImage = await updateCadPreviewImg(v, "post");
-                    if (cadImage) {
-                        await cad.render(cadImage);
-                    }
-                })
-            );
+            await updatePreview(data);
+            await cad.render();
         }
 
         timer.end(timerName, "打开CAD");
