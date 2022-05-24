@@ -68,7 +68,7 @@
     </div>
     <div class="btn-group">
         <div class="spinner-container">
-            <button mat-raised-button color="primary" [disabled]="!valid" (click)="submit()">
+            <button mat-raised-button color="primary" (click)="submit()">
                 {{ type }}
             </button>
             <app-spinner [id]="submitLoaderId" [inline]="true"></app-spinner>

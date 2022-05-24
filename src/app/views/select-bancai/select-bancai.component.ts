@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, OnInit} from "@angular/core";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {Validators} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
@@ -8,6 +8,7 @@ import {BancaiCad, BancaiList, CadDataService} from "@modules/http/services/cad-
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
+import {typedFormControl, typedFormGroup, TypedFormGroup} from "ngx-forms-typed";
 
 const houduPattern = /^\d+([.]{1}\d+){0,1}$/;
 const guigePattern = /^(\d+([.]{1}\d+){0,1})[^\d^.]+(\d+([.]{1}\d+){0,1})$/;
@@ -18,6 +19,16 @@ export interface BancaiCadExtend extends BancaiCad {
     disabled: boolean;
 }
 
+export interface BancaiForm {
+    mingzi: string;
+    cailiao: string;
+    houdu: string;
+    guige: string;
+    cads: string;
+    oversized: boolean;
+    gas: string;
+}
+
 @Component({
     selector: "app-select-bancai",
     templateUrl: "./select-bancai.component.html",
@@ -26,7 +37,7 @@ export interface BancaiCadExtend extends BancaiCad {
 export class SelectBancaiComponent implements OnInit {
     autoGuige = true;
     sortedCads: BancaiCadExtend[][] = [];
-    bancaiForms: FormGroup[] = [];
+    bancaiForms: TypedFormGroup<BancaiForm>[] = [];
     bancaiList: ObjectOf<BancaiList> = {};
     formIdx = -1;
     codes: string[] = [];
@@ -49,21 +60,16 @@ export class SelectBancaiComponent implements OnInit {
     get currList(): BancaiList {
         const form = this.bancaiForms[this.formIdx];
         if (form) {
-            return this.bancaiList[form.get("mingzi")?.value];
+            return this.bancaiList[form.controls.mingzi?.value];
         } else {
             return {mingzi: "", cailiaoList: [], houduList: [], guigeList: []};
         }
-    }
-
-    get valid() {
-        return this.bancaiForms.every((v) => v.valid && !v.get("oversized")?.value);
     }
 
     constructor(
         private route: ActivatedRoute,
         private dataService: CadDataService,
         private message: MessageService,
-        private formBuilder: FormBuilder,
         private dialog: MatDialog,
         private cd: ChangeDetectorRef,
         private spinner: SpinnerService
@@ -133,7 +139,7 @@ export class SelectBancaiComponent implements OnInit {
         );
     }
 
-    updateSortedCads(bancaiCads: FormGroup | BancaiCad[]) {
+    updateSortedCads(bancaiCads: TypedFormGroup<BancaiForm> | BancaiCad[]) {
         const sortedCads = this.sortedCads;
         if (Array.isArray(bancaiCads)) {
             sortedCads.length = 0;
@@ -207,14 +213,14 @@ export class SelectBancaiComponent implements OnInit {
         bancaiForms.length = 0;
         this.sortedCads.forEach((group) => {
             const bancai = group[0].bancai;
-            const form = this.formBuilder.group({
-                mingzi: bancai.mingzi,
-                cailiao: [bancai.cailiao || "", Validators.required],
-                houdu: [bancai.houdu?.toString() || "", [Validators.required, Validators.pattern(houduPattern)]],
-                guige: [bancai.guige?.join(" × ") || "", [Validators.required, Validators.pattern(guigePattern)]],
-                cads: group.map((v) => v.id).join(","),
-                oversized: group.some((v) => v.oversized),
-                gas: bancai.gas
+            const form = typedFormGroup<BancaiForm>({
+                mingzi: typedFormControl(bancai.mingzi, Validators.required),
+                cailiao: typedFormControl(bancai.cailiao || "", [Validators.required]),
+                houdu: typedFormControl(bancai.houdu?.toString() || "", [Validators.required, Validators.pattern(houduPattern)]),
+                guige: typedFormControl(bancai.guige?.join(" × ") || "", [Validators.required, Validators.pattern(guigePattern)]),
+                cads: typedFormControl(group.map((v) => v.id).join(",")),
+                oversized: typedFormControl(group.some((v) => v.oversized)),
+                gas: typedFormControl(bancai.gas)
             });
             bancaiForms.push(form);
             form.updateValueAndValidity();
@@ -271,8 +277,6 @@ export class SelectBancaiComponent implements OnInit {
             const newGroup: BancaiCadExtend[] = [];
             cads.forEach((cad) => {
                 if (result.includes(cad.id)) {
-                    cad.bancai.cailiao = null;
-                    cad.bancai.houdu = null;
                     cad.bancai.guige = null;
                     newGroup.push(cad);
                 } else {
