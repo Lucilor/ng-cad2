@@ -71,6 +71,10 @@
                     <input type="text" matInput hidden value=" " />
                     <mat-slide-toggle [checked]="item.chai" (change)="item.chai = $event.checked"></mat-slide-toggle>
                 </mat-form-field>
+                <mat-form-field class="fullwidth">
+                    <mat-label>包边正面按分类拼接</mat-label>
+                    <input matInput type="text" [(ngModel)]="item['包边正面按分类拼接']" name="包边正面按分类拼接" />
+                </mat-form-field>
                 <div class="sub-form-field">
                     <div class="label">条件</div>
                     <div *ngIf="item.conditions.length === 0">
