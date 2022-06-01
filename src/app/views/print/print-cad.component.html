@@ -14,7 +14,7 @@
         <button mat-raised-button color="primary" (click)="editDesignPics()">效果图</button>
         <mat-form-field style="width: 150px">
             <mat-label>字体</mat-label>
-            <input type="text" matInput [(ngModel)]="printParams.config.fontFamily" [matAutocomplete]="auto" />
+            <input type="text" matInput [(ngModel)]="fontFamily" [matAutocomplete]="auto" />
             <mat-autocomplete #auto="matAutocomplete">
                 <mat-option *ngFor="let font of fonts" [value]="font">{{ font }}</mat-option>
             </mat-autocomplete>

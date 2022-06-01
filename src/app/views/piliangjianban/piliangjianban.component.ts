@@ -119,7 +119,7 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
                 width: imgSize[0],
                 height: imgSize[1],
                 backgroundColor: "white",
-                fontFamily: "宋体"
+                fontStyle: {family: "宋体"}
             };
             const collection = this.status.collection$.value;
             const getImg = async (data: CadData) =>

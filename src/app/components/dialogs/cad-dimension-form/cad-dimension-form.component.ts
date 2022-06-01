@@ -4,6 +4,7 @@ import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {CadDimension} from "@cad-viewer";
 import {typedFormControl, typedFormGroup} from "ngx-forms-typed";
+import {FontStyle} from "src/cad-viewer/src/cad-data/cad-styles";
 import {getOpenDialogFunc} from "../dialog.common";
 
 export interface CadDimensionData {
@@ -19,7 +20,7 @@ export interface CadDimensionForm {
     axis: CadDimension["axis"];
     ref: CadDimension["ref"];
     distance: CadDimension["distance"];
-    fontSize: CadDimension["font_size"];
+    fontSize: Required<FontStyle>["size"];
     cad1: CadDimension["cad1"];
     cad2: CadDimension["cad2"];
     quzhifanwei: CadDimension["quzhifanwei"];
@@ -50,7 +51,7 @@ export class CadDimensionFormComponent {
             axis: typedFormControl(dimension.axis),
             ref: typedFormControl<CadDimension["ref"]>(dimension.ref),
             distance: typedFormControl(dimension.distance),
-            fontSize: typedFormControl(dimension.font_size),
+            fontSize: typedFormControl(dimension.style?.text?.size || 0),
             cad1: typedFormControl({value: dimension.cad1, disabled: true}),
             cad2: typedFormControl({value: dimension.cad2, disabled: true}),
             quzhifanwei: typedFormControl(dimension.quzhifanwei),
@@ -73,7 +74,7 @@ export class CadDimensionFormComponent {
             dimension.entity2.location = value.e2Location;
             dimension.axis = value.axis;
             dimension.distance = value.distance;
-            dimension.font_size = value.fontSize;
+            dimension.setStyle({text: {size: value.fontSize}});
             dimension.ref = value.ref;
             dimension.quzhifanwei = value.quzhifanwei;
             dimension.hideDimLines = value.hideDimLines;

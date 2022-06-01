@@ -5,13 +5,13 @@
                 <div class="info">
                     <div class="section" *ngFor="let section of order.info">
                         <div class="row" *ngFor="let row of sectionConfig.rows">
-                            <div class="cell border" *ngFor="let cell of row.cells">
+                            <div class="cell border" *ngFor="let cell of row.cells" [ngClass]="cell.class || ''">
                                 <div class="label center">{{ cell.label || cell.key }}</div>
                                 <div class="value center">{{ section[cell.key] }}</div>
                             </div>
                         </div>
                         <div class="row flex-row">
-                            <div class="cell">
+                            <div class="cell" style="height: 60px">
                                 <svg
                                     class="barcode value"
                                     [attr.jsbarcode-value]="order.code"
@@ -19,14 +19,13 @@
                                     [attr.jsbarcode-margin]="0"
                                     [attr.jsbarcode-width]="2"
                                     [attr.jsbarcode-height]="60"
-                                >
-                                </svg>
+                                ></svg>
                             </div>
                             <div class="cell" style="flex: 0 0 auto">
-                                <div class="value">{{ section["花件名字"] }}</div>
+                                <div class="value">{{ section["开单人编号"] }}</div>
                             </div>
                         </div>
-                        <div class="row flex-column">
+                        <div class="row flex-column" style="border-bottom: none">
                             <div class="flex-row" style="width: 100%">
                                 <div class="flex-column flex-110 info-border-right">
                                     <div class="cell">
@@ -34,23 +33,23 @@
                                     </div>
                                     <div class="flex-row cell">
                                         <div class="label">外尺：&nbsp;</div>
-                                        <div class="value info-border-bottom">1111×1111×11</div>
+                                        <div class="value info-border-bottom">{{ section["流程单包框尺寸"] }}</div>
                                     </div>
                                     <div class="flex-row cell">
                                         <div class="label">外门板：</div>
-                                        <div class="value info-border-bottom">1111×1111×11</div>
+                                        <div class="value info-border-bottom">{{ section["流程单门扇信息"] }}</div>
                                     </div>
                                     <div class="flex-row cell">
                                         <div class="label">内门板：</div>
-                                        <div class="value info-border-bottom">1111×1111×11</div>
+                                        <div class="value info-border-bottom">{{ section["流程单内门扇信息"] }}</div>
                                     </div>
                                     <div class="flex-row cell">
                                         <div class="label">门花：&nbsp;</div>
-                                        <div class="value info-border-bottom">1111×1111×11</div>
+                                        <div class="value info-border-bottom">{{ section["流程单花件尺寸"] }}</div>
                                     </div>
                                     <div class="flex-row cell">
                                         <div class="label">门头花：</div>
-                                        <div class="value">1111×1111×11</div>
+                                        <div class="value">{{ section["流程单门头花尺寸"] }}</div>
                                     </div>
                                 </div>
                                 <div class="flex-column flex-110">
@@ -60,12 +59,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row" style="height: 60px">
+                        <div class="row" style="height: 60px; border-bottom: none">
                             <div class="cell">
                                 <div class="value center">{{ section["花件厚度"] }}mm花 {{ section["花件颜色"] }}</div>
                             </div>
                         </div>
-                        <div class="row flex-110"></div>
+                        <div class="row flex-110">
+                            <div class="flex-110">
+                                <app-image [src]="order['开启锁向示意图']?.img"> </app-image>
+                            </div>
+                            <div class="flex-110"></div>
+                        </div>
                     </div>
                 </div>
             </ng-container>
@@ -77,7 +81,11 @@
                         </div>
                         <app-image class="img" [src]="cad.img" [bigPicSrc]="cad.imgLarge" [ngStyle]="cad.imgStyle"></app-image>
                         <mat-card-footer>
-                            <div *ngIf="cad.calcW > 0 && cad.calcH > 0">{{ cad.calcW }}×{{ cad.calcH }}</div>
+                            <div class="cad-size" *ngIf="cad.calcW > 0 && cad.calcH > 0">
+                                <span>{{ cad.calcW }}</span>
+                                <span>×</span>
+                                <span>{{ cad.calcH }}</span>
+                            </div>
                         </mat-card-footer>
                     </mat-card>
                 </div>

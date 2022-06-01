@@ -17,7 +17,6 @@ import {
 } from "@cad-viewer";
 import {HttpService} from "@modules/http/services/http.service";
 import {isNearZero, isBetween, getDPI, getImageDataUrl, loadImage, DEFAULT_TOLERANCE, Point} from "@utils";
-import {cloneDeep} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
@@ -29,6 +28,7 @@ export interface CadPreviewRawParams {
     fixedLengthTextSize?: number;
     config?: Partial<CadViewerConfig>;
     autoSize?: boolean;
+    maxZoom?: number;
 }
 export const getCadPreviewRaw = async (collection: CadCollection, data: CadData, params: CadPreviewRawParams = {}) => {
     const fixedLengthTextSize = params.fixedLengthTextSize;
@@ -60,9 +60,10 @@ export const getCadPreviewRaw = async (collection: CadCollection, data: CadData,
     if (fixedLengthTextSize) {
         const resize = () => {
             const zoom = cad.zoom();
+            const lengthTextSize = fixedLengthTextSize / zoom;
             cad.data.entities.forEach((e) => {
                 if (e instanceof CadLineLike) {
-                    e.lengthTextSize = fixedLengthTextSize / zoom;
+                    e.lengthTextSize = lengthTextSize;
                     e.children.mtext.forEach((mtext) => {
                         mtext.info.offset = [0, 0];
                         // if (mtext.info.offset) {
@@ -76,6 +77,10 @@ export const getCadPreviewRaw = async (collection: CadCollection, data: CadData,
         };
         resize();
         resize();
+    }
+    const maxZoom = params.maxZoom;
+    if (typeof maxZoom === "number" && !isNaN(maxZoom) && cad.zoom() > maxZoom) {
+        cad.zoom(maxZoom);
     }
     return cad;
 };
@@ -391,50 +396,38 @@ export const printCads = async (params: PrintCadsParams) => {
             if (e instanceof CadDimension) {
                 e.linewidth = linewidth;
                 e.selected = true;
-                e.style = {...e.style, ...cloneDeep(dimStyle || {})};
-                if (!e.style.dimensionLine) {
-                    e.style.dimensionLine = {};
-                }
-                e.style.dimensionLine.color = "#505050";
-                e.style.dimensionLine.dashArray = Defaults.DASH_ARRAY;
-                if (!e.style.extensionLines) {
-                    e.style.extensionLines = {};
-                }
-                e.style.extensionLines.color = "#505050";
-                e.style.extensionLines.length = 12;
-                if (!e.style.arrows) {
-                    e.style.arrows = {};
-                }
-                e.style.arrows.color = "#505050";
-                if (colorNumber === 0xff00ff || e.layer === "门扇中间宽标注") {
-                    e.style.arrows.hidden = true;
-                }
+                e.setStyle({
+                    ...dimStyle,
+                    dimensionLine: {color: "#505050", dashArray: Defaults.DASH_ARRAY},
+                    extensionLines: {color: "#505050", length: 12},
+                    arrows: {color: "#505050", hidden: colorNumber === 0xff00ff || e.layer === "门扇中间宽标注"}
+                });
             } else if (e instanceof CadMtext) {
                 const {text, insert} = e;
                 if (e.text.includes("     ") && !isNaN(Number(e.text))) {
-                    if (e.font_size === 24) {
-                        e.font_size = 36;
+                    if (e.fontStyle.size === 24) {
+                        e.fontStyle.size = 36;
                         insert.y += 11;
                         insert.x -= 4;
                     }
-                    if (e.font_size === 22) {
-                        e.font_size = 30;
+                    if (e.fontStyle.size === 22) {
+                        e.fontStyle.size = 30;
                         insert.y += 11;
                         insert.x -= 4;
                     }
                     e.text = text.replace("     ", "");
-                    e.fontFamily = "仿宋";
-                    e.fontWeight = "bolder";
+                    e.fontStyle.family = "仿宋";
+                    e.fontStyle.weight = "bolder";
                 } else {
-                    if (config.fontFamily === "宋体") {
-                        e.font_size += 6;
+                    if (config.fontStyle?.family === "宋体") {
+                        e.fontStyle.size = (e.fontStyle.size || 0) + 6;
                         insert.y -= 5;
                     } else {
                         insert.y -= 12;
                     }
                 }
-                if (e.font_size < 24) {
-                    e.fontWeight = "bolder";
+                if ((e.fontStyle.size || -1) < 24) {
+                    e.fontStyle.weight = "bolder";
                 }
 
                 if (text.match(/^花件信息/)) {

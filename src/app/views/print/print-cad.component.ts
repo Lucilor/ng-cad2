@@ -39,7 +39,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     downloadUrl: string | null = null;
     printParams: Required<PrintCadsParams> = {
         cads: [],
-        config: {fontFamily: this.fonts[0]},
+        config: {fontStyle: {family: this.fonts[0]}},
         linewidth: 2,
         dimStyle: {},
         designPics: {
@@ -53,6 +53,15 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         },
         url: ""
     };
+    get fontFamily() {
+        return this.printParams.config.fontStyle?.family || "";
+    }
+    set fontFamily(value) {
+        if (!this.printParams.config.fontStyle) {
+            this.printParams.config.fontStyle = {};
+        }
+        this.printParams.config.fontStyle.family = value;
+    }
 
     constructor(
         private route: ActivatedRoute,

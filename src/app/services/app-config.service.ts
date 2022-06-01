@@ -50,8 +50,8 @@ export class AppConfigService {
             hideLineLength: false,
             hideLineGongshi: false,
             minLinewidth: 2,
-            fontFamily: "微软雅黑",
-            fontWeight: "normal",
+            fontStyle: {family: "微软雅黑", weight: "normal"},
+            dimStyle: {},
             enableZoom: true,
             dashedLinePadding: 2,
             // 分界线

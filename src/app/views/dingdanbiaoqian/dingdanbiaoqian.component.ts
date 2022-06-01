@@ -1,20 +1,23 @@
 import {Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {imgLoading, session} from "@app/app.common";
+import {imgEmpty, imgLoading, session} from "@app/app.common";
 import {getCadPreview} from "@app/cad.utils";
-import {CadData, CadLine, CadViewerConfig, setLinesLength} from "@cad-viewer";
+import {CadData, CadLine, CadViewerConfig, Defaults, setLinesLength} from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
+import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf, timeout} from "@utils";
 import {Properties} from "csstype";
 import JsBarcode from "jsbarcode";
 import {cloneDeep} from "lodash";
+import {DateTime} from "luxon";
 
 export interface Order {
     code: string;
+    开启锁向示意图?: {data: CadData; img: SafeUrl};
     cads: {
         data: CadData;
         isLarge: boolean;
@@ -33,7 +36,7 @@ export interface Order {
 
 export interface SectionConfig {
     rows: {
-        cells: {key: string; label?: string; isBoolean?: boolean}[];
+        cells: {key: string; label?: string; isBoolean?: boolean; class?: "alt"}[];
     }[];
 }
 
@@ -49,13 +52,13 @@ export class DingdanbiaoqianComponent implements OnInit {
     pageSize = [1122, 792];
     pagePadding = [17, 17, 5, 17];
     cadSize = [218, 186];
-    fixedLengthTextSize = 20;
+    开启锁向示意图Size = [180, 280] as [number, number];
     sectionConfig: SectionConfig = {
         rows: [
             {
                 cells: [
-                    {key: "经销商名字", label: "客户"},
-                    {key: "订单编号", label: "编号"}
+                    {key: "经销商名字", label: "客户", class: "alt"},
+                    {key: "订单编号", label: "编号", class: "alt"}
                 ]
             },
             {
@@ -94,7 +97,8 @@ export class DingdanbiaoqianComponent implements OnInit {
         private dataService: CadDataService,
         private status: AppStatusService,
         private sanitizer: DomSanitizer,
-        private spinner: SpinnerService
+        private spinner: SpinnerService,
+        private message: MessageService
     ) {}
 
     ngOnInit() {
@@ -103,7 +107,6 @@ export class DingdanbiaoqianComponent implements OnInit {
     }
 
     private _saveConfig() {
-        console.log(this.config);
         session.save<DingdanbiaoqianComponent["config"]>(this._configKey, this.config);
     }
 
@@ -118,9 +121,10 @@ export class DingdanbiaoqianComponent implements OnInit {
         const url = "order/order/dingdanbiaoqian";
         const params = this.route.snapshot.queryParams;
         this.spinner.show(this.spinner.defaultLoaderId, {text: "获取数据..."});
-        const response = await this.dataService.post<{code: string; cads: ObjectOf<any>[]; 流程单数据: ObjectOf<string>}[]>(url, params);
+        const response = await this.dataService.post<
+            {code: string; cads: ObjectOf<any>[]; 流程单数据: ObjectOf<string>; 开启锁向示意图: any}[]
+        >(url, params);
         if (response?.data) {
-            this.spinner.show(this.spinner.defaultLoaderId, {text: "生成预览图..."});
             const {cadsRowNum, cadsColNum} = this;
             this.orders = response.data.map((order): Order => {
                 const maxLength = 80;
@@ -129,14 +133,6 @@ export class DingdanbiaoqianComponent implements OnInit {
                     const imgLarge = imgLoading;
                     const data = new CadData(cad);
 
-                    data.entities.dimension = data.entities.dimension.filter((e) => {
-                        if (e.mingzi.match(/(铰|锁|顶)包边正面宽|活动标注|显示公式/)) {
-                            e.qujian = "";
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    });
                     if (!data.type.includes("企料") && !data.shouldShowIntersection) {
                         const lines: CadLine[] = [];
                         data.entities.line.forEach((e) => {
@@ -170,6 +166,7 @@ export class DingdanbiaoqianComponent implements OnInit {
                 });
                 return {
                     code: order.code,
+                    开启锁向示意图: {data: new CadData(order.开启锁向示意图), img: imgEmpty},
                     cads,
                     positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
                     style: {},
@@ -177,39 +174,67 @@ export class DingdanbiaoqianComponent implements OnInit {
                 };
             });
             this.splitOrders();
-            await timeout(0);
+            document.title = `${this.orders[0].code}_${DateTime.now().toFormat("yyyyMMdd")}`;
 
-            const {fixedLengthTextSize} = this;
+            await timeout(0);
+            try {
+                JsBarcode(".barcode").init({displayValue: false, margin: 1000});
+            } catch (error) {
+                let msg = "未知错误";
+                if (typeof error === "string") {
+                    if (error.includes("is not a valid input for CODE128AUTO")) {
+                        msg = "订单编号不能包含中文或特殊字符，请修改订单编号";
+                    }
+                }
+                console.warn(error);
+                this.spinner.hide(this.spinner.defaultLoaderId);
+                this.message.alert("生成条形码出错：" + msg);
+                if (this.production) {
+                    this.orders = [];
+                    return;
+                }
+            }
+
+            this.spinner.show(this.spinner.defaultLoaderId, {text: "生成预览图..."});
             const configBase: Partial<CadViewerConfig> = {
                 hideLineLength: false,
                 hideLineGongshi: true,
                 backgroundColor: "white",
-                fontFamily: "宋体"
+                fontStyle: {family: "宋体"},
+                dimStyle: {
+                    dimensionLine: {color: "#505050", dashArray: Defaults.DASH_ARRAY},
+                    extensionLines: {color: "#505050", length: 12},
+                    arrows: {color: "#505050"},
+                    text: {size: 36}
+                }
             };
             const collection = this.status.collection$.value;
-            const getImg = async (data: CadData, width: number, height: number) => {
-                const config: Partial<CadViewerConfig> = {...configBase, width, height};
-                const imgUrl = await getCadPreview(collection, data, {fixedLengthTextSize, config});
+            const getImg = async (data: CadData, size: [number, number]) => {
+                const config: Partial<CadViewerConfig> = {...configBase, width: size[0], height: size[1]};
+                const imgUrl = await getCadPreview(collection, data, {config, maxZoom: 2.5});
                 return this.sanitizer.bypassSecurityTrustUrl(imgUrl);
             };
-            const dataAll = this.orders.map((v) => v.cads).flat();
             const {showCadSmallImg, showCadLargeImg} = this.config;
-            if (showCadSmallImg) {
-                await Promise.all(dataAll.map(async (v) => (v.img = await getImg(v.data, v.imgSize[0], v.imgSize[1]))));
-            } else {
-                await Promise.all(dataAll.map(async (v) => (v.img = "assets/images/empty.jpg")));
+            const imgLargeSize = [innerWidth * 0.85, innerHeight * 0.85] as [number, number];
+            for (const {cads, 开启锁向示意图} of this.orders) {
+                if (开启锁向示意图) {
+                    开启锁向示意图.img = await getImg(开启锁向示意图.data, this.开启锁向示意图Size);
+                }
+                if (showCadSmallImg) {
+                    await Promise.all(cads.map(async (v) => (v.img = await getImg(v.data, v.imgSize))));
+                } else {
+                    await Promise.all(cads.map(async (v) => (v.img = imgEmpty)));
+                }
+                if (showCadLargeImg) {
+                    await Promise.all(cads.map(async (v) => (v.imgLarge = await getImg(v.data, imgLargeSize))));
+                } else {
+                    await Promise.all(cads.map(async (v) => delete v.imgLarge));
+                }
             }
             this.spinner.hide(this.spinner.defaultLoaderId);
-            await timeout(0);
-            if (showCadLargeImg) {
-                await Promise.all(dataAll.map(async (v) => (v.imgLarge = await getImg(v.data, innerWidth * 0.85, innerHeight * 0.85))));
-            } else {
-                await Promise.all(dataAll.map(async (v) => delete v.imgLarge));
-            }
         } else {
             this.spinner.hide(this.spinner.defaultLoaderId);
         }
-        JsBarcode(".barcode").init({displayValue: false, margin: 1000});
     }
 
     takeEmptyPosition(positions: Order["positions"], isLarge: boolean) {
@@ -256,6 +281,7 @@ export class DingdanbiaoqianComponent implements OnInit {
             };
             pushOrder();
             order.info = null;
+            delete order.开启锁向示意图;
             let orderCurr = pushOrder();
             let orderPrev: Order | null = null;
             for (let i = 0; i < cads.length; i++) {

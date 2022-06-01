@@ -699,7 +699,7 @@ export class CadPortable {
                     mtext = new CadMtext();
                     mtext.anchor.set(0, 0);
                     mtext.insert.set(rect.left - 3000, rect.top);
-                    mtext.font_size = 50;
+                    mtext.fontStyle.size = 50;
                     result.entities.add(mtext);
                 }
                 const strs = [] as string[];
@@ -911,7 +911,6 @@ export class CadPortable {
         dimension.layer = "line-info";
         dimension.dimstyle = "line-info";
         dimension.distance = 10;
-        dimension.font_size = 0;
         dimension.setColor("red");
         dimension.entity1 = {id: e.id, location: "start"};
         dimension.entity2 = {id: e.id, location: "end"};

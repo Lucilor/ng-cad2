@@ -44,8 +44,7 @@ $cads-border: solid 1px grey;
         padding: 5px;
         box-sizing: border-box;
         box-shadow: none;
-        border: $cads-border;
-        border-radius: 0;
+        // border: $cads-border;
         position: absolute;
 
         .header {
@@ -61,6 +60,14 @@ $cads-border: solid 1px grey;
 
         .img {
             flex: 1 1 0;
+        }
+
+        .cad-size {
+            span:first-of-type {
+                border: $cads-border;
+                padding: 3px 10px;
+                background-color: #e5e5e5;
+            }
         }
     }
 }
@@ -109,6 +116,12 @@ $info-border: solid 1px black;
                 }
                 .value {
                     flex: 1 1 0;
+                }
+
+                &.alt {
+                    .value {
+                        font-weight: bold;
+                    }
                 }
             }
         }
