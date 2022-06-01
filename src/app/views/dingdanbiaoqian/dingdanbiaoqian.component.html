@@ -11,14 +11,14 @@
                             </div>
                         </div>
                         <div class="row flex-row">
-                            <div class="cell" style="height: 60px">
+                            <div class="cell" style="height: 40px">
                                 <svg
                                     class="barcode value"
                                     [attr.jsbarcode-value]="order.code"
                                     [attr.jsbarcode-displayvalue]="false"
                                     [attr.jsbarcode-margin]="0"
                                     [attr.jsbarcode-width]="2"
-                                    [attr.jsbarcode-height]="60"
+                                    [attr.jsbarcode-height]="40"
                                 ></svg>
                             </div>
                             <div class="cell" style="flex: 0 0 auto">
@@ -65,10 +65,10 @@
                             </div>
                         </div>
                         <div class="row flex-110">
-                            <div class="flex-110">
+                            <div class="flex-column flex-110" style="height: 100%; padding: 5px; justify-content: flex-end">
                                 <app-image [src]="order['开启锁向示意图']?.img"> </app-image>
                             </div>
-                            <div class="flex-110"></div>
+                            <div style="width: 30%"></div>
                         </div>
                     </div>
                 </div>

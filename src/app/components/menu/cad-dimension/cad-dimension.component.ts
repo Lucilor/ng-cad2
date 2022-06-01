@@ -2,7 +2,7 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {reservedDimNames} from "@app/cad.utils";
-import {CadDimension, CadData, CadLine, CadEventCallBack, CadLineLike, CadEntity} from "@cad-viewer";
+import {CadDimension, CadData, CadLine, CadEventCallBack, CadLineLike, CadEntity, Defaults} from "@cad-viewer";
 import {openCadDimensionFormDialog} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
@@ -94,6 +94,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
             let dimension = dimensions[cadStatus.index];
             if (!dimension) {
                 dimension = new CadDimension();
+                dimension.setStyle({text: {size: Defaults.FONT_SIZE}});
                 dimension.setColor(0x00ff00);
                 let newIndex = 0;
                 newIndex += data.entities.dimension.length;

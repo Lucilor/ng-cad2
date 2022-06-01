@@ -2,7 +2,7 @@ import {Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgEmpty, imgLoading, session} from "@app/app.common";
-import {getCadPreview} from "@app/cad.utils";
+import {CadPreviewParams, getCadPreview} from "@app/cad.utils";
 import {CadData, CadLine, CadViewerConfig, Defaults, setLinesLength} from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -209,24 +209,35 @@ export class DingdanbiaoqianComponent implements OnInit {
                 }
             };
             const collection = this.status.collection$.value;
-            const getImg = async (data: CadData, size: [number, number]) => {
-                const config: Partial<CadViewerConfig> = {...configBase, width: size[0], height: size[1]};
-                const imgUrl = await getCadPreview(collection, data, {config, maxZoom: 2.5});
+            const getImg = async (data: CadData, config: Partial<CadViewerConfig>, autoSize?: boolean) => {
+                const previewParams: CadPreviewParams = {config: {...configBase, ...config}, maxZoom: 2.5, autoSize};
+                const imgUrl = await getCadPreview(collection, data, previewParams);
                 return this.sanitizer.bypassSecurityTrustUrl(imgUrl);
             };
             const {showCadSmallImg, showCadLargeImg} = this.config;
             const imgLargeSize = [innerWidth * 0.85, innerHeight * 0.85] as [number, number];
+            const 开启锁向示意图Size = this.开启锁向示意图Size;
             for (const {cads, 开启锁向示意图} of this.orders) {
                 if (开启锁向示意图) {
-                    开启锁向示意图.img = await getImg(开启锁向示意图.data, this.开启锁向示意图Size);
+                    开启锁向示意图.img = await getImg(
+                        开启锁向示意图.data,
+                        {
+                            width: 开启锁向示意图Size[0],
+                            height: 开启锁向示意图Size[1],
+                            hideLineLength: true
+                        },
+                        true
+                    );
                 }
                 if (showCadSmallImg) {
-                    await Promise.all(cads.map(async (v) => (v.img = await getImg(v.data, v.imgSize))));
+                    await Promise.all(cads.map(async (v) => (v.img = await getImg(v.data, {width: v.imgSize[0], height: v.imgSize[1]}))));
                 } else {
                     await Promise.all(cads.map(async (v) => (v.img = imgEmpty)));
                 }
                 if (showCadLargeImg) {
-                    await Promise.all(cads.map(async (v) => (v.imgLarge = await getImg(v.data, imgLargeSize))));
+                    await Promise.all(
+                        cads.map(async (v) => (v.imgLarge = await getImg(v.data, {width: imgLargeSize[0], height: imgLargeSize[1]})))
+                    );
                 } else {
                     await Promise.all(cads.map(async (v) => delete v.imgLarge));
                 }
