@@ -8,7 +8,6 @@ import {CadZhankai, CadData, FlipType} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
-import {ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
 import {openCadListDialog} from "../cad-list/cad-list.component";
 import {openCadOptionsDialog} from "../cad-options/cad-options.component";
@@ -40,7 +39,8 @@ export class CadZhankaiComponent extends Utils() {
             if (!value) {
                 return true;
             }
-            return this.data.filter((v) => v.name === value).length > 1;
+            return false;
+            // return this.data.filter((v) => v.name === value).length > 1;
         }
     };
     get valid() {
@@ -164,13 +164,13 @@ export class CadZhankaiComponent extends Utils() {
                 this.nameErrorMsg[i] = "名字不能为空";
             }
         });
-        const map: ObjectOf<number[]> = {};
-        names.forEach((v, i) => (map[v] ? map[v].push(i) : (map[v] = [i])));
-        for (const v in map) {
-            if (map[v].length > 1) {
-                map[v].forEach((i) => (this.nameErrorMsg[i] = "名字不能重复"));
-            }
-        }
+        // const map: ObjectOf<number[]> = {};
+        // names.forEach((v, i) => (map[v] ? map[v].push(i) : (map[v] = [i])));
+        // for (const v in map) {
+        //     if (map[v].length > 1) {
+        //         map[v].forEach((i) => (this.nameErrorMsg[i] = "名字不能重复"));
+        //     }
+        // }
     }
 }
 
