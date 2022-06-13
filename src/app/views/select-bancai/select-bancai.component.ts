@@ -3,12 +3,12 @@ import {Validators} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
+import {getFormControl, getFormGroup, TypedFormGroup} from "@app/app.common";
 import {openSelectBancaiCadsDialog} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {BancaiCad, BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
-import {typedFormControl, typedFormGroup, TypedFormGroup} from "ngx-forms-typed";
 
 const houduPattern = /^\d+([.]{1}\d+){0,1}$/;
 const guigePattern = /^(\d+([.]{1}\d+){0,1})[^\d^.]+(\d+([.]{1}\d+){0,1})$/;
@@ -213,14 +213,18 @@ export class SelectBancaiComponent implements OnInit {
         bancaiForms.length = 0;
         this.sortedCads.forEach((group) => {
             const bancai = group[0].bancai;
-            const form = typedFormGroup<BancaiForm>({
-                mingzi: typedFormControl(bancai.mingzi, Validators.required),
-                cailiao: typedFormControl(bancai.cailiao || "", [Validators.required]),
-                houdu: typedFormControl(bancai.houdu?.toString() || "", [Validators.required, Validators.pattern(houduPattern)]),
-                guige: typedFormControl(bancai.guige?.join(" × ") || "", [Validators.required, Validators.pattern(guigePattern)]),
-                cads: typedFormControl(group.map((v) => v.id).join(",")),
-                oversized: typedFormControl(group.some((v) => v.oversized)),
-                gas: typedFormControl(bancai.gas)
+            const form = getFormGroup<BancaiForm>({
+                mingzi: getFormControl(bancai.mingzi, {validators: Validators.required}),
+                cailiao: getFormControl(bancai.cailiao || "", {validators: Validators.required}),
+                houdu: getFormControl(bancai.houdu?.toString() || "", {
+                    validators: [Validators.required, Validators.pattern(houduPattern)]
+                }),
+                guige: getFormControl(bancai.guige?.join(" × ") || "", {
+                    validators: [Validators.required, Validators.pattern(guigePattern)]
+                }),
+                cads: getFormControl(group.map((v) => v.id).join(",")),
+                oversized: getFormControl(group.some((v) => v.oversized)),
+                gas: getFormControl(bancai.gas || "")
             });
             bancaiForms.push(form);
             form.updateValueAndValidity();

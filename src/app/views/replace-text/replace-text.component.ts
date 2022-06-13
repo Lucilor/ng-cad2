@@ -2,24 +2,17 @@ import {Component, OnInit} from "@angular/core";
 import {FormControl, FormGroupDirective, NgForm, ValidatorFn, Validators} from "@angular/forms";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {Router} from "@angular/router";
-import {CadCollection, routesInfo} from "@app/app.common";
+import {CadCollection, getFormControl, getFormGroup, routesInfo} from "@app/app.common";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {typedFormControl, TypedFormControl, typedFormGroup, TypedFormGroup} from "ngx-forms-typed";
 import {BehaviorSubject} from "rxjs";
 
 interface Replacer {
     type: "全等于" | "在开头" | "在结尾" | "在中间";
     description: [string, string];
     regex: (str: string) => RegExp;
-}
-
-interface FormModel {
-    replacer: Replacer;
-    replaceFrom: string;
-    replaceTo: string;
 }
 
 interface ToBeReplaced {
@@ -45,18 +38,17 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
             regex: (f) => new RegExp(`^(?!${f}).*${f}.*(?<!${f})$`)
         }
     ];
-    form = typedFormGroup(
+    form = getFormGroup(
         {
-            replacer: typedFormControl(this.replacers[0]),
-            replaceFrom: typedFormControl("", Validators.required),
-            replaceTo: typedFormControl("", Validators.required)
+            replacer: getFormControl(this.replacers[0]),
+            replaceFrom: getFormControl("", {validators: Validators.required}),
+            replaceTo: getFormControl("", {validators: Validators.required})
         },
-        this.replaceStrValidator()
-    ) as TypedFormGroup<FormModel>;
+        {validators: this.replaceStrValidator()}
+    );
     get replacerDesc() {
-        const replacer: Replacer = this.form.value.replacer;
-        const {replaceFrom, replaceTo} = this.form.value;
-        if (!replaceFrom || !replaceTo || replaceFrom === replaceTo) {
+        const {replacer, replaceFrom, replaceTo} = this.form.value;
+        if (!replacer || !replaceFrom || !replaceTo || replaceFrom === replaceTo) {
             return [];
         }
         const result = [...replacer.description];
@@ -108,7 +100,7 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
         };
     }
 
-    getReplaceStrError(control: TypedFormControl<string>) {
+    getReplaceStrError(control: FormControl<string>) {
         const errors = {...control.errors, ...this.form.errors};
         if (errors.equal) {
             return errors.equal;
@@ -127,10 +119,13 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
             return;
         }
         const {replaceFrom, replaceTo, replacer} = form.value;
+        if (!replacer) {
+            throw new Error("no replacer");
+        }
         const postData = {
             replaceFrom,
             replaceTo,
-            regex: replacer.regex(replaceFrom).toString()
+            regex: replacer.regex(replaceFrom || "").toString()
         };
         this.spinner.show(this.spinner.defaultLoaderId);
         const response = await this.dataService.post<ToBeReplaced[]>("peijian/cad/replaceTextReady", postData);
@@ -161,10 +156,13 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
             return;
         }
         const {replaceFrom, replaceTo, replacer} = form.value;
+        if (!replacer) {
+            throw new Error("no replacer");
+        }
         const postData = {
             replaceFrom,
             replaceTo,
-            regex: replacer.regex(replaceFrom).toString(),
+            regex: replacer.regex(replaceFrom || "").toString(),
             ids: this.toBeReplacedList.filter((v) => v.checked).map((v) => v.id)
         };
         this.spinner.show(this.spinner.defaultLoaderId);

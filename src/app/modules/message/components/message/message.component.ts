@@ -15,7 +15,7 @@ import {ButtonMessageData, MessageData, MessageDataMap, PromptData} from "./mess
     styleUrls: ["./message.component.scss"]
 })
 export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
-    input = new FormControl();
+    input = new FormControl<string | undefined>(undefined);
     titleHTML: SafeHtml = "";
     subTitleHTML: SafeHtml = "";
     contentHTML: SafeHtml = "";
@@ -234,7 +234,7 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    filterAutoCompleteOptions(str = "") {
+    filterAutoCompleteOptions(str: string | undefined | null = "") {
         const options = this.promptData.options;
         if (!options) {
             return [];
@@ -242,7 +242,7 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
         if (typeof str !== "string") {
             str = "";
         }
-        str = str.toLowerCase();
-        return options.filter(({label, value}) => label?.toLowerCase().includes(str) || value.toLowerCase().includes(str));
+        const str2 = str.toLowerCase();
+        return options.filter(({label, value}) => label?.toLowerCase().includes(str2) || value.toLowerCase().includes(str2));
     }
 }

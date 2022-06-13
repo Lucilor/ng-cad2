@@ -1,3 +1,4 @@
+import {AbstractControlOptions, FormControl, FormControlOptions, FormControlState, FormGroup} from "@angular/forms";
 import {LocalStorage, ObjectOf, SessionStorage, Timer} from "@utils";
 
 declare global {
@@ -41,14 +42,7 @@ export const routesInfo = {
     selectCads: {path: "select-cads", title: "选择CAD"}
 };
 
-export type CadCollection =
-    | "cad"
-    | "CADmuban"
-    | "qiliaozuhe"
-    | "qieliaocad"
-    | "order"
-    | "kailiaocadmuban"
-    | "material";
+export type CadCollection = "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban" | "material";
 
 export const timer = new Timer({color: "deeppink"});
 Object.assign(window, {timer});
@@ -90,3 +84,11 @@ export const replaceChars = (str: string) => {
     }
     return tmp;
 };
+
+export type TypedFormGroup<T extends ObjectOf<any>> = FormGroup<{[K in keyof T]: FormControl<T[K]>}>;
+
+export const getFormControl = <T>(value: T | FormControlState<T>, opts: FormControlOptions = {}) =>
+    new FormControl(value, {...opts, nonNullable: true});
+
+export const getFormGroup = <T extends ObjectOf<any>>(controls: {[K in keyof T]: FormControl<T[K]>}, opts?: AbstractControlOptions) =>
+    new FormGroup(controls, opts);

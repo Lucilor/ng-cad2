@@ -1,9 +1,9 @@
 import {Component, Inject} from "@angular/core";
-import {FormGroup, ValidatorFn, AbstractControl} from "@angular/forms";
+import {ValidatorFn, AbstractControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {getFormControl, getFormGroup, TypedFormGroup} from "@app/app.common";
 import {CadDimension} from "@cad-viewer";
-import {typedFormControl, typedFormGroup} from "ngx-forms-typed";
 import {FontStyle} from "src/cad-viewer/src/cad-data/cad-styles";
 import {getOpenDialogFunc} from "../dialog.common";
 
@@ -34,7 +34,7 @@ export interface CadDimensionForm {
     styleUrls: ["./cad-dimension-form.component.scss"]
 })
 export class CadDimensionFormComponent {
-    form: FormGroup;
+    form: TypedFormGroup<CadDimensionForm>;
     dimension: CadDimension;
     constructor(
         public dialogRef: MatDialogRef<CadDimensionFormComponent, CadDimension>,
@@ -42,21 +42,21 @@ export class CadDimensionFormComponent {
     ) {
         const dimension = this.data.data || new CadDimension();
         this.dimension = dimension;
-        this.form = typedFormGroup<CadDimensionForm>({
-            mingzi: typedFormControl(dimension.mingzi),
-            xianshigongshiwenben: typedFormControl(dimension.xianshigongshiwenben),
-            qujian: typedFormControl(dimension.qujian, this.qujianValidator()),
-            e1Location: typedFormControl(dimension.entity1?.location),
-            e2Location: typedFormControl(dimension.entity2?.location),
-            axis: typedFormControl(dimension.axis),
-            ref: typedFormControl<CadDimension["ref"]>(dimension.ref),
-            distance: typedFormControl(dimension.distance),
-            fontSize: typedFormControl(dimension.style?.text?.size || 0),
-            cad1: typedFormControl({value: dimension.cad1, disabled: true}),
-            cad2: typedFormControl({value: dimension.cad2, disabled: true}),
-            quzhifanwei: typedFormControl(dimension.quzhifanwei),
-            hideDimLines: typedFormControl(dimension.hideDimLines),
-            xiaoshuchuli: typedFormControl(dimension.xiaoshuchuli)
+        this.form = getFormGroup<CadDimensionForm>({
+            mingzi: getFormControl(dimension.mingzi),
+            xianshigongshiwenben: getFormControl(dimension.xianshigongshiwenben),
+            qujian: getFormControl(dimension.qujian, {validators: this.qujianValidator()}),
+            e1Location: getFormControl(dimension.entity1?.location),
+            e2Location: getFormControl(dimension.entity2?.location),
+            axis: getFormControl(dimension.axis),
+            ref: getFormControl<CadDimension["ref"]>(dimension.ref),
+            distance: getFormControl(dimension.distance),
+            fontSize: getFormControl(dimension.style?.text?.size || 0),
+            cad1: getFormControl({value: dimension.cad1, disabled: true}),
+            cad2: getFormControl({value: dimension.cad2, disabled: true}),
+            quzhifanwei: getFormControl(dimension.quzhifanwei),
+            hideDimLines: getFormControl(dimension.hideDimLines),
+            xiaoshuchuli: getFormControl(dimension.xiaoshuchuli)
         });
     }
 
@@ -65,7 +65,7 @@ export class CadDimensionFormComponent {
             this.form.markAllAsTouched();
         }
         if (this.form.valid) {
-            const value = this.form.value;
+            const value = this.form.value as Required<CadDimensionFormComponent["form"]["value"]>;
             const dimension = this.dimension;
             dimension.mingzi = value.mingzi;
             dimension.xianshigongshiwenben = value.xianshigongshiwenben;

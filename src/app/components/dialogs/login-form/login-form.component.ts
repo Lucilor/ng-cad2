@@ -1,19 +1,14 @@
 import {HttpClient} from "@angular/common/http";
 import {AfterViewInit, Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {getFormControl, getFormGroup} from "@app/app.common";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
 import md5 from "md5";
 import {ReCaptchaV3Service} from "ng-recaptcha";
-import {typedFormGroup, typedFormControl, TypedFormGroup} from "ngx-forms-typed";
 import {lastValueFrom} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
-
-interface LoginForm {
-    user: string;
-    password: string;
-}
 
 export interface LoginFormData {
     project: {id: string; name: string};
@@ -32,10 +27,10 @@ export interface LoginResponse {
     styleUrls: ["./login-form.component.scss"]
 })
 export class LoginFormComponent implements AfterViewInit {
-    form = typedFormGroup({
-        user: typedFormControl(""),
-        password: typedFormControl("")
-    }) as TypedFormGroup<LoginForm>;
+    form = getFormGroup({
+        user: getFormControl(""),
+        password: getFormControl("")
+    });
     passwordVisible = false;
 
     constructor(
@@ -66,8 +61,8 @@ export class LoginFormComponent implements AfterViewInit {
         const token = await lastValueFrom(this.recaptcha.execute("submit"));
         const baseUrl = this.data.baseUrl;
         const data = new FormData();
-        data.append("username", form.value.user);
-        data.append("password", md5(form.value.password));
+        data.append("username", form.value.user || "");
+        data.append("password", md5(form.value.password || ""));
         data.append("phonecode", "");
         data.append("recaptcha_token", token);
         this.spinner.show(this.spinner.defaultLoaderId);

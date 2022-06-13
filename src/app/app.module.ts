@@ -185,7 +185,6 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         SpinnerModule
     ],
     providers: [
-        MatDatepickerModule,
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
         {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matFormFieldOptions},
         {provide: MAT_DATE_LOCALE, useValue: "zh-CN"},
