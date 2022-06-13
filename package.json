@@ -18,7 +18,6 @@
   "license": "MIT",
   "packageManager": "yarn@3.2.1",
   "dependencies": {
-    "@angular-material-components/datetime-picker": "^7.0.1",
     "@angular/animations": "~13.3.11",
     "@angular/cdk": "^13.3.8",
     "@angular/common": "~13.3.11",

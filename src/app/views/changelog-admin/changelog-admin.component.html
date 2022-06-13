@@ -15,8 +15,8 @@
         <app-spinner [id]="loaderId"></app-spinner>
         <mat-expansion-panel *ngFor="let v of changelog; let i = index">
             <mat-expansion-panel-header>
-                <mat-panel-title>{{ getDate(v.timeStamp).toLocaleDateString() }}</mat-panel-title>
-                <mat-panel-description>{{ getDate(v.timeStamp).toLocaleTimeString() }}</mat-panel-description>
+                <mat-panel-title>{{ getDate(v).toFormat('yyyy-MM-dd') }}</mat-panel-title>
+                <mat-panel-description>{{ getDate(v).toFormat('HH:mm:ss') }}</mat-panel-description>
             </mat-expansion-panel-header>
             <div class="changelog" cdkDropList (cdkDropListDropped)="dropContent($event, i)" [cdkDropListDisabled]="isDropListDisabled(i)">
                 <div class="title">
@@ -24,21 +24,12 @@
                         <mat-label>更新日期</mat-label>
                         <input
                             matInput
-                            [ngxMatDatetimePicker]="picker"
-                            [value]="getDate(v.timeStamp)"
+                            [value]="getDate(v).toFormat('yyyy-MM-dd HH:mm:ss')"
                             (dateChange)="onDateChange($event, i)"
                         />
                         <button mat-icon-button matSuffix color="primary" (click)="setTime(i)">
                             <mat-icon>autorenew</mat-icon>
                         </button>
-                        <mat-datepicker-toggle matSuffix [for]="$any(picker)">
-                            <mat-icon color="primary" matDatepickerToggleIcon>date_range</mat-icon>
-                        </mat-datepicker-toggle>
-                        <ngx-mat-datetime-picker #picker [showSeconds]="true">
-                            <ng-template>
-                                <span>OK</span>
-                            </ng-template>
-                        </ngx-mat-datetime-picker>
                     </mat-form-field>
                     <div class="btn-group">
                         <div class="spinner-container">
@@ -106,18 +97,10 @@
         <div class="changelog" *ngFor="let v of changelog; let i = index">
             <mat-form-field>
                 <mat-label>更新日期</mat-label>
-                <input matInput [ngxMatDatetimePicker]="picker" [value]="getDate(v.timeStamp)" (dateChange)="onDateChange($event, i)" />
+                <input matInput [value]="getDate(v.timeStamp)" (dateChange)="onDateChange($event, i)" />
                 <button mat-icon-button matSuffix color="primary" style="height: 40px; line-height: 40px" (click)="setTime(i)">
                     <mat-icon>autorenew</mat-icon>
                 </button>
-                <mat-datepicker-toggle matSuffix [for]="$any(picker)">
-                    <mat-icon color="primary" matDatepickerToggleIcon>date_range</mat-icon>
-                </mat-datepicker-toggle>
-                <ngx-mat-datetime-picker #picker [showSeconds]="true">
-                    <ng-template>
-                        <span>OK</span>
-                    </ng-template>
-                </ngx-mat-datetime-picker>
             </mat-form-field>
             <div *ngFor="let w of v.content; let j = index" class="content">
                 <mat-form-field>

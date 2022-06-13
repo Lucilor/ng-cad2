@@ -1,4 +1,3 @@
-import {MatDatetimePickerInputEvent} from "@angular-material-components/datetime-picker";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
@@ -9,6 +8,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {downloadByString, downloadByUrl, ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
+import {DateTime} from "luxon";
 import {lastValueFrom} from "rxjs";
 
 export const changelogTypes: ObjectOf<string> = {
@@ -70,14 +70,13 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
         this.getChangelog(event.pageIndex + 1);
     }
 
-    getDate(timeStamp: number) {
-        return new Date(timeStamp);
+    getDate(changelog: Changelog[0]) {
+        return DateTime.fromMillis(changelog.timeStamp);
     }
 
-    onDateChange(event: MatDatetimePickerInputEvent<Date>, i: number) {
-        if (event.value) {
-            this.changelog[i].timeStamp = event.value.getTime();
-        }
+    onDateChange(event: Event, i: number) {
+        const input = event.target as HTMLInputElement;
+        this.changelog[i].timeStamp = new Date(input.value).getTime();
     }
 
     async editItem(i: number, j: number, k: number) {

@@ -400,8 +400,11 @@ export const printCads = async (params: PrintCadsParams) => {
                     ...dimStyle,
                     dimensionLine: {color: "#505050", dashArray: Defaults.DASH_ARRAY},
                     extensionLines: {color: "#505050", length: 12},
-                    arrows: {color: "#505050", hidden: colorNumber === 0xff00ff || e.layer === "门扇中间宽标注"}
+                    arrows: {color: "#505050"}
                 });
+                if (colorNumber === 0xff00ff || e.layer === "门扇中间宽标注") {
+                    e.setStyle({arrows: {hidden: true}});
+                }
             } else if (e instanceof CadMtext) {
                 const {text, insert} = e;
                 if (e.text.includes("     ") && !isNaN(Number(e.text))) {

@@ -12,7 +12,7 @@
             matInput
             type="datetime"
             name="searchTime"
-            [ngxMatDatetimePicker]="picker"
+            [matDatepicker]="picker"
             [min]="minTime"
             [max]="maxTime"
             [(ngModel)]="searchTime"
@@ -22,11 +22,11 @@
         <button *ngIf="searchParams.time" matSuffix mat-icon-button (click)="resetSearchTime()">
             <mat-icon>close</mat-icon>
         </button>
-        <ngx-mat-datetime-picker #picker [showSeconds]="true">
+        <mat-datepicker #picker>
             <ng-template>
                 <span>确定</span>
             </ng-template>
-        </ngx-mat-datetime-picker>
+        </mat-datepicker>
     </mat-form-field>
 </form>
 <ng-scrollbar>
