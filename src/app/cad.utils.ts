@@ -409,18 +409,19 @@ export const printCads = async (params: PrintCadsParams) => {
                 const {text, insert} = e;
                 if (e.text.includes("     ") && !isNaN(Number(e.text))) {
                     if (e.fontStyle.size === 24) {
-                        e.fontStyle.size = 36;
-                        insert.y += 11;
-                        insert.x -= 4;
+                        insert.y += 3;
+                        insert.x -= 7;
                     }
                     if (e.fontStyle.size === 22) {
-                        e.fontStyle.size = 30;
-                        insert.y += 11;
-                        insert.x -= 4;
+                        insert.y += 3;
+                        insert.x -= 7;
                     }
                     e.text = text.replace("     ", "");
                     e.fontStyle.family = "仿宋";
                     e.fontStyle.weight = "bolder";
+                    if (typeof e.fontStyle.size === "number") {
+                        e.fontStyle.size += 8;
+                    }
                 } else {
                     if (config.fontStyle?.family === "宋体") {
                         e.fontStyle.size = (e.fontStyle.size || 0) + 6;
