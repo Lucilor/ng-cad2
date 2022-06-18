@@ -279,7 +279,7 @@ interface GetWrapedTextOptions {
 }
 const getWrapedTextOptions = (source: string, maxLength: number) => {
     const options: GetWrapedTextOptions = {maxLength};
-    if (source.match(/\d+(\.\d+)?[x×]\d+(\.\d+)?/)) {
+    if (source.match(/(\d+(\.\d+)?)?[x×](\d+(\.\d+)?)?/)) {
         options.minLength = 1;
         options.indent = 4;
         options.separator = /[,，。:；]/;
@@ -330,6 +330,7 @@ const getWrapedText = (cad: CadViewer, source: string, mtext: CadMtext, options:
                     }
                 }
             }
+            console.log(text);
             arr.push(getIndentText(text));
             start = end - 1;
         }
