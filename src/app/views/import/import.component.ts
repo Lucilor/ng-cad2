@@ -256,17 +256,35 @@ export class ImportComponent extends Utils() implements OnInit {
         this.hasError = false;
         this._clearCache();
         const uniqCodesCount: ObjectOf<number> = {};
-        cads.forEach((v) => {
-            const uniqCode = v.data.info.唯一码;
+        const {requireLineId, addUniqCode} = this._getImportConfigValues(isXinghao);
+        for (const v of cads) {
+            let uniqCode = v.data.info.唯一码;
             if (!uniqCode) {
-                return;
+                if (addUniqCode) {
+                    if (isXinghao) {
+                        v.data.info.唯一码 = CadPortable.getUniqCode(v.data, isXinghao);
+                    } else {
+                        const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
+                            uniqCode: CadPortable.getUniqCode(v.data, isXinghao)
+                        });
+                        if (response?.data) {
+                            v.data.info.唯一码 = response.data;
+                        } else {
+                            v.errors.push("无法生成唯一码");
+                        }
+                    }
+                    uniqCode = v.data.info.唯一码;
+                }
+            }
+            if (!uniqCode) {
+                continue;
             }
             if (uniqCodesCount[uniqCode] === undefined) {
                 uniqCodesCount[uniqCode] = 1;
             } else {
                 uniqCodesCount[uniqCode]++;
             }
-        });
+        }
 
         this.cads = cads;
         this.slgses = slgses;
@@ -289,13 +307,12 @@ export class ImportComponent extends Utils() implements OnInit {
                 });
             }
         }
-        const {requireLineId, addUniqCode} = this._getImportConfigValues(isXinghao);
         const totalCad = cads.length;
         const totalSlgs = slgses.length;
         for (let i = 0; i < totalCad; i++) {
             this.msg = `正在检查dxf数据(${i + 1}/${totalCad})`;
             this.progressBar.forward();
-            await this._validateCad(cads[i], uniqCodesCount, requireLineId, addUniqCode, isXinghao);
+            await this._validateCad(cads[i], uniqCodesCount, requireLineId, isXinghao);
         }
         for (let i = 0; i < totalSlgs; i++) {
             this.msg = `正在检查算料公式数据(${i + 1}/${totalSlgs})`;
@@ -381,13 +398,7 @@ export class ImportComponent extends Utils() implements OnInit {
         return errors;
     }
 
-    private async _validateCad(
-        cad: CadInfo,
-        uniqCodesCount: ObjectOf<number>,
-        requireLineId: boolean,
-        addUniqCode: boolean,
-        isXinghao: boolean
-    ) {
+    private async _validateCad(cad: CadInfo, uniqCodesCount: ObjectOf<number>, requireLineId: boolean, isXinghao: boolean) {
         if (cad.data.info.isEmpty) {
             cad.errors = cad.data.info.errors;
             return;
@@ -430,22 +441,7 @@ export class ImportComponent extends Utils() implements OnInit {
 
         const uniqCode = data.info.唯一码;
         if (!uniqCode) {
-            if (addUniqCode) {
-                if (isXinghao) {
-                    data.info.唯一码 = CadPortable.getUniqCode(data, isXinghao);
-                } else {
-                    const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
-                        uniqCode: CadPortable.getUniqCode(data, isXinghao)
-                    });
-                    if (response?.data) {
-                        data.info.唯一码 = response.data;
-                    } else {
-                        cad.errors.push("无法生成唯一码");
-                    }
-                }
-            } else {
-                cad.errors.push("没有唯一码");
-            }
+            cad.errors.push("没有唯一码");
         } else if (uniqCodesCount[uniqCode] > 1) {
             cad.errors.push("唯一码重复: " + uniqCode);
         } else if (!uniqCode.match(namesReg)) {

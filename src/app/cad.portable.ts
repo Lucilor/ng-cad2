@@ -854,11 +854,18 @@ export class CadPortable {
     static getUniqCode(cad: CadData, isXinghao: boolean) {
         const {name, type} = cad;
         const get = (key: string) => cad.options[key] || "";
-        if (isXinghao) {
-            return [type, get("型号"), get("开启"), get("门铰"), name].join("");
-        } else {
-            return [type, get("型号"), get("开启"), get("门扇厚度"), name].join("");
-        }
+        return [
+            type,
+            get("型号"),
+            get("开启"),
+            get("门铰"),
+            get("门扇厚度"),
+            get("产品分类"),
+            get("锁边"),
+            get("铰边"),
+            get("包边"),
+            name
+        ].join("");
     }
 
     private static _extractIntersections(cad: CadData) {
