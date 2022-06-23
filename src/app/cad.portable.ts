@@ -407,7 +407,13 @@ export class CadPortable {
                             }
                         }
                     }
-                    data.zhankai = zhankaiObjs.map((o) => new CadZhankai(o));
+                    data.zhankai = zhankaiObjs.map((o, j) => {
+                        if (j > 0) {
+                            return new CadZhankai({...o, name: `${data.name}${j + 1}`});
+                        } else {
+                            return new CadZhankai(o);
+                        }
+                    });
                     return true;
                 }
                 return false;
