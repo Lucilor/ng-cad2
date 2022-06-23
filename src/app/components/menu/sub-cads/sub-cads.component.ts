@@ -14,7 +14,6 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
-import {CadStatusAssemble} from "@services/cad-status";
 import {downloadByString, ObjectOf, Point} from "@utils";
 import {isEqual} from "lodash";
 
@@ -125,12 +124,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const {clientX, clientY} = event;
         const cad = this.status.cad;
         const components = this.status.components.selected$.value;
-        const cadStatus = this.status.cadStatus;
         const pointer = new Point(clientX, clientY);
         const translate = this.lastPointer.sub(pointer).divide(cad.zoom());
         translate.x = -translate.x;
-        if (cadStatus instanceof CadStatusAssemble && components.length) {
-            components.forEach((v) => cad.data.moveComponent(v, translate));
+        if (components.length) {
+            components.forEach((v) => cad.data.moveComponent(v, translate, false));
         } else if (this.entitiesToMove && this.entitiesNotToMove) {
             cad.moveEntities(this.entitiesToMove, this.entitiesNotToMove, translate.x, translate.y);
         }
@@ -140,7 +138,9 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     private onPointerUp: CadEventCallBack<"pointerup"> = () => {
         if (this.lastPointer) {
             this.lastPointer = null;
-            this.status.cad.render();
+            if (this.entitiesToRender) {
+                this.status.cad.render();
+            }
         }
     };
 
