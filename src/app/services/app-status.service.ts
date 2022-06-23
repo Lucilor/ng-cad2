@@ -178,14 +178,14 @@ export class AppStatusService {
         }
 
         const shouldUpdatePreview = collection === "CADmuban" && (this.project === "hdmy" || !environment.production);
-        const updatePreview = async (data2: CadData) =>
+        const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) =>
             await Promise.all(
                 data2.components.data.map(async (v) => {
-                    await updateCadPreviewImg(v, "pre");
+                    await updateCadPreviewImg(v, mode);
                 })
             );
         if (shouldUpdatePreview) {
-            await updatePreview(data);
+            await updatePreview(data, "pre");
         }
 
         const id = data.id;
@@ -212,7 +212,7 @@ export class AppStatusService {
         this.updateTitle();
 
         if (shouldUpdatePreview) {
-            await updatePreview(data);
+            await updatePreview(data, "post");
             await cad.render();
         }
 
