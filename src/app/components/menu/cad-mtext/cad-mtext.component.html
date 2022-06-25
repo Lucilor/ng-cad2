@@ -27,8 +27,8 @@
                 matInput
                 type="number"
                 min="0"
-                [value]="getInfo('font_size')"
-                (change)="setInfo('font_size', $event)"
+                [value]="getFontSize()"
+                (change)="setFontSize($event)"
                 placeholder="请输入字体大小"
                 name="font_size"
             />

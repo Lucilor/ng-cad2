@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadMtext, ColoredObject} from "@cad-viewer";
+import {CadMtext, CadStylizer, ColoredObject} from "@cad-viewer";
 import {AnchorEvent} from "@components/anchor-selector/anchor-selector.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {AppStatusService} from "@services/app-status.service";
@@ -107,6 +107,36 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         this.selected.forEach((e) => e.setColor(value));
         this.status.cad.render(this.selected);
         this.colorText = value;
+    }
+
+    getFontSize() {
+        const selected = this.selected;
+        let size: number | undefined;
+        const config = this.status.cad.getConfig();
+        if (selected.length === 1) {
+            size = CadStylizer.get(selected[0], config).fontStyle.size;
+        } else if (selected.length) {
+            const texts = Array.from(new Set(selected.map((v) => CadStylizer.get(v, config).fontStyle.size)));
+            if (texts.length === 1) {
+                size = texts[0];
+            } else {
+                return "多个值";
+            }
+        }
+        if (typeof size !== "number" || isNaN(size)) {
+            return "";
+        }
+        return size.toString();
+    }
+
+    setFontSize(event: Event) {
+        const input = event.target as HTMLInputElement;
+        let value = Number(input.value);
+        if (isNaN(value) || value < 0) {
+            value = 0;
+        }
+        this.selected.forEach((e) => (e.fontStyle.size = value));
+        this.status.cad.render(this.selected);
     }
 
     addMtext() {
