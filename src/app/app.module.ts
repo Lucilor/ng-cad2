@@ -41,6 +41,7 @@ import {ChangelogComponent} from "@components/dialogs/changelog/changelog.compon
 import {JsonEditorComponent} from "@components/dialogs/json-editor/json-editor.component";
 import {LoginFormComponent} from "@components/dialogs/login-form/login-form.component";
 import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
+import {ZixuanpeijianComponent} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {CadAssembleComponent} from "@components/menu/cad-assemble/cad-assemble.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
@@ -140,7 +141,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         BbzhmkgzComponent,
         CadSplitComponent,
         CadLayerInputComponent,
-        DingdanbiaoqianComponent
+        DingdanbiaoqianComponent,
+        ZixuanpeijianComponent
     ],
     imports: [
         AppRoutingModule,

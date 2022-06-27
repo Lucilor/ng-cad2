@@ -20,7 +20,7 @@ import {isNearZero, isBetween, getDPI, getImageDataUrl, loadImage, DEFAULT_TOLER
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
-import {CadCollection} from "./app.common";
+import {CadCollection, local} from "./app.common";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
@@ -91,9 +91,22 @@ export interface CadPreviewParams extends CadPreviewRawParams {
 export const getCadPreview = async (collection: CadCollection, data: CadData, params: CadPreviewParams = {}) => {
     const http = params.http;
     if (http) {
+        const cacheKey = "getCadPreviewCache";
+        let cache = local.load(cacheKey);
+        const cacheDuration = 300000;
+        if (cache && cache[data.id]) {
+            const {url: resultUrl, time} = cache[data.id];
+            if (new Date().getTime() - time < cacheDuration) {
+                return resultUrl;
+            }
+        }
         const response = await http.post<{url: string | null}>("ngcad/getCadImg", {id: data.id}, {silent: true});
         if (response?.data?.url) {
-            return response.data.url;
+            const resultUrl = response.data.url;
+            cache = local.load(cacheKey) || {};
+            cache[data.id] = {url: resultUrl, time: new Date().getTime()};
+            local.save(cacheKey, cache);
+            return resultUrl;
         }
     }
     const cad = await getCadPreviewRaw(collection, data, params);
@@ -330,7 +343,6 @@ const getWrapedText = (cad: CadViewer, source: string, mtext: CadMtext, options:
                     }
                 }
             }
-            console.log(text);
             arr.push(getIndentText(text));
             start = end - 1;
         }
@@ -348,6 +360,9 @@ export interface PrintCadsParams {
     designPics?: {urls: string[][]; margin: number; showSmall: boolean; showLarge: boolean};
     extra?: {拉手信息宽度?: number};
     url?: string;
+    keepCad?: boolean;
+    codes?: string[];
+    type?: string;
 }
 /**
  * A4: (210 × 297)mm²
@@ -372,18 +387,20 @@ export const printCads = async (params: PrintCadsParams) => {
     const scale = Math.sqrt(scaleX * scaleY);
     const errors: string[] = [];
 
-    const cadPrint = new CadViewer(new CadData(), {
-        ...config,
+    const config2: Partial<CadViewerConfig> = {
         width: width * scaleX,
         height: height * scaleY,
         backgroundColor: "white",
         padding: [18 * scale],
         hideLineLength: true,
         hideLineGongshi: true,
-        minLinewidth: 0
-    }).appendTo(document.body);
-    cadPrint.dom.style.opacity = "0";
-    await prepareCadViewer(cadPrint);
+        minLinewidth: 0,
+        ...config
+    };
+    const cad = new CadViewer(new CadData(), config2);
+    cad.appendTo(document.body);
+    cad.dom.style.opacity = "0";
+    await prepareCadViewer(cad);
 
     const imgs: string[] = [];
     for (let i = 0; i < cads.length; i++) {
@@ -396,7 +413,6 @@ export const printCads = async (params: PrintCadsParams) => {
             }
             if (e instanceof CadDimension) {
                 e.linewidth = linewidth;
-                e.selected = true;
                 e.setStyle({
                     ...dimStyle,
                     dimensionLine: {color: "#505050", dashArray: Defaults.DASH_ARRAY},
@@ -451,7 +467,7 @@ export const printCads = async (params: PrintCadsParams) => {
                     try {
                         wrapedText = wrapedText
                             .split("\n")
-                            .map((v) => getWrapedText(cadPrint, v, e, getWrapedTextOptions(v, dMin)).join("\n"))
+                            .map((v) => getWrapedText(cad, v, e, getWrapedTextOptions(v, dMin)).join("\n"))
                             .join("\n");
                     } catch (error) {
                         console.warn("花件信息自动换行时出错");
@@ -473,9 +489,9 @@ export const printCads = async (params: PrintCadsParams) => {
             }
         }
         data.updatePartners().updateComponents();
-        cadPrint.data = data;
-        await cadPrint.reset().render();
-        cadPrint.center();
+        cad.data = data;
+        await cad.reset().render();
+        cad.center();
         const {拉手信息宽度} = extra;
         if (typeof 拉手信息宽度 === "number" && 拉手信息宽度 > 0) {
             const 拉手信息 = data.entities.mtext.filter((v) => v.text.startsWith("拉手:")).sort((v) => v.insert.x - v.insert.y);
@@ -483,8 +499,8 @@ export const printCads = async (params: PrintCadsParams) => {
                 const {el, text} = mtext;
                 if (el && el.width() >= 拉手信息宽度) {
                     try {
-                        mtext.text = getWrapedText(cadPrint, text, mtext, getWrapedTextOptions(text, 拉手信息宽度)).join("\n     ");
-                        cadPrint.render(mtext);
+                        mtext.text = getWrapedText(cad, text, mtext, getWrapedTextOptions(text, 拉手信息宽度)).join("\n     ");
+                        cad.render(mtext);
                     } catch (error) {
                         console.warn("拉手信息自动换行出错");
                         console.warn(error);
@@ -512,24 +528,24 @@ export const printCads = async (params: PrintCadsParams) => {
                     const data2 = data.clone();
                     if (showSmall) {
                         await drawDesignPics(data, urls2, margin, true);
-                        await cadPrint.reset().render();
-                        cadPrint.center();
-                        img = await cadPrint.toDataURL();
+                        await cad.reset().render();
+                        cad.center();
+                        img = await cad.toDataURL();
                     } else {
-                        img = await cadPrint.toDataURL();
+                        img = await cad.toDataURL();
                     }
                     if (showLarge) {
                         await drawDesignPics(data2, urls2, margin, false);
-                        cadPrint.data = data2;
-                        await cadPrint.reset().render();
-                        cadPrint.center();
-                        img2 = await cadPrint.toDataURL();
+                        cad.data = data2;
+                        await cad.reset().render();
+                        cad.center();
+                        img2 = await cad.toDataURL();
                     }
                 }
             }
         }
         if (!img) {
-            img = await cadPrint.toDataURL();
+            img = await cad.toDataURL();
         }
         imgs.push(img);
         if (img2) {
@@ -537,7 +553,13 @@ export const printCads = async (params: PrintCadsParams) => {
         }
     }
 
-    cadPrint.destroy();
+    if (!params.keepCad) {
+        cad.destroy();
+    } else {
+        setTimeout(() => {
+            cad.dom.style.opacity = "";
+        }, 0);
+    }
     const pdf = createPdf(
         {
             content: imgs.map((image) => ({image, width, height})),
@@ -549,7 +571,7 @@ export const printCads = async (params: PrintCadsParams) => {
     const url = await new Promise<string>((resolve) => {
         pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
     });
-    return {url, errors};
+    return {url, errors, cad};
 };
 
 export const setCadData = (data: CadData, project: string) => {

@@ -128,7 +128,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const translate = this.lastPointer.sub(pointer).divide(cad.zoom());
         translate.x = -translate.x;
         if (components.length) {
-            components.forEach((v) => cad.data.moveComponent(v, translate));
+            components.forEach((v) => cad.data.moveComponent(v, translate, false));
         } else if (this.entitiesToMove && this.entitiesNotToMove) {
             cad.moveEntities(this.entitiesToMove, this.entitiesNotToMove, translate.x, translate.y);
         }

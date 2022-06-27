@@ -20,9 +20,18 @@
             </mat-autocomplete>
         </mat-form-field>
     </ng-container>
+    <ng-container *ngIf="enableZixuanpeijian">
+        <button mat-raised-button color="primary" (click)="toggleMode()">{{ mode === "edit" ? "退出" : "进入" }}编辑</button>
+        <ng-container *ngIf="mode === 'edit'">
+            <button mat-raised-button color="primary" (click)="openZixuanpeijianDialog()">选择自选配件</button>
+            <button mat-raised-button color="primary" (click)="setOrderZixuanpeijian()">保存自选配件</button>
+        </ng-container>
+    </ng-container>
     <button mat-raised-button color="primary" (click)="downloadDxf()" [disabled]="!downloadUrl">下载dxf</button>
     <button mat-raised-button color="primary" (click)="print()">打印</button>
     <button mat-icon-button color="accent" (click)="toggleToolbarVisible()"><mat-icon>expand_less</mat-icon></button>
 </div>
-<embed *ngIf="pdfUrl" name="算料单" width="100%" height="100%" [src]="pdfUrl" type="application/pdf" />
+<div class="content" #cadContainer>
+    <embed [hidden]="mode !== 'print'" *ngIf="pdfUrl" name="算料单" width="100%" height="100%" [src]="pdfUrl" type="application/pdf" />
+</div>
 <app-spinner [id]="loaderId"></app-spinner>
