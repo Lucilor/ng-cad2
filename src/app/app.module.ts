@@ -28,6 +28,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
 import {CadLayerInputComponent} from "@components/cad-layer-input/cad-layer-input.component";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
+import {BancaiListComponent} from "@components/dialogs/bancai-list/bancai-list.component";
 import {BbzhmkgzComponent} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
 import {CadDataAttrsComponent} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
 import {CadDimensionFormComponent} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
@@ -142,7 +143,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         CadSplitComponent,
         CadLayerInputComponent,
         DingdanbiaoqianComponent,
-        ZixuanpeijianComponent
+        ZixuanpeijianComponent,
+        BancaiListComponent
     ],
     imports: [
         AppRoutingModule,

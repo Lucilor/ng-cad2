@@ -160,9 +160,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         params.config.hideLineLength = false;
         const {url, errors, cad} = await printCads({...params, cads});
         if (this.enableZixuanpeijian) {
-            if (this.cad) {
-                this.uninitCad();
-            }
             this.cad = cad;
             if (this.mode === "edit") {
                 this.initCad();
@@ -214,7 +211,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
 
     downloadDxf() {
-        if (this.downloadUrl !== null) {
+        if (this.cad) {
+            this.dataService.downloadDxf(this.cad.data);
+        } else if (this.downloadUrl !== null) {
             downloadByUrl(this.downloadUrl);
         } else {
             this.message.alert("没有提供下载地址");
@@ -275,12 +274,22 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
 
     async toggleMode() {
+        // if (this.mode === "edit") {
+        //     location.reload();
+        //     return;
+        // } else {
+        //     this.mode = "edit";
+        // }
         this.mode = this.mode === "edit" ? "print" : "edit";
         await timeout(0);
         if (this.mode === "edit") {
             await this.initCad();
         } else {
             this.uninitCad();
+            if (this.cad) {
+                this.printParams.cads[0] = this.cad.data;
+            }
+            await this.generateSuanliaodan();
         }
     }
 
@@ -290,6 +299,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!cad || !container) {
             return;
         }
+        this.setZixuanpeijian();
         const {width, height} = container.getBoundingClientRect();
         cad.setConfig({width, height, padding: [10], hideLineLength: false});
         if (cad.dom.parentElement !== container) {
@@ -302,12 +312,17 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             data.forEach((v) => {
                 const ids2 = v.entities.toArray(true).map((e) => e.id);
                 if (intersection(ids, ids2).length > 0) {
-                    const es = v.entities.toArray();
-                    if (es.every((e) => e.selected)) {
-                        es.forEach((e) => (e.selected = false));
-                    } else {
-                        es.forEach((e) => (e.selected = true));
-                    }
+                    v.entities.forEach((e) => (e.selected = true));
+                }
+            });
+        });
+        cad.on("entitiesunselect", (entities) => {
+            const data = this.zixuanpeijian;
+            const ids = entities.toArray(true).map((e) => e.id);
+            data.forEach((v) => {
+                const ids2 = v.entities.toArray(true).map((e) => e.id);
+                if (intersection(ids, ids2).length > 0) {
+                    v.entities.forEach((e) => (e.selected = false));
                 }
             });
         });
@@ -332,9 +347,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         });
         if (data) {
             this.zixuanpeijian = data;
-            this.spinner.show(this.loaderId);
             await this.setOrderZixuanpeijian();
-            this.spinner.hide(this.loaderId);
             await this.setZixuanpeijian();
         }
     }
@@ -349,13 +362,13 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const rect = cad.data.entities.getBoundingRect();
         let offsetX = rect.right + 50;
         data.forEach((v) => {
-            if (v.info.zixuanInited) {
+            if (v.info.自选配件已初始化) {
                 return;
             }
             const rect2 = v.getBoundingRect();
             v.transform({translate: [offsetX - rect2.left, rect.y - rect2.y]}, true);
             offsetX += rect2.width + 50;
-            v.info.zixuanInited = true;
+            v.info.自选配件已初始化 = true;
         });
         await cad.reset().render();
         cad.center();

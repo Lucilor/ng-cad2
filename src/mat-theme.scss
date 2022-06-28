@@ -72,3 +72,8 @@ html {
 .mat-menu-content {
     overflow: hidden;
 }
+
+.mat-radio-label-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

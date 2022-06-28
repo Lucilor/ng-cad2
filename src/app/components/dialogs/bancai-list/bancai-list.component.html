@@ -1,0 +1,14 @@
+<ng-scrollbar class="content">
+    <mat-radio-group class="bancai-list" [value]="checkedIndex.value">
+        <mat-radio-button [value]="-1" style="display: none"><span #singleSelectNone></span></mat-radio-button>
+        <div class="bancai" *ngFor="let bancai of data.list; let i = index">
+            <mat-radio-button class="name" [matTooltip]="bancai.mingzi" [value]="i" (click)="checkedIndex.next(i)">
+                {{ bancai.mingzi }}
+            </mat-radio-button>
+        </div>
+    </mat-radio-group>
+</ng-scrollbar>
+<div class="btn-group">
+    <button mat-raised-button color="primary" (click)="submit()">确定</button>
+    <button mat-raised-button color="primary" (click)="cancle()">取消</button>
+</div>

@@ -38,30 +38,48 @@
                         </span>
                     </div>
                     <div class="inputs">
-                        <span>展开: </span>
                         <mat-form-field>
-                            <input type="number" matInput [autocomplete]="false" />
+                            <mat-label>展开宽</mat-label>
+                            <input type="text" matInput [(ngModel)]="cad.info.zhankai.width" [autocomplete]="false" />
+                            <span matSuffix></span>
                         </mat-form-field>
                         <span>×</span>
                         <mat-form-field>
-                            <input type="number" matInput [autocomplete]="false" />
+                            <mat-label>展开高</mat-label>
+                            <input type="text" matInput [(ngModel)]="cad.info.zhankai.height" [autocomplete]="false" />
                         </mat-form-field>
                         <span>=</span>
                         <mat-form-field>
-                            <input type="number" matInput [autocomplete]="false" />
+                            <mat-label>数量</mat-label>
+                            <input type="text" matInput [(ngModel)]="cad.info.zhankai.num" [autocomplete]="false" />
                         </mat-form-field>
                     </div>
                     <div class="inputs">
-                        <span>板材: </span>
-                        <mat-select>
-                            <mat-option>1</mat-option>
-                        </mat-select>
-                        <mat-select>
-                            <mat-option>1</mat-option>
-                        </mat-select>
-                        <mat-select>
-                            <mat-option>1</mat-option>
-                        </mat-select>
+                        <mat-form-field>
+                            <mat-label>板材</mat-label>
+                            <input
+                                type="text"
+                                matInput
+                                readonly
+                                [value]="cad.info.bancai?.mingzi"
+                                (click)="openBancaiListDialog(i)"
+                                [autocomplete]="false"
+                            />
+                        </mat-form-field>
+                    </div>
+                    <div class="inputs" *ngIf="cad.info.bancai">
+                        <mat-form-field>
+                            <mat-label>材料</mat-label>
+                            <mat-select [(ngModel)]="cad.info.bancai.cailiao">
+                                <mat-option *ngFor="let cailiao of cad.info.bancai.cailiaoList" [value]="cailiao">{{ cailiao }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>厚度</mat-label>
+                            <mat-select [(ngModel)]="cad.info.bancai.houdu">
+                                <mat-option *ngFor="let houdu of cad.info.bancai.houduList" [value]="houdu">{{ houdu }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
                     </div>
                     <div>
                         <button mat-raised-button color="primary">开料孔位配置</button>

@@ -1,5 +1,5 @@
 import {Component, ElementRef, Inject, OnDestroy, OnInit, QueryList, ViewChildren} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {SafeUrl} from "@angular/platform-browser";
 import {imgEmpty} from "@app/app.common";
 import {getCadPreview} from "@app/cad.utils";
@@ -8,6 +8,7 @@ import {BancaiList, CadDataService} from "@modules/http/services/cad-data.servic
 import {MessageService} from "@modules/message/services/message.service";
 import {timeout} from "@utils";
 import {debounce} from "lodash";
+import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
 export interface ZixuanpeijianData {
@@ -15,6 +16,17 @@ export interface ZixuanpeijianData {
     type: string;
     selectedData?: CadData[];
     sourceData?: CadData[];
+}
+
+export interface ZixuanpeijianInfo {
+    houtaiId: string;
+    zhankai: {width: string; height: string; num: string};
+    bancai?: BancaiList & {cailiao?: string; houdu?: string};
+}
+
+export interface Bancai extends BancaiList {
+    cailiao?: string;
+    houdu?: string;
 }
 
 @Component({
@@ -25,7 +37,8 @@ export interface ZixuanpeijianData {
 export class ZixuanpeijianComponent implements OnInit, OnDestroy {
     cads: {data: CadData; img: SafeUrl; hidden: boolean}[] = [];
     cadsFilterInput = "";
-    selectedCads: {data: CadData; viewer: CadViewer}[] = [];
+    selectedCads: {data: CadData; viewer: CadViewer; info: ZixuanpeijianInfo}[] = [];
+    bancaiList: BancaiList[] = [];
     @ViewChildren("selectedCadViewer") selectedCadViewers?: QueryList<ElementRef<HTMLDivElement>>;
 
     filterCads = debounce(() => {
@@ -43,7 +56,8 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
         public dialogRef: MatDialogRef<ZixuanpeijianComponent, CadData[]>,
         @Inject(MAT_DIALOG_DATA) public data: ZixuanpeijianData | null,
         private dataService: CadDataService,
-        private message: MessageService
+        private message: MessageService,
+        private dialog: MatDialog
     ) {}
 
     async ngOnInit() {
@@ -58,7 +72,7 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
             const response = await this.dataService.post<{cads: any[]; bancais: BancaiList[]}>("ngcad/getZixuanpeijian", {code, type});
             if (response?.data) {
                 response.data.cads.forEach((v) => cads.push(new CadData(v)));
-                console.log(response.data.bancais);
+                this.bancaiList = response.data.bancais;
             }
         }
         const ids: string[] = [];
@@ -72,7 +86,8 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
         });
         if (selectedData) {
             selectedData.forEach((data) => {
-                if (ids.includes(data.id)) {
+                const info = data.info.自选配件 as ZixuanpeijianInfo | undefined;
+                if (info && ids.includes(info.houtaiId)) {
                     this.addSelectedCad(data);
                 }
             });
@@ -85,6 +100,11 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
     }
 
     submit() {
+        const result: CadData[] = [];
+        this.selectedCads.forEach(({data, info}) => {
+            data.info.自选配件 = info;
+            result.push(data);
+        });
         this.dialogRef.close(this.selectedCads.map((cad) => cad.data));
     }
 
@@ -121,7 +141,7 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
                 viewer.center();
             }
         });
-        const length = this.selectedCads.push({data: data2, viewer});
+        const length = this.selectedCads.push({data: data2, viewer, info: data.info.自选配件 || {houtaiId: data.id, zhankai: {}}});
         await timeout(0);
         const el = this.selectedCadViewers?.get(length - 1)?.nativeElement;
         if (el) {
@@ -150,6 +170,31 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
             viewer.resize(width, width / 2);
             viewer.center();
         });
+    }
+
+    async openBancaiListDialog(i: number) {
+        const info = this.selectedCads[i].info;
+        const bancai = info.bancai;
+        const checkedItems: string[] = [];
+        if (bancai) {
+            checkedItems.push(bancai.mingzi);
+        }
+        const bancaiList = await openBancaiListDialog(this.dialog, {data: {list: this.bancaiList, selectMode: "single", checkedItems}});
+        if (!bancaiList) {
+            return;
+        }
+        if (bancai) {
+            info.bancai = {...bancai, ...bancaiList[0]};
+            const {cailiaoList, cailiao, houduList, houdu} = info.bancai;
+            if (cailiao && !cailiaoList.includes(cailiao)) {
+                delete info.bancai.cailiao;
+            }
+            if (houdu && !houduList.includes(houdu)) {
+                delete info.bancai.houdu;
+            }
+        } else {
+            info.bancai = bancaiList[0];
+        }
     }
 }
 
