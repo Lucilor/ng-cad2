@@ -190,6 +190,29 @@ export class ImportComponent extends Utils() implements OnInit {
             return finish(true, "success", `检查结束`);
         }
         let skipped = 0;
+        if (isXinghao) {
+            const xinghao = cads[0].data.options.型号;
+            const uniqCodes = cads.map((v) => v.data.info.唯一码);
+            const oldCadsRaw = await this.dataService.queryMongodb({collection: "cad", where: {"选项.型号": xinghao, 分类: "算料"}});
+            const oldSlgsRaw = await this.dataService.queryMongodb({collection: "material", where: {"选项.型号": xinghao}});
+            const toDelete = {cad: [] as string[], material: [] as string[]};
+            oldCadsRaw.forEach((v) => {
+                if (!uniqCodes.includes(v.json?.info?.唯一码)) {
+                    toDelete.cad.push(v._id);
+                }
+            });
+            oldSlgsRaw.forEach((v) => {
+                toDelete.material.push(v._id);
+            });
+            if (toDelete.cad.length > 0) {
+                this.msg = "正在删除多余的cad";
+                await this.dataService.removeCads("cad", toDelete.cad, {silent: true});
+            }
+            if (toDelete.material.length > 0) {
+                this.msg = "正在删除旧的算料公式";
+                await this.dataService.removeCads("material", toDelete.material, {silent: true});
+            }
+        }
         for (let i = 0; i < totalCad; i++) {
             const result = await this.dataService.setCad(
                 {

@@ -156,7 +156,11 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         cads.forEach((v) => {
             v.entities.forEach((e) => (e.selectable = false));
         });
-        params.keepCad = true;
+        if (this.enableZixuanpeijian) {
+            params.keepCad = true;
+        } else {
+            params.keepCad = false;
+        }
         params.config.hideLineLength = false;
         const {url, errors, cad} = await printCads({...params, cads});
         if (this.enableZixuanpeijian) {

@@ -253,8 +253,8 @@ export class CadDataService extends HttpService {
         }
     }
 
-    async removeCads(collection: string, ids: string[]) {
-        const response = await this.post<string[]>("peijian/cad/removeCad", {collection, ids});
+    async removeCads(collection: CadCollection, ids: string[], options?: HttpOptions) {
+        const response = await this.post<string[]>("peijian/cad/removeCad", {collection, ids}, options);
         if (response?.data) {
             return response.data;
         }
