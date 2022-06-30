@@ -42,6 +42,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     private lastPointer: Point | null = null;
     private entitiesToMove?: CadEntities;
     private entitiesNotToMove?: CadEntities;
+    private entitiesNeedRender = false;
 
     get componentsSelectable() {
         return this.status.components.selectable$.value;
@@ -129,8 +130,10 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         translate.x = -translate.x;
         if (components.length) {
             components.forEach((v) => cad.data.moveComponent(v, translate, false));
+            this.entitiesNeedRender = true;
         } else if (this.entitiesToMove && this.entitiesNotToMove) {
             cad.moveEntities(this.entitiesToMove, this.entitiesNotToMove, translate.x, translate.y);
+            this.entitiesNeedRender = true;
         }
         this.lastPointer.copy(pointer);
     };
@@ -138,7 +141,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     private onPointerUp: CadEventCallBack<"pointerup"> = () => {
         if (this.lastPointer) {
             this.lastPointer = null;
-            if (this.entitiesToRender) {
+            if (this.entitiesNeedRender) {
                 this.status.cad.render();
             }
         }
