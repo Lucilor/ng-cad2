@@ -49,7 +49,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     insertsectionInfo: {key: InsertsectionKey; label: string}[] = [
         {key: "zhidingweizhipaokeng", label: "指定位置刨坑"},
         {key: "指定分体位置", label: "指定分体位置"},
-        {key: "指定位置不折", label: "指定位置不折"},
+        {key: "指定位置不折", label: "指定位置不折"}
     ];
     sldxs = this._算料单显示.slice();
     qlbmlx = ["自动判断", "胶条位包", "外面包", "胶条位包+外面包", "无"];
@@ -195,10 +195,13 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
 
     async selectOptions(data: CadData, optionKey: string, key?: string) {
         if (optionKey === "huajian") {
-            const checkedItems = splitOptions(data.huajian);
+            if (!key) {
+                return;
+            }
+            const checkedItems = splitOptions(data.xinghaohuajian[key]);
             const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems, xinghao: key}});
             if (Array.isArray(result)) {
-                data.huajian = joinOptions(result);
+                data.xinghaohuajian[key] = joinOptions(result);
             }
         } else if (optionKey === "bancai") {
             const checkedItems = splitOptions(data.morenkailiaobancai);

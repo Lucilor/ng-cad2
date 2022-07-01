@@ -50,17 +50,8 @@ export class CadOptionsComponent implements AfterViewInit {
     }
 
     async submit() {
-        this.spinner.show(this.loaderIds.submitLoaderId);
-        const data = await this.dataService.getOptions({
-            name: this.data.name,
-            search: this.searchValue,
-            data: this.data.data,
-            xinghao: this.data.xinghao,
-            includeTingyong: true,
-            values: this.checkedItems
-        });
-        this.spinner.hide(this.loaderIds.submitLoaderId);
-        this.dialogRef.close(data.data.map((v) => v.name));
+        const data = this.pageData.filter((v) => v.checked).map((v) => v.name);
+        this.dialogRef.close(data);
     }
 
     close() {
