@@ -98,6 +98,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         delete queryParams.action;
         if (!action) {
             this.showDxfInput = true;
+            this.enableZixuanpeijian = true;
             this._loadPrintParams();
             if (this.printParams.cads.length > 0) {
                 await this.generateSuanliaodan();
