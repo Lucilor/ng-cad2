@@ -120,7 +120,8 @@ export class CadPortable {
         对应门扇厚度: "对应门扇厚度",
         主CAD: "主CAD",
         固定开料板材: "gudingkailiaobancai",
-        条件: "conditions"
+        条件: "conditions",
+        对应计算条数的配件: "对应计算条数的配件"
     };
     static infoFields = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边", "使用模板开料"];
     static slgsFields = ["名字", "分类", "条件", "选项", "算料公式"];
@@ -387,7 +388,9 @@ export class CadPortable {
                         }
                         obj[key] = value;
                         const key2 = cadFields[key];
-                        if (key2) {
+                        if (key === "对应计算条数的配件") {
+                            data.对应计算条数的配件 = getObject(value, "=");
+                        } else if (key2) {
                             const defaultValue = emptyCad[key2];
                             if (typeof defaultValue === "boolean") {
                                 (data[key2] as boolean) = value === "是";
@@ -609,6 +612,13 @@ export class CadPortable {
                     const value = cad.info[key];
                     if (value) {
                         texts.push(`${key}: ${value}`);
+                    }
+                }
+                {
+                    const key = Object.keys(cad.对应计算条数的配件)[0];
+                    const value = cad.对应计算条数的配件[key];
+                    if (key && value) {
+                        texts.push(`对应计算条数的配件: ${key}=${value}`);
                     }
                 }
 

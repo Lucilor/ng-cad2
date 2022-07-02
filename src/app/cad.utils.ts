@@ -589,6 +589,16 @@ export const setCadData = (data: CadData, project: string) => {
     } else {
         delete data.info.skipSuanliaodanZoom;
     }
+    console.log(1);
+    if (Object.keys(data.对应计算条数的配件).length < 1) {
+        data.对应计算条数的配件[""] = "";
+    }
+};
+
+export const unsetCadData = (data: CadData) => {
+    if ("" in data.对应计算条数的配件) {
+        delete data.对应计算条数的配件[""];
+    }
 };
 
 export interface ValidateResult {

@@ -193,7 +193,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         return null;
     }
 
-    async selectOptions(data: CadData, optionKey: string, key?: string) {
+    async selectOptions(data: CadData, optionKey: string, key: string) {
         if (optionKey === "huajian") {
             if (!key) {
                 return;
@@ -210,10 +210,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
                 (data as any)[key] = joinOptions(result);
             }
         } else {
-            const checkedItems = splitOptions(data.options[optionKey]);
-            const result = await openCadOptionsDialog(this.dialog, {data: {data, name: optionKey, checkedItems}});
+            const checkedItems = splitOptions((data as any)[optionKey][key]);
+            const result = await openCadOptionsDialog(this.dialog, {data: {data, name: key, checkedItems}});
             if (result) {
-                data.options[optionKey] = joinOptions(result);
+                (data as any)[optionKey][key] = joinOptions(result);
             }
         }
     }

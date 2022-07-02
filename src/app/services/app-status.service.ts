@@ -8,7 +8,8 @@ import {
     ValidateResult,
     suanliaodanZoomIn,
     suanliaodanZoomOut,
-    updateCadPreviewImg
+    updateCadPreviewImg,
+    unsetCadData
 } from "@app/cad.utils";
 import {
     CadData,
@@ -225,6 +226,7 @@ export class AppStatusService {
         }
         const data2 = data.clone();
         suanliaodanZoomOut(data2);
+        unsetCadData(data2);
         return data2;
     }
 

@@ -505,6 +505,7 @@ export class ImportComponent extends Utils() implements OnInit {
         }
         cad.errors = cad.errors.concat(validateLines(data).errMsg);
         cad.errors = cad.errors.concat(await this._validateOptions(data.options));
+        cad.errors = cad.errors.concat(await this._validateOptions(data.对应计算条数的配件));
 
         const infoObj: ObjectOf<PeiheInfo[]> = {
             锁企料: [

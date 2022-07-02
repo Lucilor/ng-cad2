@@ -42,7 +42,7 @@
             <mat-form-field style="width: 70%">
                 <mat-label>选项-值</mat-label>
                 <input type="text" matInput [(ngModel)]="data.options[key]" [ngModelOptions]="{standalone: true}" />
-                <button mat-icon-button matSuffix color="primary" (click)="selectOptions(data, key)">
+                <button mat-icon-button matSuffix color="primary" (click)="selectOptions(data, 'options', key)">
                     <mat-icon>list</mat-icon>
                 </button>
                 <button mat-icon-button matSuffix color="primary" (click)="objectAdd(data.options, '', '')">
@@ -418,4 +418,20 @@
             <mat-icon>list</mat-icon>
         </button>
     </mat-form-field>
+    <div class="sub-form-field">
+        <div class="label">对应计算条数的配件</div>
+        <div *ngFor="let key of keysOf(data['对应计算条数的配件'])">
+            <mat-form-field style="width: 30%">
+                <mat-label>键</mat-label>
+                <input type="text" matInput [value]="key" (change)="changeObjectKey(data['对应计算条数的配件'], key, $event)" />
+            </mat-form-field>
+            <mat-form-field style="width: 70%">
+                <mat-label>值</mat-label>
+                <input type="text" matInput [(ngModel)]="data['对应计算条数的配件'][key]" [ngModelOptions]="{standalone: true}" />
+                <button mat-icon-button matSuffix color="primary" (click)="selectOptions(data, '对应计算条数的配件', key)">
+                    <mat-icon>list</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+    </div>
 </form>
