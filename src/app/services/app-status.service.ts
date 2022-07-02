@@ -8,8 +8,7 @@ import {
     ValidateResult,
     suanliaodanZoomIn,
     suanliaodanZoomOut,
-    updateCadPreviewImg,
-    unsetCadData
+    updateCadPreviewImg
 } from "@app/cad.utils";
 import {
     CadData,
@@ -202,6 +201,9 @@ export class AppStatusService {
         for (const key in replaceMap) {
             this._replaceText(data, key, replaceMap[key]);
         }
+        if (Object.keys(data.对应计算条数的配件).length < 1) {
+            data.对应计算条数的配件[""] = "";
+        }
         suanliaodanZoomIn(data);
         if (collection === "cad") {
             validateLines(data);
@@ -226,7 +228,6 @@ export class AppStatusService {
         }
         const data2 = data.clone();
         suanliaodanZoomOut(data2);
-        unsetCadData(data2);
         return data2;
     }
 
