@@ -388,8 +388,6 @@ export const printCads = async (params: PrintCadsParams) => {
     const errors: string[] = [];
 
     const config2: Partial<CadViewerConfig> = {
-        width: width * scaleX,
-        height: height * scaleY,
         backgroundColor: "white",
         padding: [18 * scale],
         hideLineLength: true,
@@ -402,9 +400,28 @@ export const printCads = async (params: PrintCadsParams) => {
     cad.dom.style.opacity = "0";
     await prepareCadViewer(cad);
 
-    const imgs: string[] = [];
+    type PdfDocument = Parameters<typeof createPdf>[0];
+    const content: PdfDocument["content"] = [];
+    let pageOrientation: PdfDocument["pageOrientation"] = "portrait";
     for (let i = 0; i < cads.length; i++) {
         const data = cads[i];
+        const rect = data.getBoundingRect();
+        let localWidth: number;
+        let localHeight: number;
+        if (rect.width < rect.height) {
+            localWidth = width;
+            localHeight = height;
+            if (i === 0) {
+                pageOrientation = "portrait";
+            }
+        } else {
+            localWidth = height;
+            localHeight = width;
+            if (i === 0) {
+                pageOrientation = "landscape";
+            }
+        }
+        cad.resize(localWidth * scaleX, localHeight * scaleY);
         const es = data.getAllEntities().toArray();
         for (const e of es) {
             const colorNumber = e.getColor().rgbNumber();
@@ -547,9 +564,9 @@ export const printCads = async (params: PrintCadsParams) => {
         if (!img) {
             img = await cad.toDataURL();
         }
-        imgs.push(img);
+        content.push({image: img, width: localWidth, height: localHeight});
         if (img2) {
-            imgs.push(img2);
+            content.push({image: img2, width: localWidth, height: localHeight});
         }
     }
 
@@ -560,14 +577,7 @@ export const printCads = async (params: PrintCadsParams) => {
             cad.dom.style.opacity = "";
         }, 0);
     }
-    const pdf = createPdf(
-        {
-            content: imgs.map((image) => ({image, width, height})),
-            pageSize: "A4",
-            pageMargins: 0
-        },
-        {}
-    );
+    const pdf = createPdf({content, pageSize: "A4", pageOrientation, pageMargins: 0}, {});
     const url = await new Promise<string>((resolve) => {
         pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
     });
