@@ -78,6 +78,7 @@ export type ExportType = "包边正面" | "框型" | "企料" | "框型和企料
 export interface CadImportParams {
     sourceCad: CadData;
     maxLineLength?: number;
+    导入dxf文件时展开名字不改变?: boolean;
 }
 
 export interface CadImportResult {
@@ -412,7 +413,11 @@ export class CadPortable {
                     }
                     data.zhankai = zhankaiObjs.map((o, j) => {
                         if (j > 0) {
-                            return new CadZhankai({...o, name: `${data.name}${j + 1}`});
+                            let name = data.name;
+                            if (!params.导入dxf文件时展开名字不改变) {
+                                name += j + 1;
+                            }
+                            return new CadZhankai({...o, name});
                         } else {
                             return new CadZhankai(o);
                         }

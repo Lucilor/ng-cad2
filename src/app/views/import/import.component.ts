@@ -59,12 +59,13 @@ export class ImportComponent extends Utils() implements OnInit {
         dryRun: {label: "仅检查数据，不导入", value: false}
     };
     maxLineLength = 200;
+    导入dxf文件时展开名字不改变 = false;
 
     constructor(private dataService: CadDataService, private message: MessageService, private spinner: SpinnerService) {
         super();
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         if (!environment.production) {
             this.importConfigNormal.requireLineId.value = false;
             this.importConfigNormal.pruneLines.value = true;
@@ -121,6 +122,7 @@ export class ImportComponent extends Utils() implements OnInit {
         this.progressBarStatus = "progress";
         this.msg = "正在获取数据";
         this.spinner.show(loaderId);
+        const 导入dxf文件时展开名字不改变 = await this.dataService.getProjectConfigBoolean("导入dxf文件时展开名字不改变");
         const data = await this.dataService.uploadDxf(this._sourceFile);
         if (!data) {
             return finish(true, "error", "读取文件失败");
@@ -139,7 +141,7 @@ export class ImportComponent extends Utils() implements OnInit {
             }
         });
         const maxLineLength = isXinghao ? this.maxLineLength : 0;
-        const {cads, slgses, sourceCadMap, xinghaoInfo} = CadPortable.import({sourceCad: data, maxLineLength});
+        const {cads, slgses, sourceCadMap, xinghaoInfo} = CadPortable.import({sourceCad: data, maxLineLength, 导入dxf文件时展开名字不改变});
         if (isXinghao) {
             if (!sourceCadMap.xinghao) {
                 this.message.alert("导入文件为非型号文件，请使用左侧按钮。");

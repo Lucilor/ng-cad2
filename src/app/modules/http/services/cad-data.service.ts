@@ -327,4 +327,9 @@ export class CadDataService extends HttpService {
         const response = await this.post<ObjectOf<string> | string>("ngcad/getProjectConfig", {key});
         return response?.data || {};
     }
+
+    async getProjectConfigBoolean(key: string) {
+        const value = await this.getProjectConfig(key);
+        return value === "是";
+    }
 }

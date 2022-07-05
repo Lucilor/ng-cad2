@@ -177,8 +177,8 @@ export class AppStatusService {
             this.config.setConfig({hideLineLength: true, hideLineGongshi: true}, {sync: false});
         }
 
-        const 算料单CAD模板使用图片装配 = await this.dataService.getProjectConfig("算料单CAD模板使用图片装配");
-        const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配 === "是";
+        const 算料单CAD模板使用图片装配 = await this.dataService.getProjectConfigBoolean("算料单CAD模板使用图片装配");
+        const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配;
         const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) =>
             await Promise.all(
                 data2.components.data.map(async (v) => {
