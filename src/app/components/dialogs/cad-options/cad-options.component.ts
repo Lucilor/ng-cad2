@@ -50,8 +50,17 @@ export class CadOptionsComponent implements AfterViewInit {
     }
 
     async submit() {
-        const data = this.pageData.filter((v) => v.checked).map((v) => v.name);
-        this.dialogRef.close(data);
+        this.spinner.show(this.loaderIds.submitLoaderId);
+        const data = await this.dataService.getOptions({
+            name: this.data.name,
+            search: this.searchValue,
+            data: this.data.data,
+            xinghao: this.data.xinghao,
+            includeTingyong: true,
+            values: this.checkedItems
+        });
+        this.spinner.hide(this.loaderIds.submitLoaderId);
+        this.dialogRef.close(data.data.map((v) => v.name));
     }
 
     close() {
@@ -79,6 +88,11 @@ export class CadOptionsComponent implements AfterViewInit {
 
     async getData(page: number) {
         this.spinner.show(this.loaderIds.optionsLoader, {text: "获取CAD数据"});
+        this.pageData.forEach(({checked, name}) => {
+            if (checked && !this.checkedItems.includes(name)) {
+                this.checkedItems.push(name);
+            }
+        });
         const data = await this.dataService.getOptions({
             name: this.data.name,
             search: this.searchValue,
