@@ -3,6 +3,7 @@ import {CadCollection} from "@app/app.common";
 import {CadData} from "@cad-viewer";
 import {environment} from "@env";
 import {downloadByUrl, DownloadOptions, ObjectOf} from "@utils";
+import {CadImgCache} from "./cad-img-cache";
 import {CustomResponse, HttpOptions, HttpService} from "./http.service";
 
 export interface GetCadParams {
@@ -93,6 +94,8 @@ export interface QueryMysqlParams {
     providedIn: "root"
 })
 export class CadDataService extends HttpService {
+    public cadImgCache = new CadImgCache();
+
     constructor(injector: Injector) {
         super(injector);
     }
@@ -146,6 +149,7 @@ export class CadDataService extends HttpService {
                 }
                 return await this.setCad({...params, restore}, options);
             } else {
+                this.cadImgCache.remove(resData.id);
                 return new CadData(resData);
             }
         } else {
@@ -331,5 +335,17 @@ export class CadDataService extends HttpService {
     async getProjectConfigBoolean(key: string) {
         const value = await this.getProjectConfig(key);
         return value === "是";
+    }
+
+    async getCadImg(id: string, useCache: boolean, options?: HttpOptions) {
+        if (useCache) {
+            const url = this.cadImgCache.get(id);
+            if (url) {
+                console.log(url);
+                return url;
+            }
+        }
+        const response = await this.post<{url: string | null}>("ngcad/getCadImg", {id, useCache}, options);
+        return response?.data?.url || null;
     }
 }

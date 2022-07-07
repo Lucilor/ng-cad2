@@ -22,10 +22,7 @@
     <div class="menus-row">
         <div class="menu left" [style.width.px]="leftMenuWidth$ | async" [@closeLeft]="showLeftMenu ? 'open' : 'closed'">
             <div class="btn-group" style="width: 100%">
-                <div class="spinner-container">
-                    <button mat-raised-button color="accent" (click)="save()">保存</button>
-                    <app-spinner [id]="loaderId" [inline]="true"></app-spinner>
-                </div>
+                <button mat-raised-button color="accent" (click)="save()">保存</button>
                 <button mat-icon-button class="menu-icon left" [class.closed]="!showLeftMenu" (click)="toggleLeftMenu()">
                     <mat-icon>
                         {{ showLeftMenu ? "navigate_before" : "navigate_next" }}

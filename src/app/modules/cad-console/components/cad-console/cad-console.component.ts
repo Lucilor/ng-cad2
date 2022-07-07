@@ -422,7 +422,7 @@ export class CadConsoleComponent implements OnInit {
             const rotateDimension = Math.round(degrees / 90) % 2 !== 0;
             this.transform({rotate: new Angle(degrees, "deg").rad}, rotateDimension);
         },
-        async save(loaderId = "master") {
+        async save(loaderId?: string) {
             await timeout(100); // 等待input事件触发
             const {dataService, status, message, spinner} = this;
             const collection = status.collection$.value;
@@ -435,13 +435,19 @@ export class CadConsoleComponent implements OnInit {
                 }
             }
             const data = status.closeCad();
+            if (!loaderId) {
+                loaderId = spinner.defaultLoaderId;
+            }
             spinner.show(loaderId, {text: `正在保存CAD: ${data.name}`});
             resData = await dataService.setCad({collection, cadData: data, force: true});
             if (resData) {
                 const url = await getCadPreview(collection, resData);
                 const blob = dataURLtoBlob(url);
-                const file = new File([blob], `${resData.id}.png`);
-                await dataService.post("ngcad/setCadImg", {id: resData.id, file}, {silent: true});
+                const id = resData.id;
+                const file = new File([blob], `${id}.png`);
+                await dataService.post("ngcad/setCadImg", {id, file}, {silent: true});
+                dataService.cadImgCache.set(id, url);
+                this.status.openCad(resData, collection, false);
             }
             spinner.hide(loaderId);
             return resData;

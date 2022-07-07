@@ -15,12 +15,12 @@ import {
     findAllAdjacentLines,
     CadCircle
 } from "@cad-viewer";
-import {HttpService} from "@modules/http/services/http.service";
+import {CadDataService} from "@modules/http/services/cad-data.service";
 import {isNearZero, isBetween, getDPI, getImageDataUrl, loadImage, DEFAULT_TOLERANCE, Point} from "@utils";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
-import {CadCollection, local} from "./app.common";
+import {CadCollection} from "./app.common";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
@@ -86,31 +86,19 @@ export const getCadPreviewRaw = async (collection: CadCollection, data: CadData,
 };
 
 export interface CadPreviewParams extends CadPreviewRawParams {
-    http?: HttpService;
+    http?: CadDataService;
 }
 export const getCadPreview = async (collection: CadCollection, data: CadData, params: CadPreviewParams = {}) => {
     const http = params.http;
+    let url: string | null;
     if (http) {
-        const cacheKey = "getCadPreviewCache";
-        let cache = local.load(cacheKey);
-        const cacheDuration = 300000;
-        if (cache && cache[data.id]) {
-            const {url: resultUrl, time} = cache[data.id];
-            if (new Date().getTime() - time < cacheDuration) {
-                return resultUrl;
-            }
-        }
-        const response = await http.post<{url: string | null}>("ngcad/getCadImg", {id: data.id}, {silent: true});
-        if (response?.data?.url) {
-            const resultUrl = response.data.url;
-            cache = local.load(cacheKey) || {};
-            cache[data.id] = {url: resultUrl, time: new Date().getTime()};
-            local.save(cacheKey, cache);
-            return resultUrl;
+        url = await http.getCadImg(data.id, true, {silent: true});
+        if (url) {
+            return url;
         }
     }
     const cad = await getCadPreviewRaw(collection, data, params);
-    const url = await cad.toDataURL();
+    url = await cad.toDataURL();
     cad.destroy();
     return url;
 };

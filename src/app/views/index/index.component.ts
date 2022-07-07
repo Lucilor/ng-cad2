@@ -64,7 +64,6 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     showBottomMenu = true;
     showLeftMenu = true;
     showAllMenu = true;
-    loaderId = "saveCadLoader";
     tabIndex = 0;
     cadLength = "0.00";
     menuPaddingBase = [20, 20, 20, 20];
@@ -315,7 +314,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     }
 
     save() {
-        this.cadConsole.execute("save", {loaderId: this.loaderId});
+        this.cadConsole.execute("save");
     }
 
     async refresh() {

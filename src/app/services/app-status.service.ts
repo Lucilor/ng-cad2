@@ -158,7 +158,7 @@ export class AppStatusService {
         }
     }
 
-    async openCad(data?: CadData, collection?: CadCollection) {
+    async openCad(data?: CadData, collection?: CadCollection, center = true) {
         const timerName = "openCad";
         timer.start(timerName);
         const cad = this.cad;
@@ -209,7 +209,9 @@ export class AppStatusService {
         }
         this.generateLineTexts();
         await cad.reset().render();
-        cad.center();
+        if (center) {
+            cad.center();
+        }
         this.updateCadTotalLength();
         this.updateTitle();
 
