@@ -729,10 +729,16 @@ export const suanliaodanZoomOut = (data: CadData) => {
     data.updateComponents();
 };
 
-export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post") => {
+export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post", disabled: boolean) => {
     let cadImage = data.entities.image.find((e) => e.info.isPreviewImg);
+    if (disabled) {
+        if (cadImage) {
+            cadImage.remove();
+        }
+        return [];
+    }
     if (!cadImage && mode === "pre") {
-        return;
+        return [];
     }
 
     const finish = () => {
@@ -748,7 +754,7 @@ export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post") =
     };
     if (cadImage) {
         finish();
-        return;
+        return [];
     }
     cadImage = new CadImage();
     cadImage.layer = "预览图";
@@ -762,6 +768,7 @@ export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post") =
     data.entities.add(cadImage);
 
     finish();
+    return [cadImage];
 };
 // export const updateCadPreviewImg = async (data: CadData, http: HttpService, mode: "pre" | "post") => {
 //     let cadImage = data.entities.image.find((e) => e.info.isPreviewImg);

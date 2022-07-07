@@ -179,15 +179,13 @@ export class AppStatusService {
 
         const 算料单CAD模板使用图片装配 = await this.dataService.getProjectConfigBoolean("算料单CAD模板使用图片装配");
         const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配;
-        const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) =>
-            await Promise.all(
-                data2.components.data.map(async (v) => {
-                    await updateCadPreviewImg(v, mode);
-                })
+        const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) => {
+            const result = await Promise.all(
+                data2.components.data.map(async (v) => await updateCadPreviewImg(v, mode, !shouldUpdatePreview))
             );
-        if (shouldUpdatePreview) {
-            await updatePreview(data, "pre");
-        }
+            return result.flat();
+        };
+        await updatePreview(data, "pre");
 
         const id = data.id;
         const {id: id2, collection: collection2} = this.route.snapshot.queryParams;
@@ -215,10 +213,7 @@ export class AppStatusService {
         this.updateCadTotalLength();
         this.updateTitle();
 
-        if (shouldUpdatePreview) {
-            await updatePreview(data, "post");
-            await cad.render();
-        }
+        await cad.render(await updatePreview(data, "post"));
 
         timer.end(timerName, "打开CAD");
     }

@@ -14,7 +14,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
-import {downloadByString, ObjectOf, Point} from "@utils";
+import {downloadByString, Matrix, ObjectOf, Point} from "@utils";
 import {isEqual} from "lodash";
 
 interface CadNode {
@@ -282,6 +282,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             const timerName = "sub-cads-editChildren";
             timer.start(timerName);
             const positions: ObjectOf<number[]> = {};
+            const rect1 = data.entities.getBoundingRect();
             for (const cad of cads) {
                 const length = components.length;
                 let shouldPush = true;
@@ -296,6 +297,14 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                 }
                 if (shouldPush) {
                     setCadData(cad, this.status.project);
+                    const rect2 = cad.getBoundingRect();
+                    const translate = new Point(rect1.x - rect2.x, rect1.y - rect2.y);
+                    const matrix = new Matrix();
+                    if (Math.abs(translate.x) > 1500 || Math.abs(translate.y) > 1500) {
+                        translate.x += (rect1.width + rect2.width) / 2 + 15;
+                        matrix.transform({translate});
+                    }
+                    cad.transform(matrix, true);
                     components.push(cad);
                 }
             }
