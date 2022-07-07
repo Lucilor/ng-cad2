@@ -885,6 +885,10 @@ export class CadPortable {
             get("锁边"),
             get("铰边"),
             get("包边"),
+            get("门中门门扇背面"),
+            get("门扇正面"),
+            get("大扇做法"),
+            get("小扇做法"),
             name
         ].join("");
     }

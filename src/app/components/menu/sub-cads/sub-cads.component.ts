@@ -151,7 +151,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         const node: CadNode = {data, img: imgLoading, checked: false};
         const collection = this.status.collection$.value;
         setTimeout(async () => {
-            console.log("!!");
             const img = await getCadPreview(collection, node.data, {http: this.dataService});
             node.img = this.sanitizer.bypassSecurityTrustUrl(img) as string;
         }, 0);
