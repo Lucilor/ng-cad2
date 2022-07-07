@@ -177,16 +177,6 @@ export class AppStatusService {
             this.config.setConfig({hideLineLength: true, hideLineGongshi: true}, {sync: false});
         }
 
-        const 算料单CAD模板使用图片装配 = await this.dataService.getProjectConfigBoolean("算料单CAD模板使用图片装配");
-        const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配;
-        const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) => {
-            const result = await Promise.all(
-                data2.components.data.map(async (v) => await updateCadPreviewImg(v, mode, !shouldUpdatePreview))
-            );
-            return result.flat();
-        };
-        await updatePreview(data, "pre");
-
         const id = data.id;
         const {id: id2, collection: collection2} = this.route.snapshot.queryParams;
         if (id !== id2 || collection !== collection2) {
@@ -208,6 +198,17 @@ export class AppStatusService {
             validateLines(data);
         }
         this.generateLineTexts();
+
+        const 算料单CAD模板使用图片装配 = await this.dataService.getProjectConfigBoolean("算料单CAD模板使用图片装配");
+        const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配;
+        const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) => {
+            const result = await Promise.all(
+                data2.components.data.map(async (v) => await updateCadPreviewImg(v, mode, !shouldUpdatePreview))
+            );
+            return result.flat();
+        };
+        await updatePreview(data, "pre");
+
         await cad.reset().render();
         if (center) {
             cad.center();

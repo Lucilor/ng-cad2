@@ -341,7 +341,6 @@ export class CadDataService extends HttpService {
         if (useCache) {
             const url = this.cadImgCache.get(id);
             if (url) {
-                console.log(url);
                 return url;
             }
         }

@@ -1,22 +1,22 @@
 import {
-    CadData,
-    CadViewerConfig,
-    CadViewer,
-    CadLineLike,
-    CadLine,
-    CadMtext,
-    CadDimension,
-    Defaults,
     CadBaseLine,
+    CadCircle,
+    CadData,
+    CadDimension,
     CadJointPoint,
-    sortLines,
-    getLinesDistance,
-    generatePointsMap,
+    CadLine,
+    CadLineLike,
+    CadMtext,
+    CadViewer,
+    CadViewerConfig,
+    Defaults,
     findAllAdjacentLines,
-    CadCircle
+    generatePointsMap,
+    getLinesDistance,
+    sortLines
 } from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {isNearZero, isBetween, getDPI, getImageDataUrl, loadImage, DEFAULT_TOLERANCE, Point} from "@utils";
+import {DEFAULT_TOLERANCE, getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, Point} from "@utils";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
@@ -678,7 +678,7 @@ export const autoFixLine = (cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
 export const suanliaodanZoomIn = (data: CadData) => {
     data.components.data.forEach((v) => {
         v.entities.forEach((e) => {
-            e.calcBoundingRect = e.calcBoundingRect && (e instanceof CadLineLike || e instanceof CadImage);
+            e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
         });
         if (v.info.skipSuanliaodanZoom) {
             return;
@@ -732,7 +732,7 @@ export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post", d
     const finish = () => {
         data.entities.forEach((e) => {
             e.visible = false;
-            e.calcBoundingRectForce = true;
+            e.calcBoundingRectForce = e.calcBoundingRect;
         });
         if (cadImage) {
             cadImage.calcBoundingRect = false;
