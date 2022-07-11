@@ -237,7 +237,7 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
     }
 
     let {width, height} = rect;
-    const {x, y} = rect;
+    const {y} = rect;
     let getX: (i: number) => number;
     let getY: (i: number) => number;
     if (rect.width > rect.height) {
@@ -247,10 +247,10 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
         } else {
             getX = (i) => left + width / 2 + width * i;
         }
-        getY = (i) => y;
+        getY = (_) => y;
     } else {
         height = rect.height / urls.length;
-        getX = (i) => x;
+        getX = (_) => right;
         getY = (i) => top - height / 2 - height * i;
     }
     for (let i = 0; i < urls.length; i++) {
