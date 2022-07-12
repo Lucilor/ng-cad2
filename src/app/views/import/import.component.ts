@@ -195,7 +195,10 @@ export class ImportComponent extends Utils() implements OnInit {
         if (isXinghao) {
             const xinghao = cads[0].data.options.型号;
             const uniqCodes = cads.map((v) => v.data.info.唯一码);
-            const oldCadsRaw = await this.dataService.queryMongodb({collection: "cad", where: {"选项.型号": xinghao, 分类: "算料"}});
+            const oldCadsRaw = await this.dataService.queryMongodb({
+                collection: "cad",
+                where: {"选项.型号": xinghao, 分类: "算料", 名字: {$not: {$regex: "分体|上下包边"}}}
+            });
             const oldSlgsRaw = await this.dataService.queryMongodb({collection: "material", where: {"选项.型号": xinghao}});
             const toDelete = {cad: [] as string[], material: [] as string[]};
             oldCadsRaw.forEach((v) => {

@@ -118,7 +118,11 @@ export class CadOptionsComponent implements AfterViewInit {
         }
         const index = this.checkedItems.findIndex((v) => v === item.name);
         if (item.checked && index < 0) {
-            this.checkedItems.push(item.name);
+            if (this.data.multi) {
+                this.checkedItems.push(item.name);
+            } else {
+                this.checkedItems = [item.name];
+            }
         }
         if (!item.checked && index >= 0) {
             this.checkedItems.splice(index, 1);

@@ -113,6 +113,14 @@ export class SelectBancaiComponent implements OnInit {
                 this.shuangxiazouxianUrl = result.上下走线;
                 this.kailiaokongweipeizhiUrl = result.开料孔位配置;
                 this.kailiaocanshuzhiUrl = result.开料参数;
+
+                const errMsgs: string[] = [];
+                result.errors.forEach((error) => {
+                    errMsgs.push(`订单编号:${error.code}<br>${error.msg}`);
+                });
+                if (errMsgs.length > 0) {
+                    this.message.alert({title: "开料报错", content: errMsgs.join("<br><br>")});
+                }
             }
         } else {
             this.message.alert("缺少参数");
