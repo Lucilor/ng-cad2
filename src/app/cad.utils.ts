@@ -587,6 +587,11 @@ export const setCadData = (data: CadData, project: string) => {
     } else {
         delete data.info.skipSuanliaodanZoom;
     }
+    data.entities.forEach((e) => {
+        if (e.layer === "分页线") {
+            e.calcBoundingRect = false;
+        }
+    });
 };
 
 export interface ValidateResult {

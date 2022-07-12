@@ -890,6 +890,11 @@ export class CadPortable {
             get("门扇正面"),
             get("大扇做法"),
             get("小扇做法"),
+            get("工艺"),
+            get("底框吊脚"),
+            get("假门头"),
+            get("门框加厚"),
+            get("顶框分体"),
             name
         ].join("");
     }
