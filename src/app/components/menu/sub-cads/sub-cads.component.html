@@ -80,9 +80,7 @@
         <mat-menu #uploadMenu="matMenu">
             <button mat-menu-item (click)="uploadDxf(false, false)">替换</button>
             <button mat-menu-item (click)="uploadDxf(true, false)">添加</button>
-            <ng-container *ngIf="contextMenuCad?.field === 'component'">
-                <button mat-menu-item (click)="uploadDxf(false, true)">替换主CAD</button>
-            </ng-container>
+            <button mat-menu-item (click)="uploadDxf(false, true)">替换主CAD</button>
         </mat-menu>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="getJson()">复制json数据</button>
