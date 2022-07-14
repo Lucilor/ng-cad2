@@ -432,35 +432,6 @@ export class ImportComponent extends Utils() implements OnInit {
             return;
         }
         const data = cad.data;
-        const names = [
-            "包边正面",
-            "顶框",
-            "锁框",
-            "铰框",
-            "企料",
-            "锁边",
-            "铰边",
-            "型号",
-            "罗马柱",
-            "罗马头",
-            "中横框",
-            "立柱",
-            "上板",
-            "中板",
-            "下板",
-            "压条",
-            "包边饰条",
-            "底框",
-            "方通",
-            "花件",
-            "孔",
-            "算料",
-            "示意图",
-            "小锁",
-            "中铰料",
-            "中锁料"
-        ];
-        const namesReg = new RegExp(names.join("|"));
 
         if (Array.isArray(data.info.errors)) {
             cad.errors = cad.errors.concat(data.info.errors);
@@ -472,8 +443,6 @@ export class ImportComponent extends Utils() implements OnInit {
             cad.errors.push("没有唯一码");
         } else if (uniqCodesCount[uniqCode] > 1) {
             cad.errors.push("唯一码重复: " + uniqCode);
-        } else if (!uniqCode.match(namesReg)) {
-            cad.errors.push("唯一码必须包含<br><br>" + names.join(", "));
         }
         if (!data.type && !cad.skipErrorCheck.has("分类")) {
             cad.errors.push("没有分类");
