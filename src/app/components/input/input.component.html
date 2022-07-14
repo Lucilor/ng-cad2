@@ -1,0 +1,167 @@
+<ng-container [ngSwitch]="info.type">
+    <ng-container *ngSwitchCase="'string'">
+        <mat-form-field>
+            <mat-label>{{ info.label }}</mat-label>
+            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+            <input
+                *ngIf="!cast(info, 'string').textarea"
+                matInput
+                [readonly]="info.readonly"
+                [disabled]="info.disabled || false"
+                [(ngModel)]="value"
+                type="text"
+                (change)="onChange()"
+                (input)="onInput()"
+            />
+            <textarea
+                *ngIf="cast(info, 'string').textarea"
+                matInput
+                [cdkTextareaAutosize]="!!cast(info, 'string').textarea?.autosize"
+                [cdkAutosizeMinRows]="cast(info, 'string').textarea?.autosize?.minRows"
+                [cdkAutosizeMaxRows]="cast(info, 'string').textarea?.autosize?.maxRows"
+                [readonly]="info.readonly"
+                [disabled]="info.disabled || false"
+                [(ngModel)]="value"
+                type="text"
+                (change)="onChange()"
+                (input)="onInput()"
+            ></textarea>
+            <button mat-icon-button matSuffix *ngIf="optionKey" color="primary" (click)="selectOptions(optionKey, info.model?.key)">
+                <mat-icon>list</mat-icon>
+            </button>
+            <button mat-icon-button matSuffix *ngIf="info.copyable" color="primary" (click)="copy()">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+                <mat-icon>{{ icon.name }}</mat-icon>
+            </button>
+        </mat-form-field>
+    </ng-container>
+    <ng-container *ngSwitchCase="'number'">
+        <mat-form-field>
+            <mat-label>{{ info.label }}</mat-label>
+            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+            <input
+                matInput
+                [readonly]="info.readonly"
+                [disabled]="info.disabled || false"
+                [(ngModel)]="value"
+                type="number"
+                [step]="cast(info, 'number').step"
+                [min]="cast(info, 'number').max ?? null"
+                [max]="cast(info, 'number').max ?? null"
+                (change)="onChange()"
+                (input)="onInput()"
+            />
+            <button mat-icon-button matSuffix *ngIf="info.copyable" color="primary" (click)="copy()">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+                <mat-icon>{{ icon.name }}</mat-icon>
+            </button>
+        </mat-form-field>
+    </ng-container>
+    <ng-container *ngSwitchCase="'object'">
+        <div class="sub-form-field">
+            <div class="label">
+                <span>{{ info.label }}</span>
+                <span *ngIf="info.hint">({{ info.hint }})</span>
+            </div>
+            <div *ngIf="keysOf(value).length === 0">
+                <button mat-icon-button color="primary" (click)="objectAdd(value, '')">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+            </div>
+            <div *ngFor="let key of keysOf(asObject(value))">
+                <mat-form-field style="width: 30%">
+                    <input
+                        type="text"
+                        matInput
+                        [readonly]="info.readonly"
+                        [disabled]="info.disabled || false"
+                        [value]="key"
+                        (change)="changeObjectKey(value, key, $event)"
+                    />
+                </mat-form-field>
+                <mat-form-field style="width: 70%">
+                    <input
+                        type="text"
+                        matInput
+                        [readonly]="info.readonly"
+                        [disabled]="info.disabled || false"
+                        [(ngModel)]="value[key]"
+                        [ngModelOptions]="{standalone: true}"
+                    />
+                    <button mat-icon-button matSuffix color="primary" (click)="selectOptions(info.model?.key, key)">
+                        <mat-icon>list</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="objectAdd(value, '', '')">
+                        <mat-icon>add_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" (click)="objectRemove(value, key)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+                        <mat-icon>{{ icon.name }}</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+        </div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'array'">
+        <div class="sub-form-field">
+            <div class="label">
+                <span>{{ info.label }}</span>
+                <span *ngIf="info.hint">({{ info.hint }})</span>
+            </div>
+            <div *ngIf="value.length === 0">
+                <button mat-icon-button color="primary" (click)="arrayAdd(value, '')">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+            </div>
+            <mat-form-field *ngFor="let c of ' '.repeat(value.length).split(''); let j = index">
+                <input
+                    matInput
+                    type="text"
+                    [readonly]="info.readonly"
+                    [disabled]="info.disabled || false"
+                    [(ngModel)]="value[j]"
+                    [ngModelOptions]="{standalone: true}"
+                />
+                <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(value, '', j + 1)">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+                <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(value, j)">
+                    <mat-icon>remove_circle</mat-icon>
+                </button>
+                <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+                    <mat-icon>{{ icon.name }}</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'boolean'">
+        <mat-form-field>
+            <mat-label>{{ info.label }}</mat-label>
+            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+            <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </ng-container>
+    <ng-container *ngSwitchCase="'select'">
+        <mat-form-field>
+            <mat-label>{{ info.label }}</mat-label>
+            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+            <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()">
+                <mat-option *ngFor="let option of options" [value]="option.value">
+                    {{ option.label || option.value }}
+                </mat-option>
+            </mat-select>
+            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+                <mat-icon>{{ icon.name }}</mat-icon>
+            </button>
+        </mat-form-field>
+    </ng-container>
+</ng-container>

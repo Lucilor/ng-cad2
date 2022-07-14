@@ -1,12 +1,12 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {MatSelectChange} from "@angular/material/select";
 import {splitOptions, joinOptions} from "@app/app.common";
 import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity, sortLines} from "@cad-viewer";
 import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
+import {InputInfo} from "@components/input/types";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
@@ -23,37 +23,11 @@ type InsertsectionKey = "zhidingweizhipaokeng" | "指定分体位置" | "指定�
 })
 export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnDestroy {
     private _cadPointsLock = false;
-    private _算料单显示 = [
-        "尺寸",
-        "板材",
-        "尺寸+板材",
-        "名字",
-        "名字+板材",
-        "名字+展开宽",
-        "名字+展开宽+展开高",
-        "名字+展开高+展开宽",
-        "名字+展开高+板材",
-        "名字+展开宽+展开高+板材",
-        "名字+展开高",
-        "展开宽",
-        "展开高",
-        "展开宽+展开高",
-        "展开高+展开宽",
-        "展开宽+板材",
-        "展开高+板材",
-        "展开宽+展开高+板材",
-        "展开高+展开宽+板材",
-        "都不显示",
-        "所有"
-    ];
     insertsectionInfo: {key: InsertsectionKey; label: string}[] = [
         {key: "zhidingweizhipaokeng", label: "指定位置刨坑"},
         {key: "指定分体位置", label: "指定分体位置"},
         {key: "指定位置不折", label: "指定位置不折"}
     ];
-    sldxs = this._算料单显示.slice();
-    qlbmlx = ["自动判断", "胶条位包", "外面包", "胶条位包+外面包", "无"];
-    sldzkxswz = ["CAD上面", "CAD下面", "CAD中间", "CAD左边", "CAD右边"];
     cadStatusIntersectionInfo: InsertsectionKey | null = null;
     get data() {
         const components = this.status.components.selected$.value;
@@ -62,12 +36,147 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
         return this.status.cad.data;
     }
+    infoGroup1: InputInfo[] = [
+        {label: "id", model: this._getcadDataModel("id"), type: "string", readonly: true, copyable: true},
+        {label: "名字", model: this._getcadDataModel("name"), type: "string", onChange: this.setCadName.bind(this)},
+        {label: "唯一码", model: {data: () => this.data.info, key: "唯一码"}, type: "string"},
+        {label: "显示名字", model: this._getcadDataModel("xianshimingzi"), type: "string"},
+        {label: "分类", model: this._getcadDataModel("type"), type: "string"},
+        {label: "分类2", model: this._getcadDataModel("type2"), type: "string"},
+        {label: "选项", model: this._getcadDataModel("options"), type: "object", isCadOptions: true},
+        {label: "条件", model: this._getcadDataModel("conditions"), type: "array"}
+    ];
+    infoGroup2: InputInfo[] = [
+        {label: "开料时刨坑", model: this._getcadDataModel("kailiaoshibaokeng"), type: "boolean"},
+        {
+            label: "变形方式",
+            model: this._getcadDataModel("bianxingfangshi"),
+            type: "select",
+            options: ["自由", "高比例变形", "宽比例变形", "宽高比例变形"]
+        },
+        {
+            label: "板材纹理方向",
+            model: this._getcadDataModel("bancaiwenlifangxiang"),
+            type: "select",
+            options: ["垂直", "水平", "不限", "指定垂直", "指定水平", "指定不限"]
+        },
+        {
+            label: "开料排版方式",
+            model: this._getcadDataModel("kailiaopaibanfangshi"),
+            type: "select",
+            options: ["自动排版", "不排版", "必须排版"]
+        },
+        {label: "默认开料板材", model: this._getcadDataModel("morenkailiaobancai"), type: "string", optionKey: "bancai"},
+        {label: "固定开料板材", model: this._getcadDataModel("gudingkailiaobancai"), type: "string", optionKey: "bancai"},
+        {
+            label: "算料处理",
+            model: this._getcadDataModel("suanliaochuli"),
+            type: "select",
+            options: ["算料+显示展开+开料", "算料+开料", "算料+显示展开", "算料"]
+        },
+        {label: "显示宽度标注", model: this._getcadDataModel("showKuandubiaozhu"), type: "boolean"},
+        {
+            label: "板材厚度方向",
+            model: this._getcadDataModel("bancaihoudufangxiang"),
+            type: "select",
+            options: [
+                {value: "gt0", label: "方向1"},
+                {value: "lt0", label: "方向2"},
+                {value: "none", label: "不指定"}
+            ],
+            onChange: this.offset.bind(this)
+        },
+        {label: "自定义属性", type: "string", disabled: true, suffixIcons: [{name: "list", onClick: () => this.editAttributes(this.data)}]},
+        // {label: "展开", type: "string", disabled: true, suffixIcons: [{name: "list", onClick: () => this.editZhankai(this.data)}]},
+        {label: "型号花件", model: this._getcadDataModel("xinghaohuajian"), type: "object", isCadOptions: true},
+        {label: "必须绑定花件", model: this._getcadDataModel("needsHuajian"), type: "boolean"},
+        {label: "可独立板材", model: this._getcadDataModel("kedulibancai"), type: "boolean"},
+        {label: "必须选择板材", model: this._getcadDataModel("必须选择板材"), type: "boolean"},
+        {label: "双向折弯", model: this._getcadDataModel("shuangxiangzhewan"), type: "boolean"},
+        {
+            label: "算料单显示",
+            model: this._getcadDataModel("suanliaodanxianshi"),
+            type: "select",
+            options: [
+                "尺寸",
+                "板材",
+                "尺寸+板材",
+                "名字",
+                "名字+板材",
+                "名字+展开宽",
+                "名字+展开宽+展开高",
+                "名字+展开高+展开宽",
+                "名字+展开高+板材",
+                "名字+展开宽+展开高+板材",
+                "名字+展开高",
+                "展开宽",
+                "展开高",
+                "展开宽+展开高",
+                "展开高+展开宽",
+                "展开宽+板材",
+                "展开高+板材",
+                "展开宽+展开高+板材",
+                "展开高+展开宽+板材",
+                "都不显示",
+                "所有"
+            ]
+        }
+    ];
+    infoGroup3: InputInfo[] = [
+        {label: "算料单显示放大倍数", model: this._getcadDataModel("suanliaodanZoom"), type: "number", step: 0.1, min: 0},
+        {label: "企料前后宽同时改变", model: this._getcadDataModel("企料前后宽同时改变"), type: "boolean"},
+        {label: "主CAD", model: this._getcadDataModel("主CAD"), type: "boolean"},
+        {
+            label: "算料单展开显示位置",
+            model: this._getcadDataModel("算料单展开显示位置"),
+            type: "select",
+            options: ["CAD上面", "CAD下面", "CAD中间", "CAD左边", "CAD右边"]
+        },
+        {label: "属于门框门扇", model: this._getcadDataModel("属于门框门扇"), type: "select", options: ["未区分", "门框", "门扇"]},
+        {label: "内开做分体", model: this._getcadDataModel("内开做分体"), type: "boolean"},
+        {label: "板材绑定选项", model: this._getcadDataModel("板材绑定选项"), type: "string"},
+        {label: "算料单线长显示的最小长度", model: this._getcadDataModel("算料单线长显示的最小长度"), type: "number"},
+        {label: "检查企料厚度", model: this._getcadDataModel("检查企料厚度"), type: "boolean"},
+        {label: "对应门扇厚度", model: this._getcadDataModel("对应门扇厚度"), type: "number"},
+        {label: "显示厚度", model: this._getcadDataModel("显示厚度"), type: "string"},
+        {label: "跟随CAD开料板材", model: this._getcadDataModel("跟随CAD开料板材"), type: "string"},
+        {label: "算料特殊要求", model: this._getcadDataModel("算料特殊要求"), type: "string", textarea: {autosize: {maxRows: 5}}},
+        {label: "正面宽差值", model: this._getcadDataModel("正面宽差值"), type: "number"},
+        {label: "墙厚差值", model: this._getcadDataModel("墙厚差值"), type: "number"},
+        {label: "企料翻转", model: this._getcadDataModel("企料翻转"), type: "boolean"},
+        {label: "企料门框配合位增加值", model: this._getcadDataModel("企料包边门框配合位增加值"), type: "number"},
+        {
+            label: "企料包边类型",
+            model: this._getcadDataModel("企料包边类型"),
+            type: "select",
+            options: ["自动判断", "胶条位包", "外面包", "胶条位包+外面包", "无"]
+        },
+        {label: "指定封口厚度", model: this._getcadDataModel("指定封口厚度"), type: "string"},
+        {label: "拼接料拼接时垂直翻转", model: this._getcadDataModel("拼接料拼接时垂直翻转"), type: "boolean"},
+        {
+            label: "正面线到见光线展开模板",
+            model: {data: () => this.data.info, key: "正面线到见光线展开模板"},
+            type: "string",
+            suffixIcons: [
+                {name: "open_in_new", onClick: () => this.openCadmuban(this.data.info.正面线到见光线展开模板)},
+                {name: "list", onClick: () => this.selectCadmuban()}
+            ]
+        },
+        {label: "对应计算条数的配件", model: this._getcadDataModel("对应计算条数的配件"), type: "object", isCadOptions: true},
+        {
+            label: "指定板材分组",
+            model: this._getcadDataModel("指定板材分组"),
+            type: "select",
+            options: ["门框板材", "门扇主板材", "门扇辅板1", "门扇辅板2", "门扇辅板3", "门扇辅板4", "锁边板材", "铰边板材", "底框板材"]
+        }
+    ];
 
     constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
         super();
     }
 
     ngOnInit() {
+        (window as any).c = this;
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
             const insertsectionKeys = this.insertsectionInfo.map((v) => v.key);
             if (cadStatus instanceof CadStatusSelectJointpoint) {
@@ -141,6 +250,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         cad.off("entityclick", this._onEntityClick);
         cad.off("moveentities", this._updateCadPoints);
         cad.off("zoom", this._updateCadPoints);
+    }
+
+    private _getcadDataModel(key: keyof CadData) {
+        return {key, data: () => this.data} as InputInfo<CadData>["model"];
     }
 
     private _onEntityClick: CadEventCallBack<"entityclick"> = (_, entity) => {
@@ -272,11 +385,11 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         this.status.toggleCadStatus(new CadStatusSelectJointpoint(i));
     }
 
-    offset(event: MatSelectChange) {
-        const value: CadData["bancaihoudufangxiang"] = event.value;
+    offset(value: string) {
+        console.log(value);
         const data = this.data;
         const cad = this.status.cad;
-        data.bancaihoudufangxiang = value;
+        data.bancaihoudufangxiang = value as CadData["bancaihoudufangxiang"];
         let direction = 0;
         if (value === "gt0") {
             direction = 1;
@@ -328,13 +441,11 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         await editCadZhankai(this.dialog, data);
     }
 
-    setCadName(data: CadData, event: Event) {
-        const name = (event.target as HTMLInputElement).value;
-        data.name = name;
+    setCadName(value: string) {
         this.status.updateTitle();
-        const zhankai = data.zhankai[0];
+        const zhankai = this.data.zhankai[0];
         if (zhankai) {
-            zhankai.name = name;
+            zhankai.name = value;
         }
     }
 

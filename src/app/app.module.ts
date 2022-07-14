@@ -43,6 +43,7 @@ import {JsonEditorComponent} from "@components/dialogs/json-editor/json-editor.c
 import {LoginFormComponent} from "@components/dialogs/login-form/login-form.component";
 import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {ZixuanpeijianComponent} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
+import {InputComponent} from "@components/input/input.component";
 import {CadAssembleComponent} from "@components/menu/cad-assemble/cad-assemble.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
@@ -144,7 +145,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         CadLayerInputComponent,
         DingdanbiaoqianComponent,
         ZixuanpeijianComponent,
-        BancaiListComponent
+        BancaiListComponent,
+        InputComponent
     ],
     imports: [
         AppRoutingModule,

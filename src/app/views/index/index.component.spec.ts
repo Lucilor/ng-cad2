@@ -18,6 +18,7 @@ import {RouterTestingModule} from "@angular/router/testing";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
 import {CadLayerInputComponent} from "@components/cad-layer-input/cad-layer-input.component";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
+import {InputComponent} from "@components/input/input.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
 import {CadLineComponent} from "@components/menu/cad-line/cad-line.component";
@@ -49,7 +50,8 @@ describe("IndexComponent", () => {
                 CadMtextComponent,
                 CadDimensionComponent,
                 AnchorSelectorComponent,
-                CadLayerInputComponent
+                CadLayerInputComponent,
+                InputComponent
             ],
             imports: [
                 CadConsoleModule,

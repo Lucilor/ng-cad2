@@ -166,9 +166,6 @@ ng-scrollbar.ng-scrollbar {
     box-sizing: border-box;
     padding: 8px;
 
-    &:not(:first-child) {
-        margin: 5px auto;
-    }
     &:empty {
         display: none;
     }

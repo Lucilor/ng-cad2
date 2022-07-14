@@ -1,6 +1,8 @@
-.sub-form-field {
-    > div .mat-form-field:not(:last-child) {
-        padding-right: 5px;
-        box-sizing: border-box;
+form {
+    display: flex;
+    flex-direction: column;
+
+    > *:not(:last-child) {
+        margin-bottom: 10px;
     }
 }
