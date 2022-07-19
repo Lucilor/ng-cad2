@@ -359,9 +359,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             if (resData) {
                 const rect1 = data.getBoundingRect();
                 const rect2 = resData.entities.getBoundingRect();
-                const dx = rect1.right + 10 - rect2.left;
-                const dy = rect1.y - rect2.y;
-                resData.entities.transform({translate: [dx, dy]}, true);
+                if (rect1.isFinite && rect2.isFinite) {
+                    const dx = rect1.right + 10 - rect2.left;
+                    const dy = rect1.y - rect2.y;
+                    resData.entities.transform({translate: [dx, dy]}, true);
+                }
                 data.entities.merge(resData.entities);
                 data.blocks = resData.blocks;
                 await this.status.openCad();
@@ -377,9 +379,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
                         data1.entities = data.entities;
                         const data2 = new CadData();
                         data2.entities = resData.entities;
-                        const {min: min1} = data1.getBoundingRect();
-                        const {min: min2} = data2.getBoundingRect();
-                        data2.transform({translate: min1.sub(min2)}, true);
+                        const rect1 = data1.getBoundingRect();
+                        const rect2 = data2.getBoundingRect();
+                        if (rect1.isFinite && rect2.isFinite) {
+                            data2.transform({translate: rect1.min.clone().sub(rect2.min)}, true);
+                        }
                         data.entities = data2.entities;
                     } else {
                         data.entities = resData.entities;
