@@ -142,6 +142,13 @@ export class ImportComponent extends Utils() implements OnInit {
         });
         const maxLineLength = isXinghao ? this.maxLineLength : 0;
         const {cads, slgses, sourceCadMap, xinghaoInfo} = CadPortable.import({sourceCad: data, maxLineLength, 导入dxf文件时展开名字不改变});
+
+        const hasEmptyCad = cads.length < 1 || cads.some((cad) => cad.data.entities.length < 1);
+        if (hasEmptyCad) {
+            this.message.alert({title: "dxf识别错误", content: "可能原因：<br>cad使用了绿色线<br>数据为空<br>绿色框不封闭"});
+            return finish(true, "error");
+        }
+
         if (isXinghao) {
             if (!sourceCadMap.xinghao) {
                 this.message.alert("导入文件为非型号文件，请使用左侧按钮。");
@@ -348,11 +355,7 @@ export class ImportComponent extends Utils() implements OnInit {
             await this._validateSlgs(slgses[i]);
         }
 
-        let hasEmptyCad = false;
         const data = this.cads.map((v) => {
-            if (v.data.entities.length < 1) {
-                hasEmptyCad = true;
-            }
             const json = v.data.export();
             json.选项 = json.options;
             json.条件 = json.conditions;
@@ -367,23 +370,19 @@ export class ImportComponent extends Utils() implements OnInit {
                 分类2: json.type2
             };
         });
-        if (hasEmptyCad) {
-            this.message.alert("数据为空或绿色框不封闭");
-        } else {
-            try {
-                this.batchCheckData = data;
-                const checkResult = window.batchCheck(data);
-                this.cads.forEach((cad) => {
-                    const errors = checkResult[cad.data.id];
-                    if (errors && errors.length > 0) {
-                        cad.errors = cad.errors.concat(errors);
-                    }
-                });
-            } catch (error) {
-                console.error(error);
-                if (error instanceof Error) {
-                    this.message.alert(error.message);
+        try {
+            this.batchCheckData = data;
+            const checkResult = window.batchCheck(data);
+            this.cads.forEach((cad) => {
+                const errors = checkResult[cad.data.id];
+                if (errors && errors.length > 0) {
+                    cad.errors = cad.errors.concat(errors);
                 }
+            });
+        } catch (error) {
+            console.error(error);
+            if (error instanceof Error) {
+                this.message.alert(error.message);
             }
         }
 
