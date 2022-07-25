@@ -880,6 +880,7 @@ export class CadPortable {
             type,
             get("型号"),
             get("开启"),
+            get("锁向"),
             get("门铰"),
             get("门扇厚度"),
             get("产品分类"),

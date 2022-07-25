@@ -542,12 +542,14 @@ export class ImportComponent extends Utils() implements OnInit {
             if (isShiyitu(data)) {
                 if (e.mingzi.includes("=")) {
                     cad.errors.push("示意图标注不能有=号");
-                } else {
+                } else if (!e.mingzi.includes("显示公式")) {
                     e.mingzi = "显示公式: " + e.mingzi;
                 }
             } else {
                 if (e.info.isGongshi) {
-                    e.mingzi = "显示公式: " + e.mingzi;
+                    if (!e.mingzi.includes("显示公式")) {
+                        e.mingzi = "显示公式: " + e.mingzi;
+                    }
                     const id1 = e.entity1.id;
                     const id2 = e.entity2.id;
                     if (!(id1 && id2)) {

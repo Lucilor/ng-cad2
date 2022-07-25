@@ -45,7 +45,7 @@ const changelogPath = path.join(targetDir, changelogName);
 const backupName = "ng_cad2";
 
 gulp.task("build", () => child_process.exec("npm run build"));
-gulp.task("clean", () => {}); // deleteAsync(targetDistDir, {force: true}));
+gulp.task("clean", () => new Promise<void>((resolve) => resolve())); // deleteAsync(targetDistDir, {force: true}));
 gulp.task("copy", () => gulp.src("./dist/**").pipe(gulp.dest(targetDistDir)));
 
 gulp.task("zip", (callback) => {
