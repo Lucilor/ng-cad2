@@ -15,8 +15,8 @@
         "moduleResolution": "node",
         "importHelpers": true,
         "target": "es2020",
-        "module": "esnext",
-        "lib": ["esnext", "dom"],
+        "module": "ESNext",
+        "lib": ["DOM" ,"ESNext"],
         "paths": {
             "@utils": ["src/cad-viewer/src/utils/src"],
             "@cad-viewer": ["src/cad-viewer/src"],
@@ -41,7 +41,6 @@
     },
     "ts-node": {
         "compilerOptions": {
-            "target": "esnext",
             "module": "commonjs",
             "esModuleInterop": true
         }

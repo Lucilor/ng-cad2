@@ -1,7 +1,7 @@
 import {ObjectOf} from "@utils";
 import axios from "axios";
 import child_process from "child_process";
-import del from "del";
+// import {deleteAsync} from "del";
 import FormData from "form-data";
 import fs from "fs";
 import gulp from "gulp";
@@ -45,7 +45,7 @@ const changelogPath = path.join(targetDir, changelogName);
 const backupName = "ng_cad2";
 
 gulp.task("build", () => child_process.exec("npm run build"));
-gulp.task("clean", () => del(targetDistDir, {force: true}));
+gulp.task("clean", () => {}); // deleteAsync(targetDistDir, {force: true}));
 gulp.task("copy", () => gulp.src("./dist/**").pipe(gulp.dest(targetDistDir)));
 
 gulp.task("zip", (callback) => {
