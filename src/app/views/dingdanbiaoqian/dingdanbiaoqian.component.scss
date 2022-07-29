@@ -97,6 +97,7 @@ $info-border: solid 1px black;
             .cell {
                 display: flex;
                 flex: 1 1 0;
+                height: 100%;
                 &.border {
                     &:not(:last-child) {
                         border-right: $info-border;
@@ -110,8 +111,10 @@ $info-border: solid 1px black;
                 .value {
                     word-break: break-word;
                     padding: 3px;
+                    display: flex;
+                    align-items: center;
                     &.center {
-                        text-align: center;
+                        justify-content: center;
                     }
                 }
                 .value {

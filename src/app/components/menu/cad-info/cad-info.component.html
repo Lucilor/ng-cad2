@@ -15,7 +15,7 @@
                 <button mat-icon-button matSuffix color="primary" (click)="removeBaseLine(data, j)">
                     <mat-icon>remove_circle</mat-icon>
                 </button>
-                <mat-hint [align]="'start'">x:{{ b.valueX?.toFixed(2) }}, y:{{ b.valueY?.toFixed(2) }}</mat-hint>
+                <mat-hint [align]="'start'">x:{{ b.valueX.toFixed(2) }}, y:{{ b.valueY.toFixed(2) }}</mat-hint>
             </mat-form-field>
         </div>
     </div>
@@ -33,7 +33,7 @@
                 <button mat-icon-button matSuffix color="primary" (click)="removeJointPoint(data, j)">
                     <mat-icon>remove_circle</mat-icon>
                 </button>
-                <mat-hint [align]="'start'">x:{{ p.valueX?.toFixed(2) }}, y:{{ p.valueY?.toFixed(2) }}</mat-hint>
+                <mat-hint [align]="'start'">x:{{ p.valueX.toFixed(2) }}, y:{{ p.valueY.toFixed(2) }}</mat-hint>
             </mat-form-field>
         </div>
     </div>

@@ -57,15 +57,15 @@ export class DingdanbiaoqianComponent implements OnInit {
         rows: [
             {
                 cells: [
-                    {key: "经销商名字", label: "客户", class: "alt"},
+                    {key: "客户名字", label: "客户", class: "alt"},
                     {key: "订单编号", label: "编号", class: "alt"}
                 ]
             },
             {
-                cells: [{key: "款式"}, {key: "开式"}]
+                cells: [{key: "款式"}, {key: "开启锁向", label: "开式"}]
             },
-            {cells: [{key: "锁型", label: "锁型"}]},
-            {cells: [{key: "底框"}, {key: "铰型"}, {key: "商标"}]},
+            {cells: [{key: "拉手信息", label: "锁型"}]},
+            {cells: [{key: "底框"}, {key: "门铰信息", label: "铰型"}, {key: "商标"}]},
             {
                 cells: [
                     {key: "猫眼", isBoolean: true},
@@ -73,12 +73,12 @@ export class DingdanbiaoqianComponent implements OnInit {
                     {key: "拉片", isBoolean: true}
                 ]
             },
-            {cells: [{key: "内门类型"}]},
+            {cells: [{key: "套门信息", label: "内门类型"}]},
             {
                 cells: [
-                    {key: "内门锁型", label: "锁型"},
-                    {key: "内门猫眼", label: "猫眼"},
-                    {key: "内门页厚", label: "页厚"}
+                    {key: "套门拉手信息", label: "锁型"},
+                    {key: "套门猫眼", label: "猫眼"},
+                    {key: "套门厚度", label: "页厚"}
                 ]
             }
         ]
@@ -182,8 +182,10 @@ export class DingdanbiaoqianComponent implements OnInit {
             } catch (error) {
                 let msg = "未知错误";
                 if (typeof error === "string") {
-                    if (error.includes("is not a valid input for CODE128AUTO")) {
+                    if (error.includes("is not a valid input")) {
                         msg = "订单编号不能包含中文或特殊字符，请修改订单编号";
+                    } else {
+                        msg = error;
                     }
                 }
                 console.warn(error);
@@ -195,7 +197,7 @@ export class DingdanbiaoqianComponent implements OnInit {
                 }
             }
 
-            this.spinner.show(this.spinner.defaultLoaderId, {text: "生成预览图..."});
+            this.spinner.show(this.spinner.defaultLoaderId, {text: "生成中..."});
             const configBase: Partial<CadViewerConfig> = {
                 hideLineLength: false,
                 hideLineGongshi: true,
