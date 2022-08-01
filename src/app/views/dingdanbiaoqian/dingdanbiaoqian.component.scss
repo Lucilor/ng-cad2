@@ -41,7 +41,7 @@ $cads-border: solid 1px grey;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
-        padding: 5px;
+        padding: 8px;
         box-sizing: border-box;
         box-shadow: none;
         // border: $cads-border;
@@ -65,7 +65,7 @@ $cads-border: solid 1px grey;
         .cad-size {
             span:first-of-type {
                 border: $cads-border;
-                padding: 3px 10px;
+                padding: 0 10px;
                 background-color: #e5e5e5;
             }
         }
@@ -125,6 +125,11 @@ $info-border: solid 1px black;
                     .value {
                         font-weight: bold;
                         font-size: 18px;
+                    }
+                }
+                &.text-left {
+                    .value {
+                        justify-content: flex-start;
                     }
                 }
             }

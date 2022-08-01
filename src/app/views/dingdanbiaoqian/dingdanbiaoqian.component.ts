@@ -34,9 +34,17 @@ export interface Order {
     info: ObjectOf<string | number>[] | null;
 }
 
+export interface SectionCell {
+    key: string;
+    label?: string;
+    isBoolean?: boolean;
+    class?: string | string[];
+    style?: Properties;
+}
+
 export interface SectionConfig {
     rows: {
-        cells: {key: string; label?: string; isBoolean?: boolean; class?: "alt"}[];
+        cells: SectionCell[];
     }[];
 }
 
@@ -64,7 +72,7 @@ export class DingdanbiaoqianComponent implements OnInit {
             {
                 cells: [{key: "款式"}, {key: "开启锁向", label: "开式"}]
             },
-            {cells: [{key: "拉手信息", label: "锁型"}]},
+            {cells: [{key: "拉手信息", label: "锁型", class: "text-left"}]},
             {cells: [{key: "底框"}, {key: "门铰信息", label: "铰型"}, {key: "商标"}]},
             {
                 cells: [
@@ -353,5 +361,13 @@ export class DingdanbiaoqianComponent implements OnInit {
 
     onConfigChange() {
         this._saveConfig();
+    }
+
+    getValue(section: ObjectOf<string | number>, cell: SectionCell) {
+        const value = String(section[cell.key] || "");
+        if ((cell.key || cell.label) === "页厚" && value === "0") {
+            return "";
+        }
+        return value;
     }
 }

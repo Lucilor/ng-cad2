@@ -7,7 +7,7 @@
                         <div class="row" *ngFor="let row of sectionConfig.rows">
                             <div class="cell border" *ngFor="let cell of row.cells" [ngClass]="cell.class || ''">
                                 <div class="label center">{{ cell.label || cell.key }}</div>
-                                <div class="value center">{{ section[cell.key] }}</div>
+                                <div class="value center">{{ getValue(section, cell) }}</div>
                             </div>
                         </div>
                         <div class="row flex-row">
@@ -32,36 +32,36 @@
                                         <div class="value center">宽×高×厚</div>
                                     </div>
                                     <div class="flex-row cell">
-                                        <div class="label">外尺：&nbsp;</div>
+                                        <div class="label">外尺&nbsp;</div>
                                         <div class="value info-border-bottom">{{ section["包框规格"] }}</div>
                                     </div>
                                     <div class="flex-row cell">
-                                        <div class="label">外门板：</div>
-                                        <div class="value info-border-bottom">{{ section["门扇信息"] }}</div>
+                                        <div class="label">外门板</div>
+                                        <div class="value info-border-bottom">{{ section["订货单门扇信息"] }}</div>
                                     </div>
                                     <div class="flex-row cell">
-                                        <div class="label">内门板：</div>
+                                        <div class="label">内门板</div>
                                         <div class="value info-border-bottom">{{ section["套门门扇信息"] }}</div>
                                     </div>
                                     <div class="flex-row cell">
-                                        <div class="label">门花：&nbsp;</div>
+                                        <div class="label">门花&nbsp;</div>
                                         <div class="value info-border-bottom">{{ section["花件尺寸"] }}</div>
                                     </div>
                                     <div class="flex-row cell">
-                                        <div class="label">门头花：</div>
+                                        <div class="label">门头花</div>
                                         <div class="value">{{ section["门头花尺寸"] }}</div>
                                     </div>
                                 </div>
                                 <div class="flex-column flex-110">
                                     <div class="cell">
-                                        <div class="value">{{ section["特别要求"] }}</div>
+                                        <div class="value">{{ section["其他备注"] }}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row" style="height: 60px; border-bottom: none">
                             <div class="cell">
-                                <div class="value center">{{ section["花件厚度"] }}mm花 {{ section["花件颜色"] }}</div>
+                                <div class="value center">{{ section["花件备注"] }}</div>
                             </div>
                         </div>
                         <div class="row flex-110">
@@ -90,7 +90,7 @@
                     </mat-card>
                 </div>
             </ng-template>
-            <div class="footer">第{{ i + 1 }}页，共{{ orders.length }}页</div>
+            <div class="footer" *ngIf="i > 0">第{{ i }}页，共{{ orders.length - 1 }}页</div>
         </mat-expansion-panel>
     </ng-container>
 </mat-accordion>
