@@ -1,4 +1,5 @@
 import {AbstractControlOptions, FormControl, FormControlOptions, FormControlState, FormGroup} from "@angular/forms";
+import {environment} from "@env";
 import {LocalStorage, ObjectOf, SessionStorage, Timer} from "@utils";
 
 declare global {
@@ -92,3 +93,9 @@ export const getFormControl = <T>(value: T | FormControlState<T>, opts: FormCont
 
 export const getFormGroup = <T extends ObjectOf<any>>(controls: {[K in keyof T]: FormControl<T[K]>}, opts?: AbstractControlOptions) =>
     new FormGroup(controls, opts);
+
+export const setDevComponent = <T>(key: string, component: T) => {
+    if (!environment.production) {
+        (window as any)[key] = component;
+    }
+};

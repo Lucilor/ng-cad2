@@ -8,7 +8,12 @@ export type Gongshi = string | number;
 
 export type BooleanCN = "是" | "否";
 
-export interface KlkwpzItemBase {
+export type KlkwpzItemType = "增加指定偏移" | "自增等距阵列" | "固定行列阵列";
+export type KlkwpzItemType2 = "自定义XY基准" | "面基准";
+export type KlkwpzItemType3 = "无阵列" | "阵列范围缩减" | "阵列限定宽高" | "阵列不限制";
+
+export interface KlkwpzItem {
+    name: string;
     face: string;
     x: Gongshi;
     y: Gongshi;
@@ -19,14 +24,20 @@ export interface KlkwpzItemBase {
     baseX: Gongshi;
     baseY: Gongshi;
     板材打孔范围缩减: {上: Gongshi; 下: Gongshi; 左: Gongshi; 右: Gongshi};
-    删除超出板材的孔: BooleanCN;
+    板材孔位阵列范围: {宽: Gongshi; 高: Gongshi};
+    不删除超出板材的孔?: BooleanCN;
+    删除超出板材的孔X?: BooleanCN;
+    删除超出板材的孔Y?: BooleanCN;
+    类型: KlkwpzItemType;
+    类型2: KlkwpzItemType2;
+    类型3: KlkwpzItemType3;
+    增加指定偏移?: {x: Gongshi; y: Gongshi}[];
+    自增等距阵列?: KlkwpzItemMatrix;
+    固定行列阵列?: KlkwpzItemMatrix;
+    孔依附板材边缘?: BooleanCN;
 }
 
-export interface KlkwpzItemType0 extends KlkwpzItemBase {
-    类型: "";
-}
-
-export interface KlkwpzItemMatrixBase {
+export interface KlkwpzItemMatrix {
     自增方向: string;
     行数: Gongshi;
     列数: Gongshi;
@@ -35,42 +46,18 @@ export interface KlkwpzItemMatrixBase {
     孔依附板材边缘: BooleanCN;
 }
 
-export interface KlkwpzItemType1 extends KlkwpzItemBase {
-    类型: "增加指定偏移";
-    增加指定偏移: {x: Gongshi; y: Gongshi}[];
-}
+export type KlkwpzItemWithoutName = Omit<KlkwpzItem, "name">;
 
-export interface KlkwpzItemType2 extends KlkwpzItemBase {
-    类型: "自增等距阵列";
-    自增等距阵列: KlkwpzItemMatrixBase;
-}
-
-export interface KlkwpzItemType3 extends KlkwpzItemBase {
-    类型: "固定行列阵列";
-    固定行列阵列: KlkwpzItemMatrixBase;
-}
-
-export type KlkwpzItem = KlkwpzItemType0 | KlkwpzItemType1 | KlkwpzItemType2 | KlkwpzItemType3;
-
-export type KailiaokongweipeizhiSource = ObjectOf<Partial<KlkwpzItem>[]>;
-
-export interface KlkwpzItemTypeMap {
-    "": KlkwpzItemType0;
-    增加指定偏移: KlkwpzItemType1;
-    自增等距阵列: KlkwpzItemType2;
-    固定行列阵列: KlkwpzItemType3;
-}
-
-export type KlkwpzItemType = KlkwpzItem["类型"];
+export type KailiaokongweipeizhiSource = ObjectOf<Partial<KlkwpzItemWithoutName>[]>;
 
 export class Kailiaokongweipeizhi {
-    data: {key: string; value: KlkwpzItem[]}[] = [];
+    data: KlkwpzItem[] = [];
 
     constructor(source?: KailiaokongweipeizhiSource) {
         this.init(source);
     }
 
-    private _getKlkwpzItem(source: Partial<KlkwpzItem> = {}) {
+    getKlkwpzItem(name: string, source: Partial<KlkwpzItem> = {}) {
         const getGongshi = (sourceGongshi?: Gongshi): Gongshi => sourceGongshi || "";
         const getAnchor = (sourceAnchor?: Anchor): Anchor => {
             if (!sourceAnchor) {
@@ -82,7 +69,30 @@ export class Kailiaokongweipeizhi {
         keysOf(板材打孔范围缩减).forEach((key) => {
             板材打孔范围缩减[key] = getGongshi(source.板材打孔范围缩减?.[key]);
         });
-        let result: KlkwpzItem = {
+        const 板材孔位阵列范围: KlkwpzItem["板材孔位阵列范围"] = {宽: "", 高: ""};
+        keysOf(板材孔位阵列范围).forEach((key) => {
+            板材孔位阵列范围[key] = getGongshi(source.板材孔位阵列范围?.[key]);
+        });
+        let 类型2: KlkwpzItemType2;
+        if (source.baseX && source.baseY) {
+            类型2 = "自定义XY基准";
+        } else {
+            类型2 = "面基准";
+        }
+        let 类型3: KlkwpzItemType3;
+        if (source.增加指定偏移 || source.自增等距阵列 || source.固定行列阵列) {
+            if (板材孔位阵列范围.宽 && 板材孔位阵列范围.高) {
+                类型3 = "阵列范围缩减";
+            } else if (板材打孔范围缩减.上 || 板材打孔范围缩减.下 || 板材打孔范围缩减.左 || 板材打孔范围缩减.右) {
+                类型3 = "阵列限定宽高";
+            } else {
+                类型3 = "阵列不限制";
+            }
+        } else {
+            类型3 = "无阵列";
+        }
+        const result: KlkwpzItem = {
+            name,
             face: source.face || "",
             x: getGongshi(source.x),
             y: getGongshi(source.y),
@@ -93,12 +103,17 @@ export class Kailiaokongweipeizhi {
             baseX: getGongshi(source.baseX),
             baseY: getGongshi(source.baseY),
             板材打孔范围缩减,
-            删除超出板材的孔: source.删除超出板材的孔 === "否" ? "否" : "是",
-            类型: ""
+            板材孔位阵列范围,
+            不删除超出板材的孔: source.不删除超出板材的孔,
+            删除超出板材的孔X: source.删除超出板材的孔X,
+            删除超出板材的孔Y: source.删除超出板材的孔Y,
+            类型: source.类型 || "增加指定偏移",
+            类型2,
+            类型3,
+            增加指定偏移: source.增加指定偏移,
+            自增等距阵列: source.自增等距阵列,
+            固定行列阵列: source.固定行列阵列
         };
-        if (source.类型 === "增加指定偏移") {
-            result = {...result, 类型: "增加指定偏移", 增加指定偏移: []} as KlkwpzItemType1;
-        }
         return result;
     }
 
@@ -136,32 +151,38 @@ export class Kailiaokongweipeizhi {
         this.data = [];
         source = getObject(source);
         for (const key in source) {
-            const value = source[key].map((v) => this._getKlkwpzItem(v));
-            this.data.push({key, value});
+            this.data.push(...source[key].map((v) => this.getKlkwpzItem(key, v)));
         }
     }
 
     export() {
         const result: KailiaokongweipeizhiSource = {};
-        cloneDeep(this.data).forEach((v) => {
-            v.value.forEach((vv) => {
-                this._trimObjGongshi(vv.板材打孔范围缩减);
-                this._purgeObj(vv.板材打孔范围缩减);
-                this._trimObjGongshi(vv, ["x", "y", "maxX", "maxY", "baseX", "baseY"]);
-                if (vv.类型 === "增加指定偏移") {
-                    vv.增加指定偏移.forEach((vvv) => {
-                        this._trimObjGongshi(vvv);
-                    });
-                } else if (vv.类型 === "自增等距阵列") {
-                    this._trimObjGongshi(vv.自增等距阵列);
-                    this._purgeObj(vv.自增等距阵列);
-                } else if (vv.类型 === "固定行列阵列") {
-                    this._trimObjGongshi(vv.固定行列阵列);
-                    this._purgeObj(vv.固定行列阵列);
-                }
-                this._purgeObj(vv, ["baseX", "baseY", "maxX", "maxY", "类型", "板材打孔范围缩减"]);
-            });
-            result[v.key] = v.value;
+        cloneDeep(this.data).forEach((vv) => {
+            this._trimObjGongshi(vv.板材打孔范围缩减);
+            this._purgeObj(vv.板材打孔范围缩减);
+            this._trimObjGongshi(vv, ["x", "y", "maxX", "maxY", "baseX", "baseY"]);
+            if (vv.增加指定偏移) {
+                vv.增加指定偏移.forEach((vvv) => {
+                    this._trimObjGongshi(vvv);
+                });
+            }
+            if (vv.自增等距阵列) {
+                this._trimObjGongshi(vv.自增等距阵列);
+                this._purgeObj(vv.自增等距阵列);
+            }
+            if (vv.固定行列阵列) {
+                this._trimObjGongshi(vv.固定行列阵列);
+                this._purgeObj(vv.固定行列阵列);
+            }
+            this._purgeObj(vv, ["face", "baseX", "baseY", "maxX", "maxY", "类型", "板材打孔范围缩减"]);
+            if (vv.name in result) {
+                result[vv.name].push(vv);
+            } else {
+                result[vv.name] = [vv];
+            }
+            delete (vv as any).name;
+            delete (vv as any).类型2;
+            delete (vv as any).类型3;
         });
         return result;
     }
@@ -175,9 +196,9 @@ export class Kailiaokongweipeizhi {
             }
         });
         if (type === "增加指定偏移") {
-            (item as KlkwpzItemType1).增加指定偏移 = [];
+            item.增加指定偏移 = [];
         } else if (type === "自增等距阵列" || type === "固定行列阵列") {
-            const base: KlkwpzItemMatrixBase = {
+            const base: KlkwpzItemMatrix = {
                 自增方向: "",
                 行数: "",
                 列数: "",

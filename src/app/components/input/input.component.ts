@@ -29,37 +29,37 @@ export class InputComponent extends Utils() {
                 return v;
             });
         }
+        if (value.value) {
+            const {data, key} = this.model;
+            if (data && typeof data === "object" && key) {
+                data[key] = value.value;
+            }
+        }
+    }
+
+    private _model: NonNullable<Required<InputInfo["model"]>> = {data: {key: ""}, key: "key"};
+    get model() {
+        let model = {...this.info.model};
+        if (!model || !("data" in model) || !("key" in model)) {
+            model = this._model;
+        }
+        if (typeof model.data === "function") {
+            model.data = model.data();
+        }
+        return model;
     }
 
     get value() {
-        const model = this.info.model;
-        if (model) {
-            let data = model.data;
-            const key = model.key;
-            if (data) {
-                if (typeof data === "function") {
-                    data = data();
-                }
-            }
-            if (data && typeof data === "object" && key) {
-                return data[key];
-            }
+        const {data, key} = this.model;
+        if (data && typeof data === "object" && key) {
+            return data[key];
         }
         return "";
     }
     set value(val) {
-        const model = this.info.model;
-        if (model) {
-            let data = model.data;
-            const key = model.key;
-            if (data) {
-                if (typeof data === "function") {
-                    data = data();
-                }
-            }
-            if (data && typeof data === "object" && key) {
-                data[key] = val;
-            }
+        const {data, key} = this.model;
+        if (data && typeof data === "object" && key) {
+            data[key] = val;
         }
     }
 

@@ -91,7 +91,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }).bind(this);
 
     async ngAfterViewInit() {
-        (window as any).p = this;
         await timeout(0);
         const queryParams = {...this.route.snapshot.queryParams};
         const action = queryParams.action as string;

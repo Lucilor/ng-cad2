@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from "@angular/core";
+import {Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {BancaiList} from "@modules/http/services/cad-data.service";
 import {BehaviorSubject} from "rxjs";
@@ -19,7 +19,7 @@ export interface BancaiListData {
     templateUrl: "./bancai-list.component.html",
     styleUrls: ["./bancai-list.component.scss"]
 })
-export class BancaiListComponent implements OnInit {
+export class BancaiListComponent {
     checkedIndex = new BehaviorSubject<number>(-1);
 
     constructor(public dialogRef: MatDialogRef<BancaiListComponent, BancaiList[]>, @Inject(MAT_DIALOG_DATA) public data: BancaiListData) {
@@ -27,10 +27,6 @@ export class BancaiListComponent implements OnInit {
         if (checkedItems) {
             this.checkedIndex.next(list.findIndex((v) => checkedItems.includes(v.mingzi)));
         }
-    }
-
-    ngOnInit() {
-        (window as any).b = this;
     }
 
     submit() {

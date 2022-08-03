@@ -164,4 +164,32 @@
             </button>
         </mat-form-field>
     </ng-container>
+    <ng-container *ngSwitchCase="'coordinate'">
+        <div class="sub-form-field">
+            <div class="label">
+                <span>{{ info.label }}</span>
+                <span *ngIf="info.hint">({{ info.hint }})</span>
+            </div>
+            <div>
+                <mat-form-field style="width: 50%">
+                    <mat-label>x</mat-label>
+                    <input matInput type="number" [(ngModel)]="value[0]" [matAutocomplete]="autoX" />
+                    <mat-autocomplete #autoX="matAutocomplete">
+                        <mat-option [value]="0">左</mat-option>
+                        <mat-option [value]="0.5">中</mat-option>
+                        <mat-option [value]="1">右</mat-option>
+                    </mat-autocomplete>
+                </mat-form-field>
+                <mat-form-field style="width: 50%">
+                    <mat-label>y</mat-label>
+                    <input matInput type="number" [(ngModel)]="value[1]" [matAutocomplete]="autoY" />
+                    <mat-autocomplete #autoY="matAutocomplete">
+                        <mat-option [value]="0">上</mat-option>
+                        <mat-option [value]="0.5">中</mat-option>
+                        <mat-option [value]="1">下</mat-option>
+                    </mat-autocomplete>
+                </mat-form-field>
+            </div>
+        </div>
+    </ng-container>
 </ng-container>

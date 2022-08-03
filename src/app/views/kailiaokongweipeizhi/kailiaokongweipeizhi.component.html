@@ -1,257 +1,33 @@
-<div class="btn-group">
+<div class="btn-group" style="padding-left: 20px">
     <div class="spinner-container">
         <button mat-raised-button color="primary" (click)="submit()">提交</button>
         <app-spinner [id]="loaderId" [inline]="true"></app-spinner>
     </div>
-    <button mat-raised-button color="primary" (click)="copyT1()">复制<mat-icon>content_copy</mat-icon></button>
-    <button mat-raised-button color="primary" (click)="pasteT1()">粘贴<mat-icon>content_copy</mat-icon></button>
+    <!-- <button mat-raised-button color="primary" (click)="copyT1()">复制<mat-icon>content_copy</mat-icon></button>
+    <button mat-raised-button color="primary" (click)="pasteT1()">粘贴<mat-icon>content_copy</mat-icon></button> -->
 </div>
 <ng-scrollbar>
-    <div *ngIf="data.length === 0">
-        <button mat-icon-button color="primary" (click)="arrayAdd(data, emptyItem1)">
-            <mat-icon>add_circle</mat-icon>
-        </button>
+    <div class="items">
+        <mat-card *ngFor="let item of data" class="item">
+            <!-- <mat-form-field>
+                <mat-select [(ngModel)]="item['类型2']">
+                    <mat-option *ngFor="let type2 of types2" [value]="type2">{{ type2 }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>孔位名字</mat-label>
+                <input type="text" matInput [(ngModel)]="item.name">
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>孔位名字</mat-label>
+                <input type="text" matInput [(ngModel)]="item.name">
+            </mat-form-field> -->
+            <div class="btn-group">
+                <button mat-icon-button color="primary"><mat-icon>add_circle</mat-icon></button>
+                <button mat-icon-button color="primary"><mat-icon>remove_circle</mat-icon></button>
+            </div>
+            <app-input *ngFor="let info of item.inputs1" [info]="info" [ngClass]="info.label"></app-input>
+            <app-input *ngFor="let info of item.inputs2" [info]="info" [ngClass]="info.label"></app-input>
+        </mat-card>
     </div>
-    <mat-accordion>
-        <mat-expansion-panel *ngFor="let t1 of data; let i = index" class="t1">
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    孔位名字: <span class="add-empty-msg">{{ t1.key }}</span>
-                </mat-panel-title>
-                <mat-panel-description>共{{ t1.value.length }}个子项目</mat-panel-description>
-            </mat-expansion-panel-header>
-            <ng-template matExpansionPanelContent>
-                <mat-form-field>
-                    <mat-label>孔位名字</mat-label>
-                    <input type="text" matInput [(ngModel)]="t1.key" />
-                    <button matSuffix mat-icon-button color="primary" (click)="arrayAdd(data, emptyItem1, i + 1)">
-                        <mat-icon>add_circle</mat-icon>
-                    </button>
-                    <button matSuffix mat-icon-button color="primary" (click)="arrayRemove(data, i)">
-                        <mat-icon>remove_circle</mat-icon>
-                    </button>
-                    <button matSuffix mat-icon-button color="primary" (click)="copyT2(i)">
-                        <mat-icon>content_copy</mat-icon>
-                    </button>
-                    <button matSuffix mat-icon-button color="primary" (click)="pasteT2(i)">
-                        <mat-icon>content_paste</mat-icon>
-                    </button>
-                </mat-form-field>
-                <div *ngIf="t1.value.length === 0">
-                    <button mat-icon-button color="primary" (click)="arrayAdd(t1.value, emptyItem2)">
-                        <mat-icon>add_circle</mat-icon>
-                    </button>
-                </div>
-                <mat-accordion>
-                    <mat-expansion-panel *ngFor="let t2 of t1.value; let j = index" class="t2">
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>
-                                成型面: <span class="add-empty-msg">{{ t2.face }}</span>
-                            </mat-panel-title>
-                        </mat-expansion-panel-header>
-                        <ng-template matExpansionPanelContent>
-                            <mat-form-field style="width: 100%">
-                                <mat-label>成型面</mat-label>
-                                <input type="text" matInput [(ngModel)]="t2.face" />
-                                <button matSuffix mat-icon-button color="primary" (click)="arrayAdd(t1.value, emptyItem2, j + 1)">
-                                    <mat-icon>add_circle</mat-icon>
-                                </button>
-                                <button matSuffix mat-icon-button color="primary" (click)="arrayRemove(t1.value, j)">
-                                    <mat-icon>remove_circle</mat-icon>
-                                </button>
-                                <button matSuffix mat-icon-button color="primary" (click)="copyT3(i, j)">
-                                    <mat-icon>content_copy</mat-icon>
-                                </button>
-                                <button matSuffix mat-icon-button color="primary" (click)="pasteT3(i, j)">
-                                    <mat-icon>content_paste</mat-icon>
-                                </button>
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>成型面锚点anchor1</mat-label>
-                                <input type="text" matInput [value]="t2.anchor1.join(', ')" readonly />
-                                <button mat-icon-button matSuffix color="primary" [matMenuTriggerFor]="anchor1">
-                                    <mat-icon>list</mat-icon>
-                                </button>
-                                <mat-menu #anchor1="matMenu">
-                                    <app-anchor-selector
-                                        [x]="t2.anchor1[0]"
-                                        [y]="t2.anchor1[1]"
-                                        (anchorChangeEnd)="t2.anchor1 = $event.anchor"
-                                        (click)="$event.stopPropagation()"
-                                    ></app-anchor-selector>
-                                </mat-menu>
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>孔锚点anchor2</mat-label>
-                                <input type="text" matInput [value]="t2.anchor2.join(', ')" readonly />
-                                <button mat-icon-button matSuffix color="primary" [matMenuTriggerFor]="anchor2">
-                                    <mat-icon>list</mat-icon>
-                                </button>
-                                <mat-menu #anchor2="matMenu">
-                                    <app-anchor-selector
-                                        [x]="t2.anchor2[0]"
-                                        [y]="t2.anchor2[1]"
-                                        (anchorChangeEnd)="t2.anchor2 = $event.anchor"
-                                        (click)="$event.stopPropagation()"
-                                    ></app-anchor-selector>
-                                </mat-menu>
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>孔锚点到成型面锚点距离x</mat-label>
-                                <input type="text" matInput [(ngModel)]="t2.x" />
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>孔锚点到成型面锚点距离y</mat-label>
-                                <input type="text" matInput [(ngModel)]="t2.y" />
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>孔锚点到成型面锚点最大距离maxX</mat-label>
-                                <input type="text" matInput [(ngModel)]="t2.maxX" />
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>孔锚点到成型面锚点最大距离maxY</mat-label>
-                                <input type="text" matInput [(ngModel)]="t2.maxY" />
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>基准X baseX</mat-label>
-                                <input type="text" matInput [(ngModel)]="t2.baseX" />
-                            </mat-form-field>
-                            <mat-form-field>
-                                <mat-label>基准Y baseY</mat-label>
-                                <input type="text" matInput [(ngModel)]="t2.baseY" />
-                            </mat-form-field>
-                            <div class="sub-form-field">
-                                <div class="label">板材打孔范围缩减</div>
-                                <div class="t3">
-                                    <mat-form-field>
-                                        <mat-label>上</mat-label>
-                                        <input type="text" matInput [(ngModel)]="t2['板材打孔范围缩减']['上']" />
-                                    </mat-form-field>
-                                    <mat-form-field>
-                                        <mat-label>下</mat-label>
-                                        <input type="text" matInput [(ngModel)]="t2['板材打孔范围缩减']['下']" />
-                                    </mat-form-field>
-                                    <mat-form-field>
-                                        <mat-label>左</mat-label>
-                                        <input type="text" matInput [(ngModel)]="t2['板材打孔范围缩减']['左']" />
-                                    </mat-form-field>
-                                    <mat-form-field>
-                                        <mat-label>右</mat-label>
-                                        <input type="text" matInput [(ngModel)]="t2['板材打孔范围缩减']['右']" />
-                                    </mat-form-field>
-                                </div>
-                            </div>
-                            <mat-form-field style="width: 50%">
-                                <mat-label>类型</mat-label>
-                                <mat-select [value]="t2['类型']" (selectionChange)="klkwpz.setKlkwpzItemType(t2, $event.value)">
-                                    <mat-option value="">无</mat-option>
-                                    <mat-option value="增加指定偏移">增加指定偏移</mat-option>
-                                    <mat-option value="自增等距阵列">自增等距阵列</mat-option>
-                                    <mat-option value="固定行列阵列">固定行列阵列</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <mat-form-field style="width: 50%">
-                                <mat-label>删除超出板材的孔</mat-label>
-                                <mat-select [(ngModel)]="t2['删除超出板材的孔']">
-                                    <mat-option value="是">是</mat-option>
-                                    <mat-option value="否">否</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <ng-container *ngIf="t2['类型'] === '增加指定偏移'">
-                                <div class="sub-form-field">
-                                    <div class="label">增加指定偏移</div>
-                                    <div *ngIf="t2['增加指定偏移'].length === 0">
-                                        <button mat-icon-button color="primary" (click)="arrayAdd(t2['增加指定偏移'], {x: '', y: ''})">
-                                            <mat-icon>add_circle</mat-icon>
-                                        </button>
-                                    </div>
-                                    <div class="t3" *ngFor="let t3 of t2['增加指定偏移']; let k = index">
-                                        <button
-                                            mat-icon-button
-                                            color="primary"
-                                            (click)="arrayAdd(t2['增加指定偏移'], {x: '', y: ''}, k + 1)"
-                                        >
-                                            <mat-icon>add_circle</mat-icon>
-                                        </button>
-                                        <button mat-icon-button color="primary" (click)="arrayRemove(t2['增加指定偏移'], k)">
-                                            <mat-icon>remove_circle</mat-icon>
-                                        </button>
-                                        <mat-form-field>
-                                            <mat-label>x</mat-label>
-                                            <input type="text" matInput [(ngModel)]="t3.x" />
-                                        </mat-form-field>
-                                        <mat-form-field>
-                                            <mat-label>y</mat-label>
-                                            <input type="text" matInput [(ngModel)]="t3.y" />
-                                        </mat-form-field>
-                                    </div>
-                                </div>
-                            </ng-container>
-                            <ng-container *ngIf="['自增等距阵列', '固定行列阵列'].includes(t2['类型'])">
-                                <div class="sub-form-field">
-                                    <div class="label">{{ t2["类型"] }}</div>
-                                    <div class="t3">
-                                        <mat-form-field style="width: 50%">
-                                            <mat-label>自增方向</mat-label>
-                                            <input
-                                                type="text"
-                                                matInput
-                                                [value]="getItemMatrix(t2, '自增方向')"
-                                                (input)="setItemMatrix(t2, '自增方向', $event)"
-                                            />
-                                        </mat-form-field>
-                                        <mat-form-field style="width: 50%">
-                                            <mat-label>孔依附板材边缘</mat-label>
-                                            <input
-                                                type="text"
-                                                matInput
-                                                [value]="getItemMatrix(t2, '孔依附板材边缘')"
-                                                (input)="setItemMatrix(t2, '孔依附板材边缘', $event)"
-                                            />
-                                        </mat-form-field>
-                                        <mat-form-field>
-                                            <mat-label>行数</mat-label>
-                                            <input
-                                                type="text"
-                                                matInput
-                                                [value]="getItemMatrix(t2, '行数')"
-                                                (input)="setItemMatrix(t2, '行数', $event)"
-                                            />
-                                        </mat-form-field>
-                                        <mat-form-field>
-                                            <mat-label>列数</mat-label>
-                                            <input
-                                                type="text"
-                                                matInput
-                                                [value]="getItemMatrix(t2, '列数')"
-                                                (input)="setItemMatrix(t2, '列数', $event)"
-                                            />
-                                        </mat-form-field>
-                                        <mat-form-field>
-                                            <mat-label>行距</mat-label>
-                                            <input
-                                                type="text"
-                                                matInput
-                                                [value]="getItemMatrix(t2, '行距')"
-                                                (input)="setItemMatrix(t2, '行距', $event)"
-                                            />
-                                        </mat-form-field>
-                                        <mat-form-field>
-                                            <mat-label>列距</mat-label>
-                                            <input
-                                                type="text"
-                                                matInput
-                                                [value]="getItemMatrix(t2, '列距')"
-                                                (input)="setItemMatrix(t2, '列距', $event)"
-                                            />
-                                        </mat-form-field>
-                                    </div>
-                                </div>
-                            </ng-container>
-                        </ng-template>
-                    </mat-expansion-panel>
-                </mat-accordion>
-            </ng-template>
-        </mat-expansion-panel>
-    </mat-accordion>
 </ng-scrollbar>

@@ -47,13 +47,20 @@ export interface InputInfoSelect<T = any> extends InputInfoBase<T> {
     onChange?: (val: string) => void;
 }
 
+export interface InputInfoCoordinate<T = any> extends InputInfoBase<T> {
+    type: "coordinate";
+    simpleUI?: boolean;
+    onChange?: (val: [number, number]) => void;
+}
+
 export type InputInfo<T = any> =
     | InputInfoString<T>
     | InputInfoNumber<T>
     | InputInfoObject<T>
     | InputInfoArray<T>
     | InputInfoBoolean<T>
-    | InputInfoSelect<T>;
+    | InputInfoSelect<T>
+    | InputInfoCoordinate<T>;
 
 export interface InputInfoTypeMap {
     // eslint-disable-next-line id-blacklist
@@ -65,4 +72,5 @@ export interface InputInfoTypeMap {
     // eslint-disable-next-line id-blacklist
     boolean: InputInfoBoolean;
     select: InputInfoSelect;
+    coordinate: InputInfoCoordinate;
 }
