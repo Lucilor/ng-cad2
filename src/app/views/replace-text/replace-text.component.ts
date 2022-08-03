@@ -1,7 +1,7 @@
-import {Component, OnInit} from "@angular/core";
+import {AfterViewInit, Component, OnInit} from "@angular/core";
 import {FormControl, FormGroupDirective, NgForm, ValidatorFn, Validators} from "@angular/forms";
 import {ErrorStateMatcher} from "@angular/material/core";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {CadCollection, getFormControl, getFormGroup, routesInfo} from "@app/app.common";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -27,7 +27,7 @@ interface ToBeReplaced {
     templateUrl: "./replace-text.component.html",
     styleUrls: ["./replace-text.component.scss"]
 })
-export class ReplaceTextComponent extends Subscribed() implements OnInit {
+export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterViewInit {
     replacers: Replacer[] = [
         {type: "全等于", description: ["全等于%s", "%s"], regex: (s) => new RegExp(`^${s}$`)},
         {type: "在开头", description: ["以%s开头", "%s"], regex: (s) => new RegExp(`^${s}`)},
@@ -58,12 +58,14 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
     }
     toBeReplacedList: ToBeReplaced[] = [];
     step = new BehaviorSubject<number>(1);
+    collection = "";
 
     constructor(
         private message: MessageService,
         private dataService: CadDataService,
         private spinner: SpinnerService,
-        private router: Router
+        private router: Router,
+        private route: ActivatedRoute
     ) {
         super();
     }
@@ -78,6 +80,15 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
                 throw new Error("invalid step: " + step);
             }
         });
+    }
+
+    ngAfterViewInit() {
+        const {collection} = this.route.snapshot.queryParams;
+        if (!collection) {
+            this.message.alert({content: new Error("缺少参数: collection")});
+            return;
+        }
+        this.collection = collection;
     }
 
     replaceStrValidator(): ValidatorFn {
@@ -123,6 +134,7 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
             throw new Error("no replacer");
         }
         const postData = {
+            collection: this.collection,
             replaceFrom,
             replaceTo,
             regex: replacer.regex(replaceFrom || "").toString()
@@ -160,6 +172,7 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit {
             throw new Error("no replacer");
         }
         const postData = {
+            collection: this.collection,
             replaceFrom,
             replaceTo,
             regex: replacer.regex(replaceFrom || "").toString(),
