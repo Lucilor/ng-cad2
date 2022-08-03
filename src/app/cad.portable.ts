@@ -371,7 +371,7 @@ export class CadPortable {
                         }
                         if (key === "展开") {
                             zhankaiObjs = Array.from(value.matchAll(/\[([^\]]*)\]/g)).map((vv) => {
-                                const arr = vv[1].split(",");
+                                const arr = vv[1].split(",").map((v) => v.trim());
                                 const zhankaikuan = arr[0];
                                 const zhankaigao = arr[1];
                                 const shuliang = arr[2];
@@ -574,6 +574,8 @@ export class CadPortable {
                 const texts = [];
                 if (exportUniqCode) {
                     texts.push(`唯一码: ${cad.info.唯一码}`);
+                } else {
+                    texts.push("唯一码: ");
                 }
                 const {cadFields, skipFields} = this;
                 for (const key in cadFields) {
