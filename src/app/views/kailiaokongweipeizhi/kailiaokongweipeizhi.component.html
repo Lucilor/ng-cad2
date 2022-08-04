@@ -9,25 +9,13 @@
 <ng-scrollbar>
     <div class="items">
         <mat-card *ngFor="let item of data" class="item">
-            <!-- <mat-form-field>
-                <mat-select [(ngModel)]="item['类型2']">
-                    <mat-option *ngFor="let type2 of types2" [value]="type2">{{ type2 }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>孔位名字</mat-label>
-                <input type="text" matInput [(ngModel)]="item.name">
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>孔位名字</mat-label>
-                <input type="text" matInput [(ngModel)]="item.name">
-            </mat-form-field> -->
             <div class="btn-group">
                 <button mat-icon-button color="primary"><mat-icon>add_circle</mat-icon></button>
                 <button mat-icon-button color="primary"><mat-icon>remove_circle</mat-icon></button>
             </div>
             <app-input *ngFor="let info of item.inputs1" [info]="info" [ngClass]="info.label"></app-input>
             <app-input *ngFor="let info of item.inputs2" [info]="info" [ngClass]="info.label"></app-input>
+            <app-input *ngFor="let info of item.inputs3" [info]="info" [ngClass]="info.label"></app-input>
         </mat-card>
     </div>
 </ng-scrollbar>

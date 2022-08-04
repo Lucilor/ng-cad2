@@ -13,24 +13,43 @@
         margin: 10px;
         box-sizing: border-box;
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
 
         .btn-group {
             width: 100%;
         }
     }
 
-    app-input {
+    ::ng-deep app-input {
         display: flex;
         flex-wrap: wrap;
         width: 100%;
         padding: 5px;
         box-sizing: border-box;
 
-        &.基准X,
-        &.基准Y,
-        &.类型 {
-            width: 50%;
+        .mat-form-field {
+            margin-bottom: -20px;
+        }
+
+        // &.基准X,
+        // &.基准Y,
+        // &.类型,
+        // &.阵列零件范围,
+        // &.行数,
+        // &.列数,
+        // &.行距,
+        // &.列距 {
+        //     width: 50%;
+        // }
+
+        .group {
+            display: flex;
+            width: 100%;
+
+            > * {
+                width: 0;
+                flex: 1 1 0;
+            }
         }
     }
 }

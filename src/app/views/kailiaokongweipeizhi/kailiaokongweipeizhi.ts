@@ -28,7 +28,7 @@ export interface KlkwpzItem {
     不删除超出板材的孔?: BooleanCN;
     删除超出板材的孔X?: BooleanCN;
     删除超出板材的孔Y?: BooleanCN;
-    类型: KlkwpzItemType;
+    类型?: KlkwpzItemType;
     类型2: KlkwpzItemType2;
     类型3: KlkwpzItemType3;
     增加指定偏移?: {x: Gongshi; y: Gongshi}[];
@@ -107,7 +107,7 @@ export class Kailiaokongweipeizhi {
             不删除超出板材的孔: source.不删除超出板材的孔,
             删除超出板材的孔X: source.删除超出板材的孔X,
             删除超出板材的孔Y: source.删除超出板材的孔Y,
-            类型: source.类型 || "增加指定偏移",
+            类型: source.类型 || undefined,
             类型2,
             类型3,
             增加指定偏移: source.增加指定偏移,
@@ -137,8 +137,11 @@ export class Kailiaokongweipeizhi {
             if (typeof value === "object") {
                 if (Array.isArray(value) && value.length === 0) {
                     value = null;
-                } else if (Object.keys(value).length === 0) {
-                    value = null;
+                } else {
+                    this._purgeObj(value);
+                    if (Object.keys(value).length === 0) {
+                        value = null;
+                    }
                 }
             }
             if (!value || value === "否") {
@@ -159,7 +162,7 @@ export class Kailiaokongweipeizhi {
         const result: KailiaokongweipeizhiSource = {};
         cloneDeep(this.data).forEach((vv) => {
             this._trimObjGongshi(vv.板材打孔范围缩减);
-            this._purgeObj(vv.板材打孔范围缩减);
+            this._trimObjGongshi(vv.板材孔位阵列范围);
             this._trimObjGongshi(vv, ["x", "y", "maxX", "maxY", "baseX", "baseY"]);
             if (vv.增加指定偏移) {
                 vv.增加指定偏移.forEach((vvv) => {
@@ -174,7 +177,22 @@ export class Kailiaokongweipeizhi {
                 this._trimObjGongshi(vv.固定行列阵列);
                 this._purgeObj(vv.固定行列阵列);
             }
-            this._purgeObj(vv, ["face", "baseX", "baseY", "maxX", "maxY", "类型", "板材打孔范围缩减"]);
+            this._purgeObj(vv, [
+                "face",
+                "baseX",
+                "baseY",
+                "maxX",
+                "maxY",
+                "类型",
+                "不删除超出板材的孔",
+                "删除超出板材的孔X",
+                "删除超出板材的孔Y",
+                "增加指定偏移",
+                "固定行列阵列",
+                "自增等距阵列",
+                "板材打孔范围缩减",
+                "板材孔位阵列范围"
+            ]);
             if (vv.name in result) {
                 result[vv.name].push(vv);
             } else {

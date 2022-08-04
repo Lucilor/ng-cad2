@@ -192,4 +192,22 @@
             </div>
         </div>
     </ng-container>
+    <ng-container *ngSwitchCase="'group'">
+        <ng-container *ngIf="info.label">
+            <div class="sub-form-field">
+                <div class="label">
+                    <span>{{ info.label }}</span>
+                    <span *ngIf="info.hint">({{ info.hint }})</span>
+                </div>
+                <div class="group">
+                    <app-input *ngFor="let info2 of cast(info, 'group').infos" [info]="info2"></app-input>
+                </div>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="!info.label">
+            <div class="group">
+                <app-input *ngFor="let info2 of cast(info, 'group').infos" [info]="info2"></app-input>
+            </div>
+        </ng-container>
+    </ng-container>
 </ng-container>
