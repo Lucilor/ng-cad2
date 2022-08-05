@@ -54,12 +54,16 @@ export class BackupComponent implements AfterViewInit {
         private status: AppStatusService
     ) {
         (async () => {
-            const {ids, collection} = this.route.snapshot.queryParams;
-            if (ids) {
+            const {id, collection} = this.route.snapshot.queryParams;
+            if (id && collection) {
                 this.spinner.show(this.loaderId, {text: "正在获取数据"});
-                this.cads = (await this.dataService.getCad({ids: ids.split(","), collection})).cads;
+                const cads = (await this.dataService.getCad({id, collection})).cads;
                 this.spinner.hide(this.loaderId);
-                this.searchParams.name = this.cads[0].name;
+                if (cads.length > 0) {
+                    const cad = cads[0];
+                    this.searchParams.name = cad.name;
+                    this.search();
+                }
             }
         })();
     }

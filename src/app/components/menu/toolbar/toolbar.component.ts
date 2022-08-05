@@ -1,5 +1,6 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
+import {Router} from "@angular/router";
 import {routesInfo, local} from "@app/app.common";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines, CadLine} from "@cad-viewer";
 import {openBbzhmkgzDialog} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
@@ -93,7 +94,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         private status: AppStatusService,
         private dialog: MatDialog,
         private dataService: CadDataService,
-        private spinner: SpinnerService
+        private spinner: SpinnerService,
+        private router: Router
     ) {
         super();
         this.subscribe(this.status.changelogTimeStamp$, (changelogTimeStamp) => {
@@ -374,5 +376,10 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
                 document.body.innerHTML = "<h1>已删除</h1>";
             }
         }
+    }
+
+    goToBackup() {
+        const url = this.router.createUrlTree(["/" + this.routesInfo.backup.path], {queryParamsHandling: "merge"});
+        window.open(url.toString());
     }
 }

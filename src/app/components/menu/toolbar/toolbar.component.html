@@ -8,7 +8,7 @@
             <button mat-menu-item (click)="clickBtn('p')">打印<span class="shortcut">Ctrl + P</span></button>
             <button mat-menu-item (click)="copyCad()">复制</button>
             <a mat-menu-item [routerLink]="'/' + routesInfo.import.path" queryParamsHandling="merge" target="_blank">导入</a>
-            <a mat-menu-item [routerLink]="'/' + routesInfo.backup.path" queryParamsHandling="merge" target="_blank">备份</a>
+            <a mat-menu-item (click)="goToBackup()" target="_blank">备份</a>
             <button mat-menu-item (click)="resetIds()">重置实体ID</button>
             <button mat-menu-item (click)="removeCad()">删除</button>
         </mat-menu>
