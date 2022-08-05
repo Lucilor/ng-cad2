@@ -6,9 +6,9 @@ import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-dat
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
-import {InputInfo} from "@components/input/types";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {Utils} from "@mixins/utils.mixin";
+import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService, CadPoints} from "@services/app-status.service";
 import {CadStatusSelectBaseline, CadStatusSelectJointpoint, CadStatusIntersection} from "@services/cad-status";

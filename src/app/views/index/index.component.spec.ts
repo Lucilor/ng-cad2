@@ -18,7 +18,6 @@ import {RouterTestingModule} from "@angular/router/testing";
 import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
 import {CadLayerInputComponent} from "@components/cad-layer-input/cad-layer-input.component";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
-import {InputComponent} from "@components/input/input.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
 import {CadLineComponent} from "@components/menu/cad-line/cad-line.component";
@@ -27,6 +26,7 @@ import {SubCadsComponent} from "@components/menu/sub-cads/sub-cads.component";
 import {ToolbarComponent} from "@components/menu/toolbar/toolbar.component";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {HttpModule} from "@modules/http/http.module";
+import {InputModule} from "@modules/input/input.module";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {ColorChromeModule} from "ngx-color/chrome";
@@ -50,8 +50,7 @@ describe("IndexComponent", () => {
                 CadMtextComponent,
                 CadDimensionComponent,
                 AnchorSelectorComponent,
-                CadLayerInputComponent,
-                InputComponent
+                CadLayerInputComponent
             ],
             imports: [
                 CadConsoleModule,
@@ -60,6 +59,7 @@ describe("IndexComponent", () => {
                 DragDropModule,
                 FormsModule,
                 HttpModule,
+                InputModule,
                 MatAutocompleteModule,
                 MatButtonModule,
                 MatCardModule,

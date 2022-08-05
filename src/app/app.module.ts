@@ -43,7 +43,6 @@ import {JsonEditorComponent} from "@components/dialogs/json-editor/json-editor.c
 import {LoginFormComponent} from "@components/dialogs/login-form/login-form.component";
 import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {ZixuanpeijianComponent} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
-import {InputComponent} from "@components/input/input.component";
 import {CadAssembleComponent} from "@components/menu/cad-assemble/cad-assemble.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
@@ -57,6 +56,7 @@ import {ReplaceFullCharsDirective} from "@directives/replace-full-chars.directiv
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
+import {InputModule} from "@modules/input/input.module";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {TableModule} from "@modules/table/table.module";
@@ -145,8 +145,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         CadLayerInputComponent,
         DingdanbiaoqianComponent,
         ZixuanpeijianComponent,
-        BancaiListComponent,
-        InputComponent
+        BancaiListComponent
     ],
     imports: [
         AppRoutingModule,
@@ -188,7 +187,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         HttpModule,
         MessageModule,
         TableModule,
-        SpinnerModule
+        SpinnerModule,
+        InputModule
     ],
     providers: [
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
