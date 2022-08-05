@@ -64,13 +64,12 @@ body {
 }
 
 .btn-group {
-    margin: 5px 5px 0 5px;
+    margin: 5px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
 
     > * {
-        margin-bottom: 5px !important;
         &:not(:last-child) {
             margin-right: 5px;
         }

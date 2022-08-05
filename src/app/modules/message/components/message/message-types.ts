@@ -1,4 +1,4 @@
-import {ValidatorFn} from "@angular/forms";
+import {AbstractControlOptions} from "@angular/forms";
 
 export interface BaseMessageData {
     title?: string;
@@ -28,7 +28,7 @@ export interface PromptData {
     hint?: string;
     value?: string;
     placeholder?: string;
-    validators?: ValidatorFn | ValidatorFn[] | null;
+    validators?: AbstractControlOptions["validators"];
     options?: {value: string; label?: string}[];
 }
 

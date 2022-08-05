@@ -3,6 +3,7 @@ import {Component, OnInit, Inject, ViewChild, OnDestroy, ElementRef, AfterViewIn
 import {FormControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
+import {getFormControlErrorString} from "@app/app.common";
 import {timeout} from "@utils";
 import {clamp, cloneDeep, debounce} from "lodash";
 import {QuillEditorComponent, QuillViewComponent} from "ngx-quill";
@@ -86,11 +87,7 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     get inputErrors() {
-        const errors = this.input.errors;
-        if (!errors) {
-            return null;
-        }
-        return Object.keys(errors).join(", ");
+        return getFormControlErrorString(this.input);
     }
 
     constructor(

@@ -5,12 +5,23 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatIconModule} from "@angular/material/icon";
+import {MatButtonModule} from "@angular/material/button";
 
 @NgModule({
     declarations: [InputComponent],
-    imports: [CommonModule, FormsModule, MatAutocompleteModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatSelectModule,
+        ReactiveFormsModule
+    ],
     exports: [InputComponent]
 })
 export class InputModule {}

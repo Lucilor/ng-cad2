@@ -1,3 +1,5 @@
+import {AbstractControlOptions} from "@angular/forms";
+
 export interface InputInfoBase<T = any> {
     label: string;
     model?: {data: T | (() => T); key: string};
@@ -15,6 +17,7 @@ export interface InputInfoString<T = any> extends InputInfoBase<T> {
     textarea?: {autosize?: {minRows?: number; maxRows?: number}};
     onInput?: (val: string) => void;
     onChange?: (val: string) => void;
+    validators?: AbstractControlOptions["validators"];
 }
 
 export interface InputInfoNumber<T = any> extends InputInfoBase<T> {

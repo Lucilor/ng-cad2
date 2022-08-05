@@ -99,3 +99,19 @@ export const setDevComponent = <T>(key: string, component: T) => {
         (window as any)[key] = component;
     }
 };
+
+export const getFormControlErrorString = (control: FormControl) => {
+    const errors = control.errors;
+    if (!errors) {
+        return null;
+    }
+    const mapFn = (str: string) => {
+        switch (str) {
+            case "required":
+                return "必填";
+            default:
+                return str;
+        }
+    };
+    return Object.keys(errors).map(mapFn).join(", ");
+};

@@ -158,49 +158,55 @@ export class Kailiaokongweipeizhi {
         }
     }
 
+    exportItem(item: KlkwpzItem) {
+        const result: KlkwpzItem = cloneDeep(item);
+        this._trimObjGongshi(result.板材打孔范围缩减);
+        this._trimObjGongshi(result.板材孔位阵列范围);
+        this._trimObjGongshi(result, ["x", "y", "maxX", "maxY", "baseX", "baseY"]);
+        if (result.增加指定偏移) {
+            result.增加指定偏移.forEach((vvv) => {
+                this._trimObjGongshi(vvv);
+            });
+        }
+        if (result.自增等距阵列) {
+            this._trimObjGongshi(result.自增等距阵列);
+            this._purgeObj(result.自增等距阵列);
+        }
+        if (result.固定行列阵列) {
+            this._trimObjGongshi(result.固定行列阵列);
+            this._purgeObj(result.固定行列阵列);
+        }
+        this._purgeObj(result, [
+            "face",
+            "baseX",
+            "baseY",
+            "maxX",
+            "maxY",
+            "类型",
+            "不删除超出板材的孔",
+            "删除超出板材的孔X",
+            "删除超出板材的孔Y",
+            "增加指定偏移",
+            "固定行列阵列",
+            "自增等距阵列",
+            "板材打孔范围缩减",
+            "板材孔位阵列范围"
+        ]);
+        delete (result as any).name;
+        delete (result as any).类型2;
+        delete (result as any).类型3;
+        return result;
+    }
+
     export() {
         const result: KailiaokongweipeizhiSource = {};
-        cloneDeep(this.data).forEach((vv) => {
-            this._trimObjGongshi(vv.板材打孔范围缩减);
-            this._trimObjGongshi(vv.板材孔位阵列范围);
-            this._trimObjGongshi(vv, ["x", "y", "maxX", "maxY", "baseX", "baseY"]);
-            if (vv.增加指定偏移) {
-                vv.增加指定偏移.forEach((vvv) => {
-                    this._trimObjGongshi(vvv);
-                });
-            }
-            if (vv.自增等距阵列) {
-                this._trimObjGongshi(vv.自增等距阵列);
-                this._purgeObj(vv.自增等距阵列);
-            }
-            if (vv.固定行列阵列) {
-                this._trimObjGongshi(vv.固定行列阵列);
-                this._purgeObj(vv.固定行列阵列);
-            }
-            this._purgeObj(vv, [
-                "face",
-                "baseX",
-                "baseY",
-                "maxX",
-                "maxY",
-                "类型",
-                "不删除超出板材的孔",
-                "删除超出板材的孔X",
-                "删除超出板材的孔Y",
-                "增加指定偏移",
-                "固定行列阵列",
-                "自增等距阵列",
-                "板材打孔范围缩减",
-                "板材孔位阵列范围"
-            ]);
-            if (vv.name in result) {
-                result[vv.name].push(vv);
+        this.data.forEach((vv) => {
+            const item = this.exportItem(vv);
+            if (item.name in result) {
+                (result as any)[item.name].push(result);
             } else {
-                result[vv.name] = [vv];
+                (result as any)[item.name] = [result];
             }
-            delete (vv as any).name;
-            delete (vv as any).类型2;
-            delete (vv as any).类型3;
         });
         return result;
     }

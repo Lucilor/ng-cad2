@@ -1,4 +1,5 @@
 import {Component, OnInit} from "@angular/core";
+import {Validators} from "@angular/forms";
 import {ActivatedRoute} from "@angular/router";
 import {setDevComponent} from "@app/app.common";
 import {environment} from "@env";
@@ -8,6 +9,7 @@ import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
+import {cloneDeep} from "lodash";
 import {Kailiaokongweipeizhi, KlkwpzItem, KlkwpzItemType2, KlkwpzItemType3} from "./kailiaokongweipeizhi";
 import testData from "./kailiaokongweipeizhi.test.json";
 
@@ -40,106 +42,27 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
 
     ngOnInit() {
         setDevComponent("klkwpz", this);
-        this.route.queryParams.subscribe(async (queryParams) => {
-            const id = queryParams.id;
-            if (id) {
-                this.id = id;
-                const response = await this.dataService.get<ObjectOf<KlkwpzItem[]>>("peijian/kailiaokongweipeizhi/get", {id});
-                const data = response?.data;
-                if (typeof data === "object" && !Array.isArray(data)) {
-                    this.klkwpz.init(data);
-                }
-            } else {
-                if (environment.production) {
-                    this.message.alert({content: new Error("参数错误")});
-                    return;
-                } else {
-                    this.klkwpz.init(testData as any);
-                }
+        this._fetch();
+    }
+
+    private async _fetch() {
+        const id = this.route.snapshot.queryParams.id;
+        if (id) {
+            this.id = id;
+            const response = await this.dataService.get<ObjectOf<KlkwpzItem[]>>("peijian/kailiaokongweipeizhi/get", {id});
+            const data = response?.data;
+            if (typeof data === "object" && !Array.isArray(data)) {
+                this.klkwpz.init(data);
             }
-            this.data = this.klkwpz.data.map((item) => {
-                if (!item.自增等距阵列) {
-                    item.自增等距阵列 = this._createItem("").自增等距阵列;
-                }
-                delete item.固定行列阵列;
-                delete item.固定行列阵列;
-                const result: KailiaokongweipeizhiData = {
-                    item,
-                    inputs1: [
-                        {
-                            type: "group",
-                            label: "",
-                            infos: [
-                                {
-                                    type: "select",
-                                    label: "类型",
-                                    options: ["自定义XY基准", "面基准"] as KlkwpzItemType2[],
-                                    model: {data: item, key: "类型2"},
-                                    onChange: () => this._updateItemInputs2(result)
-                                },
-                                {
-                                    type: "select",
-                                    label: "阵列零件范围",
-                                    options: ["无阵列", "阵列范围缩减", "阵列限定宽高", "阵列不限制"] as KlkwpzItemType3[],
-                                    model: {data: item, key: "类型3"},
-                                    onChange: () => this._updateItemInputs3(result)
-                                }
-                            ]
-                        },
-                        {type: "string", label: "名字", model: {data: item, key: "name"}},
-                        {
-                            type: "select",
-                            label: "允许超出范围",
-                            options: ["不允许超出", "允许超出X", "允许超出Y", "允许超出X和Y"],
-                            value: (() => {
-                                const {不删除超出板材的孔, 删除超出板材的孔X, 删除超出板材的孔Y} = item;
-                                let removeX = 删除超出板材的孔X === "是";
-                                let removeY = 删除超出板材的孔Y === "是";
-                                if (不删除超出板材的孔 === "是") {
-                                    removeX = false;
-                                    removeY = false;
-                                } else if (!removeX && !removeY) {
-                                    removeX = true;
-                                    removeY = true;
-                                }
-                                if (!removeX && !removeY) {
-                                    return "允许超出X和Y";
-                                } else if (removeX && removeY) {
-                                    return "不允许超出";
-                                } else if (removeX) {
-                                    return "允许超出Y";
-                                } else {
-                                    return "允许超出X";
-                                }
-                            })(),
-                            onChange: (val) => {
-                                if (val === "允许超出X") {
-                                    delete item.不删除超出板材的孔;
-                                    delete item.删除超出板材的孔X;
-                                    item.删除超出板材的孔Y = "是";
-                                } else if (val === "允许超出Y") {
-                                    delete item.不删除超出板材的孔;
-                                    item.删除超出板材的孔X = "是";
-                                    delete item.删除超出板材的孔Y;
-                                } else if (val === "允许超出X和Y") {
-                                    item.不删除超出板材的孔 = "是";
-                                    delete item.删除超出板材的孔X;
-                                    delete item.删除超出板材的孔Y;
-                                } else {
-                                    delete item.不删除超出板材的孔;
-                                    delete item.删除超出板材的孔X;
-                                    delete item.删除超出板材的孔Y;
-                                }
-                            }
-                        }
-                    ],
-                    inputs2: [],
-                    inputs3: []
-                };
-                this._updateItemInputs2(result);
-                return result;
-            });
-        });
+        } else {
+            if (environment.production) {
+                this.message.alert({content: new Error("参数错误")});
+                return;
+            } else {
+                this.klkwpz.init(testData as any);
+            }
+        }
+        this.data = this.klkwpz.data.map((item) => this._getItemData(item));
     }
 
     private _createItem(name: string): KlkwpzItem {
@@ -155,7 +78,94 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
             列距: "",
             孔依附板材边缘: "否"
         };
+        item.anchor1 = [0, 0];
+        item.anchor2 = [0.5, 0.5];
         return item;
+    }
+
+    private _getItemData(item: KlkwpzItem) {
+        if (!item.自增等距阵列) {
+            item.自增等距阵列 = this._createItem("").自增等距阵列;
+        }
+        delete item.固定行列阵列;
+        delete item.固定行列阵列;
+        const result: KailiaokongweipeizhiData = {
+            item,
+            inputs1: [
+                {
+                    type: "group",
+                    label: "",
+                    infos: [
+                        {
+                            type: "select",
+                            label: "类型",
+                            options: ["自定义XY基准", "面基准"] as KlkwpzItemType2[],
+                            model: {data: item, key: "类型2"},
+                            onChange: () => this._updateItemInputs2(result)
+                        },
+                        {
+                            type: "select",
+                            label: "阵列零件范围",
+                            options: ["无阵列", "阵列范围缩减", "阵列限定宽高", "阵列不限制"] as KlkwpzItemType3[],
+                            model: {data: item, key: "类型3"},
+                            onChange: () => this._updateItemInputs3(result)
+                        }
+                    ]
+                },
+                {type: "string", label: "名字", validators: [Validators.required], model: {data: item, key: "name"}},
+                {
+                    type: "select",
+                    label: "允许超出范围",
+                    options: ["不允许超出", "允许超出X", "允许超出Y", "允许超出X和Y"],
+                    value: (() => {
+                        const {不删除超出板材的孔, 删除超出板材的孔X, 删除超出板材的孔Y} = item;
+                        let removeX = 删除超出板材的孔X === "是";
+                        let removeY = 删除超出板材的孔Y === "是";
+                        if (不删除超出板材的孔 === "是") {
+                            removeX = false;
+                            removeY = false;
+                        } else if (!removeX && !removeY) {
+                            removeX = true;
+                            removeY = true;
+                        }
+                        if (!removeX && !removeY) {
+                            return "允许超出X和Y";
+                        } else if (removeX && removeY) {
+                            return "不允许超出";
+                        } else if (removeX) {
+                            return "允许超出Y";
+                        } else {
+                            return "允许超出X";
+                        }
+                    })(),
+                    onChange: (val) => {
+                        if (val === "允许超出X") {
+                            delete item.不删除超出板材的孔;
+                            delete item.删除超出板材的孔X;
+                            item.删除超出板材的孔Y = "是";
+                        } else if (val === "允许超出Y") {
+                            delete item.不删除超出板材的孔;
+                            item.删除超出板材的孔X = "是";
+                            delete item.删除超出板材的孔Y;
+                        } else if (val === "允许超出X和Y") {
+                            item.不删除超出板材的孔 = "是";
+                            delete item.删除超出板材的孔X;
+                            delete item.删除超出板材的孔Y;
+                        } else {
+                            delete item.不删除超出板材的孔;
+                            delete item.删除超出板材的孔X;
+                            delete item.删除超出板材的孔Y;
+                        }
+                    }
+                },
+                {type: "string", label: "x方向距离", model: {data: item, key: "x"}},
+                {type: "string", label: "y方向距离", model: {data: item, key: "y"}}
+            ],
+            inputs2: [],
+            inputs3: []
+        };
+        this._updateItemInputs2(result);
+        return result;
     }
 
     private _updateItemInputs2(data: KailiaokongweipeizhiData) {
@@ -167,14 +177,15 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
                     type: "group",
                     label: "基准",
                     infos: [
-                        {type: "number", label: "x", model: {data: item, key: "基准X"}},
-                        {type: "number", label: "y", model: {data: item, key: "基准Y"}}
+                        {type: "string", label: "x", model: {data: item, key: "baseX"}},
+                        {type: "string", label: "y", model: {data: item, key: "baseY"}}
                     ]
                 },
                 {type: "coordinate", label: "孔cad基准", model: {data: item, key: "anchor2"}}
             ];
         } else if (类型2 === "面基准") {
             data.inputs2 = [
+                {type: "string", label: "零件面", model: {data: item, key: "face"}},
                 {type: "coordinate", label: "零件面基准", model: {data: item, key: "anchor1"}},
                 {type: "coordinate", label: "孔cad基准", model: {data: item, key: "anchor2"}}
             ];
@@ -249,9 +260,32 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
         }
     }
 
+    addItem(i: number, fromItem?: KlkwpzItem) {
+        let item: KlkwpzItem;
+        if (fromItem) {
+            item = cloneDeep(fromItem);
+        } else {
+            item = this._createItem("");
+        }
+        this.klkwpz.data.splice(i + 1, 0, item);
+        this.data.splice(i + 1, 0, this._getItemData(item));
+    }
+
+    removeItem(i: number) {
+        this.klkwpz.data.splice(i, 1);
+        this.data.splice(i, 1);
+    }
+
     async submit() {
         this.spinner.show(this.loaderId);
-        await this.dataService.post("peijian/kailiaokongweipeizhi/set", {id: this.id, data: this.klkwpz.export()});
+        const response = await this.dataService.post("peijian/kailiaokongweipeizhi/set", {id: this.id, data: this.klkwpz.export()});
+        if (response?.code === 0) {
+            this._fetch();
+        }
         this.spinner.hide(this.loaderId);
+    }
+
+    printItem(item: KlkwpzItem) {
+        console.log(this.klkwpz.exportItem(item));
     }
 }

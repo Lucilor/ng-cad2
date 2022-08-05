@@ -75,6 +75,8 @@ export class InputComponent extends Utils() {
     }
 
     options: {value: string; label?: string}[] = [];
+    anchorXString = "";
+    anchorYString = "";
 
     constructor(private message: MessageService, private dialog: MatDialog, private status: AppStatusService) {
         super();
@@ -106,6 +108,9 @@ export class InputComponent extends Utils() {
                 this.info.onChange?.(this.value);
                 break;
             case "select":
+                this.info.onChange?.(this.value);
+                break;
+            case "coordinate":
                 this.info.onChange?.(this.value);
                 break;
             default:
@@ -161,5 +166,32 @@ export class InputComponent extends Utils() {
 
     cast<T extends InputInfo["type"]>(data: InputInfo, _: T) {
         return data as InputInfoTypeMap[T];
+    }
+
+    getAnchorValue(axis: "x" | "y", value: number) {
+        if (axis === "x") {
+            switch (value) {
+                case 0:
+                    return "左";
+                case 0.5:
+                    return "中";
+                case 1:
+                    return "右";
+                default:
+                    return value;
+            }
+        } else if (axis === "y") {
+            switch (value) {
+                case 0:
+                    return "下";
+                case 0.5:
+                    return "中";
+                case 1:
+                    return "上";
+                default:
+                    return value;
+            }
+        }
+        return "";
     }
 }
