@@ -386,7 +386,6 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     }
 
     offset(value: string) {
-        console.log(value);
         const data = this.data;
         const cad = this.status.cad;
         data.bancaihoudufangxiang = value as CadData["bancaihoudufangxiang"];

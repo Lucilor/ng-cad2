@@ -129,15 +129,10 @@ export class ExportComponent implements OnInit {
                         return;
                     }
                     const importResult = CadPortable.import({sourceCad});
-                    const slgses = [] as CadSourceParams["slgses"];
-                    for (const slgs of importResult.slgses) {
-                        const where = {...slgs.data} as ObjectOf<any>;
-                        delete where.公式;
-                        const slgsRecords = await this.dataService.queryMongodb({collection: "material", where});
-                        if (slgsRecords.length > 0) {
-                            slgses.push(slgsRecords[0]);
-                        }
-                    }
+                    const slgses: CadSourceParams["slgses"] = await this.dataService.queryMongodb({
+                        collection: "material",
+                        where: {"选项.型号": xinghao}
+                    });
                     this.exportParams.sourceParams = {sourceCad, importResult, xinghaoInfo, slgses};
                 } else {
                     finish("error", this.dataService.lastResponse?.msg || "读取文件失败");
@@ -184,6 +179,7 @@ export class ExportComponent implements OnInit {
             try {
                 result = await CadPortable.export(this.exportParams, this.dataService);
             } catch (error) {
+                console.error(error);
                 finish("error", this.dataService.lastResponse?.msg || "导出失败");
                 return;
             }

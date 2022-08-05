@@ -1,5 +1,5 @@
 import {Component, OnInit} from "@angular/core";
-import {CadPortable, CadInfo, SlgsInfo, PeiheInfo, XinghaoInfo, SourceCadMap} from "@app/cad.portable";
+import {CadPortable, CadInfo, SlgsInfo, PeiheInfo, XinghaoInfo, SourceCadMap, Slgs} from "@app/cad.portable";
 import {isShiyitu, reservedDimNames, validateLines} from "@app/cad.utils";
 import {CadData, CadDimension, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
@@ -264,7 +264,7 @@ export class ImportComponent extends Utils() implements OnInit {
         return finish(true, "success", `导入结束, ${total - skipped}个成功(共${total}个)`);
     }
 
-    private _getMd5(cad: CadData) {
+    private _getCadMd5(cad: CadData) {
         const options: [string, string[]][] = [];
         const optionKeys = Object.keys(cad.options).sort();
         optionKeys.forEach((key) => {
@@ -276,6 +276,21 @@ export class ImportComponent extends Utils() implements OnInit {
                 type: cad.type,
                 type2: cad.type2,
                 conditions: cad.conditions.sort(),
+                options
+            })
+        );
+    }
+
+    private _getSlgsMd5(slgs: Slgs) {
+        const options: [string, string[]][] = [];
+        const optionKeys = Object.keys(slgs.选项).sort();
+        optionKeys.forEach((key) => {
+            options.push([key, slgs.选项[key].split(";").sort()]);
+        });
+        return md5(
+            JSON.stringify({
+                type: slgs.分类,
+                conditions: slgs.条件.sort(),
                 options
             })
         );
@@ -324,24 +339,43 @@ export class ImportComponent extends Utils() implements OnInit {
         this.cads = cads;
         this.slgses = slgses;
         this.xinghaoInfo = xinghaoInfo;
-        const md5Map: ObjectOf<CadInfo[]> = {};
+
+        const cadMd5Map: ObjectOf<CadInfo[]> = {};
         cads.forEach((cad) => {
-            const md5Str = this._getMd5(cad.data);
-            if (md5Map[md5Str]) {
-                md5Map[md5Str].push(cad);
+            const md5Str = this._getCadMd5(cad.data);
+            if (cadMd5Map[md5Str]) {
+                cadMd5Map[md5Str].push(cad);
             } else {
-                md5Map[md5Str] = [cad];
+                cadMd5Map[md5Str] = [cad];
             }
         });
-        for (const md5Str in md5Map) {
-            if (md5Map[md5Str].length > 1) {
+        for (const md5Str in cadMd5Map) {
+            if (cadMd5Map[md5Str].length > 1) {
                 this.hasError = true;
-                const uniqCodes = md5Map[md5Str].map((v) => v.data.info.唯一码);
-                md5Map[md5Str].forEach((cad) => {
+                const uniqCodes = cadMd5Map[md5Str].map((v) => v.data.info.唯一码);
+                cadMd5Map[md5Str].forEach((cad) => {
                     cad.errors.push(`数据重复: ${uniqCodes.filter((v) => v !== cad.data.info.唯一码).join(", ")}`);
                 });
             }
         }
+        const slgsMd5Map: ObjectOf<SlgsInfo[]> = {};
+        slgses.forEach((slgs, i) => {
+            const md5Str = this._getSlgsMd5(slgs.data);
+            if (slgsMd5Map[md5Str]) {
+                slgsMd5Map[md5Str].push(slgs);
+            } else {
+                slgsMd5Map[md5Str] = [slgs];
+            }
+        });
+        for (const md5Str in slgsMd5Map) {
+            if (slgsMd5Map[md5Str].length > 1) {
+                this.hasError = true;
+                slgsMd5Map[md5Str].forEach((slgs) => {
+                    slgs.errors.push("算料公式重复");
+                });
+            }
+        }
+
         const totalCad = cads.length;
         const totalSlgs = slgses.length;
         for (let i = 0; i < totalCad; i++) {
@@ -582,14 +616,19 @@ export class ImportComponent extends Utils() implements OnInit {
     private async _validateSlgs(slgs: SlgsInfo) {
         const data = slgs.data;
         slgs.errors = slgs.errors.concat(await this._validateOptions(data.选项));
-        const strict = this.dataService.strict;
-        this.dataService.strict = false;
-        const response = await this.dataService.post("ngcad/validateFormulas", {formulas: data.公式}, {silent: true});
-        this.dataService.strict = strict;
-        if (response?.code !== 0) {
-            const msg = response?.msg || "验证算料公式时出错";
-            slgs.errors.push(msg);
+        if (Object.keys(data.公式).length > 0) {
+            const strict = this.dataService.strict;
+            this.dataService.strict = false;
+            const response = await this.dataService.post("ngcad/validateFormulas", {formulas: data.公式}, {silent: true});
+            this.dataService.strict = strict;
+            if (response?.code !== 0) {
+                const msg = response?.msg || "验证算料公式时出错";
+                slgs.errors.push(msg);
+            }
+        } else {
+            slgs.errors.push("公式内容为空");
         }
+
         if (slgs.errors.length > 0) {
             this.hasError = true;
         }

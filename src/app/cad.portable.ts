@@ -263,7 +263,9 @@ export class CadPortable {
                             }
                         });
                         const key2 = cadFields[key];
-                        if (key2) {
+                        if (key === "条件") {
+                            slgsData.条件 = value ? [value] : [];
+                        } else if (key2) {
                             if (value === "是") {
                                 (slgsData[key] as boolean) = true;
                             } else if (value === "否") {
@@ -271,8 +273,6 @@ export class CadPortable {
                             } else {
                                 (slgsData[key] as string) = value;
                             }
-                        } else if (key === "条件") {
-                            slgsData.条件 = value ? [value] : [];
                         } else if (key !== "唯一码") {
                             if (!slgsData.选项) {
                                 slgsData.选项 = {};
@@ -717,12 +717,53 @@ export class CadPortable {
 
         if (importResult) {
             const {sourceCadMap} = importResult;
+            let offsetX = rect.left - 3000;
+            const offsetXStep = 2000;
+            if (slgses) {
+                const names: string[] = [];
+                for (const slgs of slgses) {
+                    let mtext = sourceCadMap.slgses[slgs.名字]?.text;
+                    const obj = {名字: slgs.名字, 分类: slgs.分类, 条件: slgs.条件} as ObjectOf<string>;
+                    for (const optionName in slgs.选项) {
+                        if (isXinghao && optionName === "型号") {
+                            continue;
+                        }
+                        obj[optionName] = slgs.选项[optionName];
+                    }
+                    let text = "";
+                    for (const key in obj) {
+                        text += `${key}: ${obj[key] || ""}\n`;
+                    }
+                    text += "算料公式:\n";
+                    for (const key in slgs.公式) {
+                        text += `${key} = ${slgs.公式[key]}\n`;
+                    }
+                    if (mtext) {
+                        names.push(slgs.名字);
+                        mtext.text = text;
+                    } else {
+                        mtext = new CadMtext();
+                        mtext.text = text;
+                        mtext.anchor.set(0, 0);
+                        mtext.insert.set(offsetX, rect.top);
+                        offsetX -= offsetXStep;
+                        mtext.fontStyle.size = 50;
+                        result.entities.add(mtext);
+                    }
+                }
+                for (const name in sourceCadMap.slgses) {
+                    if (!names.includes(name)) {
+                        sourceCadMap.slgses[name].text.text = "";
+                    }
+                }
+            }
             if (xinghaoInfo) {
                 let mtext = sourceCadMap.xinghaoInfo?.text;
                 if (!mtext) {
                     mtext = new CadMtext();
                     mtext.anchor.set(0, 0);
-                    mtext.insert.set(rect.left - 3000, rect.top);
+                    mtext.insert.set(offsetX, rect.top);
+                    offsetX -= offsetXStep;
                     mtext.fontStyle.size = 50;
                     result.entities.add(mtext);
                 }
@@ -731,28 +772,6 @@ export class CadPortable {
                     strs.push(`${field}: ${xinghaoInfo[field] || ""}`);
                 });
                 mtext.text = `型号配置: \n\n${strs.join("\n")}`;
-            }
-            if (slgses) {
-                for (const slgs of slgses) {
-                    const mtext = sourceCadMap.slgses[slgs.名字].text;
-                    if (mtext) {
-                        const obj = {名字: slgs.名字, 分类: slgs.分类, 条件: slgs.条件} as ObjectOf<string>;
-                        for (const optionName in slgs.选项) {
-                            if (isXinghao && optionName === "型号") {
-                                continue;
-                            }
-                            obj[optionName] = slgs.选项[optionName];
-                        }
-                        mtext.text = "";
-                        for (const key in obj) {
-                            mtext.text += `${key}: ${obj[key]}\n`;
-                        }
-                        mtext.text += "算料公式:\n";
-                        for (const key in slgs.公式) {
-                            mtext.text += `${key} = ${slgs.公式[key]}\n`;
-                        }
-                    }
-                }
             }
         }
         return result;
