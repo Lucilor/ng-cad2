@@ -10,7 +10,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
-import {Kailiaokongweipeizhi, KlkwpzItem, KlkwpzItemType2, KlkwpzItemType3} from "./kailiaokongweipeizhi";
+import {Kailiaokongweipeizhi, KlkwpzItem} from "./kailiaokongweipeizhi";
 import testData from "./kailiaokongweipeizhi.test.json";
 
 export interface KailiaokongweipeizhiData {
@@ -67,17 +67,6 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
 
     private _createItem(name: string): KlkwpzItem {
         const item = this.klkwpz.getKlkwpzItem(name, {});
-        delete item.增加指定偏移;
-        delete item.自增等距阵列;
-        item.类型 = "自增等距阵列";
-        item.自增等距阵列 = {
-            自增方向: "上右",
-            行数: "",
-            列数: "",
-            行距: "",
-            列距: "",
-            孔依附板材边缘: "否"
-        };
         item.anchor1 = [0, 0];
         item.anchor2 = [0.5, 0.5];
         return item;
@@ -89,34 +78,40 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
         }
         delete item.固定行列阵列;
         delete item.固定行列阵列;
+        const typesData = {
+            type2: (() => {
+                if (item.baseX && item.baseY) {
+                    return "取横线竖线交点";
+                }
+                return "在打孔面上";
+            })(),
+            type3: (() => {
+                if (item.自增等距阵列 || item.固定行列阵列) {
+                    if (item.板材孔位阵列范围) {
+                        return "按指定宽高打阵列孔";
+                    } else if (item.板材打孔范围缩减) {
+                        return "按展开高打阵列孔缩短范围";
+                    }
+                    return "按展开高打阵列孔";
+                }
+                return "打单个孔";
+            })()
+        };
         const result: KailiaokongweipeizhiData = {
             item,
             inputs1: [
-                {
-                    type: "group",
-                    label: "",
-                    infos: [
-                        {
-                            type: "select",
-                            label: "类型",
-                            options: ["自定义XY基准", "面基准"] as KlkwpzItemType2[],
-                            model: {data: item, key: "类型2"},
-                            onChange: () => this._updateItemInputs2(result)
-                        },
-                        {
-                            type: "select",
-                            label: "阵列零件范围",
-                            options: ["无阵列", "阵列范围缩减", "阵列限定宽高", "阵列不限制"] as KlkwpzItemType3[],
-                            model: {data: item, key: "类型3"},
-                            onChange: () => this._updateItemInputs3(result)
-                        }
-                    ]
-                },
-                {type: "string", label: "名字", validators: [Validators.required], model: {data: item, key: "name"}},
+                {type: "string", label: "孔名字", validators: [Validators.required], model: {data: item, key: "name"}},
                 {
                     type: "select",
-                    label: "允许超出范围",
-                    options: ["不允许超出", "允许超出X", "允许超出Y", "允许超出X和Y"],
+                    label: "打孔类型",
+                    options: ["打单个孔", "按展开高打阵列孔", "按展开高打阵列孔缩短范围", "按指定宽高打阵列孔"],
+                    model: {data: typesData, key: "type3"},
+                    onChange: () => this._updateItemInputs3(result, typesData)
+                },
+                {
+                    type: "select",
+                    label: "允许孔超出零件边缘",
+                    options: ["不允许超出", "允许左右超出", "允许上下超出", "都允许超出"],
                     value: (() => {
                         const {不删除超出板材的孔, 删除超出板材的孔X, 删除超出板材的孔Y} = item;
                         let removeX = 删除超出板材的孔X === "是";
@@ -129,25 +124,25 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
                             removeY = true;
                         }
                         if (!removeX && !removeY) {
-                            return "允许超出X和Y";
+                            return "都允许超出";
                         } else if (removeX && removeY) {
                             return "不允许超出";
                         } else if (removeX) {
-                            return "允许超出Y";
+                            return "允许上下超出";
                         } else {
-                            return "允许超出X";
+                            return "允许左右超出";
                         }
                     })(),
                     onChange: (val) => {
-                        if (val === "允许超出X") {
+                        if (val === "允许左右超出") {
                             delete item.不删除超出板材的孔;
                             delete item.删除超出板材的孔X;
                             item.删除超出板材的孔Y = "是";
-                        } else if (val === "允许超出Y") {
+                        } else if (val === "允许上下超出") {
                             delete item.不删除超出板材的孔;
                             item.删除超出板材的孔X = "是";
                             delete item.删除超出板材的孔Y;
-                        } else if (val === "允许超出X和Y") {
+                        } else if (val === "都允许超出") {
                             item.不删除超出板材的孔 = "是";
                             delete item.删除超出板材的孔X;
                             delete item.删除超出板材的孔Y;
@@ -157,107 +152,169 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
                             delete item.删除超出板材的孔Y;
                         }
                     }
-                },
-                {type: "string", label: "x方向距离", model: {data: item, key: "x"}},
-                {type: "string", label: "y方向距离", model: {data: item, key: "y"}}
+                }
             ],
             inputs2: [],
             inputs3: []
         };
-        this._updateItemInputs2(result);
+        this._updateItemInputs2(result, typesData);
+        this._updateItemInputs3(result, typesData);
         return result;
     }
 
-    private _updateItemInputs2(data: KailiaokongweipeizhiData) {
+    private _updateItemInputs2(data: KailiaokongweipeizhiData, typesData: {type2: string}) {
         const item = data.item;
-        const {类型2} = item;
-        if (类型2 === "自定义XY基准") {
-            data.inputs2 = [
+        const arr: InputInfo[] = [];
+        const info0: InputInfo = {
+            type: "select",
+            label: "打孔起始点",
+            options: ["取横线竖线交点", "在打孔面上"],
+            model: {data: typesData, key: "type2"},
+            onChange: () => this._updateItemInputs2(data, typesData)
+        };
+        const type2 = typesData.type2;
+        if (type2 === "取横线竖线交点") {
+            delete item.face;
+            if (!item.baseX) {
+                item.baseX = "";
+            }
+            if (!item.baseY) {
+                item.baseY = "";
+            }
+            arr.push(info0, {
+                type: "group",
+                label: " ",
+                infos: [
+                    {type: "string", label: "横线名字", model: {data: item, key: "baseX"}},
+                    {type: "string", label: "竖线名字", model: {data: item, key: "baseY"}}
+                ]
+            });
+        } else if (type2 === "在打孔面上") {
+            delete item.baseX;
+            delete item.baseY;
+            if (!item.face) {
+                item.face = "";
+            }
+            arr.push(
                 {
                     type: "group",
-                    label: "基准",
-                    infos: [
-                        {type: "string", label: "x", model: {data: item, key: "baseX"}},
-                        {type: "string", label: "y", model: {data: item, key: "baseY"}}
-                    ]
+                    label: "",
+                    infos: [info0, {type: "string", label: "打孔面名字", model: {data: item, key: "face"}}]
                 },
-                {type: "coordinate", label: "孔cad基准", model: {data: item, key: "anchor2"}}
-            ];
-        } else if (类型2 === "面基准") {
-            data.inputs2 = [
-                {type: "string", label: "零件面", model: {data: item, key: "face"}},
-                {type: "coordinate", label: "零件面基准", model: {data: item, key: "anchor1"}},
-                {type: "coordinate", label: "孔cad基准", model: {data: item, key: "anchor2"}}
-            ];
-        } else {
-            data.inputs2 = [];
+                {type: "coordinate", label: "", labelX: "打孔面起始点X", labelY: "打孔面起始点Y", model: {data: item, key: "anchor1"}}
+            );
         }
+        arr.push(
+            {type: "coordinate", label: "", labelX: "孔cad定位点X", labelY: "孔cad定位点Y", model: {data: item, key: "anchor2"}},
+            {type: "string", label: "第一个孔到打孔起始点的x方向距离", model: {data: item, key: "x"}},
+            {type: "string", label: "第一个孔到打孔起始点的y方向距离", model: {data: item, key: "y"}}
+        );
+        data.inputs2 = arr;
     }
 
-    private _updateItemInputs3(data: KailiaokongweipeizhiData) {
+    private _updateItemInputs3(data: KailiaokongweipeizhiData, typesData: {type3: string}) {
         const item = data.item;
-        const {类型3} = item;
-        const base: InputInfo[] = [
-            {
+        let arr: InputInfo[] = [];
+        let hasMatrix = true;
+        const type3 = typesData.type3;
+        if (type3 === "按展开高打阵列孔") {
+            delete item.板材孔位阵列范围;
+            delete item.板材打孔范围缩减;
+        } else if (type3 === "按展开高打阵列孔缩短范围") {
+            if (!item.板材打孔范围缩减) {
+                item.板材打孔范围缩减 = {上: "", 下: "", 左: "", 右: ""};
+            }
+            arr.push({
                 type: "group",
-                label: "",
+                label: "阵列范围缩减",
                 infos: [
+                    {type: "string", label: "上", model: {data: item.板材打孔范围缩减, key: "上"}},
+                    {type: "string", label: "下", model: {data: item.板材打孔范围缩减, key: "下"}},
+                    {type: "string", label: "左", model: {data: item.板材打孔范围缩减, key: "左"}},
+                    {type: "string", label: "右", model: {data: item.板材打孔范围缩减, key: "右"}}
+                ]
+            });
+            delete item.板材孔位阵列范围;
+        } else if (type3 === "按指定宽高打阵列孔") {
+            delete item.板材打孔范围缩减;
+            if (!item.板材孔位阵列范围) {
+                item.板材孔位阵列范围 = {宽: "", 高: ""};
+            }
+            arr.push({
+                type: "group",
+                label: "板材孔位阵列范围",
+                infos: [
+                    {type: "string", label: "宽", model: {data: item.板材孔位阵列范围, key: "宽"}},
+                    {type: "string", label: "高", model: {data: item.板材孔位阵列范围, key: "高"}}
+                ]
+            });
+        } else {
+            delete item.板材孔位阵列范围;
+            delete item.板材打孔范围缩减;
+            hasMatrix = false;
+        }
+        if (hasMatrix) {
+            item.类型 = "自增等距阵列";
+            const matrix: KlkwpzItem["自增等距阵列"] = {自增方向: "上右", 行数: "1", 列数: "1", 行距: "0", 列距: "0", 孔依附板材边缘: "否"};
+            if (!item.自增等距阵列) {
+                item.自增等距阵列 = matrix;
+            } else {
+                item.自增等距阵列 = {...matrix, ...item.自增等距阵列};
+            }
+            delete item.固定行列阵列;
+            delete item.增加指定偏移;
+            arr = (
+                [
                     {
-                        type: "select",
-                        label: "自增方向",
-                        options: ["上右", "下右", "上左", "下左"],
-                        model: {data: item.自增等距阵列, key: "自增方向"}
+                        type: "group",
+                        label: "",
+                        infos: [
+                            {
+                                type: "select",
+                                label: "自增方向",
+                                options: ["上右", "下右", "上左", "下左"],
+                                model: {data: item.自增等距阵列, key: "自增方向"}
+                            },
+                            {
+                                type: "select",
+                                label: "剪切相交XY线",
+                                options: ["是", "否"],
+                                model: {data: item.自增等距阵列, key: "孔依附板材边缘"}
+                            }
+                        ]
                     },
                     {
-                        type: "select",
-                        label: "孔依附板材边缘",
-                        options: ["是", "否"],
-                        model: {data: item.自增等距阵列, key: "孔依附板材边缘"}
+                        type: "group",
+                        label: "",
+                        infos: [
+                            {type: "string", label: "行数", model: {data: item.自增等距阵列, key: "行数"}},
+                            {type: "string", label: "列数", model: {data: item.自增等距阵列, key: "列数"}},
+                            {type: "string", label: "行距", model: {data: item.自增等距阵列, key: "行距"}},
+                            {type: "string", label: "列距", model: {data: item.自增等距阵列, key: "列距"}}
+                        ]
                     }
-                ]
-            },
-            {
-                type: "group",
-                label: "",
-                infos: [
-                    {type: "string", label: "行数", model: {data: item.自增等距阵列, key: "行数"}},
-                    {type: "string", label: "列数", model: {data: item.自增等距阵列, key: "列数"}},
-                    {type: "string", label: "行距", model: {data: item.自增等距阵列, key: "行距"}},
-                    {type: "string", label: "列距", model: {data: item.自增等距阵列, key: "列距"}}
-                ]
-            }
-        ];
-        if (类型3 === "阵列范围缩减") {
-            data.inputs3 = [
-                ...base,
-                {
-                    type: "group",
-                    label: "阵列范围缩减",
-                    infos: [
-                        {type: "string", label: "上", model: {data: item.板材打孔范围缩减, key: "上"}},
-                        {type: "string", label: "下", model: {data: item.板材打孔范围缩减, key: "下"}},
-                        {type: "string", label: "左", model: {data: item.板材打孔范围缩减, key: "左"}},
-                        {type: "string", label: "右", model: {data: item.板材打孔范围缩减, key: "右"}}
-                    ]
-                }
-            ];
-        } else if (类型3 === "阵列限定宽高") {
-            data.inputs3 = [
-                ...base,
-                {
-                    type: "group",
-                    label: "板材孔位阵列范围",
-                    infos: [
-                        {type: "string", label: "宽", model: {data: item.板材孔位阵列范围, key: "宽"}},
-                        {type: "string", label: "高", model: {data: item.板材孔位阵列范围, key: "高"}}
-                    ]
-                }
-            ];
-        } else if (类型3 === "阵列不限制") {
-            data.inputs3 = [...base];
+                ] as InputInfo[]
+            ).concat(arr);
         } else {
-            data.inputs3 = [];
+            delete item.类型;
+            delete item.自增等距阵列;
+            delete item.固定行列阵列;
+            delete item.增加指定偏移;
+            if (!item.孔依附板材边缘) {
+                item.孔依附板材边缘 = "否";
+            }
+            arr = (
+                [
+                    {
+                        type: "select",
+                        label: "剪切相交XY线",
+                        options: ["是", "否"],
+                        model: {data: item, key: "孔依附板材边缘"}
+                    }
+                ] as InputInfo[]
+            ).concat(arr);
         }
+        data.inputs3 = arr;
     }
 
     addItem(i: number, fromItem?: KlkwpzItem) {
@@ -276,7 +333,33 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
         this.data.splice(i, 1);
     }
 
+    private _isInfoEmpty(info: InputInfo): boolean {
+        if (info.type === "group") {
+            if (info.infos) {
+                return info.infos.some((v) => this._isInfoEmpty(v));
+            } else {
+                return false;
+            }
+        }
+        if (info.model) {
+            const {data, key} = info.model;
+            if (data && key) {
+                return !data[key];
+            }
+        }
+        return false;
+    }
+
     async submit() {
+        for (const item of this.data) {
+            const inputs = [...item.inputs1, ...item.inputs2, ...item.inputs3];
+            for (const info of inputs) {
+                if (this._isInfoEmpty(info)) {
+                    this.message.alert("请填写完整信息");
+                    return;
+                }
+            }
+        }
         this.spinner.show(this.loaderId);
         const response = await this.dataService.post("peijian/kailiaokongweipeizhi/set", {id: this.id, data: this.klkwpz.export()});
         if (response?.code === 0) {
@@ -287,5 +370,13 @@ export class KailiaokongweipeizhiComponent extends Utils() implements OnInit {
 
     printItem(item: KlkwpzItem) {
         console.log(this.klkwpz.exportItem(item));
+    }
+
+    getInfoClass(info: InputInfo) {
+        const result: string[] = [info.label];
+        if (this._isInfoEmpty(info)) {
+            result.push("empty");
+        }
+        return result.join(" ");
     }
 }

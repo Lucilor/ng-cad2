@@ -21,6 +21,10 @@
         }
     }
 
+    .mat-divider {
+        position: relative;
+    }
+
     ::ng-deep app-input {
         display: flex;
         flex-wrap: wrap;
@@ -32,10 +36,6 @@
             margin-bottom: -20px;
         }
 
-        .mat-form-field-label {
-            color: blue;
-        }
-
         .group {
             display: flex;
             width: 100%;
@@ -43,6 +43,13 @@
             > * {
                 width: 0;
                 flex: 1 1 0;
+            }
+        }
+
+        &.empty {
+            .mat-form-field-underline {
+                background-color: red;
+                height: 1.5px;
             }
         }
     }

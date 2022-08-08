@@ -172,7 +172,7 @@
             </div>
             <div>
                 <mat-form-field style="width: 50%">
-                    <mat-label>x</mat-label>
+                    <mat-label>{{ cast(info, "coordinate").labelX || "x" }}</mat-label>
                     <input matInput hidden type="number" [(ngModel)]="value[0]" (change)="onChange()" />
                     <input matInput [value]="getAnchorValue('x', value[0])" [matAutocomplete]="autoX" />
                     <mat-autocomplete #autoX="matAutocomplete" (optionSelected)="value[0] = $event.option.value">
@@ -182,7 +182,7 @@
                     </mat-autocomplete>
                 </mat-form-field>
                 <mat-form-field style="width: 50%">
-                    <mat-label>y</mat-label>
+                    <mat-label>{{ cast(info, "coordinate").labelY || "y" }}</mat-label>
                     <input matInput hidden type="number" [(ngModel)]="value[1]" (change)="onChange()" />
                     <input matInput [value]="getAnchorValue('y', value[1])" [matAutocomplete]="autoY" />
                     <mat-autocomplete #autoY="matAutocomplete" (optionSelected)="value[1] = $event.option.value">

@@ -1,7 +1,9 @@
 import {AbstractControlOptions} from "@angular/forms";
+import {FloatLabelType} from "@angular/material/form-field";
 
 export interface InputInfoBase<T = any> {
     label: string;
+    floatLabel?: FloatLabelType;
     model?: {data: T | (() => T); key: string};
     value?: any | (() => any);
     readonly?: boolean;
@@ -53,6 +55,8 @@ export interface InputInfoSelect<T = any> extends InputInfoBase<T> {
 export interface InputInfoCoordinate<T = any> extends InputInfoBase<T> {
     type: "coordinate";
     simpleUI?: boolean;
+    labelX?: string;
+    labelY?: string;
     onChange?: (val: [number, number]) => void;
 }
 

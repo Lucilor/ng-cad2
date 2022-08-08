@@ -98,7 +98,8 @@ class MyMatPaginatorIntl extends MatPaginatorIntl {
 }
 
 const matFormFieldOptions: MatFormFieldDefaultOptions = {
-    appearance: "standard"
+    appearance: "standard",
+    floatLabel: "always"
 };
 
 @NgModule({
