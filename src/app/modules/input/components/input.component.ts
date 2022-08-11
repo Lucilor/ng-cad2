@@ -143,10 +143,16 @@ export class InputComponent extends Utils() {
                 data.xinghaohuajian[key] = joinOptions(result);
             }
         } else if (optionKey === "bancai") {
-            const checkedItems = splitOptions(data.morenkailiaobancai);
-            const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems, multi: false}});
-            if (Array.isArray(result) && key) {
-                (data as any)[key] = joinOptions(result);
+            if (key) {
+                let value = (data as any)[key];
+                if (typeof value !== "string") {
+                    value = "";
+                }
+                const checkedItems = splitOptions(value);
+                const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems, multi: false}});
+                if (Array.isArray(result)) {
+                    (data as any)[key] = joinOptions(result);
+                }
             }
         } else if (optionKey && key) {
             const checkedItems = splitOptions((data as any)[optionKey][key]);
