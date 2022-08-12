@@ -28,12 +28,12 @@ export class SpinnerComponent extends Subscribed() implements OnInit, AfterViewI
                 this.config.hasProgressBar = false;
             }
         }
-        this.subscribe(this.spinner.spinnerShow$, ({id, text}) => {
+        this.subscribe(this.spinner.spinnerShow$, ({id, config}) => {
             if (id === this.id) {
                 if (this.inline) {
                     this.text = "";
-                } else if (text) {
-                    this.text = text;
+                } else if (config?.text) {
+                    this.text = config.text;
                 }
             }
         });

@@ -1,7 +1,7 @@
 import {Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {imgEmpty, imgLoading, session} from "@app/app.common";
+import {imgCadEmpty, imgEmpty, imgLoading, session} from "@app/app.common";
 import {CadPreviewParams, getCadPreview} from "@app/cad.utils";
 import {CadData, CadLine, CadViewerConfig, Defaults, setLinesLength} from "@cad-viewer";
 import {environment} from "@env";
@@ -242,7 +242,7 @@ export class DingdanbiaoqianComponent implements OnInit {
                 if (showCadSmallImg) {
                     await Promise.all(cads.map(async (v) => (v.img = await getImg(v.data, {width: v.imgSize[0], height: v.imgSize[1]}))));
                 } else {
-                    await Promise.all(cads.map(async (v) => (v.img = imgEmpty)));
+                    await Promise.all(cads.map(async (v) => (v.img = imgCadEmpty)));
                 }
                 if (showCadLargeImg) {
                     await Promise.all(

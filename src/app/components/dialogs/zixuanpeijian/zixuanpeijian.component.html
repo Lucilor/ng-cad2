@@ -1,33 +1,45 @@
 <div class="content">
-    <div class="section" style="flex: 1 1 0">
-        <div>
-            <mat-form-field>
-                <input type="text" matInput [(ngModel)]="cadsFilterInput" (input)="filterCads()" />
-            </mat-form-field>
-        </div>
+    <div class="section left" style="flex: 1 1 0">
         <ng-scrollbar>
-            <div class="cads">
-                <ng-container *ngFor="let cad of cads">
-                    <div *ngIf="!cad.hidden" class="cad" style="width: 33.33%">
-                        <img class="cad-preview" [src]="cad.img" />
-                        <div class="name">
-                            <button mat-icon-button color="primary" (click)="addSelectedCad(cad.data)">
-                                <mat-icon>add_circle</mat-icon>
-                            </button>
-                            <span [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
-                                {{ cad.data.name }}
-                            </span>
-                        </div>
-                    </div>
-                </ng-container>
+            <div class="left-content">
+                <div *ngFor="let type of cadTypes">
+                    <button mat-raised-button [color]="cadType === type ? 'accent' : 'primary'" (click)="cadType = type">
+                        {{ type }}
+                    </button>
+                </div>
             </div>
         </ng-scrollbar>
+        <div class="left-content">
+            <div>
+                <mat-form-field>
+                    <mat-label>搜索</mat-label>
+                    <input type="text" matInput [(ngModel)]="cadsFilterInput" (input)="filterCads()" autocomplete="off" />
+                </mat-form-field>
+            </div>
+            <ng-scrollbar>
+                <div class="cads" *ngIf="cads[cadType]">
+                    <ng-container *ngFor="let cad of cads[cadType]">
+                        <div *ngIf="!cad.hidden" class="cad">
+                            <img class="cad-preview" [src]="cad.img" />
+                            <div class="name">
+                                <button mat-icon-button color="primary" (click)="addSelectedCad(cad.data)">
+                                    <mat-icon>add_circle</mat-icon>
+                                </button>
+                                <span [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
+                                    {{ cad.data.name }}
+                                </span>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </ng-scrollbar>
+        </div>
     </div>
     <mat-divider [vertical]="true"></mat-divider>
-    <div class="section" style="flex: 1 1 0">
+    <div class="section right" style="flex: 1 1 0">
         <ng-scrollbar>
             <div class="cads">
-                <div *ngFor="let cad of selectedCads; let i = index" class="cad" style="width: 50%">
+                <div *ngFor="let cad of selectedCads; let i = index" class="cad">
                     <div #selectedCadViewer></div>
                     <div class="name">
                         <button mat-icon-button color="primary" (click)="removeSelectedCad(i)">
@@ -37,21 +49,27 @@
                             {{ cad.data.name }}
                         </span>
                     </div>
-                    <div class="inputs">
+                    <div class="inputs" *ngFor="let zhankai of cad.info.zhankai; let j = index">
+                        <button mat-icon-button color="primary" (click)="addZhankai(i, j)">
+                            <mat-icon>add_circle</mat-icon>
+                        </button>
+                        <button mat-icon-button color="primary" (click)="removeZhankai(i, j)">
+                            <mat-icon>remove_circle</mat-icon>
+                        </button>
                         <mat-form-field>
                             <mat-label>展开宽</mat-label>
-                            <input type="text" matInput [(ngModel)]="cad.info.zhankai.width" [autocomplete]="false" />
+                            <input type="text" matInput [(ngModel)]="zhankai.width" [autocomplete]="false" />
                             <span matSuffix></span>
                         </mat-form-field>
                         <span>×</span>
                         <mat-form-field>
                             <mat-label>展开高</mat-label>
-                            <input type="text" matInput [(ngModel)]="cad.info.zhankai.height" [autocomplete]="false" />
+                            <input type="text" matInput [(ngModel)]="zhankai.height" [autocomplete]="false" />
                         </mat-form-field>
                         <span>=</span>
                         <mat-form-field>
                             <mat-label>数量</mat-label>
-                            <input type="text" matInput [(ngModel)]="cad.info.zhankai.num" [autocomplete]="false" />
+                            <input type="text" matInput [(ngModel)]="zhankai.num" [autocomplete]="false" />
                         </mat-form-field>
                     </div>
                     <div class="inputs">

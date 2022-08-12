@@ -14,6 +14,7 @@ export const session = new SessionStorage(projectName);
 export const local = new LocalStorage(projectName);
 
 export const imgEmpty = "assets/images/empty.jpg";
+export const imgCadEmpty = "assets/images/cad-empty.png";
 export const imgLoading = "assets/images/loading.gif";
 export const publicKey = `
 -----BEGIN PUBLIC KEY-----

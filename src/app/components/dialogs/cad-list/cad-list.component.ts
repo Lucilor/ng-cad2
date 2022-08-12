@@ -4,7 +4,7 @@ import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS} from "@angular/material/tooltip";
 import {DomSanitizer} from "@angular/platform-browser";
-import {CadCollection, imgLoading, timer} from "@app/app.common";
+import {CadCollection, imgCadEmpty, timer} from "@app/app.common";
 import {getCadPreview} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
@@ -167,7 +167,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         this.pageData.length = 0;
         result.cads.forEach(async (d, i) => {
             const checked = this.checkedItems.find((v) => v === d.id) ? true : false;
-            const pageData = {data: d, img: imgLoading, checked};
+            const pageData = {data: d, img: imgCadEmpty, checked};
             this.pageData.push(pageData);
         });
         this.syncCheckedItems();

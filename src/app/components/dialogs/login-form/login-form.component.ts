@@ -4,7 +4,7 @@ import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {getFormControl, getFormGroup} from "@app/app.common";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf} from "@utils";
+import {ObjectOf, timeout} from "@utils";
 import md5 from "md5";
 import {ReCaptchaV3Service} from "ng-recaptcha";
 import {lastValueFrom} from "rxjs";
@@ -32,6 +32,7 @@ export class LoginFormComponent implements AfterViewInit {
         password: getFormControl("")
     });
     passwordVisible = false;
+    shownSpinners: SpinnerService["shownSpinners"] = {};
 
     constructor(
         public dialogRef: MatDialogRef<LoginFormComponent, boolean>,
@@ -46,8 +47,12 @@ export class LoginFormComponent implements AfterViewInit {
         }
     }
 
-    ngAfterViewInit() {
-        this.spinner.hide(this.spinner.defaultLoaderId);
+    async ngAfterViewInit() {
+        await timeout();
+        this.shownSpinners = {...this.spinner.shownSpinners};
+        for (const id in this.shownSpinners) {
+            this.spinner.hide(id);
+        }
     }
 
     async submit() {
@@ -89,6 +94,10 @@ export class LoginFormComponent implements AfterViewInit {
             this.message.alert(response.msg);
             this.dialogRef.close(false);
         }
+        for (const id in this.shownSpinners) {
+            this.spinner.show(id, this.shownSpinners[id]);
+        }
+        this.shownSpinners = {};
     }
 
     goToLoginPage() {

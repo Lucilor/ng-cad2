@@ -2,9 +2,9 @@ import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from "@angul
 import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {session, timer} from "@app/app.common";
-import {printCads, PrintCadsParams} from "@app/cad.utils";
-import {CadData, CadViewer} from "@cad-viewer";
+import {session, setDevComponent, timer} from "@app/app.common";
+import {configCadDataForPrint, printCads, PrintCadsParams} from "@app/cad.utils";
+import {CadCircle, CadData, CadLine, CadViewer} from "@cad-viewer";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -58,7 +58,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             拉手信息宽度: 578
         },
         url: "",
-        keepCad: true
+        keepCad: true,
+        info: {}
     };
     cad: CadViewer | null = null;
     zixuanpeijian: CadData[] = [];
@@ -72,6 +73,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         }
         this.printParams.config.fontStyle.family = value;
     }
+    orderImageUrl = "";
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLDivElement>;
 
     constructor(
@@ -92,6 +94,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
 
     async ngAfterViewInit() {
         await timeout(0);
+        setDevComponent("print", this);
         const queryParams = {...this.route.snapshot.queryParams};
         const action = queryParams.action as string;
         delete queryParams.action;
@@ -110,6 +113,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             response.data.cads = response.data.cads.map((v) => new CadData(v));
             this.downloadUrl = response.data.url || null;
             this.printParams = {...this.printParams, ...response.data};
+            this.printParams.info.title = "算料单" + this.printParams.codes.join("、");
             const {codes, type} = this.printParams;
             if (codes.length === 1) {
                 this.zixuanpeijian = await this.dataService.getOrderZixuanpeijian(codes[0], type);
@@ -124,6 +128,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             this.spinner.hide(this.loaderId);
         }
         window.addEventListener("keydown", this._onKeyDown);
+        await this.getOrderImage();
     }
 
     ngOnDestroy() {
@@ -351,8 +356,11 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         });
         if (data) {
             this.zixuanpeijian = data;
+            this.zixuanpeijian.forEach((v) => (v.info.自选配件已初始化 = false));
+            this.spinner.show(this.loaderId, {text: "正在保存自选配件"});
             await this.setOrderZixuanpeijian();
             await this.setZixuanpeijian();
+            this.spinner.hide(this.loaderId);
         }
     }
 
@@ -363,17 +371,70 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         cad.data.components.data = data;
-        const rect = cad.data.entities.getBoundingRect();
-        let offsetX = rect.right + 50;
-        data.forEach((v) => {
-            if (v.info.自选配件已初始化) {
-                return;
+
+        const dataToArrange: CadData[] = [];
+        data.forEach((v, i) => {
+            if (!v.info.自选配件已初始化) {
+                dataToArrange.push(v);
             }
-            const rect2 = v.getBoundingRect();
-            v.transform({translate: [offsetX - rect2.left, rect.y - rect2.y]}, true);
-            offsetX += rect2.width + 50;
-            v.info.自选配件已初始化 = true;
+            configCadDataForPrint(cad, v, this.printParams);
         });
+        if (dataToArrange.length > 0) {
+            let hLinesMaxLength = -1;
+            const hLines: CadLine[] = [];
+            let vLinesMaxLength = -1;
+            const vLines: CadLine[] = [];
+            cad.data.entities.line.forEach((e) => {
+                if (e.isHorizontal()) {
+                    hLines.push(e);
+                    hLinesMaxLength = Math.max(hLinesMaxLength, e.length);
+                } else if (e.isVertical()) {
+                    vLines.push(e);
+                    vLinesMaxLength = Math.max(vLinesMaxLength, e.length);
+                }
+            });
+            const hLines2 = hLines.filter((e) => e.length === hLinesMaxLength);
+            hLines2.sort((a, b) => a.start.y - b.start.y);
+            const vLines2 = vLines.filter((e) => e.length === vLinesMaxLength);
+            vLines2.sort((a, b) => a.start.x - b.start.x);
+            const leftLine = vLines2[0];
+            const bottomLine1 = hLines2[0];
+            const bottomLine2 = hLines2[1];
+            let bottomLine: CadLine;
+            if (bottomLine2 && bottomLine1.start.y - bottomLine2.start.y < 500) {
+                bottomLine = bottomLine2;
+            } else {
+                bottomLine = bottomLine1;
+            }
+            const leftLineCurve = leftLine.curve;
+            const hLines3 = hLines.filter(
+                (e) => e.start.y > bottomLine.start.y && (leftLineCurve.contains(e.start) || leftLineCurve.contains(e.end))
+            );
+            hLines3.sort((a, b) => a.start.y - b.start.y);
+            const left = leftLine.start.x;
+            const bottom = bottomLine.start.y;
+            const right = leftLine.start.x + hLines3[0].length;
+            const top = hLines3[0].start.y;
+            const circle = new CadCircle();
+            circle.center.set(left, bottom);
+            circle.radius = 20;
+            cad.data.entities.add(circle);
+            const circle2 = new CadCircle();
+            circle2.center.set(right, top);
+            circle2.radius = 20;
+            cad.data.entities.add(circle2);
+
+            const cols = dataToArrange.length > 6 ? 3 : 2;
+            const boxWidth = (right - left) / cols;
+            const boxHeight = (top - bottom) / 3;
+            dataToArrange.forEach((v, i) => {
+                const x = left + (i % cols) * boxWidth + boxWidth / 2;
+                const y = top - Math.floor(i / cols) * boxHeight - boxHeight / 2;
+                const rect2 = v.getBoundingRect();
+                v.transform({translate: [x - rect2.x, y - rect2.y]}, true);
+                v.info.自选配件已初始化 = true;
+            });
+        }
         await cad.reset().render();
         cad.center();
     }
@@ -385,5 +446,36 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         await this.dataService.setOrderZixuanpeijian(codes[0], type, this.zixuanpeijian);
+    }
+
+    async getOrderImage() {
+        const response = await this.dataService.post<{prefix: string; zhengmiantu: string}>("order/api/getImage", {
+            code: this.printParams.codes[0],
+            type: this.printParams.type
+        });
+        if (response?.data) {
+            const {prefix, zhengmiantu} = response.data;
+            this.orderImageUrl = prefix + zhengmiantu;
+        }
+    }
+
+    async uploadOrderImage(event: Event) {
+        const target = event.target as HTMLInputElement;
+        const files = target.files;
+        if (!files || files.length < 1) {
+            return;
+        }
+        const file = files[0];
+        target.value = "";
+        const response = await this.dataService.post<{prefix: string; save_path: string}>("order/api/uploadImage", {
+            code: this.printParams.codes[0],
+            type: this.printParams.type,
+            field: "zhengmiantu",
+            file
+        });
+        if (response?.data) {
+            const {prefix, save_path} = response.data;
+            this.orderImageUrl = prefix + save_path;
+        }
     }
 }

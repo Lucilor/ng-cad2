@@ -9,17 +9,39 @@
     flex: 1 1 0;
     display: flex;
 
-    .section {
-        display: flex;
-        flex-direction: column;
-
-        .ng-scrollbar {
-            flex: 1 1 0;
-        }
-    }
-
     .mat-divider {
         margin: 0 10px;
+    }
+}
+
+.section {
+    display: flex;
+
+    .ng-scrollbar {
+        flex: 1 1 0;
+    }
+
+    &.left {
+        .left-content {
+            display: flex;
+            flex-direction: column;
+            .types-list {
+                padding: 10px;
+                > :not(:last-child) {
+                    margin-bottom: 5px;
+                }
+            }
+        }
+
+        .cads .cad {
+            width: 33.33%;
+        }
+    }
+    &.right {
+        flex-direction: column;
+        .cads .cad {
+            width: 50%;
+        }
     }
 }
 
@@ -35,6 +57,8 @@
         flex-direction: column;
         padding: 5px;
         box-sizing: border-box;
+        // width: 300px;
+        // height: 150px;
 
         .name {
             display: flex;

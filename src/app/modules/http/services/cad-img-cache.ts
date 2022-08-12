@@ -32,7 +32,13 @@ export class CadImgCache {
 
     public set(key: string, url: string) {
         const cache = this._loadCache();
-        cache[key] = {url, time: new Date().getTime()};
+        const time = new Date().getTime();
+        for (const key2 in cache) {
+            if (time - cache[key2].time < this.cacheDuration) {
+                delete cache[key2];
+            }
+        }
+        cache[key] = {url, time};
         this._saveCache(cache);
     }
 

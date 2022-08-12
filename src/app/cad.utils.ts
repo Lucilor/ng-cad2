@@ -21,6 +21,7 @@ import {createPdf} from "pdfmake/build/pdfmake";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
 import {CadCollection} from "./app.common";
+type PdfDocument = Parameters<typeof createPdf>[0];
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
@@ -340,6 +341,111 @@ const getWrapedText = (cad: CadViewer, source: string, mtext: CadMtext, options:
     return arr;
 };
 
+export const configCadDataForPrint = (cad: CadViewer, data: CadData, params: PrintCadsParams) => {
+    const linewidth = params.linewidth || 1;
+    const dimStyle = params.dimStyle;
+    const config = cad.getConfig();
+    const 自选配件已初始化 = data.info.自选配件已初始化;
+
+    const configDimension = (e: CadDimension, colorNumber: number) => {
+        e.linewidth = linewidth;
+        e.setStyle({
+            ...dimStyle,
+            dimensionLine: {color: "#505050", dashArray: Defaults.DASH_ARRAY},
+            extensionLines: {color: "#505050", length: 12},
+            arrows: {color: "#505050"}
+        });
+        if (colorNumber === 0xff00ff || e.layer === "门扇中间宽标注") {
+            e.setStyle({arrows: {hidden: true}});
+        }
+    };
+    const configMText = (e: CadMtext) => {
+        const {text, insert} = e;
+        if ((自选配件已初始化 || e.text.includes("     ")) && !isNaN(Number(e.text))) {
+            if (e.fontStyle.size === 24) {
+                insert.y += 3;
+                insert.x -= 7;
+            }
+            if (e.fontStyle.size === 22) {
+                insert.y += 3;
+                insert.x -= 7;
+            }
+            e.text = text.replace("     ", "");
+            e.fontStyle.family = "仿宋";
+            e.fontStyle.weight = "bolder";
+            if (typeof e.fontStyle.size === "number") {
+                e.fontStyle.size += 8;
+            }
+        } else {
+            if (config.fontStyle?.family === "宋体") {
+                e.fontStyle.size = (e.fontStyle.size || 0) + 6;
+                insert.y -= 5;
+            } else {
+                insert.y -= 12;
+            }
+        }
+        if ((e.fontStyle.size || -1) < 24) {
+            e.fontStyle.weight = "bolder";
+        }
+
+        if (text.match(/^花件信息/)) {
+            // * 自动换行
+            let wrapedText = text.slice(4);
+            let lines = data.getAllEntities().line;
+            lines = lines.filter((ee) => ee.isVertical() && isBetween(insert.y, ee.minY, ee.maxY) && ee.start.x - insert.x > 50);
+            let dMin = Infinity;
+            for (const ee of lines) {
+                const d = ee.start.x - insert.x - 1;
+                if (dMin > d) {
+                    dMin = d;
+                }
+            }
+            dMin += 8;
+            try {
+                wrapedText = wrapedText
+                    .split("\n")
+                    .map((v) => getWrapedText(cad, v, e, getWrapedTextOptions(v, dMin)).join("\n"))
+                    .join("\n");
+            } catch (error) {
+                console.warn("花件信息自动换行时出错");
+                console.warn(error);
+            }
+            e.text = wrapedText;
+        }
+    };
+    const configLine = (e: CadLineLike, colorNumber: number) => {
+        if (自选配件已初始化 || colorNumber === 0x333333 || e.layer === "1") {
+            e.linewidth = linewidth;
+        }
+        if (自选配件已初始化) {
+            e.children.mtext.forEach((ee) => configMText(ee));
+        }
+    };
+
+    const es = data.getAllEntities().toArray();
+    for (const e of es) {
+        const colorNumber = e.getColor().rgbNumber();
+        if (e instanceof CadLineLike) {
+            configLine(e, colorNumber);
+        } else if (e instanceof CadDimension) {
+            configDimension(e, colorNumber);
+        } else if (e instanceof CadMtext) {
+            configMText(e);
+        }
+        if (colorNumber === 0x808080 || e.layer === "不显示") {
+            e.visible = false;
+        } else if (e.layer === "分体") {
+            if (e instanceof CadCircle) {
+                e.linewidth = Math.max(1, e.linewidth - 1);
+                e.setColor("blue");
+                e.dashArray = [10, 3];
+            }
+        } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
+            e.setColor(0);
+        }
+    }
+};
+
 export interface PrintCadsParams {
     cads: CadData[];
     config?: Partial<CadViewerConfig>;
@@ -351,6 +457,7 @@ export interface PrintCadsParams {
     keepCad?: boolean;
     codes?: string[];
     type?: string;
+    info?: PdfDocument["info"];
 }
 /**
  * A4: (210 × 297)mm²
@@ -360,8 +467,6 @@ export interface PrintCadsParams {
 export const printCads = async (params: PrintCadsParams) => {
     const cads = params.cads.map((v) => v.clone());
     const config = params.config || {};
-    const linewidth = params.linewidth || 1;
-    const dimStyle = params.dimStyle;
     const extra = params.extra || {};
     let [dpiX, dpiY] = getDPI();
     if (!(dpiX > 0) || !(dpiY > 0)) {
@@ -388,7 +493,6 @@ export const printCads = async (params: PrintCadsParams) => {
     cad.dom.style.opacity = "0";
     await prepareCadViewer(cad);
 
-    type PdfDocument = Parameters<typeof createPdf>[0];
     const content: PdfDocument["content"] = [];
     let pageOrientation: PdfDocument["pageOrientation"] = "portrait";
     for (let i = 0; i < cads.length; i++) {
@@ -410,89 +514,7 @@ export const printCads = async (params: PrintCadsParams) => {
             }
         }
         cad.resize(localWidth * scaleX, localHeight * scaleY);
-        const es = data.getAllEntities().toArray();
-        for (const e of es) {
-            const colorNumber = e.getColor().rgbNumber();
-            if (e instanceof CadLineLike && (colorNumber === 0x333333 || e.layer === "1")) {
-                e.linewidth = linewidth;
-            }
-            if (e instanceof CadDimension) {
-                e.linewidth = linewidth;
-                e.setStyle({
-                    ...dimStyle,
-                    dimensionLine: {color: "#505050", dashArray: Defaults.DASH_ARRAY},
-                    extensionLines: {color: "#505050", length: 12},
-                    arrows: {color: "#505050"}
-                });
-                if (colorNumber === 0xff00ff || e.layer === "门扇中间宽标注") {
-                    e.setStyle({arrows: {hidden: true}});
-                }
-            } else if (e instanceof CadMtext) {
-                const {text, insert} = e;
-                if (e.text.includes("     ") && !isNaN(Number(e.text))) {
-                    if (e.fontStyle.size === 24) {
-                        insert.y += 3;
-                        insert.x -= 7;
-                    }
-                    if (e.fontStyle.size === 22) {
-                        insert.y += 3;
-                        insert.x -= 7;
-                    }
-                    e.text = text.replace("     ", "");
-                    e.fontStyle.family = "仿宋";
-                    e.fontStyle.weight = "bolder";
-                    if (typeof e.fontStyle.size === "number") {
-                        e.fontStyle.size += 8;
-                    }
-                } else {
-                    if (config.fontStyle?.family === "宋体") {
-                        e.fontStyle.size = (e.fontStyle.size || 0) + 6;
-                        insert.y -= 5;
-                    } else {
-                        insert.y -= 12;
-                    }
-                }
-                if ((e.fontStyle.size || -1) < 24) {
-                    e.fontStyle.weight = "bolder";
-                }
-
-                if (text.match(/^花件信息/)) {
-                    // * 自动换行
-                    let wrapedText = text.slice(4);
-                    let lines = data.getAllEntities().line;
-                    lines = lines.filter((ee) => ee.isVertical() && isBetween(insert.y, ee.minY, ee.maxY) && ee.start.x - insert.x > 50);
-                    let dMin = Infinity;
-                    for (const ee of lines) {
-                        const d = ee.start.x - insert.x - 1;
-                        if (dMin > d) {
-                            dMin = d;
-                        }
-                    }
-                    dMin += 8;
-                    try {
-                        wrapedText = wrapedText
-                            .split("\n")
-                            .map((v) => getWrapedText(cad, v, e, getWrapedTextOptions(v, dMin)).join("\n"))
-                            .join("\n");
-                    } catch (error) {
-                        console.warn("花件信息自动换行时出错");
-                        console.warn(error);
-                    }
-                    e.text = wrapedText;
-                }
-            }
-            if (colorNumber === 0x808080 || e.layer === "不显示") {
-                e.visible = false;
-            } else if (e.layer === "分体") {
-                if (e instanceof CadCircle) {
-                    e.linewidth = Math.max(1, e.linewidth - 1);
-                    e.setColor("blue");
-                    e.dashArray = [10, 3];
-                }
-            } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
-                e.setColor(0);
-            }
-        }
+        configCadDataForPrint(cad, data, params);
         data.updatePartners().updateComponents();
         cad.data = data;
         await cad.reset().render();
@@ -565,7 +587,25 @@ export const printCads = async (params: PrintCadsParams) => {
             cad.dom.style.opacity = "";
         }, 0);
     }
-    const pdf = createPdf({content, pageSize: "A4", pageOrientation, pageMargins: 0}, {});
+    const now = new Date();
+    const pdf = createPdf(
+        {
+            info: {
+                title: "打印CAD",
+                author: "Lucilor",
+                subject: "Lucilor",
+                creationDate: now,
+                modDate: now,
+                keywords: "cad print",
+                ...params.info
+            },
+            content,
+            pageSize: "A4",
+            pageOrientation,
+            pageMargins: 0
+        },
+        {}
+    );
     const url = await new Promise<string>((resolve) => {
         pdf.getBlob((blob) => resolve(URL.createObjectURL(blob)));
     });

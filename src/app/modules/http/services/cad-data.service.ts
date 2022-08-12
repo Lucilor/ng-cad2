@@ -2,7 +2,7 @@ import {Injectable, Injector} from "@angular/core";
 import {CadCollection} from "@app/app.common";
 import {CadData} from "@cad-viewer";
 import {environment} from "@env";
-import {downloadByUrl, DownloadOptions, ObjectOf} from "@utils";
+import {dataURLtoBlob, downloadByUrl, DownloadOptions, ObjectOf} from "@utils";
 import {CadImgCache} from "./cad-img-cache";
 import {CustomResponse, HttpOptions, HttpService} from "./http.service";
 
@@ -347,5 +347,11 @@ export class CadDataService extends HttpService {
         }
         const response = await this.post<{url: string | null}>("ngcad/getCadImg", {id, useCache}, options);
         return response?.data?.url || null;
+    }
+
+    async setCadImg(id: string, dataURL: string, options?: HttpOptions) {
+        const blob = dataURLtoBlob(dataURL);
+        const file = new File([blob], `${id}.png`);
+        await this.post("ngcad/setCadImg", {id, file}, options);
     }
 }

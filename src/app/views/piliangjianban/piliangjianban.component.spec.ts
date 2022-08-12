@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatCardModule} from "@angular/material/card";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {imgEmpty} from "@app/app.common";
+import {imgCadEmpty} from "@app/app.common";
 import {CadData} from "@cad-viewer";
 import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
@@ -19,8 +19,8 @@ const bancais: Bancai[] = [
                 num: 100,
                 zhankaiSize: [100, 100],
                 unfolded: new CadData(),
-                img: imgEmpty,
-                imgLarge: imgEmpty
+                img: imgCadEmpty,
+                imgLarge: imgCadEmpty
             }
         ],
         id: "123",
