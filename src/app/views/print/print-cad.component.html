@@ -21,7 +21,7 @@
         </mat-form-field>
     </ng-container>
     <ng-container *ngIf="enableZixuanpeijian">
-        <button mat-raised-button color="primary" (click)="toggleMode()">{{ mode === "edit" ? "退出" : "进入" }}编辑</button>
+        <button mat-raised-button color="primary" (click)="toggleMode()">{{ mode === "edit" ? "退出" : "进入" }}自选配件</button>
         <ng-container *ngIf="mode === 'edit'">
             <button mat-raised-button color="primary" (click)="openZixuanpeijianDialog()">选择自选配件</button>
             <button mat-raised-button color="primary" (click)="setOrderZixuanpeijian()">保存自选配件</button>
@@ -33,7 +33,7 @@
 </div>
 <div class="content" style="display: flex;">
     <div class="效果图" *ngIf="mode === 'edit'">
-        <div class="text title">正面图</div>
+        <div class="text title">效果图</div>
         <input type="file" #orderImageInput hidden accept="image/*" (change)="uploadOrderImage($event)">
         <app-image [src]="orderImageUrl" (click)="orderImageInput.click()"></app-image>
         <div class="text">点击图片选择</div>

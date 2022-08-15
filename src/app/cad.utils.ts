@@ -3,6 +3,7 @@ import {
     CadCircle,
     CadData,
     CadDimension,
+    CadEntity,
     CadJointPoint,
     CadLine,
     CadLineLike,
@@ -347,6 +348,12 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData, params: Pri
     const config = cad.getConfig();
     const 自选配件已初始化 = data.info.自选配件已初始化;
 
+    const getConfigBefore = (e: CadEntity) => {
+        if (!e.info.configBefore) {
+            e.info.configBefore = {};
+        }
+        return e.info.configBefore;
+    };
     const configDimension = (e: CadDimension, colorNumber: number) => {
         e.linewidth = linewidth;
         e.setStyle({
@@ -361,27 +368,44 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData, params: Pri
     };
     const configMText = (e: CadMtext) => {
         const {text, insert} = e;
+        const offsetInsert = (x: number, y: number) => {
+            const configBefore = getConfigBefore(e);
+            const insertBefore = configBefore.insert;
+            if (insertBefore) {
+                insert.x = insertBefore[0] + x;
+                insert.y = insertBefore[1] + y;
+            } else {
+                configBefore.insert = [insert.x, insert.y];
+                insert.x += x;
+                insert.y += y;
+            }
+        };
+        const offsetFontSize = (size: number) => {
+            const configBefore = getConfigBefore(e);
+            if (typeof configBefore.fontSize === "number") {
+                e.fontStyle.size = configBefore.fontSize + size;
+            } else if (typeof e.fontStyle.size === "number") {
+                configBefore.fontSize = e.fontStyle.size;
+                e.fontStyle.size += size;
+            }
+        };
+
         if ((自选配件已初始化 || e.text.includes("     ")) && !isNaN(Number(e.text))) {
             if (e.fontStyle.size === 24) {
-                insert.y += 3;
-                insert.x -= 7;
-            }
-            if (e.fontStyle.size === 22) {
-                insert.y += 3;
-                insert.x -= 7;
+                offsetInsert(3, -7);
+            } else if (e.fontStyle.size === 22) {
+                offsetInsert(3, -7);
             }
             e.text = text.replace("     ", "");
             e.fontStyle.family = "仿宋";
             e.fontStyle.weight = "bolder";
-            if (typeof e.fontStyle.size === "number") {
-                e.fontStyle.size += 8;
-            }
+            offsetFontSize(8);
         } else {
             if (config.fontStyle?.family === "宋体") {
-                e.fontStyle.size = (e.fontStyle.size || 0) + 6;
-                insert.y -= 5;
+                offsetFontSize(6);
+                offsetInsert(0, -5);
             } else {
-                insert.y -= 12;
+                offsetInsert(0, -12);
             }
         }
         if ((e.fontStyle.size || -1) < 24) {
@@ -803,35 +827,12 @@ export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post", d
     finish();
     return [cadImage];
 };
-// export const updateCadPreviewImg = async (data: CadData, http: HttpService, mode: "pre" | "post") => {
-//     let cadImage = data.entities.image.find((e) => e.info.isPreviewImg);
-//     if (!cadImage && mode === "pre") {
-//         return null;
-//     }
-//     if (cadImage) {
-//         cadImage.calcBoundingRect = false;
-//         cadImage.calcBoundingRectForce = false;
-//         return null;
-//     }
-//     if (!cadImage) {
-//         cadImage = new CadImage();
-//         cadImage.layer = "预览图";
-//         cadImage.info.isPreviewImg = true;
-//         cadImage.anchor.set(0.5, 0.5);
-//     }
-//     cadImage.url = await getCadPreview("cad", data, {http});
-//     const {x, y, width, height} = data.getBoundingRect();
-//     console.log(width, height);
-//     cadImage.position.set(x, y);
 
-//     data.entities.forEach((e) => {
-//         e.visible = true;
-//         e.calcBoundingRectForce = true;
-//     });
-//     cadImage.calcBoundingRect = false;
-//     cadImage.calcBoundingRectForce = false;
-//     cadImage.visible = true;
-//     cadImage.targetSize = new Point(width, height);
-//     data.entities.add(cadImage);
-//     return cadImage;
-// };
+export const getCadTotalLength = (data: CadData) => {
+    let length = 0;
+    const entities = data.getAllEntities();
+    entities.line.forEach((e) => (length += e.length));
+    entities.arc.forEach((e) => (length += e.length));
+    entities.circle.forEach((e) => (length += e.curve.length));
+    return length;
+};

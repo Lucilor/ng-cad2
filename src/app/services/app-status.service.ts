@@ -8,7 +8,8 @@ import {
     ValidateResult,
     suanliaodanZoomIn,
     suanliaodanZoomOut,
-    updateCadPreviewImg
+    updateCadPreviewImg,
+    getCadTotalLength
 } from "@app/cad.utils";
 import {
     CadData,
@@ -298,13 +299,7 @@ export class AppStatusService {
     }
 
     updateCadTotalLength() {
-        let length = 0;
-        const data = this.cad.data;
-        const entities = data.getAllEntities();
-        entities.line.forEach((e) => (length += e.length));
-        entities.arc.forEach((e) => (length += e.length));
-        entities.circle.forEach((e) => (length += e.curve.length));
-        this.cadTotalLength$.next(length);
+        this.cadTotalLength$.next(getCadTotalLength(this.cad.data));
     }
 
     setLinesLength(lines: CadLine[], length: number) {

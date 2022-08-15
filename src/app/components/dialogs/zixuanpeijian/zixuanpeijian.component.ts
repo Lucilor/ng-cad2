@@ -1,53 +1,31 @@
-import {AfterViewChecked, Component, ElementRef, Inject, OnDestroy, OnInit, QueryList, ViewChildren} from "@angular/core";
+import {Component, ElementRef, Inject, OnDestroy, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {SafeUrl} from "@angular/platform-browser";
 import {imgCadEmpty} from "@app/app.common";
-import {getCadPreview} from "@app/cad.utils";
-import {CadData, CadLine, CadMtext, CadViewer, setLinesLength} from "@cad-viewer";
-import {BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
+import {getCadPreview, getCadTotalLength} from "@app/cad.utils";
+import {CadData, CadLine, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
+import {BancaiList, CadDataService, CalcResult} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf, timeout} from "@utils";
 import {debounce} from "lodash";
+import md5 from "md5";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
-
-export interface ZixuanpeijianData {
-    code: string;
-    type: string;
-    selectedData?: CadData[];
-    sourceData?: CadData[];
-}
-
-export interface ZixuanpeijianInfo {
-    houtaiId: string;
-    zhankai: {width: string; height: string; num: string}[];
-    bancai?: BancaiList & {cailiao?: string; houdu?: string};
-}
-
-export interface Bancai extends BancaiList {
-    cailiao?: string;
-    houdu?: string;
-}
-
-export interface ZixuanpeijianItem {
-    data: CadData;
-    img: SafeUrl;
-    hidden: boolean;
-}
 
 @Component({
     selector: "app-zixuanpeijian",
     templateUrl: "./zixuanpeijian.component.html",
     styleUrls: ["./zixuanpeijian.component.scss"]
 })
-export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class ZixuanpeijianComponent implements OnInit, OnDestroy {
     cads: ObjectOf<ZixuanpeijianItem[]> = {};
-    cadsNeedUpdate = false;
     cadsFilterInput = "";
-    selectedCads: {data: CadData; viewer: CadViewer; info: ZixuanpeijianInfo}[] = [];
+    selectedCads: ZixuanpeijianSelectedCad[] = [];
     bancaiList: BancaiList[] = [];
     cadType = "";
     cadTypes: string[] = [];
+    private _calcZhankaiCache: ObjectOf<CalcResult> = {};
     @ViewChildren("selectedCadViewer") selectedCadViewers?: QueryList<ElementRef<HTMLDivElement>>;
 
     filterCads = debounce(() => {
@@ -66,7 +44,8 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
         @Inject(MAT_DIALOG_DATA) public data: ZixuanpeijianData | null,
         private dataService: CadDataService,
         private message: MessageService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private spinner: SpinnerService
     ) {}
 
     async ngOnInit() {
@@ -100,7 +79,6 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
             const item: ZixuanpeijianItem = {data, img: imgCadEmpty, hidden: false};
             this.cads[cadType].push(item);
         });
-        this.cadsNeedUpdate = true;
         if (selectedData) {
             selectedData.forEach((data) => {
                 const info = data.info.自选配件 as ZixuanpeijianInfo | undefined;
@@ -112,18 +90,6 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
         window.addEventListener("resize", this.onWindowResize);
     }
 
-    async ngAfterViewChecked() {
-        if (this.cadsNeedUpdate) {
-            this.cadsNeedUpdate = false;
-            await timeout(0);
-            for (const cadType in this.cads) {
-                this.cads[cadType].forEach(async (cad) => {
-                    cad.img = await getCadPreview("cad", cad.data, {http: this.dataService});
-                });
-            }
-        }
-    }
-
     ngOnDestroy() {
         window.removeEventListener("resize", this.onWindowResize);
     }
@@ -132,6 +98,15 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
         const result: CadData[] = [];
         this.selectedCads.forEach(({data, info}) => {
             data.info.自选配件 = info;
+            info.zhankai.forEach((zhankai, i) => {
+                if (data.zhankai[i]) {
+                    data.zhankai[i].zhankaikuan = zhankai.width;
+                    data.zhankai[i].zhankaigao = zhankai.height;
+                    data.zhankai[i].shuliang = zhankai.num;
+                } else {
+                    data.zhankai[i] = new CadZhankai({zhankaikuan: zhankai.width, zhankaigao: zhankai.height, shuliang: zhankai.num});
+                }
+            });
             result.push(data);
         });
         this.dialogRef.close(result);
@@ -143,6 +118,7 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
 
     async addSelectedCad(data: CadData) {
         const data2 = data.clone(true);
+        data2.entities.mtext = data2.entities.mtext.filter((e) => !e.info.isZhankaiText);
         const viewer = new CadViewer(data2, {
             enableZoom: false,
             dragAxis: "",
@@ -151,6 +127,23 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
             backgroundColor: "black"
         });
         await viewer.render();
+        let info: ZixuanpeijianInfo | undefined = data.info.自选配件;
+        if (!info) {
+            info = {houtaiId: data.id, zhankai: []};
+            if (data.zhankai.length > 0) {
+                info.zhankai = data.zhankai.map((v) => ({
+                    width: v.zhankaikuan,
+                    height: v.zhankaigao,
+                    num: v.shuliang,
+                    origin: {width: v.zhankaikuan}
+                }));
+            } else {
+                info.zhankai = [this._getDefaultZhankai()];
+            }
+        }
+        const item: ZixuanpeijianSelectedCad = {data: data2, viewer, info, spinnerId: `zixuanpeijian-${data2.id}`};
+        const length = this.selectedCads.push(item);
+
         viewer.on("entitydblclick", async (_, entity) => {
             if (!(entity instanceof CadMtext)) {
                 return;
@@ -168,13 +161,11 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
                 setLinesLength(data2, [parent], lineLength);
                 await viewer.render();
                 viewer.center();
+                this.calcZhankai(item);
             }
         });
-        let info: ZixuanpeijianInfo | undefined = data.info.自选配件;
-        if (!info) {
-            info = {houtaiId: data.id, zhankai: [{width: "", height: "", num: ""}]};
-        }
-        const length = this.selectedCads.push({data: data2, viewer, info});
+
+        await this.calcZhankai(item);
         await timeout(0);
         const el = this.selectedCadViewers?.get(length - 1)?.nativeElement;
         if (el) {
@@ -231,7 +222,7 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
     }
 
     private _getDefaultZhankai(): ZixuanpeijianInfo["zhankai"][0] {
-        return {width: "", height: "", num: ""};
+        return {width: "", height: "", num: "", origin: {width: ""}};
     }
 
     addZhankai(i: number, j: number) {
@@ -241,6 +232,77 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
     removeZhankai(i: number, j: number) {
         this.selectedCads[i].info.zhankai.splice(j, 1);
     }
+
+    async calcZhankai(item: ZixuanpeijianSelectedCad) {
+        const {data, info} = item;
+        const {zhankai} = info;
+        if (zhankai.length < 1 || !zhankai[0].origin.width) {
+            return;
+        }
+        const vars = {总长: getCadTotalLength(data)};
+        const formulas: ObjectOf<string> = {展开宽: zhankai[0].origin.width};
+        const id = info.houtaiId;
+        let result: CalcResult;
+        const cacheKey = md5(JSON.stringify([id, formulas, vars]));
+        if (cacheKey in this._calcZhankaiCache) {
+            result = this._calcZhankaiCache[cacheKey];
+        } else {
+            this.spinner.show(item.spinnerId);
+            result = await this.dataService.calcFormulas(formulas, vars);
+            this.spinner.hide(item.spinnerId);
+            this._calcZhankaiCache[cacheKey] = result;
+        }
+        if (result.展开宽 && !result.展开宽.error) {
+            const value = result.展开宽.value;
+            if (typeof value === "number" && !isNaN(value)) {
+                zhankai[0].width = value.toString();
+            }
+        }
+        info.zhankai = zhankai;
+    }
+
+    setCadType(type: string) {
+        this.cadType = type;
+        const cads = this.cads[type];
+        if (cads) {
+            cads.forEach(async (cad) => {
+                if (cad.img === imgCadEmpty) {
+                    cad.img = await getCadPreview("cad", cad.data, {http: this.dataService});
+                }
+            });
+        }
+    }
 }
 
 export const openZixuanpeijianDialog = getOpenDialogFunc<ZixuanpeijianComponent, ZixuanpeijianData, CadData[]>(ZixuanpeijianComponent);
+
+export interface ZixuanpeijianData {
+    code: string;
+    type: string;
+    selectedData?: CadData[];
+    sourceData?: CadData[];
+}
+
+export interface ZixuanpeijianInfo {
+    houtaiId: string;
+    zhankai: {width: string; height: string; num: string; origin: {width: string}}[];
+    bancai?: BancaiList & {cailiao?: string; houdu?: string};
+}
+
+export interface Bancai extends BancaiList {
+    cailiao?: string;
+    houdu?: string;
+}
+
+export interface ZixuanpeijianItem {
+    data: CadData;
+    img: SafeUrl;
+    hidden: boolean;
+}
+
+export interface ZixuanpeijianSelectedCad {
+    data: CadData;
+    viewer: CadViewer;
+    info: ZixuanpeijianInfo;
+    spinnerId: string;
+}

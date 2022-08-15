@@ -80,6 +80,7 @@
                                 [(ngModel)]="w.items[k]"
                                 (focus)="focusedContentText = [i, j]"
                                 (blur)="focusedContentText = null"
+                                autocomplete="off"
                             />
                             <button matSuffix mat-icon-button color="primary" (click)="addItem(i, j, k)">
                                 <mat-icon>add_circle</mat-icon>

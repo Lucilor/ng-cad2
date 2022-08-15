@@ -1,9 +1,9 @@
 <div class="content">
     <div class="section left" style="flex: 1 1 0">
-        <ng-scrollbar>
+        <ng-scrollbar style="flex: 0 0 120px">
             <div class="left-content">
                 <div *ngFor="let type of cadTypes">
-                    <button mat-raised-button [color]="cadType === type ? 'accent' : 'primary'" (click)="cadType = type">
+                    <button mat-raised-button [color]="cadType === type ? 'accent' : 'primary'" (click)="setCadType(type)">
                         {{ type }}
                     </button>
                 </div>
@@ -40,6 +40,7 @@
         <ng-scrollbar>
             <div class="cads">
                 <div *ngFor="let cad of selectedCads; let i = index" class="cad">
+                    <app-spinner [id]="cad.spinnerId" [inline]="true"></app-spinner>
                     <div #selectedCadViewer></div>
                     <div class="name">
                         <button mat-icon-button color="primary" (click)="removeSelectedCad(i)">
@@ -53,23 +54,23 @@
                         <button mat-icon-button color="primary" (click)="addZhankai(i, j)">
                             <mat-icon>add_circle</mat-icon>
                         </button>
-                        <button mat-icon-button color="primary" (click)="removeZhankai(i, j)">
+                        <button [disabled]="j === 0" mat-icon-button color="primary" (click)="removeZhankai(i, j)">
                             <mat-icon>remove_circle</mat-icon>
                         </button>
                         <mat-form-field>
                             <mat-label>展开宽</mat-label>
-                            <input type="text" matInput [(ngModel)]="zhankai.width" [autocomplete]="false" />
+                            <input type="text" matInput [(ngModel)]="zhankai.width" autocomplete="off" />
                             <span matSuffix></span>
                         </mat-form-field>
                         <span>×</span>
                         <mat-form-field>
                             <mat-label>展开高</mat-label>
-                            <input type="text" matInput [(ngModel)]="zhankai.height" [autocomplete]="false" />
+                            <input type="text" matInput [(ngModel)]="zhankai.height" autocomplete="off" />
                         </mat-form-field>
                         <span>=</span>
                         <mat-form-field>
                             <mat-label>数量</mat-label>
-                            <input type="text" matInput [(ngModel)]="zhankai.num" [autocomplete]="false" />
+                            <input type="text" matInput [(ngModel)]="zhankai.num" autocomplete="off" />
                         </mat-form-field>
                     </div>
                     <div class="inputs">
@@ -81,7 +82,7 @@
                                 readonly
                                 [value]="cad.info.bancai?.mingzi"
                                 (click)="openBancaiListDialog(i)"
-                                [autocomplete]="false"
+                                autocomplete="off"
                             />
                         </mat-form-field>
                     </div>
@@ -107,7 +108,7 @@
         </ng-scrollbar>
     </div>
 </div>
-<div class="btn-group">
-    <button mat-raised-button color="primary" (click)="submit()">确定</button>
-    <button mat-raised-button color="primary" (click)="cancle()">取消</button>
+<div class="toolbar btn-group">
+    <button mat-raised-button color="primary" (click)="submit()">提交</button>
+    <button mat-raised-button (click)="cancle()">取消</button>
 </div>

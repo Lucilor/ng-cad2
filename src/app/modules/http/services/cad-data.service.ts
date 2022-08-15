@@ -6,90 +6,6 @@ import {dataURLtoBlob, downloadByUrl, DownloadOptions, ObjectOf} from "@utils";
 import {CadImgCache} from "./cad-img-cache";
 import {CustomResponse, HttpOptions, HttpService} from "./http.service";
 
-export interface GetCadParams {
-    collection: CadCollection;
-    id?: string;
-    ids?: string[];
-    page?: number;
-    limit?: number;
-    search?: ObjectOf<any>;
-    qiliao?: boolean;
-    options?: CadData["options"];
-    optionsMatchType?: "and" | "or";
-    sync?: boolean;
-    restore?: boolean;
-}
-
-export interface SetCadParams {
-    collection: CadCollection;
-    cadData: CadData;
-    force?: boolean;
-    restore?: boolean;
-    importConfig?: {pruneLines: boolean};
-}
-
-export type CadSearchData = {
-    title: string;
-    items: {
-        value: string;
-        label: string;
-        options: {value: string; label: string}[];
-    }[];
-}[];
-
-export interface GetOptionsParams {
-    name: string;
-    search?: string;
-    page?: number;
-    limit?: number;
-    data?: CadData;
-    xinghao?: string;
-    includeTingyong?: boolean;
-    values?: string[];
-}
-
-export interface OptionsData {
-    data: {name: string; img: string | null; disabled: boolean}[];
-    count: number;
-}
-
-export interface BancaiList {
-    mingzi: string;
-    cailiaoList: string[];
-    houduList: string[];
-    guigeList: number[][];
-}
-export interface BancaiCad {
-    id: string;
-    name: string;
-    peihe?: string;
-    width: number;
-    height: number;
-    bancai: {mingzi: string; cailiao: string | null; houdu: string | null; guige: number[] | null; gas?: string};
-}
-
-export type Changelog = {
-    timeStamp: number;
-    content: {type: string; items: string[]}[];
-}[];
-
-export interface QueryMongodbParams {
-    collection: CadCollection;
-    where?: ObjectOf<any>;
-    fields?: string[];
-    limit?: number;
-    skip?: number;
-    genUnqiCode?: boolean;
-}
-
-export interface QueryMysqlParams {
-    table: string;
-    filter?: ObjectOf<any>;
-    fields?: string[];
-    page?: number;
-    limit?: number;
-}
-
 @Injectable({
     providedIn: "root"
 })
@@ -354,4 +270,95 @@ export class CadDataService extends HttpService {
         const file = new File([blob], `${id}.png`);
         await this.post("ngcad/setCadImg", {id, file}, options);
     }
+
+    async calcFormulas(formulas: ObjectOf<number | string>, vars: ObjectOf<number | string>) {
+        const response = await this.post<CalcResult>("ngcad/calcFormulas", {formulas, vars});
+        return response?.data || {};
+    }
 }
+
+export interface GetCadParams {
+    collection: CadCollection;
+    id?: string;
+    ids?: string[];
+    page?: number;
+    limit?: number;
+    search?: ObjectOf<any>;
+    qiliao?: boolean;
+    options?: CadData["options"];
+    optionsMatchType?: "and" | "or";
+    sync?: boolean;
+    restore?: boolean;
+}
+
+export interface SetCadParams {
+    collection: CadCollection;
+    cadData: CadData;
+    force?: boolean;
+    restore?: boolean;
+    importConfig?: {pruneLines: boolean};
+}
+
+export type CadSearchData = {
+    title: string;
+    items: {
+        value: string;
+        label: string;
+        options: {value: string; label: string}[];
+    }[];
+}[];
+
+export interface GetOptionsParams {
+    name: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    data?: CadData;
+    xinghao?: string;
+    includeTingyong?: boolean;
+    values?: string[];
+}
+
+export interface OptionsData {
+    data: {name: string; img: string | null; disabled: boolean}[];
+    count: number;
+}
+
+export interface BancaiList {
+    mingzi: string;
+    cailiaoList: string[];
+    houduList: string[];
+    guigeList: number[][];
+}
+export interface BancaiCad {
+    id: string;
+    name: string;
+    peihe?: string;
+    width: number;
+    height: number;
+    bancai: {mingzi: string; cailiao: string | null; houdu: string | null; guige: number[] | null; gas?: string};
+}
+
+export type Changelog = {
+    timeStamp: number;
+    content: {type: string; items: string[]}[];
+}[];
+
+export interface QueryMongodbParams {
+    collection: CadCollection;
+    where?: ObjectOf<any>;
+    fields?: string[];
+    limit?: number;
+    skip?: number;
+    genUnqiCode?: boolean;
+}
+
+export interface QueryMysqlParams {
+    table: string;
+    filter?: ObjectOf<any>;
+    fields?: string[];
+    page?: number;
+    limit?: number;
+}
+
+export type CalcResult = ObjectOf<{value: number | null; error: string}>;

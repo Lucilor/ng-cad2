@@ -4,8 +4,8 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, setDevComponent, timer} from "@app/app.common";
 import {configCadDataForPrint, printCads, PrintCadsParams} from "@app/cad.utils";
-import {CadCircle, CadData, CadLine, CadViewer} from "@cad-viewer";
-import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
+import {CadData, CadLine, CadMtext, CadViewer} from "@cad-viewer";
+import {openZixuanpeijianDialog, ZixuanpeijianInfo} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
@@ -122,8 +122,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             } else {
                 this.enableZixuanpeijian = false;
             }
-            await this.generateSuanliaodan();
             await this.setZixuanpeijian();
+            await this.generateSuanliaodan();
         } else {
             this.spinner.hide(this.loaderId);
         }
@@ -352,14 +352,15 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const data = await openZixuanpeijianDialog(this.dialog, {
             width: "calc(100vw - 20px)",
             height: "calc(100vh - 10px)",
-            data: {selectedData: this.zixuanpeijian, code: codes[0], type}
+            data: {selectedData: this.zixuanpeijian, code: codes[0], type},
+            disableClose: true
         });
         if (data) {
             this.zixuanpeijian = data;
             this.zixuanpeijian.forEach((v) => (v.info.自选配件已初始化 = false));
             this.spinner.show(this.loaderId, {text: "正在保存自选配件"});
-            await this.setOrderZixuanpeijian();
             await this.setZixuanpeijian();
+            await this.setOrderZixuanpeijian();
             this.spinner.hide(this.loaderId);
         }
     }
@@ -367,19 +368,21 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     async setZixuanpeijian() {
         const data = this.zixuanpeijian;
         const cad = this.cad;
-        if (!cad) {
-            return;
+        if (cad) {
+            cad.data.components.data = data;
         }
-        cad.data.components.data = data;
 
         const dataToArrange: CadData[] = [];
-        data.forEach((v, i) => {
+        data.forEach((v) => {
             if (!v.info.自选配件已初始化) {
                 dataToArrange.push(v);
             }
-            configCadDataForPrint(cad, v, this.printParams);
+
+            if (cad) {
+                configCadDataForPrint(cad, v, this.printParams);
+            }
         });
-        if (dataToArrange.length > 0) {
+        if (cad && dataToArrange.length > 0) {
             let hLinesMaxLength = -1;
             const hLines: CadLine[] = [];
             let vLinesMaxLength = -1;
@@ -415,14 +418,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             const bottom = bottomLine.start.y;
             const right = leftLine.start.x + hLines3[0].length;
             const top = hLines3[0].start.y;
-            const circle = new CadCircle();
-            circle.center.set(left, bottom);
-            circle.radius = 20;
-            cad.data.entities.add(circle);
-            const circle2 = new CadCircle();
-            circle2.center.set(right, top);
-            circle2.radius = 20;
-            cad.data.entities.add(circle2);
 
             const cols = dataToArrange.length > 6 ? 3 : 2;
             const boxWidth = (right - left) / cols;
@@ -435,8 +430,37 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 v.info.自选配件已初始化 = true;
             });
         }
-        await cad.reset().render();
-        cad.center();
+
+        if (cad) {
+            await cad.reset().render();
+            cad.center();
+        }
+
+        data.forEach((v) => {
+            const 自选配件: ZixuanpeijianInfo | undefined = v.info.自选配件;
+            if (自选配件) {
+                let zhankaiText = v.entities.mtext.find((e) => e.info.isZhankaiText);
+                if (!zhankaiText) {
+                    zhankaiText = new CadMtext({info: {isZhankaiText: true}});
+                    v.entities.add(zhankaiText);
+                }
+                zhankaiText.calcBoundingRect = false;
+                zhankaiText.fontStyle.size = 34;
+                const {zhankai, bancai} = 自选配件;
+                const {width, height, num} = zhankai[0];
+                const getText = (t?: string) => (t || "").trim();
+                zhankaiText.text = `${v.name}:${getText(width)}×${getText(height)}=${getText(num)}`;
+                if (bancai) {
+                    const {mingzi, cailiao, houdu} = bancai;
+                    zhankaiText.text += `\n${getText(houdu)}/${getText(cailiao)}/${getText(mingzi)}`;
+                }
+                const rect = v.getBoundingRect();
+                zhankaiText.anchor.set(0, 0);
+                zhankaiText.insert.set(rect.left, rect.bottom - 10);
+
+                cad?.render(zhankaiText);
+            }
+        });
     }
 
     async setOrderZixuanpeijian() {

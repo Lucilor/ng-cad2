@@ -25,11 +25,10 @@
         .left-content {
             display: flex;
             flex-direction: column;
-            .types-list {
-                padding: 10px;
-                > :not(:last-child) {
-                    margin-bottom: 5px;
-                }
+            flex: 1 1 0;
+            padding: 10px;
+            > :not(:last-child) {
+                margin-bottom: 5px;
             }
         }
 
@@ -57,8 +56,7 @@
         flex-direction: column;
         padding: 5px;
         box-sizing: border-box;
-        // width: 300px;
-        // height: 150px;
+        position: relative;
 
         .name {
             display: flex;
@@ -88,27 +86,19 @@
                 flex: 1 1 0;
             }
         }
+
+        .mat-icon-button {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+        }
     }
 }
 
-// :host ::ng-deep {
-//     .cad .inputs {
-//         .mat-form-field {
-//             width: 0;
-//             flex: 1 1 0;
+.toolbar {
+    justify-content: center;
 
-//             // .mat-form-field-wrapper {
-//             //     padding: 0 !important;
-//             // }
-
-//             // .mat-form-field-infix {
-//             //     border-top: none;
-//             //     padding: 0 0 0.5em 0;
-//             // }
-//         }
-
-//         .mat-select {
-//             flex: 1 1 0;
-//         }
-//     }
-// }
+    > * {
+        margin-right: 10px;
+    }
+}
