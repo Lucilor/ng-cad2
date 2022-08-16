@@ -33,7 +33,7 @@
 </div>
 <div class="content" style="display: flex;">
     <div class="效果图" *ngIf="mode === 'edit'">
-        <div class="text title">正面图</div>
+        <div class="text title">效果图</div>
         <input type="file" #orderImageInput hidden accept="image/*" (change)="uploadOrderImage($event)">
         <app-image [src]="orderImageUrl" (click)="orderImageInput.click()"></app-image>
         <div class="text">点击图片选择</div>

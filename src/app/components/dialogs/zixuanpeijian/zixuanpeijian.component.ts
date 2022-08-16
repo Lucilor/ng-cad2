@@ -10,6 +10,7 @@ import {ObjectOf, timeout} from "@utils";
 import {debounce} from "lodash";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
+import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 
 export interface ZixuanpeijianData {
     code: string;
@@ -240,6 +241,10 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy, AfterViewCheck
 
     removeZhankai(i: number, j: number) {
         this.selectedCads[i].info.zhankai.splice(j, 1);
+    }
+
+    openKlkwpzDialog(data: CadData) {
+        openKlkwpzDialog(this.dialog, {data: {data}});
     }
 }
 

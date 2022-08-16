@@ -44,12 +44,12 @@ export interface KlkwpzItemMatrix {
 
 export type KlkwpzItemWithoutName = Omit<KlkwpzItem, "name">;
 
-export type KailiaokongweipeizhiSource = ObjectOf<Partial<KlkwpzItemWithoutName>[]>;
+export type KlkwpzSource = ObjectOf<Partial<KlkwpzItemWithoutName>[]>;
 
-export class Kailiaokongweipeizhi {
+export class Klkwpz {
     data: KlkwpzItem[] = [];
 
-    constructor(source?: KailiaokongweipeizhiSource) {
+    constructor(source?: KlkwpzSource) {
         this.init(source);
     }
 
@@ -135,7 +135,7 @@ export class Kailiaokongweipeizhi {
         });
     }
 
-    init(source: KailiaokongweipeizhiSource = {}) {
+    init(source: KlkwpzSource = {}) {
         this.data = [];
         source = getObject(source);
         for (const key in source) {
@@ -187,7 +187,7 @@ export class Kailiaokongweipeizhi {
     }
 
     export() {
-        const result: KailiaokongweipeizhiSource = {};
+        const result: KlkwpzSource = {};
         this.data.forEach((vv) => {
             const name = vv.name;            const item = this.exportItem(vv);
             if (item.name in result) {

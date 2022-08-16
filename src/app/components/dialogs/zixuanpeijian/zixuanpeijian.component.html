@@ -37,6 +37,7 @@
     </div>
     <mat-divider [vertical]="true"></mat-divider>
     <div class="section right" style="flex: 1 1 0">
+        <div class="title">已选配件</div>
         <ng-scrollbar>
             <div class="cads">
                 <div *ngFor="let cad of selectedCads; let i = index" class="cad">
@@ -100,7 +101,7 @@
                         </mat-form-field>
                     </div>
                     <div>
-                        <button mat-raised-button color="primary">开料孔位配置</button>
+                        <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad.data)">开料孔位配置</button>
                     </div>
                 </div>
             </div>
