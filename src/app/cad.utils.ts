@@ -89,12 +89,13 @@ export const getCadPreviewRaw = async (collection: CadCollection, data: CadData,
 
 export interface CadPreviewParams extends CadPreviewRawParams {
     http?: CadDataService;
+    useCache?: boolean;
 }
 export const getCadPreview = async (collection: CadCollection, data: CadData, params: CadPreviewParams = {}) => {
-    const http = params.http;
+    const {http, useCache} = params;
     let url: string | null;
     if (http) {
-        url = await http.getCadImg(data.id, true, {silent: true});
+        url = await http.getCadImg(data.id, !!useCache, {silent: true});
         if (url) {
             return url;
         }

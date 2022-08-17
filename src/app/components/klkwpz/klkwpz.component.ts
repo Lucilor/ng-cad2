@@ -55,7 +55,7 @@ export class KlkwpzComponent {
                     if (item.板材孔位阵列范围) {
                         return "按指定宽高打阵列孔";
                     } else if (item.板材打孔范围缩减) {
-                        return "按展开高打阵列孔缩短范围";
+                        return "按展开高打阵列孔（缩短范围）";
                     }
                     return "按展开高打阵列孔";
                 }
@@ -75,7 +75,7 @@ export class KlkwpzComponent {
                 {
                     type: "select",
                     label: "打孔类型",
-                    options: ["打单个孔", "按展开高打阵列孔", "按展开高打阵列孔缩短范围", "按指定宽高打阵列孔"],
+                    options: ["打单个孔", "按展开高打阵列孔", "按展开高打阵列孔（缩短范围）", "按指定宽高打阵列孔"],
                     model: {data: typesData, key: "type3"},
                     onChange: () => this._updateItemInputs3(result, typesData)
                 },
@@ -177,8 +177,8 @@ export class KlkwpzComponent {
         }
         arr.push(
             {type: "coordinate", label: "", labelX: "孔cad定位点X", labelY: "孔cad定位点Y", model: {data: item, key: "anchor2"}},
-            {type: "string", label: "第一个孔到打孔起始点的x方向距离", model: {data: item, key: "x"}},
-            {type: "string", label: "第一个孔到打孔起始点的y方向距离", model: {data: item, key: "y"}}
+            {type: "string", label: "第一个孔定位点到打孔起始点的x方向距离", model: {data: item, key: "x"}},
+            {type: "string", label: "第一个孔定位点到打孔起始点的y方向距离", model: {data: item, key: "y"}}
         );
         data.inputs2 = arr;
     }
@@ -191,7 +191,7 @@ export class KlkwpzComponent {
         if (type3 === "按展开高打阵列孔") {
             delete item.板材孔位阵列范围;
             delete item.板材打孔范围缩减;
-        } else if (type3 === "按展开高打阵列孔缩短范围") {
+        } else if (type3 === "按展开高打阵列孔（缩短范围）") {
             if (!item.板材打孔范围缩减) {
                 item.板材打孔范围缩减 = {上: "", 下: "", 左: "", 右: ""};
             }

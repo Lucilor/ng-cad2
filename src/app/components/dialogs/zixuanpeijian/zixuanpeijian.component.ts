@@ -1,7 +1,8 @@
 import {Component, ElementRef, Inject, OnDestroy, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {SafeUrl} from "@angular/platform-browser";
-import {imgCadEmpty} from "@app/app.common";
+import {ActivatedRoute, Router} from "@angular/router";
+import {CadCollection, imgCadEmpty} from "@app/app.common";
 import {getCadPreview, getCadTotalLength} from "@app/cad.utils";
 import {CadData, CadLine, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
 import {BancaiList, CadDataService, CalcResult} from "@modules/http/services/cad-data.service";
@@ -26,6 +27,7 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
     bancaiList: BancaiList[] = [];
     cadType = "";
     cadTypes: string[] = [];
+    spinnerId = "zixuanpeijian";
     private _calcZhankaiCache: ObjectOf<CalcResult> = {};
     @ViewChildren("selectedCadViewer") selectedCadViewers?: QueryList<ElementRef<HTMLDivElement>>;
 
@@ -46,7 +48,9 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
         private dataService: CadDataService,
         private message: MessageService,
         private dialog: MatDialog,
-        private spinner: SpinnerService
+        private spinner: SpinnerService,
+        private route: ActivatedRoute,
+        private router: Router
     ) {}
 
     async ngOnInit() {
@@ -262,8 +266,12 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
         info.zhankai = zhankai;
     }
 
-    setCadType(type: string) {
-        this.cadType = type;
+    setCadType(type?: string) {
+        if (type) {
+            this.cadType = type;
+        } else {
+            type = this.cadType;
+        }
         const cads = this.cads[type];
         if (cads) {
             cads.forEach(async (cad) => {
@@ -276,6 +284,34 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
 
     openKlkwpzDialog(data: CadData) {
         openKlkwpzDialog(this.dialog, {data: {data}});
+    }
+
+    openCad(cad: ZixuanpeijianSelectedCad) {
+        const {project} = this.route.snapshot.queryParams;
+        const id = cad.info.houtaiId;
+        const collection: CadCollection = "zixuanpeijian";
+        const url = this.router.createUrlTree(["/index"], {queryParams: {project, id, collection}}).toString();
+        open(url);
+    }
+
+    async refreshSelectedCads(cad: ZixuanpeijianSelectedCad) {
+        this.spinner.show(this.spinnerId);
+        const id = cad.info.houtaiId;
+        const item = this.cads[this.cadType]?.find((v) => v.data.id === id);
+        if (!item) {
+            this.message.alert("当前cad已不存在");
+            return;
+        }
+        item.img = await getCadPreview("cad", item.data, {http: this.dataService, useCache: false});
+        for (const cad2 of this.selectedCads) {
+            if (cad2.info.houtaiId === id) {
+                cad.viewer.data = item.data.clone(true);
+                await cad.viewer.reset().render();
+                cad.viewer.center();
+                await this.calcZhankai(cad);
+            }
+        }
+        this.spinner.hide(this.spinnerId);
     }
 }
 

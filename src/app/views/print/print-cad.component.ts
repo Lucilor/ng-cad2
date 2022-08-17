@@ -479,7 +479,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         });
         if (response?.data) {
             const {prefix, zhengmiantu} = response.data;
-            this.orderImageUrl = prefix + zhengmiantu;
+            this.orderImageUrl = zhengmiantu ? prefix + zhengmiantu : "";
         }
     }
 

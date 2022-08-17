@@ -101,8 +101,12 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div>
+                    <div class="btn-group">
                         <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad.data)">开料孔位配置</button>
+                    </div>
+                    <div class="btn-group">
+                        <button mat-raised-button color="primary" (click)="openCad(cad)">编辑</button>
+                        <button mat-raised-button color="primary" (click)="refreshSelectedCads(cad)">重新获取数据</button>
                     </div>
                 </div>
             </div>
@@ -113,3 +117,4 @@
     <button mat-raised-button color="primary" (click)="submit()">提交</button>
     <button mat-raised-button (click)="cancle()">取消</button>
 </div>
+<app-spinner [id]="spinnerId"></app-spinner>
