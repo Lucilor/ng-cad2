@@ -1,6 +1,8 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {FormsModule} from "@angular/forms";
+import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
+import {MatInputModule} from "@angular/material/input";
 import {CadPointsComponent} from "@components/cad-points/cad-points.component";
 import {HttpModule} from "@modules/http/http.module";
 import {InputModule} from "@modules/input/input.module";
@@ -16,14 +18,7 @@ describe("CadInfoComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [CadInfoComponent, CadPointsComponent],
-            imports: [
-                FormsModule,
-                HttpModule,
-                InputModule,
-                MatIconModule,
-                MessageModule,
-                SpinnerModule
-            ]
+            imports: [FormsModule, HttpModule, InputModule, MatFormFieldModule, MatIconModule, MatInputModule, MessageModule, SpinnerModule]
         }).compileComponents();
     });
 

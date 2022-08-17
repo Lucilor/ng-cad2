@@ -1,0 +1,19 @@
+<ng-scrollbar>
+    <div class="items">
+        <mat-card *ngFor="let item of formData; let i = index" class="item" (click)="printItem(item.item)">
+            <div class="btn-group">
+                <button mat-raised-button color="primary" (click)="addItem(i)">新增</button>
+                <button mat-raised-button color="primary" (click)="addItem(i, item.item)">复制</button>
+                <button mat-raised-button color="primary" (click)="removeItem(i)">删除</button>
+            </div>
+            <app-input *ngFor="let info of item.inputs1" [info]="info" [ngClass]="getInfoClass(info)"></app-input>
+            <app-input *ngFor="let info of item.inputs2" [info]="info" [ngClass]="getInfoClass(info)"></app-input>
+            <app-input *ngFor="let info of item.inputs3" [info]="info" [ngClass]="getInfoClass(info)"></app-input>
+        </mat-card>
+        <mat-card *ngIf="formData.length < 1" class="item">
+            <div class="btn-group">
+                <button mat-raised-button color="primary" (click)="addItem(0)">新增</button>
+            </div>
+        </mat-card>
+    </div>
+</ng-scrollbar>

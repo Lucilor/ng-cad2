@@ -6,6 +6,7 @@ import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-dat
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
+import {openKlkwpzDialog} from "@components/dialogs/klkwpz-dialog/klkwpz-dialog.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {Utils} from "@mixins/utils.mixin";
 import {InputInfo} from "@modules/input/components/types";
@@ -483,5 +484,9 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         if (result?.length) {
             this.data.info.正面线到见光线展开模板 = result[0].id;
         }
+    }
+
+    openKlkwpzDialog(data: CadData) {
+        openKlkwpzDialog(this.dialog, {data: {data}});
     }
 }

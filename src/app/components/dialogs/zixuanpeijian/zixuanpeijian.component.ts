@@ -12,6 +12,7 @@ import {debounce} from "lodash";
 import md5 from "md5";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
+import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 
 @Component({
     selector: "app-zixuanpeijian",
@@ -271,6 +272,10 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
                 }
             });
         }
+    }
+
+    openKlkwpzDialog(data: CadData) {
+        openKlkwpzDialog(this.dialog, {data: {data}});
     }
 }
 
