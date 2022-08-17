@@ -4,7 +4,7 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, setDevComponent, timer} from "@app/app.common";
 import {configCadDataForPrint, printCads, PrintCadsParams} from "@app/cad.utils";
-import {CadData, CadLine, CadMtext, CadViewer} from "@cad-viewer";
+import {CadData, CadLine, CadLineLike, CadMtext, CadViewer} from "@cad-viewer";
 import {openZixuanpeijianDialog, ZixuanpeijianInfo} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -369,74 +369,70 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const data = this.zixuanpeijian;
         const cad = this.cad;
         if (cad) {
+            const tol = 2;
             cad.data.components.data = data;
-        }
+            const dataToArrange = data.filter((v) => !v.info.自选配件已初始化);
+            if (dataToArrange.length > 0) {
+                let hLinesMaxLength = -1;
+                const hLines: CadLine[] = [];
+                let vLinesMaxLength = -1;
+                const vLines: CadLine[] = [];
+                cad.data.entities.line.forEach((e) => {
+                    if (e.isHorizontal()) {
+                        hLines.push(e);
+                        hLinesMaxLength = Math.max(hLinesMaxLength, e.length);
+                    } else if (e.isVertical()) {
+                        vLines.push(e);
+                        vLinesMaxLength = Math.max(vLinesMaxLength, e.length);
+                    }
+                });
+                const hLines2 = hLines.filter((e) => Math.abs(e.length - hLinesMaxLength) < tol);
+                hLines2.sort((a, b) => a.start.y - b.start.y);
+                const vLines2 = vLines.filter((e) => Math.abs(e.length - vLinesMaxLength) < tol);
+                vLines2.sort((a, b) => a.start.x - b.start.x);
+                const leftLine = vLines2[0];
+                const bottomLine1 = hLines2[0];
+                const bottomLine2 = hLines2[1];
+                let bottomLine: CadLine;
+                if (bottomLine2 && bottomLine2.start.y - bottomLine1.start.y < 500) {
+                    bottomLine = bottomLine2;
+                } else {
+                    bottomLine = bottomLine1;
+                }
+                const leftLineX = leftLine.maxX;
+                const hLines3 = hLines.filter(
+                    (e) => e.start.y > bottomLine.start.y && (Math.abs(e.start.x - leftLineX) < tol || Math.abs(e.end.x - leftLineX) < tol)
+                );
+                hLines3.sort((a, b) => a.start.y - b.start.y);
+                const left = leftLine.start.x;
+                const bottom = bottomLine.start.y;
+                const right = leftLine.start.x + hLines3[0].length;
+                const top = hLines3[0].start.y;
 
-        const dataToArrange: CadData[] = [];
-        data.forEach((v) => {
-            if (!v.info.自选配件已初始化) {
-                dataToArrange.push(v);
+                const cols = dataToArrange.length > 6 ? 3 : 2;
+                const boxWidth = (right - left) / cols;
+                const boxHeight = (top - bottom) / 3;
+                dataToArrange.forEach((v, i) => {
+                    const x = left + (i % cols) * boxWidth + boxWidth / 2;
+                    const y = top - Math.floor(i / cols) * boxHeight - boxHeight / 2;
+                    const rect2 = v.getBoundingRect();
+                    v.transform({translate: [x - rect2.x, y - rect2.y]}, true);
+                    v.info.自选配件已初始化 = true;
+                });
             }
-
-            if (cad) {
+            for (const v of data) {
                 configCadDataForPrint(cad, v, this.printParams);
             }
-        });
-        if (cad && dataToArrange.length > 0) {
-            let hLinesMaxLength = -1;
-            const hLines: CadLine[] = [];
-            let vLinesMaxLength = -1;
-            const vLines: CadLine[] = [];
-            cad.data.entities.line.forEach((e) => {
-                if (e.isHorizontal()) {
-                    hLines.push(e);
-                    hLinesMaxLength = Math.max(hLinesMaxLength, e.length);
-                } else if (e.isVertical()) {
-                    vLines.push(e);
-                    vLinesMaxLength = Math.max(vLinesMaxLength, e.length);
-                }
-            });
-            const hLines2 = hLines.filter((e) => e.length === hLinesMaxLength);
-            hLines2.sort((a, b) => a.start.y - b.start.y);
-            const vLines2 = vLines.filter((e) => e.length === vLinesMaxLength);
-            vLines2.sort((a, b) => a.start.x - b.start.x);
-            const leftLine = vLines2[0];
-            const bottomLine1 = hLines2[0];
-            const bottomLine2 = hLines2[1];
-            let bottomLine: CadLine;
-            if (bottomLine2 && bottomLine1.start.y - bottomLine2.start.y < 500) {
-                bottomLine = bottomLine2;
-            } else {
-                bottomLine = bottomLine1;
-            }
-            const leftLineCurve = leftLine.curve;
-            const hLines3 = hLines.filter(
-                (e) => e.start.y > bottomLine.start.y && (leftLineCurve.contains(e.start) || leftLineCurve.contains(e.end))
-            );
-            hLines3.sort((a, b) => a.start.y - b.start.y);
-            const left = leftLine.start.x;
-            const bottom = bottomLine.start.y;
-            const right = leftLine.start.x + hLines3[0].length;
-            const top = hLines3[0].start.y;
-
-            const cols = dataToArrange.length > 6 ? 3 : 2;
-            const boxWidth = (right - left) / cols;
-            const boxHeight = (top - bottom) / 3;
-            dataToArrange.forEach((v, i) => {
-                const x = left + (i % cols) * boxWidth + boxWidth / 2;
-                const y = top - Math.floor(i / cols) * boxHeight - boxHeight / 2;
-                const rect2 = v.getBoundingRect();
-                v.transform({translate: [x - rect2.x, y - rect2.y]}, true);
-                v.info.自选配件已初始化 = true;
-            });
-        }
-
-        if (cad) {
             await cad.reset().render();
             cad.center();
         }
 
         data.forEach((v) => {
+            v.entities.forEach((e) => {
+                if (e instanceof CadLineLike) {
+                    e.lengthTextSize = 32;
+                }
+            });
             const 自选配件: ZixuanpeijianInfo | undefined = v.info.自选配件;
             if (自选配件) {
                 let zhankaiText = v.entities.mtext.find((e) => e.info.isZhankaiText);

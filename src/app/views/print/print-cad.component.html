@@ -27,14 +27,16 @@
             <button mat-raised-button color="primary" (click)="setOrderZixuanpeijian()">保存自选配件</button>
         </ng-container>
     </ng-container>
-    <button mat-raised-button color="primary" (click)="downloadDxf()" [disabled]="!downloadUrl">下载dxf</button>
-    <button mat-raised-button color="primary" (click)="print()">打印</button>
+    <ng-container *ngIf="mode !== 'edit'">
+        <button mat-raised-button color="primary" (click)="downloadDxf()" [disabled]="!downloadUrl">下载dxf</button>
+        <button mat-raised-button color="primary" (click)="print()">打印</button>
+    </ng-container>
     <button mat-icon-button color="accent" (click)="toggleToolbarVisible()"><mat-icon>expand_less</mat-icon></button>
 </div>
-<div class="content" style="display: flex;">
+<div class="content" style="display: flex">
     <div class="效果图" *ngIf="mode === 'edit'">
         <div class="text title">效果图</div>
-        <input type="file" #orderImageInput hidden accept="image/*" (change)="uploadOrderImage($event)">
+        <input type="file" #orderImageInput hidden accept="image/*" (change)="uploadOrderImage($event)" />
         <app-image [src]="orderImageUrl" (click)="orderImageInput.click()"></app-image>
         <div class="text">点击图片选择</div>
     </div>

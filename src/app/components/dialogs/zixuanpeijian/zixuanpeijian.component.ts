@@ -56,10 +56,7 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         await timeout(0);
         this.cadsFilterInput = "";
-        const {code, type, selectedData, sourceData} = this.data || {};
-        if (!code || !type) {
-            throw new Error("缺少参数");
-        }
+        const {selectedData, sourceData} = this.data || {};
         const cads = (sourceData || []).slice();
         if (cads.length < 1) {
             const response = await this.dataService.get<{cads: any[]; bancais: BancaiList[]}>("ngcad/getZixuanpeijian");
