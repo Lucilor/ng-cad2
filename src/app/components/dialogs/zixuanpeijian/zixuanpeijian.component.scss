@@ -89,6 +89,13 @@
             .mat-form-field {
                 width: 0;
                 flex: 1 1 0;
+
+                &.empty ::ng-deep {
+                    .mat-form-field-underline {
+                        height: 2px;
+                        background-color: red;
+                    }
+                }
             }
         }
 

@@ -58,18 +58,18 @@
                         <button [disabled]="j === 0" mat-icon-button color="primary" (click)="removeZhankai(i, j)">
                             <mat-icon>remove_circle</mat-icon>
                         </button>
-                        <mat-form-field>
+                        <mat-form-field [ngClass]="{empty: !zhankai.width}">
                             <mat-label>展开宽</mat-label>
                             <input type="text" matInput [(ngModel)]="zhankai.width" autocomplete="off" />
                             <span matSuffix></span>
                         </mat-form-field>
                         <span>×</span>
-                        <mat-form-field>
+                        <mat-form-field [ngClass]="{empty: !zhankai.height}">
                             <mat-label>展开高</mat-label>
                             <input type="text" matInput [(ngModel)]="zhankai.height" autocomplete="off" />
                         </mat-form-field>
                         <span>=</span>
-                        <mat-form-field>
+                        <mat-form-field [ngClass]="{empty: !zhankai.num}">
                             <mat-label>数量</mat-label>
                             <input type="text" matInput [(ngModel)]="zhankai.num" autocomplete="off" />
                         </mat-form-field>

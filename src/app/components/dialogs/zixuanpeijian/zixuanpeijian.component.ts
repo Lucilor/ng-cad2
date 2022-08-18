@@ -98,20 +98,34 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
 
     submit() {
         const result: CadData[] = [];
-        this.selectedCads.forEach(({data, info}) => {
+        const errors: string[] = [];
+        for (const {data, info} of this.selectedCads) {
             data.info.自选配件 = info;
-            info.zhankai.forEach((zhankai, i) => {
-                if (data.zhankai[i]) {
-                    data.zhankai[i].zhankaikuan = zhankai.width;
-                    data.zhankai[i].zhankaigao = zhankai.height;
-                    data.zhankai[i].shuliang = zhankai.num;
-                } else {
-                    data.zhankai[i] = new CadZhankai({zhankaikuan: zhankai.width, zhankaigao: zhankai.height, shuliang: zhankai.num});
+            let stop = false;
+            for (const [i, {width, height, num}] of info.zhankai.entries()) {
+                if (!width || !height || !num) {
+                    errors.push("展开没有填写完整");
+                    stop = true;
+                    break;
                 }
-            });
+                if (data.zhankai[i]) {
+                    data.zhankai[i].zhankaikuan = width;
+                    data.zhankai[i].zhankaigao = height;
+                    data.zhankai[i].shuliang = num;
+                } else {
+                    data.zhankai[i] = new CadZhankai({zhankaikuan: width, zhankaigao: height, shuliang: num});
+                }
+            }
+            if (stop) {
+                break;
+            }
             result.push(data);
-        });
-        this.dialogRef.close(result);
+        }
+        if (errors.length > 0) {
+            this.message.alert(errors.join("<br>"));
+        } else {
+            this.dialogRef.close(result);
+        }
     }
 
     cancle() {
@@ -135,7 +149,8 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
             if (data.zhankai.length > 0) {
                 info.zhankai = data.zhankai.map((v) => ({
                     width: v.zhankaikuan,
-                    height: v.zhankaigao,
+                    // height: v.zhankaigao,
+                    height: "",
                     num: v.shuliang,
                     origin: {width: v.zhankaikuan}
                 }));
