@@ -131,7 +131,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 } else {
                     this.enableZixuanpeijian = false;
                 }
-                // this.printParams.cads[0].components.data = await this.setZixuanpeijian();
+                await this.setZixuanpeijian();
                 await this.generateSuanliaodan();
             }
         } catch (error) {
@@ -496,7 +496,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 cad.render(zhankaiText);
             }
         });
-        return data;
     }
 
     async setOrderZixuanpeijian() {

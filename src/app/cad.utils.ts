@@ -371,12 +371,12 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData, params: Pri
         const {text, insert} = e;
         const offsetInsert = (x: number, y: number) => {
             const configBefore = getConfigBefore(e);
-            const insertBefore = configBefore.insert;
-            if (insertBefore) {
-                insert.x = insertBefore[0] + x;
-                insert.y = insertBefore[1] + y;
+            const insertOffsetBefore = configBefore.insertOffset;
+            if (insertOffsetBefore) {
+                insert.x += insertOffsetBefore[0] - x;
+                insert.y += insertOffsetBefore[1] - y;
             } else {
-                configBefore.insert = [insert.x, insert.y];
+                configBefore.insertOffset = [x, y];
                 insert.x += x;
                 insert.y += y;
             }
