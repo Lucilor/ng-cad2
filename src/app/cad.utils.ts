@@ -17,7 +17,7 @@ import {
     sortLines
 } from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {DEFAULT_TOLERANCE, getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, Point} from "@utils";
+import {DEFAULT_TOLERANCE, getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, ObjectOf, Point} from "@utils";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
@@ -106,7 +106,7 @@ export const getCadPreview = async (collection: CadCollection, data: CadData, pa
     return url;
 };
 
-const drawDesignPics = async (data: CadData, urls: string[], margin: number, findLocator: boolean) => {
+const drawDesignPics = async (keyword: string, data: CadData, urls: string[], margin: number, findLocator: boolean) => {
     const rectData = data.getBoundingRect();
     const rect = rectData.clone();
 
@@ -132,10 +132,10 @@ const drawDesignPics = async (data: CadData, urls: string[], margin: number, fin
     let deleteEntities: boolean;
 
     if (findLocator) {
-        const locatorIndex = data.entities.mtext.findIndex((e) => e.text === "#设计图#");
+        const locatorIndex = data.entities.mtext.findIndex((e) => e.text === `#${keyword}#`);
         const locator = data.entities.mtext[locatorIndex];
         if (!locator) {
-            console.warn("没有找到设计图标识");
+            console.warn(`没有找到${keyword}标识`);
             return;
         }
         const {
@@ -473,7 +473,12 @@ export interface PrintCadsParams {
     config?: Partial<CadViewerConfig>;
     linewidth?: number;
     dimStyle?: CadDimensionStyle;
-    designPics?: {urls: string[][]; margin: number; showSmall: boolean; showLarge: boolean};
+    designPics?: ObjectOf<{
+        urls: string[][];
+        margin: number;
+        showSmall: boolean;
+        showLarge: boolean;
+    }>;
     extra?: {拉手信息宽度?: number};
     url?: string;
     keepCad?: boolean;
@@ -562,33 +567,35 @@ export const printCads = async (params: PrintCadsParams) => {
         let img: string | undefined;
         let img2: string | undefined;
         if (designPics) {
-            const {urls, margin, showSmall, showLarge} = designPics;
-            const currUrls = urls[i] || urls[0];
-            if (Array.isArray(currUrls)) {
-                const urls2: string[] = [];
-                for (const url2 of currUrls) {
-                    try {
-                        urls2.push(getImageDataUrl(await loadImage(url2)));
-                    } catch (error) {
-                        errors.push(`无法加载设计图: ${url2}`);
+            for (const keyword in designPics) {
+                const {urls, margin, showSmall, showLarge} = designPics[keyword];
+                const currUrls = urls[i] || urls[0];
+                if (Array.isArray(currUrls)) {
+                    const urls2: string[] = [];
+                    for (const url2 of currUrls) {
+                        try {
+                            urls2.push(getImageDataUrl(await loadImage(url2)));
+                        } catch (error) {
+                            errors.push(`无法加载设计图: ${url2}`);
+                        }
                     }
-                }
-                if (urls2.length > 0) {
-                    const data2 = data.clone();
-                    if (showSmall) {
-                        await drawDesignPics(data, urls2, margin, true);
-                        await cad.reset().render();
-                        cad.center();
-                        img = await cad.toDataURL();
-                    } else {
-                        img = await cad.toDataURL();
-                    }
-                    if (showLarge) {
-                        await drawDesignPics(data2, urls2, margin, false);
-                        cad.data = data2;
-                        await cad.reset().render();
-                        cad.center();
-                        img2 = await cad.toDataURL();
+                    if (urls2.length > 0) {
+                        const data2 = data.clone();
+                        if (showSmall) {
+                            await drawDesignPics(keyword, data, urls2, margin, true);
+                            await cad.reset().render();
+                            cad.center();
+                            img = await cad.toDataURL();
+                        } else {
+                            img = await cad.toDataURL();
+                        }
+                        if (showLarge) {
+                            await drawDesignPics(keyword, data2, urls2, margin, false);
+                            cad.data = data2;
+                            await cad.reset().render();
+                            cad.center();
+                            img2 = await cad.toDataURL();
+                        }
                     }
                 }
             }

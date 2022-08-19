@@ -7,11 +7,6 @@
         <input #uploadJsonInput type="file" hidden accept=".json" (input)="uploadDxf($event)" />
         <button mat-raised-button color="primary" (click)="uploadDxfInput.click()">上传dxf</button>
         <button mat-raised-button color="primary" (click)="uploadJsonInput.click()">上传json</button>
-        <span>打印效果小图</span>
-        <mat-slide-toggle [(ngModel)]="printParams.designPics.showSmall"></mat-slide-toggle>
-        <span>打印效果大图</span>
-        <mat-slide-toggle [(ngModel)]="printParams.designPics.showLarge"></mat-slide-toggle>
-        <button mat-raised-button color="primary" (click)="editDesignPics()">效果图</button>
         <mat-form-field style="width: 150px">
             <mat-label>字体</mat-label>
             <input type="text" matInput [(ngModel)]="fontFamily" [matAutocomplete]="auto" />

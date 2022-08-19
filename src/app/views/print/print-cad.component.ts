@@ -49,10 +49,18 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         linewidth: 2,
         dimStyle: {},
         designPics: {
-            urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],
-            margin: 10,
-            showSmall: false,
-            showLarge: false
+            设计图: {
+                urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],
+                margin: 10,
+                showSmall: true,
+                showLarge: false
+            },
+            花件图: {
+                urls: [["/n/static/images/算料单效果图1.jpg", "/n/static/images/算料单效果图2.jpg"]],
+                margin: 10,
+                showSmall: true,
+                showLarge: false
+            }
         },
         extra: {
             拉手信息宽度: 578
@@ -109,23 +117,27 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this.spinner.show(this.loaderId, {text: "正在获取数据..."});
-        const response = await this.dataService.post<PrintCadsParams>(action, queryParams, {encrypt: "both"});
-        if (response?.data) {
-            response.data.cads = response.data.cads.map((v) => new CadData(v));
-            this.downloadUrl = response.data.url || null;
-            this.printParams = {...this.printParams, ...response.data};
-            this.printParams.info.title = "算料单" + this.printParams.codes.join("、");
-            const {codes, type} = this.printParams;
-            if (codes.length === 1) {
-                this.zixuanpeijian = await this.dataService.getOrderZixuanpeijian(codes[0], type);
-                this.enableZixuanpeijian = true;
-            } else {
-                this.enableZixuanpeijian = false;
+        try {
+            const response = await this.dataService.post<PrintCadsParams>(action, queryParams, {encrypt: "both"});
+            if (response?.data) {
+                response.data.cads = response.data.cads.map((v) => new CadData(v));
+                this.downloadUrl = response.data.url || null;
+                this.printParams = {...this.printParams, ...response.data};
+                this.printParams.info.title = "算料单" + this.printParams.codes.join("、");
+                const {codes, type} = this.printParams;
+                if (codes.length === 1) {
+                    this.zixuanpeijian = await this.dataService.getOrderZixuanpeijian(codes[0], type);
+                    this.enableZixuanpeijian = true;
+                } else {
+                    this.enableZixuanpeijian = false;
+                }
+                // this.printParams.cads[0].components.data = await this.setZixuanpeijian();
+                await this.generateSuanliaodan();
             }
-            this.printParams.cads[0].components.data = await this.setZixuanpeijian();
-            console.log(this.printParams.cads[0].components.data[0].entities.mtext[0].insert.x);
-            await this.generateSuanliaodan();
-        } else {
+        } catch (error) {
+            console.error(error);
+            this.message.alert("打印算料单出错");
+        } finally {
             this.spinner.hide(this.loaderId);
         }
         window.addEventListener("keydown", this._onKeyDown);
@@ -140,7 +152,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     private _loadPrintParams() {
         const params = session.load<Required<PrintCadsParams>>(this._paramKey);
         if (params) {
-            this.printParams = params;
             this.printParams.cads = params.cads.map((v) => new CadData(v));
         }
     }
@@ -226,22 +237,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             downloadByUrl(this.downloadUrl);
         } else {
             this.message.alert("没有提供下载地址");
-        }
-    }
-
-    async editDesignPics() {
-        const urls = await this.message.prompt(
-            {promptData: {type: "textarea", value: this.printParams.designPics.urls[0].join("\n")}},
-            {width: "50vw"}
-        );
-        if (urls !== null) {
-            this.printParams.designPics.urls = [
-                urls
-                    .split("\n")
-                    .map((v) => v.trim())
-                    .filter((v) => v !== "")
-            ];
-            this._savePrintParams();
         }
     }
 
