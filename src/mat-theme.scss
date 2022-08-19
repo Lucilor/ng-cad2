@@ -55,6 +55,15 @@ html {
         color: blue;
     }
 }
+.mat-form-field,
+app-input {
+    &.empty {
+        .mat-form-field-underline {
+            background-color: red;
+            height: 1.5px;
+        }
+    }
+}
 
 .mat-checkbox {
     display: inline-block;

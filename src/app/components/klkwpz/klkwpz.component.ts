@@ -21,7 +21,6 @@ export class KlkwpzComponent {
         this.klkwpz.init(value);
         this.formData = this.klkwpz.data.map((item) => this._getItemData(item));
     }
-    @Input() fixedName?: string;
     klkwpz = new Klkwpz();
     formData: KlkwpzFormItem[] = [];
 
@@ -31,9 +30,6 @@ export class KlkwpzComponent {
         const item = this.klkwpz.getKlkwpzItem(name, {});
         item.anchor1 = [0, 0];
         item.anchor2 = [0.5, 0.5];
-        if (this.fixedName) {
-            item.name = this.fixedName;
-        }
         return item;
     }
 
@@ -69,8 +65,7 @@ export class KlkwpzComponent {
                     type: "string",
                     label: "孔名字",
                     validators: [Validators.required],
-                    model: {data: item, key: "name"},
-                    readonly: !!this.fixedName
+                    model: {data: item, key: "name"}
                 },
                 {
                     type: "select",

@@ -1,10 +1,12 @@
-import {Component, ElementRef, Inject, OnDestroy, OnInit, QueryList, ViewChildren} from "@angular/core";
+import {Component, ElementRef, Inject, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren} from "@angular/core";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatMenuTrigger} from "@angular/material/menu";
 import {SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute, Router} from "@angular/router";
 import {CadCollection, imgCadEmpty} from "@app/app.common";
 import {getCadPreview, getCadTotalLength} from "@app/cad.utils";
-import {CadData, CadLine, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
+import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
+import {ContextMenu} from "@mixins/context-menu.mixin";
 import {BancaiList, CadDataService, CalcResult} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
@@ -20,7 +22,7 @@ import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
     templateUrl: "./zixuanpeijian.component.html",
     styleUrls: ["./zixuanpeijian.component.scss"]
 })
-export class ZixuanpeijianComponent implements OnInit, OnDestroy {
+export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnDestroy {
     cads: ObjectOf<ZixuanpeijianItem[]> = {};
     cadsFilterInput = "";
     selectedCads: ZixuanpeijianSelectedCad[] = [];
@@ -30,6 +32,10 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
     spinnerId = "zixuanpeijian";
     private _calcZhankaiCache: ObjectOf<CalcResult> = {};
     @ViewChildren("selectedCadViewer") selectedCadViewers?: QueryList<ElementRef<HTMLDivElement>>;
+    @ViewChild(MatMenuTrigger) contextMenu!: MatMenuTrigger;
+    contextMenuData = {index: -1};
+    showKongCads = false;
+    kongCads: ZixuanpeijianItem[] = [];
 
     filterCads = debounce(() => {
         const filterInput = this.cadsFilterInput.toLowerCase();
@@ -51,7 +57,9 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
         private spinner: SpinnerService,
         private route: ActivatedRoute,
         private router: Router
-    ) {}
+    ) {
+        super();
+    }
 
     async ngOnInit() {
         await timeout(0);
@@ -81,6 +89,9 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
             const item: ZixuanpeijianItem = {data, img: imgCadEmpty, hidden: false};
             this.cads[cadType].push(item);
         });
+        if (this.cadTypes.length > 0) {
+            this.setCadType(this.cadTypes[0]);
+        }
         if (selectedData) {
             selectedData.forEach((data) => {
                 const info = data.info.自选配件 as ZixuanpeijianInfo | undefined;
@@ -89,6 +100,8 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
                 }
             });
         }
+        const kongCads = await this.dataService.getCad({collection: "cad", search: {分类: "孔"}});
+        this.kongCads = kongCads.cads.map((data) => ({data, img: imgCadEmpty, hidden: false}));
         window.addEventListener("resize", this.onWindowResize);
     }
 
@@ -98,14 +111,16 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
 
     submit() {
         const result: CadData[] = [];
-        const errors: string[] = [];
+        const errors = new Set<string>();
         for (const {data, info} of this.selectedCads) {
             data.info.自选配件 = info;
-            let stop = false;
+            const bancai = info.bancai;
+            if (!bancai || !bancai.cailiao || !bancai.houdu) {
+                errors.add("板材没有填写完整");
+            }
             for (const [i, {width, height, num}] of info.zhankai.entries()) {
                 if (!width || !height || !num) {
-                    errors.push("展开没有填写完整");
-                    stop = true;
+                    errors.add("展开没有填写完整");
                     break;
                 }
                 if (data.zhankai[i]) {
@@ -116,13 +131,10 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
                     data.zhankai[i] = new CadZhankai({zhankaikuan: width, zhankaigao: height, shuliang: num});
                 }
             }
-            if (stop) {
-                break;
-            }
             result.push(data);
         }
-        if (errors.length > 0) {
-            this.message.alert(errors.join("<br>"));
+        if (errors.size > 0) {
+            this.message.alert({content: new Error(Array.from(errors).join("<br>"))});
         } else {
             this.dialogRef.close(result);
         }
@@ -132,12 +144,19 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
         this.dialogRef.close();
     }
 
+    private _configSelectedCad(data: CadData) {
+        data.entities.dimension.forEach((e) => {
+            if (e.mingzi.includes("活动标注")) {
+                e.mingzi = "<>";
+            }
+        });
+    }
+
     async addSelectedCad(data: CadData) {
+        this._configSelectedCad(data);
         const data2 = data.clone(true);
         data2.entities.mtext = data2.entities.mtext.filter((e) => !e.info.isZhankaiText);
         const viewer = new CadViewer(data2, {
-            enableZoom: false,
-            dragAxis: "",
             entityDraggable: ["MTEXT"],
             selectMode: "single",
             backgroundColor: "black"
@@ -158,27 +177,38 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
                 info.zhankai = [this._getDefaultZhankai()];
             }
         }
-        const item: ZixuanpeijianSelectedCad = {data: data2, viewer, info, spinnerId: `zixuanpeijian-${data2.id}`};
+        const item: ZixuanpeijianSelectedCad = {
+            data: data2,
+            viewer,
+            info,
+            spinnerId: `zixuanpeijian-${data2.id}`,
+            type: this.cadType
+        };
         const length = this.selectedCads.push(item);
 
         viewer.on("entitydblclick", async (_, entity) => {
-            if (!(entity instanceof CadMtext)) {
-                return;
-            }
-            const parent = entity.parent;
-            if (!entity.info.isLengthText || !(parent instanceof CadLine)) {
-                return;
-            }
-            const lineLengthText = await this.message.prompt({title: "修改线长", promptData: {value: entity.text, type: "number"}});
-            if (lineLengthText) {
-                const lineLength = Number(lineLengthText);
-                if (isNaN(lineLength) || lineLength <= 0) {
+            if (entity instanceof CadMtext) {
+                const parent = entity.parent;
+                if (!entity.info.isLengthText || !(parent instanceof CadLine)) {
                     return;
                 }
-                setLinesLength(data2, [parent], lineLength);
-                await viewer.render();
-                viewer.center();
-                this.calcZhankai(item);
+                const lineLengthText = await this.message.prompt({title: "修改线长", promptData: {value: entity.text, type: "number"}});
+                if (lineLengthText) {
+                    const lineLength = Number(lineLengthText);
+                    if (isNaN(lineLength) || lineLength <= 0) {
+                        return;
+                    }
+                    setLinesLength(data2, [parent], lineLength);
+                    await viewer.render();
+                    viewer.center();
+                    this.calcZhankai(item);
+                }
+            } else if (entity instanceof CadLineLike) {
+                const name = await this.message.prompt({title: "修改线名字", promptData: {value: entity.mingzi, type: "string"}});
+                if (name) {
+                    entity.mingzi = name;
+                    await viewer.render();
+                }
             }
         });
 
@@ -286,6 +316,7 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
         }
         const cads = this.cads[type];
         if (cads) {
+            this.showKongCads = false;
             cads.forEach(async (cad) => {
                 if (cad.img === imgCadEmpty) {
                     cad.img = await getCadPreview("cad", cad.data, {http: this.dataService});
@@ -294,13 +325,16 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
         }
     }
 
-    openKlkwpzDialog(data: CadData) {
-        openKlkwpzDialog(this.dialog, {data: {data}});
+    async openKlkwpzDialog(data: CadData) {
+        const result = await openKlkwpzDialog(this.dialog, {data: {source: data.info.开料孔位配置}});
+        if (result) {
+            data.info.开料孔位配置 = result;
+        }
     }
 
-    openCad(cad: ZixuanpeijianSelectedCad) {
+    openCad(cad: CadData) {
         const {project} = this.route.snapshot.queryParams;
-        const id = cad.info.houtaiId;
+        const id = cad.id;
         const collection: CadCollection = "zixuanpeijian";
         const url = this.router.createUrlTree(["/index"], {queryParams: {project, id, collection}}).toString();
         open(url);
@@ -309,21 +343,50 @@ export class ZixuanpeijianComponent implements OnInit, OnDestroy {
     async refreshSelectedCads(cad: ZixuanpeijianSelectedCad) {
         this.spinner.show(this.spinnerId);
         const id = cad.info.houtaiId;
-        const item = this.cads[this.cadType]?.find((v) => v.data.id === id);
-        if (!item) {
+        const item = this.cads[cad.type]?.find((v) => v.data.id === id);
+        const cads = (await this.dataService.getCad({collection: "zixuanpeijian", id})).cads;
+        if (!item || cads.length < 1) {
             this.message.alert("当前cad已不存在");
-            return;
-        }
-        item.img = await getCadPreview("cad", item.data, {http: this.dataService, useCache: false});
-        for (const cad2 of this.selectedCads) {
-            if (cad2.info.houtaiId === id) {
-                cad.viewer.data = item.data.clone(true);
-                await cad.viewer.reset().render();
-                cad.viewer.center();
-                await this.calcZhankai(cad);
+        } else {
+            item.data = cads[0];
+            item.img = await getCadPreview("cad", item.data, {http: this.dataService, useCache: false});
+            for (const cad2 of this.selectedCads) {
+                if (cad2.info.houtaiId === id) {
+                    const data = item.data.clone(true);
+                    this._configSelectedCad(data);
+                    cad.viewer.data = data;
+                    await cad.viewer.reset().render();
+                    cad.viewer.center();
+                    await this.calcZhankai(cad);
+                }
             }
         }
         this.spinner.hide(this.spinnerId);
+    }
+
+    onContextMenu(event: MouseEvent, i: number): void {
+        super.onContextMenu(event);
+        this.contextMenuData.index = i;
+    }
+
+    centerCad() {
+        const cad = this.selectedCads[this.contextMenuData.index];
+        if (!cad) {
+            return;
+        }
+        cad.viewer.center();
+    }
+
+    toggleShowKongCads(){
+        this.showKongCads = !this.showKongCads;
+        if (this.showKongCads) {
+            this.cadType = "";
+            this.kongCads.forEach(async (cad) => {
+                if (cad.img === imgCadEmpty) {
+                    cad.img = await getCadPreview("cad", cad.data, {http: this.dataService});
+                }
+            });
+        }
     }
 }
 
@@ -358,4 +421,5 @@ export interface ZixuanpeijianSelectedCad {
     viewer: CadViewer;
     info: ZixuanpeijianInfo;
     spinnerId: string;
+    type: string;
 }

@@ -42,12 +42,5 @@
                 flex: 1 1 0;
             }
         }
-
-        &.empty {
-            .mat-form-field-underline {
-                background-color: red;
-                height: 1.5px;
-            }
-        }
     }
 }

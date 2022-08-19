@@ -189,7 +189,8 @@ export class Klkwpz {
     export() {
         const result: KlkwpzSource = {};
         this.data.forEach((vv) => {
-            const name = vv.name;            const item = this.exportItem(vv);
+            const name = vv.name;
+            const item = this.exportItem(vv);
             if (item.name in result) {
                 (result as any)[name].push(item);
             } else {

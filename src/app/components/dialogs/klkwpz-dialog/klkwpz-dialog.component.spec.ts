@@ -1,15 +1,15 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatCardModule} from "@angular/material/card";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {CadData} from "@cad-viewer";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {HttpModule} from "@modules/http/http.module";
 import {InputModule} from "@modules/input/input.module";
 import {MessageModule} from "@modules/message/message.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {KlkwpzDialogComponent, KlkwpzDialogData} from "./klkwpz-dialog.component";
+import testData from "../../klkwpz/klkwpz.test.json";
+import {KlkwpzDialogData, KlkwpzDialogComponent} from "./klkwpz-dialog.component";
 
-const data: KlkwpzDialogData = {data: new CadData({name: "test", info: {开料孔位配置: [{face: "123"}]}})};
+const data: KlkwpzDialogData = {source: testData as any};
 
 describe("KlkwpzDialogComponent", () => {
     let component: KlkwpzDialogComponent;

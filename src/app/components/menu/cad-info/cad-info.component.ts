@@ -486,7 +486,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
     }
 
-    openKlkwpzDialog(data: CadData) {
-        openKlkwpzDialog(this.dialog, {data: {data}});
+    async openKlkwpzDialog(data: CadData) {
+        const result = await openKlkwpzDialog(this.dialog, {data: {source: data.info.开料孔位配置}});
+        if (result) {
+            data.info.开料孔位配置 = result;
+        }
     }
 }

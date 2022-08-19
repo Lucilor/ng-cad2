@@ -1,6 +1,7 @@
 import {MatMenuTrigger} from "@angular/material/menu";
 import {Constructor} from "@utils";
 
+// TODO: make it a module
 export const ContextMenu = <T extends Constructor>(base: T = class {} as T) =>
     class extends base {
         contextMenu!: MatMenuTrigger;

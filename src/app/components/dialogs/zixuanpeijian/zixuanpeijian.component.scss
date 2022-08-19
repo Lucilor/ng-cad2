@@ -72,12 +72,13 @@
                 line-height: 1em;
             }
 
-            > span {
+            .name-text {
                 flex: 1 1 0;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 text-align: center;
+                cursor: pointer;
             }
         }
 
@@ -89,13 +90,6 @@
             .mat-form-field {
                 width: 0;
                 flex: 1 1 0;
-
-                &.empty ::ng-deep {
-                    .mat-form-field-underline {
-                        height: 2px;
-                        background-color: red;
-                    }
-                }
             }
         }
 

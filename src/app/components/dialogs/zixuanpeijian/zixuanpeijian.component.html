@@ -7,6 +7,9 @@
                         {{ type }}
                     </button>
                 </div>
+                <button mat-raised-button [color]="showKongCads ? 'accent' : 'primary'" (click)="toggleShowKongCads()">
+                    孔CAD
+                </button>
             </div>
         </ng-scrollbar>
         <div class="left-content">
@@ -25,12 +28,25 @@
                                 <button mat-icon-button color="primary" (click)="addSelectedCad(cad.data)">
                                     <mat-icon>add_circle</mat-icon>
                                 </button>
-                                <span [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
+                                <button mat-icon-button color="primary" (click)="openCad(cad.data)">
+                                    <mat-icon>open_in_new</mat-icon>
+                                </button>
+                                <span class="name-text" [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
                                     {{ cad.data.name }}
                                 </span>
                             </div>
                         </div>
                     </ng-container>
+                </div>
+                <div class="cads" *ngIf="showKongCads">
+                    <div *ngFor="let cad of kongCads" class="cad">
+                        <img class="cad-preview" [src]="cad.img" />
+                        <div class="name">
+                            <span class="name-text" [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
+                                {{ cad.data.name }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </ng-scrollbar>
         </div>
@@ -42,7 +58,7 @@
             <div class="cads">
                 <div *ngFor="let cad of selectedCads; let i = index" class="cad">
                     <app-spinner [id]="cad.spinnerId" [inline]="true"></app-spinner>
-                    <div #selectedCadViewer></div>
+                    <div #selectedCadViewer (contextmenu)="onContextMenu($event, i)"></div>
                     <div class="name">
                         <button mat-icon-button color="primary" (click)="removeSelectedCad(i)">
                             <mat-icon>remove_circle</mat-icon>
@@ -75,7 +91,7 @@
                         </mat-form-field>
                     </div>
                     <div class="inputs">
-                        <mat-form-field>
+                        <mat-form-field [ngClass]="{empty: !cad.info.bancai?.mingzi}">
                             <mat-label>板材</mat-label>
                             <input
                                 type="text"
@@ -88,13 +104,13 @@
                         </mat-form-field>
                     </div>
                     <div class="inputs" *ngIf="cad.info.bancai">
-                        <mat-form-field>
+                        <mat-form-field [ngClass]="{empty: !cad.info.bancai.cailiao}">
                             <mat-label>材料</mat-label>
                             <mat-select [(ngModel)]="cad.info.bancai.cailiao">
                                 <mat-option *ngFor="let cailiao of cad.info.bancai.cailiaoList" [value]="cailiao">{{ cailiao }}</mat-option>
                             </mat-select>
                         </mat-form-field>
-                        <mat-form-field>
+                        <mat-form-field [ngClass]="{empty: !cad.info.bancai.houdu}">
                             <mat-label>厚度</mat-label>
                             <mat-select [(ngModel)]="cad.info.bancai.houdu">
                                 <mat-option *ngFor="let houdu of cad.info.bancai.houduList" [value]="houdu">{{ houdu }}</mat-option>
@@ -103,9 +119,6 @@
                     </div>
                     <div class="btn-group">
                         <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad.data)">开料孔位配置</button>
-                    </div>
-                    <div class="btn-group">
-                        <button mat-raised-button color="primary" (click)="openCad(cad)">编辑</button>
                         <button mat-raised-button color="primary" (click)="refreshSelectedCads(cad)">重新获取数据</button>
                     </div>
                 </div>
@@ -118,3 +131,15 @@
     <button mat-raised-button (click)="cancle()">取消</button>
 </div>
 <app-spinner [id]="spinnerId"></app-spinner>
+
+<div
+    style="visibility: hidden; position: fixed"
+    [style.left]="contextMenuPosition.x"
+    [style.top]="contextMenuPosition.y"
+    [matMenuTriggerFor]="contextMenu"
+></div>
+<mat-menu #contextMenu="matMenu">
+    <ng-template matMenuContent>
+        <button mat-menu-item (click)="centerCad()">居中</button>
+    </ng-template>
+</mat-menu>

@@ -1,6 +1,5 @@
 import {Component, Inject, ViewChild} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {CadData} from "@cad-viewer";
 import {KlkwpzSource} from "@components/klkwpz/klkwpz";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {getOpenDialogFunc} from "../dialog.common";
@@ -11,32 +10,20 @@ import {getOpenDialogFunc} from "../dialog.common";
     styleUrls: ["./klkwpz-dialog.component.scss"]
 })
 export class KlkwpzDialogComponent {
-    name: string;
-    source: KlkwpzSource = {};
-
     @ViewChild(KlkwpzComponent) klkwpzComponent?: KlkwpzComponent;
 
     constructor(
-        public dialogRef: MatDialogRef<KlkwpzDialogComponent, void>,
+        public dialogRef: MatDialogRef<KlkwpzDialogComponent, KlkwpzSource>,
         @Inject(MAT_DIALOG_DATA) public data: KlkwpzDialogData
     ) {
-        this.source = {};
-        let name = data.data.name;
-        let items = data.data.info.开料孔位配置;
-        if (!name) {
-            name = "noname";
+        if (!data.source || (typeof data.source !== "object") || Array.isArray(data.source)) {
+            data.source = {};
         }
-        if (!items || !Array.isArray(items)) {
-            items = [];
-        }
-        this.name = name;
-        this.source[name] = items;
     }
 
     submit() {
         if (this.klkwpzComponent && this.klkwpzComponent.submit()) {
-            this.data.data.info.开料孔位配置 = this.klkwpzComponent.klkwpz.export()[this.name];
-            this.dialogRef.close();
+            this.dialogRef.close(this.klkwpzComponent.klkwpz.export());
         }
     }
 
@@ -46,10 +33,10 @@ export class KlkwpzDialogComponent {
 }
 
 export interface KlkwpzDialogData {
-    data: CadData;
+    source: KlkwpzSource;
 }
 
-export const openKlkwpzDialog = getOpenDialogFunc<KlkwpzDialogComponent, KlkwpzDialogData, void>(KlkwpzDialogComponent, {
+export const openKlkwpzDialog = getOpenDialogFunc<KlkwpzDialogComponent, KlkwpzDialogData, KlkwpzSource>(KlkwpzDialogComponent, {
     width: "85%",
     height: "85%"
 });

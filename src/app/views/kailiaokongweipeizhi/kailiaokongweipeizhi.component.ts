@@ -1,13 +1,13 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
+import {KlkwpzSource, KlkwpzItem} from "@components/klkwpz/klkwpz";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
+import testData from "@components/klkwpz/klkwpz.test.json";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf} from "@utils";
-import {KlkwpzItem, KlkwpzSource} from "../../components/klkwpz/klkwpz";
-import testData from "./kailiaokongweipeizhi.test.json";
 
 @Component({
     selector: "app-kailiaokongweipeizhi",

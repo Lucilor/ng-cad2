@@ -442,9 +442,6 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData, params: Pri
         if (自选配件已初始化 || colorNumber === 0x333333 || e.layer === "1") {
             e.linewidth = linewidth;
         }
-        if (自选配件已初始化) {
-            e.children.mtext.forEach((ee) => configMText(ee));
-        }
     };
 
     const es = data.getAllEntities().toArray();
