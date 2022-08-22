@@ -73,10 +73,10 @@
                     >
                         <mat-form-field *ngFor="let item of w.items; let k = index; trackBy: trackByIdx" cdkDrag>
                             <div class="drag-placeholder" *cdkDragPlaceholder></div>
+                            <mat-label>更新内容</mat-label>
                             <input
                                 type="text"
                                 matInput
-                                placeholder="更新内容"
                                 [(ngModel)]="w.items[k]"
                                 (focus)="focusedContentText = [i, j]"
                                 (blur)="focusedContentText = null"

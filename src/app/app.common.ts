@@ -41,7 +41,8 @@ export const routesInfo = {
     replaceText: {path: "replace-text", title: "文本替换"},
     piliangjianban: {path: "piliangjianban", title: "批量剪板"},
     dingdanbiaoqian: {path: "dingdanbiaoqian", title: "订单标签"},
-    selectCads: {path: "select-cads", title: "选择CAD"}
+    selectCads: {path: "select-cads", title: "选择CAD"},
+    jiaowei: {path: "jiaowei", title: "铰位"}
 };
 
 export type CadCollection = "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban" | "material" | "zixuanpeijian";

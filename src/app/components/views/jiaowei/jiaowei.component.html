@@ -1,0 +1,28 @@
+<div class="toolbar btn-group">
+    <button mat-raised-button color="primary" (click)="submit()">提交</button>
+</div>
+<ng-scrollbar>
+    <div class="forms">
+        <div class="form" *ngFor="let item of jiaowei.data | keyvalue">
+            <div class="title">做{{ item.key }}个铰时</div>
+            <mat-checkbox [(ngModel)]="item.value.disabled">不做{{ item.key }}个铰</mat-checkbox>
+            <div class="items" *ngFor="let itemItem of item.value.items; let i = index">
+                <div>铰位{{ i + 1 }}中⼼Y距离</div>
+                <mat-form-field style="width: 150px">
+                    <mat-select [(ngModel)]="itemItem.anchor" [disabled]="item.value.disabled">
+                        <mat-option *ngFor="let option of jiaoweiAnchorOptions" [value]="option">{{ option }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field style="width: 150px">
+                    <input
+                        matInput
+                        type="number"
+                        [(ngModel)]="itemItem.distance"
+                        [disabled]="item.value.disabled || itemItem.anchor === '剩余平分'"
+                    />
+                    <span matSuffix>mm</span>
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+</ng-scrollbar>

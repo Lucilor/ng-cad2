@@ -1,5 +1,6 @@
 import {NgModule} from "@angular/core";
 import {Routes, RouterModule} from "@angular/router";
+import {JiaoweiComponent} from "@components/views/jiaowei/jiaowei.component";
 import {ProjectGuard} from "@guards/project.guard";
 import {PathResolveService} from "@services/path-resolve.service";
 import {BackupComponent} from "@views/backup/backup.component";
@@ -35,7 +36,8 @@ const routes: Routes = [
             {path: routesInfo.replaceText.path, component: ReplaceTextComponent},
             {path: routesInfo.piliangjianban.path, component: PiliangjianbanComponent},
             {path: routesInfo.dingdanbiaoqian.path, component: DingdanbiaoqianComponent},
-            {path: routesInfo.selectCads.path, component: SelectCadsComponent}
+            {path: routesInfo.selectCads.path, component: SelectCadsComponent},
+            {path: routesInfo.jiaowei.path, component: JiaoweiComponent}
         ],
         canActivate: [ProjectGuard]
     },
