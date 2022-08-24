@@ -85,7 +85,7 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
     ngAfterViewInit() {
         const {collection} = this.route.snapshot.queryParams;
         if (!collection) {
-            this.message.alert({content: new Error("缺少参数: collection")});
+            this.message.alert("缺少参数: collection");
             return;
         }
         this.collection = collection;

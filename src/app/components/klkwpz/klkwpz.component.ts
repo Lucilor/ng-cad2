@@ -65,19 +65,22 @@ export class KlkwpzComponent {
                     type: "string",
                     label: "孔名字",
                     validators: [Validators.required],
-                    model: {data: item, key: "name"}
+                    model: {data: item, key: "name"},
+                    showEmpty: true
                 },
                 {
                     type: "select",
                     label: "打孔类型",
                     options: ["打单个孔", "按展开高打阵列孔", "按展开高打阵列孔（缩短范围）", "按指定宽高打阵列孔"],
                     model: {data: typesData, key: "type3"},
+                    showEmpty: true,
                     onChange: () => this._updateItemInputs3(result, typesData)
                 },
                 {
                     type: "select",
                     label: "允许孔超出零件边缘",
                     options: ["不允许超出", "允许左右超出", "允许上下超出", "都允许超出"],
+                    showEmpty: true,
                     value: (() => {
                         const {不删除超出板材的孔, 删除超出板材的孔X, 删除超出板材的孔Y} = item;
                         let removeX = 删除超出板材的孔X === "是";
@@ -136,6 +139,7 @@ export class KlkwpzComponent {
             label: "打孔起始点",
             options: ["取横线竖线交点", "在打孔面上"],
             model: {data: typesData, key: "type2"},
+            showEmpty: true,
             onChange: () => this._updateItemInputs2(data, typesData)
         };
         const type2 = typesData.type2;
@@ -151,8 +155,8 @@ export class KlkwpzComponent {
                 type: "group",
                 label: " ",
                 infos: [
-                    {type: "string", label: "横线名字", model: {data: item, key: "baseX"}},
-                    {type: "string", label: "竖线名字", model: {data: item, key: "baseY"}}
+                    {type: "string", label: "横线名字", model: {data: item, key: "baseX"}, showEmpty: true},
+                    {type: "string", label: "竖线名字", model: {data: item, key: "baseY"}, showEmpty: true}
                 ]
             });
         } else if (type2 === "在打孔面上") {
@@ -165,15 +169,31 @@ export class KlkwpzComponent {
                 {
                     type: "group",
                     label: "",
-                    infos: [info0, {type: "string", label: "打孔面名字", model: {data: item, key: "face"}}]
+                    infos: [info0, {type: "string", label: "打孔面名字", model: {data: item, key: "face"}, showEmpty: true}]
                 },
-                {type: "coordinate", label: "", labelX: "打孔面起始点X", labelY: "打孔面起始点Y", model: {data: item, key: "anchor1"}}
+                {
+                    type: "coordinate",
+                    label: "",
+                    labelX: "打孔面起始点X",
+                    labelY: "打孔面起始点Y",
+                    model: {data: item, key: "anchor1"},
+                    compact:true,
+                    showEmpty: true
+                }
             );
         }
         arr.push(
-            {type: "coordinate", label: "", labelX: "孔cad定位点X", labelY: "孔cad定位点Y", model: {data: item, key: "anchor2"}},
-            {type: "string", label: "第一个孔定位点到打孔起始点的x方向距离", model: {data: item, key: "x"}},
-            {type: "string", label: "第一个孔定位点到打孔起始点的y方向距离", model: {data: item, key: "y"}}
+            {
+                type: "coordinate",
+                label: "",
+                labelX: "孔cad定位点X",
+                labelY: "孔cad定位点Y",
+                model: {data: item, key: "anchor2"},
+                compact: true,
+                showEmpty: true
+            },
+            {type: "string", label: "第一个孔定位点到打孔起始点的x方向距离", model: {data: item, key: "x"}, showEmpty: true},
+            {type: "string", label: "第一个孔定位点到打孔起始点的y方向距离", model: {data: item, key: "y"}, showEmpty: true}
         );
         data.inputs2 = arr;
     }
@@ -194,10 +214,10 @@ export class KlkwpzComponent {
                 type: "group",
                 label: "阵列范围缩减",
                 infos: [
-                    {type: "string", label: "上", model: {data: item.板材打孔范围缩减, key: "上"}},
-                    {type: "string", label: "下", model: {data: item.板材打孔范围缩减, key: "下"}},
-                    {type: "string", label: "左", model: {data: item.板材打孔范围缩减, key: "左"}},
-                    {type: "string", label: "右", model: {data: item.板材打孔范围缩减, key: "右"}}
+                    {type: "string", label: "上", model: {data: item.板材打孔范围缩减, key: "上"}, showEmpty: true},
+                    {type: "string", label: "下", model: {data: item.板材打孔范围缩减, key: "下"}, showEmpty: true},
+                    {type: "string", label: "左", model: {data: item.板材打孔范围缩减, key: "左"}, showEmpty: true},
+                    {type: "string", label: "右", model: {data: item.板材打孔范围缩减, key: "右"}, showEmpty: true}
                 ]
             });
             delete item.板材孔位阵列范围;
@@ -210,8 +230,8 @@ export class KlkwpzComponent {
                 type: "group",
                 label: "板材孔位阵列范围",
                 infos: [
-                    {type: "string", label: "宽", model: {data: item.板材孔位阵列范围, key: "宽"}},
-                    {type: "string", label: "高", model: {data: item.板材孔位阵列范围, key: "高"}}
+                    {type: "string", label: "宽", model: {data: item.板材孔位阵列范围, key: "宽"}, showEmpty: true},
+                    {type: "string", label: "高", model: {data: item.板材孔位阵列范围, key: "高"}, showEmpty: true}
                 ]
             });
         } else {
@@ -239,13 +259,15 @@ export class KlkwpzComponent {
                                 type: "select",
                                 label: "自增方向",
                                 options: ["上右", "下右", "上左", "下左"],
-                                model: {data: item.自增等距阵列, key: "自增方向"}
+                                model: {data: item.自增等距阵列, key: "自增方向"},
+                                showEmpty: true
                             },
                             {
                                 type: "select",
                                 label: "剪切相交XY线",
                                 options: ["是", "否"],
-                                model: {data: item.自增等距阵列, key: "孔依附板材边缘"}
+                                model: {data: item.自增等距阵列, key: "孔依附板材边缘"},
+                                showEmpty: true
                             }
                         ]
                     },
@@ -253,10 +275,10 @@ export class KlkwpzComponent {
                         type: "group",
                         label: "",
                         infos: [
-                            {type: "string", label: "行数", model: {data: item.自增等距阵列, key: "行数"}},
-                            {type: "string", label: "列数", model: {data: item.自增等距阵列, key: "列数"}},
-                            {type: "string", label: "行距", model: {data: item.自增等距阵列, key: "行距"}},
-                            {type: "string", label: "列距", model: {data: item.自增等距阵列, key: "列距"}}
+                            {type: "string", label: "行数", model: {data: item.自增等距阵列, key: "行数"}, showEmpty: true},
+                            {type: "string", label: "列数", model: {data: item.自增等距阵列, key: "列数"}, showEmpty: true},
+                            {type: "string", label: "行距", model: {data: item.自增等距阵列, key: "行距"}, showEmpty: true},
+                            {type: "string", label: "列距", model: {data: item.自增等距阵列, key: "列距"}, showEmpty: true}
                         ]
                     }
                 ] as InputInfo[]

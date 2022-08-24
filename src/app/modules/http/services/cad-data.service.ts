@@ -230,18 +230,6 @@ export class CadDataService extends HttpService {
         return response?.data ?? [];
     }
 
-    async getOrderZixuanpeijian(code: string, type: string) {
-        const response = await this.post<any[]>("ngcad/getOrderZixuanpeijian", {code, type});
-        if (response?.data) {
-            return response.data.map((v) => new CadData(v));
-        }
-        return [];
-    }
-
-    async setOrderZixuanpeijian(code: string, type: string, cads: CadData[]) {
-        await this.post<void>("ngcad/setOrderZixuanpeijian", {code, type, cads: cads.map((v) => v.export())});
-    }
-
     async getProjectConfig(): Promise<ObjectOf<string>>;
     async getProjectConfig(key: string): Promise<string>;
     async getProjectConfig(key?: string) {

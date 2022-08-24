@@ -42,7 +42,7 @@ export class KailiaokongweipeizhiComponent implements OnInit {
             }
         } else {
             if (environment.production) {
-                this.message.alert({content: new Error("参数错误")});
+                this.message.error("参数错误");
                 return;
             } else {
                 this.data = testData as any;

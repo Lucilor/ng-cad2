@@ -111,6 +111,7 @@ export class InputComponent extends Utils() {
                 this.info.onChange?.(this.value);
                 break;
             case "coordinate":
+                console.log(1);
                 this.info.onChange?.(this.value);
                 break;
             default:
@@ -174,8 +175,9 @@ export class InputComponent extends Utils() {
         return data as InputInfoTypeMap[T];
     }
 
-    getAnchorValue(axis: "x" | "y", value: number) {
+    getAnchorValue(axis: "x" | "y") {
         if (axis === "x") {
+            const value = this.value[0];
             switch (value) {
                 case 0:
                     return "左";
@@ -187,6 +189,7 @@ export class InputComponent extends Utils() {
                     return value;
             }
         } else if (axis === "y") {
+            const value = this.value[1];
             switch (value) {
                 case 0:
                     return "下";
@@ -199,5 +202,12 @@ export class InputComponent extends Utils() {
             }
         }
         return "";
+    }
+
+    isEmpty(value: any) {
+        if (!this.info.showEmpty) {
+            return false;
+        }
+        return [null, undefined, ""].includes(value);
     }
 }

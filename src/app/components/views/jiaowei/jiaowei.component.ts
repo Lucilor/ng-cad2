@@ -33,7 +33,7 @@ export class JiaoweiComponent implements OnInit {
                 this.jiaowei.import(JSON.parse(response.data[0].jiaowei));
             } catch (error) {
                 console.error(error);
-                this.message.alert({content: new Error("数据格式错误")});
+                this.message.error("数据格式错误");
             }
         } else {
             if (!environment.production) {

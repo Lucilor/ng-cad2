@@ -7,7 +7,7 @@
         (pointerdown)="onPointerDown($event)"
         (pointermove)="onPointerMove($event)"
         (pointerup)="onPointerUp($event)"
-        [src]="src"
+        [src]="getSrc()"
         [ngStyle]="{visibility: loading ? 'hidden' : ''}"
         (load)="onLoad()"
         (error)="onError()"

@@ -26,6 +26,9 @@
         <button mat-raised-button color="primary" (click)="downloadDxf()" [disabled]="!downloadUrl">下载dxf</button>
         <button mat-raised-button color="primary" (click)="print()">打印</button>
     </ng-container>
+    <ng-container *ngIf="!production">
+        <mat-slide-toggle [(ngModel)]="checkEmpty">checkEmpty</mat-slide-toggle>
+    </ng-container>
     <button mat-icon-button color="accent" (click)="toggleToolbarVisible()"><mat-icon>expand_less</mat-icon></button>
 </div>
 <div class="content" style="display: flex">

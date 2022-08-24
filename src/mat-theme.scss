@@ -47,9 +47,6 @@ html {
         padding-bottom: 1.2em !important;
     }
 
-    .mat-form-field-flex {
-        padding-top: 0 !important;
-    }
 
     .mat-form-field-label {
         color: blue;
@@ -63,6 +60,10 @@ app-input {
             height: 1.5px;
         }
     }
+}
+.mat-form-field-appearance-fill .mat-form-field-flex {
+    background-color: transparent;
+    padding: 0 !important;
 }
 
 .mat-checkbox {

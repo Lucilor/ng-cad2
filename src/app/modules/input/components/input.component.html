@@ -1,6 +1,6 @@
 <ng-container [ngSwitch]="info.type">
     <ng-container *ngSwitchCase="'string'">
-        <mat-form-field>
+        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
             <mat-label>{{ info.label }}</mat-label>
             <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
             <input
@@ -8,6 +8,7 @@
                 matInput
                 [readonly]="info.readonly"
                 [disabled]="info.disabled || false"
+                [autocomplete]="info.autocomplete"
                 [(ngModel)]="value"
                 type="text"
                 (change)="onChange()"
@@ -21,6 +22,7 @@
                 [cdkAutosizeMaxRows]="cast(info, 'string').textarea?.autosize?.maxRows"
                 [readonly]="info.readonly"
                 [disabled]="info.disabled || false"
+                [autocomplete]="info.autocomplete"
                 [(ngModel)]="value"
                 type="text"
                 (change)="onChange()"
@@ -38,13 +40,14 @@
         </mat-form-field>
     </ng-container>
     <ng-container *ngSwitchCase="'number'">
-        <mat-form-field>
+        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
             <mat-label>{{ info.label }}</mat-label>
             <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
             <input
                 matInput
                 [readonly]="info.readonly"
                 [disabled]="info.disabled || false"
+                [autocomplete]="info.autocomplete"
                 [(ngModel)]="value"
                 type="number"
                 [step]="cast(info, 'number').step"
@@ -73,22 +76,24 @@
                 </button>
             </div>
             <div *ngFor="let key of keysOf(asObject(value))">
-                <mat-form-field style="width: 30%">
+                <mat-form-field style="width: 30%" [ngClass]="{empty: isEmpty(key)}">
                     <input
                         type="text"
                         matInput
                         [readonly]="info.readonly"
                         [disabled]="info.disabled || false"
+                        [autocomplete]="info.autocomplete"
                         [value]="key"
                         (change)="changeObjectKey(value, key, $event)"
                     />
                 </mat-form-field>
-                <mat-form-field style="width: 70%">
+                <mat-form-field style="width: 70%" [ngClass]="{empty: isEmpty(value[key])}">
                     <input
                         type="text"
                         matInput
                         [readonly]="info.readonly"
                         [disabled]="info.disabled || false"
+                        [autocomplete]="info.autocomplete"
                         [(ngModel)]="value[key]"
                         [ngModelOptions]="{standalone: true}"
                     />
@@ -119,12 +124,13 @@
                     <mat-icon>add_circle</mat-icon>
                 </button>
             </div>
-            <mat-form-field *ngFor="let c of ' '.repeat(value.length).split(''); let j = index">
+            <mat-form-field [ngClass]="{empty: isEmpty(value[j])}" *ngFor="let c of ' '.repeat(value.length).split(''); let j = index">
                 <input
                     matInput
                     type="text"
                     [readonly]="info.readonly"
                     [disabled]="info.disabled || false"
+                    [autocomplete]="info.autocomplete"
                     [(ngModel)]="value[j]"
                     [ngModelOptions]="{standalone: true}"
                 />
@@ -141,7 +147,7 @@
         </div>
     </ng-container>
     <ng-container *ngSwitchCase="'boolean'">
-        <mat-form-field>
+        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
             <mat-label>{{ info.label }}</mat-label>
             <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
             <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()">
@@ -151,7 +157,7 @@
         </mat-form-field>
     </ng-container>
     <ng-container *ngSwitchCase="'select'">
-        <mat-form-field>
+        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
             <mat-label>{{ info.label }}</mat-label>
             <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
             <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()">
@@ -171,25 +177,31 @@
                 <span *ngIf="info.hint">({{ info.hint }})</span>
             </div>
             <div>
-                <mat-form-field style="width: 50%">
+                <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[0])}">
                     <mat-label>{{ cast(info, "coordinate").labelX || "x" }}</mat-label>
-                    <input matInput hidden type="number" [(ngModel)]="value[0]" (change)="onChange()" />
-                    <input matInput [value]="getAnchorValue('x', value[0])" [matAutocomplete]="autoX" />
-                    <mat-autocomplete #autoX="matAutocomplete" (optionSelected)="value[0] = $event.option.value">
-                        <mat-option [value]="0">左</mat-option>
-                        <mat-option [value]="0.5">中</mat-option>
-                        <mat-option [value]="1">右</mat-option>
-                    </mat-autocomplete>
+                    <ng-container *ngIf="cast(info, 'coordinate').compact; else anchorX">
+                        <mat-select [(ngModel)]="value[0]" (change)="onChange()">
+                            <mat-option [value]="0">左</mat-option>
+                            <mat-option [value]="0.5">中</mat-option>
+                            <mat-option [value]="1">右</mat-option>
+                        </mat-select>
+                    </ng-container>
+                    <ng-template #anchorX>
+                        <input matInput type="number" [(ngModel)]="value[0]" (change)="onChange()" />
+                    </ng-template>
                 </mat-form-field>
-                <mat-form-field style="width: 50%">
+                <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[1])}">
                     <mat-label>{{ cast(info, "coordinate").labelY || "y" }}</mat-label>
-                    <input matInput hidden type="number" [(ngModel)]="value[1]" (change)="onChange()" />
-                    <input matInput [value]="getAnchorValue('y', value[1])" [matAutocomplete]="autoY" />
-                    <mat-autocomplete #autoY="matAutocomplete" (optionSelected)="value[1] = $event.option.value">
-                        <mat-option [value]="1">上</mat-option>
-                        <mat-option [value]="0.5">中</mat-option>
-                        <mat-option [value]="0">下</mat-option>
-                    </mat-autocomplete>
+                    <ng-container *ngIf="cast(info, 'coordinate').compact; else anchorY">
+                        <mat-select [(ngModel)]="value[1]" (change)="onChange()">
+                            <mat-option [value]="1">上</mat-option>
+                            <mat-option [value]="0.5">中</mat-option>
+                            <mat-option [value]="0">下</mat-option>
+                        </mat-select>
+                    </ng-container>
+                    <ng-template #anchorY>
+                        <input matInput type="number" [(ngModel)]="value[1]" (change)="onChange()" />
+                    </ng-template>
                 </mat-form-field>
             </div>
         </div>

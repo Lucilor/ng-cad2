@@ -11,6 +11,8 @@ export interface InputInfoBase<T = any> {
     disabled?: boolean;
     suffixIcons?: {name: string; onClick: () => void}[];
     hint?: string;
+    autocomplete?: "on" | "off";
+    showEmpty?: boolean;
 }
 
 export interface InputInfoString<T = any> extends InputInfoBase<T> {
@@ -54,7 +56,7 @@ export interface InputInfoSelect<T = any> extends InputInfoBase<T> {
 
 export interface InputInfoCoordinate<T = any> extends InputInfoBase<T> {
     type: "coordinate";
-    simpleUI?: boolean;
+    compact?: boolean;
     labelX?: string;
     labelY?: string;
     onChange?: (val: [number, number]) => void;

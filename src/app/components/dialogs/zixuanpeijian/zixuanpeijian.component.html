@@ -1,137 +1,167 @@
-<div class="content">
-    <div class="section left" style="flex: 1 1 0">
-        <ng-scrollbar style="flex: 0 0 120px">
-            <div class="left-content">
-                <div *ngFor="let type of cadTypes">
-                    <button mat-raised-button [color]="cadType === type ? 'accent' : 'primary'" (click)="setCadType(type)">
-                        {{ type }}
-                    </button>
-                </div>
-                <button mat-raised-button [color]="showKongCads ? 'accent' : 'primary'" (click)="toggleShowKongCads()">
-                    孔CAD
-                </button>
+<div class="content" [ngSwitch]="step$.value.value">
+    <ng-container *ngSwitchCase="1">
+        <div class="content types-info">
+            <div class="content types-info-1">
+                <ng-scrollbar class="content">
+                    <div class="content">
+                        <div *ngFor="let item of typesInfo | keyvalue">
+                            <button mat-raised-button [color]="type1 === item.key ? 'accent' : 'primary'" (click)="setTypesInfo1(item.key)">
+                                {{ item.key }}
+                            </button>
+                        </div>
+                    </div>
+                </ng-scrollbar>
             </div>
-        </ng-scrollbar>
-        <div class="left-content">
-            <div>
-                <mat-form-field>
-                    <mat-label>搜索</mat-label>
-                    <input type="text" matInput [(ngModel)]="cadsFilterInput" (input)="filterCads()" autocomplete="off" />
-                </mat-form-field>
-            </div>
-            <ng-scrollbar>
-                <div class="cads" *ngIf="cads[cadType]">
-                    <ng-container *ngFor="let cad of cads[cadType]">
-                        <div *ngIf="!cad.hidden" class="cad">
-                            <img class="cad-preview" [src]="cad.img" />
-                            <div class="name">
-                                <button mat-icon-button color="primary" (click)="addSelectedCad(cad.data)">
+            <div class="content types-info-2">
+                <ng-scrollbar class="content">
+                    <div class="content types-info-items" *ngIf="typesInfo[type1]">
+                        <div class="types-info-item" *ngFor="let item of typesInfo[type1] | keyvalue">
+                            <div class="content images">
+                                <app-image class="xiaoguotu" [src]="item.value.xiaoguotu" [prefix]="urlPrefix"></app-image>
+                                <app-image class="jiemiantu" [src]="item.value.jiemiantu" [prefix]="urlPrefix"></app-image>
+                            </div>
+                            <div class="content title">
+                                <button mat-icon-button color="primary" (click)="addResultItem(type1, item.key)">
                                     <mat-icon>add_circle</mat-icon>
                                 </button>
-                                <button mat-icon-button color="primary" (click)="openCad(cad.data)">
-                                    <mat-icon>open_in_new</mat-icon>
-                                </button>
-                                <span class="name-text" [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
-                                    {{ cad.data.name }}
-                                </span>
+                                <div class="name">{{ item.key }}</div>
                             </div>
                         </div>
-                    </ng-container>
+                    </div>
+                </ng-scrollbar>
+            </div>
+        </div>
+        <mat-divider vertical></mat-divider>
+        <ng-scrollbar class="content">
+            <div class="content types-info-items">
+                <div class="types-info-item" *ngFor="let item of result; let i = index">
+                    <div class="content images">
+                        <app-image class="xiaoguotu" [src]="item.xiaoguotu" [prefix]="urlPrefix"></app-image>
+                        <app-image class="jiemiantu" [src]="item.jiemiantu" [prefix]="urlPrefix"></app-image>
+                    </div>
+                    <div class="content title">
+                        <button mat-icon-button color="primary" (click)="removeResultItem(i)">
+                            <mat-icon>remove_circle</mat-icon>
+                        </button>
+                        <div class="name">{{ item.type1 }} - {{ item.type2 }}</div>
+                    </div>
+                    <div class="content inputs">
+                        <app-input
+                            [info]="{type: 'string', label: '总宽', model: {key: 'totalWidth', data: item}, showEmpty: true}"
+                        ></app-input>
+                        <app-input
+                            [info]="{type: 'string', label: '总高', model: {key: 'totalHeight', data: item}, showEmpty: true}"
+                        ></app-input>
+                    </div>
+                    <div class="content inputs" *ngFor="let group of item.gongshishuru">
+                        <app-input [info]="{type: 'string', label: group[0], model: {key: '1', data: group}, showEmpty: true}"></app-input>
+                    </div>
                 </div>
-                <div class="cads" *ngIf="showKongCads">
-                    <div *ngFor="let cad of kongCads" class="cad">
-                        <img class="cad-preview" [src]="cad.img" />
+            </div>
+        </ng-scrollbar>
+    </ng-container>
+    <ng-container *ngSwitchCase="2">
+        <ng-scrollbar class="content">
+            <div *ngFor="let item of result; let i = index">
+                <div class="content cads">
+                    <div *ngFor="let cad of item.cads; let j = index" class="cad">
+                        <app-spinner [id]="'zixuanpeijian-' + cad.data.id" [inline]="true"></app-spinner>
+                        <div [id]="'cad-viewer-' + i + '-' + j" (contextmenu)="onContextMenu($event, i, j)"></div>
                         <div class="name">
-                            <span class="name-text" [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
+                            <!-- <button mat-icon-button color="primary" (click)="removeCadItem(i)">
+                                <mat-icon>remove_circle</mat-icon>
+                            </button> -->
+                            <span [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
                                 {{ cad.data.name }}
                             </span>
                         </div>
-                    </div>
-                </div>
-            </ng-scrollbar>
-        </div>
-    </div>
-    <mat-divider [vertical]="true"></mat-divider>
-    <div class="section right" style="flex: 1 1 0">
-        <div class="title">已选配件</div>
-        <ng-scrollbar>
-            <div class="cads">
-                <div *ngFor="let cad of selectedCads; let i = index" class="cad">
-                    <app-spinner [id]="cad.spinnerId" [inline]="true"></app-spinner>
-                    <div #selectedCadViewer (contextmenu)="onContextMenu($event, i)"></div>
-                    <div class="name">
-                        <button mat-icon-button color="primary" (click)="removeSelectedCad(i)">
-                            <mat-icon>remove_circle</mat-icon>
-                        </button>
-                        <span [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
-                            {{ cad.data.name }}
-                        </span>
-                    </div>
-                    <div class="inputs" *ngFor="let zhankai of cad.info.zhankai; let j = index">
-                        <button mat-icon-button color="primary" (click)="addZhankai(i, j)">
-                            <mat-icon>add_circle</mat-icon>
-                        </button>
-                        <button [disabled]="j === 0" mat-icon-button color="primary" (click)="removeZhankai(i, j)">
-                            <mat-icon>remove_circle</mat-icon>
-                        </button>
-                        <mat-form-field [ngClass]="{empty: !zhankai.width}">
-                            <mat-label>展开宽</mat-label>
-                            <input type="text" matInput [(ngModel)]="zhankai.width" autocomplete="off" />
-                            <span matSuffix></span>
-                        </mat-form-field>
-                        <span>×</span>
-                        <mat-form-field [ngClass]="{empty: !zhankai.height}">
-                            <mat-label>展开高</mat-label>
-                            <input type="text" matInput [(ngModel)]="zhankai.height" autocomplete="off" />
-                        </mat-form-field>
-                        <span>=</span>
-                        <mat-form-field [ngClass]="{empty: !zhankai.num}">
-                            <mat-label>数量</mat-label>
-                            <input type="text" matInput [(ngModel)]="zhankai.num" autocomplete="off" />
-                        </mat-form-field>
-                    </div>
-                    <div class="inputs">
-                        <mat-form-field [ngClass]="{empty: !cad.info.bancai?.mingzi}">
-                            <mat-label>板材</mat-label>
-                            <input
-                                type="text"
-                                matInput
-                                readonly
-                                [value]="cad.info.bancai?.mingzi"
-                                (click)="openBancaiListDialog(i)"
-                                autocomplete="off"
-                            />
-                        </mat-form-field>
-                    </div>
-                    <div class="inputs" *ngIf="cad.info.bancai">
-                        <mat-form-field [ngClass]="{empty: !cad.info.bancai.cailiao}">
-                            <mat-label>材料</mat-label>
-                            <mat-select [(ngModel)]="cad.info.bancai.cailiao">
-                                <mat-option *ngFor="let cailiao of cad.info.bancai.cailiaoList" [value]="cailiao">{{ cailiao }}</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field [ngClass]="{empty: !cad.info.bancai.houdu}">
-                            <mat-label>厚度</mat-label>
-                            <mat-select [(ngModel)]="cad.info.bancai.houdu">
-                                <mat-option *ngFor="let houdu of cad.info.bancai.houduList" [value]="houdu">{{ houdu }}</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                    <div class="btn-group">
-                        <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad.data)">开料孔位配置</button>
-                        <button mat-raised-button color="primary" (click)="refreshSelectedCads(cad)">重新获取数据</button>
+                        <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let j = index">
+                            <!-- <button mat-icon-button color="primary" (click)="addZhankai(i, j)">
+                                <mat-icon>add_circle</mat-icon>
+                            </button>
+                            <button [disabled]="j === 0" mat-icon-button color="primary" (click)="removeZhankai(i, j)">
+                                <mat-icon>remove_circle</mat-icon>
+                            </button> -->
+                            <app-input
+                                [info]="{
+                                    type: 'string',
+                                    label: '展开宽',
+                                    model: {key: 'width', data: zhankai},
+                                    autocomplete: 'off',
+                                    showEmpty: true
+                                }"
+                            ></app-input>
+                            <span>×</span>
+                            <app-input
+                                [info]="{
+                                    type: 'string',
+                                    label: '展开高',
+                                    model: {key: 'height', data: zhankai},
+                                    autocomplete: 'off',
+                                    showEmpty: true
+                                }"
+                            ></app-input>
+                            <span>=</span>
+                            <app-input
+                                [info]="{
+                                    type: 'string',
+                                    label: '数量',
+                                    model: {key: 'num', data: zhankai},
+                                    autocomplete: 'off',
+                                    showEmpty: true
+                                }"
+                            ></app-input>
+                        </div>
+                        <div class="content inputs">
+                            <app-input
+                                [info]="{
+                                    type: 'string',
+                                    label: '板材',
+                                    value: cad.info.bancai?.mingzi,
+                                    readonly: true,
+                                    showEmpty: true
+                                }"
+                                (click)="openBancaiListDialog(i, j)"
+                            ></app-input>
+                        </div>
+                        <div class="content inputs" *ngIf="cad.info.bancai">
+                            <app-input
+                                [info]="{
+                                    type: 'select',
+                                    label: '材料',
+                                    options: cad.info.bancai.cailiaoList,
+                                    model: {key: 'cailiao', data: cad.info.bancai},
+                                    autocomplete: 'off',
+                                    showEmpty: true
+                                }"
+                            ></app-input>
+                            <app-input
+                                [info]="{
+                                    type: 'select',
+                                    label: '厚度',
+                                    options: cad.info.bancai.houduList,
+                                    model: {key: 'houdu', data: cad.info.bancai},
+                                    autocomplete: 'off',
+                                    showEmpty: true
+                                }"
+                            ></app-input>
+                        </div>
+                        <div class="btn-group">
+                            <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad.data)">开料孔位配置</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </ng-scrollbar>
-    </div>
+    </ng-container>
 </div>
+
 <div class="toolbar btn-group">
     <button mat-raised-button color="primary" (click)="submit()">提交</button>
     <button mat-raised-button (click)="cancle()">取消</button>
 </div>
-<app-spinner [id]="spinnerId"></app-spinner>
 
+<app-spinner [id]="spinnerId"></app-spinner>
 <div
     style="visibility: hidden; position: fixed"
     [style.left]="contextMenuPosition.x"

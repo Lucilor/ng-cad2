@@ -27,8 +27,25 @@ const imgLoading = "assets/images/loading.gif";
     ]
 })
 export class ImageComponent {
-    @Input() src?: string | SafeUrl;
+    private _src?: string | SafeUrl;
+    @Input()
+    get src() {
+        return this._src;
+    }
+    set src(value) {
+        this._src = value;
+        if (value) {
+            this.loading = true;
+            this._src2 = "";
+        } else {
+            this.loading = false;
+            this._src2 = imgEmpty;
+        }
+    }
+    private _src2 = "";
+
     @Input() bigPicSrc?: string | SafeUrl;
+    @Input() prefix?: string;
     private _control = false;
     @Input()
     get control() {
@@ -45,13 +62,23 @@ export class ImageComponent {
 
     constructor(private elRef: ElementRef) {}
 
+    getSrc() {
+        const {prefix, _src, _src2} = this;
+        if (_src2) {
+            return _src2;
+        } else if (prefix && _src) {
+            return prefix + _src;
+        }
+        return _src;
+    }
+
     onLoad() {
         this.loading = false;
     }
 
     onError() {
         this.loading = false;
-        this.src = this.emptySrc;
+        this._src2 = this.emptySrc;
     }
 
     async showBigPic() {
