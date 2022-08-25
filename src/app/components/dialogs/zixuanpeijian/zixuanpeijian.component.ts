@@ -40,6 +40,17 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         this.resizeCadViewers();
     }, 500).bind(this);
 
+    get summitBtnText() {
+        switch (this.step$.value.value) {
+            case 1:
+                return "打开算料CAD";
+            case 2:
+                return "提交保存";
+            default:
+                return "提交";
+        }
+    }
+
     constructor(
         public dialogRef: MatDialogRef<ZixuanpeijianComponent, ZixuanpeijianOutput>,
         @Inject(MAT_DIALOG_DATA) public data: ZixuanpeijianInput | null,
@@ -136,16 +147,26 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             for (const [i, item] of this.result.entries()) {
                 const {type1, type2} = item;
                 const cads1 = allCads[type1]?.[type2] || [];
-                const cads2 = item.cads.map((v) => v.data);
+                const cads2: CadData[] = [];
+                const infos: ObjectOf<ZixuanpeijianInfo> = {};
+                for (const {data, info} of item.cads) {
+                    cads2.push(data);
+                    infos[data.id] = info;
+                }
+                const toAdd: CadData[] = [];
                 for (const cad of cads1) {
-                    if (!cads2.find((v) => v.info.houtaiId === cad.id)) {
-                        cads2.push(cad);
+                    const found = cads2.find((v) => {
+                        const info = infos[v.id];
+                        return info && info.houtaiId === cad.id;
+                    });
+                    if (!found) {
+                        toAdd.push(cad);
                     }
                 }
+                cads2.push(...toAdd);
                 item.cads = [];
                 cads2.forEach(async (data, j) => {
                     const data2 = data.clone(true);
-                    data2.info.houtaiId = data.id;
                     data2.entities.mtext = data2.entities.mtext.filter((e) => !e.info.isZhankaiText);
                     const viewer = new CadViewer(data2, {
                         entityDraggable: ["MTEXT"],
@@ -156,7 +177,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         viewer.setConfig(this.data.cadConfig);
                     }
                     await viewer.render();
-                    let info: ZixuanpeijianInfo | undefined = data.info.自选配件;
+                    let info: ZixuanpeijianInfo | undefined = infos[data.id];
                     if (!info) {
                         info = {houtaiId: data.id, zhankai: []};
                         if (data.zhankai.length > 0) {
@@ -380,7 +401,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             if (this.data?.checkEmpty) {
                 for (const {cads} of this.result) {
                     for (const {data, info} of cads) {
-                        data.info.自选配件 = info;
                         const bancai = info.bancai;
                         if (!bancai || !bancai.cailiao || !bancai.houdu) {
                             errors.add("板材没有填写完整");
@@ -429,6 +449,14 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     removeResultItem(i: number) {
         this.result.splice(i, 1);
+    }
+
+    addZhankai(i: number, j: number, k: number) {
+        this.result[i].cads[j].info.zhankai.splice(k + 1, 0, this._getDefaultZhankai());
+    }
+
+    removeZhankai(i: number, j: number, k: number) {
+        this.result[i].cads[j].info.zhankai.splice(k, 1);
     }
 }
 

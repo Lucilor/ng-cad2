@@ -1,1 +1,16 @@
-{"prefix": "", "typesInfo": {"a": {"b": {"xiaoguotu": "", "jiemiantu": "", "gongshishuru": []}}}}
+{
+    "prefix": "",
+    "typesInfo": {
+        "a": {
+            "b": {
+                "xiaoguotu": "",
+                "jiemiantu": "",
+                "gongshishuru": [
+                    ["a", "1"],
+                    ["b", "2"],
+                    ["c", "3"]
+                ]
+            }
+        }
+    }
+}

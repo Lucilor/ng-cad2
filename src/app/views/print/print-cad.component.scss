@@ -29,13 +29,16 @@ $bg-color: #616161;
     display: flex;
     flex: 1 1 0;
 
-    .效果图 {
+    .效果图,
+    .备注 {
         width: 300px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         padding: 10px;
+    }
 
+    .效果图 {
         app-image {
             flex: 1 1 0;
             cursor: pointer;
@@ -45,10 +48,17 @@ $bg-color: #616161;
         .text {
             color: white;
             text-align: center;
+            margin-bottom: 50px;
         }
         .title {
             font-size: 30px;
             line-height: 50px;
+        }
+    }
+
+    .备注 {
+        app-input {
+            background-color: white;
         }
     }
 

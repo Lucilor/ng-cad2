@@ -5,8 +5,8 @@ import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {HttpModule} from "@modules/http/http.module";
 import {InputModule} from "@modules/input/input.module";
 import {MessageModule} from "@modules/message/message.module";
+import testData from "@src/assets/testData/klkwpz.json";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import testData from "../../klkwpz/klkwpz.test.json";
 import {KlkwpzDialogData, KlkwpzDialogComponent} from "./klkwpz-dialog.component";
 
 const data: KlkwpzDialogData = {source: testData as any};

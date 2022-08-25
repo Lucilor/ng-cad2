@@ -5,12 +5,12 @@ import {ActivatedRoute} from "@angular/router";
 import {session, setDevComponent, timer} from "@app/app.common";
 import {configCadDataForPrint, printCads, PrintCadsParams} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, setLinesLength} from "@cad-viewer";
-import {openZixuanpeijianDialog, ZixuanpeijianOutput} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
+import {openZixuanpeijianDialog, ZixuanpeijianInfo, ZixuanpeijianOutput} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {downloadByUrl, MatrixLike, timeout} from "@utils";
+import {downloadByUrl, MatrixLike, ObjectOf, timeout} from "@utils";
 import {
     slideInDownOnEnterAnimation,
     slideInRightOnEnterAnimation,
@@ -355,7 +355,12 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 if (intersection(ids, ids2).length > 0) {
                     const cadItem = this.zixuanpeijian.flatMap((vv) => vv.cads).find((vv) => vv.displayedData?.id === v.id);
                     if (cadItem) {
-                        cadItem.data.info.translate = translate;
+                        if (cadItem.data.info.translate) {
+                            const [x, y] = cadItem.data.info.translate;
+                            cadItem.data.info.translate = [x + translate[0], y + translate[1]];
+                        } else {
+                            cadItem.data.info.translate = translate;
+                        }
                     }
                 }
             });
@@ -371,6 +376,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         cad.destroy();
+        this.syncZixuanpeijian();
     }
 
     async openZixuanpeijianDialog() {
@@ -398,36 +404,18 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const cad = this.cad;
         const cads: CadData[] = [];
         const cads2: CadData[] = [];
+        const infos: ObjectOf<ZixuanpeijianInfo> = {};
         for (const item of this.zixuanpeijian) {
             for (const cadItem of item.cads) {
                 if (cad) {
                     delete cadItem.displayedData;
-                    const info = cadItem.info;
-                    let zhankaiText = cadItem.data.entities.mtext.find((e) => e.info.isZhankaiText);
-                    if (!zhankaiText) {
-                        zhankaiText = new CadMtext({info: {isZhankaiText: true}});
-                        cadItem.data.entities.add(zhankaiText);
-                    }
-                    zhankaiText.calcBoundingRect = false;
-                    zhankaiText.fontStyle.size = 34;
-                    const {zhankai, bancai} = info;
-                    const {width, height, num} = zhankai[0];
-                    const getText = (t?: string) => (t || "").trim();
-                    zhankaiText.text = `${getText(width)}×${getText(height)}=${getText(num)}`;
-                    if (bancai) {
-                        const {mingzi, cailiao, houdu} = bancai;
-                        zhankaiText.text += `\n${getText(houdu)}/${getText(cailiao)}/${getText(mingzi)}`;
-                    }
-                    const rect = cadItem.data.getBoundingRect();
-                    zhankaiText.anchor.set(0, 0);
-                    zhankaiText.insert.set(rect.left, rect.bottom - 10);
-                    cad.render(zhankaiText);
                 }
                 if (!cadItem.displayedData) {
                     cadItem.displayedData = cadItem.data.clone();
                 }
                 cads.push(cadItem.displayedData);
                 cads2.push(cadItem.data);
+                infos[cadItem.displayedData.id] = cadItem.info;
             }
         }
         if (cad) {
@@ -504,11 +492,46 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                         }
                     }
                 }
+                v.info.自选配件已初始化 = true;
                 configCadDataForPrint(cad, v, this.printParams);
             }
             await cad.reset().render();
+            for (const v of cads) {
+                const info = infos[v.id];
+                let zhankaiText = v.entities.mtext.find((e) => e.info.isZhankaiText);
+                if (!zhankaiText) {
+                    zhankaiText = new CadMtext({info: {isZhankaiText: true}});
+                    v.entities.add(zhankaiText);
+                }
+                zhankaiText.calcBoundingRect = false;
+                zhankaiText.fontStyle.size = 34;
+                const {zhankai, bancai} = info;
+                const {width, height, num} = zhankai[0];
+                const getText = (t?: string) => (t || "").trim();
+                zhankaiText.text = `${getText(width)}×${getText(height)}=${getText(num)}`;
+                if (bancai) {
+                    const {mingzi, cailiao, houdu} = bancai;
+                    zhankaiText.text += `\n${getText(houdu)}/${getText(cailiao)}/${getText(mingzi)}`;
+                }
+                const rect = v.getBoundingRect();
+                zhankaiText.anchor.set(0, 0);
+                zhankaiText.insert.set(rect.left, rect.bottom - 10);
+                cad.render(zhankaiText);
+            }
         } else {
             this.printParams.cads[0].components.data = cads;
+        }
+    }
+
+    syncZixuanpeijian() {
+        for (const item of this.zixuanpeijian) {
+            for (const cadItem of item.cads) {
+                const translate = cadItem.data.info.translate;
+                if (translate) {
+                    cadItem.data.transform({translate}, true);
+                }
+                delete cadItem.data.info.translate;
+            }
         }
     }
 
@@ -518,19 +541,14 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!cad) {
             return;
         }
+        this.syncZixuanpeijian();
         const zixuanpeijian = this.zixuanpeijian.map((item) => ({
             ...item,
-            cads: item.cads.map((cadItem) => {
-                const translate = cadItem.data.info.translate;
-                if (translate) {
-                    cadItem.data.transform({translate}, true);
-                }
-                return {
-                    ...cadItem,
-                    data: cadItem.data.export(),
-                    displayedData: cadItem.displayedData?.export()
-                };
-            })
+            cads: item.cads.map((cadItem) => ({
+                ...cadItem,
+                data: cadItem.data.export(),
+                displayedData: cadItem.displayedData?.export()
+            }))
         }));
         await this.dataService.post<void>("ngcad/setOrderZixuanpeijian", {code: codes[0], type, zixuanpeijian});
     }

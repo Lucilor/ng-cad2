@@ -27,6 +27,7 @@
             "@modules/*": ["src/app/modules/*"],
             "@services/*": ["src/app/services/*"],
             "@views/*": ["src/app/views/*"],
+            "@src/*": ["src/*"],
             "@app/*": ["src/app/*"],
             "@env": ["src/environments/environment.ts"]
         },

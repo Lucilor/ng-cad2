@@ -41,5 +41,8 @@
     <div class="cad-container" #cadContainer>
         <embed [hidden]="mode !== 'print'" *ngIf="pdfUrl" name="算料单" width="100%" height="100%" [src]="pdfUrl" type="application/pdf" />
     </div>
+    <div class="备注" *ngIf="mode === 'edit'">
+        <app-input [info]="{type: 'string', label: '备注', textarea: {autosize: {minRows: 3}}}"></app-input>
+    </div>
 </div>
 <app-spinner [id]="loaderId"></app-spinner>

@@ -31,7 +31,7 @@
                 </ng-scrollbar>
             </div>
         </div>
-        <mat-divider vertical></mat-divider>
+        <mat-divider vertical style="margin: 0 10px"></mat-divider>
         <ng-scrollbar class="content">
             <div class="content types-info-items">
                 <div class="types-info-item" *ngFor="let item of result; let i = index">
@@ -53,8 +53,11 @@
                             [info]="{type: 'string', label: '总高', model: {key: 'totalHeight', data: item}, showEmpty: true}"
                         ></app-input>
                     </div>
-                    <div class="content inputs" *ngFor="let group of item.gongshishuru">
-                        <app-input [info]="{type: 'string', label: group[0], model: {key: '1', data: group}, showEmpty: true}"></app-input>
+                    <div class="content inputs gongshishuru">
+                        <app-input
+                            *ngFor="let group of item.gongshishuru"
+                            [info]="{type: 'string', label: group[0], model: {key: '1', data: group}, showEmpty: true}"
+                        ></app-input>
                     </div>
                 </div>
             </div>
@@ -63,6 +66,7 @@
     <ng-container *ngSwitchCase="2">
         <ng-scrollbar class="content">
             <div *ngFor="let item of result; let i = index">
+                <div>{{ item.type1 }} - {{ item.type2 }}</div>
                 <div class="content cads">
                     <div *ngFor="let cad of item.cads; let j = index" class="cad">
                         <app-spinner [id]="'zixuanpeijian-' + cad.data.id" [inline]="true"></app-spinner>
@@ -75,13 +79,13 @@
                                 {{ cad.data.name }}
                             </span>
                         </div>
-                        <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let j = index">
-                            <!-- <button mat-icon-button color="primary" (click)="addZhankai(i, j)">
+                        <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
+                            <button mat-icon-button color="primary" (click)="addZhankai(i, j, k)">
                                 <mat-icon>add_circle</mat-icon>
                             </button>
-                            <button [disabled]="j === 0" mat-icon-button color="primary" (click)="removeZhankai(i, j)">
+                            <button [disabled]="k === 0" mat-icon-button color="primary" (click)="removeZhankai(i, j, k)">
                                 <mat-icon>remove_circle</mat-icon>
-                            </button> -->
+                            </button>
                             <app-input
                                 [info]="{
                                     type: 'string',
@@ -157,8 +161,10 @@
 </div>
 
 <div class="toolbar btn-group">
-    <button mat-raised-button color="primary" (click)="submit()">提交</button>
-    <button mat-raised-button (click)="cancle()">取消</button>
+    <div>
+        <button mat-raised-button color="primary" (click)="submit()">{{ summitBtnText }}</button>
+    </div>
+    <div><button mat-raised-button (click)="cancle()">取消</button></div>
 </div>
 
 <app-spinner [id]="spinnerId"></app-spinner>
