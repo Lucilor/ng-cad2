@@ -120,7 +120,14 @@ export class AppStatusService {
             if (action) {
                 this.config.noUser = true;
             } else {
-                const response = await this.dataService.get<boolean>("user/user/isAdmin", {timeStamp: new Date().getTime()});
+                const response = await this.dataService.get<boolean>(
+                    "user/user/isAdmin",
+                    {timeStamp: new Date().getTime()},
+                    {silent: true}
+                );
+                if (!response) {
+                    this.dataService.offlineMode = true;
+                }
                 this.isAdmin$.next(response?.data === true);
                 await this.config.getUserConfig();
             }

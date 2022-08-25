@@ -2,7 +2,6 @@ import {Component, OnInit, ViewChild} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {KlkwpzSource, KlkwpzItem} from "@components/klkwpz/klkwpz";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
-import testData from "@components/klkwpz/klkwpz.test.json";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -35,7 +34,11 @@ export class KailiaokongweipeizhiComponent implements OnInit {
         const id = this.route.snapshot.queryParams.id;
         if (id) {
             this.id = id;
-            const response = await this.dataService.get<ObjectOf<KlkwpzItem[]>>("peijian/kailiaokongweipeizhi/get", {id});
+            const response = await this.dataService.get<ObjectOf<KlkwpzItem[]>>(
+                "peijian/kailiaokongweipeizhi/get",
+                {id},
+                {testData: "klkwpz"}
+            );
             const data = response?.data;
             if (typeof data === "object" && !Array.isArray(data)) {
                 this.data = data;
@@ -44,8 +47,6 @@ export class KailiaokongweipeizhiComponent implements OnInit {
             if (environment.production) {
                 this.message.error("参数错误");
                 return;
-            } else {
-                this.data = testData as any;
             }
         }
     }

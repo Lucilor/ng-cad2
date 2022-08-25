@@ -54,7 +54,7 @@ import {CadSplitComponent} from "@components/menu/cad-split/cad-split.component"
 import {SubCadsComponent} from "@components/menu/sub-cads/sub-cads.component";
 import {ToolbarComponent} from "@components/menu/toolbar/toolbar.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
-import {JiaoweiComponent} from "@components/views/jiaowei/jiaowei.component";
+import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {ReplaceFullCharsDirective} from "@directives/replace-full-chars.directive";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {HttpModule} from "@modules/http/http.module";

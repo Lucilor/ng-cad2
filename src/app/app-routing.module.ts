@@ -1,6 +1,6 @@
 import {NgModule} from "@angular/core";
 import {Routes, RouterModule} from "@angular/router";
-import {JiaoweiComponent} from "@components/views/jiaowei/jiaowei.component";
+import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {ProjectGuard} from "@guards/project.guard";
 import {PathResolveService} from "@services/path-resolve.service";
 import {BackupComponent} from "@views/backup/backup.component";

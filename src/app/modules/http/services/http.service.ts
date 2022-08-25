@@ -38,6 +38,8 @@ export interface HttpOptions {
     bypassCodes?: number[];
     silent?: boolean;
     encrypt?: DataEncrpty;
+    testData?: string;
+    offlineMode?: boolean;
 }
 /* eslint-enable @typescript-eslint/indent */
 
@@ -54,6 +56,7 @@ export class HttpService {
     strict = true;
     private _loginPromise: ReturnType<typeof openLoginFormDialog> | null = null;
     lastResponse: CustomResponse<any> | null = null;
+    offlineMode = false;
 
     constructor(injector: Injector) {
         this.dialog = injector.get(MatDialog);
@@ -91,6 +94,19 @@ export class HttpService {
     }
 
     async request<T>(url: string, method: "GET" | "POST", data?: ObjectOf<any>, options?: HttpOptions): Promise<CustomResponse<T> | null> {
+        const testData = options?.testData;
+        let offlineMode = this.offlineMode;
+        if (typeof options?.offlineMode === "boolean") {
+            offlineMode = options.offlineMode;
+        }
+        if (offlineMode) {
+            if (testData) {
+                const data2 = await lastValueFrom(this.http.get<T>(`${location.origin}/assets/testData/${testData}.json`, options));
+                return {code: 0, msg: "", data: data2};
+            } else {
+                return null;
+            }
+        }
         const rawData = {...data};
         if (environment.unitTest) {
             return null;
@@ -190,6 +206,10 @@ export class HttpService {
                 return response;
             }
         } catch (error) {
+            if (testData) {
+                const data2 = await lastValueFrom(this.http.get<T>(`${location.origin}/assets/testData/${testData}.json`, options));
+                return {code: 0, msg: "", data: data2};
+            }
             this.alert(error, silent);
             return null;
         } finally {

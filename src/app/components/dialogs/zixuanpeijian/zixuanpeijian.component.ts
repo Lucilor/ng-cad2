@@ -68,7 +68,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (this.data) {
             const {step, data} = this.data;
             if (data) {
-                this.result = data;
+                this.result = cloneDeep(data);
             }
             if (typeof step === "number") {
                 stepValue = step;
@@ -90,7 +90,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     private async _step1Fetch() {
         this.spinner.show(this.spinnerId);
         const response = await this.dataService.post<{prefix: string; typesInfo: ZixuanpeijianTypesInfo}>(
-            "ngcad/getZixuanpeijianTypesInfo"
+            "ngcad/getZixuanpeijianTypesInfo",
+            {},
+            {testData: "zixuanpeijianTypesInfo"}
         );
         this.spinner.hide(this.spinnerId);
         if (response?.data) {
@@ -112,7 +114,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 typesInfo[type1][type2] = 1;
             }
         });
-        const response = await this.dataService.post<ObjectOf<ObjectOf<any[]>>>("ngcad/getZixuanpeijianCads", {typesInfo});
+        const response = await this.dataService.post<ObjectOf<ObjectOf<any[]>>>(
+            "ngcad/getZixuanpeijianCads",
+            {typesInfo},
+            {testData: "zixuanpeijianCads"}
+        );
         if (response?.data) {
             const allCads: ObjectOf<ObjectOf<CadData[]>> = {};
             for (const type1 in response.data) {
@@ -120,7 +126,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 for (const type2 in response.data[type1]) {
                     allCads[type1][type2] = [];
                     for (const v of response.data[type1][type2]) {
-                        const data = new CadData(v.json);
+                        const data = new CadData(v);
                         this._configCad(data);
                         allCads[type1][type2].push(data);
                     }
@@ -129,11 +135,15 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             this.cadViewers = {};
             for (const [i, item] of this.result.entries()) {
                 const {type1, type2} = item;
-                const cads = allCads[type1]?.[type2];
-                if (!cads) {
-                    continue;
+                const cads1 = allCads[type1]?.[type2] || [];
+                const cads2 = item.cads.map((v) => v.data);
+                for (const cad of cads1) {
+                    if (!cads2.find((v) => v.info.houtaiId === cad.id)) {
+                        cads2.push(cad);
+                    }
                 }
-                cads.forEach(async (data, j) => {
+                item.cads = [];
+                cads2.forEach(async (data, j) => {
                     const data2 = data.clone(true);
                     data2.info.houtaiId = data.id;
                     data2.entities.mtext = data2.entities.mtext.filter((e) => !e.info.isZhankaiText);

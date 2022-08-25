@@ -16,7 +16,7 @@
         "importHelpers": true,
         "target": "es2020",
         "module": "ESNext",
-        "lib": ["DOM" ,"ESNext"],
+        "lib": ["DOM", "ESNext"],
         "paths": {
             "@utils": ["src/cad-viewer/src/utils/src"],
             "@cad-viewer": ["src/cad-viewer/src"],

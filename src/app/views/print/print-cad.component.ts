@@ -74,7 +74,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     zixuanpeijian: ZixuanpeijianOutput = [];
     enableZixuanpeijian = false;
     production = environment.production;
-    checkEmpty = true;
+    checkEmpty = this.production ? true : false;
     get fontFamily() {
         return this.printParams.config.fontStyle?.family || "";
     }
