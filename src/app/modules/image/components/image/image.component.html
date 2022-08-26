@@ -14,6 +14,6 @@
     />
 </div>
 
-<div #bigPicDiv class="big-pic" *ngIf="bigPicSrc" style="display: none" (click)="hideBigPic()">
-    <img [src]="bigPicSrc" *ngIf="bigPicVisible" @toggle />
+<div #bigPicDiv class="big-pic" *ngIf="getBigPicSrc()" style="display: none" (click)="hideBigPic()">
+    <img [src]="getBigPicSrc()" *ngIf="bigPicVisible" @toggle />
 </div>

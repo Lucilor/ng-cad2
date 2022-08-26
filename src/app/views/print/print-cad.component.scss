@@ -35,7 +35,16 @@ $bg-color: #616161;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding: 10px;
+        padding: 10px 10px 10px 10px;
+
+        .text {
+            color: white;
+            text-align: center;
+        }
+        .title {
+            font-size: 30px;
+            line-height: 50px;
+        }
     }
 
     .效果图 {
@@ -44,21 +53,13 @@ $bg-color: #616161;
             cursor: pointer;
             background-color: white;
         }
-
-        .text {
-            color: white;
-            text-align: center;
-            margin-bottom: 50px;
-        }
-        .title {
-            font-size: 30px;
-            line-height: 50px;
-        }
     }
 
     .备注 {
-        app-input {
+        textarea {
             background-color: white;
+            flex: 1 1 0;
+            font-size: 18px;
         }
     }
 

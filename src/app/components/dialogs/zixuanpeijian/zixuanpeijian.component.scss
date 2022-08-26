@@ -41,6 +41,18 @@
 
     .title {
         align-items: center;
+
+        .name {
+            flex: 1 1 0;
+            text-align: center;
+        }
+    }
+}
+
+.images {
+    app-image {
+        height: 250px;
+        width: 50%;
     }
 }
 
@@ -81,13 +93,12 @@
             margin-left: 5px;
         }
 
-        app-input,
-        mat-form-field {
+        app-input {
             width: 0;
             flex: 1 1 0;
         }
 
-        span {
+        :not(app-input) {
             margin-top: -15px;
         }
     }

@@ -22,6 +22,7 @@ import {createPdf} from "pdfmake/build/pdfmake";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
 import {CadCollection} from "./app.common";
+import {Formulas} from "./utils/calc";
 type PdfDocument = Parameters<typeof createPdf>[0];
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
@@ -485,6 +486,7 @@ export interface PrintCadsParams {
     codes?: string[];
     type?: string;
     info?: PdfDocument["info"];
+    materialResult?: Formulas;
 }
 /**
  * A4: (210 × 297)mm²

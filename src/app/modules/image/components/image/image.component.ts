@@ -72,6 +72,14 @@ export class ImageComponent {
         return _src;
     }
 
+    getBigPicSrc() {
+        const {prefix, bigPicSrc} = this;
+        if (prefix && bigPicSrc) {
+            return prefix + bigPicSrc;
+        }
+        return bigPicSrc;
+    }
+
     onLoad() {
         this.loading = false;
     }

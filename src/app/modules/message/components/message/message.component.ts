@@ -109,7 +109,7 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
         } else if (data.content instanceof Error) {
             data.title = "Oops!";
             data.content = data.content.message;
-            console.warn(data.content);
+            // console.warn(data.content);
         } else if (data.content instanceof HttpErrorResponse) {
             data.title = "网络错误";
             const {error, status, statusText} = data.content;

@@ -68,7 +68,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         },
         url: "",
         keepCad: true,
-        info: {}
+        info: {},
+        materialResult: {}
     };
     cad: CadViewer | null = null;
     zixuanpeijian: ZixuanpeijianOutput = [];
@@ -364,7 +365,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                     }
                 }
             });
-            // this._zixuanpeijianMatrix.transform({translate});
         });
         await cad.render();
         cad.center();
@@ -387,7 +387,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 step: 1,
                 data: this.zixuanpeijian,
                 checkEmpty: this.checkEmpty,
-                cadConfig: {fontStyle: {family: this.printParams.config.fontStyle?.family}}
+                cadConfig: {fontStyle: {family: this.printParams.config.fontStyle?.family}},
+                materialResult: this.printParams.materialResult
             },
             disableClose: true
         });
@@ -413,9 +414,11 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 if (!cadItem.displayedData) {
                     cadItem.displayedData = cadItem.data.clone();
                 }
-                cads.push(cadItem.displayedData);
-                cads2.push(cadItem.data);
-                infos[cadItem.displayedData.id] = cadItem.info;
+                if (!cadItem.data.info.hidden) {
+                    cads.push(cadItem.displayedData);
+                    cads2.push(cadItem.data);
+                    infos[cadItem.displayedData.id] = cadItem.info;
+                }
             }
         }
         if (cad) {

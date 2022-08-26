@@ -258,11 +258,6 @@ export class CadDataService extends HttpService {
         const file = new File([blob], `${id}.png`);
         await this.post("ngcad/setCadImg", {id, file}, options);
     }
-
-    async calcFormulas(formulas: ObjectOf<number | string>, vars: ObjectOf<number | string>) {
-        const response = await this.post<CalcResult>("ngcad/calcFormulas", {formulas, vars});
-        return response?.data || {};
-    }
 }
 
 export interface GetCadParams {
@@ -348,5 +343,3 @@ export interface QueryMysqlParams {
     page?: number;
     limit?: number;
 }
-
-export type CalcResult = ObjectOf<{value: number | null; error: string}>;
