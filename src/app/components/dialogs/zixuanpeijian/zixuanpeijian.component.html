@@ -15,28 +15,30 @@
             <div class="content types-info-2">
                 <ng-scrollbar class="content">
                     <div class="content types-info-items" *ngIf="typesInfo[type1]">
-                        <div class="types-info-item" *ngFor="let item of typesInfo[type1] | keyvalue">
-                            <div class="content images">
-                                <app-image
-                                    class="xiaoguotu"
-                                    [src]="item.value.xiaoguotu"
-                                    [bigPicSrc]="item.value.xiaoguotu"
-                                    [prefix]="urlPrefix"
-                                ></app-image>
-                                <app-image
-                                    class="jiemiantu"
-                                    [src]="item.value.jiemiantu"
-                                    [bigPicSrc]="item.value.jiemiantu"
-                                    [prefix]="urlPrefix"
-                                ></app-image>
+                        <ng-container *ngFor="let item of typesInfo[type1] | keyvalue">
+                            <div class="types-info-item" *ngIf="showItem(item.value)">
+                                <div class="content images">
+                                    <app-image
+                                        class="xiaoguotu"
+                                        [src]="item.value.xiaoguotu"
+                                        [bigPicSrc]="item.value.xiaoguotu"
+                                        [prefix]="urlPrefix"
+                                    ></app-image>
+                                    <app-image
+                                        class="jiemiantu"
+                                        [src]="item.value.jiemiantu"
+                                        [bigPicSrc]="item.value.jiemiantu"
+                                        [prefix]="urlPrefix"
+                                    ></app-image>
+                                </div>
+                                <div class="content title">
+                                    <button mat-icon-button color="primary" (click)="addResultItem(type1, item.key)">
+                                        <mat-icon>add_circle</mat-icon>
+                                    </button>
+                                    <div class="name">{{ item.key }}</div>
+                                </div>
                             </div>
-                            <div class="content title">
-                                <button mat-icon-button color="primary" (click)="addResultItem(type1, item.key)">
-                                    <mat-icon>add_circle</mat-icon>
-                                </button>
-                                <div class="name">{{ item.key }}</div>
-                            </div>
-                        </div>
+                        </ng-container>
                     </div>
                 </ng-scrollbar>
             </div>
@@ -46,18 +48,8 @@
             <div class="content types-info-items">
                 <div class="types-info-item" *ngFor="let item of result; let i = index">
                     <div class="content images">
-                        <app-image
-                            class="xiaoguotu"
-                            [src]="item.xiaoguotu"
-                            [bigPicSrc]="item.xiaoguotu"
-                            [prefix]="urlPrefix"
-                        ></app-image>
-                        <app-image
-                            class="jiemiantu"
-                            [src]="item.jiemiantu"
-                            [bigPicSrc]="item.jiemiantu"
-                            [prefix]="urlPrefix"
-                        ></app-image>
+                        <app-image class="xiaoguotu" [src]="item.xiaoguotu" [bigPicSrc]="item.xiaoguotu" [prefix]="urlPrefix"></app-image>
+                        <app-image class="jiemiantu" [src]="item.jiemiantu" [bigPicSrc]="item.jiemiantu" [prefix]="urlPrefix"></app-image>
                     </div>
                     <div class="content title">
                         <button mat-icon-button color="primary" (click)="removeResultItem(i)">

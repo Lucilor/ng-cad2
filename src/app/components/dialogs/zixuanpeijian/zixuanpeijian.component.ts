@@ -11,6 +11,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CalcService} from "@services/calc.service";
+import {getCADBeishu} from "@src/app/beishu";
 import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf, timeout} from "@utils";
 import {cloneDeep, debounce} from "lodash";
@@ -67,9 +68,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (data) {
             if (data.data) {
                 this.result = data.data;
-            }
-            if (typeof data.step === "number") {
-                this.step$.next({value: data.step, refresh: true});
             }
         }
     }
@@ -456,7 +454,26 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     addResultItem(type1: string, type2: string) {
         const typesItem = cloneDeep(this.typesInfo[type1][type2]);
-        this.result.push({type1, type2, totalWidth: "", totalHeight: "", ...typesItem, cads: []});
+        const item: ZixuanpeijianOutputItem = {type1, type2, totalWidth: "", totalHeight: "", ...typesItem, cads: []};
+        this.result.push(item);
+        const formulas = typesItem.suanliaogongshi;
+        const vars = this.data?.materialResult || {};
+        const result = this.calc.calcFormulas(formulas, vars, true, false);
+        console.log(formulas, vars, result);
+        if (result) {
+            const {succeed} = result;
+            for (const group of typesItem.gongshishuru) {
+                if (succeed[group[0]] > 0) {
+                    group[1] = succeed[group[0]].toString();
+                }
+            }
+            if (succeed.总宽 > 0) {
+                item.totalWidth = succeed.总宽.toString();
+            }
+            if (succeed.总高 > 0) {
+                item.totalHeight = succeed.总高.toString();
+            }
+        }
     }
 
     removeResultItem(i: number) {
@@ -580,8 +597,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         }
                         const width = String(result4.succeedTrim.展开宽);
                         const height = String(result4.succeedTrim.展开高);
-                        const num = String(result4.succeedTrim.数量);
-                        info.zhankai[j] = {width, height, num, originalWidth: width};
+                        let num = Number(result4.succeedTrim.数量);
+                        const {产品分类, 栋数, 门中门扇数} = materialResult;
+                        const CAD分类 = data.type;
+                        const CAD分类2 = data.type2;
+                        num *= getCADBeishu(String(产品分类), String(栋数), CAD分类, CAD分类2, String(门中门扇数));
+                        info.zhankai[j] = {width, height, num: String(num), originalWidth: width};
                     }
                     for (const zhankai of info.zhankai) {
                         zhankai.width = info.zhankai[0].width;
@@ -595,6 +616,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     openCad(item: ZixuanpeijianCadItem) {
         this.status.openCadInNewTab(item.info.houtaiId, "cad");
     }
+
+    showItem(item: ZixuanpeijianTypesInfoItem) {
+        return true;
+        // const xinghaoId = String(this.data?.materialResult?.型号id || "");
+        // return !xinghaoId || item.xinghaozhuanyong.includes(xinghaoId);
+    }
 }
 
 export const openZixuanpeijianDialog = getOpenDialogFunc<ZixuanpeijianComponent, ZixuanpeijianInput, ZixuanpeijianOutput>(
@@ -607,6 +634,7 @@ export interface ZixuanpeijianTypesInfoItem {
     gongshishuru: string[][];
     suanliaogongshi: Formulas;
     shuchubianliang: string[];
+    xinghaozhuanyong: string[];
 }
 export type ZixuanpeijianTypesInfo = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoItem>>;
 
