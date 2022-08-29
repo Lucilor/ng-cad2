@@ -4,7 +4,7 @@
         <textarea matInput cdkTextareaAutosize [(ngModel)]="data.value"></textarea>
     </mat-form-field>
     <div class="vars">
-        <div class="var" *ngFor="let key of keysOf(data.vars)">
+        <div class="var" *ngFor="let key of keysOf(data.vars || {})">
             <span>{{ key }}</span>
             :
             <span>{{ (data.vars || {})[key] }}</span>

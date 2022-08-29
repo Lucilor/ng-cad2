@@ -116,7 +116,7 @@ export class Klkwpz {
         });
     }
 
-    private _purgeObj<T>(obj: T, keys = keysOf(obj)) {
+    private _purgeObj<T extends ObjectOf<any>>(obj: T, keys = keysOf(obj)) {
         keys.forEach((key) => {
             let value: any = obj[key];
             if (typeof value === "object") {

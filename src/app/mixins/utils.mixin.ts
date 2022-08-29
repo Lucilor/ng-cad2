@@ -18,7 +18,7 @@ export const Utils = <T extends Constructor>(base: T = class {} as T) =>
             delete obj[key];
         }
 
-        keysOf<K>(obj: K) {
+        keysOf<K extends ObjectOf<any>>(obj: K) {
             return keysOf(obj);
         }
 
