@@ -348,7 +348,7 @@ export class AppStatusService {
         if (!id) {
             return;
         }
-        const params = {...this.route.snapshot.queryParams, collection, id};
+        const params = {project: this.project, collection, id};
         open("index?" + new URLSearchParams(params).toString());
     }
 }

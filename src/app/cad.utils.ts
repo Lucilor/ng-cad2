@@ -486,7 +486,7 @@ export interface PrintCadsParams {
     codes?: string[];
     type?: string;
     info?: PdfDocument["info"];
-    materialResult?: Formulas;
+    orders?: {materialResult: Formulas}[];
 }
 /**
  * A4: (210 × 297)mm²

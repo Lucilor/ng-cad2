@@ -9,6 +9,7 @@ import {BancaiList, CadDataService} from "@modules/http/services/cad-data.servic
 import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {AppStatusService} from "@services/app-status.service";
 import {CalcService} from "@services/calc.service";
 import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf, timeout} from "@utils";
@@ -59,7 +60,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         private message: MessageService,
         private dialog: MatDialog,
         private elRef: ElementRef<HTMLElement>,
-        private calc: CalcService
+        private calc: CalcService,
+        private status: AppStatusService
     ) {
         super();
         if (data) {
@@ -563,7 +565,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     })
                 );
                 if (zhankais.length < 1) {
-                    data.info.hidden = true;
+                    // data.info.hidden = true;
                 } else {
                     const vars4 = {...vars3, 总长: getCadTotalLength(data)};
                     for (const [j, zhankai] of zhankais.entries()) {
@@ -571,23 +573,27 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         formulas4.展开宽 = zhankai.zhankaikuan;
                         formulas4.展开高 = zhankai.zhankaigao;
                         formulas4.数量 = `${zhankai.shuliang}*${zhankai.shuliangbeishu}`;
-                        const result = this.calc.calcFormulas(formulas4, vars4, true, true);
-                        // console.log({formulas4, vars4, result});
-                        if (!result) {
+                        const result4 = this.calc.calcFormulas(formulas4, vars4, true, true);
+                        // console.log({formulas4, vars4, result: result4});
+                        if (!result4) {
                             return false;
                         }
-                        const width = String(result.succeedTrim.展开宽);
-                        const height = String(result.succeedTrim.展开高);
-                    const num = String(result.succeedTrim.数量);
+                        const width = String(result4.succeedTrim.展开宽);
+                        const height = String(result4.succeedTrim.展开高);
+                        const num = String(result4.succeedTrim.数量);
                         info.zhankai[j] = {width, height, num, originalWidth: width};
                     }
-                    for(const zhankai of info.zhankai) {
+                    for (const zhankai of info.zhankai) {
                         zhankai.width = info.zhankai[0].width;
                     }
                 }
             }
         }
         return true;
+    }
+
+    openCad(item: ZixuanpeijianCadItem) {
+        this.status.openCadInNewTab(item.info.houtaiId, "cad");
     }
 }
 
@@ -616,7 +622,7 @@ export interface ZixuanpeijianInput {
     data?: ZixuanpeijianOutput;
     checkEmpty?: boolean;
     cadConfig?: Partial<CadViewerConfig>;
-    materialResult: Formulas;
+    materialResult?: Formulas;
 }
 
 export interface ZixuanpeijianInfo {

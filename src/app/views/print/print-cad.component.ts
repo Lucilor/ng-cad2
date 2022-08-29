@@ -69,7 +69,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         url: "",
         keepCad: true,
         info: {},
-        materialResult: {}
+        orders: []
     };
     cad: CadViewer | null = null;
     zixuanpeijian: ZixuanpeijianOutput = [];
@@ -388,7 +388,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 data: this.zixuanpeijian,
                 checkEmpty: this.checkEmpty,
                 cadConfig: {fontStyle: {family: this.printParams.config.fontStyle?.family}},
-                materialResult: this.printParams.materialResult
+                materialResult: this.printParams.orders[0]?.materialResult
             },
             disableClose: true
         });

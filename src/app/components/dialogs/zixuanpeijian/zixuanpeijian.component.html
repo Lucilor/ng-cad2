@@ -93,12 +93,12 @@
                             <app-spinner [id]="'zixuanpeijian-' + cad.data.id" [inline]="true"></app-spinner>
                             <div [id]="'cad-viewer-' + i + '-' + j" (contextmenu)="onContextMenu($event, i, j)"></div>
                             <div class="name">
-                                <!-- <button mat-icon-button color="primary" (click)="removeCadItem(i)">
-                                    <mat-icon>remove_circle</mat-icon>
-                                </button> -->
                                 <span [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
                                     {{ cad.data.name }}
                                 </span>
+                                <button mat-icon-button color="primary" (click)="openCad(cad)">
+                                    <mat-icon>open_in_new</mat-icon>
+                                </button>
                             </div>
                             <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
                                 <button mat-icon-button color="primary" (click)="addZhankai(i, j, k)">
