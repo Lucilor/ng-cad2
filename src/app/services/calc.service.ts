@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf} from "@utils";
 import {isEmpty} from "lodash";
-import {setDevComponent} from "../app.common";
+import {setGlobal} from "../app.common";
 import {Calc, CalcCircularReferenceError, CalcSelfReferenceError, Formulas} from "../utils/calc";
 
 @Injectable({
@@ -12,12 +12,12 @@ export class CalcService {
     calc = Calc;
 
     constructor(private message: MessageService) {
-        setDevComponent("calc", this);
+        setGlobal("calc", this, true);
     }
 
-    calcFormulas(formulas: Formulas, vars: Formulas & {input?: Formulas} = {}, showVars = true, alertError = true) {
+    calcFormulas(formulas: Formulas, vars: Formulas & {input?: Formulas} = {}, alertError = true) {
         try {
-            const result = Calc.calcFormulas(formulas, vars, showVars);
+            const result = Calc.calcFormulas(formulas, vars);
             const {errorTrim} = result;
             if (alertError && !isEmpty(errorTrim)) {
                 const errorStr = this.getErrorFormusStr(errorTrim, vars);

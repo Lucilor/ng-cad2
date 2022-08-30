@@ -44,8 +44,28 @@ export class ImageComponent {
     }
     private _src2 = "";
 
-    @Input() bigPicSrc?: string | SafeUrl;
-    @Input() prefix?: string;
+    private _bigPicSrc?: string | SafeUrl;
+    @Input()
+    get bigPicSrc() {
+        return this._bigPicSrc;
+    }
+    set bigPicSrc(value) {
+        this._bigPicSrc = value;
+    }
+
+    private _prefix?: string;
+    @Input()
+    get prefix() {
+        return this._prefix;
+    }
+    set prefix(value) {
+        if (this._prefix !== value) {
+            this._prefix = value;
+            this.loading = true;
+            this._src2 = "";
+        }
+    }
+
     private _control = false;
     @Input()
     get control() {

@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
-import {setDevComponent} from "@app/app.common";
+import {setGlobal} from "@app/app.common";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf} from "@utils";
@@ -18,7 +18,7 @@ export class JiaoweiComponent implements OnInit {
     constructor(private dataService: CadDataService, private router: ActivatedRoute, private message: MessageService) {}
 
     async ngOnInit() {
-        setDevComponent("jiaowei", this);
+        setGlobal("jiaowei", this);
         const {id, encode} = this.router.snapshot.queryParams;
         const response = await this.dataService.post<ObjectOf<any>[]>(
             "jichu/jichu/table_select/" + encode,

@@ -319,14 +319,14 @@ export class Calc {
     /**
      * 根据参数计算公式
      */
-    public static calcFormulas(formulas: Formulas, vars: Formulas & {input?: Formulas} = {}, showVars = true) {
+    public static calcFormulas(formulas: Formulas, vars: Formulas & {input?: Formulas} = {}) {
         const error: ObjectOf<string> = {};
         const maybeError: ObjectOf<string> = {}; // 计算结果小于等于0
         const {sortedFormulas, sortedKeys} = this.sortFormulas(formulas);
         formulas = {...formulas};
         vars = {...vars};
 
-        const varsRaw = {...vars};
+        const formulasRaw = {...formulas};
         const input = vars.input || {};
 
         // 先将输入值拿出来
@@ -510,19 +510,14 @@ export class Calc {
         //     singleAlert(errorStr, {area: ["70%", "80%"]}, true, true);
         // }
 
-        if (!showVars) {
-            for (const key in varsRaw) {
-                delete vars[key];
-            }
-        }
-
+        const succeed = vars;
         const succeedTrim: Formulas = {};
-        for (const key in vars) {
-            if (key in formulas) {
-                succeedTrim[key] = vars[key];
+        for (const key in succeed) {
+            if (key in formulasRaw) {
+                succeedTrim[key] = succeed[key];
             }
         }
-        return {succeed: vars, succeedTrim, error, errorTrim, maybeError};
+        return {succeed, succeedTrim, error, errorTrim, maybeError};
     }
 
     public static divide(numbers: number[], containers: number[], space?: number): number[] {

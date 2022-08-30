@@ -625,6 +625,11 @@ export class ImportComponent extends Utils() implements OnInit {
                 const msg = response?.msg || "验证算料公式时出错";
                 slgs.errors.push(msg);
             }
+            for(const key in data.公式) {
+                if (key.includes("-")) {
+                    slgs.errors.push(`算料公式名字不能包含-号: ${key}`);
+                }
+            }
         } else {
             slgs.errors.push("公式内容为空");
         }

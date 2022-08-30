@@ -2,7 +2,7 @@ import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from "@angul
 import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {session, setDevComponent, timer} from "@app/app.common";
+import {session, setGlobal, timer} from "@app/app.common";
 import {configCadDataForPrint, printCads, PrintCadsParams} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, setLinesLength} from "@cad-viewer";
 import {openZixuanpeijianDialog, ZixuanpeijianInfo, ZixuanpeijianOutput} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
@@ -106,7 +106,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
 
     async ngAfterViewInit() {
         await timeout(0);
-        setDevComponent("print", this);
+        setGlobal("print", this);
         const queryParams = {...this.route.snapshot.queryParams};
         const action = queryParams.action as string;
         delete queryParams.action;

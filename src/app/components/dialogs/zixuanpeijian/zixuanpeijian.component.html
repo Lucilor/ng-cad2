@@ -66,10 +66,10 @@
                         ></app-input>
                     </div>
                     <div class="content inputs gongshishuru">
-                        <app-input
-                            *ngFor="let group of item.gongshishuru"
-                            [info]="{type: 'string', label: group[0], model: {key: '1', data: group}, showEmpty: true}"
-                        ></app-input>
+                        <app-input *ngFor="let group of item.gongshishuru" [info]="getGongshishuruInputInfo(group, i)"></app-input>
+                    </div>
+                    <div class="content inputs gongshishuru">
+                        <app-input *ngFor="let group of item.xuanxiangshuru" [info]="getGongshishuruInputInfo(group, i)"></app-input>
                     </div>
                 </div>
             </div>

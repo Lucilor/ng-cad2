@@ -96,10 +96,12 @@ export const getFormControl = <T>(value: T | FormControlState<T>, opts: FormCont
 export const getFormGroup = <T extends ObjectOf<any>>(controls: {[K in keyof T]: FormControl<T[K]>}, opts?: AbstractControlOptions) =>
     new FormGroup(controls, opts);
 
-export const setDevComponent = <T>(key: string, component: T) => {
-    if (!environment.production) {
-        (window as any)[key] = component;
+export const setGlobal = <T>(key: string, value: T, production = false) => {
+    if (!production && environment.production) {
+        return;
     }
+    (window as any)[key] = value;
+    // Reflect.defineProperty(window, key, {value});
 };
 
 export const getFormControlErrorString = (control: FormControl) => {
