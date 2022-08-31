@@ -9,7 +9,10 @@
                     ["a", "1"],
                     ["b", "2"],
                     ["c", "3"]
-                ]
+                ],
+                "xuanxiangshuru": [["d", "1"]],
+                "suanliaogongshi": {"e": "a+b"},
+                "shuchubianliang": ["e"]
             }
         }
     }

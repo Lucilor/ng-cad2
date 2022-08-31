@@ -1,15 +1,17 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from "@angular/core";
+import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, setGlobal, timer} from "@app/app.common";
-import {configCadDataForPrint, printCads, PrintCadsParams} from "@app/cad.utils";
+import {configCadDataForPrint, maxLineLength, printCads, PrintCadsParams} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, setLinesLength} from "@cad-viewer";
 import {openZixuanpeijianDialog, ZixuanpeijianInfo, ZixuanpeijianOutput} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {Formulas} from "@src/app/utils/calc";
 import {downloadByUrl, MatrixLike, ObjectOf, timeout} from "@utils";
 import {
     slideInDownOnEnterAnimation,
@@ -73,6 +75,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     };
     cad: CadViewer | null = null;
     zixuanpeijian: ZixuanpeijianOutput = [];
+    comments: CadMtext[] = [];
     enableZixuanpeijian = false;
     production = environment.production;
     checkEmpty = this.production ? true : false;
@@ -114,6 +117,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             this.showDxfInput = true;
             this.enableZixuanpeijian = true;
             this._loadPrintParams();
+            const response = await this.dataService.get<Formulas>("", {}, {testData: "materialResult"});
+            this.printParams.orders[0] = {materialResult: response?.data ? response.data : {}};
             if (this.printParams.cads.length > 0) {
                 await this.generateSuanliaodan();
             }
@@ -129,12 +134,16 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 this.printParams.info.title = "算料单" + this.printParams.codes.join("、");
                 const {codes, type} = this.printParams;
                 if (codes.length === 1) {
-                    const response2 = await this.dataService.post<ZixuanpeijianOutput>("ngcad/getOrderZixuanpeijian", {
-                        code: codes[0],
-                        type
-                    });
+                    const response2 = await this.dataService.post<{模块: ZixuanpeijianOutput; 备注: CadMtext[]}>(
+                        "ngcad/getOrderZixuanpeijian",
+                        {
+                            code: codes[0],
+                            type
+                        }
+                    );
                     if (response2?.data) {
-                        for (const item of response2.data) {
+                        const {模块, 备注} = response2.data;
+                        for (const item of 模块) {
                             for (const cad of item.cads) {
                                 cad.data = new CadData(cad.data);
                                 if (cad.displayedData) {
@@ -142,7 +151,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                                 }
                             }
                         }
-                        this.zixuanpeijian = response2.data;
+                        this.zixuanpeijian = 模块;
+                        this.comments = 备注.map((v) => new CadMtext(v));
                     } else {
                         this.zixuanpeijian = [];
                     }
@@ -189,9 +199,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         timer.start(this.loaderId);
         this.spinner.show(this.loaderId, {text: "正在生成算料单..."});
         const cads = params.cads.map((v) => this.splitCads(v)).flat();
-        cads.forEach((v) => {
-            v.entities.forEach((e) => (e.selectable = false));
-        });
+        // cads.forEach((v) => {
+        //     v.entities.forEach((e) => (e.selectable = false));
+        // });
         if (this.enableZixuanpeijian) {
             params.keepCad = true;
         } else {
@@ -327,7 +337,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (cad.dom.parentElement !== container) {
             container.appendChild(cad.dom);
         }
-        cad.data.entities.forEach((e) => (e.selectable = false));
+        // cad.data.entities.forEach((e) => (e.selectable = false));
+        // this.comments.forEach((e) => (e.selectable = true));
         cad.on("entitiesselect", (entities) => {
             const data = cad.data.components.data;
             const ids = entities.toArray(true).map((e) => e.id);
@@ -365,6 +376,22 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                     }
                 }
             });
+        });
+        cad.on("entitydblclick", async (event, entity) => {
+            if (entity instanceof CadMtext && entity.info.isComment) {
+                const text = await this.message.prompt({
+                    title: "备注",
+                    promptData: {value: entity.text, validators: Validators.required, type: "textarea"}
+                });
+                if (text) {
+                    entity.text = text;
+                    this.cad?.render(entity);
+                }
+            }
+        });
+        cad.on("entitiesremove", (entities) => {
+            const comments = entities.mtext.filter((e) => e.info.isComment).map((e) => e.id);
+            this.comments = this.comments.filter((e) => !comments.includes(e.id));
         });
         await cad.render();
         cad.center();
@@ -421,10 +448,50 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 }
             }
         }
+        for (const e of this.comments) {
+            if (cad) {
+                cad.data.entities.mtext = cad.data.entities.mtext.filter((ee) => !ee.info.isComment);
+                this.addCommentText(e);
+            } else {
+                this.printParams.cads[0].entities.add(e);
+            }
+        }
         if (cad) {
             const tol = 2;
-            const maxLineLength = 130;
             cad.data.components.data = cads;
+            for (const v of cads) {
+                if (v.info.自选配件已初始化) {
+                    continue;
+                }
+                const lineLengthMap: ObjectOf<{text: string; mtext: CadMtext}> = {};
+                v.entities.forEach((e) => {
+                    if (e instanceof CadLineLike) {
+                        const length = e.length;
+                        const mtext = e.children.mtext.find((ee) => ee.info.isLengthText);
+                        if (mtext) {
+                            lineLengthMap[e.id] = {text: mtext.text, mtext};
+                        }
+                        if (e instanceof CadLine && length > maxLineLength * v.suanliaodanZoom) {
+                            setLinesLength(v, [e], maxLineLength);
+                        }
+                    }
+                });
+                const rect = v.getBoundingRect();
+                v.transform({scale: v.suanliaodanZoom, origin: [rect.x, rect.y]}, true);
+                await cad.render(v.entities);
+                v.entities.toArray().forEach((e) => {
+                    if (e instanceof CadLineLike && e.id in lineLengthMap) {
+                        e.hideLength = true;
+                        const {text,mtext} = lineLengthMap[e.id];
+                        const mtext2 = mtext.clone(true);
+                        mtext2.text = text;
+                        mtext2.fontStyle.size = 24;
+                        v.entities.add(mtext2);
+                    }
+                });
+                v.info.自选配件已初始化 = true;
+                configCadDataForPrint(cad, v, this.printParams);
+            }
             if (arrangeCads) {
                 let hLinesMaxLength = -1;
                 const hLines: CadLine[] = [];
@@ -473,31 +540,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                     cads2[i].transform(matrix, true);
                 }
             }
-            for (const v of cads) {
-                for (const e of v.entities.toArray()) {
-                    if (e instanceof CadLineLike) {
-                        const length = e.length;
-                        const mtext = e.children.mtext.find((ee) => ee.info.isLengthText);
-                        let lengthText = "";
-                        if (mtext) {
-                            lengthText = mtext.text;
-                        }
-                        if (e instanceof CadLine && length > maxLineLength) {
-                            setLinesLength(v, [e], maxLineLength);
-                        }
-                        await cad.render(e);
-                        e.hideLength = true;
-                        if (mtext && lengthText) {
-                            const mtext2 = mtext.clone(true);
-                            mtext2.text = lengthText;
-                            mtext2.fontStyle.size = 24;
-                            v.entities.add(mtext2);
-                        }
-                    }
-                }
-                v.info.自选配件已初始化 = true;
-                configCadDataForPrint(cad, v, this.printParams);
-            }
             await cad.reset().render();
             for (const v of cads) {
                 const info = infos[v.id];
@@ -545,7 +587,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this.syncZixuanpeijian();
-        const zixuanpeijian = this.zixuanpeijian.map((item) => ({
+        const 模块 = this.zixuanpeijian.map((item) => ({
             ...item,
             cads: item.cads.map((cadItem) => ({
                 ...cadItem,
@@ -553,7 +595,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 displayedData: cadItem.displayedData?.export()
             }))
         }));
-        await this.dataService.post<void>("ngcad/setOrderZixuanpeijian", {code: codes[0], type, zixuanpeijian});
+        const 备注 = this.comments.map((v) => v.export());
+        await this.dataService.post<void>("ngcad/setOrderZixuanpeijian", {code: codes[0], type, data: {模块, 备注}});
     }
 
     async getOrderImage() {
@@ -585,5 +628,26 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             const {prefix, save_path} = response.data;
             this.orderImageUrl = prefix + save_path;
         }
+    }
+
+    async addCommentText(mtext?: CadMtext) {
+        const cad = this.cad;
+        if (!cad) {
+            return;
+        }
+        if (!mtext) {
+            const text = await this.message.prompt({title: "备注", promptData: {validators: Validators.required, type: "textarea"}});
+            if (!text) {
+                return;
+            }
+            mtext = new CadMtext({text});
+            const rect = cad.data.getBoundingRect();
+            mtext.anchor.set(0, 0.5);
+            mtext.insert.set(rect.right + 50, rect.y);
+            this.comments.push(mtext);
+        }
+        mtext.fontStyle.size = 40;
+        mtext.info.isComment = true;
+        cad.add(mtext);
     }
 }

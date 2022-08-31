@@ -29,8 +29,7 @@ $bg-color: #616161;
     display: flex;
     flex: 1 1 0;
 
-    .效果图,
-    .备注 {
+    .效果图 {
         width: 300px;
         display: flex;
         flex-direction: column;
@@ -45,21 +44,10 @@ $bg-color: #616161;
             font-size: 30px;
             line-height: 50px;
         }
-    }
-
-    .效果图 {
         app-image {
             flex: 1 1 0;
             cursor: pointer;
             background-color: white;
-        }
-    }
-
-    .备注 {
-        textarea {
-            background-color: white;
-            flex: 1 1 0;
-            font-size: 18px;
         }
     }
 

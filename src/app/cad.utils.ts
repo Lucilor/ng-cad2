@@ -3,7 +3,10 @@ import {
     CadCircle,
     CadData,
     CadDimension,
+    CadDimensionStyle,
+    CadEntities,
     CadEntity,
+    CadImage,
     CadJointPoint,
     CadLine,
     CadLineLike,
@@ -19,13 +22,13 @@ import {
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {DEFAULT_TOLERANCE, getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, ObjectOf, Point} from "@utils";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
-import {CadDimensionStyle} from "src/cad-viewer/src/cad-data/cad-styles";
 import {CadCollection} from "./app.common";
 import {Formulas} from "./utils/calc";
 type PdfDocument = Parameters<typeof createPdf>[0];
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
+
+export const maxLineLength = 130;
 
 export interface CadPreviewRawParams {
     fixedLengthTextSize?: number;
@@ -344,11 +347,24 @@ const getWrapedText = (cad: CadViewer, source: string, mtext: CadMtext, options:
     return arr;
 };
 
-export const configCadDataForPrint = (cad: CadViewer, data: CadData, params: PrintCadsParams) => {
+export const configCadDataForPrint = (cad: CadViewer, data: CadData | CadEntities | CadEntity[] | CadEntity, params: PrintCadsParams) => {
     const linewidth = params.linewidth || 1;
     const dimStyle = params.dimStyle;
     const config = cad.getConfig();
-    const 自选配件已初始化 = data.info.自选配件已初始化;
+    let 自选配件已初始化 = false;
+    if (data instanceof CadData && data.info.自选配件已初始化) {
+        自选配件已初始化 = true;
+    }
+    let es: CadEntities;
+    if (data instanceof CadData) {
+        es = data.entities;
+    } else if (data instanceof CadEntities) {
+        es = data;
+    } else if (Array.isArray(data)) {
+        es = new CadEntities(data);
+    } else {
+        es = new CadEntities([data]);
+    }
 
     const getConfigBefore = (e: CadEntity) => {
         if (!e.info.configBefore) {
@@ -417,7 +433,7 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData, params: Pri
         if (text.match(/^花件信息/)) {
             // * 自动换行
             let wrapedText = text.slice(4);
-            let lines = data.getAllEntities().line;
+            let lines = es.line;
             lines = lines.filter((ee) => ee.isVertical() && isBetween(insert.y, ee.minY, ee.maxY) && ee.start.x - insert.x > 50);
             let dMin = Infinity;
             for (const ee of lines) {
@@ -445,8 +461,7 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData, params: Pri
         }
     };
 
-    const es = data.getAllEntities().toArray();
-    for (const e of es) {
+    for (const e of es.toArray()) {
         const colorNumber = e.getColor().rgbNumber();
         if (e instanceof CadLineLike) {
             configLine(e, colorNumber);
