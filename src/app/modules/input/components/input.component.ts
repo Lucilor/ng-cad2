@@ -21,6 +21,9 @@ export class InputComponent extends Utils() {
     }
     set info(value: InputInfo) {
         this._info = value;
+        if (!value.autocomplete) {
+            value.autocomplete = "off";
+        }
         if (value.type === "select") {
             this.options = value.options.map((v) => {
                 if (typeof v === "string") {
@@ -75,6 +78,19 @@ export class InputComponent extends Utils() {
     }
 
     options: {value: string; label?: string}[] = [];
+    // get selectedValue() {
+    //     const value = this.value;
+    //     const option = this.options.find((v) => v.value === value || v.label === value);
+    //     if (option) {
+    //         return option.label || option.value;
+    //     }
+    //     return value;
+    // }
+    // get filteredOptions() {
+    //     const val = this.value;
+    //     return this.options.filter(({value, label}) => value.includes(val) || !label || label.includes(val));
+    // }
+
     anchorXString = "";
     anchorYString = "";
 

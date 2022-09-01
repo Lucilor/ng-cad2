@@ -11,7 +11,9 @@ import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {Formulas} from "@src/app/utils/calc";
+import {CalcService} from "@services/calc.service";
+import {toFixed} from "@src/app/utils/calc";
+import materialResultTest from "@src/assets/testData/materialResult.json";
 import {downloadByUrl, MatrixLike, ObjectOf, timeout} from "@utils";
 import {
     slideInDownOnEnterAnimation,
@@ -91,13 +93,22 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     orderImageUrl = "";
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLDivElement>;
 
+    get materialResult() {
+        const materialResult = {...this.printParams.orders[0]?.materialResult};
+        if (!environment.production) {
+            Object.assign(materialResult, materialResultTest);
+        }
+        return materialResult;
+    }
+
     constructor(
         private route: ActivatedRoute,
         private dataService: CadDataService,
         private sanitizer: DomSanitizer,
         private message: MessageService,
         private spinner: SpinnerService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private calc: CalcService
     ) {}
 
     private _onKeyDown = ((event: KeyboardEvent) => {
@@ -117,8 +128,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             this.showDxfInput = true;
             this.enableZixuanpeijian = true;
             this._loadPrintParams();
-            const response = await this.dataService.get<Formulas>("", {}, {testData: "materialResult"});
-            this.printParams.orders[0] = {materialResult: response?.data ? response.data : {}};
             if (this.printParams.cads.length > 0) {
                 await this.generateSuanliaodan();
             }
@@ -415,7 +424,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 data: this.zixuanpeijian,
                 checkEmpty: this.checkEmpty,
                 cadConfig: {fontStyle: {family: this.printParams.config.fontStyle?.family}},
-                materialResult: this.printParams.orders[0]?.materialResult
+                materialResult: this.materialResult
             },
             disableClose: true
         });
@@ -442,9 +451,19 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                     cadItem.displayedData = cadItem.data.clone();
                 }
                 if (!cadItem.data.info.hidden) {
-                    cads.push(cadItem.displayedData);
+                    const data = cadItem.displayedData;
+                    cads.push(data);
                     cads2.push(cadItem.data);
-                    infos[cadItem.displayedData.id] = cadItem.info;
+                    infos[data.id] = cadItem.info;
+                    for (const e of data.entities.dimension) {
+                        if (e.mingzi === "<>") {
+                            const points = cadItem.data.getDimensionPoints(e);
+                            if (points.length < 4) {
+                                continue;
+                            }
+                            e.mingzi = toFixed(points[0].distanceTo(points[1]), 0);
+                        }
+                    }
                 }
             }
         }
@@ -482,7 +501,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 v.entities.toArray().forEach((e) => {
                     if (e instanceof CadLineLike && e.id in lineLengthMap) {
                         e.hideLength = true;
-                        const {text,mtext} = lineLengthMap[e.id];
+                        const {text, mtext} = lineLengthMap[e.id];
                         const mtext2 = mtext.clone(true);
                         mtext2.text = text;
                         mtext2.fontStyle.size = 24;
@@ -551,9 +570,24 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 zhankaiText.calcBoundingRect = false;
                 zhankaiText.fontStyle.size = 34;
                 const {zhankai, bancai} = info;
-                const {width, height, num} = zhankai[0];
                 const getText = (t?: string) => (t || "").trim();
-                zhankaiText.text = `${getText(width)}×${getText(height)}=${getText(num)}`;
+                zhankaiText.text = zhankai
+                    .map(({width, height, num}, i) => {
+                        let str = `${getText(width)}×${getText(height)}=${getText(num)}`;
+                        if (i === 0 && v.kailiaoshibaokeng && v.zhidingweizhipaokeng.length < 1) {
+                            str += ",刨坑";
+                        }
+                        return str;
+                    })
+                    .join("\n");
+                if (v.算料特殊要求) {
+                    const result = this.calc.calcFormulas({算料特殊要求: v.算料特殊要求}, this.materialResult, false);
+                    if (result && "算料特殊要求" in result.succeed) {
+                        zhankaiText.text += `\n${result.succeed.算料特殊要求}`;
+                    } else {
+                        zhankaiText.text += `\n${v.算料特殊要求}`;
+                    }
+                }
                 if (bancai) {
                     const {mingzi, cailiao, houdu} = bancai;
                     zhankaiText.text += `\n${getText(houdu)}/${getText(cailiao)}/${getText(mingzi)}`;

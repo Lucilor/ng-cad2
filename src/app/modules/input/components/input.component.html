@@ -165,6 +165,21 @@
                     {{ option.label || option.value }}
                 </mat-option>
             </mat-select>
+            <!-- <input
+                matInput
+                [readonly]="info.readonly"
+                [disabled]="info.disabled || false"
+                [value]="selectedValue"
+                type="text"
+                (change)="onChange()"
+                (input)="onInput()"
+                [matAutocomplete]="auto"
+            />
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let option of filteredOptions" [value]="option.value">
+                    {{ option.label }}
+                </mat-option>
+            </mat-autocomplete> -->
             <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
                 <mat-icon>{{ icon.name }}</mat-icon>
             </button>

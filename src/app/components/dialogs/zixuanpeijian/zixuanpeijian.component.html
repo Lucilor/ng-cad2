@@ -58,18 +58,20 @@
                         <div class="name">{{ item.type1 }} - {{ item.type2 }}</div>
                     </div>
                     <div class="content inputs">
+                        <app-input [info]="resultInputInfos[i]['总宽']"></app-input>
+                        <app-input [info]="resultInputInfos[i]['总高']"></app-input>
+                    </div>
+                    <div class="content inputs gongshishuru">
                         <app-input
-                            [info]="{type: 'string', label: '总宽', model: {key: 'totalWidth', data: item}, showEmpty: true}"
-                        ></app-input>
-                        <app-input
-                            [info]="{type: 'string', label: '总高', model: {key: 'totalHeight', data: item}, showEmpty: true}"
+                            *ngFor="let group of item.gongshishuru; let j = index"
+                            [info]="resultInputInfos[i]['公式输入'][j]"
                         ></app-input>
                     </div>
                     <div class="content inputs gongshishuru">
-                        <app-input *ngFor="let group of item.gongshishuru" [info]="getGongshishuruInputInfo(group, i)"></app-input>
-                    </div>
-                    <div class="content inputs gongshishuru">
-                        <app-input *ngFor="let group of item.xuanxiangshuru" [info]="getGongshishuruInputInfo(group, i)"></app-input>
+                        <app-input
+                            *ngFor="let group of item.xuanxiangshuru; let j = index"
+                            [info]="resultInputInfos[i]['选项输入'][j]"
+                        ></app-input>
                     </div>
                 </div>
             </div>
@@ -99,69 +101,18 @@
                                 <button [disabled]="k === 0" mat-icon-button color="primary" (click)="removeZhankai(i, j, k)">
                                     <mat-icon>remove_circle</mat-icon>
                                 </button>
-                                <app-input
-                                    [info]="{
-                                        type: 'string',
-                                        label: '展开宽',
-                                        model: {key: 'width', data: zhankai},
-                                        autocomplete: 'off',
-                                        showEmpty: true
-                                    }"
-                                ></app-input>
+                                <app-input [info]="resultInputInfos[i].cads[j].zhankai[k].width"></app-input>
                                 <span>×</span>
-                                <app-input
-                                    [info]="{
-                                        type: 'string',
-                                        label: '展开高',
-                                        model: {key: 'height', data: zhankai},
-                                        autocomplete: 'off',
-                                        showEmpty: true
-                                    }"
-                                ></app-input>
+                                <app-input [info]="resultInputInfos[i].cads[j].zhankai[k].height"></app-input>
                                 <span>=</span>
-                                <app-input
-                                    [info]="{
-                                        type: 'string',
-                                        label: '数量',
-                                        model: {key: 'num', data: zhankai},
-                                        autocomplete: 'off',
-                                        showEmpty: true
-                                    }"
-                                ></app-input>
+                                <app-input [info]="resultInputInfos[i].cads[j].zhankai[k].num"></app-input>
                             </div>
                             <div class="content inputs">
-                                <app-input
-                                    [info]="{
-                                        type: 'string',
-                                        label: '板材',
-                                        value: cad.info.bancai?.mingzi,
-                                        readonly: true,
-                                        showEmpty: true
-                                    }"
-                                    (click)="openBancaiListDialog(i, j)"
-                                ></app-input>
+                                <app-input [info]="resultInputInfos[i]['cads'][j]['板材']" (click)="openBancaiListDialog(i, j)"></app-input>
                             </div>
                             <div class="content inputs" *ngIf="cad.info.bancai">
-                                <app-input
-                                    [info]="{
-                                        type: 'select',
-                                        label: '材料',
-                                        options: cad.info.bancai.cailiaoList,
-                                        model: {key: 'cailiao', data: cad.info.bancai},
-                                        autocomplete: 'off',
-                                        showEmpty: true
-                                    }"
-                                ></app-input>
-                                <app-input
-                                    [info]="{
-                                        type: 'select',
-                                        label: '厚度',
-                                        options: cad.info.bancai.houduList,
-                                        model: {key: 'houdu', data: cad.info.bancai},
-                                        autocomplete: 'off',
-                                        showEmpty: true
-                                    }"
-                                ></app-input>
+                                <app-input [info]="resultInputInfos[i]['cads'][j]['材料']"></app-input>
+                                <app-input [info]="resultInputInfos[i]['cads'][j]['厚度']"></app-input>
                             </div>
                             <div class="btn-group">
                                 <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad.data)">开料孔位配置</button>
