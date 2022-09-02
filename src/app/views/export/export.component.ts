@@ -9,6 +9,7 @@ import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf, ProgressBar} from "@utils";
 import {DateTime} from "luxon";
 
@@ -30,7 +31,12 @@ export class ExportComponent implements OnInit {
     direct = false;
     exportParams: CadExportParams = {cads: [], type: "自由选择", exportId: environment.production, exportUniqCode: true};
 
-    constructor(private dialog: MatDialog, private dataService: CadDataService, private message: MessageService) {}
+    constructor(
+        private dialog: MatDialog,
+        private dataService: CadDataService,
+        private message: MessageService,
+        private status: AppStatusService
+    ) {}
 
     ngOnInit() {
         this.exportCache = session.load<ExportCache>("exportParams");
@@ -177,7 +183,7 @@ export class ExportComponent implements OnInit {
             this.exportParams.cads = cads;
             let result: CadData | undefined;
             try {
-                result = await CadPortable.export(this.exportParams, this.dataService);
+                result = await CadPortable.export(this.exportParams, this.status.getProjectConfig());
             } catch (error) {
                 console.error(error);
                 finish("error", this.dataService.lastResponse?.msg || "导出失败");

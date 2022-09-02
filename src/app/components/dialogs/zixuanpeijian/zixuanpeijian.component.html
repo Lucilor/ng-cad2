@@ -101,6 +101,7 @@
                                 <button [disabled]="k === 0" mat-icon-button color="primary" (click)="removeZhankai(i, j, k)">
                                     <mat-icon>remove_circle</mat-icon>
                                 </button>
+                                <!-- <mat-checkbox [(ngModel)]="zhankai.custom">自定义</mat-checkbox> -->
                                 <app-input [info]="resultInputInfos[i].cads[j].zhankai[k].width"></app-input>
                                 <span>×</span>
                                 <app-input [info]="resultInputInfos[i].cads[j].zhankai[k].height"></app-input>

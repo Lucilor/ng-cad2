@@ -8,6 +8,7 @@ import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {AppStatusService} from "@services/app-status.service";
 import {downloadByString, ObjectOf, ProgressBar} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";
@@ -61,7 +62,12 @@ export class ImportComponent extends Utils() implements OnInit {
     maxLineLength = 200;
     导入dxf文件时展开名字不改变 = false;
 
-    constructor(private dataService: CadDataService, private message: MessageService, private spinner: SpinnerService) {
+    constructor(
+        private dataService: CadDataService,
+        private message: MessageService,
+        private spinner: SpinnerService,
+        private status: AppStatusService
+    ) {
         super();
     }
 
@@ -122,7 +128,7 @@ export class ImportComponent extends Utils() implements OnInit {
         this.progressBarStatus = "progress";
         this.msg = "正在获取数据";
         this.spinner.show(loaderId);
-        const 导入dxf文件时展开名字不改变 = await this.dataService.getProjectConfigBoolean("导入dxf文件时展开名字不改变");
+        const 导入dxf文件时展开名字不改变 = this.status.getProjectConfigBoolean("导入dxf文件时展开名字不改变");
         const data = await this.dataService.uploadDxf(this._sourceFile);
         if (!data) {
             return finish(true, "error", "读取文件失败");
@@ -625,7 +631,7 @@ export class ImportComponent extends Utils() implements OnInit {
                 const msg = response?.msg || "验证算料公式时出错";
                 slgs.errors.push(msg);
             }
-            for(const key in data.公式) {
+            for (const key in data.公式) {
                 if (key.includes("-")) {
                     slgs.errors.push(`算料公式名字不能包含-号: ${key}`);
                 }

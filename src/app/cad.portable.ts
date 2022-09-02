@@ -15,11 +15,10 @@ import {
     setLinesLength,
     sortLines
 } from "@cad-viewer";
-import {HttpService} from "@modules/http/services/http.service";
 import {keysOf, Line, ObjectOf, Point, Rectangle} from "@utils";
 import {difference, intersection, isEqual} from "lodash";
-import {replaceChars} from "./app.common";
-import {isShiyitu} from "./cad.utils";
+import {ProjectConfig, replaceChars} from "./app.common";
+import {isShiyitu, showIntersections} from "./cad.utils";
 
 export interface Slgs {
     名字: string;
@@ -458,7 +457,7 @@ export class CadPortable {
         return {cads, slgses, sourceCadMap, xinghaoInfo};
     }
 
-    static async export(params: CadExportParams, http: HttpService) {
+    static async export(params: CadExportParams, projectConfig: ProjectConfig) {
         const margin = 300;
         const padding = 80;
         const width = 855;
@@ -558,7 +557,7 @@ export class CadPortable {
             const group2 = [] as CadData[];
             const right = rect.right + padding;
             const draw = async (cad: CadData, j: number, isGroup2: boolean) => {
-                cad = await this._showIntersections(cad, http);
+                showIntersections(cad, projectConfig);
                 const cadRect = cad.getBoundingRect();
                 let offsetX = j * (width + margin);
                 let offsetY = -(i - dividers.length) * (height + margin);
@@ -946,24 +945,6 @@ export class CadPortable {
                 }
             }
         });
-    }
-
-    private static async _showIntersections(data: CadData, http: HttpService) {
-        let skip = true;
-        for (const layer of this.intersectionLayers) {
-            if (data[this.intersectionLayersMap[layer]]) {
-                skip = false;
-                break;
-            }
-        }
-        if (skip) {
-            return data;
-        }
-        const result = await http.post<CadData>("ngcad/showIntersections", {data: data.export()});
-        if (result?.data) {
-            return new CadData(result.data);
-        }
-        throw new Error("showIntersections error");
     }
 
     private static _addLineInfoDimension(cad: CadData, e: CadLineLike, exportId: boolean) {

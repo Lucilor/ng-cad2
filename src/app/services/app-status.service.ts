@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
-import {CadCollection, local, timer} from "@app/app.common";
+import {CadCollection, local, ProjectConfig, timer} from "@app/app.common";
 import {
     setCadData,
     prepareCadViewer,
@@ -45,20 +45,6 @@ const 合型板示意图 = new CadData();
 合型板示意图.entities.add(new CadLine({start: [20, 0], end: [20, 8]}));
 const replaceMap: ObjectOf<CadData> = {合型板示意图};
 
-export interface Loader {
-    id: string;
-    start: boolean;
-    text?: string;
-}
-
-export type CadPoints = {x: number; y: number; active: boolean; lines: string[]}[];
-
-export interface CadComponentsStatus {
-    selected: CadData[];
-    mode: "single" | "multiple";
-    selectable: boolean;
-}
-
 @Injectable({
     providedIn: "root"
 })
@@ -81,6 +67,7 @@ export class AppStatusService {
     isAdmin$ = new BehaviorSubject<boolean>(false);
     changelogTimeStamp$ = new BehaviorSubject<number>(-1);
     private _refreshTimeStamp = Number(local.load("refreshTimeStamp") || -1);
+    private _projectConfig: ProjectConfig = {};
 
     constructor(
         private config: AppConfigService,
@@ -146,6 +133,15 @@ export class AppStatusService {
             }
             this.changelogTimeStamp$.next(changelogTimeStamp);
             this.setProject$.next();
+
+            {
+                const response = await this.dataService.post<ProjectConfig>("ngcad/getProjectConfig");
+                if (response?.data) {
+                    this._projectConfig = response.data;
+                } else {
+                    this._projectConfig = {};
+                }
+            }
         }
         return true;
     }
@@ -207,7 +203,7 @@ export class AppStatusService {
         }
         this.generateLineTexts();
 
-        const 算料单CAD模板使用图片装配 = await this.dataService.getProjectConfigBoolean("算料单CAD模板使用图片装配");
+        const 算料单CAD模板使用图片装配 = this.getProjectConfigBoolean("算料单CAD模板使用图片装配");
         const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配;
         const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) => {
             const result = await Promise.all(
@@ -351,4 +347,33 @@ export class AppStatusService {
         const params = {project: this.project, collection, id};
         open("index?" + new URLSearchParams(params).toString());
     }
+
+    getProjectConfig(): ObjectOf<string>;
+    getProjectConfig(key: string): string;
+    getProjectConfig(key?: string) {
+        if (key) {
+            return this._projectConfig[key];
+        } else {
+            return this._projectConfig;
+        }
+    }
+
+    getProjectConfigBoolean(key: string) {
+        const value = this.getProjectConfig(key);
+        return value === "是";
+    }
+}
+
+export interface Loader {
+    id: string;
+    start: boolean;
+    text?: string;
+}
+
+export type CadPoints = {x: number; y: number; active: boolean; lines: string[]}[];
+
+export interface CadComponentsStatus {
+    selected: CadData[];
+    mode: "single" | "multiple";
+    selectable: boolean;
 }

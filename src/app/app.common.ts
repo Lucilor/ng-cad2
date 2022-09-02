@@ -119,3 +119,5 @@ export const getFormControlErrorString = (control: FormControl) => {
     };
     return Object.keys(errors).map(mapFn).join(", ");
 };
+
+export type ProjectConfig = ObjectOf<string>;

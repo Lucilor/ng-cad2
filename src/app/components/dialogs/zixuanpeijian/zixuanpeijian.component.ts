@@ -3,7 +3,7 @@ import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog
 import {MatMenuTrigger} from "@angular/material/menu";
 import {setGlobal} from "@app/app.common";
 import {getCadTotalLength} from "@app/cad.utils";
-import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, CadZhankai, setLinesLength} from "@cad-viewer";
+import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/types";
@@ -507,22 +507,28 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         type: "string",
                         label: "展开宽",
                         model: {key: "width", data: zhankai},
-                        autocomplete: "off",
-                        showEmpty: true
+                        showEmpty: true,
+                        onChange: () => {
+                            zhankai.custom = true;
+                        }
                     },
                     height: {
                         type: "string",
                         label: "展开高",
                         model: {key: "height", data: zhankai},
-                        autocomplete: "off",
-                        showEmpty: true
+                        showEmpty: true,
+                        onChange: () => {
+                            zhankai.custom = true;
+                        }
                     },
                     num: {
                         type: "string",
                         label: "数量",
                         model: {key: "num", data: zhankai},
-                        autocomplete: "off",
-                        showEmpty: true
+                        showEmpty: true,
+                        onChange: () => {
+                            zhankai.custom = true;
+                        }
                     }
                 })),
                 板材: {
@@ -663,7 +669,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 const formulas1 = v.formulas;
                 const vars1 = {...materialResult, ...v.vars, ...shuchubianliang};
                 const result1 = this.calc.calcFormulas(formulas1, vars1, alertError);
-                console.log({formulas1, vars1, result1});
+                // console.log({formulas1, vars1, result1});
                 if (!result1) {
                     if (alertError) {
                         return false;
@@ -729,17 +735,16 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 }
 
                 const zhankaiErrors: [string, string][] = [];
-                const zhankais: {zhankai: CadZhankai; enable: boolean}[] = data.zhankai.map((zhankai) => {
-                    const enable = zhankai.conditions.every((condition) => {
+                const zhankais = data.zhankai.filter((zhankai) =>
+                    zhankai.conditions.every((condition) => {
                         const result = this.calc.calc.calcExpress(condition, vars2);
                         if (result.error) {
                             zhankaiErrors.push([condition, result.error]);
                             return false;
                         }
                         return !!result.value;
-                    });
-                    return {zhankai, enable};
-                });
+                    })
+                );
                 if (zhankaiErrors.length > 0) {
                     // let str = `${data.name} 展开条件出错<br>`;
                     // str += zhankaiErrors.map(([condition, error]) => `${condition}<br>${error}`).join("<br><br>");
@@ -747,15 +752,13 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     // return false;
                     console.warn({name: data.name, zhankaiErrors});
                 }
-                if (zhankais.every((v) => !v.enable)) {
+                if (zhankais.length < 1) {
                     data.info.hidden = true;
                 } else {
                     data.info.hidden = false;
                     const vars3 = {...vars2, 总长: toFixed(getCadTotalLength(data), 4)};
-                    const toRemove: number[] = [];
-                    for (const [j, {zhankai, enable}] of zhankais.entries()) {
-                        if (!enable) {
-                            toRemove.push(j);
+                    for (const [j, zhankai] of zhankais.entries()) {
+                        if (info.zhankai[j]?.custom) {
                             continue;
                         }
                         const formulas3: Formulas = {};
@@ -775,9 +778,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         const CAD分类2 = data.type2;
                         num *= getCADBeishu(String(产品分类), String(栋数), CAD分类, CAD分类2, String(门中门扇数));
                         info.zhankai[j] = {width, height, num: String(num), originalWidth: zhankai.zhankaikuan};
-                    }
-                    if (toRemove.length > 0) {
-                        info.zhankai = info.zhankai.filter((_, j) => !toRemove.includes(j));
                     }
                     if (info.zhankai.length < 1) {
                         info.zhankai.push({width: "", height: "", num: "0", originalWidth: ""});
@@ -834,7 +834,7 @@ export interface ZixuanpeijianInput {
 
 export interface ZixuanpeijianInfo {
     houtaiId: string;
-    zhankai: {width: string; height: string; num: string; originalWidth: string}[];
+    zhankai: {width: string; height: string; num: string; originalWidth: string; custom?: boolean}[];
     bancai?: BancaiList & {cailiao?: string; houdu?: string};
 }
 

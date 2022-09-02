@@ -230,18 +230,6 @@ export class CadDataService extends HttpService {
         return response?.data ?? [];
     }
 
-    async getProjectConfig(): Promise<ObjectOf<string>>;
-    async getProjectConfig(key: string): Promise<string>;
-    async getProjectConfig(key?: string) {
-        const response = await this.post<ObjectOf<string> | string>("ngcad/getProjectConfig", {key});
-        return response?.data || {};
-    }
-
-    async getProjectConfigBoolean(key: string) {
-        const value = await this.getProjectConfig(key);
-        return value === "是";
-    }
-
     async getCadImg(id: string, useCache: boolean, options?: HttpOptions) {
         if (useCache) {
             const url = this.cadImgCache.get(id);

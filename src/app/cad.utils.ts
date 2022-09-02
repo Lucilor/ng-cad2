@@ -1,10 +1,13 @@
 import {
     CadBaseLine,
+    CadCircle,
     CadData,
     CadImage,
     CadJointPoint,
+    CadLeader,
     CadLine,
     CadLineLike,
+    CadMtext,
     CadViewer,
     CadViewerConfig,
     findAllAdjacentLines,
@@ -13,7 +16,8 @@ import {
     sortLines
 } from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {DEFAULT_TOLERANCE, isBetween, Point} from "@utils";
+import {DEFAULT_TOLERANCE, isBetween, Line, ObjectOf, Point} from "@utils";
+import {intersection} from "lodash";
 import {CadCollection} from "./app.common";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
@@ -303,4 +307,146 @@ export const getCadTotalLength = (data: CadData) => {
     entities.arc.forEach((e) => (length += e.length));
     entities.circle.forEach((e) => (length += e.curve.length));
     return length;
+};
+
+export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
+    let skip = true;
+    const intersectionsKeys = ["zhidingweizhipaokeng", "指定分体位置", "指定位置不折"] as const;
+    for (const key of intersectionsKeys) {
+        if (data[key].length > 0) {
+            skip = false;
+            break;
+        }
+    }
+    if (skip) {
+        return;
+    }
+    const sortedEntitiesGroups = sortLines(data);
+    const drawing = {
+        leader: {length: 32, gap: 4, size: 15},
+        circle: {radius: 8, linetype: "DASHEDX2", linewidth: 2},
+        text: {size: 20, text: "", offset: 0}
+    };
+    for (const key of intersectionsKeys) {
+        const arr = data[key];
+        for (const sortedEntities of sortedEntitiesGroups) {
+            for (let i = 0; i < sortedEntities.length - 1; i++) {
+                const e1 = sortedEntities[i];
+                const e2 = sortedEntities[i + 1];
+                let matched = false;
+                const id1 = e1.id;
+                const id2 = e2.id;
+                for (const ids of arr) {
+                    if (intersection([id1, id2], ids)) {
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    continue;
+                }
+                const p1 = e1.start;
+                const p2 = e1.end;
+                const p3 = e2.end;
+                const p4 = p1.clone().sub(p2).normalize().add(p3.clone().sub(p2).normalize());
+                const p5 = p2.clone().add(p4);
+                const p6 = p2.clone().sub(p4);
+                const center = new Line(p1, p3).middle;
+                let line: Line;
+                if (p5.distanceTo(center) > p6.distanceTo(center)) {
+                    line = new Line(p5.clone(), p2.clone());
+                } else {
+                    line = new Line(p6.clone(), p2.clone());
+                }
+                const theta = line.theta.rad;
+                const d = new Point(Math.cos(theta), Math.sin(theta));
+                let drawLeader = false;
+                let drawCircle = false;
+                let drawText = false;
+                let layer = "";
+                if (key === "zhidingweizhipaokeng") {
+                    line.end.sub(d.clone().multiply(drawing.leader.gap));
+                    line.start.copy(line.end.clone().sub(d.clone().multiply(drawing.leader.length)));
+                    const 指定位置刨坑表示方法 = config.指定位置刨坑表示方法 || "箭头";
+                    if (指定位置刨坑表示方法 === "箭头") {
+                        drawLeader = true;
+                    } else if (指定位置刨坑表示方法 === "箭头+箭头旁文字") {
+                        drawLeader = true;
+                        drawText = true;
+                    } else if (指定位置刨坑表示方法 === "虚线圆") {
+                        drawCircle = true;
+                    } else if (指定位置刨坑表示方法 === "虚线圆+旁边文字") {
+                        drawCircle = true;
+                        drawText = true;
+                    }
+                    layer = "指定位置刨坑";
+                    drawing.text.text = "刨";
+                    drawing.text.offset = 8;
+                } else if (key === "指定位置不折") {
+                    line.end.sub(d.clone().multiply(drawing.leader.gap));
+                    line.start.copy(line.end.clone().sub(d.clone().multiply(drawing.leader.length)));
+                    const 指定位置不折表示方法 = config.指定位置不折表示方法 || "箭头";
+                    if (指定位置不折表示方法 === "箭头") {
+                        drawLeader = true;
+                    } else if (指定位置不折表示方法 === "箭头+箭头旁文字") {
+                        drawLeader = true;
+                        drawText = true;
+                    } else if (指定位置不折表示方法 === "虚线圆") {
+                        drawCircle = true;
+                    } else if (指定位置不折表示方法 === "虚线圆+旁边文字") {
+                        drawCircle = true;
+                        drawText = true;
+                    }
+                    layer = "指定位置不折";
+                    drawing.text.text = "不折";
+                    drawing.text.offset = 8;
+                } else if (key === "指定分体位置") {
+                    layer = "分体";
+                    drawCircle = true;
+                    drawText = true;
+                    drawing.text.text = "分";
+                    drawing.text.offset = 3;
+                }
+                if (drawLeader) {
+                    const leader = new CadLeader({
+                        layer,
+                        vertices: [line.start, line.end],
+                        size: drawing.leader.size
+                    });
+                    data.entities.add(leader);
+                }
+                if (drawCircle) {
+                    const radius = Math.min(drawing.circle.radius, p1.distanceTo(p2) / 2 - 1, p2.distanceTo(p3) / 2 - 1);
+                    const circle = new CadCircle({
+                        layer,
+                        center: p2,
+                        radius,
+                        linetype: drawing.circle.linetype,
+                        linewidth: drawing.circle.linewidth,
+                        color: 5
+                    });
+                    data.entities.add(circle);
+                }
+                if (drawText) {
+                    let anchor = [0, 0];
+                    let insert = [0, 0];
+                    if (drawLeader) {
+                        anchor = [d.x > 0 ? 1 : 0, d.y < 0 ? 1 : 0];
+                        insert = line.start.clone().sub(d.clone().multiply(drawing.text.offset)).toArray();
+                    } else if (drawCircle) {
+                        anchor = [d.x > 0 ? 1 : 0, d.y < 0 ? 1 : 0];
+                        insert = p2.clone().sub(d.clone().multiply(drawing.text.offset)).toArray();
+                    }
+                    const text = new CadMtext({
+                        layer,
+                        insert,
+                        text: drawing.text.text,
+                        anchor,
+                        font_size: drawing.text.size
+                    });
+                    data.entities.add(text);
+                }
+            }
+        }
+    }
 };

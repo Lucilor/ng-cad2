@@ -4,13 +4,14 @@ import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, setGlobal, timer} from "@app/app.common";
-import {maxLineLength} from "@app/cad.utils";
+import {maxLineLength, showIntersections} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, setLinesLength} from "@cad-viewer";
 import {openZixuanpeijianDialog, ZixuanpeijianInfo, ZixuanpeijianOutput} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {AppStatusService} from "@services/app-status.service";
 import {CalcService} from "@services/calc.service";
 import {PrintCadsParams, printCads, configCadDataForPrint} from "@src/app/cad.print";
 import {toFixed} from "@src/app/utils/calc";
@@ -109,7 +110,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         private message: MessageService,
         private spinner: SpinnerService,
         private dialog: MatDialog,
-        private calc: CalcService
+        private calc: CalcService,
+        private status: AppStatusService
     ) {}
 
     private _onKeyDown = ((event: KeyboardEvent) => {
@@ -511,6 +513,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 });
                 v.info.自选配件已初始化 = true;
                 configCadDataForPrint(cad, v, this.printParams);
+                showIntersections(v, this.status.getProjectConfig());
+                console.log(v);
             }
             if (arrangeCads) {
                 let hLinesMaxLength = -1;

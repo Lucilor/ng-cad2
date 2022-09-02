@@ -160,7 +160,7 @@ export class HttpService {
                 } else if (encrypt === "no") {
                     if (typeof data === "string") {
                         formData.append("data", data);
-                    } else {
+                    } else if (data && typeof data === "object") {
                         formData.append("data", JSON.stringify(data));
                     }
                 } else {
