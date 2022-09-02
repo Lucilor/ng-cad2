@@ -13,15 +13,16 @@ export class ReplaceFullCharsDirective {
 
     constructor() {}
 
-    @HostListener("input", ["$event"]) async onInPut(event: Event) {
-        const str = (event.target as HTMLInputElement).value;
-        await timeout(0);
-        if (this.obj) {
-            this.obj[this.key || ""] = this.replaceChars(str);
-        }
-        if (this.arr) {
-            this.arr[this.index || 0] = this.replaceChars(str);
-        }
+    @HostListener("input", ["$event"]) onInPut(event: Event) {
+        timeout(0).then(() => {
+            const str = (event.target as HTMLInputElement).value;
+            if (this.obj) {
+                this.obj[this.key || ""] = this.replaceChars(str);
+            }
+            if (this.arr) {
+                this.arr[this.index || 0] = this.replaceChars(str);
+            }
+        });
     }
 
     private replaceChars(str: string) {
