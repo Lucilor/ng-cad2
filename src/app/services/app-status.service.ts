@@ -230,6 +230,7 @@ export class AppStatusService {
             data = this.cad.data;
         }
         const data2 = data.clone();
+        data2.getAllEntities().forEach((e) => (e.visible = true));
         suanliaodanZoomOut(data2);
         return data2;
     }

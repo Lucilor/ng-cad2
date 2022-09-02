@@ -107,7 +107,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             this.urlPrefix = response.data.prefix;
             this.typesInfo = response.data.typesInfo;
             if (!this.type1) {
-                this.type1 = Object.keys(this.typesInfo).sort()[0] || "";
+                this.type1 = Object.keys(this.typesInfo)[0] || "";
             }
             this.options = response.data.options;
             this.bancaiList = response.data.bancais;
@@ -289,7 +289,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     async calcZhankai(item: ZixuanpeijianCadItem) {
         const {data, info} = item;
         const {zhankai} = info;
-        if (zhankai.length < 1 || !zhankai[0].originalWidth) {
+        if (zhankai.length < 1 || !zhankai[0].originalWidth || zhankai[0].custom) {
             return;
         }
         const vars = {...this.data?.materialResult, 总长: toFixed(getCadTotalLength(data), 4)};
@@ -649,14 +649,26 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         let calc1Finished = false;
         let calcErrors1: Formulas = {};
         let calcErrors2: Formulas = {};
+        const indexesMap: ObjectOf<ObjectOf<number[]>> = {};
         while (!calc1Finished) {
             calc1Finished = true;
             const shuchubianliangFlag: ObjectOf<ObjectOf<true>> = {};
             const alertError = !initial && isEqual(calcErrors1, calcErrors2);
             calcErrors1 = calcErrors2;
             calcErrors2 = {};
-            for (const v of toCalc1) {
+            for (const [i, v] of toCalc1.entries()) {
                 const {type1, type2} = v.item;
+                if (initial) {
+                    if (!indexesMap[type1]) {
+                        indexesMap[type1] = {};
+                    }
+                    if (!indexesMap[type1][type2]) {
+                        indexesMap[type1][type2] = [];
+                    }
+                    if (!indexesMap[type1][type2].includes(i)) {
+                        indexesMap[type1][type2].push(i);
+                    }
+                }
                 if (shuchubianliangFlag[type1]?.[type2]) {
                     continue;
                 } else {
@@ -695,13 +707,14 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
             initial = false;
         }
-        // console.log(toCalc1, shuchubianliang);
+        // console.log({toCalc1, shuchubianliang, indexesMap});
 
-        for (const [i, item] of this.result.entries()) {
+        for (const item of this.result) {
+            const {type1, type2} = item;
             for (const cadItem of item.cads) {
                 const {data, info} = cadItem;
                 const formulas2: Formulas = {};
-                const vars2: Formulas = toCalc1[i].succeed;
+                const vars2: Formulas = toCalc1[indexesMap[type1][type2][0]].succeed;
                 for (const [j, e] of data.entities.line.entries()) {
                     if (e.gongshi) {
                         formulas2[`线${j + 1}公式`] = e.gongshi;
@@ -779,16 +792,17 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         num *= getCADBeishu(String(产品分类), String(栋数), CAD分类, CAD分类2, String(门中门扇数));
                         info.zhankai[j] = {width, height, num: String(num), originalWidth: zhankai.zhankaikuan};
                     }
-                    if (info.zhankai.length < 1) {
-                        info.zhankai.push({width: "", height: "", num: "0", originalWidth: ""});
-                    } else {
-                        for (const zhankai of info.zhankai.slice(1)) {
-                            zhankai.width = info.zhankai[0].width;
-                        }
-                    }
+                    // if (info.zhankai.length < 1) {
+                    //     info.zhankai.push({width: "", height: "", num: "0", originalWidth: ""});
+                    // } else {
+                    //     for (const zhankai of info.zhankai.slice(1)) {
+                    //         zhankai.width = info.zhankai[0].width;
+                    //     }
+                    // }
                 }
             }
         }
+        this._updateResultInputInfos();
         return true;
     }
 
@@ -799,6 +813,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     showItem(item: ZixuanpeijianTypesInfoItem) {
         const xinghaoId = String(this.data?.materialResult?.型号id || "");
         return !xinghaoId || !(item.xinghaozhuanyong?.length > 0) || item.xinghaozhuanyong.includes(xinghaoId);
+    }
+
+    returnZero() {
+        return 0;
     }
 }
 

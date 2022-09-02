@@ -4,7 +4,7 @@
             <div class="content types-info-1">
                 <ng-scrollbar class="content">
                     <div class="content">
-                        <div *ngFor="let item of typesInfo | keyvalue">
+                        <div *ngFor="let item of typesInfo | keyvalue: returnZero">
                             <button mat-raised-button [color]="type1 === item.key ? 'accent' : 'primary'" (click)="setTypesInfo1(item.key)">
                                 {{ item.key }}
                             </button>
@@ -15,7 +15,7 @@
             <div class="content types-info-2">
                 <ng-scrollbar class="content">
                     <div class="content types-info-items" *ngIf="typesInfo[type1]">
-                        <ng-container *ngFor="let item of typesInfo[type1] | keyvalue">
+                        <ng-container *ngFor="let item of typesInfo[type1] | keyvalue: returnZero">
                             <div class="types-info-item" *ngIf="showItem(item.value)">
                                 <div class="content images">
                                     <app-image

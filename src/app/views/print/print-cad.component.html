@@ -16,7 +16,7 @@
         </mat-form-field>
     </ng-container>
     <ng-container *ngIf="enableZixuanpeijian">
-        <button mat-raised-button color="primary" (click)="toggleMode()">{{ mode === "edit" ? "退出" : "进入" }}来图单自选配件</button>
+        <button mat-raised-button color="primary" (click)="toggleMode()">{{ mode === "edit" ? "退出" : "来图单自选配件" }}</button>
         <ng-container *ngIf="mode === 'edit'">
             <button mat-raised-button color="primary" (click)="openZixuanpeijianDialog()">选择自选配件</button>
             <button mat-raised-button color="primary" (click)="setOrderZixuanpeijian()">保存自选配件</button>

@@ -419,6 +419,11 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
 
     async openZixuanpeijianDialog() {
+        const code = this.printParams.codes[0];
+        if (!code) {
+            this.message.alert("订单没保存，无法操作");
+            return;
+        }
         const data = await openZixuanpeijianDialog(this.dialog, {
             width: "calc(100vw - 20px)",
             height: "calc(100vh - 10px)",

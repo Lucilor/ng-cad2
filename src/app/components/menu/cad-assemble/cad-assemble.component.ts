@@ -78,7 +78,6 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
                         }
                         if (e.layer === "分页线") {
                             e.calcBoundingRect = false;
-                            console.log(e);
                         }
                     });
                 }
