@@ -514,7 +514,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 v.info.自选配件已初始化 = true;
                 configCadDataForPrint(cad, v, this.printParams);
                 showIntersections(v, this.status.getProjectConfig());
-                console.log(v);
             }
             if (arrangeCads) {
                 let hLinesMaxLength = -1;

@@ -292,7 +292,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (zhankai.length < 1 || !zhankai[0].originalWidth) {
             return;
         }
-        const vars = {总长: toFixed(getCadTotalLength(data), 4)};
+        const vars = {...this.data?.materialResult, 总长: toFixed(getCadTotalLength(data), 4)};
         const formulas: ObjectOf<string> = {展开宽: zhankai[0].originalWidth};
         const calcResult = this.calc.calcFormulas(formulas, vars);
         const {展开宽} = calcResult?.succeed || {};

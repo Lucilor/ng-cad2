@@ -22,6 +22,7 @@ export class CalcService {
             if (alertError && !isEmpty(errorTrim)) {
                 const errorStr = this.getErrorFormusStr(errorTrim, vars);
                 this.message.error(errorStr);
+                console.warn({formulas, vars, result});
                 return null;
             }
             return result;
