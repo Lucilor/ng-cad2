@@ -1,6 +1,7 @@
 {
 	"/n": {
 		"target": "https://www.let888.cn/n",
+		// "target": "https://localhost/n",
 		"pathRewrite": {"^/n" : ""},
 		"secure": false,
 		"changeOrigin": true,

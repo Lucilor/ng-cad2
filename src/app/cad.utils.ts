@@ -413,7 +413,7 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
                 if (drawLeader) {
                     const leader = new CadLeader({
                         layer,
-                        vertices: [line.start, line.end],
+                        vertices: [line.end, line.start],
                         size: drawing.leader.size
                     });
                     data.entities.add(leader);

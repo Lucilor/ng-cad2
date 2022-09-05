@@ -428,7 +428,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             width: "calc(100vw - 20px)",
             height: "calc(100vh - 10px)",
             data: {
-                step: 1,
+                step: this.zixuanpeijian.length > 0 ? 2 : 1,
                 data: this.zixuanpeijian,
                 checkEmpty: this.checkEmpty,
                 cadConfig: {fontStyle: {family: this.printParams.config.fontStyle?.family}},
@@ -493,6 +493,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 const lineLengthMap: ObjectOf<{text: string; mtext: CadMtext}> = {};
                 v.entities.forEach((e) => {
                     if (e instanceof CadLineLike) {
+                        if (e.hideLength) {
+                            return;
+                        }
                         const length = e.length;
                         const mtext = e.children.mtext.find((ee) => ee.info.isLengthText);
                         if (mtext) {
@@ -583,19 +586,26 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 zhankaiText.text = zhankai
                     .map(({width, height, num}, i) => {
                         let str = `${getText(width)}×${getText(height)}=${getText(num)}`;
-                        if (i === 0 && v.kailiaoshibaokeng && v.zhidingweizhipaokeng.length < 1) {
-                            str += ",刨坑";
+                        if (i === 0) {
+                            if (v.zhidingweizhipaokeng.length > 0) {
+                                if (this.status.getProjectConfig("指定位置不折表示方法").includes("箭头")) {
+                                    str += ",刨坑(箭头)";
+                                }
+                            } else if (v.kailiaoshibaokeng) {
+                                str += ",刨坑";
+                            }
                         }
                         return str;
                     })
                     .join("\n");
                 if (v.算料特殊要求) {
-                    const result = this.calc.calcFormulas({算料特殊要求: v.算料特殊要求}, this.materialResult, false);
-                    if (result && "算料特殊要求" in result.succeed) {
-                        zhankaiText.text += `\n${result.succeed.算料特殊要求}`;
-                    } else {
-                        zhankaiText.text += `\n${v.算料特殊要求}`;
+                    let str = v.算料特殊要求;
+                    for (const match of v.算料特殊要求.matchAll(/#([^#]*)#/g)) {
+                        if (match[1] in this.materialResult) {
+                            str = str.replace(match[0], String(this.materialResult[match[1]]));
+                        }
                     }
+                    zhankaiText.text += `\n${str}`;
                 }
                 if (bancai) {
                     const {mingzi, cailiao, houdu} = bancai;

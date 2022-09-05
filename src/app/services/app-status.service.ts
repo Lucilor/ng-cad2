@@ -358,7 +358,7 @@ export class AppStatusService {
     getProjectConfig(key: string): string;
     getProjectConfig(key?: string) {
         if (key) {
-            return this._projectConfig[key];
+            return this._projectConfig[key] || "";
         } else {
             return this._projectConfig;
         }

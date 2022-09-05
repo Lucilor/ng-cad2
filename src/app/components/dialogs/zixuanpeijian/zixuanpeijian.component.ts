@@ -39,6 +39,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     @ViewChild(MatMenuTrigger) contextMenu!: MatMenuTrigger;
     contextMenuData = {i: -1, j: -1};
     fractionDigits = 1;
+    _step1Fetched = false;
+    _step2Fetched = false;
 
     resultInputInfos: ResultInputInfos[] = [];
 
@@ -100,7 +102,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             prefix: string;
             typesInfo: ZixuanpeijianTypesInfo;
             options: ObjectOf<string[]>;
-            bancais: BancaiList[];
         }>("ngcad/getZixuanpeijianTypesInfo", {}, {testData: "zixuanpeijianTypesInfo"});
         this.spinner.hide(this.spinnerId);
         if (response?.data) {
@@ -110,8 +111,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 this.type1 = Object.keys(this.typesInfo)[0] || "";
             }
             this.options = response.data.options;
-            this.bancaiList = response.data.bancais;
         }
+        this._updateResultInputInfos();
     }
 
     private async _step2Fetch() {
@@ -124,18 +125,20 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 typesInfo[type1][type2] = 1;
             }
         });
-        const response = await this.dataService.post<ObjectOf<ObjectOf<any[]>>>(
+        const response = await this.dataService.post<{cads: ObjectOf<ObjectOf<any[]>>; bancais: BancaiList[]}>(
             "ngcad/getZixuanpeijianCads",
             {typesInfo},
             {testData: "zixuanpeijianCads"}
         );
         if (response?.data) {
             const allCads: ObjectOf<ObjectOf<CadData[]>> = {};
-            for (const type1 in response.data) {
+            const {cads, bancais} = response.data;
+            this.bancaiList = bancais;
+            for (const type1 in cads) {
                 allCads[type1] = {};
-                for (const type2 in response.data[type1]) {
+                for (const type2 in cads[type1]) {
                     allCads[type1][type2] = [];
-                    for (const v of response.data[type1][type2]) {
+                    for (const v of cads[type1][type2]) {
                         const data = new CadData(v);
                         allCads[type1][type2].push(data);
                     }
@@ -172,17 +175,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     let info: ZixuanpeijianInfo | undefined = infos[data.id];
                     if (!info) {
                         info = {houtaiId: data.id, zhankai: []};
-                        if (data.zhankai.length > 0) {
-                            info.zhankai = data.zhankai.map((v) => ({
-                                width: v.zhankaikuan,
-                                // height: v.zhankaigao,
-                                height: "",
-                                num: v.shuliang,
-                                originalWidth: v.zhankaikuan
-                            }));
-                        } else {
-                            info.zhankai = [this._getDefaultZhankai()];
-                        }
                     }
                     const cadItem: ZixuanpeijianCadItem = {data: data2, info};
                     item.cads.push(cadItem);
@@ -228,7 +220,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                                 parent.gongshi = "";
                                 await viewer.render();
                                 viewer.center();
-                                this.calcZhankai(cadItem);
+                                // this.calcZhankai(cadItem);
+                                this._calc();
                             }
                         } else if (entity instanceof CadLineLike) {
                             const name = await this.message.prompt({
@@ -242,7 +235,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         }
                     });
 
-                    await this.calcZhankai(cadItem);
                     await timeout(0);
                     const el = this.elRef.nativeElement.querySelector(`#cad-viewer-${i}-${j}`);
                     if (el instanceof HTMLElement) {
@@ -283,7 +275,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     private _getDefaultZhankai(): ZixuanpeijianInfo["zhankai"][0] {
-        return {width: "", height: "", num: "", originalWidth: ""};
+        return {width: "", height: "", num: "", originalWidth: "", isFromCad: false};
     }
 
     async calcZhankai(item: ZixuanpeijianCadItem) {
@@ -373,12 +365,14 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     private async _onStep({value, refresh}: ZixuanpeijianComponent["step$"]["value"]) {
         if (value === 1) {
-            if (refresh) {
+            if (refresh || !this._step1Fetched) {
                 await this._step1Fetch();
+                this._step1Fetched = true;
             }
         } else if (value === 2) {
-            if (refresh) {
+            if (refresh || !this._step2Fetched) {
                 await this._step2Fetch();
+                this._step2Fetched = true;
             }
         }
     }
@@ -413,7 +407,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             if (errors.size > 0 && this.data?.checkEmpty) {
                 this.message.error(Array.from(errors).join("<br>"));
             } else {
-                this.step$.next({value: 2, refresh: true});
+                this.setStep(2, true);
             }
         } else if (value === 2) {
             const errors = new Set<string>();
@@ -454,12 +448,17 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     cancle() {
-        const {value} = this.step$.value;
-        if (value === 1) {
-            this.dialogRef.close();
-        } else if (value === 2) {
-            this.step$.next({value: 1, refresh: false});
-        }
+        this.dialogRef.close();
+        // const {value} = this.step$.value;
+        // if (value === 1) {
+        //     this.dialogRef.close();
+        // } else if (value === 2) {
+        //     this.step$.next({value: 1, refresh: false});
+        // }
+    }
+
+    setStep(value: number, refresh = false) {
+        this.step$.next({value, refresh});
     }
 
     setTypesInfo1(type1: string) {
@@ -476,12 +475,18 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 model: {key: "1", data: group},
                 showEmpty: true,
                 onChange: () => {
-                    const {type1, type2, gongshishuru} = item;
+                    const {gongshishuru} = item;
                     for (const [j, item2] of this.result.entries()) {
-                        if (i === j || item2.type1 !== type1 || item2.type2 !== type2) {
+                        if (i === j) {
                             continue;
                         }
-                        item2.gongshishuru = cloneDeep(gongshishuru);
+                        for (const [k, v] of gongshishuru.entries()) {
+                            for (const [l] of item2.gongshishuru.entries()) {
+                                if (k === l) {
+                                    item2.gongshishuru[l][1] = v[1];
+                                }
+                            }
+                        }
                     }
                 }
             })),
@@ -492,12 +497,18 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 options: this.options[group[0]] || [],
                 showEmpty: true,
                 onChange: () => {
-                    const {type1, type2, xuanxiangshuru} = item;
+                    const {xuanxiangshuru} = item;
                     for (const [j, item2] of this.result.entries()) {
-                        if (i === j || item2.type1 !== type1 || item2.type2 !== type2) {
+                        if (i === j) {
                             continue;
                         }
-                        item.xuanxiangshuru = cloneDeep(xuanxiangshuru);
+                        for (const [k, v] of xuanxiangshuru.entries()) {
+                            for (const [l] of item2.xuanxiangshuru.entries()) {
+                                if (k === l) {
+                                    item2.xuanxiangshuru[l][1] = v[1];
+                                }
+                            }
+                        }
                     }
                 }
             })),
@@ -560,10 +571,26 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     addResultItem(type1: string, type2: string) {
         const typesItem = cloneDeep(this.typesInfo[type1][type2]);
         const item: ZixuanpeijianOutputItem = {type1, type2, totalWidth: "", totalHeight: "", ...typesItem, cads: []};
-        const item2 = this.result.find((v) => v.type1 === type1 && v.type2 === type2);
-        if (item2) {
-            item.gongshishuru = cloneDeep(item2.gongshishuru);
-            item.xuanxiangshuru = cloneDeep(item2.xuanxiangshuru);
+        const gongshishuru: ObjectOf<string> = {};
+        const xuanxiangshuru: ObjectOf<string> = {};
+        for (const item2 of this.result) {
+            for (const group of item2.gongshishuru) {
+                gongshishuru[group[0]] = group[1];
+            }
+            for (const group of item2.xuanxiangshuru) {
+                xuanxiangshuru[group[0]] = group[1];
+            }
+        }
+        console.log(gongshishuru, xuanxiangshuru);
+        for (const [i, v] of item.gongshishuru.entries()) {
+            if (gongshishuru[v[0]]) {
+                item.gongshishuru[i][1] = gongshishuru[v[0]];
+            }
+        }
+        for (const [i, v] of item.xuanxiangshuru.entries()) {
+            if (xuanxiangshuru[v[0]]) {
+                item.xuanxiangshuru[i][1] = xuanxiangshuru[v[0]];
+            }
         }
         this.result.push(item);
         const formulas = typesItem.suanliaogongshi;
@@ -572,12 +599,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (result) {
             const {succeed} = result;
             for (const group of typesItem.gongshishuru) {
-                if (succeed[group[0]] > 0) {
+                if (succeed[group[0]] > 0 && !(group[0] in gongshishuru)) {
                     group[1] = toFixed(succeed[group[0]], this.fractionDigits);
                 }
             }
             for (const group of typesItem.xuanxiangshuru) {
-                if (group[0] in succeed) {
+                if (group[0] in succeed && !(group[0] in xuanxiangshuru)) {
                     const value = succeed[group[0]];
                     if (typeof value === "number") {
                         group[1] = toFixed(value, this.fractionDigits);
@@ -714,7 +741,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             for (const cadItem of item.cads) {
                 const {data, info} = cadItem;
                 const formulas2: Formulas = {};
-                const vars2: Formulas = toCalc1[indexesMap[type1][type2][0]].succeed;
+                const vars2: Formulas = {...toCalc1[indexesMap[type1][type2][0]].succeed, ...shuchubianliang};
                 for (const [j, e] of data.entities.line.entries()) {
                     if (e.gongshi) {
                         formulas2[`线${j + 1}公式`] = e.gongshi;
@@ -770,15 +797,13 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 } else {
                     data.info.hidden = false;
                     const vars3 = {...vars2, 总长: toFixed(getCadTotalLength(data), 4)};
-                    for (const [j, zhankai] of zhankais.entries()) {
-                        if (info.zhankai[j]?.custom) {
-                            continue;
-                        }
+                    const zhankais2: ZixuanpeijianInfo["zhankai"] = [];
+                    for (const zhankai of zhankais) {
                         const formulas3: Formulas = {};
                         formulas3.展开宽 = zhankai.zhankaikuan;
                         formulas3.展开高 = zhankai.zhankaigao;
                         formulas3.数量 = `(${zhankai.shuliang})*(${zhankai.shuliangbeishu})`;
-                        const result3 = this.calc.calcFormulas(formulas3, vars3);
+                        const result3 = this.calc.calcFormulas(formulas3, vars3, {data});
                         // console.log({formulas3, vars3, result3});
                         if (!result3) {
                             return false;
@@ -790,15 +815,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         const CAD分类 = data.type;
                         const CAD分类2 = data.type2;
                         num *= getCADBeishu(String(产品分类), String(栋数), CAD分类, CAD分类2, String(门中门扇数));
-                        info.zhankai[j] = {width, height, num: String(num), originalWidth: zhankai.zhankaikuan};
+                        zhankais2.push({width, height, num: String(num), originalWidth: zhankai.zhankaikuan, isFromCad: true});
                     }
-                    // if (info.zhankai.length < 1) {
-                    //     info.zhankai.push({width: "", height: "", num: "0", originalWidth: ""});
-                    // } else {
-                    //     for (const zhankai of info.zhankai.slice(1)) {
-                    //         zhankai.width = info.zhankai[0].width;
-                    //     }
-                    // }
+                    info.zhankai = [...zhankais2, ...info.zhankai.filter((v) => !v.isFromCad)];
+                    if (info.zhankai.length < 1) {
+                        info.zhankai.push(this._getDefaultZhankai());
+                    }
                 }
             }
         }
@@ -852,7 +874,7 @@ export interface ZixuanpeijianInput {
 
 export interface ZixuanpeijianInfo {
     houtaiId: string;
-    zhankai: {width: string; height: string; num: string; originalWidth: string; custom?: boolean}[];
+    zhankai: {width: string; height: string; num: string; originalWidth: string; isFromCad: boolean; custom?: boolean}[];
     bancai?: BancaiList & {cailiao?: string; houdu?: string};
 }
 

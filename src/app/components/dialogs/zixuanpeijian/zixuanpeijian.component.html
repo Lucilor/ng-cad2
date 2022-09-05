@@ -24,12 +24,16 @@
                                         [bigPicSrc]="item.value.xiaoguotu"
                                         [prefix]="urlPrefix"
                                     ></app-image>
-                                    <app-image
-                                        class="jiemiantu"
-                                        [src]="item.value.jiemiantu"
-                                        [bigPicSrc]="item.value.jiemiantu"
-                                        [prefix]="urlPrefix"
-                                    ></app-image>
+                                    <div style="display: flex; flex-direction: column">
+                                        <app-image
+                                            class="jiemiantu"
+                                            [src]="item.value.jiemiantu"
+                                            [bigPicSrc]="item.value.jiemiantu"
+                                            [prefix]="urlPrefix"
+                                            style="height: 50%"
+                                        ></app-image>
+                                        <div class="desc" style="height: 50%"></div>
+                                    </div>
                                 </div>
                                 <div class="content title">
                                     <button mat-icon-button color="primary" (click)="addResultItem(type1, item.key)">
@@ -77,7 +81,11 @@
             </div>
         </ng-scrollbar>
     </ng-container>
-    <ng-container *ngSwitchCase="2">
+    <div *ngSwitchCase="2" style="display: flex; flex-direction: column; flex: 1 1 0">
+        <div class="btn-group">
+            <button mat-raised-button color="primary" (click)="setStep(1)">选择模块配件</button>
+            <button mat-raised-button color="primary">选择零散配件</button>
+        </div>
         <ng-scrollbar class="content">
             <div *ngFor="let item of result; let i = index">
                 <div>{{ item.type1 }} - {{ item.type2 }}</div>
@@ -123,7 +131,7 @@
                 </div>
             </div>
         </ng-scrollbar>
-    </ng-container>
+    </div>
 </div>
 
 <div class="toolbar btn-group">

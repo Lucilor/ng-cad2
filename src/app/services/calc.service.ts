@@ -1,4 +1,5 @@
 import {Injectable} from "@angular/core";
+import {CadData} from "@cad-viewer";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf} from "@utils";
 import {isEmpty} from "lodash";
@@ -15,14 +16,14 @@ export class CalcService {
         setGlobal("calc", this, true);
     }
 
-    calcFormulas(formulas: Formulas, vars: Formulas & {input?: Formulas} = {}, alertError = true) {
+    calcFormulas(formulas: Formulas, vars: Formulas & {input?: Formulas} = {}, alertError: boolean | {data?: CadData} = true) {
         try {
             const result = Calc.calcFormulas(formulas, vars);
             const {errorTrim} = result;
             if (alertError && !isEmpty(errorTrim)) {
                 const errorStr = this.getErrorFormusStr(errorTrim, vars);
                 this.message.error(errorStr);
-                console.warn({formulas, vars, result});
+                console.warn({formulas, vars, result, alertError});
                 return null;
             }
             return result;
