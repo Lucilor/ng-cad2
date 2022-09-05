@@ -45,8 +45,8 @@ export class MessageService {
         await this.alert({content: new Error(message)}, others);
     }
 
-    async confirm(data: string | MessageDataParams<ConfirmMessageData>) {
-        return !!(await this.open({data: this._getData(data, "confirm")}));
+    async confirm(data: string | MessageDataParams<ConfirmMessageData>, others: Omit<MatDialogConfig<AlertMessageData>, "data"> = {}) {
+        return !!(await this.open({data: this._getData(data, "confirm"), ...others}));
     }
 
     async prompt(data: string | MessageDataParams<PromptMessageData>, others: Omit<MatDialogConfig<PromptMessageData>, "data"> = {}) {

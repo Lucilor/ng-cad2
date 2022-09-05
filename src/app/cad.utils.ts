@@ -93,13 +93,16 @@ export const getCadPreview = async (collection: CadCollection, data: CadData, pa
     const {http, useCache} = params;
     let url: string | null;
     if (http) {
-        url = await http.getCadImg(data.id, !!useCache, {silent: true});
+        url = await http.getCadImg(data.id, useCache, {silent: true});
         if (url) {
             return url;
         }
     }
     const cad = await getCadPreviewRaw(collection, data, params);
     url = await cad.toDataURL();
+    if (http) {
+        http.setCadImg(data.id, url, {silent: true});
+    }
     cad.destroy();
     return url;
 };

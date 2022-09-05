@@ -162,7 +162,7 @@ export class AppStatusService {
         }
     }
 
-    async openCad(data?: CadData, collection?: CadCollection, center = true) {
+    async openCad(data?: CadData, collection?: CadCollection, center = true, beforeOpen?: (data: CadData) => any) {
         const timerName = "openCad";
         timer.start(timerName);
         const cad = this.cad;
@@ -188,8 +188,6 @@ export class AppStatusService {
         }
         this.config.setUserConfig(newConfig);
         await prepareCadViewer(cad);
-        this.openCad$.next();
-        await timeout(0);
         setCadData(data, this.project);
         for (const key in replaceMap) {
             this._replaceText(data, key, replaceMap[key]);
@@ -222,6 +220,13 @@ export class AppStatusService {
 
         await cad.render(await updatePreview(data, "post"));
 
+        if (beforeOpen) {
+            const res = beforeOpen(data);
+            if (res instanceof Promise) {
+                await res;
+            }
+        }
+        this.openCad$.next();
         timer.end(timerName, "打开CAD");
     }
 

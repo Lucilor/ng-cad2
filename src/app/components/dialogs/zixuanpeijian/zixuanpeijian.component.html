@@ -4,11 +4,11 @@
             <div class="content types-info-1">
                 <ng-scrollbar class="content">
                     <div class="content">
-                        <div *ngFor="let item of typesInfo | keyvalue: returnZero">
+                        <ng-container *ngFor="let item of typesInfo | keyvalue: returnZero">
                             <button mat-raised-button [color]="type1 === item.key ? 'accent' : 'primary'" (click)="setTypesInfo1(item.key)">
                                 {{ item.key }}
                             </button>
-                        </div>
+                        </ng-container>
                     </div>
                 </ng-scrollbar>
             </div>

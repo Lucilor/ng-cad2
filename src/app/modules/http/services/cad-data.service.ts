@@ -20,10 +20,17 @@ export class CadDataService extends HttpService {
         const missingCads: CadData[] = response.data?.missingCads;
         if (missingCads) {
             const names = missingCads.map((v) => v.name).join(", ");
+            const toHide = document.querySelectorAll<HTMLElement>(".ngx-overlay.loading-foreground");
+            toHide.forEach((el) => {
+                el.classList.add("hidden");
+            });
             const yes = await this.message.confirm({
                 content: "CAD模块中不存在以下数据，你可以选择生成这些CAD，或从模板中删除这些CAD。<br>" + names,
                 cancelable: false,
                 btnTexts: {yes: "生成CAD", no: "删除CAD"}
+            });
+            toHide.forEach((el) => {
+                el.classList.remove("hidden");
             });
             return !!yes;
         }
@@ -230,14 +237,14 @@ export class CadDataService extends HttpService {
         return response?.data ?? [];
     }
 
-    async getCadImg(id: string, useCache: boolean, options?: HttpOptions) {
+    async getCadImg(id: string, useCache = true, options?: HttpOptions) {
         if (useCache) {
             const url = this.cadImgCache.get(id);
             if (url) {
                 return url;
             }
         }
-        const response = await this.post<{url: string | null}>("ngcad/getCadImg", {id, useCache}, options);
+        const response = await this.post<{url: string | null}>("ngcad/getCadImg", {id}, options);
         return response?.data?.url || null;
     }
 

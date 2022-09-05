@@ -83,8 +83,7 @@ export class HttpService {
                 data: {project, baseUrl: this.baseURL},
                 autoFocus: true,
                 hasBackdrop: true,
-                disableClose: true,
-                backdropClass: "login-form-dialog"
+                disableClose: true
             });
         }
         await this._loginPromise;

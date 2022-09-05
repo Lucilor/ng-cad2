@@ -442,13 +442,10 @@ export class CadConsoleComponent implements OnInit {
             spinner.show(loaderId, {text: `正在保存CAD: ${data.name}`});
             resData = await dataService.setCad({collection, cadData: data, force: true});
             if (resData) {
-                const url = await getCadPreview(collection, resData);
-                const blob = dataURLtoBlob(url);
-                const id = resData.id;
-                const file = new File([blob], `${id}.png`);
-                await dataService.post("ngcad/setCadImg", {id, file}, {silent: true});
-                dataService.cadImgCache.set(id, url);
-                this.status.openCad(resData, collection, false);
+                await status.openCad(resData, collection, false, async (data2) => {
+                    const url = await getCadPreview(collection, data2);
+                    await dataService.setCadImg(data2.id, url, {silent: true});
+                });
             }
             spinner.hide(loaderId);
             return resData;
