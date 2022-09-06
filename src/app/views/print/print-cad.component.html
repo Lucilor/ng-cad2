@@ -29,6 +29,7 @@
     </ng-container>
     <ng-container *ngIf="!production">
         <mat-slide-toggle [(ngModel)]="checkEmpty">checkEmpty</mat-slide-toggle>
+        <button mat-raised-button color="primary" (click)="clearHttpCache()">clearHttpCache</button>
     </ng-container>
     <button mat-icon-button color="accent" (click)="toggleToolbarVisible()"><mat-icon>expand_less</mat-icon></button>
 </div>

@@ -22,6 +22,7 @@ export interface InputInfoString<T = any> extends InputInfoBase<T> {
     onInput?: (val: string) => void;
     onChange?: (val: string) => void;
     validators?: AbstractControlOptions["validators"];
+    options?: ({value: string; label?: string} | string)[];
 }
 
 export interface InputInfoNumber<T = any> extends InputInfoBase<T> {

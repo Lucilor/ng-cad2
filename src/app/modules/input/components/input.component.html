@@ -8,11 +8,12 @@
                 matInput
                 [readonly]="info.readonly"
                 [disabled]="info.disabled || false"
-                [autocomplete]="info.autocomplete"
+                [autocomplete]="info.autocomplete || ''"
                 [(ngModel)]="value"
                 type="text"
                 (change)="onChange()"
                 (input)="onInput()"
+                [matAutocomplete]="auto"
             />
             <textarea
                 *ngIf="cast(info, 'string').textarea"
@@ -22,11 +23,12 @@
                 [cdkAutosizeMaxRows]="cast(info, 'string').textarea?.autosize?.maxRows"
                 [readonly]="info.readonly"
                 [disabled]="info.disabled || false"
-                [autocomplete]="info.autocomplete"
+                [autocomplete]="info.autocomplete || ''"
                 [(ngModel)]="value"
                 type="text"
                 (change)="onChange()"
                 (input)="onInput()"
+                [matAutocomplete]="auto"
             ></textarea>
             <button mat-icon-button matSuffix *ngIf="optionKey" color="primary" (click)="selectOptions(optionKey, info.model?.key)">
                 <mat-icon>list</mat-icon>
@@ -37,6 +39,17 @@
             <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
                 <mat-icon>{{ icon.name }}</mat-icon>
             </button>
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option
+                    *ngFor="let option of filteredOptions"
+                    [value]="option.value"
+                    [matTooltip]="option.label === option.value ? option.label : option.label + '=' + option.value"
+                    [matTooltipShowDelay]="500"
+                    [matTooltipPosition]="'right'"
+                >
+                    {{ option.label }}
+                </mat-option>
+            </mat-autocomplete>
         </mat-form-field>
     </ng-container>
     <ng-container *ngSwitchCase="'number'">

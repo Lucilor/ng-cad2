@@ -12,10 +12,8 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {CalcService} from "@services/calc.service";
 import {PrintCadsParams, printCads, configCadDataForPrint} from "@src/app/cad.print";
 import {toFixed} from "@src/app/utils/calc";
-import materialResultTest from "@src/assets/testData/materialResult.json";
 import {downloadByUrl, MatrixLike, ObjectOf, timeout} from "@utils";
 import {
     slideInDownOnEnterAnimation,
@@ -44,6 +42,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     pdfUrl?: SafeUrl;
     showDxfInput = false;
     private _paramKey = "printCad-paramCache";
+    private _httpCacheKey = "printCad-httpCache";
     fonts = ["微软雅黑", "宋体", "锐字工房云字库魏体GBK", "等距更纱黑体 SC"];
     toolbarVisible = true;
     downloadUrl: string | null = null;
@@ -78,7 +77,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         orders: []
     };
     cad: CadViewer | null = null;
-    zixuanpeijian: ZixuanpeijianOutput = [];
+    zixuanpeijian: ZixuanpeijianOutput = {模块: [], 零散: []};
     comments: CadMtext[] = [];
     enableZixuanpeijian = false;
     production = environment.production;
@@ -97,9 +96,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
 
     get materialResult() {
         const materialResult = {...this.printParams.orders[0]?.materialResult};
-        if (!environment.production) {
-            Object.assign(materialResult, materialResultTest);
-        }
+        // if (!environment.production) {
+        //     Object.assign(materialResult, materialResultTest);
+        // }
         return materialResult;
     }
 
@@ -110,7 +109,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         private message: MessageService,
         private spinner: SpinnerService,
         private dialog: MatDialog,
-        private calc: CalcService,
         private status: AppStatusService
     ) {}
 
@@ -138,23 +136,27 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         }
         this.spinner.show(this.loaderId, {text: "正在获取数据..."});
         try {
-            const response = await this.dataService.post<PrintCadsParams>(action, queryParams, {encrypt: "both"});
-            if (response?.data) {
-                response.data.cads = response.data.cads.map((v) => new CadData(v));
-                this.downloadUrl = response.data.url || null;
-                this.printParams = {...this.printParams, ...response.data};
+            let responseData = session.load<PrintCadsParams>(this._httpCacheKey);
+            if (!responseData) {
+                const response = await this.dataService.post<PrintCadsParams>(action, queryParams, {encrypt: "both"});
+                responseData = response?.data || null;
+                if (!this.production) {
+                    session.save(this._httpCacheKey, responseData);
+                }
+            }
+            if (responseData) {
+                responseData.cads = responseData.cads.map((v) => new CadData(v));
+                this.downloadUrl = responseData.url || null;
+                this.printParams = {...this.printParams, ...responseData};
                 this.printParams.info.title = "算料单" + this.printParams.codes.join("、");
                 const {codes, type} = this.printParams;
                 if (codes.length === 1) {
-                    const response2 = await this.dataService.post<{模块: ZixuanpeijianOutput; 备注: CadMtext[]}>(
-                        "ngcad/getOrderZixuanpeijian",
-                        {
-                            code: codes[0],
-                            type
-                        }
-                    );
+                    const response2 = await this.dataService.post<ZixuanpeijianOutput & {备注: CadMtext[]}>("ngcad/getOrderZixuanpeijian", {
+                        code: codes[0],
+                        type
+                    });
                     if (response2?.data) {
-                        const {模块, 备注} = response2.data;
+                        const {模块, 零散, 备注} = response2.data;
                         for (const item of 模块) {
                             for (const cad of item.cads) {
                                 cad.data = new CadData(cad.data);
@@ -163,10 +165,13 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                                 }
                             }
                         }
-                        this.zixuanpeijian = 模块;
+                        for (const item of 零散) {
+                            item.data = new CadData(item.data);
+                        }
+                        this.zixuanpeijian = {模块, 零散};
                         this.comments = 备注.map((v) => new CadMtext(v));
                     } else {
-                        this.zixuanpeijian = [];
+                        this.zixuanpeijian = {模块: [], 零散: []};
                     }
                     this.enableZixuanpeijian = true;
                 } else {
@@ -377,7 +382,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             data.forEach((v) => {
                 const ids2 = v.entities.toArray(true).map((e) => e.id);
                 if (intersection(ids, ids2).length > 0) {
-                    const cadItem = this.zixuanpeijian.flatMap((vv) => vv.cads).find((vv) => vv.displayedData?.id === v.id);
+                    const cadItem = this.zixuanpeijian.模块.flatMap((vv) => vv.cads).find((vv) => vv.displayedData?.id === v.id);
                     if (cadItem) {
                         if (cadItem.data.info.translate) {
                             const [x, y] = cadItem.data.info.translate;
@@ -428,7 +433,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             width: "calc(100vw - 20px)",
             height: "calc(100vh - 10px)",
             data: {
-                step: this.zixuanpeijian.length > 0 ? 2 : 1,
+                step: 2,
                 data: this.zixuanpeijian,
                 checkEmpty: this.checkEmpty,
                 cadConfig: {fontStyle: {family: this.printParams.config.fontStyle?.family}},
@@ -450,7 +455,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const cads: CadData[] = [];
         const cads2: CadData[] = [];
         const infos: ObjectOf<ZixuanpeijianInfo> = {};
-        for (const item of this.zixuanpeijian) {
+        for (const item of this.zixuanpeijian.模块) {
             for (const cadItem of item.cads) {
                 if (cad) {
                     delete cadItem.displayedData;
@@ -588,7 +593,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                         let str = `${getText(width)}×${getText(height)}=${getText(num)}`;
                         if (i === 0) {
                             if (v.zhidingweizhipaokeng.length > 0) {
-                                if (this.status.getProjectConfig("指定位置不折表示方法").includes("箭头")) {
+                                if (this.status.getProjectConfig("指定位置刨坑表示方法").includes("箭头")) {
                                     str += ",刨坑(箭头)";
                                 }
                             } else if (v.kailiaoshibaokeng) {
@@ -622,7 +627,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
 
     syncZixuanpeijian() {
-        for (const item of this.zixuanpeijian) {
+        for (const item of this.zixuanpeijian.模块) {
             for (const cadItem of item.cads) {
                 const translate = cadItem.data.info.translate;
                 if (translate) {
@@ -640,7 +645,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this.syncZixuanpeijian();
-        const 模块 = this.zixuanpeijian.map((item) => ({
+        const 模块 = this.zixuanpeijian.模块.map((item) => ({
             ...item,
             cads: item.cads.map((cadItem) => ({
                 ...cadItem,
@@ -648,8 +653,12 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 displayedData: cadItem.displayedData?.export()
             }))
         }));
+        const 零散 = this.zixuanpeijian.零散.map((item) => ({
+            ...item,
+            data: item.data.export()
+        }));
         const 备注 = this.comments.map((v) => v.export());
-        await this.dataService.post<void>("ngcad/setOrderZixuanpeijian", {code: codes[0], type, data: {模块, 备注}});
+        await this.dataService.post<void>("ngcad/setOrderZixuanpeijian", {code: codes[0], type, data: {模块, 零散, 备注}});
     }
 
     async getOrderImage() {
@@ -702,5 +711,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         mtext.fontStyle.size = 40;
         mtext.info.isComment = true;
         cad.add(mtext);
+    }
+
+    clearHttpCache() {
+        session.remove(this._httpCacheKey);
     }
 }

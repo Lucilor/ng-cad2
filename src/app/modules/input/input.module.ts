@@ -8,6 +8,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 @NgModule({
     declarations: [InputComponent],
@@ -20,6 +21,7 @@ import {MatButtonModule} from "@angular/material/button";
         MatIconModule,
         MatInputModule,
         MatSelectModule,
+        MatTooltipModule,
         ReactiveFormsModule
     ],
     exports: [InputComponent]

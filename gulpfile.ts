@@ -1,7 +1,6 @@
 import {ObjectOf} from "@utils";
 import axios from "axios";
 import child_process from "child_process";
-// import {deleteAsync} from "del";
 import FormData from "form-data";
 import fs from "fs";
 import gulp from "gulp";
@@ -36,6 +35,7 @@ if (!fs.existsSync(configPath)) {
 }
 const {host, token, targetDir} = jsonc.parse(fs.readFileSync("./gulp.config.json").toString());
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const args = minimist(process.argv.slice(2));
 const targetDistDir = targetDir + "/ng-cad2";
 const tmpDir = "./.tmp";
@@ -45,23 +45,26 @@ const changelogPath = path.join(targetDir, changelogName);
 const backupName = "ng_cad2";
 
 gulp.task("build", () => child_process.exec("npm run build"));
-gulp.task("clean", () => new Promise<void>((resolve) => resolve())); // deleteAsync(targetDistDir, {force: true}));
+gulp.task("clean", (callback) => {
+    fs.rmSync(targetDistDir, {recursive: true, force: true});
+    callback();
+}); // deleteAsync(targetDistDir, {force: true}));
 gulp.task("copy", () => gulp.src("./dist/**").pipe(gulp.dest(targetDistDir)));
 
 gulp.task("zip", (callback) => {
     const globs = ["ng-cad2/**/*"];
-    if (!args.noChangelog) {
-        globs.push(changelogName);
-        const changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
-        const now = new Date();
-        const then = new Date(changelog[0].timeStamp);
-        if (now.getFullYear() !== then.getFullYear() || now.getMonth() !== then.getMonth() || now.getDate() !== then.getDate()) {
-            callback(new Error("changelog time error"));
-            return;
-        }
-        changelog[0].timeStamp = new Date().getTime();
-        fs.writeFileSync(changelogPath, JSON.stringify(changelog));
-    }
+    // if (!args.noChangelog) {
+    //     globs.push(changelogName);
+    //     const changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
+    //     const now = new Date();
+    //     const then = new Date(changelog[0].timeStamp);
+    //     if (now.getFullYear() !== then.getFullYear() || now.getMonth() !== then.getMonth() || now.getDate() !== then.getDate()) {
+    //         callback(new Error("changelog time error"));
+    //         return;
+    //     }
+    //     changelog[0].timeStamp = new Date().getTime();
+    //     fs.writeFileSync(changelogPath, JSON.stringify(changelog));
+    // }
     return gulp.src(globs, {dot: true, cwd: targetDir, base: targetDir}).pipe(zip(zipName)).pipe(gulp.dest(tmpDir));
 });
 

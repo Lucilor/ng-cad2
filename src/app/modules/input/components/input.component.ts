@@ -24,12 +24,12 @@ export class InputComponent extends Utils() {
         if (!value.autocomplete) {
             value.autocomplete = "off";
         }
-        if (value.type === "select") {
-            this.options = value.options.map((v) => {
+        if (value.type === "select" || value.type === "string") {
+            this.options = (value.options || []).map((v) => {
                 if (typeof v === "string") {
                     return {value: v, label: v};
                 }
-                return v;
+                return {label: v.label || v.value, value: v.value};
             });
         }
         if (value.value) {
@@ -77,7 +77,7 @@ export class InputComponent extends Utils() {
         return this.info.suffixIcons || [];
     }
 
-    options: {value: string; label?: string}[] = [];
+    options: {value: string; label: string}[] = [];
     // get selectedValue() {
     //     const value = this.value;
     //     const option = this.options.find((v) => v.value === value || v.label === value);
@@ -86,10 +86,13 @@ export class InputComponent extends Utils() {
     //     }
     //     return value;
     // }
-    // get filteredOptions() {
-    //     const val = this.value;
-    //     return this.options.filter(({value, label}) => value.includes(val) || !label || label.includes(val));
-    // }
+    get filteredOptions() {
+        const val = this.value;
+        if (!val) {
+            return [];
+        }
+        return this.options.filter(({value, label}) => value.includes(val) || label.includes(val));
+    }
 
     anchorXString = "";
     anchorYString = "";
