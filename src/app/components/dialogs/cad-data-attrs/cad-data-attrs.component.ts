@@ -34,7 +34,7 @@ export class CadDataAttrsComponent extends Utils() {
         this.dialogRef.close(data);
     }
 
-    cancle() {
+    cancel() {
         this.dialogRef.close();
     }
 }

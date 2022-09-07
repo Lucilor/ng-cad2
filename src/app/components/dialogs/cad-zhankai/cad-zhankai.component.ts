@@ -65,7 +65,7 @@ export class CadZhankaiComponent extends Utils() {
         }
     }
 
-    cancle() {
+    cancel() {
         this.dialogRef.close();
     }
 

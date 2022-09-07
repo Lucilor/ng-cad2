@@ -45,7 +45,16 @@ export const routesInfo = {
     jiaowei: {path: "jiaowei", title: "铰位"}
 };
 
-export type CadCollection = "cad" | "CADmuban" | "qiliaozuhe" | "qieliaocad" | "order" | "kailiaocadmuban" | "material" | "zixuanpeijian";
+export type CadCollection =
+    | "cad"
+    | "CADmuban"
+    | "qiliaozuhe"
+    | "qieliaocad"
+    | "order"
+    | "kailiaocadmuban"
+    | "material"
+    | "zixuanpeijian"
+    | "luomatoucad";
 
 export const timer = new Timer({color: "deeppink"});
 Object.assign(window, {timer});

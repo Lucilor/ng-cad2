@@ -35,7 +35,7 @@ export class BancaiListComponent {
         this.dialogRef.close([bancai]);
     }
 
-    cancle() {
+    cancel() {
         this.dialogRef.close();
     }
 }

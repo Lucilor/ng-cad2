@@ -41,7 +41,7 @@
 </div>
 <div mat-dialog-actions style="justify-content: center" [ngSwitch]="data.type">
     <ng-container *ngSwitchCase="'alert'">
-        <button mat-raised-button (click)="cancle()" cdkFocusInitial>
+        <button mat-raised-button (click)="cancel()" cdkFocusInitial>
             {{ cast(data, "alert").btnTexts?.ok || "好的" }}
         </button>
     </ng-container>
@@ -49,7 +49,7 @@
         <button mat-raised-button (click)="submit()">
             {{ cast(data, "confirm").btnTexts?.yes || "当然" }}
         </button>
-        <button mat-raised-button (click)="cancle()" cdkFocusInitial>
+        <button mat-raised-button (click)="cancel()" cdkFocusInitial>
             {{ cast(data, "confirm").btnTexts?.no || "算了" }}
         </button>
     </ng-container>
@@ -57,8 +57,8 @@
         <button mat-raised-button (click)="submit()" cdkFocusInitial>
             {{ cast(data, "prompt").btnTexts?.submit || "确定" }}
         </button>
-        <button mat-raised-button (click)="cancle()" [disabled]="data.cancelable === false">
-            {{ cast(data, "prompt").btnTexts?.cancle || "取消" }}
+        <button mat-raised-button (click)="cancel()" [disabled]="data.cancelable === false">
+            {{ cast(data, "prompt").btnTexts?.cancel || "取消" }}
         </button>
     </ng-container>
     <ng-container *ngSwitchCase="'book'">
@@ -68,7 +68,7 @@
         <button mat-raised-button (click)="setPage(page + 1)" [disabled]="page >= maxPage">
             {{ cast(data, "book").btnTexts?.prev || "下一页" }}
         </button>
-        <button mat-raised-button (click)="cancle()">
+        <button mat-raised-button (click)="cancel()">
             {{ cast(data, "book").btnTexts?.exit || "退出" }}
         </button>
     </ng-container>
@@ -76,16 +76,16 @@
         <button mat-raised-button (click)="submit()" cdkFocusInitial>
             {{ cast(data, "editor").btnTexts?.submit || "确定" }}
         </button>
-        <button mat-raised-button (click)="cancle()" [disabled]="data.cancelable === false">
-            {{ cast(data, "editor").btnTexts?.cancle || "取消" }}
+        <button mat-raised-button (click)="cancel()" [disabled]="data.cancelable === false">
+            {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
         </button>
     </ng-container>
     <ng-container *ngSwitchCase="'button'">
         <button mat-raised-button *ngFor="let button of cast(data, 'button').buttons" (click)="submit(button)">
             {{ getButtonLabel(button) }}
         </button>
-        <button mat-raised-button (click)="cancle()" [disabled]="data.cancelable === false">
-            {{ cast(data, "editor").btnTexts?.cancle || "取消" }}
+        <button mat-raised-button (click)="cancel()" [disabled]="data.cancelable === false">
+            {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
         </button>
     </ng-container>
 </div>

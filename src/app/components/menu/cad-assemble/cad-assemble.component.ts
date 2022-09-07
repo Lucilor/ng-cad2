@@ -1,11 +1,14 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
-import {CadData, CadEventCallBack, CadEntity, CadConnection, CadLine} from "@cad-viewer";
+import {MatDialog} from "@angular/material/dialog";
+import {CadData, CadEventCallBack, CadEntity, CadConnection, CadLine, PointsMap, generatePointsMap} from "@cad-viewer";
+import {openCadAssembleFormDialog} from "@components/dialogs/cad-assemble-form/cad-assemble-form.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService, AppConfig} from "@services/app-config.service";
-import {AppStatusService} from "@services/app-status.service";
-import {CadStatusAssemble} from "@services/cad-status";
-import {difference} from "lodash";
+import {AppStatusService, CadPoints} from "@services/app-status.service";
+import {CadStatus, CadStatusAssemble} from "@services/cad-status";
+import {setGlobal} from "@src/app/app.common";
+import {debounce, difference, differenceBy} from "lodash";
 import {CadImage} from "src/cad-viewer/src/cad-data/cad-entity/cad-image";
 
 @Component({
@@ -24,91 +27,44 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
     get connections() {
         return this.data.components.connections;
     }
+    get selectedComponents() {
+        return this.status.components.selected$.value;
+    }
+    get unselectedComponents() {
+        return differenceBy(this.data.components.data, this.selectedComponents, (data) => data.id);
+    }
+    showPointsAssemble = false;
+    pointsAssembling = 0;
+    toPointsAssemble: CadData[] = [];
 
-    constructor(private config: AppConfigService, private status: AppStatusService, private message: MessageService) {
+    private _prevConfig: Partial<AppConfig> = {};
+    private _prevSelectedComponents: CadData[] | null = null;
+    private _prevComponentsSelectable: boolean | null = null;
+
+    constructor(
+        private config: AppConfigService,
+        private status: AppStatusService,
+        private message: MessageService,
+        private dialog: MatDialog
+    ) {
         super();
     }
 
     ngOnInit() {
-        let prevConfig: Partial<AppConfig> = {};
-        let prevSelectedComponents: CadData[] | null = null;
-        let prevComponentsSelectable: boolean | null = null;
-        this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
-            if (cadStatus instanceof CadStatusAssemble) {
-                const cad = this.status.cad;
-                prevConfig = this.config.setConfig({selectMode: "multiple", entityDraggable: []}, {sync: false});
-                prevSelectedComponents = this.status.components.selected$.value;
-                this.status.components.selected$.next([]);
-                prevComponentsSelectable = this.status.components.selectable$.value;
-                this.status.components.selectable$.next(true);
-                this._leftTopArr = [];
-                if (this.status.collection$.value === "CADmuban") {
-                    const data = cad.data;
-                    const {top, bottom, left, right} = data.entities.getBoundingRect();
-                    const y = top - (top - bottom) / 4;
-                    let hasTop = false;
-                    let hasBottom = false;
-                    let hasLeft = false;
-                    let hasRight = false;
-                    data.entities.forEach((e) => {
-                        if (!(e instanceof CadLine) || e.length < 1000) {
-                            if (e instanceof CadLine && e.minY <= y) {
-                                return;
-                            }
-                            const {top: top2, bottom: bottom2, left: left2, right: right2} = e.boundingRect;
-                            if (top2 >= top && !hasTop) {
-                                hasTop = true;
-                                return;
-                            }
-                            if (bottom2 <= bottom && !hasBottom) {
-                                hasBottom = true;
-                                return;
-                            }
-                            if (left2 <= left && !hasLeft) {
-                                hasLeft = true;
-                                return;
-                            }
-                            if (right2 >= right && !hasRight) {
-                                hasRight = true;
-                                return;
-                            }
-                            e.info.prevVisible = e.visible;
-                            e.visible = false;
-                            cad.render(e);
-                        }
-                        if (e.layer === "分页线") {
-                            e.calcBoundingRect = false;
-                        }
-                    });
-                }
-            }
-        });
-        this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
-            if (cadStatus instanceof CadStatusAssemble) {
-                const cad = this.status.cad;
-                this.config.setConfig(prevConfig, {sync: false});
-                if (prevSelectedComponents !== null) {
-                    this.status.components.selected$.next(prevSelectedComponents);
-                    prevSelectedComponents = null;
-                }
-                if (prevComponentsSelectable !== null) {
-                    this.status.components.selectable$.next(prevComponentsSelectable);
-                    prevComponentsSelectable = null;
-                }
-                cad.data.entities.forEach((e) => {
-                    if (!(e instanceof CadLine) || e.length < 1000) {
-                        e.visible = e.info.prevVisible ?? true;
-                        delete e.info.prevVisible;
-                        cad.render(e);
-                    }
-                });
-            }
+        setGlobal("assemble", this);
+        this.subscribe(this.status.cadStatusEnter$, this._onCadStatusEnter);
+        this.subscribe(this.status.cadStatusExit$, this._onCadStatusExit);
+        this.subscribe(this.status.components.selected$, this._onComponentSelected);
+        this.subscribe(this.status.cadPoints$, this._onCadPointsChange);
+        this.subscribe(this.status.collection$, (collection) => {
+            this.showPointsAssemble = collection === "luomatoucad";
         });
 
         {
             const cad = this.status.cad;
             cad.on("entitiesselect", this._onEntitiesSelect);
             cad.on("entitiesunselect", this._onEntitiesUnselect);
+            cad.on("moveentities", this._onMoveEntities);
         }
     }
 
@@ -148,6 +104,13 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         const ids = entities.toArray().map((v) => v.id);
         this.lines = difference(this.lines, ids);
     };
+
+    // eslint-disable-next-line @typescript-eslint/member-ordering
+    private _onMoveEntities: CadEventCallBack<"moveentities"> = debounce((entities) => {
+        if (this.pointsAssembling > 0) {
+            this._setCadPoints();
+        }
+    }, 500).bind(this);
 
     private _selectEntity = (entity: CadEntity) => {
         const cadStatus = this.status.cadStatus;
@@ -235,6 +198,163 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
         }
     };
 
+    private _onCadStatusEnter = (cadStatus: CadStatus) => {
+        if (cadStatus instanceof CadStatusAssemble) {
+            const cad = this.status.cad;
+            this._prevConfig = this.config.setConfig({selectMode: "multiple", entityDraggable: []}, {sync: false});
+            this._prevSelectedComponents = this.status.components.selected$.value;
+            this.status.components.selected$.next([]);
+            this._prevComponentsSelectable = this.status.components.selectable$.value;
+            this.status.components.selectable$.next(true);
+            this._leftTopArr = [];
+            if (this.status.collection$.value === "CADmuban") {
+                const data = cad.data;
+                const {top, bottom, left, right} = data.entities.getBoundingRect();
+                const y = top - (top - bottom) / 4;
+                let hasTop = false;
+                let hasBottom = false;
+                let hasLeft = false;
+                let hasRight = false;
+                data.entities.forEach((e) => {
+                    if (!(e instanceof CadLine) || e.length < 1000) {
+                        if (e instanceof CadLine && e.minY <= y) {
+                            return;
+                        }
+                        const {top: top2, bottom: bottom2, left: left2, right: right2} = e.boundingRect;
+                        if (top2 >= top && !hasTop) {
+                            hasTop = true;
+                            return;
+                        }
+                        if (bottom2 <= bottom && !hasBottom) {
+                            hasBottom = true;
+                            return;
+                        }
+                        if (left2 <= left && !hasLeft) {
+                            hasLeft = true;
+                            return;
+                        }
+                        if (right2 >= right && !hasRight) {
+                            hasRight = true;
+                            return;
+                        }
+                        e.info.prevVisible = e.visible;
+                        e.visible = false;
+                        cad.render(e);
+                    }
+                    if (e.layer === "分页线") {
+                        e.calcBoundingRect = false;
+                    }
+                });
+            }
+        }
+    };
+
+    private _onCadStatusExit = (cadStatus: CadStatus) => {
+        if (cadStatus instanceof CadStatusAssemble) {
+            const cad = this.status.cad;
+            this.config.setConfig(this._prevConfig, {sync: false});
+            if (this._prevSelectedComponents !== null) {
+                this.status.components.selected$.next(this._prevSelectedComponents);
+                this._prevSelectedComponents = null;
+            }
+            if (this._prevComponentsSelectable !== null) {
+                this.status.components.selectable$.next(this._prevComponentsSelectable);
+                this._prevComponentsSelectable = null;
+            }
+            cad.data.entities.forEach((e) => {
+                if (!(e instanceof CadLine) || e.length < 1000) {
+                    e.visible = e.info.prevVisible ?? true;
+                    delete e.info.prevVisible;
+                    cad.render(e);
+                }
+            });
+        }
+    };
+
+    private _onComponentSelected = () => {
+        if (this.pointsAssembling > 0) {
+            this._setCadPoints();
+        }
+    };
+
+    private async _setCadPoints(include?: CadPoints) {
+        let cads: CadData[];
+        if (this.pointsAssembling === 1) {
+            cads = this.selectedComponents;
+        } else if (this.pointsAssembling === 2) {
+            cads = this.unselectedComponents;
+        } else {
+            return;
+        }
+        const pointsMap: PointsMap = [];
+        for (const cad of cads) {
+            pointsMap.push(...generatePointsMap(cad.entities));
+        }
+        this.status.setCadPoints(pointsMap, {include});
+    }
+
+    private _onCadPointsChange = async (points: CadPoints) => {
+        const active = points.filter((p) => p.active);
+        if (active.length === 0) {
+            if (this.pointsAssembling === 2) {
+                this.pointsAssembling = 1;
+                this._setCadPoints();
+            }
+        } else if (active.length === 1) {
+            if (this.pointsAssembling === 1) {
+                this.pointsAssembling = 2;
+                this._setCadPoints(active);
+            }
+        } else if (active.length > 1) {
+            const [active1, active2] = active;
+            let cad1: CadData | undefined;
+            let cad2: CadData | undefined;
+            const p1 = this.status.cad.getWorldPoint(active1.x, active1.y);
+            const p2 = this.status.cad.getWorldPoint(active2.x, active2.y);
+            for (const cad of this.data.components.data) {
+                for (const e of cad.entities.toArray()) {
+                    if (active1.lines.includes(e.id)) {
+                        cad1 = cad;
+                    }
+                    if (active2.lines.includes(e.id)) {
+                        cad2 = cad;
+                    }
+                }
+                if (cad1 && cad2) {
+                    break;
+                }
+            }
+            if (!cad1 || !cad2) {
+                this.message.error("选择错误");
+                return;
+            }
+            const result = await openCadAssembleFormDialog(this.dialog);
+            if (result) {
+                const rect1 = cad1.getBoundingRect();
+                const rect2 = cad2.getBoundingRect();
+                const tx = p1.x - p2.x;
+                const ty = p1.y - p2.y;
+                rect2.transform({translate: [tx, ty]});
+
+                const ids = [cad1.id, cad2.id];
+                const names = [cad1.name, cad2.name];
+                const position = "absolute";
+                const connX = new CadConnection({ids, names, position});
+                connX.value = rect1.left - rect2.left - result.x;
+                connX.axis = "x";
+                this.data.assembleComponents(connX);
+                const connY = new CadConnection({ids, names, position});
+                connY.value = rect1.top - rect2.top - result.y;
+                connY.axis = "y";
+                this.data.assembleComponents(connY);
+                this.status.cad.render();
+            }
+
+            this.pointsAssembling = 0;
+            this.status.setCadPoints();
+        }
+    };
+
     clearConnections() {
         this.connections.length = 0;
     }
@@ -253,5 +373,14 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
             }
         });
         this.status.cad.render();
+    }
+
+    pointsAssemble() {
+        this.pointsAssembling = this.pointsAssembling > 1 ? 0 : this.pointsAssembling + 1;
+        if (this.pointsAssembling) {
+            this._setCadPoints();
+        } else {
+            this.status.setCadPoints();
+        }
     }
 }

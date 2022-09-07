@@ -35,7 +35,7 @@ export interface PromptData {
 export interface PromptMessageData extends BaseMessageData {
     type: "prompt";
     promptData?: PromptData;
-    btnTexts?: {submit?: string; cancle?: string};
+    btnTexts?: {submit?: string; cancel?: string};
 }
 
 export interface BookPageData {
@@ -54,7 +54,7 @@ export interface BookMessageData extends BaseMessageData {
 export interface EditorMessageData extends BaseMessageData {
     type: "editor";
     editable?: boolean;
-    btnTexts?: {submit?: string; cancle?: string};
+    btnTexts?: {submit?: string; cancel?: string};
 }
 
 export type MessageData =

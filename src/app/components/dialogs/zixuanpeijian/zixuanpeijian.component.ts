@@ -512,7 +512,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         }
     }
 
-    cancle() {
+    cancel() {
         this.dialogRef.close();
         // const {value} = this.step$.value;
         // if (value === 1) {

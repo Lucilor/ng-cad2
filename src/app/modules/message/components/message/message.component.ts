@@ -193,11 +193,11 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
         } else if (this.data.type === "button" && button) {
             this.dialogRef.close(typeof button === "string" ? button : button.label);
         } else {
-            this.cancle();
+            this.cancel();
         }
     }
 
-    cancle() {
+    cancel() {
         this.dialogRef.close(false);
     }
 

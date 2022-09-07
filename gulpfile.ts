@@ -48,7 +48,7 @@ gulp.task("build", () => child_process.exec("npm run build"));
 gulp.task("clean", (callback) => {
     fs.rmSync(targetDistDir, {recursive: true, force: true});
     callback();
-}); // deleteAsync(targetDistDir, {force: true}));
+});
 gulp.task("copy", () => gulp.src("./dist/**").pipe(gulp.dest(targetDistDir)));
 
 gulp.task("zip", (callback) => {

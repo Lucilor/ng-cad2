@@ -76,7 +76,7 @@ export class CadSearchFormComponent implements OnInit {
         this.dialogRef.close(result);
     }
 
-    cancle() {
+    cancel() {
         this.dialogRef.close();
     }
 

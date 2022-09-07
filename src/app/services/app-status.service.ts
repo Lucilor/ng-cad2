@@ -273,10 +273,10 @@ export class AppStatusService {
         });
     }
 
-    setCadPoints(map: PointsMap | CadEntities = [], opts: {exclude?: {x: number; y: number}[]; mid?: boolean} = {}) {
+    setCadPoints(map: PointsMap | CadEntities = [], opts: {include?: CadPoints; exclude?: {x: number; y: number}[]; mid?: boolean} = {}) {
         const {exclude, mid} = opts;
         const points = this.getCadPoints(map, mid);
-        this.cadPoints$.next(differenceWith(points, exclude || [], (a, b) => a.x === b.x && a.y === b.y));
+        this.cadPoints$.next(differenceWith(points, exclude || [], (a, b) => a.x === b.x && a.y === b.y).concat(opts.include || []));
     }
 
     addCadPoint(point: CadPoints[0], i?: number) {

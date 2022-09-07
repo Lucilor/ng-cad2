@@ -27,7 +27,7 @@ export class KlkwpzDialogComponent {
         }
     }
 
-    cancle() {
+    cancel() {
         this.dialogRef.close();
     }
 }

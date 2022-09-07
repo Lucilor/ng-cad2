@@ -39,7 +39,7 @@ export class BbzhmkgzComponent extends Utils() {
         this.dialogRef.close(this.data);
     }
 
-    cancle() {
+    cancel() {
         this.dialogRef.close();
     }
 }

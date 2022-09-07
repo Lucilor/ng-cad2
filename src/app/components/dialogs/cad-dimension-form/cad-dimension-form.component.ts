@@ -85,7 +85,7 @@ export class CadDimensionFormComponent {
         }
     }
 
-    cancle() {
+    cancel() {
         this.dialogRef.close();
     }
 
