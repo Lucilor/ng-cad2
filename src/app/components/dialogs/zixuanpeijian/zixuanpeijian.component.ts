@@ -7,7 +7,7 @@ import {getCadPreview, getCadTotalLength} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo, InputInfoString} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
@@ -17,7 +17,6 @@ import {Formulas, toFixed} from "@src/app/utils/calc";
 import {ObjectOf, timeout} from "@utils";
 import {cloneDeep, debounce, isEmpty, isEqual} from "lodash";
 import {BehaviorSubject} from "rxjs";
-import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
 import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 
@@ -45,7 +44,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     _step3Fetched = false;
 
     mokuaiInputInfos: MokuaiInputInfos[] = [];
-    lingsanInputInfos: LingsanInputInfos[] = [];
+    lingsanInputInfos: CadItemInputInfo[] = [];
     dropDownKeys: string[] = [];
     dropDownOptions: {label: string; value: string}[] = [];
     lingsanCads: ZixuanpeijianlingsanCadItem[] = [];
@@ -114,7 +113,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
         }
         this._updateInputInfos();
-        this.step$.next({value: stepValue, refresh: true});
+        this.setStep(stepValue, true);
         window.addEventListener("resize", this.onWindowResize);
     }
 
@@ -128,7 +127,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             prefix: string;
             typesInfo: ZixuanpeijianTypesInfo;
             options: ObjectOf<string[]>;
-            dropDown: string[];
             cads2: CadData[];
         }>("ngcad/getZixuanpeijianTypesInfo", {}, {testData: "zixuanpeijianTypesInfo"});
         this.spinner.hide(this.spinnerId);
@@ -139,7 +137,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 this.type1 = Object.keys(this.typesInfo)[0] || "";
             }
             this.options = response.data.options;
-            this.dropDownKeys = response.data.dropDown;
         }
         this._updateInputInfos();
     }
@@ -154,7 +151,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 typesInfo[type1][type2] = 1;
             }
         });
-        const response = await this.dataService.post<{cads: ObjectOf<ObjectOf<any[]>>; bancais: BancaiList[]}>(
+        const response = await this.dataService.post<{cads: ObjectOf<ObjectOf<any[]>>; bancais: BancaiList[]; dropDown: string[]}>(
             "ngcad/getZixuanpeijianCads",
             {typesInfo},
             {testData: "zixuanpeijianCads"}
@@ -163,6 +160,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             const allCads: ObjectOf<ObjectOf<CadData[]>> = {};
             const {cads, bancais} = response.data;
             this.bancaiList = bancais;
+            this.dropDownKeys = response.data.dropDown;
             for (const type1 in cads) {
                 allCads[type1] = {};
                 for (const type2 in cads[type1]) {
@@ -176,7 +174,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             const cadViewers = this.cadViewers;
             cadViewers.模块 = {};
             cadViewers.零散 = [];
-            const initCadViewer = async (data: CadData, selector: string) => {
+            const initCadViewer = (data: CadData, selector: string) => {
                 const data2 = data.clone(true);
                 this._configCad(data2);
                 data2.entities.mtext = data2.entities.mtext.filter((e) => !e.info.isZhankaiText);
@@ -189,52 +187,54 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 if (this.data?.cadConfig) {
                     viewer.setConfig(this.data.cadConfig);
                 }
-                await viewer.render();
-                viewer.on("entitydblclick", async (_, entity) => {
-                    if (entity instanceof CadMtext) {
-                        const parent = entity.parent;
-                        if (!entity.info.isLengthText || !(parent instanceof CadLine)) {
-                            return;
-                        }
-                        if (parent.gongshi) {
-                            if (!(await this.message.confirm("该线已有公式，是否覆盖？"))) {
+                (async () => {
+                    await viewer.render();
+                    viewer.on("entitydblclick", async (_, entity) => {
+                        if (entity instanceof CadMtext) {
+                            const parent = entity.parent;
+                            if (!entity.info.isLengthText || !(parent instanceof CadLine)) {
                                 return;
                             }
-                        }
-                        const lineLengthText = await this.message.prompt({
-                            title: "修改线长",
-                            promptData: {value: entity.text, type: "number"}
-                        });
-                        if (lineLengthText) {
-                            const lineLength = Number(lineLengthText);
-                            if (isNaN(lineLength) || lineLength <= 0) {
-                                return;
+                            if (parent.gongshi) {
+                                if (!(await this.message.confirm("该线已有公式，是否覆盖？"))) {
+                                    return;
+                                }
                             }
-                            setLinesLength(data2, [parent], lineLength);
-                            parent.gongshi = "";
-                            await viewer.render();
-                            viewer.center();
-                            // this.calcZhankai(cadItem);
-                            this._calc();
+                            const lineLengthText = await this.message.prompt({
+                                title: "修改线长",
+                                promptData: {value: entity.text, type: "number"}
+                            });
+                            if (lineLengthText) {
+                                const lineLength = Number(lineLengthText);
+                                if (isNaN(lineLength) || lineLength <= 0) {
+                                    return;
+                                }
+                                setLinesLength(data2, [parent], lineLength);
+                                parent.gongshi = "";
+                                await viewer.render();
+                                viewer.center();
+                                // this.calcZhankai(cadItem);
+                                this._calc();
+                            }
+                        } else if (entity instanceof CadLineLike) {
+                            const name = await this.message.prompt({
+                                title: "修改线名字",
+                                promptData: {value: entity.mingzi, type: "string"}
+                            });
+                            if (name) {
+                                entity.mingzi = name;
+                                await viewer.render();
+                            }
                         }
-                    } else if (entity instanceof CadLineLike) {
-                        const name = await this.message.prompt({
-                            title: "修改线名字",
-                            promptData: {value: entity.mingzi, type: "string"}
-                        });
-                        if (name) {
-                            entity.mingzi = name;
-                            await viewer.render();
-                        }
-                    }
-                });
+                    });
 
-                await timeout(0);
-                const el = this.elRef.nativeElement.querySelector(selector);
-                if (el instanceof HTMLElement) {
-                    viewer.appendTo(el);
-                    // this.resizeCadViewers([i, length - 1]);
-                }
+                    await timeout(0);
+                    const el = this.elRef.nativeElement.querySelector(selector);
+                    if (el instanceof HTMLElement) {
+                        viewer.appendTo(el);
+                        // this.resizeCadViewers([i, length - 1]);
+                    }
+                })();
                 return {data2, viewer};
             };
             for (const [i, item] of this.result.模块.entries()) {
@@ -268,7 +268,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     }
                     const cadItem: ZixuanpeijianCadItem = {data, info};
                     item.cads.push(cadItem);
-                    const {data2, viewer} = await initCadViewer(data, `#cad-viewer-模块-${i}-${j}`);
+                    const {data2, viewer} = initCadViewer(data, `#cad-viewer-模块-${i}-${j}`);
                     cadItem.data = data2;
 
                     if (!cadViewers.模块[type1]) {
@@ -281,26 +281,28 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 });
             }
             for (const [i, item] of this.result.零散.entries()) {
-                const {data2, viewer} = await initCadViewer(item.data, `#cad-viewer-零散-${i}`);
+                const {viewer} = initCadViewer(item.data, `#cad-viewer-零散-${i}`);
+                cadViewers.零散.push(viewer);
             }
         }
         if (this._calc()) {
-            await timeout(0);
-            for (const type1 in this.cadViewers.模块) {
-                for (const type2 in this.cadViewers.模块[type1]) {
-                    const cadViewers = this.cadViewers.模块[type1][type2];
-                    for (const cadViewer of cadViewers) {
-                        await cadViewer.render();
-                        await cadViewer.render(cadViewer.data.entities.dimension);
-                        cadViewer.center();
+            setTimeout(async () => {
+                for (const type1 in this.cadViewers.模块) {
+                    for (const type2 in this.cadViewers.模块[type1]) {
+                        const cadViewers = this.cadViewers.模块[type1][type2];
+                        for (const cadViewer of cadViewers) {
+                            await cadViewer.render();
+                            await cadViewer.render(cadViewer.data.entities.dimension);
+                            cadViewer.center();
+                        }
                     }
                 }
-            }
-            for (const cadViewer of this.cadViewers.零散) {
-                await cadViewer.render();
-                await cadViewer.render(cadViewer.data.entities.dimension);
-                cadViewer.center();
-            }
+                for (const cadViewer of this.cadViewers.零散) {
+                    await cadViewer.render();
+                    await cadViewer.render(cadViewer.data.entities.dimension);
+                    cadViewer.center();
+                }
+            }, 0);
         }
         this._updateInputInfos();
     }
@@ -379,31 +381,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 }
             }
         }
-    }
-
-    async openBancaiListDialog(info: ZixuanpeijianInfo) {
-        const bancai = info.bancai;
-        const checkedItems: string[] = [];
-        if (bancai) {
-            checkedItems.push(bancai.mingzi);
-        }
-        const bancaiList = await openBancaiListDialog(this.dialog, {data: {list: this.bancaiList, selectMode: "single", checkedItems}});
-        if (!bancaiList) {
-            return;
-        }
-        if (bancai) {
-            info.bancai = {...bancai, ...bancaiList[0]};
-            const {cailiaoList, cailiao, houduList, houdu} = info.bancai;
-            if (cailiao && !cailiaoList.includes(cailiao)) {
-                delete info.bancai.cailiao;
-            }
-            if (houdu && !houduList.includes(houdu)) {
-                delete info.bancai.houdu;
-            }
-        } else {
-            info.bancai = bancaiList[0];
-        }
-        this._updateInputInfos();
     }
 
     async openKlkwpzDialog(data: CadData) {
@@ -513,13 +490,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     cancel() {
-        this.dialogRef.close();
-        // const {value} = this.step$.value;
-        // if (value === 1) {
-        //     this.dialogRef.close();
-        // } else if (value === 2) {
-        //     this.step$.next({value: 1, refresh: false});
-        // }
+        if (this.step$.value.value === 2) {
+            this.dialogRef.close();
+        } else {
+            this.setStep(2, true);
+        }
     }
 
     setStep(value: number, refresh = false) {
@@ -540,6 +515,87 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 this.dropDownOptions.push({label: key, value: String(value)});
             }
         }
+
+        const bancaiOptions: InputInfoString["options"] = this.bancaiList.map((v) => v.mingzi);
+        const getCadItemInputInfos = (items: ZixuanpeijianCadItem[]) =>
+            items.map<CadItemInputInfo>((item) => ({
+                zhankai: item.info.zhankai.map<CadItemInputInfo["zhankai"][0]>((zhankai) => ({
+                    width: {
+                        type: "string",
+                        label: "展开宽",
+                        options,
+                        model: {key: "width", data: zhankai},
+                        showEmpty: true,
+                        onChange: () => {
+                            zhankai.custom = true;
+                        }
+                    },
+                    height: {
+                        type: "string",
+                        label: "展开高",
+                        options,
+                        model: {key: "height", data: zhankai},
+                        showEmpty: true,
+                        onChange: () => {
+                            zhankai.custom = true;
+                        }
+                    },
+                    num: {
+                        type: "string",
+                        label: "数量",
+                        model: {key: "num", data: zhankai},
+                        showEmpty: true,
+                        onChange: () => {
+                            zhankai.custom = true;
+                        }
+                    }
+                })),
+                板材: {
+                    type: "string",
+                    label: "板材",
+                    options: bancaiOptions,
+                    value: item.info.bancai?.mingzi,
+                    onChange: (val) => {
+                        const bancai = cloneDeep(this.bancaiList.find((v) => v.mingzi === val));
+                        if (bancai) {
+                            if (item.info.bancai) {
+                                item.info.bancai = {...item.info.bancai, ...bancai};
+                                const {cailiaoList, cailiao, houduList, houdu} = item.info.bancai;
+                                if (cailiao && !cailiaoList.includes(cailiao)) {
+                                    delete item.info.bancai.cailiao;
+                                }
+                                if (houdu && !houduList.includes(houdu)) {
+                                    delete item.info.bancai.houdu;
+                                }
+                            } else {
+                                item.info.bancai = bancai;
+                            }
+                        } else {
+                            delete item.info.bancai;
+                        }
+                        this._updateInputInfos();
+                    },
+                    optionInputOnly: true,
+                    showEmpty: true
+                },
+                材料: {
+                    type: "string",
+                    label: "材料",
+                    options: item.info.bancai?.cailiaoList || [],
+                    model: {key: "cailiao", data: item.info.bancai},
+                    optionInputOnly: true,
+                    showEmpty: true
+                },
+                厚度: {
+                    type: "string",
+                    label: "厚度",
+                    options: item.info.bancai?.houduList || [],
+                    model: {key: "houdu", data: item.info.bancai},
+                    optionInputOnly: true,
+                    showEmpty: true
+                }
+            }));
+
         this.mokuaiInputInfos = this.result.模块.map<MokuaiInputInfos>((item, i) => ({
             总宽: {type: "string", label: "总宽", model: {key: "totalWidth", data: item}, showEmpty: true, options},
             总高: {type: "string", label: "总高", model: {key: "totalHeight", data: item}, showEmpty: true, options},
@@ -589,113 +645,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     }
                 }
             })),
-            cads: item.cads.map<MokuaiInputInfos["cads"][0]>((cadItem) => ({
-                zhankai: cadItem.info.zhankai.map<MokuaiInputInfos["cads"][0]["zhankai"][0]>((zhankai) => ({
-                    width: {
-                        type: "string",
-                        label: "展开宽",
-                        model: {key: "width", data: zhankai},
-                        showEmpty: true,
-                        onChange: () => {
-                            zhankai.custom = true;
-                        }
-                    },
-                    height: {
-                        type: "string",
-                        label: "展开高",
-                        model: {key: "height", data: zhankai},
-                        showEmpty: true,
-                        onChange: () => {
-                            zhankai.custom = true;
-                        }
-                    },
-                    num: {
-                        type: "string",
-                        label: "数量",
-                        model: {key: "num", data: zhankai},
-                        showEmpty: true,
-                        onChange: () => {
-                            zhankai.custom = true;
-                        }
-                    }
-                })),
-                板材: {
-                    type: "string",
-                    label: "板材",
-                    value: cadItem.info.bancai?.mingzi,
-                    readonly: true,
-                    showEmpty: true
-                },
-                材料: {
-                    type: "select",
-                    label: "材料",
-                    options: cadItem.info.bancai?.cailiaoList || [],
-                    model: {key: "cailiao", data: cadItem.info.bancai},
-                    showEmpty: true
-                },
-                厚度: {
-                    type: "select",
-                    label: "厚度",
-                    options: cadItem.info.bancai?.houduList || [],
-                    model: {key: "houdu", data: cadItem.info.bancai},
-                    autocomplete: "off",
-                    showEmpty: true
-                }
-            }))
+            cads: getCadItemInputInfos(item.cads)
         }));
-        this.lingsanInputInfos = this.result.零散.map<LingsanInputInfos>((item) => ({
-            zhankai: item.info.zhankai.map<LingsanInputInfos["zhankai"][0]>((zhankai) => ({
-                width: {
-                    type: "string",
-                    label: "展开宽",
-                    model: {key: "width", data: zhankai},
-                    showEmpty: true,
-                    onChange: () => {
-                        zhankai.custom = true;
-                    }
-                },
-                height: {
-                    type: "string",
-                    label: "展开高",
-                    model: {key: "height", data: zhankai},
-                    showEmpty: true,
-                    onChange: () => {
-                        zhankai.custom = true;
-                    }
-                },
-                num: {
-                    type: "string",
-                    label: "数量",
-                    model: {key: "num", data: zhankai},
-                    showEmpty: true,
-                    onChange: () => {
-                        zhankai.custom = true;
-                    }
-                }
-            })),
-            板材: {
-                type: "string",
-                label: "板材",
-                value: item.info.bancai?.mingzi,
-                readonly: true,
-                showEmpty: true
-            },
-            材料: {
-                type: "select",
-                label: "材料",
-                options: item.info.bancai?.cailiaoList || [],
-                model: {key: "cailiao", data: item.info.bancai},
-                showEmpty: true
-            },
-            厚度: {
-                type: "select",
-                label: "厚度",
-                options: item.info.bancai?.houduList || [],
-                model: {key: "houdu", data: item.info.bancai},
-                autocomplete: "off",
-                showEmpty: true
-            }
-        }));
+        this.lingsanInputInfos = getCadItemInputInfos(this.result.零散);
     }
 
     addMokuaiItem(type1: string, type2: string) {
@@ -884,95 +836,106 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
             initial = false;
         }
-        // console.log({toCalc1, shuchubianliang, indexesMap});
+        console.log({toCalc1, shuchubianliang, indexesMap});
         Object.assign(materialResult, shuchubianliang);
+
+        const calcCadItem = ({data, info}: ZixuanpeijianCadItem, vars2: Formulas) => {
+            const formulas2: Formulas = {};
+
+            const zhankaiErrors: [string, string][] = [];
+            const zhankais = data.zhankai.filter((zhankai) =>
+                zhankai.conditions.every((condition) => {
+                    const result = this.calc.calc.calcExpress(condition, vars2);
+                    if (result.error) {
+                        zhankaiErrors.push([condition, result.error]);
+                        return false;
+                    }
+                    return !!result.value;
+                })
+            );
+            if (zhankaiErrors.length > 0) {
+                // let str = `${data.name} 展开条件出错<br>`;
+                // str += zhankaiErrors.map(([condition, error]) => `${condition}<br>${error}`).join("<br><br>");
+                // this.message.error(str);
+                // return false;
+                console.warn({name: data.name, zhankaiErrors});
+            }
+            if (zhankais.length < 1) {
+                data.info.hidden = true;
+            } else {
+                data.info.hidden = false;
+                for (const [j, e] of data.entities.line.entries()) {
+                    if (e.gongshi) {
+                        formulas2[`线${j + 1}公式`] = e.gongshi;
+                    }
+                }
+                for (const e of data.entities.dimension) {
+                    if (e.info.显示公式) {
+                        if (e.info.显示公式 in vars2) {
+                            e.mingzi = toFixed(vars2[e.info.显示公式], this.fractionDigits);
+                        } else {
+                            e.mingzi = e.info.显示公式;
+                        }
+                    }
+                }
+                const result2 = this.calc.calcFormulas(formulas2, vars2, true);
+                // console.log({formulas2, vars2, result2});
+                if (!result2) {
+                    return false;
+                }
+                for (const key in result2.succeedTrim) {
+                    const match = key.match(/线(\d+)公式/);
+                    const value = result2.succeedTrim[key];
+                    if (match) {
+                        const index = Number(match[1]);
+                        // if (typeof value !== "number" || !(value > 0)) {
+                        //     this.message.error(`线长公式出错<br>${data.name}的第${index}根线<br>${formulas3[key]} = ${value}`);
+                        //     return false;
+                        // }
+                        setLinesLength(data, [data.entities.line[index - 1]], Number(value));
+                    }
+                }
+                const vars3 = {...vars2, 总长: toFixed(getCadTotalLength(data), 4)};
+                const zhankais2: ZixuanpeijianInfo["zhankai"] = [];
+                for (const zhankai of zhankais) {
+                    const formulas3: Formulas = {};
+                    formulas3.展开宽 = zhankai.zhankaikuan;
+                    formulas3.展开高 = zhankai.zhankaigao;
+                    formulas3.数量 = `(${zhankai.shuliang})*(${zhankai.shuliangbeishu})`;
+                    const result3 = this.calc.calcFormulas(formulas3, vars3, {data});
+                    // console.log({formulas3, vars3, result3});
+                    if (!result3) {
+                        return false;
+                    }
+                    const width = toFixed(result3.succeedTrim.展开宽, this.fractionDigits);
+                    const height = toFixed(result3.succeedTrim.展开高, this.fractionDigits);
+                    let num = Number(result3.succeedTrim.数量);
+                    const {产品分类, 栋数, 门中门扇数} = materialResult;
+                    const CAD分类 = data.type;
+                    const CAD分类2 = data.type2;
+                    num *= getCADBeishu(String(产品分类), String(栋数), CAD分类, CAD分类2, String(门中门扇数));
+                    zhankais2.push({width, height, num: String(num), originalWidth: zhankai.zhankaikuan, isFromCad: true});
+                }
+                info.zhankai = [...zhankais2, ...info.zhankai.filter((v) => !v.isFromCad)];
+                if (info.zhankai.length < 1) {
+                    info.zhankai.push(this._getDefaultZhankai());
+                }
+            }
+            return true;
+        };
 
         for (const item of this.result.模块) {
             const {type1, type2} = item;
             for (const cadItem of item.cads) {
-                const {data, info} = cadItem;
-                const formulas2: Formulas = {};
                 const vars2: Formulas = {...toCalc1[indexesMap[type1][type2][0]].succeed, ...shuchubianliang};
-
-                const zhankaiErrors: [string, string][] = [];
-                const zhankais = data.zhankai.filter((zhankai) =>
-                    zhankai.conditions.every((condition) => {
-                        const result = this.calc.calc.calcExpress(condition, vars2);
-                        if (result.error) {
-                            zhankaiErrors.push([condition, result.error]);
-                            return false;
-                        }
-                        return !!result.value;
-                    })
-                );
-                if (zhankaiErrors.length > 0) {
-                    // let str = `${data.name} 展开条件出错<br>`;
-                    // str += zhankaiErrors.map(([condition, error]) => `${condition}<br>${error}`).join("<br><br>");
-                    // this.message.error(str);
-                    // return false;
-                    console.warn({name: data.name, zhankaiErrors});
+                if (!calcCadItem(cadItem, vars2)) {
+                    return false;
                 }
-                if (zhankais.length < 1) {
-                    data.info.hidden = true;
-                } else {
-                    data.info.hidden = false;
-                    for (const [j, e] of data.entities.line.entries()) {
-                        if (e.gongshi) {
-                            formulas2[`线${j + 1}公式`] = e.gongshi;
-                        }
-                    }
-                    for (const e of data.entities.dimension) {
-                        if (e.info.显示公式) {
-                            if (e.info.显示公式 in vars2) {
-                                e.mingzi = toFixed(vars2[e.info.显示公式], this.fractionDigits);
-                            } else {
-                                e.mingzi = e.info.显示公式;
-                            }
-                        }
-                    }
-                    const result2 = this.calc.calcFormulas(formulas2, vars2, true);
-                    // console.log({formulas2, vars2, result2});
-                    if (!result2) {
-                        return false;
-                    }
-                    for (const key in result2.succeedTrim) {
-                        const match = key.match(/线(\d+)公式/);
-                        const value = result2.succeedTrim[key];
-                        if (match) {
-                            const index = Number(match[1]);
-                            // if (typeof value !== "number" || !(value > 0)) {
-                            //     this.message.error(`线长公式出错<br>${data.name}的第${index}根线<br>${formulas3[key]} = ${value}`);
-                            //     return false;
-                            // }
-                            setLinesLength(data, [data.entities.line[index - 1]], Number(value));
-                        }
-                    }
-                    const vars3 = {...vars2, 总长: toFixed(getCadTotalLength(data), 4)};
-                    const zhankais2: ZixuanpeijianInfo["zhankai"] = [];
-                    for (const zhankai of zhankais) {
-                        const formulas3: Formulas = {};
-                        formulas3.展开宽 = zhankai.zhankaikuan;
-                        formulas3.展开高 = zhankai.zhankaigao;
-                        formulas3.数量 = `(${zhankai.shuliang})*(${zhankai.shuliangbeishu})`;
-                        const result3 = this.calc.calcFormulas(formulas3, vars3, {data});
-                        // console.log({formulas3, vars3, result3});
-                        if (!result3) {
-                            return false;
-                        }
-                        const width = toFixed(result3.succeedTrim.展开宽, this.fractionDigits);
-                        const height = toFixed(result3.succeedTrim.展开高, this.fractionDigits);
-                        let num = Number(result3.succeedTrim.数量);
-                        const {产品分类, 栋数, 门中门扇数} = materialResult;
-                        const CAD分类 = data.type;
-                        const CAD分类2 = data.type2;
-                        num *= getCADBeishu(String(产品分类), String(栋数), CAD分类, CAD分类2, String(门中门扇数));
-                        zhankais2.push({width, height, num: String(num), originalWidth: zhankai.zhankaikuan, isFromCad: true});
-                    }
-                    info.zhankai = [...zhankais2, ...info.zhankai.filter((v) => !v.isFromCad)];
-                    if (info.zhankai.length < 1) {
-                        info.zhankai.push(this._getDefaultZhankai());
-                    }
-                }
+            }
+        }
+        for (const item of this.result.零散) {
+            if (!calcCadItem(item, materialResult)) {
+                return false;
             }
         }
         this._updateInputInfos();
@@ -1062,31 +1025,9 @@ export interface ZixuanpeijianMokuaiItem extends ZixuanpeijianTypesInfoItem {
     cads: ZixuanpeijianCadItem[];
 }
 
-export interface ZixuanpeijianLingsanItem {
-    data: CadData;
-    info: ZixuanpeijianInfo;
-}
+export type ZixuanpeijianOutput = {模块: ZixuanpeijianMokuaiItem[]; 零散: ZixuanpeijianCadItem[]};
 
-export type ZixuanpeijianOutput = {模块: ZixuanpeijianMokuaiItem[]; 零散: ZixuanpeijianLingsanItem[]};
-
-export interface MokuaiInputInfos {
-    总宽: InputInfo;
-    总高: InputInfo;
-    公式输入: InputInfo[];
-    选项输入: InputInfo[];
-    cads: {
-        zhankai: {
-            width: InputInfo;
-            height: InputInfo;
-            num: InputInfo;
-        }[];
-        板材: InputInfo;
-        材料: InputInfo;
-        厚度: InputInfo;
-    }[];
-}
-
-export interface LingsanInputInfos {
+export interface CadItemInputInfo {
     zhankai: {
         width: InputInfo;
         height: InputInfo;
@@ -1095,6 +1036,14 @@ export interface LingsanInputInfos {
     板材: InputInfo;
     材料: InputInfo;
     厚度: InputInfo;
+}
+
+export interface MokuaiInputInfos {
+    总宽: InputInfo;
+    总高: InputInfo;
+    公式输入: InputInfo[];
+    选项输入: InputInfo[];
+    cads: CadItemInputInfo[];
 }
 
 export interface ZixuanpeijianlingsanCadItem {

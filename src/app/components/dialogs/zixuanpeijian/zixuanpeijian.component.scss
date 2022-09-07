@@ -138,15 +138,19 @@
     }
 }
 
-.dropdown-list {
-    display: flex;
-    flex-wrap: wrap;
+.dropdown-list-container {
+    height: 120px;
 
-    > * {
-        width: 50%;
+    .dropdown-list {
+        display: flex;
+        flex-wrap: wrap;
 
-        .divider {
-            margin: 0 5px;
+        > * {
+            width: 50%;
+
+            .divider {
+                margin: 0 5px;
+            }
         }
     }
 }

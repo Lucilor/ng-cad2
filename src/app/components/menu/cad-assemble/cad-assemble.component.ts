@@ -35,7 +35,6 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
     }
     showPointsAssemble = false;
     pointsAssembling = 0;
-    toPointsAssemble: CadData[] = [];
 
     private _prevConfig: Partial<AppConfig> = {};
     private _prevSelectedComponents: CadData[] | null = null;
@@ -65,6 +64,7 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
             cad.on("entitiesselect", this._onEntitiesSelect);
             cad.on("entitiesunselect", this._onEntitiesUnselect);
             cad.on("moveentities", this._onMoveEntities);
+            cad.on("zoom", this._onZoom);
         }
     }
 
@@ -106,7 +106,14 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
     };
 
     // eslint-disable-next-line @typescript-eslint/member-ordering
-    private _onMoveEntities: CadEventCallBack<"moveentities"> = debounce((entities) => {
+    private _onMoveEntities: CadEventCallBack<"moveentities"> = debounce(() => {
+        if (this.pointsAssembling > 0) {
+            this._setCadPoints();
+        }
+    }, 500).bind(this);
+
+    // eslint-disable-next-line @typescript-eslint/member-ordering
+    private _onZoom: CadEventCallBack<"zoom"> = debounce(() => {
         if (this.pointsAssembling > 0) {
             this._setCadPoints();
         }

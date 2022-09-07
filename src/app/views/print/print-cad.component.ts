@@ -6,7 +6,12 @@ import {ActivatedRoute} from "@angular/router";
 import {session, setGlobal, timer} from "@app/app.common";
 import {maxLineLength, showIntersections} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, setLinesLength} from "@cad-viewer";
-import {openZixuanpeijianDialog, ZixuanpeijianInfo, ZixuanpeijianOutput} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
+import {
+    openZixuanpeijianDialog,
+    ZixuanpeijianCadItem,
+    ZixuanpeijianInfo,
+    ZixuanpeijianOutput
+} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -167,6 +172,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                         }
                         for (const item of 零散) {
                             item.data = new CadData(item.data);
+                            if (item.displayedData) {
+                                item.displayedData = new CadData(item.displayedData);
+                            }
                         }
                         this.zixuanpeijian = {模块, 零散};
                         this.comments = 备注.map((v) => new CadMtext(v));
@@ -359,12 +367,14 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         cad.on("entitiesselect", (entities) => {
             const data = cad.data.components.data;
             const ids = entities.toArray(true).map((e) => e.id);
-            data.forEach((v) => {
+            cad.unselectAll();
+            entities.forEach((e) => (e.selected = true));
+            for (const v of data) {
                 const ids2 = v.entities.toArray(true).map((e) => e.id);
                 if (intersection(ids, ids2).length > 0) {
                     v.entities.forEach((e) => (e.selected = true));
                 }
-            });
+            }
         });
         cad.on("entitiesunselect", (entities) => {
             const data = cad.data.components.data;
@@ -455,36 +465,47 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const cads: CadData[] = [];
         const cads2: CadData[] = [];
         const infos: ObjectOf<ZixuanpeijianInfo> = {};
-        for (const item of this.zixuanpeijian.模块) {
-            for (const cadItem of item.cads) {
-                if (cad) {
-                    delete cadItem.displayedData;
-                }
-                if (!cadItem.displayedData) {
-                    cadItem.displayedData = cadItem.data.clone();
-                }
-                if (!cadItem.data.info.hidden) {
-                    const data = cadItem.displayedData;
-                    cads.push(data);
-                    cads2.push(cadItem.data);
-                    infos[data.id] = cadItem.info;
-                    for (const e of data.entities.dimension) {
-                        if (e.mingzi === "<>") {
-                            const points = cadItem.data.getDimensionPoints(e);
-                            if (points.length < 4) {
-                                continue;
-                            }
-                            e.mingzi = toFixed(points[0].distanceTo(points[1]), 0);
+
+        const setCadItem = (item: ZixuanpeijianCadItem) => {
+            if (cad) {
+                delete item.displayedData;
+            }
+            if (!item.displayedData) {
+                item.displayedData = item.data.clone();
+            }
+            if (!item.data.info.hidden) {
+                const data = item.displayedData;
+                cads.push(data);
+                cads2.push(item.data);
+                infos[data.id] = item.info;
+                for (const e of data.entities.dimension) {
+                    if (e.mingzi === "<>") {
+                        const points = item.data.getDimensionPoints(e);
+                        if (points.length < 4) {
+                            continue;
                         }
+                        e.mingzi = toFixed(points[0].distanceTo(points[1]), 0);
                     }
                 }
             }
+        };
+
+        for (const item of this.zixuanpeijian.模块) {
+            for (const cadItem of item.cads) {
+                setCadItem(cadItem);
+            }
         }
-        for (const e of this.comments) {
-            if (cad) {
-                cad.data.entities.mtext = cad.data.entities.mtext.filter((ee) => !ee.info.isComment);
+        for (const item of this.zixuanpeijian.零散) {
+            setCadItem(item);
+        }
+        if (cad) {
+            cad.data.entities.mtext = cad.data.entities.mtext.filter((ee) => !ee.info.isComment);
+            for (const e of this.comments) {
                 this.addCommentText(e);
-            } else {
+            }
+        } else {
+            this.printParams.cads[0].entities.mtext = this.printParams.cads[0].entities.mtext.filter((ee) => !ee.info.isComment);
+            for (const e of this.comments) {
                 this.printParams.cads[0].entities.add(e);
             }
         }
@@ -645,18 +666,16 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         this.syncZixuanpeijian();
+        const getCadItem = (item: ZixuanpeijianCadItem) => ({
+            ...item,
+            data: item.data.export(),
+            displayedData: item.displayedData?.export()
+        });
         const 模块 = this.zixuanpeijian.模块.map((item) => ({
             ...item,
-            cads: item.cads.map((cadItem) => ({
-                ...cadItem,
-                data: cadItem.data.export(),
-                displayedData: cadItem.displayedData?.export()
-            }))
+            cads: item.cads.map(getCadItem)
         }));
-        const 零散 = this.zixuanpeijian.零散.map((item) => ({
-            ...item,
-            data: item.data.export()
-        }));
+        const 零散 = this.zixuanpeijian.零散.map(getCadItem);
         const 备注 = this.comments.map((v) => v.export());
         await this.dataService.post<void>("ngcad/setOrderZixuanpeijian", {code: codes[0], type, data: {模块, 零散, 备注}});
     }

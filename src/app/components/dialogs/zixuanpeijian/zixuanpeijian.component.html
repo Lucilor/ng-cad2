@@ -51,7 +51,7 @@
         </div>
         <mat-divider vertical></mat-divider>
         <div class="content" style="flex-direction: column">
-            <ng-scrollbar class="content" style="flex: 0 0 120px">
+            <ng-scrollbar class="dropdown-list-container">
                 <div class="dropdown-list">
                     <div *ngFor="let option of dropDownOptions">
                         <span class="key">{{ option.label }}</span>
@@ -110,11 +110,20 @@
             </ng-scrollbar>
         </div>
     </ng-container>
-    <div *ngSwitchCase="2" style="display: flex; flex-direction: column; flex: 1 1 0">
+    <div *ngSwitchCase="2" class="content" style="flex-direction: column">
         <div class="btn-group">
             <button mat-raised-button color="primary" (click)="setStep(1)">选择模块配件</button>
             <button mat-raised-button color="primary" (click)="setStep(3)">选择零散配件</button>
         </div>
+        <ng-scrollbar class="dropdown-list-container">
+            <div class="dropdown-list">
+                <div *ngFor="let option of dropDownOptions">
+                    <span class="key">{{ option.label }}</span>
+                    <span class="divider">:</span>
+                    <span class="value">{{ option.value }}</span>
+                </div>
+            </div>
+        </ng-scrollbar>
         <ng-scrollbar class="content">
             <div *ngFor="let item of result['模块']; let i = index">
                 <div>{{ item.type1 }} - {{ item.type2 }}</div>
@@ -145,10 +154,7 @@
                                 <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].num"></app-input>
                             </div>
                             <div class="content inputs">
-                                <app-input
-                                    [info]="mokuaiInputInfos[i]['cads'][j]['板材']"
-                                    (click)="openBancaiListDialog(cad.info)"
-                                ></app-input>
+                                <app-input [info]="mokuaiInputInfos[i]['cads'][j]['板材']"></app-input>
                             </div>
                             <div class="content inputs" *ngIf="cad.info.bancai">
                                 <app-input [info]="mokuaiInputInfos[i]['cads'][j]['材料']"></app-input>
@@ -189,7 +195,7 @@
                             <app-input [info]="lingsanInputInfos[i].zhankai[j].num"></app-input>
                         </div>
                         <div class="content inputs">
-                            <app-input [info]="lingsanInputInfos[i]['板材']" (click)="openBancaiListDialog(item.info)"></app-input>
+                            <app-input [info]="lingsanInputInfos[i]['板材']"></app-input>
                         </div>
                         <div class="content inputs" *ngIf="item.info.bancai">
                             <app-input [info]="lingsanInputInfos[i]['材料']"></app-input>

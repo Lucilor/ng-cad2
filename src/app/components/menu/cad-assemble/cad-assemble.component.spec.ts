@@ -6,7 +6,6 @@ import {MatSelectModule} from "@angular/material/select";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
-
 import {CadAssembleComponent} from "./cad-assemble.component";
 
 describe("CadAssembleComponent", () => {

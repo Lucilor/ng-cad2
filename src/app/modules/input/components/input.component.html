@@ -39,7 +39,7 @@
             <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
                 <mat-icon>{{ icon.name }}</mat-icon>
             </button>
-            <mat-autocomplete #auto="matAutocomplete">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onAutocompleteChange($event)">
                 <mat-option
                     *ngFor="let option of filteredOptions"
                     [value]="option.value"

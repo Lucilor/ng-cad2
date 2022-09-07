@@ -1,11 +1,12 @@
 import {Component, Input} from "@angular/core";
+import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
-import {ObjectOf} from "@utils";
+import {ObjectOf, timeout} from "@utils";
 import {InputInfo, InputInfoTypeMap} from "./types";
 
 @Component({
@@ -32,13 +33,14 @@ export class InputComponent extends Utils() {
                 return {label: v.label || v.value, value: v.value};
             });
         }
-        if (value.value) {
+        if ("value" in value) {
             const {data, key} = this.model;
             if (data && typeof data === "object" && key) {
                 data[key] = value.value;
             }
         }
     }
+    private _onChangeTimeout = -1;
 
     private _model: NonNullable<Required<InputInfo["model"]>> = {data: {key: ""}, key: "key"};
     get model() {
@@ -115,27 +117,41 @@ export class InputComponent extends Utils() {
         }
     }
 
-    onChange() {
-        switch (this.info.type) {
+    async onChange(value = this.value, isAutocomplete = false) {
+        const info = this.info;
+        switch (info.type) {
             case "string":
-                this.info.onChange?.(this.value);
+                if (info.options && !isAutocomplete) {
+                    this._onChangeTimeout = window.setTimeout(() => {
+                        if (info.optionInputOnly && !this.options.find((v) => v.value === value)) {
+                            value = this.value = "";
+                        }
+                        info.onChange?.(value);
+                    }, 200);
+                } else {
+                    info.onChange?.(value);
+                }
                 break;
             case "number":
-                this.info.onChange?.(this.value);
+                info.onChange?.(value);
                 break;
             case "boolean":
-                this.info.onChange?.(this.value);
+                info.onChange?.(value);
                 break;
             case "select":
-                this.info.onChange?.(this.value);
+                info.onChange?.(value);
                 break;
             case "coordinate":
-                console.log(1);
-                this.info.onChange?.(this.value);
+                info.onChange?.(value);
                 break;
             default:
                 break;
         }
+    }
+
+    onAutocompleteChange(event: MatAutocompleteSelectedEvent) {
+        window.clearTimeout(this._onChangeTimeout);
+        this.onChange(event.option.value, true);
     }
 
     onInput() {
