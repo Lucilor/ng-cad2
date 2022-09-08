@@ -6,7 +6,7 @@ import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
-import {ObjectOf, timeout} from "@utils";
+import {ObjectOf} from "@utils";
 import {InputInfo, InputInfoTypeMap} from "./types";
 
 @Component({
@@ -90,14 +90,14 @@ export class InputComponent extends Utils() {
     // }
     get filteredOptions() {
         const val = this.value;
-        if (!val) {
-            return [];
-        }
-        return this.options.filter(({value, label}) => value.includes(val) || label.includes(val));
+        const fixedOptions = this.info.type === "string" ? this.info.fixedOptions || [] : [];
+        return this.options.filter(({value, label}) => {
+            if (fixedOptions.includes(value) || fixedOptions.includes(label)) {
+                return true;
+            }
+            return val && (value.includes(val) || label.includes(val));
+        });
     }
-
-    anchorXString = "";
-    anchorYString = "";
 
     constructor(private message: MessageService, private dialog: MatDialog, private status: AppStatusService) {
         super();

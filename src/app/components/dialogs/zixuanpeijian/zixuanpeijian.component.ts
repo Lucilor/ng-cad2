@@ -517,6 +517,25 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         }
 
         const bancaiOptions: InputInfoString["options"] = this.bancaiList.map((v) => v.mingzi);
+        const fixedBancaiOptions: string[] = [];
+        const bancaiMap: ObjectOf<{cailiao: string[]; houdu: string[]}> = {};
+        for (const item of this.result.模块) {
+            for (const {info} of item.cads) {
+                if (info.bancai) {
+                    const {mingzi, cailiao, houdu} = info.bancai;
+                    fixedBancaiOptions.push(mingzi);
+                    if (!bancaiMap[mingzi]) {
+                        bancaiMap[mingzi] = {cailiao: [], houdu: []};
+                    }
+                    if (cailiao && !bancaiMap[mingzi].cailiao.includes(cailiao)) {
+                        bancaiMap[mingzi].cailiao.push(cailiao);
+                    }
+                    if (houdu && !bancaiMap[mingzi].houdu.includes(houdu)) {
+                        bancaiMap[mingzi].houdu.push(houdu);
+                    }
+                }
+            }
+        }
         const getCadItemInputInfos = (items: ZixuanpeijianCadItem[]) =>
             items.map<CadItemInputInfo>((item) => ({
                 zhankai: item.info.zhankai.map<CadItemInputInfo["zhankai"][0]>((zhankai) => ({
@@ -554,24 +573,33 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     type: "string",
                     label: "板材",
                     options: bancaiOptions,
+                    fixedOptions: fixedBancaiOptions,
                     value: item.info.bancai?.mingzi,
                     onChange: (val) => {
                         const bancai = cloneDeep(this.bancaiList.find((v) => v.mingzi === val));
+                        const info = item.info;
                         if (bancai) {
-                            if (item.info.bancai) {
-                                item.info.bancai = {...item.info.bancai, ...bancai};
-                                const {cailiaoList, cailiao, houduList, houdu} = item.info.bancai;
+                            if (info.bancai) {
+                                info.bancai = {...info.bancai, ...bancai};
+                                const {cailiaoList, cailiao, houduList, houdu} = info.bancai;
                                 if (cailiao && !cailiaoList.includes(cailiao)) {
-                                    delete item.info.bancai.cailiao;
+                                    delete info.bancai.cailiao;
                                 }
                                 if (houdu && !houduList.includes(houdu)) {
-                                    delete item.info.bancai.houdu;
+                                    delete info.bancai.houdu;
                                 }
                             } else {
-                                item.info.bancai = bancai;
+                                info.bancai = bancai;
+                            }
+                            const {mingzi} = info.bancai;
+                            if (!info.bancai.cailiao && bancaiMap[mingzi]?.cailiao.length > 0) {
+                                info.bancai.cailiao = bancaiMap[mingzi].cailiao.at(-1);
+                            }
+                            if (!info.bancai.houdu && bancaiMap[mingzi]?.houdu.length > 0) {
+                                info.bancai.houdu = bancaiMap[mingzi].houdu.at(-1);
                             }
                         } else {
-                            delete item.info.bancai;
+                            delete info.bancai;
                         }
                         this._updateInputInfos();
                     },
@@ -769,7 +797,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     if (points.length < 4) {
                         continue;
                     }
-                    vars[name] = points[0].distanceTo(points[1]);
+                    vars[name] = points[2].distanceTo(points[3]);
                 }
             }
             return {formulas, vars, succeed: {} as Formulas, error: {} as Formulas, item};
@@ -808,7 +836,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     continue;
                 }
                 const formulas1 = v.formulas;
-                const vars1 = {...materialResult, ...v.vars, ...shuchubianliang};
+                const vars1 = {...materialResult, ...v.vars};
                 const result1 = this.calc.calcFormulas(formulas1, vars1, alertError);
                 // console.log({formulas1, vars1, result1});
                 if (!result1) {
@@ -818,6 +846,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         continue;
                     }
                 }
+                Object.assign(materialResult, result1.succeedTrim);
                 for (const vv of v.item.shuchubianliang) {
                     if (vv in result1.succeed) {
                         // if (vv in shuchubianliang) {
@@ -836,8 +865,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
             initial = false;
         }
-        console.log({toCalc1, shuchubianliang, indexesMap});
-        Object.assign(materialResult, shuchubianliang);
+        // console.log({toCalc1, shuchubianliang, indexesMap});
 
         const calcCadItem = ({data, info}: ZixuanpeijianCadItem, vars2: Formulas) => {
             const formulas2: Formulas = {};
@@ -845,6 +873,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             const zhankaiErrors: [string, string][] = [];
             const zhankais = data.zhankai.filter((zhankai) =>
                 zhankai.conditions.every((condition) => {
+                    if (!condition.trim()) {
+                        return true;
+                    }
                     const result = this.calc.calc.calcExpress(condition, vars2);
                     if (result.error) {
                         zhankaiErrors.push([condition, result.error]);

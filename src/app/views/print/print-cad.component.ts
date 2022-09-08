@@ -484,7 +484,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                         if (points.length < 4) {
                             continue;
                         }
-                        e.mingzi = toFixed(points[0].distanceTo(points[1]), 0);
+                        e.mingzi = toFixed(points[2].distanceTo(points[3]), 0);
                     }
                 }
             }

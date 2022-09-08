@@ -1,5 +1,5 @@
 <div class="content" [ngSwitch]="step$.value.value">
-    <ng-container *ngSwitchCase="1">
+    <div *ngSwitchCase="1" class="content step-1">
         <div class="content types-info">
             <div class="content types-info-1">
                 <ng-scrollbar class="content">
@@ -51,15 +51,7 @@
         </div>
         <mat-divider vertical></mat-divider>
         <div class="content" style="flex-direction: column">
-            <ng-scrollbar class="dropdown-list-container">
-                <div class="dropdown-list">
-                    <div *ngFor="let option of dropDownOptions">
-                        <span class="key">{{ option.label }}</span>
-                        <span class="divider">:</span>
-                        <span class="value">{{ option.value }}</span>
-                    </div>
-                </div>
-            </ng-scrollbar>
+            <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
             <ng-scrollbar class="content">
                 <div class="content types-info-items">
                     <div class="types-info-item" *ngFor="let item of result['模块']; let i = index">
@@ -109,21 +101,13 @@
                 </div>
             </ng-scrollbar>
         </div>
-    </ng-container>
-    <div *ngSwitchCase="2" class="content" style="flex-direction: column">
+    </div>
+    <div *ngSwitchCase="2" class="content step-2" style="flex-direction: column">
         <div class="btn-group">
             <button mat-raised-button color="primary" (click)="setStep(1)">选择模块配件</button>
             <button mat-raised-button color="primary" (click)="setStep(3)">选择零散配件</button>
         </div>
-        <ng-scrollbar class="dropdown-list-container">
-            <div class="dropdown-list">
-                <div *ngFor="let option of dropDownOptions">
-                    <span class="key">{{ option.label }}</span>
-                    <span class="divider">:</span>
-                    <span class="value">{{ option.value }}</span>
-                </div>
-            </div>
-        </ng-scrollbar>
+        <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
         <ng-scrollbar class="content">
             <div *ngFor="let item of result['模块']; let i = index">
                 <div>{{ item.type1 }} - {{ item.type2 }}</div>
@@ -209,7 +193,7 @@
             </div>
         </ng-scrollbar>
     </div>
-    <ng-container *ngSwitchCase="3">
+    <div *ngSwitchCase="3" class="content step-3">
         <div class="content">
             <div class="content types-info-1">
                 <ng-scrollbar class="content">
@@ -258,8 +242,20 @@
                 </div>
             </div>
         </ng-scrollbar>
-    </ng-container>
+    </div>
 </div>
+
+<ng-template #dropdownList>
+    <ng-scrollbar class="dropdown-list-container">
+        <div class="dropdown-list">
+            <div *ngFor="let option of dropDownOptions" [ngClass]="option.label">
+                <span class="key">{{ option.label }}</span>
+                <span class="divider">:</span>
+                <span class="value">{{ option.value }}</span>
+            </div>
+        </div>
+    </ng-scrollbar>
+</ng-template>
 
 <div class="toolbar btn-group">
     <div>

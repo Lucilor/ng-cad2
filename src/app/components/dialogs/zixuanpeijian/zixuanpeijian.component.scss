@@ -138,23 +138,6 @@
     }
 }
 
-.dropdown-list-container {
-    height: 120px;
-
-    .dropdown-list {
-        display: flex;
-        flex-wrap: wrap;
-
-        > * {
-            width: 50%;
-
-            .divider {
-                margin: 0 5px;
-            }
-        }
-    }
-}
-
 .mat-divider {
     margin: 0 10px;
 }
@@ -170,5 +153,31 @@
         flex-direction: column;
         padding: 5px;
         box-sizing: border-box;
+    }
+}
+
+.dropdown-list-container {
+    height: 120px;
+
+    .dropdown-list {
+        display: flex;
+        flex-wrap: wrap;
+
+        > * {
+            width: 33.33%;
+            display: flex;
+
+            .divider {
+                margin: 0 5px;
+            }
+        }
+    }
+}
+.step-1 .dropdown-list {
+    .花件宽,
+    .花件高,
+    .花件位宽,
+    .花件位高 {
+        display: none;
     }
 }

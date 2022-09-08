@@ -195,7 +195,7 @@ export class AppStatusService {
         if (Object.keys(data.对应计算条数的配件).length < 1) {
             data.对应计算条数的配件[""] = "";
         }
-        suanliaodanZoomIn(data);
+        suanliaodanZoomIn(collection, data);
         if (collection === "cad") {
             validateLines(data);
         }
@@ -236,7 +236,7 @@ export class AppStatusService {
         }
         const data2 = data.clone();
         data2.getAllEntities().forEach((e) => (e.visible = true));
-        suanliaodanZoomOut(data2);
+        suanliaodanZoomOut(this.collection$.value, data2);
         return data2;
     }
 

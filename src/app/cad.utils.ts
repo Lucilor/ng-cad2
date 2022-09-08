@@ -219,7 +219,10 @@ export const autoFixLine = (cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
     line.end.add(translate);
 };
 
-export const suanliaodanZoomIn = (data: CadData) => {
+export const suanliaodanZoomIn = (collection: CadCollection, data: CadData) => {
+    if (collection === "luomatoucad") {
+        return;
+    }
     data.components.data.forEach((v) => {
         v.entities.forEach((e) => {
             e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
@@ -240,7 +243,10 @@ export const suanliaodanZoomIn = (data: CadData) => {
     data.updateComponents();
 };
 
-export const suanliaodanZoomOut = (data: CadData) => {
+export const suanliaodanZoomOut = (collection: CadCollection, data: CadData) => {
+    if (collection === "luomatoucad") {
+        return;
+    }
     data.components.data.forEach((v) => {
         if (v.info.skipSuanliaodanZoom) {
             return;

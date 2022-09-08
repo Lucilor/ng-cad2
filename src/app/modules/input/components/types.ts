@@ -22,7 +22,8 @@ export interface InputInfoString<T = any> extends InputInfoBase<T> {
     onInput?: (val: string) => void;
     onChange?: (val: string) => void;
     validators?: AbstractControlOptions["validators"];
-    options?: ({value: string; label?: string} | string)[];
+    options?: InputInfoOptions;
+    fixedOptions?: string[];
     optionInputOnly?: boolean;
 }
 
@@ -52,7 +53,7 @@ export interface InputInfoBoolean<T = any> extends InputInfoBase<T> {
 
 export interface InputInfoSelect<T = any> extends InputInfoBase<T> {
     type: "select";
-    options: ({value: string; label?: string} | string)[];
+    options: InputInfoOptions;
     onChange?: (val: string) => void;
 }
 
@@ -92,3 +93,5 @@ export interface InputInfoTypeMap {
     coordinate: InputInfoCoordinate;
     group: InputInfoGroup;
 }
+
+export type InputInfoOptions = ({value: string; label?: string} | string)[];
