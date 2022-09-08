@@ -2,7 +2,7 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {Component, OnInit, Inject, ViewChild, OnDestroy, ElementRef, AfterViewInit} from "@angular/core";
 import {FormControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
+import {DomSanitizer, SafeHtml, SafeResourceUrl} from "@angular/platform-browser";
 import {getFormControlErrorString} from "@app/app.common";
 import {timeout} from "@utils";
 import {clamp, cloneDeep, debounce} from "lodash";
@@ -20,9 +20,11 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
     titleHTML: SafeHtml = "";
     subTitleHTML: SafeHtml = "";
     contentHTML: SafeHtml = "";
+    iframeSrc: SafeResourceUrl = "";
     page = 0;
     @ViewChild(QuillEditorComponent) editor?: QuillViewComponent;
     @ViewChild("contentInput") contentInput?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
+    @ViewChild("iframe") iframe?: ElementRef<HTMLIFrameElement>;
     autoCompleteOptions?: Observable<Required<PromptData>["options"]>;
 
     private get _editorToolbarHeight() {
@@ -151,12 +153,13 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
                 startWith(data.promptData.value),
                 map((value) => this.filterAutoCompleteOptions(value))
             );
-        }
-        if (data.type === "book") {
+        } else if (data.type === "book") {
             if (!data.bookData) {
                 data.bookData = [];
             }
             this.setPage(0);
+        } else if (data.type === "iframe") {
+            this.iframeSrc = this.sanitizer.bypassSecurityTrustResourceUrl(data.content);
         }
 
         const id = window.setInterval(() => {
@@ -172,6 +175,12 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
             await timeout(500);
             this.contentInput.nativeElement.focus();
         }
+        // if (this.iframe) {
+        //     const iframeEl = this.iframe.nativeElement;
+        //     iframeEl.addEventListener("load", () => {
+        //         console.log(iframeEl.contentWindow?.document.title);
+        //     });
+        // }
     }
 
     ngOnDestroy() {

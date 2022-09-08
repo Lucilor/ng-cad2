@@ -256,3 +256,15 @@ input[type="number"] {
 .hidden {
     display: none !important;
 }
+
+.hidden-if-empty {
+    &:empty {
+        display: none;
+    }
+}
+
+.text-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

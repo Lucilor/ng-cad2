@@ -1,13 +1,15 @@
 import {Component, OnInit, OnDestroy, Inject, ElementRef, ViewChild} from "@angular/core";
+import {Validators} from "@angular/forms";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
+import {Router} from "@angular/router";
 import {imgCadEmpty, setGlobal} from "@app/app.common";
 import {getCadPreview, getCadTotalLength} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
-import {InputInfo, InputInfoString} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
@@ -17,6 +19,7 @@ import {Formulas, toFixed} from "@src/app/utils/calc";
 import {ObjectOf, timeout} from "@utils";
 import {cloneDeep, debounce, isEmpty, isEqual} from "lodash";
 import {BehaviorSubject} from "rxjs";
+import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
 import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 
@@ -56,9 +59,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         label: "搜索",
         onInput: debounce(
             ((str: string) => {
+                const type = this.lingsanCadType;
                 str = str.toLowerCase();
                 for (const item of this.lingsanCads) {
-                    item.hidden = !!str && !item.data.name.toLowerCase().includes(str);
+                    item.hidden = item.data.type2 !== type || (!!str && !item.data.name.toLowerCase().includes(str));
                 }
             }).bind(this),
             500
@@ -93,7 +97,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         private elRef: ElementRef<HTMLElement>,
         private calc: CalcService,
         private status: AppStatusService,
-        private domSanitizer: DomSanitizer
+        private domSanitizer: DomSanitizer,
+        private router: Router
     ) {
         super();
     }
@@ -281,7 +286,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 });
             }
             for (const [i, item] of this.result.零散.entries()) {
-                const {viewer} = initCadViewer(item.data, `#cad-viewer-零散-${i}`);
+                const {data2, viewer} = initCadViewer(item.data, `#cad-viewer-零散-${i}`);
+                item.data = data2;
                 cadViewers.零散.push(viewer);
             }
         }
@@ -516,7 +522,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
         }
 
-        const bancaiOptions: InputInfoString["options"] = this.bancaiList.map((v) => v.mingzi);
+        // const bancaiOptions: InputInfoString["options"] = this.bancaiList.map((v) => v.mingzi);
         const fixedBancaiOptions: string[] = [];
         const bancaiMap: ObjectOf<{cailiao: string[]; houdu: string[]}> = {};
         for (const item of this.result.模块) {
@@ -572,54 +578,54 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 板材: {
                     type: "string",
                     label: "板材",
-                    options: bancaiOptions,
-                    fixedOptions: fixedBancaiOptions,
+                    // options: bancaiOptions,
+                    // fixedOptions: fixedBancaiOptions,
                     value: item.info.bancai?.mingzi,
-                    onChange: (val) => {
-                        const bancai = cloneDeep(this.bancaiList.find((v) => v.mingzi === val));
-                        const info = item.info;
-                        if (bancai) {
-                            if (info.bancai) {
-                                info.bancai = {...info.bancai, ...bancai};
-                                const {cailiaoList, cailiao, houduList, houdu} = info.bancai;
-                                if (cailiao && !cailiaoList.includes(cailiao)) {
-                                    delete info.bancai.cailiao;
-                                }
-                                if (houdu && !houduList.includes(houdu)) {
-                                    delete info.bancai.houdu;
-                                }
-                            } else {
-                                info.bancai = bancai;
-                            }
-                            const {mingzi} = info.bancai;
-                            if (!info.bancai.cailiao && bancaiMap[mingzi]?.cailiao.length > 0) {
-                                info.bancai.cailiao = bancaiMap[mingzi].cailiao.at(-1);
-                            }
-                            if (!info.bancai.houdu && bancaiMap[mingzi]?.houdu.length > 0) {
-                                info.bancai.houdu = bancaiMap[mingzi].houdu.at(-1);
-                            }
-                        } else {
-                            delete info.bancai;
-                        }
-                        this._updateInputInfos();
-                    },
-                    optionInputOnly: true,
+                    // onChange: (val) => {
+                    //     const bancai = cloneDeep(this.bancaiList.find((v) => v.mingzi === val));
+                    //     const info = item.info;
+                    //     if (bancai) {
+                    //         if (info.bancai) {
+                    //             info.bancai = {...info.bancai, ...bancai};
+                    //             const {cailiaoList, cailiao, houduList, houdu} = info.bancai;
+                    //             if (cailiao && !cailiaoList.includes(cailiao)) {
+                    //                 delete info.bancai.cailiao;
+                    //             }
+                    //             if (houdu && !houduList.includes(houdu)) {
+                    //                 delete info.bancai.houdu;
+                    //             }
+                    //         } else {
+                    //             info.bancai = bancai;
+                    //         }
+                    //         const {mingzi} = info.bancai;
+                    //         if (!info.bancai.cailiao && bancaiMap[mingzi]?.cailiao.length > 0) {
+                    //             info.bancai.cailiao = bancaiMap[mingzi].cailiao.at(-1);
+                    //         }
+                    //         if (!info.bancai.houdu && bancaiMap[mingzi]?.houdu.length > 0) {
+                    //             info.bancai.houdu = bancaiMap[mingzi].houdu.at(-1);
+                    //         }
+                    //     } else {
+                    //         delete info.bancai;
+                    //     }
+                    //     this._updateInputInfos();
+                    // },
+                    // optionInputOnly: true,
                     showEmpty: true
                 },
                 材料: {
-                    type: "string",
+                    type: "select",
                     label: "材料",
                     options: item.info.bancai?.cailiaoList || [],
                     model: {key: "cailiao", data: item.info.bancai},
-                    optionInputOnly: true,
+                    // optionInputOnly: true,
                     showEmpty: true
                 },
                 厚度: {
-                    type: "string",
+                    type: "select",
                     label: "厚度",
                     options: item.info.bancai?.houduList || [],
                     model: {key: "houdu", data: item.info.bancai},
-                    optionInputOnly: true,
+                    // optionInputOnly: true,
                     showEmpty: true
                 }
             }));
@@ -746,6 +752,28 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     removeLingsanItem(i: number) {
         this.result.零散.splice(i, 1);
         this._updateInputInfos();
+    }
+
+    async copyLingsanCad(i: number) {
+        const data = this.lingsanCads[i].data;
+        const name = await this.message.prompt({
+            title: "复制零散配件",
+            promptData: {label: "零散配件名字", value: data.name + "_复制", validators: Validators.required}
+        });
+        if (!name) {
+            return;
+        }
+        const project = this.status.project;
+        const collection = "cad";
+        let id = data.id;
+        const response = await this.dataService.post<{id: string}>("peijian/cad/copyCad", {collection, id, data: {名字: name}});
+        if (!response?.data) {
+            return;
+        }
+        id = response.data.id;
+        const src = this.router.createUrlTree(["/index"], {queryParams: {project, collection, id}}).toString();
+        await this.message.iframe({content: src, title: name});
+        this._step3Fetch();
     }
 
     addMokuaiZhankai(i: number, j: number, k: number) {
@@ -997,6 +1025,31 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
         }
         this.lingsanCadType = type;
+    }
+
+    async openBancaiListDialog(info: ZixuanpeijianInfo) {
+        const bancai = info.bancai;
+        const checkedItems: string[] = [];
+        if (bancai) {
+            checkedItems.push(bancai.mingzi);
+        }
+        const bancaiList = await openBancaiListDialog(this.dialog, {data: {list: this.bancaiList, selectMode: "single", checkedItems}});
+        if (!bancaiList) {
+            return;
+        }
+        if (bancai) {
+            info.bancai = {...bancai, ...bancaiList[0]};
+            const {cailiaoList, cailiao, houduList, houdu} = info.bancai;
+            if (cailiao && !cailiaoList.includes(cailiao)) {
+                delete info.bancai.cailiao;
+            }
+            if (houdu && !houduList.includes(houdu)) {
+                delete info.bancai.houdu;
+            }
+        } else {
+            info.bancai = bancaiList[0];
+        }
+        this._updateInputInfos();
     }
 }
 

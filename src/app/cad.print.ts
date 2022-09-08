@@ -257,6 +257,7 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData | CadEntitie
     const linewidth = params.linewidth || 1;
     const dimStyle = params.dimStyle;
     const config = cad.getConfig();
+    const textMap = params.textMap || {};
     let 自选配件已初始化 = false;
     if (data instanceof CadData && data.info.自选配件已初始化) {
         自选配件已初始化 = true;
@@ -360,6 +361,10 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData | CadEntitie
             }
             e.text = wrapedText;
         }
+
+        if (e.text in textMap) {
+            e.text = textMap[e.text];
+        }
     };
     const configLine = (e: CadLineLike, colorNumber: number) => {
         if (自选配件已初始化 || colorNumber === 0x333333 || e.layer === "1") {
@@ -408,6 +413,7 @@ export interface PrintCadsParams {
     type?: string;
     info?: PdfDocument["info"];
     orders?: {materialResult: Formulas}[];
+    textMap?: ObjectOf<string>;
 }
 /**
  * A4: (210 × 297)mm²

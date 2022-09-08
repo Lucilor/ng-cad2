@@ -26,6 +26,7 @@ export interface ButtonMessageData extends BaseMessageData {
 export interface PromptData {
     type?: string;
     hint?: string;
+    label?: string;
     value?: string;
     placeholder?: string;
     validators?: AbstractControlOptions["validators"];
@@ -57,13 +58,19 @@ export interface EditorMessageData extends BaseMessageData {
     btnTexts?: {submit?: string; cancel?: string};
 }
 
+export interface IFrameMessageData extends BaseMessageData {
+    type: "iframe";
+    content: string;
+}
+
 export type MessageData =
     | AlertMessageData
     | ConfirmMessageData
     | PromptMessageData
     | BookMessageData
     | EditorMessageData
-    | ButtonMessageData;
+    | ButtonMessageData
+    | IFrameMessageData;
 
 export interface MessageDataMap {
     alert: AlertMessageData;
@@ -72,4 +79,5 @@ export interface MessageDataMap {
     book: BookMessageData;
     editor: EditorMessageData;
     button: ButtonMessageData;
+    iframe: IFrameMessageData;
 }

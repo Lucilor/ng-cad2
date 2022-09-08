@@ -95,7 +95,7 @@ export class InputComponent extends Utils() {
             if (fixedOptions.includes(value) || fixedOptions.includes(label)) {
                 return true;
             }
-            return val && (value.includes(val) || label.includes(val));
+            return value.includes(val) || label.includes(val);
         });
     }
 

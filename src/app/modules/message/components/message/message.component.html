@@ -1,12 +1,26 @@
-<h2 mat-dialog-title *ngIf="titleHTML" [innerHTML]="titleHTML" [ngClass]="titleClass"></h2>
-<h3 mat-dialog-title *ngIf="subTitleHTML" [innerHTML]="subTitleHTML"></h3>
-<div mat-dialog-content>
-    <ng-container *ngIf="data.type === 'editor'; else notEditor">
+<ng-container [ngSwitch]="data.type">
+    <div *ngSwitchCase="'iframe'" class="iframe-toolbar">
+        <h2 class="iframe-title" [innerHTML]="titleHTML"></h2>
+        <button mat-icon-button (click)="cancel()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+    <ng-container *ngSwitchDefault>
+        <h2 mat-dialog-title class="title hidden-if-empty" [innerHTML]="titleHTML" [ngClass]="titleClass"></h2>
+        <h3 mat-dialog-title class="sub-title hidden-if-empty" [innerHTML]="subTitleHTML"></h3>
+    </ng-container>
+</ng-container>
+<div mat-dialog-content [ngSwitch]="data.type" [ngClass]="data.type">
+    <ng-container *ngSwitchCase="'editor'">
         <quill-editor [(ngModel)]="data.content" [preserveWhitespace]="true"> </quill-editor>
     </ng-container>
-    <ng-template #notEditor>
+    <ng-container *ngSwitchCase="'iframe'">
+        <iframe #iframe [src]="iframeSrc" frameborder="0"></iframe>
+    </ng-container>
+    <ng-container *ngSwitchDefault="">
         <div [innerHTML]="contentHTML"></div>
         <mat-form-field *ngIf="data.type === 'prompt'" [ngSwitch]="promptData.type">
+            <mat-label>{{ promptData.label }}</mat-label>
             <textarea
                 matInput
                 #contentInput
@@ -37,9 +51,9 @@
                 {{ inputErrors }}
             </mat-error>
         </mat-form-field>
-    </ng-template>
+    </ng-container>
 </div>
-<div mat-dialog-actions style="justify-content: center" [ngSwitch]="data.type">
+<div mat-dialog-actions class="hidden-if-empty" style="justify-content: center" [ngSwitch]="data.type">
     <ng-container *ngSwitchCase="'alert'">
         <button mat-raised-button (click)="cancel()" cdkFocusInitial>
             {{ cast(data, "alert").btnTexts?.ok || "好的" }}

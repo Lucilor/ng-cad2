@@ -24,18 +24,6 @@
                                         [bigPicSrc]="item.value.xiaoguotu"
                                         [prefix]="urlPrefix"
                                     ></app-image>
-                                    <div style="display: flex; flex-direction: column">
-                                        <app-image
-                                            class="jiemiantu"
-                                            [src]="item.value.jiemiantu"
-                                            [bigPicSrc]="item.value.jiemiantu"
-                                            [prefix]="urlPrefix"
-                                            style="height: 50%"
-                                        ></app-image>
-                                        <ng-scrollbar *ngIf="item.value.mokuaishuoming">
-                                            <div class="desc" style="height: 50%">{{ item.value.mokuaishuoming }}</div>
-                                        </ng-scrollbar>
-                                    </div>
                                 </div>
                                 <div class="content title">
                                     <button mat-icon-button color="primary" (click)="addMokuaiItem(type1, item.key)">
@@ -43,6 +31,7 @@
                                     </button>
                                     <div class="name">{{ item.key }}</div>
                                 </div>
+                                <div class="desc">{{ item.value.mokuaishuoming }}</div>
                             </div>
                         </ng-container>
                     </div>
@@ -62,18 +51,6 @@
                                 [bigPicSrc]="item.xiaoguotu"
                                 [prefix]="urlPrefix"
                             ></app-image>
-                            <div style="display: flex; flex-direction: column">
-                                <app-image
-                                    class="jiemiantu"
-                                    [src]="item.jiemiantu"
-                                    [bigPicSrc]="item.jiemiantu"
-                                    [prefix]="urlPrefix"
-                                    style="height: 50%"
-                                ></app-image>
-                                <ng-scrollbar *ngIf="item.mokuaishuoming">
-                                    <div class="desc" style="height: 50%">{{ item.mokuaishuoming }}</div>
-                                </ng-scrollbar>
-                            </div>
                         </div>
                         <div class="content title">
                             <button mat-icon-button color="primary" (click)="removeMokuaiItem(i)">
@@ -81,6 +58,7 @@
                             </button>
                             <div class="name">{{ item.type1 }} - {{ item.type2 }}</div>
                         </div>
+                        <div class="desc">{{ item.mokuaishuoming }}</div>
                         <div class="content inputs">
                             <app-input [info]="mokuaiInputInfos[i]['总宽']"></app-input>
                             <app-input [info]="mokuaiInputInfos[i]['总高']"></app-input>
@@ -115,13 +93,18 @@
                     <ng-container *ngFor="let cad of item.cads; let j = index">
                         <div *ngIf="!cad.data.info.hidden" class="cad">
                             <div [id]="'cad-viewer-模块-' + i + '-' + j" (contextmenu)="onContextMenu($event, i, j)"></div>
-                            <div class="name">
-                                <span [matTooltip]="cad.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
-                                    {{ cad.data.name }}
-                                </span>
+                            <div class="title">
                                 <button mat-icon-button color="primary" (click)="openCad(cad)">
                                     <mat-icon>open_in_new</mat-icon>
                                 </button>
+                                <span
+                                    class="name text-ellipsis"
+                                    [matTooltip]="cad.data.name"
+                                    [matTooltipShowDelay]="500"
+                                    matTooltipPosition="above"
+                                >
+                                    {{ cad.data.name }}
+                                </span>
                             </div>
                             <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
                                 <button mat-icon-button color="primary" (click)="addMokuaiZhankai(i, j, k)">
@@ -138,7 +121,10 @@
                                 <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].num"></app-input>
                             </div>
                             <div class="content inputs">
-                                <app-input [info]="mokuaiInputInfos[i]['cads'][j]['板材']"></app-input>
+                                <app-input
+                                    [info]="mokuaiInputInfos[i]['cads'][j]['板材']"
+                                    (click)="openBancaiListDialog(cad.info)"
+                                ></app-input>
                             </div>
                             <div class="content inputs" *ngIf="cad.info.bancai">
                                 <app-input [info]="mokuaiInputInfos[i]['cads'][j]['材料']"></app-input>
@@ -156,13 +142,18 @@
                 <div class="content cads">
                     <div class="cad" *ngFor="let item of result['零散']; let i = index">
                         <div [id]="'cad-viewer-零散-' + i" (contextmenu)="onContextMenu($event, i, 0)"></div>
-                        <div class="name">
-                            <span [matTooltip]="item.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
-                                {{ item.data.name }}
-                            </span>
+                        <div class="title">
                             <button mat-icon-button color="primary" (click)="openCad(item)">
                                 <mat-icon>open_in_new</mat-icon>
                             </button>
+                            <span
+                                class="name text-ellipsis"
+                                [matTooltip]="item.data.name"
+                                [matTooltipShowDelay]="500"
+                                matTooltipPosition="above"
+                            >
+                                {{ item.data.name }}
+                            </span>
                         </div>
                         <div class="content inputs" *ngFor="let zhankai of item.info.zhankai; let j = index">
                             <button mat-icon-button color="primary" (click)="addLingsanZhankai(i, j)">
@@ -179,7 +170,7 @@
                             <app-input [info]="lingsanInputInfos[i].zhankai[j].num"></app-input>
                         </div>
                         <div class="content inputs">
-                            <app-input [info]="lingsanInputInfos[i]['板材']"></app-input>
+                            <app-input [info]="lingsanInputInfos[i]['板材']" (click)="openBancaiListDialog(item.info)"></app-input>
                         </div>
                         <div class="content inputs" *ngIf="item.info.bancai">
                             <app-input [info]="lingsanInputInfos[i]['材料']"></app-input>
@@ -210,7 +201,7 @@
                 </ng-scrollbar>
             </div>
             <div class="content" style="flex-direction: column">
-                <app-input [info]="lingsanCadsSearchInput"></app-input>
+                <app-input [info]="lingsanCadsSearchInput" style="padding: 0 10px"></app-input>
                 <ng-scrollbar class="content">
                     <div class="lingsan-cads">
                         <ng-container *ngFor="let item of lingsanCads; let i = index">
@@ -220,7 +211,17 @@
                                     <button mat-icon-button color="primary" (click)="addLingsanItem(i)">
                                         <mat-icon>add_circle</mat-icon>
                                     </button>
-                                    <div class="name">{{ item.data.name }}</div>
+                                    <button mat-icon-button color="primary" (click)="copyLingsanCad(i)">
+                                        <mat-icon>content_copy</mat-icon>
+                                    </button>
+                                    <div
+                                        class="name text-ellipsis"
+                                        [matTooltip]="item.data.name"
+                                        [matTooltipShowDelay]="500"
+                                        matTooltipPosition="above"
+                                    >
+                                        {{ item.data.name }}
+                                    </div>
                                 </div>
                             </div>
                         </ng-container>
@@ -246,15 +247,13 @@
 </div>
 
 <ng-template #dropdownList>
-    <ng-scrollbar class="dropdown-list-container">
-        <div class="dropdown-list">
-            <div *ngFor="let option of dropDownOptions" [ngClass]="option.label">
-                <span class="key">{{ option.label }}</span>
-                <span class="divider">:</span>
-                <span class="value">{{ option.value }}</span>
-            </div>
+    <div class="dropdown-list">
+        <div *ngFor="let option of dropDownOptions" [ngClass]="option.label">
+            <span class="key">{{ option.label }}</span>
+            <span class="divider">:</span>
+            <span class="value">{{ option.value }}</span>
         </div>
-    </ng-scrollbar>
+    </div>
 </ng-template>
 
 <div class="toolbar btn-group">

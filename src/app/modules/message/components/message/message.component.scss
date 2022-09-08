@@ -4,13 +4,12 @@
     flex-direction: column;
     width: 100%;
     height: 100%;
-    min-width: calc(25vw - 48px);
-    max-width: calc(90vw - 48px);
-    max-height: calc(90vh - 48px);
+    max-width: calc(100vw - 48px);
+    max-height: calc(100vh - 48px);
 }
 
 .mat-form-field {
-    font-size: 1rem;
+    // font-size: 18px;
     width: 100%;
     background-color: #efefef;
 
@@ -21,4 +20,24 @@
 
 .mat-dialog-content {
     max-height: unset;
+    &.iframe {
+        flex: 1 1 0;
+        overflow: hidden;
+    }
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.iframe-toolbar {
+    display: flex;
+    align-items: center;
+
+    .iframe-title {
+        flex: 1 1 0;
+        text-align: center;
+        margin: 0;
+    }
 }
