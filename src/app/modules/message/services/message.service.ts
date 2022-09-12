@@ -24,7 +24,7 @@ export class MessageService {
     constructor(private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
     async open(config: MatDialogConfig<MessageData>) {
-        config = {width: "50%", ...config};
+        config = {width: "40%", ...config};
         const ref = this.dialog.open<MessageComponent, MessageData, boolean | string>(MessageComponent, config);
         return await lastValueFrom(ref.afterClosed());
     }

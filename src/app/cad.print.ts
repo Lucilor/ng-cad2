@@ -414,6 +414,7 @@ export interface PrintCadsParams {
     info?: PdfDocument["info"];
     orders?: {materialResult: Formulas}[];
     textMap?: ObjectOf<string>;
+    dropDownKeys?: string[];
 }
 /**
  * A4: (210 × 297)mm²

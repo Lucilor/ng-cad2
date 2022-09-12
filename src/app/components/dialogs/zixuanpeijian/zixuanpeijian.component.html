@@ -84,6 +84,7 @@
         <div class="btn-group">
             <button mat-raised-button color="primary" (click)="setStep(1)">选择模块配件</button>
             <button mat-raised-button color="primary" (click)="setStep(3)">选择零散配件</button>
+            <div style="width: 50px"></div>
             <button mat-raised-button color="primary" (click)="selectAllBancai()">全部选择板材</button>
             <button mat-raised-button color="primary" (click)="selectAllCailiao()">全部选择材料</button>
             <button mat-raised-button color="primary" (click)="selectAllHoudu()">全部选择厚度</button>
@@ -251,7 +252,7 @@
 
 <ng-template #dropdownList>
     <div class="dropdown-list">
-        <div *ngFor="let option of dropDownOptions" [ngClass]="option.label">
+        <div *ngFor="let option of dropDownOptions" [ngClass]="[option.label, option.customClass || '']">
             <span class="key">{{ option.label }}</span>
             <span class="divider">:</span>
             <span class="value">{{ option.value }}</span>

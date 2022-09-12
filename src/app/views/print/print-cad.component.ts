@@ -80,7 +80,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         keepCad: true,
         info: {},
         orders: [],
-        textMap: {}
+        textMap: {},
+        dropDownKeys: []
     };
     cad: CadViewer | null = null;
     zixuanpeijian: ZixuanpeijianOutput = {模块: [], 零散: []};
@@ -102,6 +103,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLDivElement>;
 
     get materialResult() {
+        return this.printParams.orders[0]?.materialResult || {};
         const materialResult = {...this.printParams.orders[0]?.materialResult};
         // if (!environment.production) {
         //     Object.assign(materialResult, materialResultTest);
@@ -158,15 +160,14 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 this.printParams.info.title = "算料单" + this.printParams.codes.join("、");
                 const {codes, type} = this.printParams;
                 if (codes.length === 1) {
-                    const response2 = await this.dataService.post<ZixuanpeijianOutput & {备注: CadMtext[]; 文本映射: ObjectOf<string>}>(
-                        "ngcad/getOrderZixuanpeijian",
-                        {
-                            code: codes[0],
-                            type
-                        }
-                    );
+                    const response2 = await this.dataService.post<
+                        ZixuanpeijianOutput & {备注: CadMtext[]; 文本映射: ObjectOf<string>; 输出变量: ObjectOf<string>}
+                    >("ngcad/getOrderZixuanpeijian", {
+                        code: codes[0],
+                        type
+                    });
                     if (response2?.data) {
-                        const {模块, 零散, 备注, 文本映射} = response2.data;
+                        const {模块, 零散, 备注, 文本映射, 输出变量} = response2.data;
                         for (const item of 模块) {
                             for (const cad of item.cads) {
                                 cad.data = new CadData(cad.data);
@@ -184,6 +185,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                         this.zixuanpeijian = {模块, 零散};
                         this.comments = 备注.map((v) => new CadMtext(v));
                         this.printParams.textMap = Array.isArray(文本映射) ? {} : 文本映射;
+                        Object.assign(this.materialResult, Array.isArray(输出变量) ? {} : 输出变量);
                     } else {
                         this.zixuanpeijian = {模块: [], 零散: []};
                     }
@@ -463,7 +465,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 data: this.zixuanpeijian,
                 checkEmpty: this.checkEmpty,
                 cadConfig: {fontStyle: {family: this.printParams.config.fontStyle?.family}},
-                materialResult: this.materialResult
+                materialResult: this.materialResult,
+                dropDownKeys: this.printParams.dropDownKeys
             },
             disableClose: true
         });
@@ -509,6 +512,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         };
 
         const shuchubianliangKeys = new Set<string>();
+        for (const key of this.printParams.dropDownKeys) {
+            shuchubianliangKeys.add(key);
+        }
         for (const item of this.zixuanpeijian.模块) {
             for (const cadItem of item.cads) {
                 setCadItem(cadItem);
@@ -735,7 +741,16 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const 零散 = this.zixuanpeijian.零散.map(getCadItem);
         const 备注 = this.comments.map((v) => v.export());
         const 文本映射 = this.printParams.textMap;
-        await this.dataService.post<void>("ngcad/setOrderZixuanpeijian", {code: codes[0], type, data: {模块, 零散, 备注, 文本映射}});
+        const 输出变量: ObjectOf<string> = {};
+        const materialResult = this.materialResult;
+        for (const key of this.shuchubianliangKeys) {
+            输出变量[key] = key in materialResult ? String(materialResult[key]) : "";
+        }
+        await this.dataService.post<void>("ngcad/setOrderZixuanpeijian", {
+            code: codes[0],
+            type,
+            data: {模块, 零散, 备注, 文本映射, 输出变量}
+        });
     }
 
     async getOrderImage() {

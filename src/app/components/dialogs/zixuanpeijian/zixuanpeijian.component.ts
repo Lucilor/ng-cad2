@@ -48,8 +48,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     mokuaiInputInfos: MokuaiInputInfos[] = [];
     lingsanInputInfos: CadItemInputInfo[] = [];
-    dropDownKeys: string[] = [];
-    dropDownOptions: {label: string; value: string}[] = [];
+    dropDownOptions: {label: string; value: string; customClass?: string}[] = [];
     lingsanCads: ZixuanpeijianlingsanCadItem[] = [];
     lingsanCadTypes: string[] = [];
     lingsanCadType = "";
@@ -157,7 +156,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 typesInfo[type1][type2] = 1;
             }
         });
-        const response = await this.dataService.post<{cads: ObjectOf<ObjectOf<any[]>>; bancais: BancaiList[]; dropDown: string[]}>(
+        const response = await this.dataService.post<{cads: ObjectOf<ObjectOf<any[]>>; bancais: BancaiList[]}>(
             "ngcad/getZixuanpeijianCads",
             {typesInfo},
             {testData: "zixuanpeijianCads"}
@@ -166,7 +165,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             const allCads: ObjectOf<ObjectOf<CadData[]>> = {};
             const {cads, bancais} = response.data;
             this.bancaiList = bancais;
-            this.dropDownKeys = response.data.dropDown;
             for (const type1 in cads) {
                 allCads[type1] = {};
                 for (const type2 in cads[type1]) {
@@ -513,8 +511,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     private _updateInputInfos() {
-        const options = this.dropDownOptions;
-        options.length = 0;
+        this.dropDownOptions.length = 0;
         const vars = this.data?.materialResult || {};
 
         // const bancaiOptions: InputInfoString["options"] = this.bancaiList.map((v) => v.mingzi);
@@ -541,6 +538,23 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 shuchubianliangKeys.add(key);
             }
         }
+
+        const dropDownKeys = new Set<string>(this.data?.dropDownKeys);
+        for (const key of shuchubianliangKeys) {
+            dropDownKeys.delete(key);
+        }
+        for (const key of dropDownKeys) {
+            const value = Number(vars[key]);
+            if (value > 0) {
+                this.dropDownOptions.push({label: key, value: String(value)});
+            }
+        }
+        for (const key of shuchubianliangKeys) {
+            const value = key in vars ? String(vars[key]) : "";
+            this.dropDownOptions.push({label: key, value, customClass: "shuchubianliang"});
+        }
+        const options = this.dropDownOptions.map((v) => v.label);
+
         const getCadItemInputInfos = (items: ZixuanpeijianCadItem[]) =>
             items.map<CadItemInputInfo>((item) => ({
                 zhankai: item.info.zhankai.map<CadItemInputInfo["zhankai"][0]>((zhankai) => ({
@@ -681,19 +695,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             cads: getCadItemInputInfos(item.cads)
         }));
         this.lingsanInputInfos = getCadItemInputInfos(this.result.零散);
-        const dropDownKeys = new Set<string>(this.dropDownKeys);
-        for (const key of shuchubianliangKeys) {
-            dropDownKeys.delete(key);
-        }
-        for (const key of dropDownKeys) {
-            const value = Number(vars[key]);
-            if (value > 0) {
-                this.dropDownOptions.push({label: key, value: String(value)});
-            }
-        }
-        for (const key of shuchubianliangKeys) {
-            this.dropDownOptions.push({label: key, value: ""});
-        }
     }
 
     addMokuaiItem(type1: string, type2: string) {
@@ -1187,6 +1188,7 @@ export interface ZixuanpeijianInput {
     checkEmpty?: boolean;
     cadConfig?: Partial<CadViewerConfig>;
     materialResult?: Formulas;
+    dropDownKeys: string[];
 }
 
 export interface ZixuanpeijianInfo {
