@@ -84,6 +84,9 @@
         <div class="btn-group">
             <button mat-raised-button color="primary" (click)="setStep(1)">选择模块配件</button>
             <button mat-raised-button color="primary" (click)="setStep(3)">选择零散配件</button>
+            <button mat-raised-button color="primary" (click)="selectAllBancai()">全部选择板材</button>
+            <button mat-raised-button color="primary" (click)="selectAllCailiao()">全部选择材料</button>
+            <button mat-raised-button color="primary" (click)="selectAllHoudu()">全部选择厚度</button>
         </div>
         <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
         <ng-scrollbar class="content">

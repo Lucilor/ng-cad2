@@ -52,5 +52,8 @@
             type="application/pdf"
         />
     </div>
+    <div class="输出变量" *ngIf="mode === 'edit'">
+        <div *ngFor="let key of shuchubianliangKeys">{{ key }}</div>
+    </div>
 </div>
 <app-spinner [id]="loaderId"></app-spinner>

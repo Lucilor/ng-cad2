@@ -1,10 +1,18 @@
 {
-	"/n": {
-		"target": "https://www.let888.cn/n",
-		// "target": "https://localhost/n",
-		"pathRewrite": {"^/n" : ""},
-		"secure": false,
-		"changeOrigin": true,
-		"logLevel": "debug"
-	}
+    "/n": {
+        "target": "https://www.let888.cn/n",
+        // "target": "https://localhost/n",
+        "pathRewrite": {"^/n": ""},
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug"
+    },
+    "/filepath": {
+        "target": "https://www.let888.cn/filepath",
+        // "target": "https://localhost/filepath",
+        "pathRewrite": {"^/filepath": ""},
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug"
+    }
 }

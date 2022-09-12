@@ -17,7 +17,7 @@ import {CalcService} from "@services/calc.service";
 import {getCADBeishu} from "@src/app/beishu";
 import {Formulas, toFixed} from "@src/app/utils/calc";
 import {ObjectOf, timeout} from "@utils";
-import {cloneDeep, debounce, isEmpty, isEqual} from "lodash";
+import {cloneDeep, debounce, isEmpty, isEqual, uniq} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
@@ -71,6 +71,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     lingsanCadImgs: ObjectOf<SafeUrl> = {};
     lingsanCadViewers: CadViewer[] = [];
     imgCadEmpty = imgCadEmpty;
+    selectAllForm = {baicai: "", cailiao: "", houdu: ""};
 
     onWindowResize = debounce(() => {
         this.resizeCadViewers();
@@ -515,14 +516,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         const options = this.dropDownOptions;
         options.length = 0;
         const vars = this.data?.materialResult || {};
-        for (const key of this.dropDownKeys) {
-            const value = Number(vars[key]);
-            if (value > 0) {
-                this.dropDownOptions.push({label: key, value: String(value)});
-            }
-        }
 
         // const bancaiOptions: InputInfoString["options"] = this.bancaiList.map((v) => v.mingzi);
+        const shuchubianliangKeys = new Set<string>();
         const fixedBancaiOptions: string[] = [];
         const bancaiMap: ObjectOf<{cailiao: string[]; houdu: string[]}> = {};
         for (const item of this.result.模块) {
@@ -540,6 +536,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         bancaiMap[mingzi].houdu.push(houdu);
                     }
                 }
+            }
+            for (const key of item.shuchubianliang) {
+                shuchubianliangKeys.add(key);
             }
         }
         const getCadItemInputInfos = (items: ZixuanpeijianCadItem[]) =>
@@ -682,6 +681,19 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             cads: getCadItemInputInfos(item.cads)
         }));
         this.lingsanInputInfos = getCadItemInputInfos(this.result.零散);
+        const dropDownKeys = new Set<string>(this.dropDownKeys);
+        for (const key of shuchubianliangKeys) {
+            dropDownKeys.delete(key);
+        }
+        for (const key of dropDownKeys) {
+            const value = Number(vars[key]);
+            if (value > 0) {
+                this.dropDownOptions.push({label: key, value: String(value)});
+            }
+        }
+        for (const key of shuchubianliangKeys) {
+            this.dropDownOptions.push({label: key, value: ""});
+        }
     }
 
     addMokuaiItem(type1: string, type2: string) {
@@ -904,12 +916,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     if (!condition.trim()) {
                         return true;
                     }
-                    const result = this.calc.calc.calcExpress(condition, vars2);
-                    if (result.error) {
-                        zhankaiErrors.push([condition, result.error]);
+                    const result = this.calc.calcExpression(condition, vars2);
+                    if (result === null) {
                         return false;
                     }
-                    return !!result.value;
+                    return !!result;
                 })
             );
             if (zhankaiErrors.length > 0) {
@@ -979,6 +990,19 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 if (info.zhankai.length < 1) {
                     info.zhankai.push(this._getDefaultZhankai());
                 }
+                const zhankais3 = info.zhankai;
+                info.zhankai = [];
+                for (const zhankai of zhankais3) {
+                    const zhankai2 = info.zhankai.find((v) => v.width === zhankai.width && v.height === zhankai.height);
+                    if (zhankai2) {
+                        const result = this.calc.calcExpression(`(${zhankai.num})+(${zhankai2.num})`, vars3);
+                        if (result !== null) {
+                            zhankai2.num = String(result);
+                        }
+                    } else {
+                        info.zhankai.push(zhankai);
+                    }
+                }
             }
             return true;
         };
@@ -1027,18 +1051,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         this.lingsanCadType = type;
     }
 
-    async openBancaiListDialog(info: ZixuanpeijianInfo) {
-        const bancai = info.bancai;
-        const checkedItems: string[] = [];
-        if (bancai) {
-            checkedItems.push(bancai.mingzi);
-        }
-        const bancaiList = await openBancaiListDialog(this.dialog, {data: {list: this.bancaiList, selectMode: "single", checkedItems}});
-        if (!bancaiList) {
-            return;
-        }
-        if (bancai) {
-            info.bancai = {...bancai, ...bancaiList[0]};
+    private _setInfoBancai(info: ZixuanpeijianInfo, bancai: BancaiList) {
+        if (info.bancai) {
+            info.bancai = {...info.bancai, ...bancai};
             const {cailiaoList, cailiao, houduList, houdu} = info.bancai;
             if (cailiao && !cailiaoList.includes(cailiao)) {
                 delete info.bancai.cailiao;
@@ -1047,9 +1062,99 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 delete info.bancai.houdu;
             }
         } else {
-            info.bancai = bancaiList[0];
+            info.bancai = bancai;
         }
+    }
+
+    async openBancaiListDialog(info: ZixuanpeijianInfo) {
+        const bancai = info.bancai;
+        const checkedItems: string[] = [];
+        if (bancai) {
+            checkedItems.push(bancai.mingzi);
+        }
+        const bancaiList = await openBancaiListDialog(this.dialog, {data: {list: this.bancaiList, selectMode: "single", checkedItems}});
+        if (!bancaiList || bancaiList.length < 1) {
+            return;
+        }
+        this._setInfoBancai(info, bancaiList[0]);
         this._updateInputInfos();
+    }
+
+    private _getCurrBancaiName() {
+        const bancais = this.result.模块.flatMap((v) => v.cads.map((vv) => vv.info.bancai));
+        const bancaisNotEmpty = bancais.filter((v) => v) as BancaiList[];
+        if (bancaisNotEmpty.length < bancais.length) {
+            return null;
+        }
+        const bancaiNames = uniq(bancaisNotEmpty.map((v) => v.mingzi));
+        if (bancaiNames.length > 1) {
+            return null;
+        }
+        return bancaiNames.length === 1 ? bancaiNames[0] : "";
+    }
+
+    async selectAllBancai() {
+        const bancaiName = this._getCurrBancaiName();
+        const bancaiList = await openBancaiListDialog(this.dialog, {
+            data: {list: this.bancaiList, selectMode: "single", checkedItems: [bancaiName || ""]}
+        });
+        if (!bancaiList || bancaiList.length < 1) {
+            return;
+        }
+        if (bancaiList) {
+            for (const item of this.result.模块) {
+                for (const {info} of item.cads) {
+                    this._setInfoBancai(info, bancaiList[0]);
+                }
+            }
+            this._updateInputInfos();
+        }
+    }
+
+    async selectAllCailiao() {
+        const bancaiName = this._getCurrBancaiName();
+        if (bancaiName === null) {
+            this.message.error("板材选择不一致");
+            return;
+        }
+        const bancai = this.bancaiList.find((v) => v.mingzi === bancaiName);
+        if (!bancai) {
+            this.message.error("请先选择板材");
+            return;
+        }
+        const result = await this.message.button({buttons: bancai.cailiaoList});
+        if (result && bancai.cailiaoList.includes(result)) {
+            for (const item of this.result.模块) {
+                for (const {info} of item.cads) {
+                    if (info.bancai) {
+                        info.bancai.cailiao = result;
+                    }
+                }
+            }
+        }
+    }
+
+    async selectAllHoudu() {
+        const bancaiName = this._getCurrBancaiName();
+        if (bancaiName === null) {
+            this.message.error("板材选择不一致");
+            return;
+        }
+        const bancai = this.bancaiList.find((v) => v.mingzi === bancaiName);
+        if (!bancai) {
+            this.message.error("请先选择板材");
+            return;
+        }
+        const result = await this.message.button({buttons: bancai.houduList});
+        if (result && bancai.houduList.includes(result)) {
+            for (const item of this.result.模块) {
+                for (const {info} of item.cads) {
+                    if (info.bancai) {
+                        info.bancai.houdu = result;
+                    }
+                }
+            }
+        }
     }
 }
 

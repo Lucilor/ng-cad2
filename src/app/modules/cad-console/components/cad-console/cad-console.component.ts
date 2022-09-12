@@ -16,7 +16,7 @@ import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusAssemble, CadStatusNormal, CadStatusSplit} from "@services/cad-status";
 import {printCads} from "@src/app/cad.print";
-import {Angle, dataURLtoBlob, Line, Matrix, MatrixLike, ObjectOf, Point, timeout} from "@utils";
+import {Angle, Line, Matrix, MatrixLike, ObjectOf, Point, timeout} from "@utils";
 import hljs from "highlight.js";
 import {differenceWith} from "lodash";
 import printJS from "print-js";

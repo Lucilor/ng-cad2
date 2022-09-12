@@ -98,6 +98,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         this.printParams.config.fontStyle.family = value;
     }
     orderImageUrl = "";
+    shuchubianliangKeys: string[] = [];
     @ViewChild("cadContainer", {read: ElementRef}) cadContainer?: ElementRef<HTMLDivElement>;
 
     get materialResult() {
@@ -190,7 +191,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 } else {
                     this.enableZixuanpeijian = false;
                 }
-                await this.setZixuanpeijian(false);
+                await this.setZixuanpeijian();
                 await this.generateSuanliaodan();
             }
         } catch (error) {
@@ -361,7 +362,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!cad || !container) {
             return;
         }
-        this.setZixuanpeijian(false);
+        this.setZixuanpeijian();
         const {width, height} = container.getBoundingClientRect();
         cad.setConfig({width, height, padding: [10], hideLineLength: false});
         if (cad.dom.parentElement !== container) {
@@ -397,7 +398,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             data.forEach((v) => {
                 const ids2 = v.entities.toArray(true).map((e) => e.id);
                 if (intersection(ids, ids2).length > 0) {
-                    const cadItem = this.zixuanpeijian.模块.flatMap((vv) => vv.cads).find((vv) => vv.displayedData?.id === v.id);
+                    let cadItem = this.zixuanpeijian.模块.flatMap((vv) => vv.cads).find((vv) => vv.displayedData?.id === v.id);
+                    if (!cadItem) {
+                        cadItem = this.zixuanpeijian.零散.find((vv) => vv.displayedData?.id === v.id);
+                    }
                     if (cadItem) {
                         if (cadItem.data.info.translate) {
                             const [x, y] = cadItem.data.info.translate;
@@ -466,13 +470,14 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (data) {
             this.zixuanpeijian = data;
             this.spinner.show(this.loaderId, {text: "正在保存自选配件"});
-            await this.setZixuanpeijian(true);
+            await this.setZixuanpeijian();
+            this.cad?.center();
             await this.setOrderZixuanpeijian();
             this.spinner.hide(this.loaderId);
         }
     }
 
-    async setZixuanpeijian(arrangeCads: boolean) {
+    async setZixuanpeijian() {
         const cad = this.cad;
         const cads: CadData[] = [];
         const cads2: CadData[] = [];
@@ -484,6 +489,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             }
             if (!item.displayedData) {
                 item.displayedData = item.data.clone();
+                // item.data.info.
             }
             if (!item.data.info.hidden) {
                 const data = item.displayedData;
@@ -502,14 +508,19 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             }
         };
 
+        const shuchubianliangKeys = new Set<string>();
         for (const item of this.zixuanpeijian.模块) {
             for (const cadItem of item.cads) {
                 setCadItem(cadItem);
+            }
+            for (const v of item.shuchubianliang) {
+                shuchubianliangKeys.add(v);
             }
         }
         for (const item of this.zixuanpeijian.零散) {
             setCadItem(item);
         }
+        this.shuchubianliangKeys = Array.from(shuchubianliangKeys);
         if (cad) {
             cad.data.entities.mtext = cad.data.entities.mtext.filter((e) => !e.info.isComment);
             for (const e of this.comments) {
@@ -523,8 +534,13 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         }
         if (cad) {
             const tol = 2;
+            const toArrange: [number, CadData][] = [];
             cad.data.components.data = cads;
-            for (const v of cads) {
+            await cad.reset().render();
+            for (const [i, v] of cads.entries()) {
+                if (!cads2[i].info.arranged) {
+                    toArrange.push([i, v]);
+                }
                 if (v.info.自选配件已初始化) {
                     continue;
                 }
@@ -546,7 +562,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 });
                 const rect = v.getBoundingRect();
                 v.transform({scale: v.suanliaodanZoom, origin: [rect.x, rect.y]}, true);
-                await cad.render(v.entities);
+                await cad.render(v.getAllEntities());
                 v.entities.toArray().forEach((e) => {
                     if (e instanceof CadLineLike && e.id in lineLengthMap) {
                         e.hideLength = true;
@@ -561,70 +577,24 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 configCadDataForPrint(cad, v, this.printParams);
                 showIntersections(v, this.status.getProjectConfig());
             }
-            if (arrangeCads) {
-                let hLinesMaxLength = -1;
-                const hLines: CadLine[] = [];
-                let vLinesMaxLength = -1;
-                const vLines: CadLine[] = [];
-                cad.data.entities.line.forEach((e) => {
-                    if (e.isHorizontal()) {
-                        hLines.push(e);
-                        hLinesMaxLength = Math.max(hLinesMaxLength, e.length);
-                    } else if (e.isVertical()) {
-                        vLines.push(e);
-                        vLinesMaxLength = Math.max(vLinesMaxLength, e.length);
-                    }
-                });
-                const hLines2 = hLines.filter((e) => Math.abs(e.length - hLinesMaxLength) < tol);
-                hLines2.sort((a, b) => a.start.y - b.start.y);
-                const vLines2 = vLines.filter((e) => Math.abs(e.length - vLinesMaxLength) < tol);
-                vLines2.sort((a, b) => a.start.x - b.start.x);
-                const leftLine = vLines2[0];
-                const bottomLine1 = hLines2[0];
-                const bottomLine2 = hLines2[1];
-                let bottomLine: CadLine;
-                if (bottomLine2 && bottomLine2.start.y - bottomLine1.start.y < 500) {
-                    bottomLine = bottomLine2;
-                } else {
-                    bottomLine = bottomLine1;
-                }
-                const leftLineX = leftLine.maxX;
-                const hLines3 = hLines.filter(
-                    (e) => e.start.y > bottomLine.start.y && (Math.abs(e.start.x - leftLineX) < tol || Math.abs(e.end.x - leftLineX) < tol)
-                );
-                hLines3.sort((a, b) => a.start.y - b.start.y);
-                const left = leftLine.start.x;
-                const bottom = bottomLine.start.y;
-                const right = leftLine.start.x + hLines3[0].length;
-                const top = hLines3[0].start.y;
-                const cols = cads.length > 6 ? 3 : 2;
-                const boxWidth = (right - left) / cols;
-                const boxHeight = (top - bottom) / 3;
-                for (const [i, v] of cads.entries()) {
-                    const x = left + (i % cols) * boxWidth + boxWidth / 2;
-                    const y = top - Math.floor(i / cols) * boxHeight - boxHeight / 2;
-                    const rect2 = v.getBoundingRect();
-                    const matrix: MatrixLike = {translate: [x - rect2.x, y - rect2.y]};
-                    v.transform(matrix, true);
-                    cads2[i].transform(matrix, true);
-                }
-            }
-            await cad.reset().render();
+
             for (const v of cads) {
+                await cad.render(v.getAllEntities());
+                const rect = v.getBoundingRect();
                 const info = infos[v.id];
                 let zhankaiText = v.entities.mtext.find((e) => e.info.isZhankaiText);
                 if (!zhankaiText) {
                     zhankaiText = new CadMtext({info: {isZhankaiText: true}});
                     v.entities.add(zhankaiText);
                 }
-                zhankaiText.calcBoundingRect = false;
+                // zhankaiText.calcBoundingRect = false;
                 zhankaiText.fontStyle.size = 34;
                 const {zhankai, bancai} = info;
                 const getText = (t?: string) => (t || "").trim();
                 zhankaiText.text = zhankai
-                    .map(({width, height, num}, i) => {
+                    .map(({width, height, num}, j) => {
                         let str = `${getText(width)}×${getText(height)}=${getText(num)}`;
-                        if (i === 0) {
+                        if (j === 0) {
                             if (v.zhidingweizhipaokeng.length > 0) {
                                 if (this.status.getProjectConfig("指定位置刨坑表示方法").includes("箭头")) {
                                     str += ",刨坑(箭头)";
@@ -649,10 +619,79 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                     const {mingzi, cailiao, houdu} = bancai;
                     zhankaiText.text += `\n${getText(houdu)}/${getText(cailiao)}/${getText(mingzi)}`;
                 }
-                const rect = v.getBoundingRect();
                 zhankaiText.anchor.set(0, 0);
                 zhankaiText.insert.set(rect.left, rect.bottom - 10);
-                cad.render(zhankaiText);
+                await cad.render(zhankaiText);
+            }
+
+            if (toArrange.length > 0) {
+                if (toArrange.length === cads.length) {
+                    let hLinesMaxLength = -1;
+                    const hLines: CadLine[] = [];
+                    let vLinesMaxLength = -1;
+                    const vLines: CadLine[] = [];
+                    cad.data.entities.line.forEach((e) => {
+                        if (e.isHorizontal()) {
+                            hLines.push(e);
+                            hLinesMaxLength = Math.max(hLinesMaxLength, e.length);
+                        } else if (e.isVertical()) {
+                            vLines.push(e);
+                            vLinesMaxLength = Math.max(vLinesMaxLength, e.length);
+                        }
+                    });
+                    const hLines2 = hLines.filter((e) => Math.abs(e.length - hLinesMaxLength) < tol);
+                    hLines2.sort((a, b) => a.start.y - b.start.y);
+                    const vLines2 = vLines.filter((e) => Math.abs(e.length - vLinesMaxLength) < tol);
+                    vLines2.sort((a, b) => a.start.x - b.start.x);
+                    const leftLine = vLines2[0];
+                    const bottomLine1 = hLines2[0];
+                    const bottomLine2 = hLines2[1];
+                    let bottomLine: CadLine;
+                    if (bottomLine2 && bottomLine2.start.y - bottomLine1.start.y < 500) {
+                        bottomLine = bottomLine2;
+                    } else {
+                        bottomLine = bottomLine1;
+                    }
+                    const leftLineX = leftLine.maxX;
+                    const hLines3 = hLines.filter(
+                        (e) =>
+                            e.start.y > bottomLine.start.y && (Math.abs(e.start.x - leftLineX) < tol || Math.abs(e.end.x - leftLineX) < tol)
+                    );
+                    hLines3.sort((a, b) => a.start.y - b.start.y);
+                    const left = leftLine.start.x;
+                    const bottom = bottomLine.start.y;
+                    const right = leftLine.start.x + hLines3[0].length;
+                    const top = hLines3[0].start.y;
+                    const cols = toArrange.length > 6 ? 3 : 2;
+                    const boxWidth = (right - left) / cols;
+                    const boxHeight = (top - bottom) / 3;
+                    for (const [i, v] of toArrange) {
+                        const x = left + (i % cols) * boxWidth + boxWidth / 2;
+                        const y = top - Math.floor(i / cols) * boxHeight - boxHeight / 2;
+                        const rect2 = v.getBoundingRect();
+                        const matrix: MatrixLike = {translate: [x - rect2.x, y - rect2.y]};
+                        v.transform(matrix, true);
+                        cads2[i].transform(matrix, true);
+                        cads2[i].info.arranged = true;
+                        await cad.render(v.getAllEntities());
+                    }
+                } else {
+                    const rectBg = cad.data.entities.getBoundingRect();
+                    const rects = toArrange.map(([, v]) => v.getBoundingRect());
+                    const spaceX = 50;
+                    const spaceY = 50;
+                    const height = rects.reduce((a, b) => a + b.height, 0) + spaceY * (rects.length - 1);
+                    let currY = rectBg.y + height / 2;
+                    for (const [i, [j, v]] of toArrange.entries()) {
+                        const rect = rects[i];
+                        const matrix: MatrixLike = {translate: [rectBg.right - rect.left + spaceX, currY - rect.top]};
+                        v.transform(matrix, true);
+                        cads2[j].transform(matrix, true);
+                        cads2[j].info.arranged = true;
+                        currY -= rect.height + spaceY;
+                        await cad.render(v.getAllEntities());
+                    }
+                }
             }
         } else {
             this.printParams.cads[0].components.data = cads;
@@ -660,14 +699,20 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
 
     syncZixuanpeijian() {
+        const syncCadItem = (item: ZixuanpeijianCadItem) => {
+            const translate = item.data.info.translate;
+            if (translate) {
+                item.data.transform({translate}, true);
+            }
+            delete item.data.info.translate;
+        };
         for (const item of this.zixuanpeijian.模块) {
             for (const cadItem of item.cads) {
-                const translate = cadItem.data.info.translate;
-                if (translate) {
-                    cadItem.data.transform({translate}, true);
-                }
-                delete cadItem.data.info.translate;
+                syncCadItem(cadItem);
             }
+        }
+        for (const item of this.zixuanpeijian.零散) {
+            syncCadItem(item);
         }
     }
 
@@ -752,7 +797,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     async resetTextMap() {
         this.printParams.textMap = {};
         this.spinner.show(this.loaderId, {text: "正在保存自选配件"});
-        await this.setZixuanpeijian(false);
+        await this.setZixuanpeijian();
         await this.setOrderZixuanpeijian();
         this.spinner.hide(this.loaderId);
     }

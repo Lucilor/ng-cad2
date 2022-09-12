@@ -31,7 +31,6 @@ export class CalcService {
             if (error instanceof CalcSelfReferenceError) {
                 let str = error.message + "<br><br>";
                 str += `${error.varName}<span style='color:red'> => </span>${error.varValue}`;
-                console.log(str);
                 this.message.error(str);
             } else if (error instanceof CalcCircularReferenceError) {
                 let str = error.message + "<br><br>";
@@ -44,6 +43,18 @@ export class CalcService {
             }
             return null;
         }
+    }
+
+    calcExpression(expression: string, vars: Formulas & {input?: Formulas} = {}, alertError: boolean | {data?: CadData} = true) {
+        const formulas: Formulas = {result: expression};
+        const result = this.calcFormulas(formulas, vars, alertError);
+        if (!result) {
+            return null;
+        }
+        if (!("result" in result.succeedTrim)) {
+            return null;
+        }
+        return result.succeedTrim.result;
     }
 
     private getErrorFormusStr(errorFormulas: Formulas, vars: Formulas, code = "", errorMsg = "") {
