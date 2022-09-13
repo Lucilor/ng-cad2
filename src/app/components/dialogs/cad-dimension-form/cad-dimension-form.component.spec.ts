@@ -6,11 +6,11 @@ import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {CadDimension} from "@cad-viewer";
+import {CadDimensionLinear} from "@cad-viewer";
 import {NgScrollbarModule} from "ngx-scrollbar";
 import {CadDimensionData, CadDimensionFormComponent} from "./cad-dimension-form.component";
 
-const data: CadDimensionData = {data: new CadDimension()};
+const data: CadDimensionData = {data: new CadDimensionLinear()};
 describe("CadDimensionFormComponent", () => {
     let component: CadDimensionFormComponent;
     let fixture: ComponentFixture<CadDimensionFormComponent>;
@@ -25,7 +25,7 @@ describe("CadDimensionFormComponent", () => {
                 MatSelectModule,
                 MatSlideToggleModule,
                 NgScrollbarModule,
-                ReactiveFormsModule,
+                ReactiveFormsModule
             ],
             providers: [
                 {provide: MatDialogRef, useValue: {}},

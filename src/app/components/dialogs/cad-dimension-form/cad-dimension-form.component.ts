@@ -3,29 +3,29 @@ import {ValidatorFn, AbstractControl} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {getFormControl, getFormGroup, TypedFormGroup} from "@app/app.common";
-import {CadDimension} from "@cad-viewer";
+import {CadDimensionLinear} from "@cad-viewer";
 import {FontStyle} from "src/cad-viewer/src/cad-data/cad-styles";
 import {getOpenDialogFunc} from "../dialog.common";
 
 export interface CadDimensionData {
-    data: CadDimension;
+    data: CadDimensionLinear;
 }
 
 export interface CadDimensionForm {
-    mingzi: CadDimension["mingzi"];
-    xianshigongshiwenben: CadDimension["xianshigongshiwenben"];
-    qujian: CadDimension["qujian"];
-    e1Location: CadDimension["entity1"]["location"];
-    e2Location: CadDimension["entity2"]["location"];
-    axis: CadDimension["axis"];
-    ref: CadDimension["ref"];
-    distance: CadDimension["distance"];
+    mingzi: CadDimensionLinear["mingzi"];
+    xianshigongshiwenben: CadDimensionLinear["xianshigongshiwenben"];
+    qujian: CadDimensionLinear["qujian"];
+    e1Location: CadDimensionLinear["entity1"]["location"];
+    e2Location: CadDimensionLinear["entity2"]["location"];
+    axis: CadDimensionLinear["axis"];
+    ref: CadDimensionLinear["ref"];
+    distance: CadDimensionLinear["distance"];
     fontSize: Required<FontStyle>["size"];
-    cad1: CadDimension["cad1"];
-    cad2: CadDimension["cad2"];
-    quzhifanwei: CadDimension["quzhifanwei"];
-    hideDimLines: CadDimension["hideDimLines"];
-    xiaoshuchuli: CadDimension["xiaoshuchuli"];
+    cad1: CadDimensionLinear["cad1"];
+    cad2: CadDimensionLinear["cad2"];
+    quzhifanwei: CadDimensionLinear["quzhifanwei"];
+    hideDimLines: CadDimensionLinear["hideDimLines"];
+    xiaoshuchuli: CadDimensionLinear["xiaoshuchuli"];
 }
 
 @Component({
@@ -35,12 +35,12 @@ export interface CadDimensionForm {
 })
 export class CadDimensionFormComponent {
     form: TypedFormGroup<CadDimensionForm>;
-    dimension: CadDimension;
+    dimension: CadDimensionLinear;
     constructor(
-        public dialogRef: MatDialogRef<CadDimensionFormComponent, CadDimension>,
+        public dialogRef: MatDialogRef<CadDimensionFormComponent, CadDimensionLinear>,
         @Inject(MAT_DIALOG_DATA) public data: CadDimensionData
     ) {
-        const dimension = this.data.data || new CadDimension();
+        const dimension = this.data.data || new CadDimensionLinear();
         this.dimension = dimension;
         this.form = getFormGroup<CadDimensionForm>({
             mingzi: getFormControl(dimension.mingzi),
@@ -49,7 +49,7 @@ export class CadDimensionFormComponent {
             e1Location: getFormControl(dimension.entity1?.location),
             e2Location: getFormControl(dimension.entity2?.location),
             axis: getFormControl(dimension.axis),
-            ref: getFormControl<CadDimension["ref"]>(dimension.ref),
+            ref: getFormControl<CadDimensionLinear["ref"]>(dimension.ref),
             distance: getFormControl(dimension.distance),
             fontSize: getFormControl(dimension.style?.text?.size || 0),
             cad1: getFormControl({value: dimension.cad1, disabled: true}),
@@ -133,6 +133,6 @@ export class CadDimensionFormComponent {
     }
 }
 
-export const openCadDimensionFormDialog = getOpenDialogFunc<CadDimensionFormComponent, CadDimensionData, CadDimension>(
+export const openCadDimensionFormDialog = getOpenDialogFunc<CadDimensionFormComponent, CadDimensionData, CadDimensionLinear>(
     CadDimensionFormComponent
 );

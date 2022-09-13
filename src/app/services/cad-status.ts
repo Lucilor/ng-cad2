@@ -1,3 +1,5 @@
+import {CadDimensionType} from "@cad-viewer";
+
 export abstract class CadStatus {
     name = "None";
     index = -1;
@@ -65,6 +67,10 @@ export class CadStatusEditDimension extends CadStatus {
     name = "编辑标注";
     canExit = true;
     exitWithEsc = true;
+
+    constructor(public type: CadDimensionType, index?: number) {
+        super(index);
+    }
 }
 
 export class CadStatusIntersection extends CadStatus {

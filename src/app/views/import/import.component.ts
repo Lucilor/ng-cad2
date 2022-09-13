@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {CadPortable, CadInfo, SlgsInfo, PeiheInfo, XinghaoInfo, SourceCadMap, Slgs} from "@app/cad.portable";
 import {isShiyitu, reservedDimNames, validateLines} from "@app/cad.utils";
-import {CadData, CadDimension, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
+import {CadData, CadDimensionLinear, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {environment} from "@env";
 import {Utils} from "@mixins/utils.mixin";
@@ -180,7 +180,7 @@ export class ImportComponent extends Utils() implements OnInit {
         }
         if (Array.isArray(removedDimensions)) {
             removedDimensions.forEach((v) => {
-                data.entities.dimension.push(new CadDimension(v));
+                data.entities.dimension.push(new CadDimensionLinear(v));
             });
         }
         this._sourceCadMap = sourceCadMap;
@@ -576,24 +576,26 @@ export class ImportComponent extends Utils() implements OnInit {
         }
 
         data.entities.dimension.forEach((e) => {
-            if (reservedDimNames.includes(e.mingzi)) {
-                cad.errors.push(`标注名字不能是: ${e.mingzi}`);
-            }
-            if (isShiyitu(data)) {
-                if (e.mingzi.includes("=")) {
-                    cad.errors.push("示意图标注不能有=号");
-                } else if (!e.mingzi.includes("显示公式")) {
-                    e.mingzi = "显示公式: " + e.mingzi;
+            if (e instanceof CadDimensionLinear) {
+                if (reservedDimNames.includes(e.mingzi)) {
+                    cad.errors.push(`标注名字不能是: ${e.mingzi}`);
                 }
-            } else {
-                if (e.info.isGongshi) {
-                    if (!e.mingzi.includes("显示公式")) {
+                if (isShiyitu(data)) {
+                    if (e.mingzi.includes("=")) {
+                        cad.errors.push("示意图标注不能有=号");
+                    } else if (!e.mingzi.includes("显示公式")) {
                         e.mingzi = "显示公式: " + e.mingzi;
                     }
-                    const id1 = e.entity1.id;
-                    const id2 = e.entity2.id;
-                    if (!(id1 && id2)) {
-                        cad.errors.push(`公式标注[=${e.mingzi}]识别错误, 必须标到两个端点`);
+                } else {
+                    if (e.info.isGongshi) {
+                        if (!e.mingzi.includes("显示公式")) {
+                            e.mingzi = "显示公式: " + e.mingzi;
+                        }
+                        const id1 = e.entity1.id;
+                        const id2 = e.entity2.id;
+                        if (!(id1 && id2)) {
+                            cad.errors.push(`公式标注[=${e.mingzi}]识别错误, 必须标到两个端点`);
+                        }
                     }
                 }
             }

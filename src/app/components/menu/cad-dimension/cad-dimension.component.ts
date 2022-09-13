@@ -2,7 +2,17 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {reservedDimNames} from "@app/cad.utils";
-import {CadDimension, CadData, CadLine, CadEventCallBack, CadLineLike, CadEntity, Defaults} from "@cad-viewer";
+import {
+    CadDimension,
+    CadData,
+    CadLine,
+    CadEventCallBack,
+    CadLineLike,
+    CadEntity,
+    Defaults,
+    CadDimensionType,
+    CadDimensionLinear
+} from "@cad-viewer";
 import {openCadDimensionFormDialog} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
@@ -91,47 +101,57 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
         const dimensions = this.dimensions;
         const entity = entities.line[0];
         if (cadStatus instanceof CadStatusEditDimension && entity) {
-            let dimension = dimensions[cadStatus.index];
-            if (!dimension) {
-                dimension = new CadDimension();
-                dimension.setStyle({text: {size: Defaults.FONT_SIZE}});
-                dimension.setColor(0x00ff00);
-                let newIndex = 0;
-                newIndex += data.entities.dimension.length;
-                data.entities.add(dimension);
-                this.status.setCadStatus(new CadStatusEditDimension(newIndex));
-            }
-            if (!dimension.entity1.id) {
-                dimension.entity1 = {id: entity.id, location: "start"};
-                dimension.cad1 = data.name;
-            } else if (!dimension.entity2.id) {
-                dimension.entity2 = {id: entity.id, location: "end"};
-                dimension.cad2 = data.name;
-            } else {
-                dimension.entity1 = dimension.entity2;
-                dimension.entity2 = {id: entity.id, location: "end"};
-                dimension.cad2 = data.name;
-            }
-            const e1 = cad.data.findEntity(dimension.entity1.id);
-            const e2 = cad.data.findEntity(dimension.entity2.id);
-            if (e1 instanceof CadLineLike && e2 instanceof CadLineLike) {
-                const points = cad.data.getDimensionPoints(dimension);
-                if (points.length === 4) {
-                    if (points[0].equals(points[1])) {
-                        dimension.axis = dimension.axis === "x" ? "y" : "x";
+            const dimension = dimensions[cadStatus.index];
+            if (cadStatus.type === "linear") {
+                let dimensionLinear: CadDimensionLinear | undefined;
+                if (dimension instanceof CadDimensionLinear) {
+                    dimensionLinear = dimension;
+                } else {
+                    dimensionLinear = new CadDimensionLinear();
+                    dimensionLinear.setStyle({text: {size: Defaults.FONT_SIZE}});
+                    dimensionLinear.setColor(0x00ff00);
+                    let newIndex = 0;
+                    newIndex += data.entities.dimension.length;
+                    data.entities.add(dimensionLinear);
+                    this.status.setCadStatus(new CadStatusEditDimension("linear", newIndex));
+                }
+                if (!dimensionLinear.entity1.id) {
+                    dimensionLinear.entity1 = {id: entity.id, location: "start"};
+                    dimensionLinear.cad1 = data.name;
+                } else if (!dimensionLinear.entity2.id) {
+                    dimensionLinear.entity2 = {id: entity.id, location: "end"};
+                    dimensionLinear.cad2 = data.name;
+                } else {
+                    dimensionLinear.entity1 = dimensionLinear.entity2;
+                    dimensionLinear.entity2 = {id: entity.id, location: "end"};
+                    dimensionLinear.cad2 = data.name;
+                }
+                const e1 = cad.data.findEntity(dimensionLinear.entity1.id);
+                const e2 = cad.data.findEntity(dimensionLinear.entity2.id);
+                if (e1 instanceof CadLineLike && e2 instanceof CadLineLike) {
+                    const points = cad.data.getDimensionPoints(dimension);
+                    if (points.length === 4) {
+                        if (points[0].equals(points[1])) {
+                            dimensionLinear.axis = dimensionLinear.axis === "x" ? "y" : "x";
+                        }
                     }
                 }
             }
-            this.focus(dimension);
-            cad.render(dimension);
+            if (dimension) {
+                this.focus(dimension);
+                cad.render(dimension);
+            }
         }
     };
 
     async editDimension(i: number) {
         const dimensions = this.dimensions;
-        const dimension = await openCadDimensionFormDialog(this.dialog, {data: {data: dimensions[i]}, disableClose: true});
-        if (dimension) {
-            this.status.cad.render();
+        const dimension = dimensions[i];
+        if (dimension instanceof CadDimensionLinear) {
+            const dimension2 = await openCadDimensionFormDialog(this.dialog, {data: {data: dimension}, disableClose: true});
+            if (dimension2) {
+                await this.status.cad.render(dimension2);
+            }
         }
     }
 
@@ -159,17 +179,17 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
         return cadStatus instanceof CadStatusEditDimension && cadStatus.index === i;
     }
 
-    async selectDimLine(i: number) {
+    async selectDimLine(i: number, type?: CadDimensionType) {
         const cadStatus = this.status.cadStatus;
         if (cadStatus instanceof CadStatusEditDimension && cadStatus.index === i) {
             this.status.setCadStatus(new CadStatusNormal());
         } else {
-            this.status.setCadStatus(new CadStatusEditDimension(i));
+            this.status.setCadStatus(new CadStatusEditDimension(type || "linear", i));
         }
     }
 
-    addDimension() {
-        this.selectDimLine(-1);
+    addDimensionLinear() {
+        this.selectDimLine(-1, "linear");
     }
 
     removeDimension(index: number) {
@@ -177,7 +197,7 @@ export class CadDimensionComponent extends Subscribed() implements OnInit, OnDes
     }
 
     focus(dimension?: CadDimension) {
-        if (!dimension) {
+        if (!dimension || !(dimension instanceof CadDimensionLinear)) {
             return;
         }
         const toFocus: CadEntity[] = [];

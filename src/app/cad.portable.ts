@@ -3,6 +3,7 @@ import {
     CadCircle,
     CadData,
     CadDimension,
+    CadDimensionLinear,
     CadEntities,
     CadLeader,
     CadLine,
@@ -432,8 +433,10 @@ export class CadPortable {
                 return;
             }
             data.entities.dimension.forEach((e) => {
-                e.cad1 = data.name;
-                e.cad2 = data.name;
+                if (e instanceof CadDimensionLinear) {
+                    e.cad1 = data.name;
+                    e.cad2 = data.name;
+                }
             });
             if (toRemove >= 0) {
                 data.entities.mtext.splice(toRemove, 1);
@@ -948,7 +951,7 @@ export class CadPortable {
     }
 
     private static _addLineInfoDimension(cad: CadData, e: CadLineLike, exportId: boolean) {
-        const dimension = new CadDimension();
+        const dimension = new CadDimensionLinear();
         dimension.layer = "line-info";
         dimension.dimstyle = "line-info";
         dimension.distance = 10;

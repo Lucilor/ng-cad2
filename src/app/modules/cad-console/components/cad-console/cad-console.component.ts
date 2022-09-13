@@ -3,7 +3,7 @@ import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {getList, CadCollection} from "@app/app.common";
 import {getCadPreview} from "@app/cad.utils";
-import {CadArc, CadData} from "@cad-viewer";
+import {CadArc, CadData, CadDimensionLinear} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {Command, ValuedCommand, Arg} from "@modules/cad-console/cad-command-types";
@@ -725,10 +725,12 @@ export class CadConsoleComponent implements OnInit {
                 }
                 if (rotateDimension) {
                     data.getAllEntities().dimension.forEach((d) => {
-                        if (d.axis === "x") {
-                            d.axis = "y";
-                        } else {
-                            d.axis = "x";
+                        if (d instanceof CadDimensionLinear) {
+                            if (d.axis === "x") {
+                                d.axis = "y";
+                            } else {
+                                d.axis = "x";
+                            }
                         }
                     });
                 }
