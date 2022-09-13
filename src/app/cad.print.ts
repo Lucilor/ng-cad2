@@ -13,16 +13,31 @@ import {
     CadViewerConfig,
     CadDimensionStyle
 } from "@cad-viewer";
-import {isNearZero, isBetween, Point, ObjectOf, getDPI, getImageDataUrl, loadImage} from "@utils";
+import {environment} from "@src/environments/environment";
+import {isNearZero, isBetween, Point, ObjectOf, getDPI, getImageDataUrl, loadImage, Rectangle} from "@utils";
+import {Properties} from "csstype";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {prepareCadViewer} from "./cad.utils";
 import {Formulas} from "./utils/calc";
 
 type PdfDocument = Parameters<typeof createPdf>[0];
 
-const drawDesignPics = async (keyword: string, data: CadData, urls: string[], margin: number, findLocator: boolean) => {
+export interface DrawDesignPicsParams {
+    margin?: number;
+    anchorImg?: number[];
+    anchorBg?: number[];
+    objectFit?: Properties["objectFit"];
+}
+const drawDesignPics = async (keyword: string, data: CadData, urls: string[], findLocator: boolean, params: DrawDesignPicsParams = {}) => {
     const rectData = data.getBoundingRect();
     const rect = rectData.clone();
+    const {margin, anchorBg, anchorImg, objectFit}: Required<DrawDesignPicsParams> = {
+        margin: 0,
+        anchorBg: [0.5, 0.5],
+        anchorImg: [0.5, 0.5],
+        objectFit: "contain",
+        ...params
+    };
 
     const vLines: CadLine[] = [];
     const hLines: CadLine[] = [];
@@ -126,7 +141,7 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], ma
         deleteEntities = true;
     }
 
-    const {top, bottom, left, right} = rect;
+    const {width, height, top, bottom, left, right} = rect;
     if (deleteEntities) {
         data.entities = data.entities.filter((e) => {
             if (e instanceof CadMtext) {
@@ -153,34 +168,41 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], ma
         });
     }
 
-    let {width, height} = rect;
-    const {y} = rect;
-    let getX: (i: number) => number;
-    let getY: (i: number) => number;
-    if (rect.width > rect.height) {
-        width = rect.width / urls.length;
-        if (findLocator) {
-            getX = (i) => right - width * i - margin * (i + 1);
-        } else {
-            getX = (i) => left + width / 2 + width * i;
-        }
-        getY = (_) => y;
+    let imgWidth: number;
+    let imgHeight: number;
+    let getImgRect: (i: number) => Rectangle;
+    if (width > height) {
+        imgWidth = width / urls.length - margin * 2;
+        imgHeight = height - margin * 2;
+        getImgRect = (i) => {
+            const imgBottom = bottom + margin;
+            const imgTop = top - margin;
+            const imgLeft = left + margin + (imgWidth + margin * 2) * i;
+            const imgRight = imgLeft + imgWidth;
+            return new Rectangle([imgLeft, imgBottom], [imgRight, imgTop]);
+        };
     } else {
-        height = rect.height / urls.length;
-        getX = (_) => right;
-        getY = (i) => top - height / 2 - height * i;
+        imgWidth = width - margin * 2;
+        imgHeight = height / urls.length - margin * 2;
+        getImgRect = (i) => {
+            const imgBottom = bottom + margin + (imgHeight + margin * 2) * i;
+            const imgTop = imgBottom + imgHeight;
+            const imgLeft = left + margin;
+            const imgRight = right - margin;
+            return new Rectangle([imgLeft, imgBottom], [imgRight, imgTop]);
+        };
     }
-    for (let i = 0; i < urls.length; i++) {
+    for (const [i] of urls.entries()) {
         const cadImage = new CadImage();
         cadImage.url = urls[i];
         if (findLocator) {
-            cadImage.anchor.set(1, 0.5);
+            cadImage.anchor.set(anchorImg[0], anchorImg[1]);
         } else {
             cadImage.anchor.set(0.5, 0.5);
         }
-        cadImage.targetSize = new Point(width - margin * 2, height - margin * 2);
-        cadImage.objectFit = "contain";
-        cadImage.transform({translate: [getX(i), getY(i)]}, true);
+        cadImage.position = getImgRect(i).getPoint(anchorBg[0], anchorBg[1]);
+        cadImage.targetSize = new Point(imgWidth, imgHeight);
+        cadImage.objectFit = objectFit;
         data.entities.add(cadImage);
     }
 };
@@ -402,9 +424,9 @@ export interface PrintCadsParams {
     dimStyle?: CadDimensionStyle;
     designPics?: ObjectOf<{
         urls: string[][];
-        margin: number;
         showSmall: boolean;
         showLarge: boolean;
+        styles?: DrawDesignPicsParams;
     }>;
     extra?: {拉手信息宽度?: number};
     url?: string;
@@ -498,21 +520,25 @@ export const printCads = async (params: PrintCadsParams) => {
         let img2: string | undefined;
         if (designPics) {
             for (const keyword in designPics) {
-                const {urls, margin, showSmall, showLarge} = designPics[keyword];
+                const {urls, showSmall, showLarge, styles} = designPics[keyword];
                 const currUrls = urls[i] || urls[0];
                 if (Array.isArray(currUrls)) {
                     const urls2: string[] = [];
                     for (const url2 of currUrls) {
+                        let url3 = url2;
+                        if (!environment.production && url2.startsWith("https://www.let888.cn")) {
+                            url3 = url2.replace("https://www.let888.cn", origin);
+                        }
                         try {
-                            urls2.push(getImageDataUrl(await loadImage(url2)));
+                            urls2.push(getImageDataUrl(await loadImage(url3)));
                         } catch (error) {
-                            errors.push(`无法加载设计图: ${url2}`);
+                            errors.push(`无法加载设计图: ${url3}`);
                         }
                     }
                     if (urls2.length > 0) {
                         const data2 = data.clone();
                         if (showSmall) {
-                            await drawDesignPics(keyword, data, urls2, margin, true);
+                            await drawDesignPics(keyword, data, urls2, true, styles);
                             await cad.reset().render();
                             cad.center();
                             img = await cad.toDataURL();
@@ -520,7 +546,7 @@ export const printCads = async (params: PrintCadsParams) => {
                             img = await cad.toDataURL();
                         }
                         if (showLarge) {
-                            await drawDesignPics(keyword, data2, urls2, margin, false);
+                            await drawDesignPics(keyword, data2, urls2, false, styles);
                             cad.data = data2;
                             await cad.reset().render();
                             cad.center();
