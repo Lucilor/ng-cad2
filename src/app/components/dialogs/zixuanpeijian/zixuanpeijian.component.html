@@ -42,9 +42,15 @@
         <div class="content" style="flex-direction: column">
             <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
             <ng-scrollbar class="content">
-                <div class="content types-info-items">
-                    <div class="types-info-item" *ngFor="let item of result['模块']; let i = index">
-                        <div class="content images">
+                <div
+                    class="content types-info-items"
+                    cdkDropListOrientation="horizontal"
+                    cdkDropList
+                    [cdkDropListData]="result['模块']"
+                    (cdkDropListDropped)="dropMokuaiItem($event)"
+                >
+                    <div class="types-info-item" *ngFor="let item of result['模块']; let i = index" cdkDrag>
+                        <div class="content images" cdkDragHandle>
                             <app-image
                                 class="xiaoguotu"
                                 [src]="item.xiaoguotu"
@@ -52,13 +58,13 @@
                                 [prefix]="urlPrefix"
                             ></app-image>
                         </div>
-                        <div class="content title">
+                        <div class="content title" cdkDragHandle>
                             <button mat-icon-button color="primary" (click)="removeMokuaiItem(i)">
                                 <mat-icon>remove_circle</mat-icon>
                             </button>
                             <div class="name">{{ item.type1 }} - {{ item.type2 }}</div>
                         </div>
-                        <div class="desc">{{ item.mokuaishuoming }}</div>
+                        <div class="desc" cdkDragHandle>{{ item.mokuaishuoming }}</div>
                         <div class="content inputs">
                             <app-input [info]="mokuaiInputInfos[i]['总宽']"></app-input>
                             <app-input [info]="mokuaiInputInfos[i]['总高']"></app-input>
@@ -84,10 +90,12 @@
         <div class="btn-group">
             <button mat-raised-button color="primary" (click)="setStep(1)">选择模块配件</button>
             <button mat-raised-button color="primary" (click)="setStep(3)">选择零散配件</button>
-            <div style="width: 50px"></div>
+            <div class="divider"></div>
             <button mat-raised-button color="primary" (click)="selectAllBancai()">全部选择板材</button>
             <button mat-raised-button color="primary" (click)="selectAllCailiao()">全部选择材料</button>
             <button mat-raised-button color="primary" (click)="selectAllHoudu()">全部选择厚度</button>
+            <div class="divider"></div>
+            <button mat-raised-button color="primary" (click)="step2Fetch()">刷新cad</button>
         </div>
         <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
         <ng-scrollbar class="content">
@@ -205,7 +213,10 @@
                 </ng-scrollbar>
             </div>
             <div class="content" style="flex-direction: column">
-                <app-input [info]="lingsanCadsSearchInput" style="padding: 0 10px"></app-input>
+                <div class="btn-group">
+                    <app-input [info]="lingsanCadsSearchInput" style="padding: 0 10px; flex: 1 1 0"></app-input>
+                    <button mat-raised-button color="primary" (click)="step3Fetch()">刷新cad</button>
+                </div>
                 <ng-scrollbar class="content">
                     <div class="lingsan-cads">
                         <ng-container *ngFor="let item of lingsanCads; let i = index">
@@ -217,6 +228,9 @@
                                     </button>
                                     <button mat-icon-button color="primary" (click)="copyLingsanCad(i)">
                                         <mat-icon>content_copy</mat-icon>
+                                    </button>
+                                    <button mat-icon-button color="primary" (click)="openLingsanCad(i)">
+                                        <mat-icon>open_in_new</mat-icon>
                                     </button>
                                     <div
                                         class="name text-ellipsis"

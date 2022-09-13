@@ -1,3 +1,4 @@
+import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Component, OnInit, OnDestroy, Inject, ElementRef, ViewChild} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
@@ -6,7 +7,7 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Router} from "@angular/router";
 import {imgCadEmpty, setGlobal} from "@app/app.common";
 import {getCadPreview, getCadTotalLength} from "@app/cad.utils";
-import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@cad-viewer";
+import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/types";
@@ -22,6 +23,18 @@ import {BehaviorSubject} from "rxjs";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
 import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
+import {
+    ZixuanpeijianTypesInfo,
+    ZixuanpeijianOutput,
+    MokuaiInputInfos,
+    CadItemInputInfo,
+    ZixuanpeijianlingsanCadItem,
+    ZixuanpeijianInput,
+    ZixuanpeijianInfo,
+    ZixuanpeijianCadItem,
+    ZixuanpeijianMokuaiItem,
+    ZixuanpeijianTypesInfoItem
+} from "./zixuanpeijian.types";
 
 @Component({
     selector: "app-zixuanpeijian",
@@ -126,7 +139,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         window.removeEventListener("resize", this.onWindowResize);
     }
 
-    private async _step1Fetch() {
+    async step1Fetch() {
         this.spinner.show(this.spinnerId);
         const response = await this.dataService.post<{
             prefix: string;
@@ -146,7 +159,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         this._updateInputInfos();
     }
 
-    private async _step2Fetch() {
+    async step2Fetch() {
         const typesInfo: ObjectOf<ObjectOf<1>> = {};
         this.result.模块.forEach(({type1, type2}) => {
             if (!typesInfo[type1]) {
@@ -176,7 +189,15 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 }
             }
             const cadViewers = this.cadViewers;
+            for (const type1 in cadViewers.模块) {
+                for (const type2 in cadViewers.模块[type1]) {
+                    cadViewers.模块[type1][type2].forEach((v) => v.destroy());
+                }
+            }
             cadViewers.模块 = {};
+            for (const v of cadViewers.零散) {
+                v.destroy();
+            }
             cadViewers.零散 = [];
             const initCadViewer = (data: CadData, selector: string) => {
                 const data2 = data.clone(true);
@@ -312,7 +333,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         this._updateInputInfos();
     }
 
-    private async _step3Fetch() {
+    async step3Fetch() {
         const response = await this.dataService.post<{cads: CadData[]}>("ngcad/getLingsanCads");
         if (response?.data) {
             this.lingsanCadImgs = {};
@@ -326,6 +347,25 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 }
                 return item;
             });
+            const toRemove: number[] = [];
+            for (const [i, item] of this.result.零散.entries()) {
+                const found = this.lingsanCads.find((v) => v.data.id === item.info.houtaiId);
+                if (found) {
+                    item.data = found.data.clone(true);
+                } else {
+                    toRemove.push(i);
+                }
+                getCadPreview("cad", item.data, {http: this.dataService}).then((img) => {
+                    const img2 = this.domSanitizer.bypassSecurityTrustUrl(img);
+                    this.lingsanCadImgs[item.info.houtaiId] = img2;
+                    if (found) {
+                        found.img = img2;
+                    }
+                });
+            }
+            if (toRemove.length > 0) {
+                this.result.零散 = this.result.零散.filter((_, i) => !toRemove.includes(i));
+            }
             await timeout(0);
             this.setlingsanCadType(this.lingsanCadTypes[0]);
         }
@@ -413,17 +453,17 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     private async _onStep({value, refresh}: ZixuanpeijianComponent["step$"]["value"]) {
         if (value === 1) {
             if (refresh || !this._step1Fetched) {
-                await this._step1Fetch();
+                await this.step1Fetch();
                 this._step1Fetched = true;
             }
         } else if (value === 2) {
             if (refresh || !this._step2Fetched) {
-                await this._step2Fetch();
+                await this.step2Fetch();
                 this._step2Fetched = true;
             }
         } else if (value === 3) {
             if (refresh || !this._step3Fetched) {
-                await this._step3Fetch();
+                await this.step3Fetch();
                 this._step3Fetched = true;
             }
         }
@@ -786,7 +826,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         id = response.data.id;
         const src = this.router.createUrlTree(["/index"], {queryParams: {project, collection, id}}).toString();
         await this.message.iframe({content: src, title: name});
-        this._step3Fetch();
+        this.step3Fetch();
+    }
+
+    openLingsanCad(i: number) {
+        this.status.openCadInNewTab(this.lingsanCads[i].data.id, "cad");
     }
 
     addMokuaiZhankai(i: number, j: number, k: number) {
@@ -1082,7 +1126,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     private _getCurrBancaiName() {
-        const bancais = this.result.模块.flatMap((v) => v.cads.map((vv) => vv.info.bancai));
+        const bancais = this.result.模块
+            .flatMap((v) => v.cads.map((vv) => vv.info.bancai))
+            .concat(this.result.零散.map((v) => v.info.bancai));
         const bancaisNotEmpty = bancais.filter((v) => v) as BancaiList[];
         if (bancaisNotEmpty.length < bancais.length) {
             return null;
@@ -1103,10 +1149,14 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             return;
         }
         if (bancaiList) {
+            const bancai = bancaiList[0];
             for (const item of this.result.模块) {
                 for (const {info} of item.cads) {
-                    this._setInfoBancai(info, bancaiList[0]);
+                    this._setInfoBancai(info, bancai);
                 }
+            }
+            for (const {info} of this.result.零散) {
+                this._setInfoBancai(info, bancai);
             }
             this._updateInputInfos();
         }
@@ -1132,6 +1182,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     }
                 }
             }
+            for (const {info} of this.result.零散) {
+                if (info.bancai) {
+                    info.bancai.cailiao = result;
+                }
+            }
         }
     }
 
@@ -1155,90 +1210,20 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     }
                 }
             }
+            for (const {info} of this.result.零散) {
+                if (info.bancai) {
+                    info.bancai.houdu = result;
+                }
+            }
         }
+    }
+
+    dropMokuaiItem(event: CdkDragDrop<ZixuanpeijianMokuaiItem[]>) {
+        moveItemInArray(this.result.模块, event.previousIndex, event.currentIndex);
+        this._updateInputInfos();
     }
 }
 
 export const openZixuanpeijianDialog = getOpenDialogFunc<ZixuanpeijianComponent, ZixuanpeijianInput, ZixuanpeijianOutput>(
     ZixuanpeijianComponent
 );
-
-export interface ZixuanpeijianTypesInfoItem {
-    xiaoguotu: string;
-    jiemiantu: string;
-    gongshishuru: string[][];
-    xuanxiangshuru: string[][];
-    suanliaogongshi: Formulas;
-    shuchubianliang: string[];
-    xinghaozhuanyong: string[];
-    mokuaishuoming: string;
-}
-export type ZixuanpeijianTypesInfo = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoItem>>;
-
-export interface ZixuanpeijianInputsInfoItem {
-    totalWidth: InputInfo;
-    totalHeight: InputInfo;
-    gongshishuru: InputInfo[][];
-}
-export type ZixuanpeijianInputsInfos = ObjectOf<ObjectOf<ZixuanpeijianInputsInfoItem>>;
-
-export interface ZixuanpeijianInput {
-    step: number;
-    data?: ZixuanpeijianOutput;
-    checkEmpty?: boolean;
-    cadConfig?: Partial<CadViewerConfig>;
-    materialResult?: Formulas;
-    dropDownKeys: string[];
-}
-
-export interface ZixuanpeijianInfo {
-    houtaiId: string;
-    zhankai: {width: string; height: string; num: string; originalWidth: string; isFromCad: boolean; custom?: boolean}[];
-    bancai?: BancaiList & {cailiao?: string; houdu?: string};
-}
-
-export interface Bancai extends BancaiList {
-    cailiao?: string;
-    houdu?: string;
-}
-
-export interface ZixuanpeijianCadItem {
-    data: CadData;
-    displayedData?: CadData;
-    info: ZixuanpeijianInfo;
-}
-
-export interface ZixuanpeijianMokuaiItem extends ZixuanpeijianTypesInfoItem {
-    type1: string;
-    type2: string;
-    totalWidth: string;
-    totalHeight: string;
-    cads: ZixuanpeijianCadItem[];
-}
-
-export type ZixuanpeijianOutput = {模块: ZixuanpeijianMokuaiItem[]; 零散: ZixuanpeijianCadItem[]};
-
-export interface CadItemInputInfo {
-    zhankai: {
-        width: InputInfo;
-        height: InputInfo;
-        num: InputInfo;
-    }[];
-    板材: InputInfo;
-    材料: InputInfo;
-    厚度: InputInfo;
-}
-
-export interface MokuaiInputInfos {
-    总宽: InputInfo;
-    总高: InputInfo;
-    公式输入: InputInfo[];
-    选项输入: InputInfo[];
-    cads: CadItemInputInfo[];
-}
-
-export interface ZixuanpeijianlingsanCadItem {
-    data: CadData;
-    img: SafeUrl;
-    hidden: boolean;
-}
