@@ -95,7 +95,8 @@
             <button mat-raised-button color="primary" (click)="selectAllCailiao()">全部选择材料</button>
             <button mat-raised-button color="primary" (click)="selectAllHoudu()">全部选择厚度</button>
             <div class="divider"></div>
-            <button mat-raised-button color="primary" (click)="step2Fetch()">刷新cad</button>
+            <button mat-raised-button color="primary" (click)="allFetch()">刷新数据</button>
+            <button mat-raised-button color="primary" (click)="openMokuaiUrl()">查看配件模块数据</button>
         </div>
         <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
         <ng-scrollbar class="content">

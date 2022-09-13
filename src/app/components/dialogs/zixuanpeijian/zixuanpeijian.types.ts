@@ -6,6 +6,7 @@ import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf} from "@utils";
 
 export interface ZixuanpeijianTypesInfoItem {
+    id: string;
     xiaoguotu: string;
     jiemiantu: string;
     gongshishuru: string[][];

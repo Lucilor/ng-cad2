@@ -13,6 +13,7 @@ export interface InputInfoBase<T = any> {
     hint?: string;
     autocomplete?: "on" | "off";
     showEmpty?: boolean;
+    autoFocus?: boolean;
 }
 
 export interface InputInfoString<T = any> extends InputInfoBase<T> {

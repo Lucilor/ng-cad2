@@ -1,6 +1,6 @@
 <ng-container [ngSwitch]="info.type">
     <ng-container *ngSwitchCase="'string'">
-        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+        <mat-form-field #formField [ngClass]="{empty: isEmpty(value)}">
             <mat-label>{{ info.label }}</mat-label>
             <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
             <input

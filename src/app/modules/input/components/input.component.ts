@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
@@ -14,7 +14,7 @@ import {InputInfo, InputInfoTypeMap} from "./types";
     templateUrl: "./input.component.html",
     styleUrls: ["./input.component.scss"]
 })
-export class InputComponent extends Utils() {
+export class InputComponent extends Utils() implements AfterViewInit {
     private _info: InputInfo = {type: "string", label: ""};
     @Input()
     get info() {
@@ -99,8 +99,22 @@ export class InputComponent extends Utils() {
         });
     }
 
+    @ViewChild("formField", {read: ElementRef}) formField?: ElementRef<HTMLElement>;
+
     constructor(private message: MessageService, private dialog: MatDialog, private status: AppStatusService) {
         super();
+    }
+
+    ngAfterViewInit() {
+        if (this.info.autoFocus) {
+            setTimeout(() => {
+                const el = this.formField?.nativeElement.querySelector("input, textarea");
+                if (el instanceof HTMLElement) {
+                    el.focus();
+                }
+                console.log(this.formField?.nativeElement);
+            }, 100);
+        }
     }
 
     copy() {

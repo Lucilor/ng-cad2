@@ -251,6 +251,11 @@ export class CadDataService extends HttpService {
         const file = new File([blob], `${id}.png`);
         await this.post("ngcad/setCadImg", {id, file}, options);
     }
+
+    async getShortUrl(name: string, data: ObjectOf<any> = {}, options?: HttpOptions) {
+        const response = await this.post<string>("ngcad/getShortUrl", {name, data}, options);
+        return response?.data || null;
+    }
 }
 
 export interface GetCadParams {

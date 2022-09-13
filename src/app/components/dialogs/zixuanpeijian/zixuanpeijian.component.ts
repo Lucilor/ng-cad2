@@ -139,7 +139,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         window.removeEventListener("resize", this.onWindowResize);
     }
 
-    async step1Fetch() {
+    async step1Fetch(updateInputInfos = true) {
         this.spinner.show(this.spinnerId);
         const response = await this.dataService.post<{
             prefix: string;
@@ -151,15 +151,28 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (response?.data) {
             this.urlPrefix = response.data.prefix;
             this.typesInfo = response.data.typesInfo;
-            if (!this.type1) {
-                this.type1 = Object.keys(this.typesInfo)[0] || "";
-            }
             this.options = response.data.options;
+            for (const item of this.result.模块) {
+                const {type1, type2, gongshishuru, xuanxiangshuru} = item;
+                const info = this.typesInfo[type1]?.[type2];
+                if (info) {
+                    Object.assign(item, info);
+                    for (const v of item.gongshishuru) {
+                        v[1] = gongshishuru.find((v2) => v2[0] === v[0])?.[1] || "";
+                    }
+                    for (const v of item.xuanxiangshuru) {
+                        v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || "";
+                    }
+                }
+            }
         }
-        this._updateInputInfos();
+        if (updateInputInfos) {
+            this._updateInputInfos();
+        }
+        this._step1Fetched = true;
     }
 
-    async step2Fetch() {
+    async step2Fetch(updateInputInfos = true) {
         const typesInfo: ObjectOf<ObjectOf<1>> = {};
         this.result.模块.forEach(({type1, type2}) => {
             if (!typesInfo[type1]) {
@@ -330,10 +343,13 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 }
             }, 0);
         }
-        this._updateInputInfos();
+        if (updateInputInfos) {
+            this._updateInputInfos();
+        }
+        this._step2Fetched = true;
     }
 
-    async step3Fetch() {
+    async step3Fetch(updateInputInfos = true) {
         const response = await this.dataService.post<{cads: CadData[]}>("ngcad/getLingsanCads");
         if (response?.data) {
             this.lingsanCadImgs = {};
@@ -366,10 +382,20 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             if (toRemove.length > 0) {
                 this.result.零散 = this.result.零散.filter((_, i) => !toRemove.includes(i));
             }
-            await timeout(0);
-            this.setlingsanCadType(this.lingsanCadTypes[0]);
         }
+        if (updateInputInfos) {
+            this._updateInputInfos();
+        }
+        this._step3Fetched = true;
+    }
+
+    async allFetch() {
+        this.spinner.show(this.spinnerId);
+        await Promise.all([this.step1Fetch(), this.step3Fetch()]);
+        await this.step2Fetch();
         this._updateInputInfos();
+        await timeout(0);
+        this.spinner.hide(this.spinnerId);
     }
 
     private _configCad(data: CadData) {
@@ -454,17 +480,20 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (value === 1) {
             if (refresh || !this._step1Fetched) {
                 await this.step1Fetch();
-                this._step1Fetched = true;
+            }
+            if (!this.type1) {
+                this.type1 = Object.keys(this.typesInfo)[0] || "";
             }
         } else if (value === 2) {
             if (refresh || !this._step2Fetched) {
                 await this.step2Fetch();
-                this._step2Fetched = true;
             }
         } else if (value === 3) {
             if (refresh || !this._step3Fetched) {
                 await this.step3Fetch();
-                this._step3Fetched = true;
+            }
+            if (!this.lingsanCadType) {
+                this.setlingsanCadType(this.lingsanCadTypes[0]);
             }
         }
     }
@@ -1221,6 +1250,21 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     dropMokuaiItem(event: CdkDragDrop<ZixuanpeijianMokuaiItem[]>) {
         moveItemInArray(this.result.模块, event.previousIndex, event.currentIndex);
         this._updateInputInfos();
+    }
+
+    async openMokuaiUrl() {
+        const ids = this.result.模块.map((v) => v.id);
+        if (ids.some((v) => !v)) {
+            this.message.error("当前配件模块数据是旧数据，请刷新数据");
+            return;
+        }
+        this.spinner.show(this.spinnerId);
+        const url = await this.dataService.getShortUrl("配件模块", {search2: {where_in: {vid: ids}}});
+        this.spinner.hide(this.spinnerId);
+        if (url) {
+            // this.message.iframe(this.mokuaiUrl);
+            open(url, "_blank");
+        }
     }
 }
 
