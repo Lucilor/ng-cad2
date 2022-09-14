@@ -1,7 +1,17 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {splitOptions, joinOptions} from "@app/app.common";
-import {CadData, CadLine, CadEventCallBack, CadBaseLine, CadJointPoint, CadEntity, sortLines} from "@cad-viewer";
+import {
+    CadData,
+    CadLine,
+    CadEventCallBack,
+    CadBaseLine,
+    CadJointPoint,
+    CadEntity,
+    sortLines,
+    suanliaochuliValues,
+    suanliaodanxianshiValues
+} from "@cad-viewer";
 import {openCadDataAttrsDialog} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
@@ -73,7 +83,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             label: "算料处理",
             model: this._getcadDataModel("suanliaochuli"),
             type: "select",
-            options: ["算料+显示展开+开料", "算料+开料", "算料+显示展开", "算料"]
+            options: suanliaochuliValues.slice()
         },
         {label: "显示宽度标注", model: this._getcadDataModel("showKuandubiaozhu"), type: "boolean"},
         {
@@ -98,29 +108,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             label: "算料单显示",
             model: this._getcadDataModel("suanliaodanxianshi"),
             type: "select",
-            options: [
-                "尺寸",
-                "板材",
-                "尺寸+板材",
-                "名字",
-                "名字+板材",
-                "名字+展开宽",
-                "名字+展开宽+展开高",
-                "名字+展开高+展开宽",
-                "名字+展开高+板材",
-                "名字+展开宽+展开高+板材",
-                "名字+展开高",
-                "展开宽",
-                "展开高",
-                "展开宽+展开高",
-                "展开高+展开宽",
-                "展开宽+板材",
-                "展开高+板材",
-                "展开宽+展开高+板材",
-                "展开高+展开宽+板材",
-                "都不显示",
-                "所有"
-            ]
+            options: suanliaodanxianshiValues.slice()
         }
     ];
     infoGroup3: InputInfo[] = [

@@ -36,8 +36,11 @@ export interface ZixuanpeijianInput {
 
 export interface ZixuanpeijianInfo {
     houtaiId: string;
-    zhankai: {width: string; height: string; num: string; originalWidth: string; isFromCad: boolean; custom?: boolean}[];
+    zhankai: {width: string; height: string; num: string; originalWidth: string; cadZhankaiIndex?: number; custom?: boolean}[];
+    calcZhankai?: any[];
     bancai?: BancaiList & {cailiao?: string; houdu?: string};
+    translate?: [number, number];
+    hidden?: boolean;
 }
 
 export interface Bancai extends BancaiList {

@@ -23,3 +23,20 @@ export const Cast2Number = (value: any): number => {
     const num = Number(value);
     return !isNaN(num) ? num : parseFloat(value);
 };
+
+export const Cast2String = (value: any, bool2tf = false): string => {
+    if (value == null) {
+        return "";
+    }
+    if (typeof value == "string") {
+        return value;
+    }
+    if (typeof value == "boolean") {
+        if (bool2tf) {
+            return value ? "true" : "false";
+        } else {
+            return value ? "1" : "0";
+        }
+    }
+    return value.toString();
+};

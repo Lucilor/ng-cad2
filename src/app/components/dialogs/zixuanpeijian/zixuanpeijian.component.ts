@@ -7,7 +7,7 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Router} from "@angular/router";
 import {imgCadEmpty, setGlobal} from "@app/app.common";
 import {getCadPreview, getCadTotalLength} from "@app/cad.utils";
-import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, setLinesLength} from "@cad-viewer";
+import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {BancaiList, CadDataService} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/types";
@@ -15,7 +15,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CalcService} from "@services/calc.service";
-import {getCADBeishu} from "@src/app/beishu";
+import {getCADBeishu} from "@src/app/utils/beishu";
 import {Formulas, toFixed} from "@src/app/utils/calc";
 import {ObjectOf, timeout} from "@utils";
 import {cloneDeep, debounce, isEmpty, isEqual, uniq} from "lodash";
@@ -280,10 +280,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 const cads1 = allCads[type1]?.[type2] || [];
                 const cads2: CadData[] = [];
                 const infos: ObjectOf<ZixuanpeijianInfo> = {};
-                for (const {data, info} of item.cads) {
-                    if (cads1.find((v) => v.id === info.houtaiId)) {
-                        cads2.push(data);
-                        infos[data.id] = info;
+                for (const {info} of item.cads) {
+                    const found = cads1.find((v) => v.id === info.houtaiId);
+                    if (found) {
+                        cads2.push(found);
+                        infos[found.id] = info;
                     }
                 }
                 const toAdd: CadData[] = [];
@@ -414,7 +415,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     private _getDefaultZhankai(): ZixuanpeijianInfo["zhankai"][0] {
-        return {width: "", height: "", num: "", originalWidth: "", isFromCad: false};
+        return {width: "", height: "", num: "", originalWidth: ""};
     }
 
     async calcZhankai(item: ZixuanpeijianCadItem) {
@@ -527,8 +528,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             const errors = new Set<string>();
             if (this.data?.checkEmpty) {
                 for (const {cads} of this.result.模块) {
-                    for (const {data, info} of cads) {
-                        if (data.info.hidden) {
+                    for (const {info} of cads) {
+                        if (info.hidden) {
                             continue;
                         }
                         const bancai = info.bancai;
@@ -625,92 +626,66 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         const options = this.dropDownOptions.map((v) => v.label);
 
         const getCadItemInputInfos = (items: ZixuanpeijianCadItem[]) =>
-            items.map<CadItemInputInfo>((item) => ({
-                zhankai: item.info.zhankai.map<CadItemInputInfo["zhankai"][0]>((zhankai) => ({
-                    width: {
-                        type: "string",
-                        label: "展开宽",
-                        options,
-                        model: {key: "width", data: zhankai},
-                        showEmpty: true,
-                        onChange: () => {
-                            zhankai.custom = true;
-                        }
-                    },
-                    height: {
-                        type: "string",
-                        label: "展开高",
-                        options,
-                        model: {key: "height", data: zhankai},
-                        showEmpty: true,
-                        onChange: () => {
-                            zhankai.custom = true;
-                        }
-                    },
-                    num: {
-                        type: "string",
-                        label: "数量",
-                        model: {key: "num", data: zhankai},
-                        showEmpty: true,
-                        onChange: () => {
-                            zhankai.custom = true;
-                        }
-                    }
-                })),
-                板材: {
-                    type: "string",
-                    label: "板材",
-                    // options: bancaiOptions,
-                    // fixedOptions: fixedBancaiOptions,
-                    value: item.info.bancai?.mingzi,
-                    // onChange: (val) => {
-                    //     const bancai = cloneDeep(this.bancaiList.find((v) => v.mingzi === val));
-                    //     const info = item.info;
-                    //     if (bancai) {
-                    //         if (info.bancai) {
-                    //             info.bancai = {...info.bancai, ...bancai};
-                    //             const {cailiaoList, cailiao, houduList, houdu} = info.bancai;
-                    //             if (cailiao && !cailiaoList.includes(cailiao)) {
-                    //                 delete info.bancai.cailiao;
-                    //             }
-                    //             if (houdu && !houduList.includes(houdu)) {
-                    //                 delete info.bancai.houdu;
-                    //             }
-                    //         } else {
-                    //             info.bancai = bancai;
-                    //         }
-                    //         const {mingzi} = info.bancai;
-                    //         if (!info.bancai.cailiao && bancaiMap[mingzi]?.cailiao.length > 0) {
-                    //             info.bancai.cailiao = bancaiMap[mingzi].cailiao.at(-1);
-                    //         }
-                    //         if (!info.bancai.houdu && bancaiMap[mingzi]?.houdu.length > 0) {
-                    //             info.bancai.houdu = bancaiMap[mingzi].houdu.at(-1);
-                    //         }
-                    //     } else {
-                    //         delete info.bancai;
-                    //     }
-                    //     this._updateInputInfos();
-                    // },
-                    // optionInputOnly: true,
-                    showEmpty: true
-                },
-                材料: {
-                    type: "select",
-                    label: "材料",
-                    options: item.info.bancai?.cailiaoList || [],
-                    model: {key: "cailiao", data: item.info.bancai},
-                    // optionInputOnly: true,
-                    showEmpty: true
-                },
-                厚度: {
-                    type: "select",
-                    label: "厚度",
-                    options: item.info.bancai?.houduList || [],
-                    model: {key: "houdu", data: item.info.bancai},
-                    // optionInputOnly: true,
-                    showEmpty: true
+            items.map<CadItemInputInfo>(({info}) => {
+                const {zhankai, bancai} = info;
+                let bancaiName = bancai?.mingzi || "";
+                if (bancai && bancaiName === "自定义") {
+                    bancaiName += `: ${bancai.zidingyi || ""}`;
                 }
-            }));
+                return {
+                    zhankai: zhankai.map<CadItemInputInfo["zhankai"][0]>((v) => ({
+                        width: {
+                            type: "string",
+                            label: "展开宽",
+                            options,
+                            model: {key: "width", data: v},
+                            showEmpty: true,
+                            onChange: () => {
+                                v.custom = true;
+                            }
+                        },
+                        height: {
+                            type: "string",
+                            label: "展开高",
+                            options,
+                            model: {key: "height", data: v},
+                            showEmpty: true,
+                            onChange: () => {
+                                v.custom = true;
+                            }
+                        },
+                        num: {
+                            type: "string",
+                            label: "数量",
+                            model: {key: "num", data: v},
+                            showEmpty: true,
+                            onChange: () => {
+                                v.custom = true;
+                            }
+                        }
+                    })),
+                    板材: {
+                        type: "string",
+                        label: "板材",
+                        value: bancaiName,
+                        showEmpty: true
+                    },
+                    材料: {
+                        type: "select",
+                        label: "材料",
+                        options: bancai?.cailiaoList || [],
+                        model: {key: "cailiao", data: bancai},
+                        showEmpty: true
+                    },
+                    厚度: {
+                        type: "select",
+                        label: "厚度",
+                        options: bancai?.houduList || [],
+                        model: {key: "houdu", data: bancai},
+                        showEmpty: true
+                    }
+                };
+            });
 
         this.mokuaiInputInfos = this.result.模块.map<MokuaiInputInfos>((item, i) => ({
             总宽: {type: "string", label: "总宽", model: {key: "totalWidth", data: item}, showEmpty: true, options},
@@ -984,30 +959,30 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         const calcCadItem = ({data, info}: ZixuanpeijianCadItem, vars2: Formulas) => {
             const formulas2: Formulas = {};
 
-            const zhankaiErrors: [string, string][] = [];
-            const zhankais = data.zhankai.filter((zhankai) =>
-                zhankai.conditions.every((condition) => {
+            const zhankais: [number, CadZhankai][] = [];
+            for (const [i, zhankai] of data.zhankai.entries()) {
+                let enabled = true;
+                for (const condition of zhankai.conditions) {
                     if (!condition.trim()) {
-                        return true;
+                        continue;
                     }
                     const result = this.calc.calcExpression(condition, vars2);
                     if (result === null) {
                         return false;
                     }
-                    return !!result;
-                })
-            );
-            if (zhankaiErrors.length > 0) {
-                // let str = `${data.name} 展开条件出错<br>`;
-                // str += zhankaiErrors.map(([condition, error]) => `${condition}<br>${error}`).join("<br><br>");
-                // this.message.error(str);
-                // return false;
-                console.warn({name: data.name, zhankaiErrors});
+                    if (!result) {
+                        enabled = false;
+                        break;
+                    }
+                }
+                if (enabled) {
+                    zhankais.push([i, zhankai]);
+                }
             }
             if (zhankais.length < 1) {
-                data.info.hidden = true;
+                info.hidden = true;
             } else {
-                data.info.hidden = false;
+                info.hidden = false;
                 for (const [j, e] of data.entities.line.entries()) {
                     if (e.gongshi) {
                         formulas2[`线${j + 1}公式`] = e.gongshi;
@@ -1041,7 +1016,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 }
                 const vars3 = {...vars2, 总长: toFixed(getCadTotalLength(data), 4)};
                 const zhankais2: ZixuanpeijianInfo["zhankai"] = [];
-                for (const zhankai of zhankais) {
+                for (const [i, zhankai] of zhankais) {
                     const formulas3: Formulas = {};
                     formulas3.展开宽 = zhankai.zhankaikuan;
                     formulas3.展开高 = zhankai.zhankaigao;
@@ -1058,9 +1033,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     const CAD分类 = data.type;
                     const CAD分类2 = data.type2;
                     num *= getCADBeishu(String(产品分类), String(栋数), CAD分类, CAD分类2, String(门中门扇数));
-                    zhankais2.push({width, height, num: String(num), originalWidth: zhankai.zhankaikuan, isFromCad: true});
+                    zhankais2.push({width, height, num: String(num), originalWidth: zhankai.zhankaikuan, cadZhankaiIndex: i});
                 }
-                info.zhankai = [...zhankais2, ...info.zhankai.filter((v) => !v.isFromCad)];
+                info.zhankai = [...zhankais2, ...info.zhankai.filter((v) => !("cadZhankaiIndex" in v))];
                 if (info.zhankai.length < 1) {
                     info.zhankai.push(this._getDefaultZhankai());
                 }
@@ -1141,16 +1116,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     async openBancaiListDialog(info: ZixuanpeijianInfo) {
-        const bancai = info.bancai;
-        const checkedItems: string[] = [];
-        if (bancai) {
-            checkedItems.push(bancai.mingzi);
-        }
-        const bancaiList = await openBancaiListDialog(this.dialog, {data: {list: this.bancaiList, selectMode: "single", checkedItems}});
-        if (!bancaiList || bancaiList.length < 1) {
+        const bancai = await openBancaiListDialog(this.dialog, {data: {list: this.bancaiList, checkedItem: info.bancai}});
+        if (!bancai) {
             return;
         }
-        this._setInfoBancai(info, bancaiList[0]);
+        this._setInfoBancai(info, bancai);
         this._updateInputInfos();
     }
 
@@ -1171,24 +1141,22 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     async selectAllBancai() {
         const bancaiName = this._getCurrBancaiName();
-        const bancaiList = await openBancaiListDialog(this.dialog, {
-            data: {list: this.bancaiList, selectMode: "single", checkedItems: [bancaiName || ""]}
+        const bancaiPrev = this.bancaiList.find((v) => v.mingzi === bancaiName);
+        const bancai = await openBancaiListDialog(this.dialog, {
+            data: {list: this.bancaiList, checkedItem: bancaiPrev}
         });
-        if (!bancaiList || bancaiList.length < 1) {
+        if (!bancai) {
             return;
         }
-        if (bancaiList) {
-            const bancai = bancaiList[0];
-            for (const item of this.result.模块) {
-                for (const {info} of item.cads) {
-                    this._setInfoBancai(info, bancai);
-                }
-            }
-            for (const {info} of this.result.零散) {
+        for (const item of this.result.模块) {
+            for (const {info} of item.cads) {
                 this._setInfoBancai(info, bancai);
             }
-            this._updateInputInfos();
         }
+        for (const {info} of this.result.零散) {
+            this._setInfoBancai(info, bancai);
+        }
+        this._updateInputInfos();
     }
 
     async selectAllCailiao() {

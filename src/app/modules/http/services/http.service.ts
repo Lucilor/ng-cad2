@@ -98,7 +98,7 @@ export class HttpService {
         if (typeof options?.offlineMode === "boolean") {
             offlineMode = options.offlineMode;
         }
-        if (offlineMode) {
+        if (offlineMode && !environment.production) {
             if (testData) {
                 const data2 = await lastValueFrom(this.http.get<T>(`${location.origin}/assets/testData/${testData}.json`, options));
                 return {code: 0, msg: "", data: data2};

@@ -1,21 +1,14 @@
 import {Component, Inject} from "@angular/core";
+import {Validators} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {BancaiList} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/types";
-import {session} from "@src/app/app.common";
+import {MessageService} from "@modules/message/services/message.service";
+import {session, setGlobal} from "@src/app/app.common";
+import {timeout} from "@utils";
 import {debounce} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
-
-export interface BancaiListData {
-    list: BancaiList[];
-    selectMode: "single"; // | "multiple";
-    checkedItems?: string[];
-}
-
-// export interface Bancai {
-
-// }
 
 @Component({
     selector: "app-bancai-list",
@@ -36,21 +29,32 @@ export class BancaiListComponent {
         }, 500)
     };
     list: {bancai: BancaiList; hidden: boolean}[] = [];
+    zidingyi = "";
+    zidingyiIndex = -1;
 
-    constructor(public dialogRef: MatDialogRef<BancaiListComponent, BancaiList[]>, @Inject(MAT_DIALOG_DATA) public data: BancaiListData) {
-        const {checkedItems, list} = this.data || {};
-        if (checkedItems) {
-            this.checkedIndex.next(list.findIndex((v) => checkedItems.includes(v.mingzi)));
+    constructor(
+        public dialogRef: MatDialogRef<BancaiListComponent, BancaiListOutput>,
+        @Inject(MAT_DIALOG_DATA) public data: BancaiListInput,
+        private message: MessageService
+    ) {
+        const {checkedItem, list} = this.data || {};
+        if (checkedItem) {
+            this.checkedIndex.next(list.findIndex((v) => checkedItem.mingzi === v.mingzi));
+            this.zidingyi = checkedItem.zidingyi || "";
         }
         this.list = list.map((bancai) => ({bancai, hidden: false}));
         this.loadFilterText();
         this.filterList();
+        setGlobal("bancai", this);
     }
 
     submit() {
         const i = this.checkedIndex.value;
-        const bancai = this.data.list[i];
-        this.dialogRef.close([bancai]);
+        const bancai = {...this.data.list[i]};
+        if (bancai.mingzi === "自定义") {
+            bancai.zidingyi = this.zidingyi;
+        }
+        this.dialogRef.close(bancai);
     }
 
     cancel() {
@@ -59,22 +63,54 @@ export class BancaiListComponent {
 
     filterList() {
         const text = this.filterText;
-        for (const item of this.list) {
+        this.zidingyiIndex = -1;
+        for (const [i, item] of this.list.entries()) {
             item.hidden = !!text && !item.bancai.mingzi.includes(text);
+            if (!item.hidden && item.bancai.mingzi === "自定义") {
+                this.zidingyiIndex = i;
+            }
         }
     }
 
     saveFilterText() {
         session.save("bancaiListSearchText", this.filterText);
-        console.log(session.load("bancaiListSearchText"));
     }
 
     loadFilterText() {
         this.filterText = session.load("bancaiListSearchText") || "";
     }
+
+    async setCheckIndex(i: number) {
+        const j = this.checkedIndex.value;
+        const bancai = this.data.list[i];
+        this.checkedIndex.next(i);
+        if (bancai.mingzi === "自定义") {
+            await timeout(0);
+            const zidingyi = await this.message.prompt({
+                title: "自定义板材",
+                promptData: {placeholder: "自定义板材", value: this.zidingyi, validators: Validators.required}
+            });
+            if (zidingyi) {
+                this.zidingyi = zidingyi;
+            } else {
+                this.checkedIndex.next(j);
+            }
+        }
+    }
+
+    selectZidingyi() {
+        this.setCheckIndex(this.zidingyiIndex);
+    }
 }
 
-export const openBancaiListDialog = getOpenDialogFunc<BancaiListComponent, BancaiListData, BancaiList[]>(BancaiListComponent, {
+export const openBancaiListDialog = getOpenDialogFunc<BancaiListComponent, BancaiListInput, BancaiListOutput>(BancaiListComponent, {
     width: "85%",
     height: "85%"
 });
+
+export interface BancaiListInput {
+    list: BancaiList[];
+    checkedItem?: BancaiList;
+}
+
+export type BancaiListOutput = BancaiList;

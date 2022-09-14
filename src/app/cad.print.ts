@@ -275,15 +275,16 @@ const getWrapedText = (cad: CadViewer, source: string, mtext: CadMtext, options:
     return arr;
 };
 
-export const configCadDataForPrint = (cad: CadViewer, data: CadData | CadEntities | CadEntity[] | CadEntity, params: PrintCadsParams) => {
+export const configCadDataForPrint = (
+    cad: CadViewer,
+    data: CadData | CadEntities | CadEntity[] | CadEntity,
+    params: PrintCadsParams,
+    isZxpj: boolean
+) => {
     const linewidth = params.linewidth || 1;
     const dimStyle = params.dimStyle;
     const config = cad.getConfig();
     const textMap = params.textMap || {};
-    let 自选配件已初始化 = false;
-    if (data instanceof CadData && data.info.自选配件已初始化) {
-        自选配件已初始化 = true;
-    }
     let es: CadEntities;
     if (data instanceof CadData) {
         es = data.entities;
@@ -337,7 +338,7 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData | CadEntitie
             }
         };
 
-        if ((自选配件已初始化 || e.text.includes("     ")) && !isNaN(Number(e.text))) {
+        if ((isZxpj || e.text.includes("     ")) && !isNaN(Number(e.text))) {
             if (e.fontStyle.size === 24) {
                 offsetInsert(3, -7);
             } else if (e.fontStyle.size === 22) {
@@ -389,7 +390,7 @@ export const configCadDataForPrint = (cad: CadViewer, data: CadData | CadEntitie
         }
     };
     const configLine = (e: CadLineLike, colorNumber: number) => {
-        if (自选配件已初始化 || colorNumber === 0x333333 || e.layer === "1") {
+        if (isZxpj || colorNumber === 0x333333 || e.layer === "1") {
             e.linewidth = linewidth;
         }
     };
@@ -493,7 +494,7 @@ export const printCads = async (params: PrintCadsParams) => {
             }
         }
         cad.resize(localWidth * scaleX, localHeight * scaleY);
-        configCadDataForPrint(cad, data, params);
+        configCadDataForPrint(cad, data, params, false);
         data.updatePartners().updateComponents();
         cad.data = data;
         await cad.reset().render();

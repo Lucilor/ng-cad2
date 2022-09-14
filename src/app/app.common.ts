@@ -1,6 +1,6 @@
 import {AbstractControlOptions, FormControl, FormControlOptions, FormControlState, FormGroup} from "@angular/forms";
 import {environment} from "@env";
-import {LocalStorage, ObjectOf, SessionStorage, Timer} from "@utils";
+import {LocalStorage, log, ObjectOf, SessionStorage, Timer} from "@utils";
 
 declare global {
     interface Window {
@@ -57,7 +57,6 @@ export type CadCollection =
     | "luomatoucad";
 
 export const timer = new Timer({color: "deeppink"});
-Object.assign(window, {timer});
 
 export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 
@@ -130,3 +129,6 @@ export const getFormControlErrorString = (control: FormControl) => {
 };
 
 export type ProjectConfig = ObjectOf<string>;
+
+setGlobal("timer", timer);
+setGlobal("log", log);

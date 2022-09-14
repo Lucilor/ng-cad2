@@ -1,12 +1,13 @@
-<div>
-    <app-input [info]="filterInputInfo" ></app-input>
+<div class="btn-group">
+    <app-input [info]="filterInputInfo" style="flex: 1 1 0"></app-input>
+    <button mat-raised-button color="primary" *ngIf="zidingyiIndex >= 0" (click)="selectZidingyi()">自定义</button>
 </div>
 <ng-scrollbar class="content">
     <mat-radio-group class="bancai-list" [value]="checkedIndex.value">
         <mat-radio-button [value]="-1" style="display: none"><span #singleSelectNone></span></mat-radio-button>
         <ng-container *ngFor="let item of list; let i = index">
             <div class="bancai" *ngIf="!item.hidden">
-                <mat-radio-button class="name" [matTooltip]="item.bancai.mingzi" [value]="i" (click)="checkedIndex.next(i)">
+                <mat-radio-button class="name" [matTooltip]="item.bancai.mingzi" [value]="i" (click)="setCheckIndex(i)">
                     {{ item.bancai.mingzi }}
                 </mat-radio-button>
             </div>

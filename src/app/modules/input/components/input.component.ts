@@ -112,7 +112,6 @@ export class InputComponent extends Utils() implements AfterViewInit {
                 if (el instanceof HTMLElement) {
                     el.focus();
                 }
-                console.log(this.formField?.nativeElement);
             }, 100);
         }
     }

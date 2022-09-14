@@ -310,6 +310,7 @@ export interface BancaiList {
     cailiaoList: string[];
     houduList: string[];
     guigeList: number[][];
+    zidingyi?: string;
 }
 export interface BancaiCad {
     id: string;

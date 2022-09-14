@@ -104,7 +104,7 @@
                 <div>{{ item.type1 }} - {{ item.type2 }}</div>
                 <div class="content cads">
                     <ng-container *ngFor="let cad of item.cads; let j = index">
-                        <div *ngIf="!cad.data.info.hidden" class="cad">
+                        <div *ngIf="!cad.info.hidden" class="cad">
                             <div [id]="'cad-viewer-模块-' + i + '-' + j" (contextmenu)="onContextMenu($event, i, j)"></div>
                             <div class="title">
                                 <button mat-icon-button color="primary" (click)="openCad(cad)">
