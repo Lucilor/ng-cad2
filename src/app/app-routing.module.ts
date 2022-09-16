@@ -21,18 +21,18 @@ import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.compone
 
 export const routesInfo: (Route & {path: string})[] = [
     {path: "index", component: IndexComponent},
-    {path: "printCad", component: PrintCadComponent, title: "打印CAD"},
+    {path: "print-cad", component: PrintCadComponent, title: "打印CAD"},
     {path: "printA4A015Preview", component: PrintA4A015PreviewComponent, title: "订单配件标签"},
     {path: "import", component: ImportComponent, title: "导入CAD"},
     {path: "export", component: ExportComponent, title: "导出CAD"},
     {path: "backup", component: BackupComponent, title: "备份CAD"},
-    {path: "selectBancai", component: SelectBancaiComponent, title: "激光开料排版"},
-    {path: "changelogAdmin", component: ChangelogAdminComponent, title: "编辑更新日志"},
+    {path: "select-bancai", component: SelectBancaiComponent, title: "激光开料排版"},
+    {path: "changelog-admin", component: ChangelogAdminComponent, title: "编辑更新日志"},
     {path: "kailiaokongweipeizhi", component: KailiaokongweipeizhiComponent, title: "开料孔位配置"},
-    {path: "replaceText", component: ReplaceTextComponent, title: "文本替换"},
+    {path: "replace-text", component: ReplaceTextComponent, title: "文本替换"},
     {path: "piliangjianban", component: PiliangjianbanComponent, title: "批量剪板"},
     {path: "dingdanbiaoqian", component: DingdanbiaoqianComponent, title: "订单标签"},
-    {path: "selectCads", component: SelectCadsComponent, title: "选择CAD"},
+    {path: "select-cads", component: SelectCadsComponent, title: "选择CAD"},
     {path: "jiaowei", component: JiaoweiComponent, title: "铰位"},
     {path: "kailiaocanshu", component: KailiaocanshuComponent, title: "开料参数"}
 ];

@@ -14,6 +14,7 @@ export interface InputInfoBase<T = any> {
     autocomplete?: "on" | "off";
     showEmpty?: boolean;
     autoFocus?: boolean;
+    placeholder?: string;
 }
 
 export interface InputInfoString<T = any> extends InputInfoBase<T> {
@@ -55,7 +56,15 @@ export interface InputInfoBoolean<T = any> extends InputInfoBase<T> {
 export interface InputInfoSelect<T = any> extends InputInfoBase<T> {
     type: "select";
     options: InputInfoOptions;
+    optionText?: string | ((val: string) => string);
     onChange?: (val: string) => void;
+}
+
+export interface InputInfoSelectMulti<T = any> extends InputInfoBase<T> {
+    type: "selectMulti";
+    options: InputInfoOptions;
+    optionText?: string | ((val: string[]) => string);
+    onChange?: (val: string[]) => void;
 }
 
 export interface InputInfoCoordinate<T = any> extends InputInfoBase<T> {
@@ -78,6 +87,7 @@ export type InputInfo<T = any> =
     | InputInfoArray<T>
     | InputInfoBoolean<T>
     | InputInfoSelect<T>
+    | InputInfoSelectMulti<T>
     | InputInfoCoordinate<T>
     | InputInfoGroup<T>;
 
@@ -91,6 +101,7 @@ export interface InputInfoTypeMap {
     // eslint-disable-next-line id-blacklist
     boolean: InputInfoBoolean;
     select: InputInfoSelect;
+    selectMulti: InputInfoSelectMulti;
     coordinate: InputInfoCoordinate;
     group: InputInfoGroup;
 }

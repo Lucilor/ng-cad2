@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component, Input} from "@angular/core";
 import {MatDialogRef} from "@angular/material/dialog";
-import {Changelog, CadDataService} from "@modules/http/services/cad-data.service";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {Changelog} from "@modules/http/services/cad-data.service.types";
 import {AppStatusService} from "@services/app-status.service";
 import {changelogTypes} from "@views/changelog-admin/changelog-admin.component";
 import {getOpenDialogFunc} from "../dialog.common";

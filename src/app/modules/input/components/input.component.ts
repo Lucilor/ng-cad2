@@ -25,7 +25,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
         if (!value.autocomplete) {
             value.autocomplete = "off";
         }
-        if (value.type === "select" || value.type === "string") {
+        if (value.type === "select" || value.type === "selectMulti" || value.type === "string") {
             this.options = (value.options || []).map((v) => {
                 if (typeof v === "string") {
                     return {value: v, label: v};
@@ -99,6 +99,17 @@ export class InputComponent extends Utils() implements AfterViewInit {
         });
     }
 
+    get optionText() {
+        const info = this.info;
+        if (info.type === "select" || info.type === "selectMulti") {
+            if (typeof info.optionText === "function") {
+                return info.optionText(this.value);
+            }
+            return info.optionText;
+        }
+        return "";
+    }
+
     @ViewChild("formField", {read: ElementRef}) formField?: ElementRef<HTMLElement>;
 
     constructor(private message: MessageService, private dialog: MatDialog, private status: AppStatusService) {
@@ -152,6 +163,9 @@ export class InputComponent extends Utils() implements AfterViewInit {
                 info.onChange?.(value);
                 break;
             case "select":
+                info.onChange?.(value);
+                break;
+            case "selectMulti":
                 info.onChange?.(value);
                 break;
             case "coordinate":

@@ -84,6 +84,7 @@ import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_BASE_URL} from "ng-r
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {InfiniteScrollModule} from "ngx-infinite-scroll";
+import {QuillModule} from "ngx-quill";
 import {NgScrollbarModule} from "ngx-scrollbar";
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
@@ -109,66 +110,69 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
 
 @NgModule({
     declarations: [
+        AnchorSelectorComponent,
         AppComponent,
-        IndexComponent,
-        PageNotFoundComponent,
-        ToolbarComponent,
-        JsonEditorComponent,
-        CadSearchFormComponent,
-        CadListComponent,
-        SubCadsComponent,
+        BackupComponent,
+        BancaiListComponent,
+        BbzhmkgzComponent,
+        CadAssembleComponent,
+        CadAssembleFormComponent,
+        CadDataAttrsComponent,
+        CadDimensionComponent,
+        CadDimensionFormComponent,
         CadInfoComponent,
-        CadOptionsComponent,
-        CadPointsComponent,
+        CadLayerInputComponent,
         CadLineComponent,
         CadLineTjqzComponent,
         CadLineTjqzSelectComponent,
+        CadListComponent,
         CadMtextComponent,
-        AnchorSelectorComponent,
-        CadDimensionComponent,
-        CadDimensionFormComponent,
-        ImportComponent,
-        BackupComponent,
-        PrintCadComponent,
-        PrintA4A015PreviewComponent,
-        CadAssembleComponent,
-        SelectBancaiComponent,
-        SelectBancaiCadsComponent,
-        CadZhankaiComponent,
-        CadDataAttrsComponent,
-        ChangelogComponent,
-        ChangelogAdminComponent,
-        ReplaceFullCharsDirective,
-        KailiaokongweipeizhiComponent,
-        ReplaceTextComponent,
-        PiliangjianbanComponent,
-        LoginFormComponent,
-        ExportComponent,
-        ProgressBarComponent,
-        SelectCadsComponent,
-        BbzhmkgzComponent,
+        CadOptionsComponent,
+        CadPointsComponent,
+        CadSearchFormComponent,
         CadSplitComponent,
-        CadLayerInputComponent,
+        CadZhankaiComponent,
+        ChangelogAdminComponent,
+        ChangelogComponent,
         DingdanbiaoqianComponent,
-        ZixuanpeijianComponent,
+        ExportComponent,
+        ImportComponent,
+        IndexComponent,
+        JiaoweiComponent,
+        JsonEditorComponent,
+        KailiaocanshuComponent,
+        KailiaokongweipeizhiComponent,
         KlkwpzComponent,
         KlkwpzDialogComponent,
-        JiaoweiComponent,
-        CadAssembleFormComponent,
-        BancaiListComponent,
-        KailiaocanshuComponent
+        LoginFormComponent,
+        PageNotFoundComponent,
+        PiliangjianbanComponent,
+        PrintA4A015PreviewComponent,
+        PrintCadComponent,
+        ProgressBarComponent,
+        ReplaceFullCharsDirective,
+        ReplaceTextComponent,
+        SelectBancaiCadsComponent,
+        SelectBancaiComponent,
+        SelectCadsComponent,
+        SubCadsComponent,
+        ToolbarComponent,
+        ZixuanpeijianComponent
     ],
     imports: [
         AppRoutingModule,
         BrowserAnimationsModule,
         BrowserModule,
+        CadConsoleModule,
         ColorChromeModule,
         ColorCircleModule,
         DragDropModule,
         FormsModule,
         HttpClientModule,
+        HttpModule,
         ImageModule,
         InfiniteScrollModule,
+        InputModule,
         MatAutocompleteModule,
         MatButtonModule,
         MatCardModule,
@@ -190,16 +194,40 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         MatTableModule,
         MatTabsModule,
         MatTooltipModule,
+        MessageModule,
         NgJsonEditorModule,
         NgScrollbarModule,
+        QuillModule.forRoot({
+            format: "json",
+            modules: {
+                syntax: true,
+                toolbar: [
+                    ["bold", "italic", "underline", "strike"], // toggled buttons
+                    ["blockquote", "code-block"],
+
+                    [{header: 1}, {header: 2}], // custom button values
+                    [{list: "ordered"}, {list: "bullet"}],
+                    [{script: "sub"}, {script: "super"}], // superscript/subscript
+                    [{indent: "-1"}, {indent: "+1"}], // outdent/indent
+                    [{direction: "rtl"}], // text direction
+
+                    [{size: ["small", false, "large", "huge"]}], // custom dropdown
+                    [{header: [1, 2, 3, 4, 5, 6, false]}],
+
+                    [{color: []}, {background: []}], // dropdown with defaults from theme
+                    // [{font: []}],
+                    [{align: []}],
+
+                    ["clean"], // remove formatting button
+
+                    ["link", "image", "video"] // link and image, video
+                ]
+            }
+        }),
         ReactiveFormsModule,
         RecaptchaV3Module,
-        CadConsoleModule,
-        HttpModule,
-        MessageModule,
-        TableModule,
         SpinnerModule,
-        InputModule
+        TableModule
     ],
     providers: [
         {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},

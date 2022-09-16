@@ -37,7 +37,8 @@ export type CadCollection =
     | "kailiaocadmuban"
     | "material"
     | "zixuanpeijian"
-    | "luomatoucad";
+    | "luomatoucad"
+    | "kailiaocanshu";
 
 export const timer = new Timer({color: "deeppink"});
 

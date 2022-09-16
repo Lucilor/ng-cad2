@@ -1,6 +1,6 @@
 import {SafeUrl} from "@angular/platform-browser";
 import {CadViewerConfig, CadData} from "@cad-viewer";
-import {BancaiList} from "@modules/http/services/cad-data.service";
+import {BancaiList} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
 import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf} from "@utils";

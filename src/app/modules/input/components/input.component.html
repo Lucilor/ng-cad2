@@ -14,6 +14,7 @@
                 (change)="onChange()"
                 (input)="onInput()"
                 [matAutocomplete]="auto"
+                [placeholder]="info.placeholder || ''"
             />
             <textarea
                 *ngIf="cast(info, 'string').textarea"
@@ -29,6 +30,7 @@
                 (change)="onChange()"
                 (input)="onInput()"
                 [matAutocomplete]="auto"
+                [placeholder]="info.placeholder || ''"
             ></textarea>
             <button mat-icon-button matSuffix *ngIf="optionKey" color="primary" (click)="selectOptions(optionKey, info.model?.key)">
                 <mat-icon>list</mat-icon>
@@ -174,25 +176,26 @@
             <mat-label>{{ info.label }}</mat-label>
             <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
             <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()">
+                <mat-select-trigger *ngIf="optionText" [innerHtml]="optionText"></mat-select-trigger>
                 <mat-option *ngFor="let option of options" [value]="option.value">
                     {{ option.label || option.value }}
                 </mat-option>
             </mat-select>
-            <!-- <input
-                matInput
-                [readonly]="info.readonly"
-                [disabled]="info.disabled || false"
-                [value]="selectedValue"
-                type="text"
-                (change)="onChange()"
-                (input)="onInput()"
-                [matAutocomplete]="auto"
-            />
-            <mat-autocomplete #auto="matAutocomplete">
-                <mat-option *ngFor="let option of filteredOptions" [value]="option.value">
-                    {{ option.label }}
+            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+                <mat-icon>{{ icon.name }}</mat-icon>
+            </button>
+        </mat-form-field>
+    </ng-container>
+    <ng-container *ngSwitchCase="'selectMulti'">
+        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+            <mat-label>{{ info.label }}</mat-label>
+            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+            <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()" multiple>
+                <mat-select-trigger *ngIf="optionText" [innerHtml]="optionText"></mat-select-trigger>
+                <mat-option *ngFor="let option of options" [value]="option.value">
+                    {{ option.label || option.value }}
                 </mat-option>
-            </mat-autocomplete> -->
+            </mat-select>
             <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
                 <mat-icon>{{ icon.name }}</mat-icon>
             </button>

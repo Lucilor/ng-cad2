@@ -1,7 +1,8 @@
 import {Component, EventEmitter, OnInit} from "@angular/core";
 import {MatDialogRef} from "@angular/material/dialog";
 import {CadData} from "@cad-viewer";
-import {CadSearchData, CadDataService} from "@modules/http/services/cad-data.service";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {CadSearchData} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, timeout} from "@utils";
 import {Observable} from "rxjs";
