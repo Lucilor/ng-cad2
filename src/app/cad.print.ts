@@ -14,7 +14,7 @@ import {
     CadDimensionStyle
 } from "@cad-viewer";
 import {environment} from "@src/environments/environment";
-import {isNearZero, isBetween, Point, ObjectOf, getDPI, getImageDataUrl, loadImage, Rectangle} from "@utils";
+import {isNearZero, isBetween, Point, ObjectOf, getDPI, getImageDataUrl, loadImage, Rectangle, Matrix} from "@utils";
 import {Properties} from "csstype";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {prepareCadViewer} from "./cad.utils";
@@ -27,17 +27,20 @@ export interface DrawDesignPicsParams {
     anchorImg?: number[];
     anchorBg?: number[];
     objectFit?: Properties["objectFit"];
+    flip?: string;
 }
 const drawDesignPics = async (keyword: string, data: CadData, urls: string[], findLocator: boolean, params: DrawDesignPicsParams = {}) => {
     const rectData = data.getBoundingRect();
     const rect = rectData.clone();
-    const {margin, anchorBg, anchorImg, objectFit}: Required<DrawDesignPicsParams> = {
+    const {margin, anchorBg, anchorImg, objectFit, flip}: Required<DrawDesignPicsParams> = {
         margin: 0,
         anchorBg: [0.5, 0.5],
         anchorImg: [0.5, 0.5],
         objectFit: "contain",
+        flip: "",
         ...params
     };
+    const flip2 = flip?.toLocaleLowerCase() || "";
 
     const vLines: CadLine[] = [];
     const hLines: CadLine[] = [];
@@ -203,6 +206,14 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
         cadImage.position = getImgRect(i).getPoint(anchorBg[0], anchorBg[1]);
         cadImage.targetSize = new Point(imgWidth, imgHeight);
         cadImage.objectFit = objectFit;
+        const matrix = new Matrix();
+        if (flip2.includes("h")) {
+            matrix.scale(-1, 1);
+        } else if (flip2.includes("v")) {
+            matrix.scale(1, -1);
+        }
+        cadImage.transform(matrix, true);
+        console.log(keyword,getImgRect(i), params);
         data.entities.add(cadImage);
     }
 };
