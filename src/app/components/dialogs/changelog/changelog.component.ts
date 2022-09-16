@@ -1,6 +1,5 @@
 import {ChangeDetectorRef, Component, Input} from "@angular/core";
 import {MatDialogRef} from "@angular/material/dialog";
-import {routesInfo} from "@app/app.common";
 import {Changelog, CadDataService} from "@modules/http/services/cad-data.service";
 import {AppStatusService} from "@services/app-status.service";
 import {changelogTypes} from "@views/changelog-admin/changelog-admin.component";
@@ -17,7 +16,6 @@ export class ChangelogComponent {
     currentPage = 0;
     maxPage = 1;
     loading = false;
-    routesInfo = routesInfo;
     get isAdmin$() {
         return this.status.isAdmin$;
     }

@@ -70,6 +70,7 @@ import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
+import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
 import {PageNotFoundComponent} from "@views/page-not-found/page-not-found.component";
 import {PiliangjianbanComponent} from "@views/piliangjianban/piliangjianban.component";
@@ -154,7 +155,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         KlkwpzDialogComponent,
         JiaoweiComponent,
         CadAssembleFormComponent,
-        BancaiListComponent
+        BancaiListComponent,
+        KailiaocanshuComponent
     ],
     imports: [
         AppRoutingModule,

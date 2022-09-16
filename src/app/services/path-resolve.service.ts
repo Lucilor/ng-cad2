@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Params} from "@angular/router";
-import {routesInfo} from "@app/app.common";
+import {routesInfo} from "../app-routing.module";
 
 @Injectable({
     providedIn: "root"
@@ -19,9 +19,7 @@ export class PathResolveService implements Resolve<{path: string; queryParams: P
         }
         const typoPath = url.slice(0, index);
         const threshold = this.getThreshold(typoPath);
-        const dictionary = Object.values(routesInfo)
-            .filter((routeInfo) => Math.abs(routeInfo.path.length - typoPath.length) < threshold)
-            .map((v) => v.path);
+        const dictionary = routesInfo.filter(({path}) => Math.abs(path.length - typoPath.length) < threshold).map((v) => v.path);
 
         if (!dictionary.length) {
             return {path: "", queryParams: route.queryParams};

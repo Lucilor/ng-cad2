@@ -1,7 +1,7 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {Router} from "@angular/router";
-import {routesInfo, local} from "@app/app.common";
+import {local} from "@app/app.common";
 import {CadMtext, CadLineLike, DEFAULT_LENGTH_TEXT_SIZE, sortLines, CadLine} from "@cad-viewer";
 import {openBbzhmkgzDialog} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
@@ -38,7 +38,6 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         q: () => this.newCad()
     };
     showNew = false;
-    routesInfo = routesInfo;
 
     get isStatusNormal() {
         return this.status.cadStatus instanceof CadStatusNormal;
@@ -379,7 +378,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     }
 
     goToBackup() {
-        const url = this.router.createUrlTree(["/" + this.routesInfo.backup.path], {queryParamsHandling: "merge"});
+        const url = this.router.createUrlTree(["/backup"], {queryParamsHandling: "merge"});
         window.open(url.toString());
     }
 }

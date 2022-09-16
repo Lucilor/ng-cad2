@@ -1,7 +1,6 @@
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
-import {routesInfo} from "@app/app.common";
 import {Utils} from "@mixins/utils.mixin";
 import {Changelog, CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -29,7 +28,6 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     changelogRaw: Changelog | null = null;
     length = 0;
     pageSizeOptions = [5, 10, 20, 50, 100];
-    routesInfo = routesInfo;
     focusedContentText: number[] | null = null;
     loaderId = "changelogAdmin";
     @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;

@@ -1,5 +1,5 @@
 import {NgModule} from "@angular/core";
-import {Routes, RouterModule} from "@angular/router";
+import {Routes, RouterModule, Route} from "@angular/router";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {ProjectGuard} from "@guards/project.guard";
 import {PathResolveService} from "@services/path-resolve.service";
@@ -17,30 +17,28 @@ import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
-import {routesInfo} from "./app.common";
+import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
+
+export const routesInfo: (Route & {path: string})[] = [
+    {path: "index", component: IndexComponent},
+    {path: "printCad", component: PrintCadComponent, title: "打印CAD"},
+    {path: "printA4A015Preview", component: PrintA4A015PreviewComponent, title: "订单配件标签"},
+    {path: "import", component: ImportComponent, title: "导入CAD"},
+    {path: "export", component: ExportComponent, title: "导出CAD"},
+    {path: "backup", component: BackupComponent, title: "备份CAD"},
+    {path: "selectBancai", component: SelectBancaiComponent, title: "激光开料排版"},
+    {path: "changelogAdmin", component: ChangelogAdminComponent, title: "编辑更新日志"},
+    {path: "kailiaokongweipeizhi", component: KailiaokongweipeizhiComponent, title: "开料孔位配置"},
+    {path: "replaceText", component: ReplaceTextComponent, title: "文本替换"},
+    {path: "piliangjianban", component: PiliangjianbanComponent, title: "批量剪板"},
+    {path: "dingdanbiaoqian", component: DingdanbiaoqianComponent, title: "订单标签"},
+    {path: "selectCads", component: SelectCadsComponent, title: "选择CAD"},
+    {path: "jiaowei", component: JiaoweiComponent, title: "铰位"},
+    {path: "kailiaocanshu", component: KailiaocanshuComponent, title: "开料参数"}
+];
 
 const routes: Routes = [
-    {
-        path: "",
-        children: [
-            {path: "", pathMatch: "full", redirectTo: routesInfo.index.path},
-            {path: routesInfo.index.path, component: IndexComponent},
-            {path: routesInfo.printCad.path, component: PrintCadComponent},
-            {path: routesInfo.printA4A015Preview.path, component: PrintA4A015PreviewComponent},
-            {path: routesInfo.import.path, component: ImportComponent},
-            {path: routesInfo.export.path, component: ExportComponent},
-            {path: routesInfo.backup.path, component: BackupComponent},
-            {path: routesInfo.selectBancai.path, component: SelectBancaiComponent},
-            {path: routesInfo.changelogAdmin.path, component: ChangelogAdminComponent},
-            {path: routesInfo.kailiaokongweipeizhi.path, component: KailiaokongweipeizhiComponent},
-            {path: routesInfo.replaceText.path, component: ReplaceTextComponent},
-            {path: routesInfo.piliangjianban.path, component: PiliangjianbanComponent},
-            {path: routesInfo.dingdanbiaoqian.path, component: DingdanbiaoqianComponent},
-            {path: routesInfo.selectCads.path, component: SelectCadsComponent},
-            {path: routesInfo.jiaowei.path, component: JiaoweiComponent}
-        ],
-        canActivate: [ProjectGuard]
-    },
+    {path: "", children: routesInfo, canActivate: [ProjectGuard]},
     {path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
 ];
 

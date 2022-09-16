@@ -2,11 +2,12 @@ import {AfterViewInit, Component, OnInit} from "@angular/core";
 import {FormControl, FormGroupDirective, NgForm, ValidatorFn, Validators} from "@angular/forms";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {ActivatedRoute, Router} from "@angular/router";
-import {CadCollection, getFormControl, getFormGroup, routesInfo} from "@app/app.common";
+import {getFormControl, getFormGroup} from "@app/app.common";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {AppStatusService} from "@services/app-status.service";
 import {BehaviorSubject} from "rxjs";
 
 interface Replacer {
@@ -65,7 +66,8 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
         private dataService: CadDataService,
         private spinner: SpinnerService,
         private router: Router,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private status: AppStatusService
     ) {
         super();
     }
@@ -188,8 +190,6 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
     }
 
     openCad(id: string) {
-        const collection: CadCollection = "CADmuban";
-        const url = this.router.createUrlTree([routesInfo.index.path], {queryParams: {id, collection}, queryParamsHandling: "merge"});
-        window.open(url.toString());
+        this.status.openCadInNewTab(id, "CADmuban");
     }
 }
