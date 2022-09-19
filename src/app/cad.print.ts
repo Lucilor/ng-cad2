@@ -11,37 +11,22 @@ import {
     CadLineLike,
     CadCircle,
     CadViewerConfig,
-    CadDimensionStyle
+    CadDimensionStyle,
+    CadDimensionLinear
 } from "@cad-viewer";
 import {environment} from "@src/environments/environment";
 import {isNearZero, isBetween, Point, ObjectOf, getDPI, getImageDataUrl, loadImage, Rectangle, Matrix} from "@utils";
 import {Properties} from "csstype";
+import {intersection} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {prepareCadViewer} from "./cad.utils";
 import {Formulas} from "./utils/calc";
 
 type PdfDocument = Parameters<typeof createPdf>[0];
 
-export interface DrawDesignPicsParams {
-    margin?: number;
-    anchorImg?: number[];
-    anchorBg?: number[];
-    objectFit?: Properties["objectFit"];
-    flip?: string;
-}
-const drawDesignPics = async (keyword: string, data: CadData, urls: string[], findLocator: boolean, params: DrawDesignPicsParams = {}) => {
+const findDesignPicsRectLines = (data: CadData, keyword: string, findLocator: boolean) => {
     const rectData = data.getBoundingRect();
     const rect = rectData.clone();
-    const {margin, anchorBg, anchorImg, objectFit, flip}: Required<DrawDesignPicsParams> = {
-        margin: 0,
-        anchorBg: [0.5, 0.5],
-        anchorImg: [0.5, 0.5],
-        objectFit: "contain",
-        flip: "",
-        ...params
-    };
-    const flip2 = flip?.toLocaleLowerCase() || "";
-
     const vLines: CadLine[] = [];
     const hLines: CadLine[] = [];
     data.entities.line.forEach((e) => {
@@ -52,23 +37,28 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
         }
     });
     if (vLines.length < 1) {
-        console.warn("模板没有垂直线");
-        return;
+        throw new Error("模板没有垂直线");
     }
     if (hLines.length < 1) {
-        console.warn("模板没有水平线");
-        return;
+        throw new Error("模板没有水平线");
     }
     vLines.sort((a, b) => a.start.x - b.start.x);
     hLines.sort((a, b) => a.start.y - b.start.y);
-    let deleteEntities: boolean;
+    const result = {
+        locator: null as CadMtext | null,
+        rect,
+        lines: {
+            top: null as CadLine | null,
+            right: null as CadLine | null,
+            bottom: null as CadLine | null,
+            left: null as CadLine | null
+        }
+    };
 
     if (findLocator) {
-        const locatorIndex = data.entities.mtext.findIndex((e) => e.text === `#${keyword}#`);
-        const locator = data.entities.mtext[locatorIndex];
+        const locator = data.entities.mtext.find((e) => e.text === `#${keyword}#`);
         if (!locator) {
-            console.warn(`没有找到${keyword}标识`);
-            return;
+            throw new Error(`没有找到${keyword}标识`);
         }
         const {
             left: locatorLeft,
@@ -78,7 +68,7 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
             width: locatorWidth,
             height: locatorHeight
         } = locator.boundingRect;
-        data.entities.mtext.splice(locatorIndex, 1);
+        result.locator = locator;
         let leftLines: CadLine[] = [];
         let rightLines: CadLine[] = [];
         let topLines: CadLine[] = [];
@@ -116,11 +106,17 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
         rightLines = rightLines.filter((e) => instersects(e, topLines) || instersects(e, bottomLines));
         topLines = topLines.filter((e) => instersects(e, leftLines) || instersects(e, rightLines));
         bottomLines = bottomLines.filter((e) => instersects(e, leftLines) || instersects(e, rightLines));
-        rect.left = leftLines[leftLines.length - 1].minX;
-        rect.right = rightLines[0].maxX;
-        rect.top = topLines[0].minY;
-        rect.bottom = bottomLines[bottomLines.length - 1].maxY;
-        deleteEntities = false;
+        result.lines.top = topLines.at(0) || null;
+        result.lines.right = rightLines.at(0) || null;
+        result.lines.bottom = bottomLines.at(-1) || null;
+        result.lines.left = leftLines.at(-1) || null;
+        if (!result.lines.top || !result.lines.right || !result.lines.bottom || !result.lines.left) {
+            throw new Error(`${keyword}没有足够的线`, {});
+        }
+        rect.left = result.lines.left.minX;
+        rect.right = result.lines.right.maxX;
+        rect.top = result.lines.top.minY;
+        rect.bottom = result.lines.bottom.maxY;
     } else {
         rect.left = vLines[0].start.x;
         rect.right = vLines[vLines.length - 1].start.x;
@@ -129,8 +125,7 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
         const vLinesDx = vLines2[vLines2.length - 1].start.x - vLines2[0].start.x;
         const hLines2 = hLines.filter((e) => isNearZero(e.length - vLinesDx, 1)).reverse();
         if (hLines2.length < 1) {
-            console.warn("模板没有合适的线");
-            return;
+            throw new Error("模板没有合适的线");
         }
         for (let i = 0; i < hLines2.length - 1; i++) {
             const l1 = hLines2[i];
@@ -141,11 +136,36 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
             }
         }
         rect.bottom = hLines2[hLines2.length - 1].start.y;
-        deleteEntities = true;
     }
+    return {...result};
+};
+
+export interface DrawDesignPicsParams {
+    margin?: number;
+    anchorImg?: number[];
+    anchorBg?: number[];
+    objectFit?: Properties["objectFit"];
+    flip?: string;
+}
+const drawDesignPics = async (
+    data: CadData,
+    num: number,
+    findLocator: boolean,
+    rect: Rectangle,
+    params: DrawDesignPicsParams = {}
+): Promise<CadImage[] | null> => {
+    const {margin, anchorBg, anchorImg, objectFit, flip}: Required<DrawDesignPicsParams> = {
+        margin: 0,
+        anchorBg: [0.5, 0.5],
+        anchorImg: [0.5, 0.5],
+        objectFit: "contain",
+        flip: "",
+        ...params
+    };
+    const flip2 = flip?.toLocaleLowerCase() || "";
 
     const {width, height, top, bottom, left, right} = rect;
-    if (deleteEntities) {
+    if (!findLocator) {
         data.entities = data.entities.filter((e) => {
             if (e instanceof CadMtext) {
                 return !isBetween(e.insert.y, top, bottom);
@@ -175,7 +195,7 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
     let imgHeight: number;
     let getImgRect: (i: number) => Rectangle;
     if (width > height) {
-        imgWidth = width / urls.length - margin * 2;
+        imgWidth = width / num - margin * 2;
         imgHeight = height - margin * 2;
         getImgRect = (i) => {
             const imgBottom = bottom + margin;
@@ -186,7 +206,7 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
         };
     } else {
         imgWidth = width - margin * 2;
-        imgHeight = height / urls.length - margin * 2;
+        imgHeight = height / num - margin * 2;
         getImgRect = (i) => {
             const imgBottom = bottom + margin + (imgHeight + margin * 2) * i;
             const imgTop = imgBottom + imgHeight;
@@ -195,9 +215,10 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
             return new Rectangle([imgLeft, imgBottom], [imgRight, imgTop]);
         };
     }
-    for (const [i] of urls.entries()) {
+
+    const cadImages: CadImage[] = [];
+    for (let i = 0; i < num; i++) {
         const cadImage = new CadImage();
-        cadImage.url = urls[i];
         if (findLocator) {
             cadImage.anchor.set(anchorImg[0], anchorImg[1]);
         } else {
@@ -213,9 +234,10 @@ const drawDesignPics = async (keyword: string, data: CadData, urls: string[], fi
             matrix.scale(1, -1);
         }
         cadImage.transform(matrix, true);
-        console.log(keyword,getImgRect(i), params);
         data.entities.add(cadImage);
+        cadImages.push(cadImage);
     }
+    return cadImages;
 };
 
 interface GetWrapedTextOptions {
@@ -486,6 +508,7 @@ export const printCads = async (params: PrintCadsParams) => {
 
     const content: PdfDocument["content"] = [];
     let pageOrientation: PdfDocument["pageOrientation"] = "portrait";
+    const imgMap: ObjectOf<string> = {};
     for (let i = 0; i < cads.length; i++) {
         const data = cads[i];
         const rect = data.getBoundingRect();
@@ -534,43 +557,86 @@ export const printCads = async (params: PrintCadsParams) => {
             for (const keyword in designPics) {
                 const {urls, showSmall, showLarge, styles} = designPics[keyword];
                 const currUrls = urls[i] || urls[0];
-                if (Array.isArray(currUrls)) {
-                    const urls2: string[] = [];
-                    for (const url2 of currUrls) {
-                        let url3 = url2;
-                        if (!environment.production && url2.startsWith("https://www.let888.cn")) {
-                            url3 = url2.replace("https://www.let888.cn", origin);
-                        }
-                        try {
-                            urls2.push(getImageDataUrl(await loadImage(url3)));
-                        } catch (error) {
-                            errors.push(`无法加载设计图: ${url3}`);
+                let result: ReturnType<typeof findDesignPicsRectLines>;
+                try {
+                    result = findDesignPicsRectLines(data, keyword, showSmall);
+                } catch (error) {
+                    if (error instanceof Error) {
+                        console.warn(error.message);
+                    } else {
+                        console.warn(error);
+                    }
+                    continue;
+                }
+                if (result.locator) {
+                    result.locator.visible = false;
+                    cad.render(result.locator);
+                }
+                if (Array.isArray(currUrls) && currUrls.length > 0) {
+                    for (const e of Object.values(result.lines)) {
+                        if (e) {
+                            e.visible = true;
+                            cad.render(e);
                         }
                     }
-                    if (urls2.length > 0) {
-                        const data2 = data.clone();
-                        if (showSmall) {
-                            await drawDesignPics(keyword, data, urls2, true, styles);
-                            await cad.reset().render();
+                    const data2 = data.clone();
+                    const setImageUrl = async (cadImages: CadImage[]) => {
+                        await Promise.all(
+                            cadImages.map(async (e, j) => {
+                                let url2 = currUrls[j];
+                                if (!environment.production && url2.startsWith("https://www.let888.cn")) {
+                                    url2 = url2.replace("https://www.let888.cn", origin);
+                                }
+                                if (url2 in imgMap) {
+                                    e.url = imgMap[url2];
+                                } else {
+                                    e.url = getImageDataUrl(await loadImage(url2));
+                                    imgMap[url2] = e.url;
+                                }
+                            })
+                        );
+                    };
+                    if (showSmall) {
+                        const cadImages = await drawDesignPics(data, currUrls.length, true, result.rect, styles);
+                        if (cadImages) {
+                            await setImageUrl(cadImages);
+                            await cad.render(cadImages);
                             cad.center();
-                            img = await cad.toDataURL();
-                        } else {
                             img = await cad.toDataURL();
                         }
-                        if (showLarge) {
-                            await drawDesignPics(keyword, data2, urls2, false, styles);
+                    } else {
+                        img = await cad.toDataURL();
+                    }
+                    if (showLarge) {
+                        const cadImages = await drawDesignPics(data2, currUrls.length, false, result.rect, styles);
+                        if (cadImages) {
+                            await setImageUrl(cadImages);
                             cad.data = data2;
-                            await cad.reset().render();
+                            await cad.render(cadImages);
                             cad.center();
                             img2 = await cad.toDataURL();
+                            cad.data = data;
+                        }
+                    }
+                } else {
+                    const ids: string[] = [];
+                    for (const e of Object.values(result.lines)) {
+                        if (e) {
+                            ids.push(e.id);
+                        }
+                    }
+                    for (const e of data.entities.dimension) {
+                        if (e instanceof CadDimensionLinear) {
+                            if (intersection([e.entity1.id, e.entity2.id], ids).length > 0) {
+                                e.visible = false;
+                                cad.render(e);
+                            }
                         }
                     }
                 }
             }
         }
-        if (!img) {
-            img = await cad.toDataURL();
-        }
+        img = await cad.toDataURL();
         content.push({image: img, width: localWidth, height: localHeight});
         if (img2) {
             content.push({image: img2, width: localWidth, height: localHeight});
