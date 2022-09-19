@@ -70,16 +70,22 @@ export class KailiaocanshuComponent implements OnInit {
             if (!Array.isArray(data.参数)) {
                 data.参数 = [];
             }
-            this.data.参数 = data.参数.map((v: any) => {
+            this.data.参数 = data.参数.map((v: Partial<QiezhongkongItem>) => {
                 if (!isObject(v)) {
                     v = {};
                 }
-                return importObject(v, this.defaultQiezhongkongItem);
+                const v2 = importObject(v, this.defaultQiezhongkongItem);
+                if (v2.type.includes("双线框")) {
+                    v2.外框.框线 = "虚线";
+                    v2.内框.框线 = "实线";
+                }
+                return v2;
             });
             const 参数: QiezhongkongItem[] = data.参数;
             const allDirections = ["上", "下", "左", "右"] as const;
             this.inputInfos2 = 参数.map((v: QiezhongkongItem) => {
                 importObject(v, this.defaultQiezhongkongItem);
+                const 双线框 = v.type.includes("双线框");
                 const infos: InputInfo[] = [
                     {
                         type: "select",
@@ -122,76 +128,65 @@ export class KailiaocanshuComponent implements OnInit {
                     },
                     {
                         type: "group",
-                        label: "",
-                        infos: (() => {
-                            const arr: InputInfo[] = [
-                                {
-                                    type: "group",
-                                    label: "外框",
-                                    infos: [
-                                        {
-                                            type: "select",
-                                            label: "框线",
-                                            options: ["实线", "虚线"],
-                                            model: {key: "框线", data: v.外框},
-                                            showEmpty: true
-                                        },
-                                        {
-                                            type: "selectMulti",
-                                            label: "切哪里",
-                                            options: allDirections.slice(),
-                                            optionText: (val) => val.join(""),
-                                            value: allDirections.filter((vv) => v.外框?.显示.includes(vv)),
-                                            onChange: (value: string[]) => {
-                                                if (!v.外框) {
-                                                    v.外框 = cloneDeep(this.defaultQiezhongkongItem.外框);
-                                                }
-                                                v.外框.显示 = value.join("");
-                                            },
-                                            showEmpty: true
-                                        }
-                                    ]
-                                }
-                            ];
-                            if (v.type !== "单线框") {
-                                arr.push({
-                                    type: "group",
-                                    label: "内框",
-                                    infos: [
-                                        {
-                                            type: "select",
-                                            label: "框线",
-                                            options: ["实线", "虚线"],
-                                            model: {key: "框线", data: v.内框},
-                                            showEmpty: true
-                                        },
-                                        {
-                                            type: "selectMulti",
-                                            label: "切哪里",
-                                            options: allDirections.slice(),
-                                            optionText: (val) => val.join(""),
-                                            value: allDirections.filter((vv) => v.内框?.显示.includes(vv)),
-                                            onChange: (val: string[]) => {
-                                                if (!v.内框) {
-                                                    v.内框 = cloneDeep(this.defaultQiezhongkongItem.内框);
-                                                }
-                                                v.内框.显示 = val.join("");
-                                            },
-                                            showEmpty: true
-                                        }
-                                    ]
-                                });
+                        label: "外框",
+                        infos: [
+                            {
+                                type: "select",
+                                label: "框线",
+                                options: 双线框 ? ["虚线"] : ["实线", "虚线"],
+                                model: {key: "框线", data: v.外框},
+                                showEmpty: true
+                            },
+                            {
+                                type: "selectMulti",
+                                label: "切哪里",
+                                options: allDirections.slice(),
+                                optionText: (val) => val.join(""),
+                                value: allDirections.filter((vv) => v.外框?.显示.includes(vv)),
+                                onChange: (value: string[]) => {
+                                    if (!v.外框) {
+                                        v.外框 = cloneDeep(this.defaultQiezhongkongItem.外框);
+                                    }
+                                    v.外框.显示 = value.join("");
+                                },
+                                showEmpty: true
                             }
-                            return arr;
-                        })()
+                        ]
                     }
                 ];
-                if (v.type !== "单线框") {
-                    infos.splice(3, 0, {
+                if (双线框) {
+                    infos.splice(1, 0, {
                         type: "string",
                         label: "双线框厚度",
                         model: {key: "双线框厚度", data: v},
                         placeholder: "留空时默认取门扇厚度"
+                    });
+                    infos.push({
+                        type: "group",
+                        label: "内框",
+                        infos: [
+                            {
+                                type: "select",
+                                label: "框线",
+                                options: ["实线"],
+                                model: {key: "框线", data: v.内框},
+                                showEmpty: true
+                            },
+                            {
+                                type: "selectMulti",
+                                label: "切哪里",
+                                options: allDirections.slice(),
+                                optionText: (val) => val.join(""),
+                                value: allDirections.filter((vv) => v.内框?.显示.includes(vv)),
+                                onChange: (val: string[]) => {
+                                    if (!v.内框) {
+                                        v.内框 = cloneDeep(this.defaultQiezhongkongItem.内框);
+                                    }
+                                    v.内框.显示 = val.join("");
+                                },
+                                showEmpty: true
+                            }
+                        ]
                     });
                 }
                 return infos;

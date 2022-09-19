@@ -45,6 +45,14 @@ json-editor {
     .group {
         display: flex;
         width: 100%;
+        flex-wrap: wrap;
+
+        > * {
+            width: 50%;
+        }
+    }
+    &.外框基准线 .group {
+        flex-wrap: nowrap;
 
         > * {
             width: 0;

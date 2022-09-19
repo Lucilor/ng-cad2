@@ -16,7 +16,7 @@
                     <button mat-raised-button color="primary" (click)="copyQiezhongkongItem(i)">复制</button>
                     <button mat-raised-button color="primary" (click)="removeQiezhongkongItem(i)">删除</button>
                 </div>
-                <app-input *ngFor="let info of group" [info]="info"></app-input>
+                <app-input *ngFor="let info of group" [info]="info" [ngClass]="info.label"></app-input>
             </div>
         </div>
     </ng-scrollbar>
