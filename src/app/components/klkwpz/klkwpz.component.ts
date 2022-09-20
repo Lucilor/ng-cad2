@@ -27,10 +27,7 @@ export class KlkwpzComponent {
     constructor(private message: MessageService) {}
 
     private _createItem(name: string): KlkwpzItem {
-        const item = this.klkwpz.getKlkwpzItem(name, {});
-        item.anchor1 = [0, 0];
-        item.anchor2 = [0.5, 0.5];
-        return item;
+        return this.klkwpz.getKlkwpzItem(name, {});
     }
 
     private _getItemData(item: KlkwpzItem) {

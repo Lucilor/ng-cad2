@@ -54,10 +54,10 @@ export class Klkwpz {
     }
 
     getKlkwpzItem(name: string, source: Partial<KlkwpzItem> = {}) {
-        const getGongshi = (sourceGongshi?: Gongshi): Gongshi => sourceGongshi || "";
-        const getAnchor = (sourceAnchor?: Anchor): Anchor => {
+        const getGongshi = (sourceGongshi: Gongshi | undefined): Gongshi => sourceGongshi || "";
+        const getAnchor = (sourceAnchor: Anchor | undefined, defalutValue: Anchor): Anchor => {
             if (!sourceAnchor) {
-                sourceAnchor = [0, 0];
+                sourceAnchor = defalutValue;
             }
             return [sourceAnchor[0], sourceAnchor[1]];
         };
@@ -80,8 +80,8 @@ export class Klkwpz {
             face: source.face || "",
             x: getGongshi(source.x),
             y: getGongshi(source.y),
-            anchor1: getAnchor(source.anchor1),
-            anchor2: getAnchor(source.anchor2),
+            anchor1: getAnchor(source.anchor1, [0, 0]),
+            anchor2: getAnchor(source.anchor2, [0.5, 0.5]),
             maxX: getGongshi(source.maxX),
             maxY: getGongshi(source.maxY),
             baseX: getGongshi(source.baseX),
