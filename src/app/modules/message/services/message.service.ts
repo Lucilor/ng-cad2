@@ -60,11 +60,11 @@ export class MessageService {
     }
 
     async book(data: string | MessageDataParams<BookMessageData>, others: Omit<MatDialogConfig<BookMessageData>, "data"> = {}) {
-        await this.open({data: this._getData(data, "book"), width: "80vw", height: "65vh", ...others});
+        await this.open({data: this._getData(data, "book"), width: "80vw", ...others});
     }
 
     async editor(data: string | MessageDataParams<EditorMessageData>, others: Omit<MatDialogConfig<EditorMessageData>, "data"> = {}) {
-        return String(await this.open({data: this._getData(data, "editor"), ...others}));
+        return String(await this.open({data: this._getData(data, "editor"), width: "80vw", ...others}));
     }
 
     async button(data: string | MessageDataParams<ButtonMessageData>, others: Omit<MatDialogConfig<ButtonMessageData>, "data"> = {}) {
