@@ -15,6 +15,7 @@ export interface CustomResponse<T> {
     data?: T;
     count?: number;
     importance?: number;
+    duration?: number;
 }
 
 export type DataEncrpty = "yes" | "no" | "both";
@@ -113,9 +114,7 @@ export class HttpService {
         const encrypt = options?.encrypt ?? "no";
         const silent = !!options?.silent;
         const timerName = `http.request.${url}.${timer.now}`;
-        if (!silent) {
-            timer.start(timerName);
-        }
+        timer.start(timerName);
         const rawUrl = url;
         if (!url.startsWith("http")) {
             url = `${this.baseURL}${url}`;
@@ -210,10 +209,15 @@ export class HttpService {
                 return {code: 0, msg: "", data: data2};
             }
             this.alert(error, silent);
-            return null;
+            return response;
         } finally {
             this.lastResponse = response;
-            if (!silent) {
+            if (response) {
+                response.duration = timer.getDuration(timerName);
+            }
+            if (silent) {
+                timer.end(timerName);
+            } else {
                 timer.end(timerName, `${method} ${rawUrl}`);
             }
         }

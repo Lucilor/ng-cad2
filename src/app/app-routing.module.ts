@@ -18,6 +18,7 @@ import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
 import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
+import {CleanComponent} from "@views/clean/clean.component";
 
 export const routesInfo: (Route & {path: string})[] = [
     {path: "index", component: IndexComponent},
@@ -34,7 +35,8 @@ export const routesInfo: (Route & {path: string})[] = [
     {path: "dingdanbiaoqian", component: DingdanbiaoqianComponent, title: "订单标签"},
     {path: "select-cads", component: SelectCadsComponent, title: "选择CAD"},
     {path: "jiaowei", component: JiaoweiComponent, title: "铰位"},
-    {path: "kailiaocanshu", component: KailiaocanshuComponent, title: "开料参数"}
+    {path: "kailiaocanshu", component: KailiaocanshuComponent, title: "开料参数"},
+    {path: "clean", component: CleanComponent, title: "清理任务"}
 ];
 
 const routes: Routes = [
