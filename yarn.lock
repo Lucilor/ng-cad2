@@ -4253,6 +4253,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"browser-image-compression@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "browser-image-compression@npm:2.0.0"
+  dependencies:
+    uzip: 0.20201231.0
+  checksum: c95b3ad5d6d32999d5e8cd04c7de9e071a301644ed561f001a18d4fbd5202925daeba14d8bf98ff5965fefc21c63f7a3cbb1879bf754d68654f72f492916d13c
+  languageName: node
+  linkType: hard
+
 "browser-resolve@npm:^1.8.1":
   version: 1.11.3
   resolution: "browser-resolve@npm:1.11.3"
@@ -10190,6 +10199,7 @@ __metadata:
     angular-animations: ^0.11.0
     archiver: ^5.3.1
     axios: ^0.27.2
+    browser-image-compression: ^2.0.0
     color: ^4.2.3
     csstype: ^3.1.1
     eslint: ^8.23.1
@@ -14292,6 +14302,13 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
+  languageName: node
+  linkType: hard
+
+"uzip@npm:0.20201231.0":
+  version: 0.20201231.0
+  resolution: "uzip@npm:0.20201231.0"
+  checksum: 34253f4c3d996571b10b659eea415bec952bde940e1fd44090ce19687b6dbaae411d8e6321b9028e44aa442379659d71bb39e95ba15de0626cfe970d90b24f40
   languageName: node
   linkType: hard
 

@@ -23,6 +23,7 @@ import {
     slideOutRightOnLeaveAnimation,
     slideOutUpOnLeaveAnimation
 } from "angular-animations";
+import imageCompression from "browser-image-compression";
 import {intersection} from "lodash";
 import printJS from "print-js";
 
@@ -740,7 +741,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!files || files.length < 1) {
             return;
         }
-        const file = files[0];
+        let file = files[0];
+        const blob = await imageCompression(file, {maxSizeMB: 1, useWebWorker: true});
+        file = new File([blob], file.name, {type: file.type});
         target.value = "";
         const response = await this.dataService.post<{prefix: string; save_path: string}>("order/api/uploadImage", {
             code: this.printParams.codes[0],
