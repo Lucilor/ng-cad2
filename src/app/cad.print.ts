@@ -587,10 +587,14 @@ export const printCads = async (params: PrintCadsParams) => {
                                 if (!environment.production && url2.startsWith("https://www.let888.cn")) {
                                     url2 = url2.replace("https://www.let888.cn", origin);
                                 }
-                                if (url2 in imgMap) {
+                                if (url2 in imgMap && imgMap[url2]) {
                                     e.url = imgMap[url2];
                                 } else {
-                                    e.url = getImageDataUrl(await loadImage(url2));
+                                    try {
+                                        e.url = getImageDataUrl(await loadImage(url2));
+                                    } catch (error) {
+                                        imgMap[url2] = "";
+                                    }
                                     imgMap[url2] = e.url;
                                 }
                             })

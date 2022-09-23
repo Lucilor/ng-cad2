@@ -11,10 +11,13 @@
     display: flex;
     flex-direction: column;
     padding-bottom: 100px;
+    font-family: "Fira Code Retina", monospace;
 
     $msg-height: 20px;
     .msg {
-        height: $msg-height;
+        min-height: 20px;
+        line-height: 20px;
+
         &.info {
             color: black;
         }
@@ -31,6 +34,9 @@
             height: calc($msg-height / 2);
             border-bottom: 1px dashed black;
             margin-bottom: calc($msg-height / 2);
+        }
+        &.progress {
+            color: black;
         }
     }
 }

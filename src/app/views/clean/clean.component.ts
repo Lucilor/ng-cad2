@@ -1,8 +1,8 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
-import {ActivatedRoute} from "@angular/router";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {CustomResponse} from "@modules/http/services/http.service";
 import {InputInfo} from "@modules/input/components/types";
+import {setGlobal} from "@src/app/app.common";
 import {ObjectOf, Timer} from "@utils";
 import {NgScrollbar} from "ngx-scrollbar";
 
@@ -19,49 +19,63 @@ export class CleanComponent implements OnInit {
     taskStartTime: number | null = null;
     @ViewChild(NgScrollbar) scrollbar?: NgScrollbar;
 
-    constructor(private dataService: CadDataService, private route: ActivatedRoute) {}
+    private _scrollToBottomTimer = -1;
+
+    constructor(private dataService: CadDataService) {}
 
     ngOnInit() {
-        const {direct} = this.route.snapshot.queryParams;
-        if (direct) {
-            this.start();
-        }
+        setGlobal("clean", this);
     }
 
-    addMsg(type: MsgType, content: string, duration?: number) {
+    pushMsg(type: MsgType, content: string, duration?: number, scrollToBottom = true) {
         if (duration) {
             content = content + ` (${Timer.getDurationString(duration, 2)})`;
         }
-        this.msgs.push({type, content});
+        const length = this.msgs.push({type, content});
         while (this.msgs.length > this.maxMsgNum) {
             this.msgs.shift();
         }
-        setTimeout(() => {
-            this.scrollbar?.scrollTo({bottom: 0});
-        }, 500);
+        if (scrollToBottom) {
+            window.clearTimeout(this._scrollToBottomTimer);
+            this._scrollToBottomTimer = window.setTimeout(() => {
+                this.scrollbar?.scrollTo({bottom: 0});
+            }, 500);
+        }
+        return length - 1;
     }
 
-    addResponseMsg<T>(response: CustomResponse<T> | null, defaultSuccess: string, defaultError: string) {
+    pushResponseMsg<T>(response: CustomResponse<T> | null, defaultSuccess: string, defaultError: string) {
         if (response) {
             const {code, msg, duration} = response;
             if (code === 0) {
-                this.addMsg("success", msg || defaultSuccess, duration);
+                this.pushMsg("success", msg || defaultSuccess, duration);
                 return true;
             } else {
-                this.addMsg("error", msg || defaultError, duration);
+                this.pushMsg("error", msg || defaultError, duration);
                 return false;
             }
         } else {
-            this.addMsg("error", defaultError);
+            this.pushMsg("error", defaultError);
             return false;
         }
     }
 
-    addMsgDivider() {
+    pushMsgDivider() {
         const lastMsg = this.msgs.at(-1);
         if (lastMsg && lastMsg.type !== "divider") {
-            this.msgs.push({type: "divider", content: ""});
+            return this.msgs.push({type: "divider", content: ""});
         }
+        return null;
+    }
+
+    pushMsgProgress(content: string, current: number, total: number) {
+        const percent = ((current / total) * 100).toFixed(2);
+        const length = 20;
+        const leftLength = Math.floor((current / total) * length);
+        const rightLength = length - leftLength;
+        const leftStr = Array(leftLength).fill("=").join("");
+        const rightStr = Array(rightLength).fill("-").join("");
+        return this.pushMsg("progress", `${content} [${leftStr}${rightStr}] ${current}/${total} ${percent}%`);
     }
 
     start() {
@@ -71,20 +85,20 @@ export class CleanComponent implements OnInit {
 
     end(response?: CustomResponse<void> | null) {
         const duration = this.taskStartTime ? performance.now() - this.taskStartTime : 0;
-        this.addMsgDivider();
+        this.pushMsgDivider();
         if (response?.code === 0) {
-            this.addMsg("success", response.msg || "清理完成", duration);
+            this.pushMsg("success", response.msg || "清理完成", duration);
         } else {
-            this.addMsg("error", response?.msg || "清理失败", duration);
+            this.pushMsg("error", response?.msg || "清理失败", duration);
         }
         this.taskStartTime = null;
     }
 
     async step1() {
-        this.addMsgDivider();
-        this.addMsg("info", "开始清理任务");
+        this.pushMsgDivider();
+        this.pushMsg("info", "开始清理任务");
         const response = await this.dataService.post<void>("clean/clean/runCleanStep1", {}, {silent: true});
-        const success = this.addResponseMsg(response, "步骤1完成", "步骤1失败");
+        const success = this.pushResponseMsg(response, "步骤1完成", "步骤1失败");
         if (success) {
             this.step2();
         } else {
@@ -93,30 +107,38 @@ export class CleanComponent implements OnInit {
     }
 
     async step2() {
-        this.addMsgDivider();
-        this.addMsg("info", "获取要清理的项目");
+        this.pushMsgDivider();
+        this.pushMsg("info", "获取需要获取资源文件的项目");
         const response = await this.dataService.post<string[]>("clean/clean/runCleanStep2", {}, {silent: true});
         let projects: string[];
         if (response?.code === 0) {
             projects = response.data || [];
             const total = projects.length;
-            this.addMsg("info", `共有${total}个项目需要清理: ${projects.join(", ")}`);
-            for (const project of projects) {
-                this.addMsg("info", `项目${project}获取资源文件`);
+            this.pushMsg("info", `共有${total}个项目需要获取资源文件: ${projects.join(", ")}`);
+            let progressIndex = -1;
+            for (const [i, project] of projects.entries()) {
+                if (progressIndex >= 0) {
+                    this.msgs.splice(progressIndex, 1);
+                }
+                progressIndex = this.pushMsgProgress(`项目${project}获取资源文件`, i + 1, total);
                 const response2 = await this.dataService.post<string[]>("clean/clean/runCleanStep2", {project}, {silent: true});
-                this.addResponseMsg(response2, `项目${project}获取资源文件成功`, `项目${project}获取资源文件失败`);
+                this.pushResponseMsg(response2, `项目${project}获取资源文件成功`, `项目${project}获取资源文件失败`);
+                if (response2?.code !== 0) {
+                    this.end();
+                    return;
+                }
             }
             this.step3();
         } else {
-            this.addMsg("error", response?.msg || "步骤2失败");
+            this.pushMsg("error", response?.msg || "步骤2失败");
             this.end();
         }
     }
 
     async step3() {
-        this.addMsgDivider();
+        this.pushMsgDivider();
         const response = await this.dataService.post("clean/clean/runCleanStep3", {}, {silent: true});
-        const success = this.addResponseMsg(response, "步骤3完成", "步骤3失败");
+        const success = this.pushResponseMsg(response, "步骤3完成", "步骤3失败");
         if (success) {
             this.step4();
         } else {
@@ -125,10 +147,14 @@ export class CleanComponent implements OnInit {
     }
 
     async step4() {
-        this.addMsgDivider();
-        this.addMsg("info", "获取要删除的文件");
+        this.pushMsgDivider();
+        this.pushMsg("info", "获取要删除的文件");
         let count = 0;
         let initial = true;
+        if (this.deleteLimit<=0) {
+            this.end();
+            return;
+        }
         do {
             const response = await this.dataService.post<{success: ObjectOf<any>[]; error: ObjectOf<any> & {error: string}[]}>(
                 "clean/clean/runCleanStep4",
@@ -139,21 +165,21 @@ export class CleanComponent implements OnInit {
                 count = response.count || 0;
                 const {success, error} = response.data;
                 if (initial) {
-                    this.addMsg("info", `共有${count}个文件要删除`, response.duration);
+                    this.pushMsg("info", `共有${count}个文件要删除`, response.duration);
                 } else {
                     if (success.length) {
-                        this.addMsg("success", `${success.length}个文件删除成功`);
+                        this.pushMsg("success", `${success.length}个文件删除成功`);
                     }
                     if (error.length > 0) {
-                        this.addMsg("error", `${success.length}个文件删除失败`);
+                        this.pushMsg("error", `${success.length}个文件删除失败`);
                     }
                     if (count > 0) {
-                        this.addMsg("info", `还有${count}个文件要删除`, response.duration);
+                        this.pushMsg("info", `还有${count}个文件要删除`, response.duration);
                     }
                 }
                 initial = false;
             } else {
-                this.addMsg("info", response?.msg || "步骤4失败");
+                this.pushMsg("info", response?.msg || "步骤4失败");
                 this.end();
                 return;
             }
@@ -167,16 +193,16 @@ export class CleanComponent implements OnInit {
     }
 
     async createClean() {
-        this.addMsgDivider();
-        this.addMsg("info", "创建清理任务");
+        this.pushMsgDivider();
+        this.pushMsg("info", "创建清理任务");
         const response = await this.dataService.post<void>("clean/clean/createClean", {}, {silent: true});
-        this.addResponseMsg(response, "创建清理任务成功", "创建清理任务失败");
+        this.pushResponseMsg(response, "创建清理任务成功", "创建清理任务失败");
     }
 
     async resetClean() {
-        this.addMsgDivider();
+        this.pushMsgDivider();
         const response = await this.dataService.post<void>("clean/clean/resetNotFinishedClean", {}, {silent: true});
-        this.addResponseMsg(response, "重置清理任务成功", "重置清理任务失败");
+        this.pushResponseMsg(response, "重置清理任务成功", "重置清理任务失败");
     }
 
     clearMsgs() {
@@ -189,4 +215,4 @@ export interface Msg {
     content: string;
 }
 
-export type MsgType = "info" | "success" | "warning" | "error" | "divider";
+export type MsgType = "info" | "success" | "warning" | "error" | "divider" | "progress";
