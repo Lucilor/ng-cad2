@@ -14,7 +14,7 @@ import {NgScrollbar} from "ngx-scrollbar";
 export class CleanComponent implements OnInit {
     msgs: Msg[] = [];
     maxMsgNum = 100;
-    deleteLimit = 10;
+    deleteLimit = 50;
     deleteLimitInfo: InputInfo = {type: "number", label: "每次删除数量", model: {key: "deleteLimit", data: this}};
     taskStartTime: number | null = null;
     @ViewChild(NgScrollbar) scrollbar?: NgScrollbar;
@@ -100,10 +100,6 @@ export class CleanComponent implements OnInit {
         if (response?.code === 0) {
             projects = response.data || [];
             const total = projects.length;
-            if (total < 1) {
-                this.addMsg("error", "没有要清理的项目");
-                return;
-            }
             this.addMsg("info", `共有${total}个项目需要清理: ${projects.join(", ")}`);
             for (const project of projects) {
                 this.addMsg("info", `项目${project}获取资源文件`);
@@ -134,9 +130,6 @@ export class CleanComponent implements OnInit {
         let count = 0;
         let initial = true;
         do {
-            // if (!initial) {
-            //     this.addMsg("info", `开始删除${this.deleteLimit}个文件`);
-            // }
             const response = await this.dataService.post<{success: ObjectOf<any>[]; error: ObjectOf<any> & {error: string}[]}>(
                 "clean/clean/runCleanStep4",
                 {limit: this.deleteLimit, initial},
@@ -161,6 +154,7 @@ export class CleanComponent implements OnInit {
                 initial = false;
             } else {
                 this.addMsg("info", response?.msg || "步骤4失败");
+                this.end();
                 return;
             }
         } while (count > 0);
@@ -177,6 +171,12 @@ export class CleanComponent implements OnInit {
         this.addMsg("info", "创建清理任务");
         const response = await this.dataService.post<void>("clean/clean/createClean", {}, {silent: true});
         this.addResponseMsg(response, "创建清理任务成功", "创建清理任务失败");
+    }
+
+    async resetClean() {
+        this.addMsgDivider();
+        const response = await this.dataService.post<void>("clean/clean/resetNotFinishedClean", {}, {silent: true});
+        this.addResponseMsg(response, "重置清理任务成功", "重置清理任务失败");
     }
 
     clearMsgs() {
