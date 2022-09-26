@@ -40,7 +40,7 @@ export const routesInfo: (Route & {path: string})[] = [
 ];
 
 const routes: Routes = [
-    {path: "", children: routesInfo, canActivate: [ProjectGuard]},
+    {path: "", children: [{path: "", pathMatch: "full", redirectTo: routesInfo[0].path}, ...routesInfo], canActivate: [ProjectGuard]},
     {path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
 ];
 

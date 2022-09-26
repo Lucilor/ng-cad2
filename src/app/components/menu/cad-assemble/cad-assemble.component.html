@@ -10,7 +10,7 @@
     </mat-select>
 </mat-form-field> -->
 <div class="btn-group">
-    <button mat-raised-button color="primary" (click)="directAssemble()">快速装配</button>
+    <button mat-raised-button *ngIf="!showPointsAssemble" color="primary" (click)="directAssemble()">快速装配</button>
     <button mat-raised-button *ngIf="showPointsAssemble" [color]="pointsAssembling ? 'accent' : 'primary'" (click)="pointsAssemble()">
         按点装配
     </button>
