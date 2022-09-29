@@ -16,7 +16,7 @@ export class CalcService {
         setGlobal("calc", this, true);
     }
 
-    calcFormulas(formulas: Formulas, vars: Formulas & {input?: Formulas} = {}, alertError: boolean | {data?: CadData} = true) {
+    calcFormulas(formulas: Formulas, vars: Formulas = {}, alertError: boolean | {data?: CadData} = true) {
         try {
             const result = Calc.calcFormulas(formulas, vars);
             const {errorTrim} = result;

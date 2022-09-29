@@ -1,52 +1,20 @@
 import {Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {imgCadEmpty, imgEmpty, imgLoading, session} from "@app/app.common";
-import {CadPreviewParams, getCadPreview} from "@app/cad.utils";
+import {imgCadEmpty, imgEmpty, imgLoading, session, setGlobal} from "@app/app.common";
+import {CadPreviewParams, getCadPreview, getCadXianshigongshi} from "@app/cad.utils";
 import {CadData, CadLine, CadViewerConfig, Defaults, setLinesLength} from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
+import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf, timeout} from "@utils";
 import {Properties} from "csstype";
 import JsBarcode from "jsbarcode";
 import {cloneDeep} from "lodash";
 import {DateTime} from "luxon";
-
-export interface Order {
-    code: string;
-    开启锁向示意图?: {data: CadData; img: SafeUrl};
-    cads: {
-        data: CadData;
-        isLarge: boolean;
-        img: SafeUrl;
-        imgLarge?: SafeUrl;
-        imgSize: [number, number];
-        calcW: number;
-        calcH: number;
-        style: Properties;
-        imgStyle: Properties;
-    }[];
-    positions: number[][];
-    style: Properties;
-    info: ObjectOf<string | number>[] | null;
-}
-
-export interface SectionCell {
-    key: string;
-    label?: string;
-    isBoolean?: boolean;
-    class?: string | string[];
-    style?: Properties;
-}
-
-export interface SectionConfig {
-    rows: {
-        cells: SectionCell[];
-    }[];
-}
 
 @Component({
     selector: "app-dingdanbiaoqian",
@@ -92,9 +60,11 @@ export class DingdanbiaoqianComponent implements OnInit {
         ]
     };
     production = environment.production;
+    materialResult: Formulas = {};
     @ViewChildren("barcode") barcodeEls?: QueryList<HTMLDivElement>;
 
     private _configKey = "订单标签配置";
+    private _httpCacheKey = "订单标签请求数据";
     config = {
         showCadSmallImg: true,
         showCadLargeImg: true
@@ -112,6 +82,7 @@ export class DingdanbiaoqianComponent implements OnInit {
     ngOnInit() {
         setTimeout(() => this.getOrders(), 0);
         this._loadConfig();
+        setGlobal("ddbq", this);
     }
 
     private _saveConfig() {
@@ -128,13 +99,18 @@ export class DingdanbiaoqianComponent implements OnInit {
     async getOrders() {
         const url = "order/order/dingdanbiaoqian";
         const params = this.route.snapshot.queryParams;
-        this.spinner.show(this.spinner.defaultLoaderId, {text: "获取数据..."});
-        const response = await this.dataService.post<
-            {code: string; cads: ObjectOf<any>[]; 流程单数据: ObjectOf<string>; 开启锁向示意图: any}[]
-        >(url, params);
-        if (response?.data) {
+        let ddbqData = session.load<DdbqData>(this._httpCacheKey);
+        if (!ddbqData) {
+            this.spinner.show(this.spinner.defaultLoaderId, {text: "获取数据..."});
+            const response = await this.dataService.post<DdbqData>(url, params);
+            ddbqData = response?.data || null;
+            if (ddbqData) {
+                session.save(this._httpCacheKey, ddbqData);
+            }
+        }
+        if (ddbqData) {
             const {cadsRowNum, cadsColNum} = this;
-            this.orders = response.data.map((order): Order => {
+            this.orders = ddbqData.map<Order>((order) => {
                 const maxLength = 80;
                 const cads: Order["cads"] = order.cads.map((cad): Order["cads"][0] => {
                     const img = imgLoading;
@@ -174,6 +150,7 @@ export class DingdanbiaoqianComponent implements OnInit {
                 });
                 return {
                     code: order.code,
+                    materialResult: order.materialResult,
                     开启锁向示意图: {data: new CadData(order.开启锁向示意图), img: imgEmpty},
                     cads,
                     positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
@@ -227,8 +204,18 @@ export class DingdanbiaoqianComponent implements OnInit {
             const {showCadSmallImg, showCadLargeImg} = this.config;
             const imgLargeSize = [innerWidth * 0.85, innerHeight * 0.85] as [number, number];
             const 开启锁向示意图Size = this.开启锁向示意图Size;
-            for (const {cads, 开启锁向示意图} of this.orders) {
+            for (const {cads, 开启锁向示意图, materialResult} of this.orders) {
                 if (开启锁向示意图) {
+                    开启锁向示意图.data.type = "";
+                    开启锁向示意图.data.type2 = "";
+                    if (materialResult) {
+                        for (const e of 开启锁向示意图.data.entities.dimension) {
+                            const 显示公式 = getCadXianshigongshi(e.mingzi);
+                            if (显示公式 && 显示公式 in materialResult) {
+                                e.mingzi = String(materialResult[显示公式]);
+                            }
+                        }
+                    }
                     开启锁向示意图.img = await getImg(
                         开启锁向示意图.data,
                         {
@@ -303,6 +290,7 @@ export class DingdanbiaoqianComponent implements OnInit {
             pushOrder();
             order.info = null;
             delete order.开启锁向示意图;
+            delete order.materialResult;
             let orderCurr = pushOrder();
             let orderPrev: Order | null = null;
             for (let i = 0; i < cads.length; i++) {
@@ -370,4 +358,50 @@ export class DingdanbiaoqianComponent implements OnInit {
         }
         return value;
     }
+
+    clearHttpCache() {
+        session.remove(this._httpCacheKey);
+    }
 }
+
+export interface Order {
+    code: string;
+    开启锁向示意图?: {data: CadData; img: SafeUrl};
+    materialResult?: Formulas;
+    cads: {
+        data: CadData;
+        isLarge: boolean;
+        img: SafeUrl;
+        imgLarge?: SafeUrl;
+        imgSize: [number, number];
+        calcW: number;
+        calcH: number;
+        style: Properties;
+        imgStyle: Properties;
+    }[];
+    positions: number[][];
+    style: Properties;
+    info: ObjectOf<string | number>[] | null;
+}
+
+export interface SectionCell {
+    key: string;
+    label?: string;
+    isBoolean?: boolean;
+    class?: string | string[];
+    style?: Properties;
+}
+
+export interface SectionConfig {
+    rows: {
+        cells: SectionCell[];
+    }[];
+}
+
+export type DdbqData = {
+    code: string;
+    materialResult: Formulas;
+    cads: ObjectOf<any>[];
+    流程单数据: ObjectOf<string>;
+    开启锁向示意图: any;
+}[];

@@ -319,7 +319,7 @@ export class Calc {
     /**
      * 根据参数计算公式
      */
-    public static calcFormulas(formulas: Formulas, vars: Formulas & {input?: Formulas} = {}) {
+    public static calcFormulas(formulas: Formulas, vars: Formulas = {}) {
         const error: ObjectOf<string> = {};
         const maybeError: ObjectOf<string> = {}; // 计算结果小于等于0
         const {sortedFormulas, sortedKeys} = this.sortFormulas(formulas);
@@ -327,7 +327,7 @@ export class Calc {
         vars = {...vars};
 
         const formulasRaw = {...formulas};
-        const input = vars.input || {};
+        const input: Formulas = vars.input && typeof vars.input === "object" ? vars.input : {};
 
         // 先将输入值拿出来
         for (const key in input) {

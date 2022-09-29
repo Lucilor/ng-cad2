@@ -64,11 +64,8 @@
                                 <div class="value center">{{ section["花件备注"] }}</div>
                             </div>
                         </div>
-                        <div class="row flex-110">
-                            <div class="flex-column flex-110" style="height: 100%; padding: 5px; justify-content: flex-end">
-                                <app-image [src]="order['开启锁向示意图']?.img"> </app-image>
-                            </div>
-                            <div style="width: 30%"></div>
+                        <div class="开启锁向示意图">
+                            <app-image [src]="order['开启锁向示意图']?.img" [bigPicSrc]="order['开启锁向示意图']?.img"></app-image>
                         </div>
                     </div>
                 </div>
@@ -97,6 +94,7 @@
 <div class="btn-group toolbar no-print">
     <button mat-raised-button color="primary" (click)="print()">打印</button>
     <ng-container *ngIf="!production">
+        <button mat-raised-button color="primary" (click)="clearHttpCache()">clearHttpCache</button>
         <mat-slide-toggle [(ngModel)]="config.showCadSmallImg" (change)="onConfigChange()">渲染小图</mat-slide-toggle>
         <mat-slide-toggle [(ngModel)]="config.showCadLargeImg" (change)="onConfigChange()">渲染大图</mat-slide-toggle>
     </ng-container>

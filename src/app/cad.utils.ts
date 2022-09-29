@@ -459,3 +459,11 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
         }
     }
 };
+
+export const getCadXianshigongshi = (str: string) => {
+    const match = str.match(/显示公式[ ]*[:：](.*)/);
+    if (match && match.length > 1) {
+        return match[1].trim();
+    }
+    return null;
+};

@@ -76,13 +76,14 @@ $info-border: solid 1px black;
 .info {
     display: flex;
     flex-wrap: wrap;
-    flex: 1 1 0;
+    height: 100%;
 
     .section {
         display: flex;
         flex-direction: column;
         border: $info-border;
         flex: 1 1 0;
+        height: 100%;
         &:not(:last-child) {
             margin-right: 5px;
         }
@@ -132,6 +133,16 @@ $info-border: solid 1px black;
                         justify-content: flex-start;
                     }
                 }
+            }
+        }
+
+        .开启锁向示意图 {
+            height: 280px;
+            padding: 5px;
+            display: flex;
+
+            app-image {
+                height: 100%;
             }
         }
     }
