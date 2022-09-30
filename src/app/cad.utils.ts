@@ -2,6 +2,7 @@ import {
     CadBaseLine,
     CadCircle,
     CadData,
+    CadDimension,
     CadImage,
     CadJointPoint,
     CadLeader,
@@ -19,6 +20,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {DEFAULT_TOLERANCE, isBetween, Line, ObjectOf, Point} from "@utils";
 import {intersection} from "lodash";
 import {CadCollection} from "./app.common";
+import {Formulas} from "./utils/calc";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
@@ -26,12 +28,13 @@ export const maxLineLength = 130;
 
 export interface CadPreviewRawParams {
     fixedLengthTextSize?: number;
+    fixedDimTextSize?: number;
+    fixedMtextSize?: number;
     config?: Partial<CadViewerConfig>;
     autoSize?: boolean;
     maxZoom?: number;
 }
 export const getCadPreviewRaw = async (collection: CadCollection, data: CadData, params: CadPreviewRawParams = {}) => {
-    const fixedLengthTextSize = params.fixedLengthTextSize;
     const shiyitu = isShiyitu(data);
     const cad = new CadViewer(new CadData(), {
         width: 300,
@@ -57,19 +60,26 @@ export const getCadPreviewRaw = async (collection: CadCollection, data: CadData,
         cad.resize(width, height);
     }
     cad.center();
-    if (fixedLengthTextSize) {
+
+    const {fixedLengthTextSize, fixedDimTextSize, fixedMtextSize} = params;
+    if ([fixedLengthTextSize, fixedDimTextSize, fixedMtextSize].some((size) => size !== undefined)) {
         const resize = () => {
             const zoom = cad.zoom();
-            const lengthTextSize = fixedLengthTextSize / zoom;
+            const lengthTextSize = typeof fixedLengthTextSize === "number" ? fixedLengthTextSize / zoom : null;
+            const dimTextSize = typeof fixedDimTextSize === "number" ? fixedDimTextSize / zoom : null;
+            const mtextSize = typeof fixedMtextSize === "number" ? fixedMtextSize / zoom : null;
             cad.data.entities.forEach((e) => {
-                if (e instanceof CadLineLike) {
+                if (e instanceof CadLineLike && lengthTextSize !== null) {
                     e.lengthTextSize = lengthTextSize;
                     e.children.mtext.forEach((mtext) => {
                         mtext.info.offset = [0, 0];
-                        // if (mtext.info.offset) {
-                        //     mtext.info.offset = mtext.info.offset.map((v) => v / zoom);
-                        // }
                     });
+                    cad.render(e);
+                } else if (e instanceof CadDimension && dimTextSize !== null) {
+                    e.setStyle({text: {size: dimTextSize}});
+                    cad.render(e);
+                } else if (e instanceof CadMtext && mtextSize !== null) {
+                    e.fontStyle.size = mtextSize;
                     cad.render(e);
                 }
             });
@@ -460,10 +470,21 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
     }
 };
 
-export const getCadXianshigongshi = (str: string) => {
-    const match = str.match(/显示公式[ ]*[:：](.*)/);
+export const setDimensionText = (e: CadDimension, materialResult: Formulas) => {
+    const match = e.mingzi.match(/显示公式[ ]*[:：](.*)/);
+    let 显示公式: string | null = null;
     if (match && match.length > 1) {
-        return match[1].trim();
+        显示公式 = match[1].trim();
     }
-    return null;
+    let 活动标注 = false;
+    if (显示公式 !== null) {
+        if (isNaN(Number(显示公式)) && 显示公式 in materialResult) {
+            显示公式 = String(materialResult[显示公式]);
+        }
+        e.mingzi = 显示公式;
+    } else if (e.mingzi.includes("活动标注")) {
+        活动标注 = true;
+        e.mingzi = "<>";
+    }
+    return {显示公式, 活动标注};
 };

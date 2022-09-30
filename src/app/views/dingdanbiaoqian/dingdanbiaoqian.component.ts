@@ -2,8 +2,8 @@ import {Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgCadEmpty, imgEmpty, imgLoading, session, setGlobal} from "@app/app.common";
-import {CadPreviewParams, getCadPreview, getCadXianshigongshi} from "@app/cad.utils";
-import {CadData, CadLine, CadViewerConfig, Defaults, setLinesLength} from "@cad-viewer";
+import {CadPreviewParams, getCadPreview, setDimensionText} from "@app/cad.utils";
+import {CadData, CadLine, CadViewerConfig, Defaults, generateLineTexts, setLinesLength} from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -25,10 +25,11 @@ export class DingdanbiaoqianComponent implements OnInit {
     orders: Order[] = [];
     cadsRowNum = 4;
     cadsColNum = 5;
-    pageSize = [1122, 792];
-    pagePadding = [17, 17, 5, 17];
-    cadSize = [218, 186];
-    开启锁向示意图Size = [180, 280] as [number, number];
+    pageSize = [1122, 792] as const;
+    pagePadding = [17, 17, 5, 17] as const;
+    cadSize = [218, 186] as const;
+    开启锁向示意图Size = [207, 280] as const;
+    配合框Size = [150, 280] as const;
     sectionConfig: SectionConfig = {
         rows: [
             {
@@ -61,6 +62,7 @@ export class DingdanbiaoqianComponent implements OnInit {
     };
     production = environment.production;
     materialResult: Formulas = {};
+    type: "流程单" | "标签贴纸" | null = null;
     @ViewChildren("barcode") barcodeEls?: QueryList<HTMLDivElement>;
 
     private _configKey = "订单标签配置";
@@ -83,6 +85,10 @@ export class DingdanbiaoqianComponent implements OnInit {
         setTimeout(() => this.getOrders(), 0);
         this._loadConfig();
         setGlobal("ddbq", this);
+        const {type} = this.route.snapshot.queryParams;
+        if (type) {
+            this.type = type;
+        }
     }
 
     private _saveConfig() {
@@ -109,7 +115,7 @@ export class DingdanbiaoqianComponent implements OnInit {
             }
         }
         if (ddbqData) {
-            const {cadsRowNum, cadsColNum} = this;
+            const {cadsRowNum, cadsColNum, 开启锁向示意图Size, 配合框Size} = this;
             this.orders = ddbqData.map<Order>((order) => {
                 const maxLength = 80;
                 const cads: Order["cads"] = order.cads.map((cad): Order["cads"][0] => {
@@ -151,15 +157,24 @@ export class DingdanbiaoqianComponent implements OnInit {
                 return {
                     code: order.code,
                     materialResult: order.materialResult,
-                    开启锁向示意图: {data: new CadData(order.开启锁向示意图), img: imgEmpty},
+                    开启锁向示意图: {
+                        data: new CadData(order.开启锁向示意图),
+                        img: imgEmpty,
+                        style: {width: 开启锁向示意图Size[0] + "px", height: 开启锁向示意图Size[1] + "px"}
+                    },
+                    配合框: order.配合框.map((v) => ({
+                        data: new CadData(v),
+                        img: imgEmpty,
+                        style: {width: 配合框Size[0] + "px", height: 配合框Size[1] / order.配合框.length + "px"}
+                    })),
                     cads,
                     positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
                     style: {},
                     info: Array(3).fill(order.流程单数据) || []
                 };
             });
-            this.splitOrders();
             document.title = `${this.orders[0].code}_${DateTime.now().toFormat("yyyyMMdd")}`;
+            this.splitOrders();
 
             await timeout(0);
             try {
@@ -196,44 +211,69 @@ export class DingdanbiaoqianComponent implements OnInit {
                 }
             };
             const collection = this.status.collection$.value;
-            const getImg = async (data: CadData, config: Partial<CadViewerConfig>, autoSize?: boolean) => {
-                const previewParams: CadPreviewParams = {config: {...configBase, ...config}, maxZoom: 2.5, autoSize};
-                const imgUrl = await getCadPreview(collection, data, previewParams);
+            const getImg = async (data: CadData, previewParams: Partial<CadPreviewParams>) => {
+                const previewParams2: CadPreviewParams = {maxZoom: 1.3, ...previewParams, config: {...configBase, ...previewParams.config}};
+                const imgUrl = await getCadPreview(collection, data, previewParams2);
                 return this.sanitizer.bypassSecurityTrustUrl(imgUrl);
             };
             const {showCadSmallImg, showCadLargeImg} = this.config;
             const imgLargeSize = [innerWidth * 0.85, innerHeight * 0.85] as [number, number];
-            const 开启锁向示意图Size = this.开启锁向示意图Size;
-            for (const {cads, 开启锁向示意图, materialResult} of this.orders) {
+            for (const {cads, 开启锁向示意图, 配合框, materialResult} of this.orders) {
                 if (开启锁向示意图) {
                     开启锁向示意图.data.type = "";
                     开启锁向示意图.data.type2 = "";
                     if (materialResult) {
                         for (const e of 开启锁向示意图.data.entities.dimension) {
-                            const 显示公式 = getCadXianshigongshi(e.mingzi);
-                            if (显示公式 && 显示公式 in materialResult) {
-                                e.mingzi = String(materialResult[显示公式]);
+                            setDimensionText(e, materialResult);
+                            e.setStyle({text: {color: "black"}});
+                        }
+                        for (const e of 开启锁向示意图.data.entities.mtext) {
+                            const match = e.text.match(/^#(.*)#$/);
+                            if (match && match[1] && match[1] in materialResult) {
+                                e.text = String(materialResult[match[1]]);
                             }
                         }
+                        for (const e of 开启锁向示意图.data.entities.line) {
+                            e.linewidth = 5;
+                        }
                     }
-                    开启锁向示意图.img = await getImg(
-                        开启锁向示意图.data,
-                        {
-                            width: 开启锁向示意图Size[0],
-                            height: 开启锁向示意图Size[1],
-                            hideLineLength: true
-                        },
-                        true
-                    );
+                    const previewParams: Partial<CadPreviewParams> = {
+                        config: {width: 开启锁向示意图Size[0], height: 开启锁向示意图Size[1], hideLineLength: true},
+                        autoSize: true,
+                        fixedDimTextSize: 100,
+                        fixedMtextSize: 100
+                    };
+                    开启锁向示意图.img = await getImg(开启锁向示意图.data, previewParams);
+                }
+                if (配合框) {
+                    for (const v of 配合框) {
+                        for (const e of v.data.entities.line) {
+                            if (e.mingzi !== "背框线") {
+                                e.hideLength = true;
+                            }
+                        }
+                        if (v.data.name === "顶框") {
+                            v.data.transform({rotate: -Math.PI / 2}, true);
+                            generateLineTexts(v.data);
+                        }
+                        v.img = await getImg(v.data, {
+                            config: {width: 配合框Size[0], height: 配合框Size[1], hideLineLength: false},
+                            autoSize: true
+                        });
+                    }
                 }
                 if (showCadSmallImg) {
-                    await Promise.all(cads.map(async (v) => (v.img = await getImg(v.data, {width: v.imgSize[0], height: v.imgSize[1]}))));
+                    await Promise.all(
+                        cads.map(async (v) => (v.img = await getImg(v.data, {config: {width: v.imgSize[0], height: v.imgSize[1]}})))
+                    );
                 } else {
                     await Promise.all(cads.map(async (v) => (v.img = imgCadEmpty)));
                 }
                 if (showCadLargeImg) {
                     await Promise.all(
-                        cads.map(async (v) => (v.imgLarge = await getImg(v.data, {width: imgLargeSize[0], height: imgLargeSize[1]})))
+                        cads.map(
+                            async (v) => (v.imgLarge = await getImg(v.data, {config: {width: imgLargeSize[0], height: imgLargeSize[1]}}))
+                        )
                     );
                 } else {
                     await Promise.all(cads.map(async (v) => delete v.imgLarge));
@@ -287,30 +327,34 @@ export class DingdanbiaoqianComponent implements OnInit {
                 this.orders.push(o);
                 return o;
             };
-            pushOrder();
-            order.info = null;
-            delete order.开启锁向示意图;
-            delete order.materialResult;
-            let orderCurr = pushOrder();
-            let orderPrev: Order | null = null;
-            for (let i = 0; i < cads.length; i++) {
-                let result = this.takeEmptyPosition(orderCurr.positions, cads[i].isLarge);
-                if (result.position) {
-                    this.setCad(cads[i], result.position);
-                    orderCurr.cads.push(cads[i]);
-                } else {
-                    if (orderPrev) {
-                        result = this.takeEmptyPosition(orderPrev.positions, cads[i].isLarge);
-                        if (result.position) {
-                            this.setCad(cads[i], result.position);
-                            orderPrev.cads.push(cads[i]);
-                        } else if (result.isFull) {
-                            orderPrev = null;
-                        }
+            if (this.type === "流程单") {
+                pushOrder();
+            } else if (this.type === "标签贴纸") {
+                order.info = null;
+                delete order.开启锁向示意图;
+                delete order.配合框;
+                delete order.materialResult;
+                let orderCurr = pushOrder();
+                let orderPrev: Order | null = null;
+                for (let i = 0; i < cads.length; i++) {
+                    let result = this.takeEmptyPosition(orderCurr.positions, cads[i].isLarge);
+                    if (result.position) {
+                        this.setCad(cads[i], result.position);
+                        orderCurr.cads.push(cads[i]);
                     } else {
-                        orderPrev = orderCurr;
-                        orderCurr = pushOrder();
-                        i--;
+                        if (orderPrev) {
+                            result = this.takeEmptyPosition(orderPrev.positions, cads[i].isLarge);
+                            if (result.position) {
+                                this.setCad(cads[i], result.position);
+                                orderPrev.cads.push(cads[i]);
+                            } else if (result.isFull) {
+                                orderPrev = null;
+                            }
+                        } else {
+                            orderPrev = orderCurr;
+                            orderCurr = pushOrder();
+                            i--;
+                        }
                     }
                 }
             }
@@ -366,7 +410,8 @@ export class DingdanbiaoqianComponent implements OnInit {
 
 export interface Order {
     code: string;
-    开启锁向示意图?: {data: CadData; img: SafeUrl};
+    开启锁向示意图?: {data: CadData; img: SafeUrl; style: Properties};
+    配合框?: {data: CadData; img: SafeUrl; style: Properties}[];
     materialResult?: Formulas;
     cads: {
         data: CadData;
@@ -403,5 +448,6 @@ export type DdbqData = {
     materialResult: Formulas;
     cads: ObjectOf<any>[];
     流程单数据: ObjectOf<string>;
-    开启锁向示意图: any;
+    开启锁向示意图: ObjectOf<any>;
+    配合框: ObjectOf<any>[];
 }[];

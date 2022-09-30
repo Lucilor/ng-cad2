@@ -6,7 +6,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Router} from "@angular/router";
 import {imgCadEmpty, setGlobal} from "@app/app.common";
-import {getCadPreview, getCadTotalLength, getCadXianshigongshi} from "@app/cad.utils";
+import {getCadPreview, getCadTotalLength, setDimensionText} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -402,12 +402,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     private _configCad(data: CadData) {
         data.entities.dimension.forEach((e) => {
-            const 显示公式 = getCadXianshigongshi(e.mingzi);
-            if (显示公式) {
+            const {显示公式} = setDimensionText(e, {});
+            if (显示公式 !== null) {
                 e.info.显示公式 = 显示公式;
-            } else if (e.mingzi.includes("活动标注") || e.mingzi === "<>") {
+            } else if (e.mingzi === "<>") {
                 e.info.显示公式 = "<>";
-                e.mingzi = "<>";
             } else if (isNaN(Number(e.mingzi))) {
                 e.visible = false;
             }
