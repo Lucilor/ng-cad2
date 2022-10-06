@@ -455,10 +455,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         }
     }
 
-    async openKlkwpzDialog(data: CadData) {
-        const result = await openKlkwpzDialog(this.dialog, {data: {source: data.info.开料孔位配置}});
+    async openKlkwpzDialog(item: ZixuanpeijianCadItem) {
+        const result = await openKlkwpzDialog(this.dialog, {data: {source: item.info.开料孔位配置 || {}}});
         if (result) {
-            data.info.开料孔位配置 = result;
+            item.info.开料孔位配置 = result;
         }
     }
 

@@ -1,5 +1,6 @@
 import {SafeUrl} from "@angular/platform-browser";
 import {CadViewerConfig, CadData} from "@cad-viewer";
+import {KlkwpzSource} from "@components/klkwpz/klkwpz";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
 import {Formulas} from "@src/app/utils/calc";
@@ -41,6 +42,7 @@ export interface ZixuanpeijianInfo {
     bancai?: BancaiList & {cailiao?: string; houdu?: string};
     translate?: [number, number];
     hidden?: boolean;
+    开料孔位配置?: KlkwpzSource;
 }
 
 export interface Bancai extends BancaiList {
