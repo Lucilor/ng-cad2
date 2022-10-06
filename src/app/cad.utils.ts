@@ -328,6 +328,24 @@ export const getCadTotalLength = (data: CadData) => {
     return length;
 };
 
+export const splitShuangxiangCad = (data: CadData) => {
+    if (!data.shuangxiangzhewan) {
+        return null;
+    }
+    const lines = sortLines(data);
+    return lines
+        .map((v) => {
+            const d = new CadData();
+            d.entities.add(...v);
+            return d;
+        })
+        .sort((a, b) => {
+            const {width: w1, height: h1} = a.getBoundingRect();
+            const {width: w2, height: h2} = b.getBoundingRect();
+            return h1 / w1 - h2 / w2;
+        });
+};
+
 export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
     let skip = true;
     const intersectionsKeys = ["zhidingweizhipaokeng", "指定分体位置", "指定位置不折"] as const;

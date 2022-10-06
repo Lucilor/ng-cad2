@@ -159,6 +159,9 @@
                             <button mat-icon-button color="primary" (click)="openCad(item)">
                                 <mat-icon>open_in_new</mat-icon>
                             </button>
+                            <button mat-icon-button color="primary" (click)="removeLingsanItem(i)">
+                                <mat-icon>remove_circle</mat-icon>
+                            </button>
                             <span
                                 class="name text-ellipsis"
                                 [matTooltip]="item.data.name"

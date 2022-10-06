@@ -754,6 +754,19 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (response?.data) {
             const {prefix, save_path} = response.data;
             this.orderImageUrl = prefix + save_path;
+            const cad = this.cad;
+            if (cad) {
+                cad.data.entities.image
+                    .filter((e) => e.info.designPicKey === "设计图")
+                    .forEach((e) => {
+                        e.url = this.orderImageUrl;
+                        cad.render(e);
+                    });
+            }
+            const 设计图 = this.printParams.designPics.设计图;
+            if (设计图) {
+                设计图.urls = 设计图.urls.map((v) => v.map((_) => this.orderImageUrl));
+            }
         }
     }
 
@@ -822,9 +835,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 flip: cadZhankai.flip,
                 flipChai: cadZhankai.flipChai,
                 neibugongshi: cadZhankai.neibugongshi,
-                calcW: v.width,
-                calcH: v.height,
-                num: v.num,
+                calcW: Number(v.width),
+                calcH: Number(v.height),
+                num: Number(v.num),
                 包边正面按分类拼接: cadZhankai.包边正面按分类拼接,
                 属于正面部分: false,
                 属于框型部分: false,

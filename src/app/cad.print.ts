@@ -149,6 +149,7 @@ export interface DrawDesignPicsParams {
 }
 const drawDesignPics = async (
     data: CadData,
+    keyword: string,
     num: number,
     findLocator: boolean,
     rect: Rectangle,
@@ -227,6 +228,7 @@ const drawDesignPics = async (
         cadImage.position = getImgRect(i).getPoint(anchorBg[0], anchorBg[1]);
         cadImage.targetSize = new Point(imgWidth, imgHeight);
         cadImage.objectFit = objectFit;
+        cadImage.info.designPicKey = keyword;
         const matrix = new Matrix();
         if (flip2.includes("h")) {
             matrix.scale(-1, 1);
@@ -592,16 +594,16 @@ export const printCads = async (params: PrintCadsParams) => {
                                 } else {
                                     try {
                                         e.url = getImageDataUrl(await loadImage(url2));
+                                        imgMap[url2] = e.url;
                                     } catch (error) {
                                         imgMap[url2] = "";
                                     }
-                                    imgMap[url2] = e.url;
                                 }
                             })
                         );
                     };
                     if (showSmall) {
-                        const cadImages = await drawDesignPics(data, currUrls.length, true, result.rect, styles);
+                        const cadImages = await drawDesignPics(data, keyword, currUrls.length, true, result.rect, styles);
                         if (cadImages) {
                             await setImageUrl(cadImages);
                             await cad.render(cadImages);
@@ -612,7 +614,7 @@ export const printCads = async (params: PrintCadsParams) => {
                         img = await cad.toDataURL();
                     }
                     if (showLarge) {
-                        const cadImages = await drawDesignPics(data2, currUrls.length, false, result.rect, styles);
+                        const cadImages = await drawDesignPics(data2, keyword, currUrls.length, false, result.rect, styles);
                         if (cadImages) {
                             await setImageUrl(cadImages);
                             cad.data = data2;

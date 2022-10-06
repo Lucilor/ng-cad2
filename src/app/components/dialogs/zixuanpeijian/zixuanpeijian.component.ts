@@ -6,7 +6,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Router} from "@angular/router";
 import {imgCadEmpty, setGlobal} from "@app/app.common";
-import {getCadPreview, getCadTotalLength, setDimensionText} from "@app/cad.utils";
+import {getCadPreview, getCadTotalLength, setDimensionText, splitShuangxiangCad} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -424,7 +424,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (zhankai.length < 1 || !zhankai[0].originalWidth || zhankai[0].custom) {
             return;
         }
-        const vars = {...this.data?.materialResult, 总长: toFixed(getCadTotalLength(data), 4)};
+        const vars = {...this.data?.materialResult, ...this._getCadLengthVars(data)};
         const formulas: ObjectOf<string> = {展开宽: zhankai[0].originalWidth};
         const calcResult = this.calc.calcFormulas(formulas, vars);
         const {展开宽} = calcResult?.succeed || {};
@@ -857,6 +857,17 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         this._updateInputInfos();
     }
 
+    private _getCadLengthVars(data: CadData) {
+        const getLength = (d: CadData) => Number(toFixed(getCadTotalLength(d), 4));
+        const vars: Formulas = {总长: getLength(data)};
+        const cads = splitShuangxiangCad(data);
+        if (cads) {
+            vars.双折宽 = getLength(cads[0]);
+            vars.双折高 = getLength(cads[1]);
+        }
+        return vars;
+    }
+
     private _calc(): boolean {
         const materialResult = this.data?.materialResult || {};
         const shuchubianliang: Formulas = {};
@@ -1014,7 +1025,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         setLinesLength(data, [data.entities.line[index - 1]], Number(value));
                     }
                 }
-                const vars3 = {...vars2, 总长: toFixed(getCadTotalLength(data), 4)};
+                const vars3 = {...vars2, ...this._getCadLengthVars(data)};
                 const zhankais2: ZixuanpeijianInfo["zhankai"] = [];
                 for (const [i, zhankai] of zhankais) {
                     const formulas3: Formulas = {};
@@ -1139,6 +1150,15 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         return bancaiNames.length === 1 ? bancaiNames[0] : "";
     }
 
+    private _getCurrBancais() {
+        const bancais = this.result.模块
+            .flatMap((v) => v.cads.map((vv) => vv.info.bancai))
+            .concat(this.result.零散.map((v) => v.info.bancai));
+        const bancaisNotEmpty = bancais.filter((v) => v) as BancaiList[];
+        const names = uniq(bancaisNotEmpty.map((v) => v.mingzi));
+        return this.bancaiList.filter((v) => names.includes(v.mingzi));
+    }
+
     async selectAllBancai() {
         const bancaiName = this._getCurrBancaiName();
         const bancaiPrev = this.bancaiList.find((v) => v.mingzi === bancaiName);
@@ -1160,58 +1180,40 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     async selectAllCailiao() {
-        const bancaiName = this._getCurrBancaiName();
-        if (bancaiName === null) {
-            this.message.error("板材选择不一致");
-            return;
-        }
-        const bancai = this.bancaiList.find((v) => v.mingzi === bancaiName);
-        if (!bancai) {
-            this.message.error("请先选择板材");
-            return;
-        }
-        const result = await this.message.button({buttons: bancai.cailiaoList});
-        if (result && bancai.cailiaoList.includes(result)) {
-            for (const item of this.result.模块) {
-                for (const {info} of item.cads) {
-                    if (info.bancai) {
+        const bancais = this._getCurrBancais();
+        const cailiaoList = uniq(bancais.flatMap((v) => v.cailiaoList));
+        const result = await this.message.button({buttons: cailiaoList});
+        if (result && cailiaoList.includes(result)) {
+            const setItems = (items: ZixuanpeijianCadItem[]) => {
+                for (const {info} of items) {
+                    if (info.bancai && info.bancai.cailiaoList.includes(result)) {
                         info.bancai.cailiao = result;
                     }
                 }
+            };
+            for (const item of this.result.模块) {
+                setItems(item.cads);
             }
-            for (const {info} of this.result.零散) {
-                if (info.bancai) {
-                    info.bancai.cailiao = result;
-                }
-            }
+            setItems(this.result.零散);
         }
     }
 
     async selectAllHoudu() {
-        const bancaiName = this._getCurrBancaiName();
-        if (bancaiName === null) {
-            this.message.error("板材选择不一致");
-            return;
-        }
-        const bancai = this.bancaiList.find((v) => v.mingzi === bancaiName);
-        if (!bancai) {
-            this.message.error("请先选择板材");
-            return;
-        }
-        const result = await this.message.button({buttons: bancai.houduList});
-        if (result && bancai.houduList.includes(result)) {
-            for (const item of this.result.模块) {
-                for (const {info} of item.cads) {
-                    if (info.bancai) {
+        const bancais = this._getCurrBancais();
+        const houduList = uniq(bancais.flatMap((v) => v.houduList));
+        const result = await this.message.button({buttons: houduList});
+        if (result && houduList.includes(result)) {
+            const setItems = (items: ZixuanpeijianCadItem[]) => {
+                for (const {info} of items) {
+                    if (info.bancai && info.bancai.houduList.includes(result)) {
                         info.bancai.houdu = result;
                     }
                 }
+            };
+            for (const item of this.result.模块) {
+                setItems(item.cads);
             }
-            for (const {info} of this.result.零散) {
-                if (info.bancai) {
-                    info.bancai.houdu = result;
-                }
-            }
+            setItems(this.result.零散);
         }
     }
 
