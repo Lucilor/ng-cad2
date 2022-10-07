@@ -41,10 +41,12 @@ import {CadSearchFormComponent} from "@components/dialogs/cad-search-form/cad-se
 import {CadZhankaiComponent} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {ChangelogComponent} from "@components/dialogs/changelog/changelog.component";
 import {JsonEditorComponent} from "@components/dialogs/json-editor/json-editor.component";
+import {KlcsDialogComponent} from "@components/dialogs/klcs-dialog/klcs-dialog.component";
 import {KlkwpzDialogComponent} from "@components/dialogs/klkwpz-dialog/klkwpz-dialog.component";
 import {LoginFormComponent} from "@components/dialogs/login-form/login-form.component";
 import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {ZixuanpeijianComponent} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
+import {KlcsComponent} from "@components/klcs/klcs.component";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {CadAssembleComponent} from "@components/menu/cad-assemble/cad-assemble.component";
 import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
@@ -135,6 +137,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         CadZhankaiComponent,
         ChangelogAdminComponent,
         ChangelogComponent,
+        CleanComponent,
         DingdanbiaoqianComponent,
         ExportComponent,
         ImportComponent,
@@ -143,6 +146,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         JsonEditorComponent,
         KailiaocanshuComponent,
         KailiaokongweipeizhiComponent,
+        KlcsComponent,
+        KlcsDialogComponent,
         KlkwpzComponent,
         KlkwpzDialogComponent,
         LoginFormComponent,
@@ -158,8 +163,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         SelectCadsComponent,
         SubCadsComponent,
         ToolbarComponent,
-        ZixuanpeijianComponent,
-        CleanComponent
+        ZixuanpeijianComponent
     ],
     imports: [
         AppRoutingModule,

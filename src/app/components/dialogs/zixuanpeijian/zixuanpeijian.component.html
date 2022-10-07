@@ -116,7 +116,20 @@
                                     [matTooltipShowDelay]="500"
                                     matTooltipPosition="above"
                                 >
-                                    {{ cad.data.name }}
+                                    后台修改{{ cad.data.name }}
+                                </span>
+                            </div>
+                            <div class="title" *ngIf="cad.data.zhankai[0]?.kailiaomuban">
+                                <button mat-icon-button color="primary" (click)="openCad(cad.data.zhankai[0].kailiaomuban)">
+                                    <mat-icon>open_in_new</mat-icon>
+                                </button>
+                                <span
+                                    class="name text-ellipsis"
+                                    [matTooltip]="cad.data.name"
+                                    [matTooltipShowDelay]="500"
+                                    matTooltipPosition="above"
+                                >
+                                    后台修改开料模板
                                 </span>
                             </div>
                             <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
@@ -145,6 +158,7 @@
                             </div>
                             <div class="btn-group">
                                 <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad)">开料孔位配置</button>
+                                <button mat-raised-button color="primary" (click)="openKlcsDialog(cad)">开料参数</button>
                             </div>
                         </div>
                     </ng-container>
@@ -168,7 +182,20 @@
                                 [matTooltipShowDelay]="500"
                                 matTooltipPosition="above"
                             >
-                                {{ item.data.name }}
+                                后台修改{{ item.data.name }}
+                            </span>
+                        </div>
+                        <div class="title" *ngIf="item.data.zhankai[0]?.kailiaomuban">
+                            <button mat-icon-button color="primary" (click)="openCad(item.data.zhankai[0].kailiaomuban)">
+                                <mat-icon>open_in_new</mat-icon>
+                            </button>
+                            <span
+                                class="name text-ellipsis"
+                                [matTooltip]="item.data.name"
+                                [matTooltipShowDelay]="500"
+                                matTooltipPosition="above"
+                            >
+                                后台修改开料模板
                             </span>
                         </div>
                         <div class="content inputs" *ngFor="let zhankai of item.info.zhankai; let j = index">
@@ -194,6 +221,7 @@
                         </div>
                         <div class="btn-group">
                             <button mat-raised-button color="primary" (click)="openKlkwpzDialog(item)">开料孔位配置</button>
+                            <button mat-raised-button color="primary" (click)="openKlcsDialog(item)">开料参数</button>
                         </div>
                     </div>
                 </div>

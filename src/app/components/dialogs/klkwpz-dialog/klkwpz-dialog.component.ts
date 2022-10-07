@@ -16,7 +16,7 @@ export class KlkwpzDialogComponent {
         public dialogRef: MatDialogRef<KlkwpzDialogComponent, KlkwpzSource>,
         @Inject(MAT_DIALOG_DATA) public data: KlkwpzDialogData
     ) {
-        if (!data.source || (typeof data.source !== "object") || Array.isArray(data.source)) {
+        if (!data.source || typeof data.source !== "object" || Array.isArray(data.source)) {
             data.source = {};
         }
     }
@@ -34,6 +34,7 @@ export class KlkwpzDialogComponent {
 
 export interface KlkwpzDialogData {
     source: KlkwpzSource;
+    cadId?: string;
 }
 
 export const openKlkwpzDialog = getOpenDialogFunc<KlkwpzDialogComponent, KlkwpzDialogData, KlkwpzSource>(KlkwpzDialogComponent, {

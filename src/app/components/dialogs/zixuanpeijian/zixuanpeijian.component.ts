@@ -23,6 +23,7 @@ import {cloneDeep, debounce, isEmpty, isEqual, uniq} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {getOpenDialogFunc} from "../dialog.common";
+import {openKlcsDialog} from "../klcs-dialog/klcs-dialog.component";
 import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 import {
     ZixuanpeijianTypesInfo,
@@ -456,9 +457,26 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     async openKlkwpzDialog(item: ZixuanpeijianCadItem) {
-        const result = await openKlkwpzDialog(this.dialog, {data: {source: item.info.开料孔位配置 || {}}});
+        const result = await openKlkwpzDialog(this.dialog, {data: {source: item.info.开料孔位配置 || {}, cadId: item.info.houtaiId}});
         if (result) {
             item.info.开料孔位配置 = result;
+        }
+    }
+
+    async openKlcsDialog(item: ZixuanpeijianCadItem) {
+        const mubanId = item.data.zhankai[0]?.kailiaomuban;
+        if (!mubanId) {
+            this.message.error("请先选择开料模板");
+            return;
+        }
+        const result = await openKlcsDialog(this.dialog, {
+            data: {
+                source: item.info.开料参数 || {_id: "", 名字: item.data.name + "中空参数", 分类: "切中空", 参数: []},
+                cadId: item.info.houtaiId
+            }
+        });
+        if (result) {
+            item.info.开料参数 = result;
         }
     }
 
@@ -801,8 +819,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     addLingsanItem(i: number) {
-        const data = this.lingsanCads[i].data;
-        this.result.零散.push({data: data.clone(true), info: {houtaiId: data.id, zhankai: []}});
+        const data = this.lingsanCads[i].data.clone(true);
+        data.name += "M";
+        this.result.零散.push({data, info: {houtaiId: data.id, zhankai: []}});
         this._updateInputInfos();
     }
 
@@ -1085,8 +1104,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         return true;
     }
 
-    openCad(item: ZixuanpeijianCadItem) {
-        this.status.openCadInNewTab(item.info.houtaiId, "cad");
+    openCad(item: ZixuanpeijianCadItem | string) {
+        if (typeof item === "string") {
+            this.status.openCadInNewTab(item, "kailiaocadmuban");
+        } else {
+            this.status.openCadInNewTab(item.info.houtaiId, "cad");
+        }
     }
 
     showItem(item: ZixuanpeijianTypesInfoItem) {

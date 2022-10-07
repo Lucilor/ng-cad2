@@ -27,6 +27,7 @@ export interface CadListData {
     qiliao?: boolean;
     search?: ObjectOf<any>;
     fixedSearch?: ObjectOf<any>;
+    pageSize?: number;
 }
 
 export const customTooltipOptions: MatTooltipDefaultOptions = {
@@ -74,6 +75,9 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         private message: MessageService
     ) {
         super();
+        if (typeof data?.pageSize === "number") {
+            this.pageSize = data.pageSize;
+        }
     }
 
     async ngAfterViewInit() {

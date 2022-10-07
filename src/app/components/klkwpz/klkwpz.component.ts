@@ -1,8 +1,14 @@
-import {Component, Input} from "@angular/core";
+import {AfterViewInit, Component, Input} from "@angular/core";
 import {Validators} from "@angular/forms";
+import {MatDialog} from "@angular/material/dialog";
+import {CadData, CadLine} from "@cad-viewer";
+import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
+import {CadDataService} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
-import {cloneDeep} from "lodash";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {timeout} from "@utils";
+import {cloneDeep, uniq} from "lodash";
 import {Klkwpz, KlkwpzItem, KlkwpzSource} from "./klkwpz";
 
 @Component({
@@ -10,7 +16,7 @@ import {Klkwpz, KlkwpzItem, KlkwpzSource} from "./klkwpz";
     templateUrl: "./klkwpz.component.html",
     styleUrls: ["./klkwpz.component.scss"]
 })
-export class KlkwpzComponent {
+export class KlkwpzComponent implements AfterViewInit {
     private _data: KlkwpzSource = {};
     @Input()
     get data() {
@@ -21,10 +27,38 @@ export class KlkwpzComponent {
         this.klkwpz.init(value);
         this.formData = this.klkwpz.data.map((item) => this._getItemData(item));
     }
+    @Input() cadId?: string;
     klkwpz = new Klkwpz();
     formData: KlkwpzFormItem[] = [];
+    cadData?: CadData;
+    cadMubanData?: CadData;
 
-    constructor(private message: MessageService) {}
+    constructor(
+        private message: MessageService,
+        private dialog: MatDialog,
+        private dataService: CadDataService,
+        private spinner: SpinnerService
+    ) {}
+
+    async ngAfterViewInit() {
+        const id = this.cadId;
+        if (id) {
+            await timeout(0);
+            this.spinner.show(this.spinner.defaultLoaderId);
+            const result = await this.dataService.getCad({collection: "cad", id});
+            if (result.cads.length > 0) {
+                this.cadData = result.cads[0];
+                const mubanId = this.cadData.zhankai?.[0].kailiaomuban;
+                if (mubanId) {
+                    const result2 = await this.dataService.getCad({collection: "kailiaocadmuban", id: mubanId});
+                    if (result2.cads.length > 0) {
+                        this.cadMubanData = result2.cads[0];
+                    }
+                }
+            }
+            this.spinner.hide(this.spinner.defaultLoaderId);
+        }
+    }
 
     private _createItem(name: string): KlkwpzItem {
         return this.klkwpz.getKlkwpzItem(name, {});
@@ -63,7 +97,18 @@ export class KlkwpzComponent {
                     label: "孔名字",
                     validators: [Validators.required],
                     model: {data: item, key: "name"},
-                    showEmpty: true
+                    showEmpty: true,
+                    suffixIcons: [
+                        {
+                            name: "list",
+                            onClick: async () => {
+                                const resultData = await this.openKongweiList();
+                                if (resultData && resultData.length > 0) {
+                                    item.name = resultData[0].name;
+                                }
+                            }
+                        }
+                    ]
                 },
                 {
                     type: "select",
@@ -148,12 +193,30 @@ export class KlkwpzComponent {
             if (!item.baseY) {
                 item.baseY = "";
             }
+            let lineNamesH: string[];
+            let lineNamesV: string[];
+            if (this.cadMubanData) {
+                const linesH: CadLine[] = [];
+                const linesV: CadLine[] = [];
+                for (const e of this.cadMubanData.entities.line) {
+                    if (e.isHorizontal()) {
+                        linesH.push(e);
+                    } else if (e.isVertical()) {
+                        linesV.push(e);
+                    }
+                }
+                lineNamesH = uniq(linesH.map((e) => e.mingzi).filter(Boolean));
+                lineNamesV = uniq(linesV.map((e) => e.mingzi).filter(Boolean));
+            } else {
+                lineNamesH = [];
+                lineNamesV = [];
+            }
             arr.push(info0, {
                 type: "group",
                 label: " ",
                 infos: [
-                    {type: "string", label: "横线名字", model: {data: item, key: "baseX"}, showEmpty: true},
-                    {type: "string", label: "竖线名字", model: {data: item, key: "baseY"}, showEmpty: true}
+                    {type: "string", label: "横线名字", model: {data: item, key: "baseX"}, showEmpty: true, options: lineNamesH},
+                    {type: "string", label: "竖线名字", model: {data: item, key: "baseY"}, showEmpty: true, options: lineNamesV}
                 ]
             });
         } else if (type2 === "在打孔面上") {
@@ -162,11 +225,20 @@ export class KlkwpzComponent {
             if (!item.face) {
                 item.face = "";
             }
+            let lineNames: string[];
+            if (this.cadData) {
+                lineNames = uniq(this.cadData.entities.line.map((e) => e.mingzi).filter(Boolean));
+            } else {
+                lineNames = [];
+            }
             arr.push(
                 {
                     type: "group",
                     label: "",
-                    infos: [info0, {type: "string", label: "打孔面名字", model: {data: item, key: "face"}, showEmpty: true}]
+                    infos: [
+                        info0,
+                        {type: "string", label: "打孔面名字", model: {data: item, key: "face"}, showEmpty: true, options: lineNames}
+                    ]
                 },
                 {
                     type: "coordinate",
@@ -174,7 +246,7 @@ export class KlkwpzComponent {
                     labelX: "打孔面起始点X",
                     labelY: "打孔面起始点Y",
                     model: {data: item, key: "anchor1"},
-                    compact:true,
+                    compact: true,
                     showEmpty: true
                 }
             );
@@ -358,6 +430,10 @@ export class KlkwpzComponent {
             result.push("empty");
         }
         return result.join(" ");
+    }
+
+    async openKongweiList() {
+        return await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "cad", search: {分类: "孔"}, pageSize: 50}});
     }
 }
 
