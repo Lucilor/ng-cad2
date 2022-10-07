@@ -2,7 +2,7 @@ import {Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgCadEmpty, imgEmpty, imgLoading, session, setGlobal} from "@app/app.common";
-import {CadPreviewParams, getCadPreview, setDimensionText} from "@app/cad.utils";
+import {CadPreviewParams, getCadPreview, setDimensionText, shouldShowIntersection} from "@app/cad.utils";
 import {CadData, CadLine, CadViewerConfig, Defaults, generateLineTexts, setLinesLength} from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -123,7 +123,7 @@ export class DingdanbiaoqianComponent implements OnInit {
                     const imgLarge = imgLoading;
                     const data = new CadData(cad);
 
-                    if (!data.type.includes("企料") && !data.shouldShowIntersection) {
+                    if (!data.type.includes("企料") && !shouldShowIntersection(data)) {
                         const lines: CadLine[] = [];
                         data.entities.line.forEach((e) => {
                             if (e.length > maxLength) {

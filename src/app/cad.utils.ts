@@ -14,6 +14,7 @@ import {
     findAllAdjacentLines,
     generatePointsMap,
     getLinesDistance,
+    intersectionsKeys,
     sortLines
 } from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -346,16 +347,17 @@ export const splitShuangxiangCad = (data: CadData) => {
         });
 };
 
-export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
-    let skip = true;
-    const intersectionsKeys = ["zhidingweizhipaokeng", "指定分体位置", "指定位置不折"] as const;
+export const shouldShowIntersection = (data: CadData) => {
     for (const key of intersectionsKeys) {
         if (data[key].length > 0) {
-            skip = false;
-            break;
+            return true;
         }
     }
-    if (skip) {
+    return false;
+};
+
+export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
+    if (!shouldShowIntersection(data)) {
         return;
     }
     const sortedEntitiesGroups = sortLines(data);
@@ -374,7 +376,7 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
                 const id1 = e1.id;
                 const id2 = e2.id;
                 for (const ids of arr) {
-                    if (intersection([id1, id2], ids)) {
+                    if (intersection([id1, id2], ids).length === 2) {
                         matched = true;
                         break;
                     }
