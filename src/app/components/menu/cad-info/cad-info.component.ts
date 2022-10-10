@@ -72,6 +72,11 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             options: ["垂直", "水平", "不限", "指定垂直", "指定水平", "指定不限"]
         },
         {
+            label: "激光开料是否翻转",
+            model: {data: () => this.data.info, key: "激光开料是否翻转"},
+            type: "boolean"
+        },
+        {
             label: "开料排版方式",
             model: this._getcadDataModel("kailiaopaibanfangshi"),
             type: "select",

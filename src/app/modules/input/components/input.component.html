@@ -165,7 +165,12 @@
         <mat-form-field [ngClass]="{empty: isEmpty(value)}">
             <mat-label>{{ info.label }}</mat-label>
             <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
-            <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()">
+            <mat-select
+                [disabled]="info.disabled || false"
+                [(ngModel)]="value"
+                (selectionChange)="onChange()"
+                [placeholder]="info.placeholder || ''"
+            >
                 <mat-option [value]="true">是</mat-option>
                 <mat-option [value]="false">否</mat-option>
             </mat-select>

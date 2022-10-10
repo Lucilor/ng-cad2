@@ -142,6 +142,13 @@ export const setCadData = (data: CadData, project: string) => {
             e.calcBoundingRect = false;
         }
     });
+    data.info.激光开料是否翻转 = !!data.info.激光开料是否翻转;
+};
+
+export const unsetCadData = (data: CadData) => {
+    if (!data.info.激光开料是否翻转) {
+        delete data.info.激光开料是否翻转;
+    }
 };
 
 export interface ValidateResult {
@@ -334,7 +341,7 @@ export const splitShuangxiangCad = (data: CadData) => {
         return null;
     }
     const lines = sortLines(data);
-    return lines
+    const result = lines
         .map((v) => {
             const d = new CadData();
             d.entities.add(...v);
@@ -345,6 +352,10 @@ export const splitShuangxiangCad = (data: CadData) => {
             const {width: w2, height: h2} = b.getBoundingRect();
             return h1 / w1 - h2 / w2;
         });
+    if (result.length !== 2) {
+        return null;
+    }
+    return result as [CadData, CadData];
 };
 
 export const shouldShowIntersection = (data: CadData) => {

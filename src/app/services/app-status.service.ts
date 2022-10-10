@@ -1,39 +1,40 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Router, Params} from "@angular/router";
-import {CadCollection, local, ProjectConfig, timer} from "@app/app.common";
-import {
-    setCadData,
-    prepareCadViewer,
-    validateLines,
-    ValidateResult,
-    suanliaodanZoomIn,
-    suanliaodanZoomOut,
-    updateCadPreviewImg,
-    getCadTotalLength
-} from "@app/cad.utils";
 import {
     CadData,
-    CadLine,
-    CadViewer,
-    CadMtext,
-    generateLineTexts,
-    PointsMap,
     CadEntities,
-    generatePointsMap,
-    setLinesLength,
-    CadHatch,
     CadEntity,
-    CadLineLike
+    CadHatch,
+    CadLine,
+    CadLineLike,
+    CadMtext,
+    CadViewer,
+    generateLineTexts,
+    generatePointsMap,
+    PointsMap,
+    setLinesLength
 } from "@cad-viewer";
-import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {environment} from "@src/environments/environment";
 import {ObjectOf, timeout} from "@utils";
 import {differenceWith, clamp} from "lodash";
 import {BehaviorSubject, Subject} from "rxjs";
+import {CadCollection, local, ProjectConfig, timer} from "../app.common";
+import {
+    getCadTotalLength,
+    prepareCadViewer,
+    setCadData,
+    suanliaodanZoomIn,
+    suanliaodanZoomOut,
+    unsetCadData,
+    updateCadPreviewImg,
+    validateLines,
+    ValidateResult
+} from "../cad.utils";
 import {AppConfigService, AppConfig} from "./app-config.service";
-import {CadStatus, CadStatusNormal} from "./cad-status";
+import {CadStatusNormal, CadStatus} from "./cad-status";
 
 const 合型板示意图 = new CadData();
 合型板示意图.entities.add(new CadLine({start: [0, 20], end: [0, -20]}));
@@ -235,6 +236,7 @@ export class AppStatusService {
             data = this.cad.data;
         }
         const data2 = data.clone();
+        unsetCadData(data2);
         data2.getAllEntities().forEach((e) => (e.visible = true));
         suanliaodanZoomOut(this.collection$.value, data2);
         return data2;
