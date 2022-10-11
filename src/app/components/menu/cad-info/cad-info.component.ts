@@ -2,12 +2,14 @@ import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {splitOptions, joinOptions} from "@app/app.common";
 import {
-    CadData,
-    CadLine,
-    CadEventCallBack,
     CadBaseLine,
-    CadJointPoint,
+    CadData,
     CadEntity,
+    CadEventCallBack,
+    CadJointPoint,
+    CadLine,
+    IntersectionKey,
+    intersectionsKeys,
     sortLines,
     suanliaochuliValues,
     suanliaodanxianshiValues
@@ -23,9 +25,8 @@ import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService, CadPoints} from "@services/app-status.service";
 import {CadStatusSelectBaseline, CadStatusSelectJointpoint, CadStatusIntersection} from "@services/cad-status";
+import {激光开料标记线类型} from "@src/app/cad.utils";
 import {isEqual} from "lodash";
-
-type InsertsectionKey = "zhidingweizhipaokeng" | "指定分体位置" | "指定位置不折";
 
 @Component({
     selector: "app-cad-info",
@@ -34,12 +35,12 @@ type InsertsectionKey = "zhidingweizhipaokeng" | "指定分体位置" | "指定�
 })
 export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnDestroy {
     private _cadPointsLock = false;
-    insertsectionInfo: {key: InsertsectionKey; label: string}[] = [
+    insertsectionInfo: {key: IntersectionKey; label: string}[] = [
         {key: "zhidingweizhipaokeng", label: "指定位置刨坑"},
         {key: "指定分体位置", label: "指定分体位置"},
         {key: "指定位置不折", label: "指定位置不折"}
     ];
-    cadStatusIntersectionInfo: InsertsectionKey | null = null;
+    cadStatusIntersectionInfo: string | null = null;
     get data() {
         const components = this.status.components.selected$.value;
         if (components.length === 1) {
@@ -164,6 +165,9 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             options: ["门框板材", "底框板材", "门扇板材", "辅板1", "辅板2", "辅板3", "辅板4", "辅板5", "辅板6", "辅板7", "辅板8", "辅板9"]
         }
     ];
+    bjxTypes = 激光开料标记线类型;
+    bjxIntersectionKey = "激光开料标记线";
+    emptyBjxItem: NonNullable<CadData["info"]["激光开料标记线"]>[0] = {type: "短直线", ids: []};
 
     constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
         super();
@@ -172,12 +176,14 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     ngOnInit() {
         (window as any).c = this;
         this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
-            const insertsectionKeys = this.insertsectionInfo.map((v) => v.key);
+            const intersectionKeys = this.insertsectionInfo.map((v) => v.key) as string[];
             if (cadStatus instanceof CadStatusSelectJointpoint) {
                 this._updateCadPoints();
-            } else if (cadStatus instanceof CadStatusIntersection && insertsectionKeys.includes(cadStatus.info as InsertsectionKey)) {
-                this.cadStatusIntersectionInfo = cadStatus.info as InsertsectionKey;
-                this._updateCadPoints();
+            } else if (cadStatus instanceof CadStatusIntersection) {
+                if (intersectionKeys.includes(cadStatus.info) || cadStatus.info === this.bjxIntersectionKey) {
+                    this.cadStatusIntersectionInfo = cadStatus.info;
+                    this._updateCadPoints();
+                }
             }
         });
         this.subscribe(this.status.cadStatusExit$, (cadStatus) => {
@@ -218,16 +224,36 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === this.cadStatusIntersectionInfo) {
                 const key = this.cadStatusIntersectionInfo;
                 const index = cadStatus.index;
-                const lines = data[key][index];
-                if (activePoints.length < 1) {
-                    data[key][index] = [];
-                } else {
-                    for (const p of activePoints) {
-                        const p2 = this._setActiveCadPoint({lines}, points);
-                        if (!p2 || !isEqual(p.lines, p2.lines)) {
-                            data[key][index] = p.lines.slice();
-                            this._updateCadPoints();
-                            break;
+                if (intersectionsKeys.includes(key as IntersectionKey)) {
+                    const key2 = key as IntersectionKey;
+                    const lines = data[key2][index];
+                    if (activePoints.length < 1) {
+                        data[key2][index] = [];
+                    } else {
+                        for (const p of activePoints) {
+                            const p2 = this._setActiveCadPoint({lines}, points);
+                            if (!p2 || !isEqual(p.lines, p2.lines)) {
+                                data[key2][index] = p.lines.slice();
+                                this._updateCadPoints();
+                                break;
+                            }
+                        }
+                    }
+                } else if (key === this.bjxIntersectionKey) {
+                    if (!data.info.激光开料标记线) {
+                        data.info.激光开料标记线 = [];
+                    }
+                    const item = data.info.激光开料标记线[index];
+                    if (activePoints.length < 1) {
+                        item.ids = [];
+                    } else {
+                        for (const p of activePoints) {
+                            const p2 = this._setActiveCadPoint({lines: item.ids}, points);
+                            if (!p2 || !isEqual(p.lines, p2.lines)) {
+                                item.ids = p.lines.slice();
+                                this._updateCadPoints();
+                                break;
+                            }
                         }
                     }
                 }
@@ -282,8 +308,12 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             this._cadPointsLock = true;
             this.status.cadPoints$.next(points);
         } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === key) {
-            const points = this.status.getCadPoints(data.getAllEntities()).filter((v) => v.lines.length > 1);
-            this._setActiveCadPoint({lines: data[key][cadStatus.index]}, points);
+            const points = this.status.getCadPoints(data.getAllEntities());
+            if (intersectionsKeys.includes(key as IntersectionKey)) {
+                this._setActiveCadPoint({lines: data[key as IntersectionKey][cadStatus.index]}, points);
+            } else if (key === this.bjxIntersectionKey) {
+                this._setActiveCadPoint({lines: data.info.激光开料标记线?.[cadStatus.index].ids}, points);
+            }
             this._cadPointsLock = true;
             this.status.cadPoints$.next(points);
         }
@@ -442,14 +472,26 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         }
     }
 
-    selectPoint(i: number, key: InsertsectionKey) {
+    selectPoint(i: number, key: IntersectionKey) {
         this.cadStatusIntersectionInfo = key;
         this.status.toggleCadStatus(new CadStatusIntersection(key, i));
     }
 
-    getPointColor(i: number, key: InsertsectionKey) {
+    selectBjxPoint(i: number) {
+        this.status.toggleCadStatus(new CadStatusIntersection(this.bjxIntersectionKey, i));
+    }
+
+    getPointColor(i: number, key: IntersectionKey) {
         const cadStatus = this.status.cadStatus;
         if (cadStatus instanceof CadStatusIntersection && cadStatus.info === key && i === cadStatus.index) {
+            return "accent";
+        }
+        return "primary";
+    }
+
+    getBjxPointColor(i: number) {
+        const cadStatus = this.status.cadStatus;
+        if (cadStatus instanceof CadStatusIntersection && cadStatus.info === this.bjxIntersectionKey && i === cadStatus.index) {
             return "accent";
         }
         return "primary";

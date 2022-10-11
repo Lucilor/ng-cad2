@@ -25,7 +25,9 @@ import {Formulas} from "./utils/calc";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
-export const maxLineLength = 130;
+export const maxLineLength = 130 as const;
+
+export const 激光开料标记线类型 = ["短直线", "直角三角形", "等腰三角形"] as const;
 
 export interface CadPreviewRawParams {
     fixedLengthTextSize?: number;
@@ -142,12 +144,19 @@ export const setCadData = (data: CadData, project: string) => {
             e.calcBoundingRect = false;
         }
     });
+
     data.info.激光开料是否翻转 = !!data.info.激光开料是否翻转;
+    if (!Array.isArray(data.info.激光开料标记线)) {
+        data.info.激光开料标记线 = [];
+    }
 };
 
 export const unsetCadData = (data: CadData) => {
     if (!data.info.激光开料是否翻转) {
         delete data.info.激光开料是否翻转;
+    }
+    if (data.info.激光开料标记线 && data.info.激光开料标记线.length < 1) {
+        delete data.info.激光开料标记线;
     }
 };
 
@@ -360,7 +369,7 @@ export const splitShuangxiangCad = (data: CadData) => {
 
 export const shouldShowIntersection = (data: CadData) => {
     for (const key of intersectionsKeys) {
-        if (data[key].length > 0) {
+        if (data[key].filter((v) => v.length > 0).length > 0) {
             return true;
         }
     }
@@ -372,6 +381,8 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
         return;
     }
     const sortedEntitiesGroups = sortLines(data);
+    const rect = data.getBoundingRect();
+    const rectCenter = new Point(rect.x, rect.y);
     const drawing = {
         leader: {length: 32, gap: 4, size: 15},
         circle: {radius: 8, linetype: "DASHEDX2", linewidth: 2},
@@ -380,13 +391,25 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
     for (const key of intersectionsKeys) {
         const arr = data[key];
         for (const sortedEntities of sortedEntitiesGroups) {
-            for (let i = 0; i < sortedEntities.length - 1; i++) {
+            for (let i = 0; i < sortedEntities.length; i++) {
                 const e1 = sortedEntities[i];
-                const e2 = sortedEntities[i + 1];
+                const e2 = sortedEntities.at(i + 1);
                 let matched = false;
                 const id1 = e1.id;
-                const id2 = e2.id;
+                const id2 = e2?.id;
+                let isStartPoint = false;
+                let isEndPoint = false;
                 for (const ids of arr) {
+                    if (ids.length === 1 && ids[0] === id1) {
+                        if (i === 0) {
+                            matched = true;
+                            isStartPoint = true;
+                        } else if (i === sortedEntities.length - 1) {
+                            matched = true;
+                            isEndPoint = true;
+                        }
+                        break;
+                    }
                     if (intersection([id1, id2], ids).length === 2) {
                         matched = true;
                         break;
@@ -395,9 +418,25 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
                 if (!matched) {
                     continue;
                 }
-                const p1 = e1.start;
-                const p2 = e1.end;
-                const p3 = e2.end;
+                let p1: Point;
+                let p2: Point;
+                let p3: Point;
+                if (isStartPoint) {
+                    p1 = rectCenter;
+                    p2 = e1.start;
+                    p3 = e1.end;
+                } else if (isEndPoint) {
+                    p1 = e1.start;
+                    p2 = e1.end;
+                    p3 = rectCenter;
+                } else {
+                    if (!e2) {
+                        continue;
+                    }
+                    p1 = e1.start;
+                    p2 = e1.end;
+                    p3 = e2.end;
+                }
                 const p4 = p1.clone().sub(p2).normalize().add(p3.clone().sub(p2).normalize());
                 const p5 = p2.clone().add(p4);
                 const p6 = p2.clone().sub(p4);
@@ -461,7 +500,8 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
                     const leader = new CadLeader({
                         layer,
                         vertices: [line.end, line.start],
-                        size: drawing.leader.size
+                        size: drawing.leader.size,
+                        info: {isIntersectionEntity: true}
                     });
                     data.entities.add(leader);
                 }
@@ -473,7 +513,8 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
                         radius,
                         linetype: drawing.circle.linetype,
                         linewidth: drawing.circle.linewidth,
-                        color: 5
+                        color: 5,
+                        info: {isIntersectionEntity: true}
                     });
                     data.entities.add(circle);
                 }
@@ -492,13 +533,18 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
                         insert,
                         text: drawing.text.text,
                         anchor,
-                        font_size: drawing.text.size
+                        font_size: drawing.text.size,
+                        info: {isIntersectionEntity: true}
                     });
                     data.entities.add(text);
                 }
             }
         }
     }
+};
+
+export const removeIntersections = (data: CadData) => {
+    data.entities = data.entities.filter((entity) => !entity.info?.isIntersectionEntity);
 };
 
 export const setDimensionText = (e: CadDimension, materialResult: Formulas) => {

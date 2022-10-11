@@ -25,7 +25,9 @@ import {CadCollection, local, ProjectConfig, timer} from "../app.common";
 import {
     getCadTotalLength,
     prepareCadViewer,
+    removeIntersections,
     setCadData,
+    showIntersections,
     suanliaodanZoomIn,
     suanliaodanZoomOut,
     unsetCadData,
@@ -190,6 +192,9 @@ export class AppStatusService {
         this.config.setUserConfig(newConfig);
         await prepareCadViewer(cad);
         setCadData(data, this.project);
+        if (!environment.production) {
+            showIntersections(data, this._projectConfig);
+        }
         for (const key in replaceMap) {
             this._replaceText(data, key, replaceMap[key]);
         }
@@ -237,6 +242,9 @@ export class AppStatusService {
         }
         const data2 = data.clone();
         unsetCadData(data2);
+        if (!environment.production) {
+            removeIntersections(data2);
+        }
         data2.getAllEntities().forEach((e) => (e.visible = true));
         suanliaodanZoomOut(this.collection$.value, data2);
         return data2;

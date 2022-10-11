@@ -127,9 +127,9 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
     ngOnInit() {
         const cad = this.status.cad;
         const globalVars: {name: string; desc: string; attrs: PropertyDescriptor}[] = [
-            {name: "cad", desc: "当前CAD实例", attrs: {value: cad}},
-            {name: "getConfig", desc: "获取当前配置", attrs: {value: this.config.getConfig.bind(this.config)}},
-            {name: "setConfig", desc: "设置当前配置", attrs: {value: this.config.setConfig.bind(this.config)}},
+            {name: "cad", desc: "当前CAD实例", attrs: {get: () => cad}},
+            {name: "getConfig", desc: "获取当前配置", attrs: {get: () => this.config.getConfig.bind(this.config)}},
+            {name: "setConfig", desc: "设置当前配置", attrs: {get: () => this.config.setConfig.bind(this.config)}},
             {name: "data", desc: "CAD数据", attrs: {get: () => cad.data}},
             {name: "dataEx", desc: "CAD的导出数据", attrs: {get: () => cad.data.export()}},
             {name: "selected", desc: "当前选中的所有实体", attrs: {get: () => cad.selected()}},
@@ -142,7 +142,7 @@ export class IndexComponent extends ContextMenu(Subscribed()) implements OnInit,
         const maxLen = globalVars.reduce((prev, curr) => Math.max(prev, curr.name.length), 0);
         globalVars.forEach((v) => {
             log(`${v.name.padEnd(maxLen, " ")} -- %c${v.desc}`, "", {fontStyle: "italic", paddingRight: "5px"});
-            Reflect.defineProperty(window, v.name, v.attrs);
+            Reflect.defineProperty(window, v.name, {...v.attrs, configurable: true});
         });
         console.groupEnd();
         this._setCadPadding();

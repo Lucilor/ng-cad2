@@ -60,10 +60,44 @@
             </mat-form-field>
         </div>
     </div>
+    <div class="sub-form-field">
+        <div class="label">激光开料标记线</div>
+        <div *ngIf="data.info['激光开料标记线']?.length === 0">
+            <button mat-icon-button color="primary" (click)="arrayAdd2(data.info, '激光开料标记线', emptyBjxItem)">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+        </div>
+        <div *ngFor="let v of data.info['激光开料标记线']; let j = index">
+            <mat-form-field>
+                <mat-select [(ngModel)]="v.type" [ngModelOptions]="{standalone: true}">
+                    <mat-option [value]="type" *ngFor="let type of bjxTypes">{{ type }}</mat-option>
+                </mat-select>
+                <button mat-icon-button matSuffix [color]="getBjxPointColor(j)" (click)="$event.stopPropagation(); selectBjxPoint(j)">
+                    <mat-icon>linear_scale</mat-icon>
+                </button>
+                <button
+                    mat-icon-button
+                    matSuffix
+                    color="primary"
+                    (click)="$event.stopPropagation(); arrayAdd2(data.info, '激光开料标记线', emptyBjxItem, j + 1)"
+                >
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+                <button
+                    mat-icon-button
+                    matSuffix
+                    color="primary"
+                    (click)="$event.stopPropagation(); arrayRemove2(data.info, '激光开料标记线', j)"
+                >
+                    <mat-icon>remove_circle</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+    </div>
     <app-input *ngFor="let info of infoGroup3" [info]="info"></app-input>
     <mat-form-field>
         <mat-label>开料孔位配置</mat-label>
-        <input type="text" matInput readonly>
+        <input type="text" matInput readonly />
         <button mat-icon-button matSuffix color="primary" (click)="openKlkwpzDialog(data)">
             <mat-icon>list</mat-icon>
         </button>
