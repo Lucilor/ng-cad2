@@ -215,8 +215,8 @@ export class KlkwpzComponent implements AfterViewInit {
                 type: "group",
                 label: " ",
                 infos: [
-                    {type: "string", label: "横线名字", model: {data: item, key: "baseX"}, showEmpty: true, options: lineNamesH},
-                    {type: "string", label: "竖线名字", model: {data: item, key: "baseY"}, showEmpty: true, options: lineNamesV}
+                    {type: "string", label: "竖线名字", model: {data: item, key: "baseX"}, showEmpty: true, options: lineNamesV},
+                    {type: "string", label: "横线名字", model: {data: item, key: "baseY"}, showEmpty: true, options: lineNamesH}
                 ]
             });
         } else if (type2 === "在打孔面上") {
