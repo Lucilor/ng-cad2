@@ -19,7 +19,7 @@ import {CalcService} from "@services/calc.service";
 import {getCADBeishu} from "@src/app/utils/beishu";
 import {Formulas, toFixed} from "@src/app/utils/calc";
 import {ObjectOf, timeout} from "@utils";
-import {cloneDeep, debounce, isEmpty, isEqual, uniq} from "lodash";
+import {cloneDeep, debounce, intersection, isEmpty, isEqual, uniq} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {openCadEditorDialog} from "../cad-editor-dialog/cad-editor-dialog.component";
@@ -899,6 +899,35 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     private _calc(): boolean {
         const materialResult = this.data?.materialResult || {};
         const shuchubianliang: Formulas = {};
+        const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
+        for (const item1 of this.result.模块) {
+            for (const item2 of this.result.模块) {
+                if (item1.id === item2.id) {
+                    continue;
+                }
+                const duplicateKeys = intersection(item1.shuchubianliang, item2.shuchubianliang);
+                if (duplicateKeys.length > 0) {
+                    if (!duplicateScbl.find((v) => v.id === item1.id)) {
+                        duplicateScbl.push(item1);
+                    }
+                    if (!duplicateScbl.find((v) => v.id === item2.id)) {
+                        duplicateScbl.push(item2);
+                    }
+                }
+            }
+        }
+        if (duplicateScbl.length > 0) {
+            const str =
+                "输出变量重复<br>" +
+                duplicateScbl
+                    .map((v) => {
+                        const keys = v.shuchubianliang.join(", ");
+                        return `${v.type1} - ${v.type2}: ${keys}`;
+                    })
+                    .join("<br>");
+            this.message.error(str);
+            return false;
+        }
         const toCalc1 = this.result.模块.map((item) => {
             const formulas = {...item.suanliaogongshi};
             formulas.总宽 = item.totalWidth;
@@ -930,6 +959,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
             return {formulas, vars, succeed: {} as Formulas, error: {} as Formulas, item};
         });
+
         let initial = true;
         let calc1Finished = false;
         let calcErrors1: Formulas = {};
@@ -974,16 +1004,19 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         continue;
                     }
                 }
-                Object.assign(materialResult, result1.succeedTrim);
+                const missingKeys: string[] = [];
                 for (const vv of v.item.shuchubianliang) {
-                    if (vv in result1.succeed) {
-                        // if (vv in shuchubianliang) {
-                        //     this.message.error(`${type1}, ${type2}输出变量重复<br>${vv}`);
-                        //     return false;
-                        // }
-                        shuchubianliang[vv] = result1.succeed[vv];
+                    if (vv in result1.succeedTrim) {
+                        shuchubianliang[vv] = result1.succeedTrim[vv];
+                    } else {
+                        missingKeys.push(vv);
                     }
                 }
+                if (missingKeys.length > 0) {
+                    this.message.error(`${type1} - ${type2}缺少输出变量<br>${missingKeys.join(", ")}`);
+                    return false;
+                }
+                Object.assign(materialResult, result1.succeedTrim);
                 v.succeed = result1.succeed;
                 v.error = result1.error;
                 if (!isEmpty(result1.error)) {
@@ -993,7 +1026,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
             initial = false;
         }
-        // console.log({toCalc1, shuchubianliang, indexesMap});
+        // console.log({toCalc1, allScbl, indexesMap});
 
         const calcCadItem = ({data, info}: ZixuanpeijianCadItem, vars2: Formulas) => {
             const formulas2: Formulas = {};
