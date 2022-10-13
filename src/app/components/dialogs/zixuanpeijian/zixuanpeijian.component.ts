@@ -5,7 +5,7 @@ import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Router} from "@angular/router";
-import {imgCadEmpty, setGlobal} from "@app/app.common";
+import {CadCollection, imgCadEmpty, setGlobal} from "@app/app.common";
 import {getCadPreview, getCadTotalLength, setDimensionText, splitShuangxiangCad} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
@@ -22,6 +22,7 @@ import {ObjectOf, timeout} from "@utils";
 import {cloneDeep, debounce, isEmpty, isEqual, uniq} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
+import {openCadEditorDialog} from "../cad-editor-dialog/cad-editor-dialog.component";
 import {getOpenDialogFunc} from "../dialog.common";
 import {openKlcsDialog} from "../klcs-dialog/klcs-dialog.component";
 import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
@@ -37,6 +38,13 @@ import {
     ZixuanpeijianMokuaiItem,
     ZixuanpeijianTypesInfoItem
 } from "./zixuanpeijian.types";
+
+interface CadItemContext {
+    $implicit: ZixuanpeijianCadItem;
+    i: number;
+    j: number;
+    idPrefix: string;
+}
 
 @Component({
     selector: "app-zixuanpeijian",
@@ -60,6 +68,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     _step1Fetched = false;
     _step2Fetched = false;
     _step3Fetched = false;
+    cadItemType!: CadItemContext;
 
     mokuaiInputInfos: MokuaiInputInfos[] = [];
     lingsanInputInfos: CadItemInputInfo[] = [];
@@ -821,7 +830,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     addLingsanItem(i: number) {
         const data = this.lingsanCads[i].data.clone(true);
         data.name += "M";
-        this.result.零散.push({data, info: {houtaiId: data.id, zhankai: []}});
+        this.result.零散.push({data, info: {houtaiId: this.lingsanCads[i].data.id, zhankai: []}});
         this._updateInputInfos();
     }
 
@@ -1104,11 +1113,36 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         return true;
     }
 
-    openCad(item: ZixuanpeijianCadItem | string) {
-        if (typeof item === "string") {
-            this.status.openCadInNewTab(item, "kailiaocadmuban");
+    // TODO: isLocal
+    async openCad(item: ZixuanpeijianCadItem, isMuban: boolean, isLocal: boolean) {
+        let data: CadData | undefined;
+        let collection: CadCollection | undefined;
+        if (isMuban) {
+            collection = "kailiaocadmuban";
+            const id = this.getMubanId(item.data);
+            const {cads} = await this.dataService.getCad({collection, id});
+            if (cads.length > 0) {
+                data = cads[0];
+            } else {
+                return;
+            }
         } else {
-            this.status.openCadInNewTab(item.info.houtaiId, "cad");
+            collection = "cad";
+            if (isLocal) {
+                data = item.data;
+            } else {
+                const id = item.info.houtaiId;
+                const {cads} = await this.dataService.getCad({collection, id});
+                if (cads.length > 0) {
+                    data = cads[0];
+                } else {
+                    return;
+                }
+            }
+        }
+        const result = await openCadEditorDialog(this.dialog, {data: {data, collection, isLocal}});
+        if (result?.isChanged) {
+            await this.allFetch();
         }
     }
 
@@ -1258,6 +1292,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             // this.message.iframe(this.mokuaiUrl);
             open(url, "_blank");
         }
+    }
+
+    getMubanId(data: CadData) {
+        return data.zhankai[0]?.kailiaomuban;
     }
 }
 

@@ -54,13 +54,19 @@ export class CadDataService extends HttpService {
         const result: {cads: CadData[]; total: number} = {cads: [], total: 0};
         if (response && response.data) {
             if (response.code === 10) {
-                result.cads = [new CadData(response.data.cad)];
+                const data = new CadData(response.data.cad);
+                data.info.isOnline = true;
+                result.cads = [data];
             } else {
                 const restore = await this._resolveMissingCads(response);
                 if (typeof restore === "boolean") {
                     return await this.getCad({...params, restore});
                 } else {
-                    result.cads = response.data.map((v: any) => new CadData(v));
+                    result.cads = response.data.map((v: any) => {
+                        const v2 = new CadData(v);
+                        v2.info.isOnline = true;
+                        return v2;
+                    });
                     result.total = response.count || 0;
                 }
             }

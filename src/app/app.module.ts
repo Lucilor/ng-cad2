@@ -25,14 +25,9 @@ import {MatTabsModule} from "@angular/material/tabs";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {BrowserModule} from "@angular/platform-browser";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {AnchorSelectorComponent} from "@components/anchor-selector/anchor-selector.component";
-import {CadLayerInputComponent} from "@components/cad-layer-input/cad-layer-input.component";
-import {CadPointsComponent} from "@components/cad-points/cad-points.component";
 import {BancaiListComponent} from "@components/dialogs/bancai-list/bancai-list.component";
 import {BbzhmkgzComponent} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
-import {CadAssembleFormComponent} from "@components/dialogs/cad-assemble-form/cad-assemble-form.component";
-import {CadDataAttrsComponent} from "@components/dialogs/cad-data-attrs/cad-data-attrs.component";
-import {CadDimensionFormComponent} from "@components/dialogs/cad-dimension-form/cad-dimension-form.component";
+import {CadEditorDialogComponent} from "@components/dialogs/cad-editor-dialog/cad-editor-dialog.component";
 import {CadLineTjqzSelectComponent} from "@components/dialogs/cad-line-tjqz-select/cad-line-tjqz-select.component";
 import {CadLineTjqzComponent} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
 import {CadListComponent} from "@components/dialogs/cad-list/cad-list.component";
@@ -48,17 +43,11 @@ import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/
 import {ZixuanpeijianComponent} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {KlcsComponent} from "@components/klcs/klcs.component";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
-import {CadAssembleComponent} from "@components/menu/cad-assemble/cad-assemble.component";
-import {CadDimensionComponent} from "@components/menu/cad-dimension/cad-dimension.component";
-import {CadInfoComponent} from "@components/menu/cad-info/cad-info.component";
-import {CadLineComponent} from "@components/menu/cad-line/cad-line.component";
-import {CadMtextComponent} from "@components/menu/cad-mtext/cad-mtext.component";
-import {CadSplitComponent} from "@components/menu/cad-split/cad-split.component";
-import {SubCadsComponent} from "@components/menu/sub-cads/sub-cads.component";
-import {ToolbarComponent} from "@components/menu/toolbar/toolbar.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
 import {ReplaceFullCharsDirective} from "@directives/replace-full-chars.directive";
+import {TypedTemplateDirective} from "@directives/typed-template.directive";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
+import {CadEditorModule} from "@modules/cad-editor/cad-editor.module";
 import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
 import {InputModule} from "@modules/input/input.module";
@@ -113,27 +102,16 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
 
 @NgModule({
     declarations: [
-        AnchorSelectorComponent,
         AppComponent,
         BackupComponent,
         BancaiListComponent,
         BbzhmkgzComponent,
-        CadAssembleComponent,
-        CadAssembleFormComponent,
-        CadDataAttrsComponent,
-        CadDimensionComponent,
-        CadDimensionFormComponent,
-        CadInfoComponent,
-        CadLayerInputComponent,
-        CadLineComponent,
+        CadEditorDialogComponent,
         CadLineTjqzComponent,
         CadLineTjqzSelectComponent,
         CadListComponent,
-        CadMtextComponent,
         CadOptionsComponent,
-        CadPointsComponent,
         CadSearchFormComponent,
-        CadSplitComponent,
         CadZhankaiComponent,
         ChangelogAdminComponent,
         ChangelogComponent,
@@ -161,8 +139,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         SelectBancaiCadsComponent,
         SelectBancaiComponent,
         SelectCadsComponent,
-        SubCadsComponent,
-        ToolbarComponent,
+        TypedTemplateDirective,
         ZixuanpeijianComponent
     ],
     imports: [
@@ -170,6 +147,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         BrowserAnimationsModule,
         BrowserModule,
         CadConsoleModule,
+        CadEditorModule,
         ColorChromeModule,
         ColorCircleModule,
         DragDropModule,

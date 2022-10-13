@@ -1,0 +1,158 @@
+:host {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.menus {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    .menus-row {
+        display: flex;
+        flex: 1 1 0;
+        height: 0;
+        justify-content: space-between;
+    }
+
+    .cad-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.menu {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: inset 0 0 5px 1px rgb(0 0 0 / 20%);
+    box-sizing: border-box;
+
+    &.top {
+        width: 100%;
+        border-radius: 0;
+        padding: 0 10px;
+        top: 0;
+        background-color: #fafafa;
+    }
+
+    &.bottom {
+        width: 100%;
+        bottom: 0;
+        height: 20px;
+        line-height: 22px;
+    }
+
+    &.left,
+    &.right {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        height: 100%;
+        align-items: center;
+        .btn-group {
+            align-items: center;
+            justify-content: space-between;
+        }
+    }
+
+    &.left {
+        left: 0;
+    }
+
+    &.right {
+        right: 0;
+    }
+
+    &.accent {
+        background-color: #ffcefc;
+    }
+
+    .sub-menu {
+        width: 100%;
+        box-sizing: border-box;
+        background-color: #fafafa;
+        padding: 5px;
+        border-radius: 10px;
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: column;
+
+        .mat-tab-group {
+            flex: 1 1 0;
+            height: 0;
+        }
+    }
+}
+
+:host-context(.mat-tab-label) {
+    color: red;
+}
+
+:host ::ng-deep {
+    .mat-tab-label,
+    .mat-tab-label-active {
+        min-width: unset !important;
+        padding: 3px !important;
+        margin: 3px !important;
+        flex: 1 1 0;
+    }
+
+    .mat-tab-body-wrapper {
+        flex: 1 1 0;
+    }
+
+    .mat-tab-body-content {
+        padding: 10px 0;
+    }
+
+    .mat-form-field-suffix {
+        top: 8px;
+    }
+
+    .menu .ng-scroll-content {
+        padding-right: 5px;
+        padding-bottom: 10px;
+    }
+}
+
+.menu-icon {
+    background-color: white;
+    transition: 0.3s;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 6px;
+    &.left {
+        float: right;
+        &.closed {
+            transform: translateX(36px);
+        }
+    }
+    &.right {
+        &.closed {
+            transform: translateX(-36px);
+        }
+    }
+}
+
+.cad-status {
+    user-select: none;
+    width: 100%;
+    text-align: center;
+}
+
+.width-indicator {
+    position: absolute;
+    top: 10px;
+    background: black;
+    color: white;
+    padding: 5px;
+    border-radius: 8px;
+    opacity: 0.8;
+}

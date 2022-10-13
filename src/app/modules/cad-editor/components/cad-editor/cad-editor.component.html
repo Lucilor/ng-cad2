@@ -1,0 +1,104 @@
+<div
+    style="visibility: hidden; position: fixed"
+    [style.left]="contextMenuPosition.x"
+    [style.top]="contextMenuPosition.y"
+    [matMenuTriggerFor]="contextMenu"
+></div>
+<mat-menu #contextMenu="matMenu">
+    <ng-template matMenuContent>
+        <button mat-menu-item (click)="zoomAll()">居中</button>
+        <button mat-menu-item (click)="refresh()">刷新</button>
+        <button mat-menu-item (click)="toggleAllMenu()">{{ showAllMenu ? "隐藏" : "显示" }}菜单</button>
+    </ng-template>
+</mat-menu>
+
+<div class="menus">
+    <div class="cad-container" #cadContainer (contextmenu)="onContextMenu($event)"></div>
+    <app-cad-points></app-cad-points>
+
+    <div class="menu top" [@closeTop]="showTopMenu ? 'open' : 'closed'">
+        <app-toolbar></app-toolbar>
+    </div>
+    <div class="menus-row">
+        <div class="menu left" [style.width.px]="leftMenuWidth$ | async" [@closeLeft]="showLeftMenu ? 'open' : 'closed'">
+            <div class="btn-group" style="width: 100%">
+                <button mat-raised-button *ngIf="(isCadLocal$ | async) === false" color="accent" (click)="save()">保存</button>
+                <button mat-icon-button class="menu-icon left" [class.closed]="!showLeftMenu" (click)="toggleLeftMenu()">
+                    <mat-icon>
+                        {{ showLeftMenu ? "navigate_before" : "navigate_next" }}
+                    </mat-icon>
+                </button>
+            </div>
+            <app-sub-cads></app-sub-cads>
+            <div class="width-indicator" @menuWidth *ngIf="isDraggingLeft">{{ leftMenuWidth$ | async }}px</div>
+            <div
+                class="resize-handle-right"
+                cdkDrag
+                [cdkDragData]="dragDataLeft"
+                cdkDragLockAxis="x"
+                (cdkDragStarted)="onResizeMenuStart($event, 'leftMenuWidth')"
+                (cdkDragMoved)="onResizeMenu($event, 'leftMenuWidth')"
+                (cdkDragEnded)="onResizeMenuEnd($event, 'leftMenuWidth')"
+            ></div>
+        </div>
+        <div class="menu right" [style.width.px]="rightMenuWidth$ | async" [@closeRight]="showRightMenu ? 'open' : 'closed'">
+            <div class="btn-group" style="width: 100%">
+                <button mat-icon-button class="menu-icon right" [class.closed]="!showRightMenu" (click)="toggleRightMenu()">
+                    <mat-icon>
+                        {{ showRightMenu ? "navigate_next" : "navigate_before" }}
+                    </mat-icon>
+                </button>
+            </div>
+            <div class="sub-menu" *ngIf="shownMenus.includes('entityInfo')">
+                <div style="padding: 10px; font-size: 1.2em">CAD总长: {{ cadLength$ | async }}</div>
+                <mat-slide-toggle [checked]="multiSelect" (change)="toggleMultiSelect()">
+                    实体{{ multiSelect ? "多选" : "单选" }}
+                </mat-slide-toggle>
+                <!-- <mat-slide-toggle [checked]="!!entityDraggable" (change)="toggleEntityDraggable()"> 实体拖动 </mat-slide-toggle> -->
+                <mat-tab-group #infoTabs [disablePagination]="true" dynamicHeight (selectedTabChange)="onInfoTabChange($event)">
+                    <mat-tab label="CAD">
+                        <ng-scrollbar>
+                            <app-cad-info></app-cad-info>
+                        </ng-scrollbar>
+                    </mat-tab>
+                    <mat-tab label="线段">
+                        <ng-scrollbar>
+                            <app-cad-line></app-cad-line>
+                        </ng-scrollbar>
+                    </mat-tab>
+                    <mat-tab label="文本">
+                        <ng-scrollbar>
+                            <app-cad-mtext></app-cad-mtext>
+                        </ng-scrollbar>
+                    </mat-tab>
+                    <mat-tab label="标注">
+                        <ng-scrollbar>
+                            <app-cad-dimension></app-cad-dimension>
+                        </ng-scrollbar>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+            <div class="sub-menu" *ngIf="shownMenus.includes('cadAssemble')">
+                <app-cad-assemble></app-cad-assemble>
+            </div>
+            <div class="sub-menu" *ngIf="shownMenus.includes('cadSplit')" style="display: none">
+                <app-cad-split></app-cad-split>
+            </div>
+            <div class="width-indicator" @menuWidth *ngIf="isDraggingRight">{{ rightMenuWidth$ | async }}px</div>
+            <div
+                class="resize-handle-left"
+                cdkDrag
+                [cdkDragData]="dragDataRight"
+                cdkDragLockAxis="x"
+                (cdkDragStarted)="onResizeMenuStart($event, 'rightMenuWidth')"
+                (cdkDragMoved)="onResizeMenu($event, 'rightMenuWidth')"
+                (cdkDragEnded)="onResizeMenuEnd($event, 'rightMenuWidth')"
+            ></div>
+        </div>
+    </div>
+    <div class="menu bottom" [class.accent]="cadStatusStr !== '普通'" [@closeBottom]="showBottomMenu ? 'open' : 'closed'">
+        <div class="cad-status">当前状态：{{ cadStatusStr }}</div>
+    </div>
+    <app-spinner [id]="spinnerId"></app-spinner>
+    <app-cad-console></app-cad-console>
+</div>

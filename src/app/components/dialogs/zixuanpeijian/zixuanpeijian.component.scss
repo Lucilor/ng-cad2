@@ -44,10 +44,8 @@
 }
 
 .title {
-    align-items: center;
-    > :not(:last-child) {
-        margin-right: 5px;
-    }
+    padding: 0 5px;
+    cursor: pointer;
 
     .mat-icon-button {
         width: auto;
@@ -58,6 +56,17 @@
     .name {
         flex: 1 1 0;
         text-align: left;
+    }
+}
+
+.cad-container {
+    position: relative;
+
+    .floating-titles {
+        position: absolute;
+        left: 0;
+        bottom: 5px;
+        color: white;
     }
 }
 

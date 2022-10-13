@@ -104,126 +104,16 @@
                 <div>{{ item.type1 }} - {{ item.type2 }}</div>
                 <div class="content cads">
                     <ng-container *ngFor="let cad of item.cads; let j = index">
-                        <div *ngIf="!cad.info.hidden" class="cad">
-                            <div [id]="'cad-viewer-模块-' + i + '-' + j" (contextmenu)="onContextMenu($event, i, j)"></div>
-                            <div class="title">
-                                <button mat-icon-button color="primary" (click)="openCad(cad)">
-                                    <mat-icon>open_in_new</mat-icon>
-                                </button>
-                                <span
-                                    class="name text-ellipsis"
-                                    [matTooltip]="cad.data.name"
-                                    [matTooltipShowDelay]="500"
-                                    matTooltipPosition="above"
-                                >
-                                    后台修改{{ cad.data.name }}
-                                </span>
-                            </div>
-                            <div class="title" *ngIf="cad.data.zhankai[0]?.kailiaomuban">
-                                <button mat-icon-button color="primary" (click)="openCad(cad.data.zhankai[0].kailiaomuban)">
-                                    <mat-icon>open_in_new</mat-icon>
-                                </button>
-                                <span
-                                    class="name text-ellipsis"
-                                    [matTooltip]="cad.data.name"
-                                    [matTooltipShowDelay]="500"
-                                    matTooltipPosition="above"
-                                >
-                                    后台修改开料模板
-                                </span>
-                            </div>
-                            <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
-                                <button mat-icon-button color="primary" (click)="addMokuaiZhankai(i, j, k)">
-                                    <mat-icon>add_circle</mat-icon>
-                                </button>
-                                <button [disabled]="k === 0" mat-icon-button color="primary" (click)="removeMokuaiZhankai(i, j, k)">
-                                    <mat-icon>remove_circle</mat-icon>
-                                </button>
-                                <!-- <mat-checkbox [(ngModel)]="zhankai.custom">自定义</mat-checkbox> -->
-                                <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].width"></app-input>
-                                <span>×</span>
-                                <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].height"></app-input>
-                                <span>=</span>
-                                <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].num"></app-input>
-                            </div>
-                            <div class="content inputs">
-                                <app-input
-                                    [info]="mokuaiInputInfos[i]['cads'][j]['板材']"
-                                    (click)="openBancaiListDialog(cad.info)"
-                                ></app-input>
-                            </div>
-                            <div class="content inputs" *ngIf="cad.info.bancai">
-                                <app-input [info]="mokuaiInputInfos[i]['cads'][j]['材料']"></app-input>
-                                <app-input [info]="mokuaiInputInfos[i]['cads'][j]['厚度']"></app-input>
-                            </div>
-                            <div class="btn-group">
-                                <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad)">开料孔位配置</button>
-                                <button mat-raised-button color="primary" (click)="openKlcsDialog(cad)">开料参数</button>
-                            </div>
-                        </div>
+                        <template *ngTemplateOutlet="cadItem; context: {$implicit: cad, i, j, idPrefix: 'cad-viewer-模块-'}"></template>
                     </ng-container>
                 </div>
             </div>
             <div *ngIf="result['零散'].length > 0">
                 <div>零散配件</div>
                 <div class="content cads">
-                    <div class="cad" *ngFor="let item of result['零散']; let i = index">
-                        <div [id]="'cad-viewer-零散-' + i" (contextmenu)="onContextMenu($event, i, 0)"></div>
-                        <div class="title">
-                            <button mat-icon-button color="primary" (click)="openCad(item)">
-                                <mat-icon>open_in_new</mat-icon>
-                            </button>
-                            <button mat-icon-button color="primary" (click)="removeLingsanItem(i)">
-                                <mat-icon>remove_circle</mat-icon>
-                            </button>
-                            <span
-                                class="name text-ellipsis"
-                                [matTooltip]="item.data.name"
-                                [matTooltipShowDelay]="500"
-                                matTooltipPosition="above"
-                            >
-                                后台修改{{ item.data.name }}
-                            </span>
-                        </div>
-                        <div class="title" *ngIf="item.data.zhankai[0]?.kailiaomuban">
-                            <button mat-icon-button color="primary" (click)="openCad(item.data.zhankai[0].kailiaomuban)">
-                                <mat-icon>open_in_new</mat-icon>
-                            </button>
-                            <span
-                                class="name text-ellipsis"
-                                [matTooltip]="item.data.name"
-                                [matTooltipShowDelay]="500"
-                                matTooltipPosition="above"
-                            >
-                                后台修改开料模板
-                            </span>
-                        </div>
-                        <div class="content inputs" *ngFor="let zhankai of item.info.zhankai; let j = index">
-                            <button mat-icon-button color="primary" (click)="addLingsanZhankai(i, j)">
-                                <mat-icon>add_circle</mat-icon>
-                            </button>
-                            <button [disabled]="j === 0" mat-icon-button color="primary" (click)="removeLingsanZhankai(i, j)">
-                                <mat-icon>remove_circle</mat-icon>
-                            </button>
-                            <!-- <mat-checkbox [(ngModel)]="zhankai.custom">自定义</mat-checkbox> -->
-                            <app-input [info]="lingsanInputInfos[i].zhankai[j].width"></app-input>
-                            <span>×</span>
-                            <app-input [info]="lingsanInputInfos[i].zhankai[j].height"></app-input>
-                            <span>=</span>
-                            <app-input [info]="lingsanInputInfos[i].zhankai[j].num"></app-input>
-                        </div>
-                        <div class="content inputs">
-                            <app-input [info]="lingsanInputInfos[i]['板材']" (click)="openBancaiListDialog(item.info)"></app-input>
-                        </div>
-                        <div class="content inputs" *ngIf="item.info.bancai">
-                            <app-input [info]="lingsanInputInfos[i]['材料']"></app-input>
-                            <app-input [info]="lingsanInputInfos[i]['厚度']"></app-input>
-                        </div>
-                        <div class="btn-group">
-                            <button mat-raised-button color="primary" (click)="openKlkwpzDialog(item)">开料孔位配置</button>
-                            <button mat-raised-button color="primary" (click)="openKlcsDialog(item)">开料参数</button>
-                        </div>
-                    </div>
+                    <ng-container *ngFor="let cad of result['零散']; let i = index">
+                        <template *ngTemplateOutlet="cadItem; context: {$implicit: cad, i, j: 0, idPrefix: 'cad-viewer-零散-'}"></template>
+                    </ng-container>
                 </div>
             </div>
         </ng-scrollbar>
@@ -302,6 +192,54 @@
             <span class="key">{{ option.label }}</span>
             <span class="divider">:</span>
             <span class="value">{{ option.value }}</span>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #cadItem [appTypedTemplate]="cadItemType" let-cad let-i="i" let-j="j" let-idPrefix="idPrefix">
+    <div *ngIf="!cad.info.hidden" class="cad">
+        <div class="cad-container">
+            <div [id]="idPrefix + i + '-' + j" (contextmenu)="onContextMenu($event, i, j)"></div>
+            <!-- TODO: isLocal -->
+            <div class="floating-titles" style="display: none">
+                <div class="title" (click)="openCad(cad, false, true)">
+                    <span class="name text-ellipsis">临时修改{{ cad.data.name }}</span>
+                </div>
+                <div class="title" *ngIf="getMubanId(cad.data)" (click)="openCad(cad, true, true)">
+                    <span class="name text-ellipsis">临时修改开料模板</span>
+                </div>
+            </div>
+        </div>
+        <div class="title" (click)="openCad(cad, false, false)">
+            <span class="name text-ellipsis">后台修改{{ cad.data.name }}</span>
+        </div>
+        <div class="title" *ngIf="getMubanId(cad.data)" (click)="openCad(cad, true, false)">
+            <span class="name text-ellipsis">后台修改开料模板</span>
+        </div>
+        <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
+            <button mat-icon-button color="primary" (click)="addMokuaiZhankai(i, j, k)">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+            <button [disabled]="k === 0" mat-icon-button color="primary" (click)="removeMokuaiZhankai(i, j, k)">
+                <mat-icon>remove_circle</mat-icon>
+            </button>
+            <!-- <mat-checkbox [(ngModel)]="zhankai.custom">自定义</mat-checkbox> -->
+            <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].width"></app-input>
+            <span>×</span>
+            <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].height"></app-input>
+            <span>=</span>
+            <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].num"></app-input>
+        </div>
+        <div class="content inputs">
+            <app-input [info]="mokuaiInputInfos[i]['cads'][j]['板材']" (click)="openBancaiListDialog(cad.info)"></app-input>
+        </div>
+        <div class="content inputs" *ngIf="cad.info.bancai">
+            <app-input [info]="mokuaiInputInfos[i]['cads'][j]['材料']"></app-input>
+            <app-input [info]="mokuaiInputInfos[i]['cads'][j]['厚度']"></app-input>
+        </div>
+        <div class="btn-group">
+            <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad)">开料孔位配置</button>
+            <button mat-raised-button color="primary" (click)="openKlcsDialog(cad)">开料参数</button>
         </div>
     </div>
 </ng-template>

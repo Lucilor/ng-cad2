@@ -23,6 +23,7 @@ import {differenceWith, clamp} from "lodash";
 import {BehaviorSubject, Subject} from "rxjs";
 import {CadCollection, local, ProjectConfig, timer} from "../app.common";
 import {
+    getCadPreview,
     getCadTotalLength,
     prepareCadViewer,
     removeIntersections,
@@ -35,8 +36,8 @@ import {
     validateLines,
     ValidateResult
 } from "../cad.utils";
-import {AppConfigService, AppConfig} from "./app-config.service";
 import {CadStatusNormal, CadStatus} from "./cad-status";
+import {AppConfigService, AppConfig} from "./app-config.service";
 
 const 合型板示意图 = new CadData();
 合型板示意图.entities.add(new CadLine({start: [0, 20], end: [0, -20]}));
@@ -52,23 +53,26 @@ const replaceMap: ObjectOf<CadData> = {合型板示意图};
     providedIn: "root"
 })
 export class AppStatusService {
+    project = "";
     collection$ = new BehaviorSubject<CadCollection>("cad");
     cadTotalLength$ = new BehaviorSubject<number>(0);
     cadStatus = new CadStatusNormal();
     cadStatusEnter$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
     cadStatusExit$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
-    cad = new CadViewer(new CadData({name: "新建CAD"}));
+    cad = new CadViewer(setCadData(new CadData({name: "新建CAD"}), this.project));
     components = {
         selected$: new BehaviorSubject<CadData[]>([]),
         mode$: new BehaviorSubject<"single" | "multiple">("single"),
         selectable$: new BehaviorSubject<boolean>(true)
     };
-    openCad$ = new Subject<void>();
+    openCad$ = new Subject<OpenCadOptions>();
+    saveCad$ = new Subject<CadData | null>();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
-    project = "";
     setProject$ = new Subject<void>();
     isAdmin$ = new BehaviorSubject<boolean>(false);
     changelogTimeStamp$ = new BehaviorSubject<number>(-1);
+    zhewanLengths$ = new BehaviorSubject<[number, number]>([1, 3]);
+    private _isZhewanLengthsFetched = false;
     private _refreshTimeStamp = Number(local.load("refreshTimeStamp") || -1);
     private _projectConfig: ProjectConfig = {};
 
@@ -165,14 +169,14 @@ export class AppStatusService {
         }
     }
 
-    async openCad(data?: CadData, collection?: CadCollection, center = true, beforeOpen?: (data: CadData) => any) {
+    async openCad(opts: OpenCadOptions = {}) {
         const timerName = "openCad";
         timer.start(timerName);
         const cad = this.cad;
+        const {data, center, beforeOpen, isLocal} = {center: true, isLocal: false, ...opts};
+        let collection = opts.collection;
         if (data) {
             cad.data = data;
-        } else {
-            data = cad.data;
         }
         const newConfig: Partial<AppConfig> = {};
         if (collection && this.collection$.value !== collection) {
@@ -183,39 +187,47 @@ export class AppStatusService {
         if (collection === "CADmuban") {
             this.config.setConfig({hideLineLength: true, hideLineGongshi: true}, {sync: false});
         }
+        const parentEl = cad.dom.parentElement;
+        if (parentEl) {
+            this.cad.resize(parentEl.clientWidth, parentEl.clientHeight);
+        }
 
-        const id = data.id;
+        const id = cad.data.id;
         const {id: id2, collection: collection2} = this.route.snapshot.queryParams;
-        if (id !== id2 || collection !== collection2) {
-            this.router.navigate(["/index"], {queryParams: {id, collection}, queryParamsHandling: "merge"});
+        if (!isLocal && (id !== id2 || collection !== collection2)) {
+            if (this.router.url.startsWith("/index")) {
+                this.router.navigate(["/index"], {queryParams: {id, collection}, queryParamsHandling: "merge"});
+            }
         }
         this.config.setUserConfig(newConfig);
         await prepareCadViewer(cad);
-        setCadData(data, this.project);
-        if (!environment.production) {
-            showIntersections(data, this._projectConfig);
-        }
-        for (const key in replaceMap) {
-            this._replaceText(data, key, replaceMap[key]);
-        }
-        if (Object.keys(data.对应计算条数的配件).length < 1) {
-            data.对应计算条数的配件[""] = "";
-        }
-        suanliaodanZoomIn(collection, data);
-        if (collection === "cad") {
-            validateLines(data);
-        }
-        this.generateLineTexts();
 
-        const 算料单CAD模板使用图片装配 = this.getProjectConfigBoolean("算料单CAD模板使用图片装配");
-        const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配;
         const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) => {
             const result = await Promise.all(
                 data2.components.data.map(async (v) => await updateCadPreviewImg(v, mode, !shouldUpdatePreview))
             );
             return result.flat();
         };
-        await updatePreview(data, "pre");
+        const 算料单CAD模板使用图片装配 = this.getProjectConfigBoolean("算料单CAD模板使用图片装配");
+        const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配;
+        if (data) {
+            setCadData(data, this.project);
+            if (!environment.production) {
+                showIntersections(data, this._projectConfig);
+            }
+            for (const key in replaceMap) {
+                this._replaceText(data, key, replaceMap[key]);
+            }
+            if (Object.keys(data.对应计算条数的配件).length < 1) {
+                data.对应计算条数的配件[""] = "";
+            }
+            suanliaodanZoomIn(collection, data);
+            if (collection === "cad") {
+                validateLines(data);
+            }
+            this.generateLineTexts();
+            await updatePreview(data, "pre");
+        }
 
         await cad.reset().render();
         if (center) {
@@ -224,16 +236,21 @@ export class AppStatusService {
         this.updateCadTotalLength();
         this.updateTitle();
 
-        await cad.render(await updatePreview(data, "post"));
+        if (data) {
+            await cad.render(await updatePreview(data, "post"));
+        } else {
+            await cad.render();
+        }
 
         if (beforeOpen) {
-            const res = beforeOpen(data);
+            const res = beforeOpen(cad.data);
             if (res instanceof Promise) {
                 await res;
             }
         }
-        this.openCad$.next();
+        this.openCad$.next(opts);
         timer.end(timerName, "打开CAD");
+        return opts;
     }
 
     closeCad(data?: CadData) {
@@ -248,6 +265,40 @@ export class AppStatusService {
         data2.getAllEntities().forEach((e) => (e.visible = true));
         suanliaodanZoomOut(this.collection$.value, data2);
         return data2;
+    }
+
+    async saveCad(loaderId?: string) {
+        await timeout(100); // 等待input事件触发
+        const {dataService, message, spinner} = this;
+        const collection = this.collection$.value;
+        let resData: CadData | null = null;
+        const validateResults = this.validate();
+        if (validateResults.some((v) => !v.valid)) {
+            const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
+            if (!yes) {
+                return null;
+            }
+        }
+        const data = this.closeCad();
+        if (!loaderId) {
+            loaderId = spinner.defaultLoaderId;
+        }
+        spinner.show(loaderId, {text: `正在保存CAD: ${data.name}`});
+        resData = await dataService.setCad({collection, cadData: data, force: true});
+        if (resData) {
+            await this.openCad({
+                data: resData,
+                collection,
+                center: false,
+                beforeOpen: async (data2) => {
+                    const url = await getCadPreview(collection, data2);
+                    await dataService.setCadImg(data2.id, url, {silent: true});
+                }
+            });
+        }
+        spinner.hide(loaderId);
+        this.saveCad$.next(resData);
+        return resData;
     }
 
     generateLineTexts() {
@@ -378,6 +429,17 @@ export class AppStatusService {
         const value = this.getProjectConfig(key);
         return value === "是";
     }
+
+    async updateZhewanLengths() {
+        if (this._isZhewanLengthsFetched) {
+            return;
+        }
+        const response = await this.dataService.get<[number, number]>("ngcad/getZhewan");
+        if (response?.data) {
+            this.zhewanLengths$.next(response.data);
+            this._isZhewanLengthsFetched = true;
+        }
+    }
 }
 
 export interface Loader {
@@ -392,4 +454,12 @@ export interface CadComponentsStatus {
     selected: CadData[];
     mode: "single" | "multiple";
     selectable: boolean;
+}
+
+export interface OpenCadOptions {
+    data?: CadData;
+    collection?: CadCollection;
+    center?: boolean;
+    beforeOpen?: (data: CadData) => any;
+    isLocal?: boolean;
 }

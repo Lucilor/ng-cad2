@@ -1,12 +1,11 @@
-import {trigger, transition, style, animate} from "@angular/animations";
+import {animate, style, transition, trigger} from "@angular/animations";
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {getList, CadCollection} from "@app/app.common";
-import {getCadPreview} from "@app/cad.utils";
 import {CadArc, CadData, CadDimensionLinear} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
-import {Command, ValuedCommand, Arg} from "@modules/cad-console/cad-command-types";
+import {Arg, Command, ValuedCommand} from "@modules/cad-console/cad-command-types";
 import {getContent, getEmphasized, getBashStyle, spaceReplacer} from "@modules/cad-console/cad-console.utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BookData} from "@modules/message/components/message/message-types";
@@ -367,7 +366,7 @@ export class CadConsoleComponent implements OnInit {
             this.message.book({bookData: data, title: "帮助手册"});
         },
         newCad() {
-            this.status.openCad(new CadData({name: "新建CAD"}));
+            this.status.openCad({data: new CadData({name: "新建CAD"}), isLocal: true});
         },
         async open(collectionArg: string) {
             if (this.openLock) {
@@ -403,7 +402,7 @@ export class CadConsoleComponent implements OnInit {
                 data: {collection, selectMode: "single", checkedItems, checkedItemsLimit: 1}
             });
             if (result && result.length > 0) {
-                this.status.openCad(result[0], collection);
+                this.status.openCad({data: result[0], collection});
             }
             this.openLock = false;
         },
@@ -424,31 +423,7 @@ export class CadConsoleComponent implements OnInit {
             this.transform({rotate: new Angle(degrees, "deg").rad}, rotateDimension);
         },
         async save(loaderId?: string) {
-            await timeout(100); // 等待input事件触发
-            const {dataService, status, message, spinner} = this;
-            const collection = status.collection$.value;
-            let resData: CadData | null = null;
-            const validateResults = status.validate();
-            if (validateResults.some((v) => !v.valid)) {
-                const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
-                if (!yes) {
-                    return;
-                }
-            }
-            const data = status.closeCad();
-            if (!loaderId) {
-                loaderId = spinner.defaultLoaderId;
-            }
-            spinner.show(loaderId, {text: `正在保存CAD: ${data.name}`});
-            resData = await dataService.setCad({collection, cadData: data, force: true});
-            if (resData) {
-                await status.openCad(resData, collection, false, async (data2) => {
-                    const url = await getCadPreview(collection, data2);
-                    await dataService.setCadImg(data2.id, url, {silent: true});
-                });
-            }
-            spinner.hide(loaderId);
-            return resData;
+            this.status.saveCad(loaderId);
         },
         async split() {
             const cadStatus = this.status.cadStatus;

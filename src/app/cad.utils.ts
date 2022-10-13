@@ -20,6 +20,7 @@ import {
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {DEFAULT_TOLERANCE, isBetween, Line, ObjectOf, Point} from "@utils";
 import {intersection} from "lodash";
+import md5 from "md5";
 import {CadCollection} from "./app.common";
 import {Formulas} from "./utils/calc";
 
@@ -149,6 +150,7 @@ export const setCadData = (data: CadData, project: string) => {
     if (!Array.isArray(data.info.激光开料标记线)) {
         data.info.激光开料标记线 = [];
     }
+    return data;
 };
 
 export const unsetCadData = (data: CadData) => {
@@ -565,3 +567,5 @@ export const setDimensionText = (e: CadDimension, materialResult: Formulas) => {
     }
     return {显示公式, 活动标注};
 };
+
+export const getCadStr = (data: CadData) => md5(JSON.stringify(data.export()));

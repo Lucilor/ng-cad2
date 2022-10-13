@@ -7,7 +7,7 @@ import {ValuedCommand} from "../cad-command-types";
     providedIn: "root"
 })
 export class CadConsoleService {
-    command = new BehaviorSubject<ValuedCommand>({name: "", args: []});
+    command$ = new BehaviorSubject<ValuedCommand>({name: "", args: []});
 
     constructor() {}
 
@@ -16,6 +16,6 @@ export class CadConsoleService {
         for (const key in argsObj) {
             args.push({name: key, value: argsObj[key]});
         }
-        this.command.next({name, args});
+        this.command$.next({name, args});
     }
 }
