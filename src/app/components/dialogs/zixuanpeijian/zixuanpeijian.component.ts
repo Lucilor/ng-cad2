@@ -36,15 +36,9 @@ import {
     ZixuanpeijianInfo,
     ZixuanpeijianCadItem,
     ZixuanpeijianMokuaiItem,
-    ZixuanpeijianTypesInfoItem
+    ZixuanpeijianTypesInfoItem,
+    CadItemContext
 } from "./zixuanpeijian.types";
-
-interface CadItemContext {
-    $implicit: ZixuanpeijianCadItem;
-    i: number;
-    j: number;
-    idPrefix: string;
-}
 
 @Component({
     selector: "app-zixuanpeijian",
@@ -331,7 +325,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 });
             }
             for (const [i, item] of this.result.零散.entries()) {
-                const {data2, viewer} = initCadViewer(item.data, `#cad-viewer-零散-${i}`);
+                const {data2, viewer} = initCadViewer(item.data, `#cad-viewer-零散-${i}-0`);
                 item.data = data2;
                 cadViewers.零散.push(viewer);
             }
@@ -865,23 +859,19 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         this.status.openCadInNewTab(this.lingsanCads[i].data.id, "cad");
     }
 
-    addMokuaiZhankai(i: number, j: number, k: number) {
-        this.result.模块[i].cads[j].info.zhankai.splice(k + 1, 0, this._getDefaultZhankai());
+    getZhankaiArr(type: CadItemContext["type"], i: number, j: number) {
+        return type === "模块" ? this.result.模块[i].cads[j].info.zhankai : this.result.零散[i].info.zhankai;
+    }
+
+    addZhankai(type: CadItemContext["type"], i: number, j: number, k: number) {
+        const arr = this.getZhankaiArr(type, i, j);
+        arr.splice(k + 1, 0, this._getDefaultZhankai());
         this._updateInputInfos();
     }
 
-    removeMokuaiZhankai(i: number, j: number, k: number) {
-        this.result.模块[i].cads[j].info.zhankai.splice(k, 1);
-        this._updateInputInfos();
-    }
-
-    addLingsanZhankai(i: number, j: number) {
-        this.result.零散[i].info.zhankai.splice(j + 1, 0, this._getDefaultZhankai());
-        this._updateInputInfos();
-    }
-
-    removeLingsanZhankai(i: number, j: number) {
-        this.result.零散[i].info.zhankai.splice(j, 1);
+    removeZhankai(type: CadItemContext["type"], i: number, j: number, k: number) {
+        const arr = this.getZhankaiArr(type, i, j);
+        arr.splice(k, 1);
         this._updateInputInfos();
     }
 

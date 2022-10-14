@@ -92,3 +92,10 @@ export interface ZixuanpeijianlingsanCadItem {
     img: SafeUrl;
     hidden: boolean;
 }
+
+export interface CadItemContext {
+    $implicit: ZixuanpeijianCadItem;
+    i: number;
+    j: number;
+    type: "模块" | "零散";
+}
