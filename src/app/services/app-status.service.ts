@@ -65,7 +65,8 @@ export class AppStatusService {
         selectable$: new BehaviorSubject<boolean>(true)
     };
     openCad$ = new Subject<OpenCadOptions>();
-    saveCad$ = new Subject<CadData | null>();
+    saveCadStart$ = new Subject<void>();
+    saveCadEnd$ = new Subject<void>();
     cadPoints$ = new BehaviorSubject<CadPoints>([]);
     setProject$ = new Subject<void>();
     isAdmin$ = new BehaviorSubject<boolean>(false);
@@ -267,11 +268,12 @@ export class AppStatusService {
     }
 
     async saveCad(loaderId?: string) {
+        this.saveCadStart$.next();
         await timeout(100); // 等待input事件触发
         const {dataService, message, spinner} = this;
         const collection = this.collection$.value;
         let resData: CadData | null = null;
-        const errMsg = this.validate()?.errMsg || [];
+        const errMsg = this.validate(true)?.errMsg || [];
         if (errMsg.length > 0) {
             const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？<br>" + errMsg.join("<br>"));
             if (!yes) {
@@ -285,7 +287,7 @@ export class AppStatusService {
         spinner.show(loaderId, {text: `正在保存CAD: ${data.name}`});
         resData = await dataService.setCad({collection, cadData: data, force: true});
         if (resData) {
-            this.saveCad$.next(resData.clone());
+            this.saveCadEnd$.next();
             await this.openCad({
                 data: resData,
                 collection,
@@ -355,11 +357,15 @@ export class AppStatusService {
         this.cadPoints$.next(points);
     }
 
-    validate() {
-        if (this.collection$.value !== "cad" || !this.config.getConfig("validateLines")) {
+    validate(force?: boolean) {
+        const noInfo = !this.config.getConfig("validateLines");
+        if (this.collection$.value !== "cad") {
             return null;
         }
-        const result = validateLines(this.cad.data);
+        if (!force && noInfo) {
+            return null;
+        }
+        const result = validateLines(this.cad.data, noInfo);
         this.cad.render();
         return result;
     }

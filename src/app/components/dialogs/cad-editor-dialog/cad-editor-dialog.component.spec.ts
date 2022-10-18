@@ -1,6 +1,5 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {MatIconModule} from "@angular/material/icon";
 import {CadData} from "@cad-viewer";
 import {CadEditorModule} from "@modules/cad-editor/cad-editor.module";
 import {HttpModule} from "@modules/http/http.module";
@@ -15,7 +14,7 @@ describe("CadEditorDialogComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [CadEditorDialogComponent],
-            imports: [CadEditorModule, HttpModule, MatIconModule],
+            imports: [CadEditorModule, HttpModule],
             providers: [
                 {provide: MatDialogRef, useValue: {}},
                 {provide: MAT_DIALOG_DATA, useValue: data}

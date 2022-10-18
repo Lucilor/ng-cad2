@@ -1,10 +1,8 @@
-import {Component, Inject, ViewChild} from "@angular/core";
+import {Component, Inject, OnInit, ViewChild} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {CadData} from "@cad-viewer";
+import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadEditorComponent} from "@modules/cad-editor/components/cad-editor/cad-editor.component";
-import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService, OpenCadOptions} from "@services/app-status.service";
-import {getCadStr} from "@src/app/cad.utils";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
@@ -12,38 +10,44 @@ import {getOpenDialogFunc} from "../dialog.common";
     templateUrl: "./cad-editor-dialog.component.html",
     styleUrls: ["./cad-editor-dialog.component.scss"]
 })
-export class CadEditorDialogComponent {
+export class CadEditorDialogComponent extends Subscribed() implements OnInit {
     @ViewChild(CadEditorComponent) cadEditor?: CadEditorComponent;
-    cadInitStr = "";
+    isSaved = false;
+    canClose = true;
 
     constructor(
         public dialogRef: MatDialogRef<CadEditorDialogComponent, CadEditorOutput>,
         @Inject(MAT_DIALOG_DATA) public data: CadEditorInput,
-        private status: AppStatusService,
-        private message: MessageService
+        private status: AppStatusService
     ) {
+        super();
         if (!this.data) {
             this.data = {};
         }
-        if (this.data.data) {
-            this.cadInitStr = getCadStr(this.data.data);
+    }
+
+    ngOnInit() {
+        this.subscribe(this.status.saveCadStart$, () => {
+            this.canClose = false;
+        });
+        this.subscribe(this.status.saveCadEnd$, () => {
+            this.canClose = true;
+            this.isSaved = true;
+        });
+    }
+
+    async save() {
+        if (this.cadEditor) {
+            await this.cadEditor.save();
         }
     }
 
-    async close() {
+    async close(save: boolean) {
+        if (save) {
+            await this.save();
+        }
         if (this.cadEditor) {
-            const data = this.status.closeCad(this.status.cad.data);
-            const cadCurrStr = getCadStr(data);
-            console.log([cadCurrStr, this.cadInitStr, this.cadEditor.cadPrevStr]);
-            const isChanged = cadCurrStr !== this.cadInitStr;
-            const isSaved = cadCurrStr === this.cadEditor.cadPrevStr;
-            if (!this.data.isLocal && isChanged && !isSaved) {
-                const yes = await this.message.confirm("cad尚未保存，是否保存？");
-                if (yes) {
-                    await this.cadEditor.save();
-                }
-            }
-            this.dialogRef.close({data, isChanged});
+            this.dialogRef.close({isSaved: this.isSaved});
         } else {
             this.dialogRef.close();
         }
@@ -52,12 +56,12 @@ export class CadEditorDialogComponent {
 
 export const openCadEditorDialog = getOpenDialogFunc<CadEditorDialogComponent, CadEditorInput, CadEditorOutput>(CadEditorDialogComponent, {
     width: "90%",
-    height: "90%"
+    height: "90%",
+    disableClose: true
 });
 
 export type CadEditorInput = OpenCadOptions;
 
 export interface CadEditorOutput {
-    data: CadData;
-    isChanged: boolean;
+    isSaved: boolean;
 }

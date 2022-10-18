@@ -12,10 +12,9 @@ import {AppConfig, AppConfigService} from "@services/app-config.service";
 import {AppStatusService, OpenCadOptions} from "@services/app-status.service";
 import {CadStatusAssemble, CadStatusSplit} from "@services/cad-status";
 import {setGlobal} from "@src/app/app.common";
-import {getCadStr} from "@src/app/cad.utils";
 import {debounce} from "lodash";
 import {NgScrollbar} from "ngx-scrollbar";
-import {BehaviorSubject, map, startWith} from "rxjs";
+import {BehaviorSubject, map, startWith, take} from "rxjs";
 
 @Component({
     selector: "app-cad-editor",
@@ -78,7 +77,6 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
     dragDataRight: DragData = {width: 0};
     isDraggingLeft = false;
     isDraggingRight = false;
-    cadPrevStr = "";
     spinnerId = "cadEditor";
     private _isViewInited = false;
 
@@ -159,12 +157,6 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
             }
         });
 
-        this.subscribe(this.status.saveCad$, (data) => {
-            if (data) {
-                this.cadPrevStr = getCadStr(data);
-            }
-        });
-
         const infoTabs = this.infoTabs;
         const setInfoTabs = () => {
             const {infoTabIndex, scroll} = this.config.getConfig();
@@ -175,7 +167,11 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
                 this._setTabScroll();
             }
         };
-        setInfoTabs();
+        infoTabs.animationDone.pipe(take(1)).subscribe(() => {
+            setTimeout(() => {
+                setInfoTabs();
+            }, 0);
+        });
         const sub = this.config.configChange$.subscribe(({isUserConfig}) => {
             if (isUserConfig) {
                 setInfoTabs();

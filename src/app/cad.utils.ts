@@ -20,7 +20,6 @@ import {
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {DEFAULT_TOLERANCE, isBetween, Line, ObjectOf, Point} from "@utils";
 import {intersection} from "lodash";
-import md5 from "md5";
 import {CadCollection} from "./app.common";
 import {Formulas} from "./utils/calc";
 
@@ -171,7 +170,7 @@ export const isShiyitu = (data: CadData) => data.type.includes("示意图") || d
 
 export const LINE_LIMIT = [0.01, 0.1];
 export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"];
-export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): ValidateResult => {
+export const validateLines = (data: CadData, noInfo?: boolean, tolerance = DEFAULT_TOLERANCE): ValidateResult => {
     const result: ValidateResult = {errMsg: [], lines: []};
     if (isShiyitu(data)) {
         return result;
@@ -180,6 +179,17 @@ export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): Val
     result.lines = lines;
     const [min, max] = LINE_LIMIT;
     const groupMaxLength = data.shuangxiangzhewan ? 2 : 1;
+    const addInfoError = (e: CadLineLike, error: string) => {
+        if (noInfo) {
+            return;
+        }
+        if (!e.info.errors) {
+            e.info.errors = [];
+        }
+        if (!e.info.errors.includes(error)) {
+            e.info.errors.push(error);
+        }
+    };
     for (const v of lines) {
         let 刨坑起始线数量 = 0;
         let 刨坑起始线位置错误 = false;
@@ -187,7 +197,6 @@ export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): Val
             const {start, end} = e;
             const dx = Math.abs(start.x - end.x);
             const dy = Math.abs(start.y - end.y);
-            e.info.errors = [];
             if (e.刨坑起始线) {
                 刨坑起始线数量++;
                 if (i !== 0 && i !== v.length - 1) {
@@ -195,11 +204,8 @@ export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): Val
                 }
             }
             if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
-                e.info.errors = ["斜率不符合要求"];
+                addInfoError(e, "斜率不符合要求");
                 result.errMsg.push(`线段斜率不符合要求(线长: ${e.length.toFixed(2)})`);
-            }
-            if (e.info.errors.length < 1) {
-                delete e.info.errors;
             }
         }
         if (刨坑起始线数量 > 1) {
@@ -235,9 +241,7 @@ export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): Val
                 }
             });
             errLines.forEach((l) => {
-                if (!l.info.errors.includes("CAD分成了多段的断裂处")) {
-                    l.info.errors.push("CAD分成了多段的断裂处");
-                }
+                addInfoError(l, "CAD分成了多段的断裂处");
             });
         }
     }
@@ -581,5 +585,3 @@ export const setDimensionText = (e: CadDimension, materialResult: Formulas) => {
     }
     return {显示公式, 活动标注};
 };
-
-export const getCadStr = (data: CadData) => md5(JSON.stringify(data.export()));

@@ -40,7 +40,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
             }
         }
         this.class = [];
-        if (value.label) {
+        if (typeof value.label === "string" && value.label && !value.label.includes(" ")) {
             this.class.push(value.label);
         }
         if (value.readonly) {

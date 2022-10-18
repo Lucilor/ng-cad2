@@ -1175,7 +1175,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
         }
         const result = await openCadEditorDialog(this.dialog, {data: {data, collection, isLocal}});
-        if (result?.isChanged) {
+        if (result?.isSaved) {
             await this.allFetch();
         }
     }

@@ -366,7 +366,7 @@ export class CadConsoleComponent implements OnInit {
             this.message.book({bookData: data, title: "帮助手册"});
         },
         newCad() {
-            this.status.openCad({data: new CadData({name: "新建CAD"}), isLocal: true});
+            this.status.openCad({data: new CadData({name: "新建CAD"})});
         },
         async open(collectionArg: string) {
             if (this.openLock) {

@@ -261,8 +261,10 @@
             </ng-container>
         </ng-container>
         <div class="btn-group">
-            <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad)">开料孔位配置</button>
-            <button mat-raised-button color="primary" (click)="openKlcsDialog(cad)">开料参数</button>
+            <ng-container *ngIf="type !== '模块'">
+                <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad)">开料孔位配置</button>
+                <button mat-raised-button color="primary" (click)="openKlcsDialog(cad)">开料参数</button>
+            </ng-container>
         </div>
     </div>
 </ng-template>
