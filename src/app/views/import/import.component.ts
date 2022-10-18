@@ -293,10 +293,13 @@ export class ImportComponent extends Utils() implements OnInit {
         optionKeys.forEach((key) => {
             options.push([key, slgs.选项[key].split(";").sort()]);
         });
+        if (Array.isArray(slgs.条件)) {
+            slgs.条件.sort();
+        }
         return md5(
             JSON.stringify({
                 type: slgs.分类,
-                conditions: slgs.条件.sort(),
+                conditions: slgs.条件,
                 options
             })
         );

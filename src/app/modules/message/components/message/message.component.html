@@ -71,7 +71,7 @@
         <button mat-raised-button (click)="submit()" cdkFocusInitial>
             {{ cast(data, "prompt").btnTexts?.submit || "确定" }}
         </button>
-        <button mat-raised-button (click)="cancel()" [disabled]="data.cancelable === false">
+        <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
             {{ cast(data, "prompt").btnTexts?.cancel || "取消" }}
         </button>
     </ng-container>
@@ -90,7 +90,7 @@
         <button mat-raised-button (click)="submit()" cdkFocusInitial>
             {{ cast(data, "editor").btnTexts?.submit || "确定" }}
         </button>
-        <button mat-raised-button (click)="cancel()" [disabled]="data.cancelable === false">
+        <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
             {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
         </button>
     </ng-container>
@@ -98,7 +98,7 @@
         <button mat-raised-button *ngFor="let button of cast(data, 'button').buttons" (click)="submit(button)">
             {{ getButtonLabel(button) }}
         </button>
-        <button mat-raised-button (click)="cancel()" [disabled]="data.cancelable === false">
+        <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
             {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
         </button>
     </ng-container>

@@ -97,6 +97,13 @@
         app-input {
             width: 0;
             flex: 1 1 0;
+            &.readonly {
+                ::ng-deep {
+                    .mat-form-field-underline {
+                        display: none;
+                    }
+                }
+            }
         }
 
         :not(app-input) {

@@ -600,7 +600,8 @@ export class CadLineComponent extends Subscribed() implements OnInit, AfterViewI
                     "linewidth",
                     "显示线长",
                     "圆弧显示",
-                    "开料不要"
+                    "开料不要",
+                    "刨坑起始线"
                 ];
                 if (keys.includes(field as keyof CadLineLike)) {
                     cad.render(e);

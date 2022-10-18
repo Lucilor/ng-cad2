@@ -16,7 +16,6 @@ import {AppConfigService, AppConfig} from "@services/app-config.service";
 import {AppStatusService, OpenCadOptions} from "@services/app-status.service";
 import {CadStatusNormal} from "@services/cad-status";
 import {ObjectOf, timeout} from "@utils";
-import {flatMap} from "lodash";
 import {map, startWith} from "rxjs";
 
 @Component({
@@ -176,8 +175,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         const value = !this.config.getConfig("validateLines");
         this.config.setConfig("validateLines", value);
         if (value) {
-            const errMsg = flatMap(this.status.validate().map((v) => v.errMsg));
-            if (errMsg.length) {
+            const errMsg = this.status.validate()?.errMsg || [];
+            if (errMsg.length > 0) {
                 this.message.alert(errMsg.join("<br />"));
             }
         }

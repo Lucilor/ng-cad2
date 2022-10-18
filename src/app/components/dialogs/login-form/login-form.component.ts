@@ -77,7 +77,7 @@ export class LoginFormComponent implements AfterViewInit {
             const phonecode = await this.message.prompt({
                 title: "请输入验证码",
                 promptData: {placeholder: "验证码"},
-                cancelable: false
+                disableCancel: true
             });
             data.set("phonecode", phonecode || "");
             this.spinner.show(this.spinner.defaultLoaderId);

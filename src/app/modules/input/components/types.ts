@@ -15,6 +15,7 @@ export interface InputInfoBase<T = any> {
     showEmpty?: boolean;
     autoFocus?: boolean;
     placeholder?: string;
+    class?: string | string[];
 }
 
 export interface InputInfoString<T = any> extends InputInfoBase<T> {

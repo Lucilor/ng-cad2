@@ -1,11 +1,10 @@
-import {Component, Inject, OnInit, ViewChild} from "@angular/core";
+import {Component, Inject, ViewChild} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadData} from "@cad-viewer";
 import {CadEditorComponent} from "@modules/cad-editor/components/cad-editor/cad-editor.component";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService, OpenCadOptions} from "@services/app-status.service";
 import {getCadStr} from "@src/app/cad.utils";
-import {take} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
@@ -13,7 +12,7 @@ import {getOpenDialogFunc} from "../dialog.common";
     templateUrl: "./cad-editor-dialog.component.html",
     styleUrls: ["./cad-editor-dialog.component.scss"]
 })
-export class CadEditorDialogComponent implements OnInit {
+export class CadEditorDialogComponent {
     @ViewChild(CadEditorComponent) cadEditor?: CadEditorComponent;
     cadInitStr = "";
 
@@ -24,28 +23,24 @@ export class CadEditorDialogComponent implements OnInit {
         private message: MessageService
     ) {
         if (!this.data) {
-            this.data = {data: new CadData(), collection: "cad"};
+            this.data = {};
         }
-    }
-
-    ngOnInit() {
-        this.status.openCad$.pipe(take(1)).subscribe((opts: OpenCadOptions) => {
-            if (opts.data) {
-                this.cadInitStr = getCadStr(opts.data);
-            }
-        });
+        if (this.data.data) {
+            this.cadInitStr = getCadStr(this.data.data);
+        }
     }
 
     async close() {
         if (this.cadEditor) {
-            const data = this.status.cad.data;
+            const data = this.status.closeCad(this.status.cad.data);
             const cadCurrStr = getCadStr(data);
+            console.log([cadCurrStr, this.cadInitStr, this.cadEditor.cadPrevStr]);
             const isChanged = cadCurrStr !== this.cadInitStr;
             const isSaved = cadCurrStr === this.cadEditor.cadPrevStr;
-            if (!this.data.isLocal && !isSaved) {
+            if (!this.data.isLocal && isChanged && !isSaved) {
                 const yes = await this.message.confirm("cad尚未保存，是否保存？");
                 if (yes) {
-                    await this.status.saveCad("save");
+                    await this.cadEditor.save();
                 }
             }
             this.dialogRef.close({data, isChanged});

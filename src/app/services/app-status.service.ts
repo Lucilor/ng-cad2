@@ -33,8 +33,7 @@ import {
     suanliaodanZoomOut,
     unsetCadData,
     updateCadPreviewImg,
-    validateLines,
-    ValidateResult
+    validateLines
 } from "../cad.utils";
 import {CadStatusNormal, CadStatus} from "./cad-status";
 import {AppConfigService, AppConfig} from "./app-config.service";
@@ -272,9 +271,9 @@ export class AppStatusService {
         const {dataService, message, spinner} = this;
         const collection = this.collection$.value;
         let resData: CadData | null = null;
-        const validateResults = this.validate();
-        if (validateResults.some((v) => !v.valid)) {
-            const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？");
+        const errMsg = this.validate()?.errMsg || [];
+        if (errMsg.length > 0) {
+            const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？<br>" + errMsg.join("<br>"));
             if (!yes) {
                 return null;
             }
@@ -286,6 +285,7 @@ export class AppStatusService {
         spinner.show(loaderId, {text: `正在保存CAD: ${data.name}`});
         resData = await dataService.setCad({collection, cadData: data, force: true});
         if (resData) {
+            this.saveCad$.next(resData.clone());
             await this.openCad({
                 data: resData,
                 collection,
@@ -297,7 +297,6 @@ export class AppStatusService {
             });
         }
         spinner.hide(loaderId);
-        this.saveCad$.next(resData);
         return resData;
     }
 
@@ -357,15 +356,12 @@ export class AppStatusService {
     }
 
     validate() {
-        const results: ValidateResult[] = [];
         if (this.collection$.value !== "cad" || !this.config.getConfig("validateLines")) {
-            return results;
+            return null;
         }
-        this.cad.data.components.data.forEach((v) => {
-            results.push(validateLines(v));
-        });
+        const result = validateLines(this.cad.data);
         this.cad.render();
-        return results;
+        return result;
     }
 
     updateCadTotalLength() {

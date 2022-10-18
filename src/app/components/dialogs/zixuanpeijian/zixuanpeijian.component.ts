@@ -7,7 +7,7 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Router} from "@angular/router";
 import {CadCollection, imgCadEmpty, setGlobal} from "@app/app.common";
 import {getCadPreview, getCadTotalLength, setDimensionText, splitShuangxiangCad} from "@app/cad.utils";
-import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
+import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, CadZhankai, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
@@ -217,59 +217,66 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 v.destroy();
             }
             cadViewers.零散 = [];
-            const initCadViewer = (data: CadData, selector: string) => {
+            const initCadViewer = (data: CadData, selector: string, type: CadItemContext["type"]) => {
                 const data2 = data.clone(true);
                 this._configCad(data2);
                 data2.entities.mtext = data2.entities.mtext.filter((e) => !e.info.isZhankaiText);
 
-                const viewer = new CadViewer(data2, {
+                const config: Partial<CadViewerConfig> = {
                     entityDraggable: ["MTEXT"],
                     selectMode: "single",
                     backgroundColor: "black"
-                });
+                };
+                if (type === "模块") {
+                    config.entityDraggable = false;
+                    config.selectMode = "none";
+                }
+                const viewer = new CadViewer(data2, config);
                 if (this.data?.cadConfig) {
                     viewer.setConfig(this.data.cadConfig);
                 }
                 (async () => {
                     await viewer.render();
-                    viewer.on("entitydblclick", async (_, entity) => {
-                        if (entity instanceof CadMtext) {
-                            const parent = entity.parent;
-                            if (!entity.info.isLengthText || !(parent instanceof CadLine)) {
-                                return;
-                            }
-                            if (parent.gongshi) {
-                                if (!(await this.message.confirm("该线已有公式，是否覆盖？"))) {
+                    if (type !== "模块") {
+                        viewer.on("entitydblclick", async (_, entity) => {
+                            if (entity instanceof CadMtext) {
+                                const parent = entity.parent;
+                                if (!entity.info.isLengthText || !(parent instanceof CadLine)) {
                                     return;
                                 }
-                            }
-                            const lineLengthText = await this.message.prompt({
-                                title: "修改线长",
-                                promptData: {value: entity.text, type: "number"}
-                            });
-                            if (lineLengthText) {
-                                const lineLength = Number(lineLengthText);
-                                if (isNaN(lineLength) || lineLength <= 0) {
-                                    return;
+                                if (parent.gongshi) {
+                                    if (!(await this.message.confirm("该线已有公式，是否覆盖？"))) {
+                                        return;
+                                    }
                                 }
-                                setLinesLength(data2, [parent], lineLength);
-                                parent.gongshi = "";
-                                await viewer.render();
-                                viewer.center();
-                                // this.calcZhankai(cadItem);
-                                this._calc();
+                                const lineLengthText = await this.message.prompt({
+                                    title: "修改线长",
+                                    promptData: {value: entity.text, type: "number"}
+                                });
+                                if (lineLengthText) {
+                                    const lineLength = Number(lineLengthText);
+                                    if (isNaN(lineLength) || lineLength <= 0) {
+                                        return;
+                                    }
+                                    setLinesLength(data2, [parent], lineLength);
+                                    parent.gongshi = "";
+                                    await viewer.render();
+                                    viewer.center();
+                                    // this.calcZhankai(cadItem);
+                                    this._calc();
+                                }
+                            } else if (entity instanceof CadLineLike) {
+                                const name = await this.message.prompt({
+                                    title: "修改线名字",
+                                    promptData: {value: entity.mingzi, type: "string"}
+                                });
+                                if (name) {
+                                    entity.mingzi = name;
+                                    await viewer.render();
+                                }
                             }
-                        } else if (entity instanceof CadLineLike) {
-                            const name = await this.message.prompt({
-                                title: "修改线名字",
-                                promptData: {value: entity.mingzi, type: "string"}
-                            });
-                            if (name) {
-                                entity.mingzi = name;
-                                await viewer.render();
-                            }
-                        }
-                    });
+                        });
+                    }
 
                     await timeout(0);
                     const el = this.elRef.nativeElement.querySelector(selector);
@@ -312,7 +319,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     }
                     const cadItem: ZixuanpeijianCadItem = {data, info};
                     item.cads.push(cadItem);
-                    const {data2, viewer} = initCadViewer(data, `#cad-viewer-模块-${i}-${j}`);
+                    const {data2, viewer} = initCadViewer(data, `#cad-viewer-模块-${i}-${j}`, "模块");
                     cadItem.data = data2;
 
                     if (!cadViewers.模块[type1]) {
@@ -325,7 +332,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 });
             }
             for (const [i, item] of this.result.零散.entries()) {
-                const {data2, viewer} = initCadViewer(item.data, `#cad-viewer-零散-${i}-0`);
+                const {data2, viewer} = initCadViewer(item.data, `#cad-viewer-零散-${i}-0`, "零散");
                 item.data = data2;
                 cadViewers.零散.push(viewer);
             }
@@ -646,13 +653,14 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         }
         const options = this.dropDownOptions.map((v) => v.label);
 
-        const getCadItemInputInfos = (items: ZixuanpeijianCadItem[]) =>
+        const getCadItemInputInfos = (items: ZixuanpeijianCadItem[], type: CadItemContext["type"]) =>
             items.map<CadItemInputInfo>(({info}) => {
                 const {zhankai, bancai} = info;
                 let bancaiName = bancai?.mingzi || "";
                 if (bancai && bancaiName === "自定义") {
                     bancaiName += `: ${bancai.zidingyi || ""}`;
                 }
+                const zhankaiReadOnly = type === "模块";
                 return {
                     zhankai: zhankai.map<CadItemInputInfo["zhankai"][0]>((v) => ({
                         width: {
@@ -660,6 +668,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                             label: "展开宽",
                             options,
                             model: {key: "width", data: v},
+                            readonly: zhankaiReadOnly,
                             showEmpty: true,
                             onChange: () => {
                                 v.custom = true;
@@ -670,6 +679,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                             label: "展开高",
                             options,
                             model: {key: "height", data: v},
+                            readonly: zhankaiReadOnly,
                             showEmpty: true,
                             onChange: () => {
                                 v.custom = true;
@@ -679,6 +689,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                             type: "string",
                             label: "数量",
                             model: {key: "num", data: v},
+                            readonly: zhankaiReadOnly,
                             showEmpty: true,
                             onChange: () => {
                                 v.custom = true;
@@ -757,9 +768,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     }
                 }
             })),
-            cads: getCadItemInputInfos(item.cads)
+            cads: getCadItemInputInfos(item.cads, "模块")
         }));
-        this.lingsanInputInfos = getCadItemInputInfos(this.result.零散);
+        this.lingsanInputInfos = getCadItemInputInfos(this.result.零散, "零散");
     }
 
     addMokuaiItem(type1: string, type2: string) {

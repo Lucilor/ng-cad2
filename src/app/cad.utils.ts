@@ -163,7 +163,6 @@ export const unsetCadData = (data: CadData) => {
 };
 
 export interface ValidateResult {
-    valid: boolean;
     errMsg: string[];
     lines: CadLineLike[][];
 }
@@ -173,31 +172,46 @@ export const isShiyitu = (data: CadData) => data.type.includes("示意图") || d
 export const LINE_LIMIT = [0.01, 0.1];
 export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"];
 export const validateLines = (data: CadData, tolerance = DEFAULT_TOLERANCE): ValidateResult => {
-    if (isShiyitu(data) || data.shuangxiangzhewan) {
-        return {valid: true, errMsg: [], lines: []};
+    const result: ValidateResult = {errMsg: [], lines: []};
+    if (isShiyitu(data)) {
+        return result;
     }
     const lines = sortLines(data, tolerance);
-    const result: ValidateResult = {valid: true, errMsg: [], lines};
+    result.lines = lines;
     const [min, max] = LINE_LIMIT;
     const groupMaxLength = data.shuangxiangzhewan ? 2 : 1;
-    lines.forEach((v) =>
-        v.forEach((vv) => {
-            const {start, end} = vv;
+    for (const v of lines) {
+        let 刨坑起始线数量 = 0;
+        let 刨坑起始线位置错误 = false;
+        for (const [i, e] of v.entries()) {
+            const {start, end} = e;
             const dx = Math.abs(start.x - end.x);
             const dy = Math.abs(start.y - end.y);
-            if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
-                vv.info.errors = ["斜率不符合要求"];
-                result.errMsg.push(`线段斜率不符合要求(线长: ${vv.length.toFixed(2)})`);
-            } else {
-                vv.info.errors = [];
+            e.info.errors = [];
+            if (e.刨坑起始线) {
+                刨坑起始线数量++;
+                if (i !== 0 && i !== v.length - 1) {
+                    刨坑起始线位置错误 = true;
+                }
             }
-        })
-    );
+            if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
+                e.info.errors = ["斜率不符合要求"];
+                result.errMsg.push(`线段斜率不符合要求(线长: ${e.length.toFixed(2)})`);
+            }
+            if (e.info.errors.length < 1) {
+                delete e.info.errors;
+            }
+        }
+        if (刨坑起始线数量 > 1) {
+            result.errMsg.push("不能有多根刨坑起始线");
+        }
+        if (刨坑起始线位置错误) {
+            result.errMsg.push("刨坑起始线必须是第一根或最后一根");
+        }
+    }
     if (lines.length < 1) {
-        result.valid = false;
         result.errMsg.push("没有线");
     } else if (lines.length > groupMaxLength) {
-        result.valid = false;
         result.errMsg.push("CAD分成了多段或线重叠");
         for (let i = 0; i < lines.length - 1; i++) {
             const currGroup = lines[i];

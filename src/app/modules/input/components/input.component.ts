@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, Input, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, HostBinding, Input, ViewChild} from "@angular/core";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
@@ -37,6 +37,23 @@ export class InputComponent extends Utils() implements AfterViewInit {
             const {data, key} = this.model;
             if (data && typeof data === "object" && key) {
                 data[key] = value.value;
+            }
+        }
+        this.class = [];
+        if (value.label) {
+            this.class.push(value.label);
+        }
+        if (value.readonly) {
+            this.class.push("readonly");
+        }
+        if (value.disabled) {
+            this.class.push("disabled");
+        }
+        if (value.class) {
+            if (Array.isArray(value.class)) {
+                this.class.push(...value.class);
+            } else {
+                this.class.push(value.class);
             }
         }
     }
@@ -109,6 +126,9 @@ export class InputComponent extends Utils() implements AfterViewInit {
         }
         return "";
     }
+
+    @HostBinding("class")
+    class: string[] = [];
 
     @ViewChild("formField", {read: ElementRef}) formField?: ElementRef<HTMLElement>;
 

@@ -159,16 +159,11 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
             }
         });
 
-        this.subscribe(this.status.openCad$, (opts) => {
-            if (opts.data) {
-                this.cadPrevStr = getCadStr(opts.data);
+        this.subscribe(this.status.saveCad$, (data) => {
+            if (data) {
+                this.cadPrevStr = getCadStr(data);
             }
         });
-        // this.subscribe(this.status.saveCad$, (data) => {
-        //     if (data) {
-        //         this._cadPrevStr = this.getCadStr(data);
-        //     }
-        // });
 
         const infoTabs = this.infoTabs;
         const setInfoTabs = () => {
@@ -278,8 +273,8 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
         this.toggleLeftMenu(this.showAllMenu);
     }
 
-    save() {
-        this.status.saveCad(this.spinnerId);
+    async save() {
+        await this.status.saveCad(this.spinnerId);
     }
 
     async refresh() {

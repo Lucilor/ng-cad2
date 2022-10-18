@@ -124,6 +124,15 @@
             />
         </mat-form-field>
     </div>
+    <div class="form-item">
+        <mat-form-field>
+            <mat-label>刨坑起始线</mat-label>
+            <mat-select name="刨坑起始线" [value]="getLineText('刨坑起始线')" (selectionChange)="setLineText($event, '刨坑起始线')">
+                <mat-option [value]="true">是</mat-option>
+                <mat-option [value]="false">否</mat-option></mat-select
+            >
+        </mat-form-field>
+    </div>
     <div class="form-item" *ngIf="data.type === '包边正面'">
         <mat-form-field>
             <mat-label>可改名字</mat-label>
@@ -318,6 +327,7 @@
                 <mat-option value="舍去小数">舍去小数</mat-option>
                 <mat-option value="小数进一">小数进一</mat-option>
                 <mat-option value="四舍五入">四舍五入</mat-option>
+                <mat-option value="0.5取整">0.5取整</mat-option>
             </mat-select>
         </mat-form-field>
     </div>

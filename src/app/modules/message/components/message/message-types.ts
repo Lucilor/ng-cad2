@@ -3,7 +3,7 @@ import {AbstractControlOptions} from "@angular/forms";
 export interface BaseMessageData {
     title?: string;
     content?: any;
-    cancelable?: boolean;
+    disableCancel?: boolean;
     titleClass?: string;
     contentClass?: string;
 }
