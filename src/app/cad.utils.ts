@@ -387,6 +387,31 @@ export const splitShuangxiangCad = (data: CadData) => {
     return result as [CadData, CadData];
 };
 
+export const getShuangxiangLineRects = (data: ReturnType<typeof splitShuangxiangCad>) => {
+    if (!data) {
+        return null;
+    }
+    const [a, b] = data;
+    return [a.getBoundingRect(), b.getBoundingRect()];
+};
+
+export const setShuangxiangLineRects = (
+    data: ReturnType<typeof splitShuangxiangCad>,
+    rects: ReturnType<typeof getShuangxiangLineRects>
+) => {
+    if (!data || !rects) {
+        return;
+    }
+    const rects2 = data.map((v) => v.getBoundingRect());
+    for (let i = 0; i < rects.length; i++) {
+        const rect1 = rects[i];
+        const rect2 = rects2[i];
+        const dx = rect1.x - rect2.x;
+        const dy = rect1.y - rect2.y;
+        data[i].transform({translate: [dx, dy]}, true);
+    }
+};
+
 export const shouldShowIntersection = (data: CadData) => {
     for (const key of intersectionsKeys) {
         if (data[key].filter((v) => v.length > 0).length > 0) {

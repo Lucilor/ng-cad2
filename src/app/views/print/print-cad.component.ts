@@ -4,7 +4,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, setGlobal, timer} from "@app/app.common";
-import {maxLineLength, showIntersections} from "@app/cad.utils";
+import {getShuangxiangLineRects, maxLineLength, setShuangxiangLineRects, showIntersections, splitShuangxiangCad} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {ZixuanpeijianOutput, ZixuanpeijianInfo, ZixuanpeijianCadItem} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
@@ -574,6 +574,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                     toArrange.push([i, v]);
                 }
                 const lineLengthMap: ObjectOf<{text: string; mtext: CadMtext}> = {};
+                const shaungxiangCads = splitShuangxiangCad(v);
+                const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
                 v.entities.forEach((e) => {
                     if (e instanceof CadLineLike) {
                         if (!e.hideLength) {
@@ -590,6 +592,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 });
                 const rect = v.getBoundingRect();
                 v.transform({scale: v.suanliaodanZoom, origin: [rect.x, rect.y]}, true);
+                await cad.render(v.getAllEntities());
+                setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);
                 await cad.render(v.getAllEntities());
                 v.entities.toArray().forEach((e) => {
                     if (e instanceof CadLineLike && e.id in lineLengthMap) {

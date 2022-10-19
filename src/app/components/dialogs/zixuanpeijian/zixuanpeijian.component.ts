@@ -6,7 +6,14 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Router} from "@angular/router";
 import {CadCollection, imgCadEmpty, setGlobal} from "@app/app.common";
-import {getCadPreview, getCadTotalLength, setDimensionText, splitShuangxiangCad} from "@app/cad.utils";
+import {
+    getCadPreview,
+    getCadTotalLength,
+    getShuangxiangLineRects,
+    setDimensionText,
+    setShuangxiangLineRects,
+    splitShuangxiangCad
+} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, CadZhankai, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -1075,6 +1082,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 if (!result2) {
                     return false;
                 }
+                const shaungxiangCads = splitShuangxiangCad(data);
+                const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
                 for (const key in result2.succeedTrim) {
                     const match = key.match(/线(\d+)公式/);
                     const value = result2.succeedTrim[key];
@@ -1087,6 +1096,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         setLinesLength(data, [data.entities.line[index - 1]], Number(value));
                     }
                 }
+                setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);
                 const vars3 = {...vars2, ...this._getCadLengthVars(data)};
                 const zhankais2: ZixuanpeijianInfo["zhankai"] = [];
                 for (const [i, zhankai] of zhankais) {

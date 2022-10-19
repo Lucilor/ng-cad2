@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -78,7 +78,10 @@ export class HttpService {
         }
     }
 
-    private async _waitForLogin(project: LoginFormData["project"]) {
+    private async _waitForLogin(project?: LoginFormData["project"]) {
+        if (!project) {
+            project = {id: "", name: "未知"};
+        }
         if (!this._loginPromise) {
             this._loginPromise = openLoginFormDialog(this.dialog, {
                 data: {project, baseUrl: this.baseURL},
@@ -195,7 +198,7 @@ export class HttpService {
                     }
                     return null;
                 } else if (code === -2) {
-                    await this._waitForLogin((response.data as any)?.project || {id: -1, name: "无"});
+                    await this._waitForLogin((response.data as any)?.project);
                     return this.request(url, method, rawData, options);
                 } else {
                     throw new Error(response.msg);
@@ -208,6 +211,14 @@ export class HttpService {
                 const data2 = await lastValueFrom(this.http.get<T>(`${location.origin}/assets/testData/${testData}.json`, options));
                 return {code: 0, msg: "", data: data2};
             }
+            if (error instanceof HttpErrorResponse) {
+                const text = error.error?.text;
+                if (typeof text === "string" && text.includes("没有权限")) {
+                    await this._waitForLogin();
+                    return this.request(url, method, rawData, options);
+                }
+            }
+            console.error(error);
             this.alert(error, silent);
             return response;
         } finally {
