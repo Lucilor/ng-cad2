@@ -162,6 +162,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
             label: "指定板材分组",
             model: this._getcadDataModel("指定板材分组"),
             type: "select",
+            clearable: true,
             options: ["门框板材", "底框板材", "门扇板材", "辅板1", "辅板2", "辅板3", "辅板4", "辅板5", "辅板6", "辅板7", "辅板8", "辅板9"]
         }
     ];

@@ -186,7 +186,10 @@
                     {{ option.label || option.value }}
                 </mat-option>
             </mat-select>
-            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+            <button *ngIf="cast(info, 'select').clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clearOption()">
+                <mat-icon>cancel</mat-icon>
+            </button>
+            <button mat-icon-button matSuffix color="primary" appClickStop *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
                 <mat-icon>{{ icon.name }}</mat-icon>
             </button>
         </mat-form-field>
@@ -201,13 +204,16 @@
                     {{ option.label || option.value }}
                 </mat-option>
             </mat-select>
-            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+            <button *ngIf="cast(info, 'select').clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clearOption()">
+                <mat-icon>cancel</mat-icon>
+            </button>
+            <button mat-icon-button matSuffix color="primary" appClickStop *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
                 <mat-icon>{{ icon.name }}</mat-icon>
             </button>
         </mat-form-field>
     </ng-container>
     <ng-container *ngSwitchCase="'coordinate'">
-        <div class="sub-form-field">
+        <div class="sub-form-field" *ngIf="cast(info, 'coordinate').compact; else coordinate">
             <div class="label">
                 <span>{{ info.label }}</span>
                 <span *ngIf="info.hint">({{ info.hint }})</span>
@@ -215,7 +221,7 @@
             <div>
                 <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[0])}">
                     <mat-label>{{ cast(info, "coordinate").labelX || "x" }}</mat-label>
-                    <ng-container *ngIf="cast(info, 'coordinate').compact; else anchorX">
+                    <ng-container>
                         <mat-select [(ngModel)]="value[0]" (change)="onChange()">
                             <mat-option [value]="0">左</mat-option>
                             <mat-option [value]="0.5">中</mat-option>
@@ -228,19 +234,57 @@
                 </mat-form-field>
                 <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[1])}">
                     <mat-label>{{ cast(info, "coordinate").labelY || "y" }}</mat-label>
-                    <ng-container *ngIf="cast(info, 'coordinate').compact; else anchorY">
+                    <ng-container>
                         <mat-select [(ngModel)]="value[1]" (change)="onChange()">
                             <mat-option [value]="1">上</mat-option>
                             <mat-option [value]="0.5">中</mat-option>
                             <mat-option [value]="0">下</mat-option>
                         </mat-select>
                     </ng-container>
-                    <ng-template #anchorY>
-                        <input matInput type="number" [(ngModel)]="value[1]" (change)="onChange()" />
-                    </ng-template>
                 </mat-form-field>
             </div>
         </div>
+        <ng-template #coordinate>
+            <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+                <mat-label>{{ info.label }}</mat-label>
+                <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+                <input matInput type="text" placeholder="请选择锚点" [value]="anchorStr" readonly [disabled]="info.disabled || false" />
+                <button mat-icon-button matSuffix color="primary" [matMenuTriggerFor]="editable ? anchor : null">
+                    <mat-icon>list</mat-icon>
+                </button>
+                <mat-menu #anchor="matMenu">
+                    <app-anchor-selector
+                        [x]="value[0]"
+                        [y]="value[1]"
+                        (anchorChangeEnd)="onChange($event)"
+                        appClickStop
+                    ></app-anchor-selector>
+                </mat-menu>
+                <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+                    <mat-icon>{{ icon.name }}</mat-icon>
+                </button>
+            </mat-form-field>
+        </ng-template>
+    </ng-container>
+    <ng-container *ngSwitchCase="'color'">
+        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+            <mat-label>{{ info.label }}</mat-label>
+            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+            <input
+                matInput
+                [value]="colorText"
+                [style]="{color: colorValue, backgroundColor: colorBg, transition: '0.3s'}"
+                [matMenuTriggerFor]="editable ? colorPicker : null"
+                readonly
+                [disabled]="info.disabled || false"
+            />
+            <mat-menu #colorPicker="matMenu">
+                <color-chrome #colorChrome [color]="value" (onChangeComplete)="onChange($event.color)" appClickStop> </color-chrome>
+            </mat-menu>
+            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+                <mat-icon>{{ icon.name }}</mat-icon>
+            </button>
+        </mat-form-field>
     </ng-container>
     <ng-container *ngSwitchCase="'group'">
         <ng-container *ngIf="info.label">

@@ -21,7 +21,6 @@ import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {AnchorSelectorComponent} from "./components/anchor-selector/anchor-selector.component";
 import {CadEditorComponent} from "./components/cad-editor/cad-editor.component";
 import {CadPointsComponent} from "./components/cad-points/cad-points.component";
 import {CadAssembleFormComponent} from "./components/dialogs/cad-assemble-form/cad-assemble-form.component";
@@ -39,7 +38,6 @@ import {ToolbarComponent} from "./components/menu/toolbar/toolbar.component";
 
 @NgModule({
     declarations: [
-        AnchorSelectorComponent,
         CadAssembleComponent,
         CadAssembleFormComponent,
         CadDataAttrsComponent,

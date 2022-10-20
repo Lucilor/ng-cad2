@@ -85,7 +85,7 @@
                     [color]="colorValue"
                     [colors]="selectableColors"
                     (onChangeComplete)="setLineColor($event)"
-                    (click)="$event.stopPropagation()"
+                    appClickStop
                 ></color-circle>
             </mat-menu>
         </mat-form-field>

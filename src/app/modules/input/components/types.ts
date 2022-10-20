@@ -1,11 +1,15 @@
 import {AbstractControlOptions} from "@angular/forms";
 import {FloatLabelType} from "@angular/material/form-field";
+import {ObjectOf} from "@utils";
+import {Color, ColorWrap} from "ngx-color";
+
+type Value<T> = T | ((...args: any[]) => T);
 
 export interface InputInfoBase<T = any> {
     label: string;
     floatLabel?: FloatLabelType;
     model?: {data: T | (() => T); key: string};
-    value?: any | (() => any);
+    value?: Value<any>;
     readonly?: boolean;
     copyable?: boolean;
     disabled?: boolean;
@@ -20,6 +24,7 @@ export interface InputInfoBase<T = any> {
 
 export interface InputInfoString<T = any> extends InputInfoBase<T> {
     type: "string";
+    value?: Value<string>;
     optionKey?: string;
     textarea?: {autosize?: {minRows?: number; maxRows?: number}};
     onInput?: (val: string) => void;
@@ -32,6 +37,7 @@ export interface InputInfoString<T = any> extends InputInfoBase<T> {
 
 export interface InputInfoNumber<T = any> extends InputInfoBase<T> {
     type: "number";
+    value?: Value<number>;
     step?: number;
     min?: number;
     max?: number;
@@ -41,12 +47,14 @@ export interface InputInfoNumber<T = any> extends InputInfoBase<T> {
 
 export interface InputInfoObject<T = any> extends InputInfoBase<T> {
     type: "object";
+    value?: Value<ObjectOf<any>>;
     isCadOptions?: boolean;
     isOneItem?: boolean;
 }
 
 export interface InputInfoArray<T = any> extends InputInfoBase<T> {
     type: "array";
+    value?: Value<any[]>;
 }
 
 export interface InputInfoBoolean<T = any> extends InputInfoBase<T> {
@@ -56,6 +64,8 @@ export interface InputInfoBoolean<T = any> extends InputInfoBase<T> {
 
 export interface InputInfoSelect<T = any> extends InputInfoBase<T> {
     type: "select";
+    value?: Value<string>;
+    clearable?: boolean;
     options: InputInfoOptions;
     optionText?: string | ((val: string) => string);
     onChange?: (val: string) => void;
@@ -63,6 +73,8 @@ export interface InputInfoSelect<T = any> extends InputInfoBase<T> {
 
 export interface InputInfoSelectMulti<T = any> extends InputInfoBase<T> {
     type: "selectMulti";
+    value?: Value<string[]>;
+    clearable?: boolean;
     options: InputInfoOptions;
     optionText?: string | ((val: string[]) => string);
     onChange?: (val: string[]) => void;
@@ -70,10 +82,17 @@ export interface InputInfoSelectMulti<T = any> extends InputInfoBase<T> {
 
 export interface InputInfoCoordinate<T = any> extends InputInfoBase<T> {
     type: "coordinate";
+    value?: Value<[number, number]>;
     compact?: boolean;
     labelX?: string;
     labelY?: string;
     onChange?: (val: [number, number]) => void;
+}
+
+export interface InputInfoColor<T = any> extends InputInfoBase<T> {
+    type: "color";
+    value?: Value<ColorWrap["color"]>;
+    onChange?: (val: Color) => void;
 }
 
 export interface InputInfoGroup<T = any> extends InputInfoBase<T> {
@@ -90,6 +109,7 @@ export type InputInfo<T = any> =
     | InputInfoSelect<T>
     | InputInfoSelectMulti<T>
     | InputInfoCoordinate<T>
+    | InputInfoColor<T>
     | InputInfoGroup<T>;
 
 export interface InputInfoTypeMap {
@@ -104,6 +124,7 @@ export interface InputInfoTypeMap {
     select: InputInfoSelect;
     selectMulti: InputInfoSelectMulti;
     coordinate: InputInfoCoordinate;
+    color: InputInfoColor;
     group: InputInfoGroup;
 }
 

@@ -21,7 +21,7 @@ import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {AnchorSelectorComponent} from "../anchor-selector/anchor-selector.component";
+import {AnchorSelectorComponent} from "../../../input/components/anchor-selector/anchor-selector.component";
 import {CadPointsComponent} from "../cad-points/cad-points.component";
 import {CadDimensionComponent} from "../menu/cad-dimension/cad-dimension.component";
 import {CadInfoComponent} from "../menu/cad-info/cad-info.component";

@@ -1,11 +1,11 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {CadMtext, CadStylizer, ColoredObject} from "@cad-viewer";
 import {Subscribed} from "@mixins/subscribed.mixin";
+import {InputInfo} from "@modules/input/components/types";
 import {AppStatusService} from "@services/app-status.service";
+import {environment} from "@src/environments/environment";
 import {Point} from "@utils";
 import {debounce} from "lodash";
-import {ColorEvent} from "ngx-color";
-import {AnchorEvent} from "../../anchor-selector/anchor-selector.component";
 
 @Component({
     selector: "app-cad-mtext",
@@ -18,6 +18,7 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
     private _colorText = "";
     colorValue = "";
     colorBg = "";
+    inputInfos: InputInfo[] = [];
     get colorText() {
         return this._colorText;
     }
@@ -59,9 +60,85 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         cad.off("entitiesremove", this._updateSelected);
     }
 
+    private _updateInputInfos() {
+        const disabled = this.selected.length < 1;
+        this.inputInfos = [
+            {
+                type: "string",
+                label: "内容",
+                textarea: {autosize: {minRows: 1}},
+                disabled,
+                value: this.getInfo("text"),
+                onInput: debounce((val) => {
+                    this.setInfo("text", val);
+                }, 500)
+            },
+            {
+                type: "string",
+                label: "字体大小",
+                disabled,
+                value: this.getFontSize(),
+                onInput: (val) => {
+                    this.setFontSize(val);
+                }
+            },
+            {
+                type: "color",
+                label: "颜色",
+                disabled,
+                value: this.getColor(),
+                onChange: (val) => {
+                    this.setColor(val.hex);
+                }
+            },
+            {
+                type: "coordinate",
+                label: "锚点",
+                disabled,
+                value: this.getAnchor(),
+                onChange: (val) => {
+                    this.setAnchor(val);
+                }
+            }
+        ];
+        if (environment.production) {
+            this.inputInfos.push({
+                type: "boolean",
+                label: "竖排",
+                disabled,
+                value: this.getIsVertical("vertical"),
+                onChange: (val) => {
+                    this.setIsVertical("vertical", val);
+                }
+            });
+        } else {
+            this.inputInfos.push(
+                {
+                    type: "boolean",
+                    label: "竖排",
+                    disabled,
+                    value: this.getIsVertical("vertical"),
+                    onChange: (val) => {
+                        this.setIsVertical("vertical", val);
+                    }
+                },
+                {
+                    type: "boolean",
+                    label: "竖排",
+                    disabled,
+                    value: this.getIsVertical("vertical2"),
+                    onChange: (val) => {
+                        this.setIsVertical("vertical2", val);
+                    }
+                }
+            );
+        }
+    }
+
     private _updateSelected = () => {
         this.selected = this.status.cad.selected().mtext;
         this.colorText = this.getColor();
+        this._updateInputInfos();
     };
 
     getInfo(field: string) {
@@ -79,12 +156,12 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         return "";
     }
 
-    // eslint-disable-next-line @typescript-eslint/member-ordering
-    setInfo = debounce((field: string, event: Event) => {
-        const value = (event.target as HTMLInputElement).value;
-        this.selected.forEach((e: any) => (e[field] = value));
+    setInfo(field: string, value: string) {
+        this.selected.forEach((e: any) => {
+            e[field] = value;
+        });
         this.status.cad.render(this.selected);
-    }, 500);
+    }
 
     getColor() {
         const selected = this.selected;
@@ -102,8 +179,7 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         return color;
     }
 
-    setColor(event: ColorEvent) {
-        const value = event.color.hex;
+    setColor(value: string) {
         this.selected.forEach((e) => e.setColor(value));
         this.status.cad.render(this.selected);
         this.colorText = value;
@@ -129,13 +205,12 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         return size.toString();
     }
 
-    setFontSize(event: Event) {
-        const input = event.target as HTMLInputElement;
-        let value = Number(input.value);
-        if (isNaN(value) || value < 0) {
-            value = 0;
+    setFontSize(value: string) {
+        let valueNum = Number(value);
+        if (isNaN(valueNum) || valueNum < 0) {
+            valueNum = 0;
         }
-        this.selected.forEach((e) => (e.fontStyle.size = value));
+        this.selected.forEach((e) => (e.fontStyle.size = valueNum));
         this.status.cad.render(this.selected);
     }
 
@@ -164,12 +239,36 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
             anchor.copy(selected[0].anchor);
         }
         this.currAnchor.copy(anchor);
-        return anchor.toArray().join(", ");
+        return anchor.toArray();
     }
 
-    setAnchor(event: AnchorEvent) {
-        const [x, y] = event.anchor;
+    setAnchor([x, y]: [number, number]) {
         this.selected.forEach((e) => e.anchor.set(x, y));
+        this.status.cad.render(this.selected);
+    }
+
+    getIsVertical(key: "vertical" | "vertical2") {
+        const selected = this.selected;
+        if (selected.length === 1) {
+            return !!selected[0].fontStyle[key];
+        } else if (selected.length > 1) {
+            const values = Array.from(new Set(selected.map((v) => v.fontStyle[key])));
+            if (values.length === 1) {
+                return !!values[0];
+            }
+            return null;
+        }
+        return null;
+    }
+
+    setIsVertical(key: "vertical" | "vertical2", value: boolean) {
+        this.selected.forEach((e) => {
+            if (value) {
+                e.fontStyle[key] = true;
+            } else {
+                delete e.fontStyle[key];
+            }
+        });
         this.status.cad.render(this.selected);
     }
 }

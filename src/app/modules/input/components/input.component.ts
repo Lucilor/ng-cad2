@@ -2,12 +2,19 @@ import {AfterViewInit, Component, ElementRef, HostBinding, Input, ViewChild} fro
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
+import {ColoredObject} from "@cad-viewer";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
-import {ObjectOf} from "@utils";
-import {InputInfo, InputInfoTypeMap} from "./types";
+import {ObjectOf, timeout} from "@utils";
+import {Color} from "ngx-color";
+import {ChromeComponent} from "ngx-color/chrome";
+import {InputInfo, InputInfoBase, InputInfoTypeMap} from "./types";
+
+interface SuffixIconsType {
+    $implicit: InputInfoBase["suffixIcons"];
+}
 
 @Component({
     selector: "app-input",
@@ -15,6 +22,7 @@ import {InputInfo, InputInfoTypeMap} from "./types";
     styleUrls: ["./input.component.scss"]
 })
 export class InputComponent extends Utils() implements AfterViewInit {
+    suffixIconsType!: SuffixIconsType;
     private _info: InputInfo = {type: "string", label: ""};
     @Input()
     get info() {
@@ -25,6 +33,12 @@ export class InputComponent extends Utils() implements AfterViewInit {
         if (!value.autocomplete) {
             value.autocomplete = "off";
         }
+        if ("value" in value) {
+            const {data, key} = this.model;
+            if (data && typeof data === "object" && key) {
+                data[key] = value.value;
+            }
+        }
         if (value.type === "select" || value.type === "selectMulti" || value.type === "string") {
             this.options = (value.options || []).map((v) => {
                 if (typeof v === "string") {
@@ -32,12 +46,6 @@ export class InputComponent extends Utils() implements AfterViewInit {
                 }
                 return {label: v.label || v.value, value: v.value};
             });
-        }
-        if ("value" in value) {
-            const {data, key} = this.model;
-            if (data && typeof data === "object" && key) {
-                data[key] = value.value;
-            }
         }
         this.class = [];
         if (typeof value.label === "string" && value.label && !value.label.includes(" ")) {
@@ -85,6 +93,10 @@ export class InputComponent extends Utils() implements AfterViewInit {
         }
     }
 
+    get editable() {
+        return !this.info.readonly && !this.info.disabled;
+    }
+
     get optionKey() {
         if (this.info.type === "string") {
             return this.info.optionKey;
@@ -127,23 +139,39 @@ export class InputComponent extends Utils() implements AfterViewInit {
         return "";
     }
 
+    get anchorStr() {
+        const value = this.value;
+        if (Array.isArray(value)) {
+            return value.join(", ");
+        }
+        return "";
+    }
+
+    colorValue = "";
+    colorBg = "";
+    colorText = "";
+
     @HostBinding("class")
     class: string[] = [];
 
     @ViewChild("formField", {read: ElementRef}) formField?: ElementRef<HTMLElement>;
+    @ViewChild("colorChrome") colorChrome?: ChromeComponent;
 
     constructor(private message: MessageService, private dialog: MatDialog, private status: AppStatusService) {
         super();
     }
 
-    ngAfterViewInit() {
+    async ngAfterViewInit() {
         if (this.info.autoFocus) {
-            setTimeout(() => {
-                const el = this.formField?.nativeElement.querySelector("input, textarea");
-                if (el instanceof HTMLElement) {
-                    el.focus();
-                }
-            }, 100);
+            await timeout(100);
+            const el = this.formField?.nativeElement.querySelector("input, textarea");
+            if (el instanceof HTMLElement) {
+                el.focus();
+            }
+        }
+        if (this.colorChrome) {
+            await timeout(0);
+            this.setColor(this.colorChrome);
         }
     }
 
@@ -190,6 +218,10 @@ export class InputComponent extends Utils() implements AfterViewInit {
                 break;
             case "coordinate":
                 info.onChange?.(value);
+                break;
+            case "color":
+                info.onChange?.(value);
+                this.setColor(value);
                 break;
             default:
                 break;
@@ -291,5 +323,30 @@ export class InputComponent extends Utils() implements AfterViewInit {
             return false;
         }
         return [null, undefined, ""].includes(value);
+    }
+
+    setColor(color: Color) {
+        const value = color.hex;
+        this.colorText = value.toUpperCase();
+        try {
+            const c = new ColoredObject(value);
+            if (c.getColor().isLight()) {
+                this.colorBg = "black";
+            } else {
+                this.colorBg = "white";
+            }
+            this.colorValue = value;
+        } catch (error) {
+            this.colorValue = "black";
+            this.colorBg = "white";
+        }
+    }
+
+    clearOption() {
+        if (this.info.type === "select") {
+            this.value = null;
+        } else if (this.info.type === "selectMulti") {
+            this.value = [];
+        }
     }
 }

@@ -36,6 +36,9 @@ html {
 .mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-suffix .mat-icon-button {
     width: inherit !important;
     height: inherit !important;
+    .mat-icon {
+        width: 25px;
+    }
 }
 
 .mat-form-field {
@@ -46,7 +49,6 @@ html {
     .mat-form-field-wrapper {
         padding-bottom: 1.2em !important;
     }
-
 
     .mat-form-field-label {
         color: blue;

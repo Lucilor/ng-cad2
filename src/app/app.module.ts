@@ -44,10 +44,9 @@ import {ZixuanpeijianComponent} from "@components/dialogs/zixuanpeijian/zixuanpe
 import {KlcsComponent} from "@components/klcs/klcs.component";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
-import {ReplaceFullCharsDirective} from "@directives/replace-full-chars.directive";
-import {TypedTemplateDirective} from "@directives/typed-template.directive";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {CadEditorModule} from "@modules/cad-editor/cad-editor.module";
+import {DirectivesModule} from "@modules/directives/directives.module";
 import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
 import {InputModule} from "@modules/input/input.module";
@@ -134,12 +133,10 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         PrintA4A015PreviewComponent,
         PrintCadComponent,
         ProgressBarComponent,
-        ReplaceFullCharsDirective,
         ReplaceTextComponent,
         SelectBancaiCadsComponent,
         SelectBancaiComponent,
         SelectCadsComponent,
-        TypedTemplateDirective,
         ZixuanpeijianComponent
     ],
     imports: [
@@ -150,6 +147,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         CadEditorModule,
         ColorChromeModule,
         ColorCircleModule,
+        DirectivesModule,
         DragDropModule,
         FormsModule,
         HttpClientModule,
