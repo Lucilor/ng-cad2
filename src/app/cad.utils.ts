@@ -22,6 +22,7 @@ import {DEFAULT_TOLERANCE, isBetween, Line, ObjectOf, Point} from "@utils";
 import {intersection} from "lodash";
 import {CadCollection} from "./app.common";
 import {Formulas} from "./utils/calc";
+import {getCalcZhankaiText} from "./utils/zhankai";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
@@ -609,4 +610,42 @@ export const setDimensionText = (e: CadDimension, materialResult: Formulas) => {
         e.mingzi = "<>";
     }
     return {显示公式, 活动标注};
+};
+
+export const getCadCalcZhankaiText = (
+    cad: CadData,
+    calcZhankai: any[],
+    materialResult: ObjectOf<any>,
+    bancai: {mingzi?: string; cailiao?: string; houdu?: string; zidingyi?: string},
+    项目配置: ObjectOf<string>,
+    项目名: string
+) => {
+    const CAD来源 = "算料";
+    let 板材 = bancai.mingzi || "";
+    if (bancai && 板材 === "自定义") {
+        板材 = bancai.zidingyi || "";
+    }
+    const 板材厚度 = bancai.houdu || "";
+    const 材料 = bancai.cailiao || "";
+    const CAD属性 = {
+        name: cad.name,
+        suanliaodanxianshibancai: cad.suanliaodanxianshibancai,
+        shuangxiangzhewan: cad.shuangxiangzhewan,
+        算料单展开显示位置: cad.算料单展开显示位置,
+        算料特殊要求: cad.算料特殊要求,
+        suanliaodanxianshi: cad.suanliaodanxianshi,
+        suanliaochuli: cad.suanliaochuli,
+        kailiaoshibaokeng: cad.kailiaoshibaokeng,
+        zhidingweizhipaokeng: cad.zhidingweizhipaokeng,
+        gudingkailiaobancai: cad.gudingkailiaobancai,
+        houtaiFenlei: cad.type,
+        bancaiwenlifangxiang: cad.bancaiwenlifangxiang,
+        zhankai: cad.zhankai,
+        overrideShuliang: undefined,
+        xianshimingzi: cad.xianshimingzi,
+        attributes: cad.attributes
+    };
+
+    const text = getCalcZhankaiText(CAD来源, calcZhankai, materialResult, 板材, 板材厚度, 材料, 项目配置, 项目名, CAD属性);
+    return text;
 };

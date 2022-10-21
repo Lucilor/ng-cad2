@@ -12,14 +12,24 @@ import {
     CadCircle,
     CadViewerConfig,
     CadDimensionStyle,
-    CadDimensionLinear
+    CadDimensionLinear,
+    setLinesLength,
+    FontStyle
 } from "@cad-viewer";
 import {environment} from "@src/environments/environment";
 import {isNearZero, isBetween, Point, ObjectOf, getDPI, getImageDataUrl, loadImage, Rectangle, Matrix} from "@utils";
 import {Properties} from "csstype";
-import {intersection} from "lodash";
+import {cloneDeep, intersection} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {prepareCadViewer} from "./cad.utils";
+import {
+    getCadCalcZhankaiText,
+    getShuangxiangLineRects,
+    maxLineLength,
+    prepareCadViewer,
+    setShuangxiangLineRects,
+    showIntersections,
+    splitShuangxiangCad
+} from "./cad.utils";
 import {Formulas} from "./utils/calc";
 
 type PdfDocument = Parameters<typeof createPdf>[0];
@@ -310,16 +320,17 @@ const getWrapedText = (cad: CadViewer, source: string, mtext: CadMtext, options:
     return arr;
 };
 
-export const configCadDataForPrint = (
+export const configCadDataForPrint = async (
     cad: CadViewer,
     data: CadData | CadEntities | CadEntity[] | CadEntity,
     params: PrintCadsParams,
-    isZxpj: boolean
+    zxpjConfig?: {isZxpj: true; lineLengthFontStyle?: FontStyle}
 ) => {
     const linewidth = params.linewidth || 1;
     const dimStyle = params.dimStyle;
     const config = cad.getConfig();
     const textMap = params.textMap || {};
+    const {isZxpj, lineLengthFontStyle} = zxpjConfig || {};
     let es: CadEntities;
     if (data instanceof CadData) {
         es = data.entities;
@@ -451,8 +462,157 @@ export const configCadDataForPrint = (
             e.setColor(0);
         }
     }
+
+    if (isZxpj && data instanceof CadData) {
+        const lineLengthMap: ObjectOf<{text: string; mtext: CadMtext}> = {};
+        const shaungxiangCads = splitShuangxiangCad(data);
+        const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
+        data.entities.forEach((e) => {
+            if (e instanceof CadLineLike) {
+                if (!e.hideLength) {
+                    const mtext = e.children.mtext.find((ee) => ee.info.isLengthText);
+                    if (mtext) {
+                        lineLengthMap[e.id] = {text: mtext.text, mtext};
+                    }
+                }
+                const length = e.length;
+                if (e instanceof CadLine && length > maxLineLength * data.suanliaodanZoom) {
+                    setLinesLength(data, [e], maxLineLength);
+                }
+            }
+        });
+        const rect = data.getBoundingRect();
+        data.transform({scale: data.suanliaodanZoom, origin: [rect.x, rect.y]}, true);
+        await cad.render(data.getAllEntities());
+        setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);
+        await cad.render(data.getAllEntities());
+        data.entities.toArray().forEach((e) => {
+            if (e instanceof CadLineLike && e.id in lineLengthMap) {
+                e.hideLength = true;
+                const {text, mtext} = lineLengthMap[e.id];
+                const mtext2 = mtext.clone(true);
+                mtext2.text = text;
+                if (lineLengthFontStyle) {
+                    mtext2.fontStyle = cloneDeep(lineLengthFontStyle);
+                }
+                data.entities.add(mtext2);
+            }
+        });
+        showIntersections(data, params.projectConfig || {});
+    }
 };
 
+const getUnfoldCadViewers = async (
+    params: PrintCadsParams,
+    config: CadViewerConfig,
+    size: [number, number],
+    i: number,
+    unfold: NonNullable<PrintCadsParamsOrder["unfold"]>
+) => {
+    const rowNumMax = 6;
+    const rowNumMin = 4;
+    const colNum = 3;
+    const maxSize = rowNumMax * colNum;
+    if (unfold.length > maxSize) {
+        let result: string[] = [];
+        for (let j = 0; j < unfold.length; j += maxSize) {
+            result = result.concat(await getUnfoldCadViewers(params, config, size, i, unfold.slice(j, j + maxSize)));
+        }
+        return result;
+    }
+
+    const [width, height] = size;
+    const unfoldCad = new CadData();
+    const unfoldCadViewer = new CadViewer(unfoldCad, {...config, hideLineLength: false}).appendTo(document.body);
+    const topLine = new CadLine({start: [0, height], end: [width, height]});
+    const rightLine = new CadLine({start: [width, height], end: [width, 0]});
+    const bottomLine = new CadLine({start: [width, 0], end: [0, 0]});
+    const leftLine = new CadLine({start: [0, 0], end: [0, height]});
+    const boundingLines = [topLine, bottomLine, leftLine, rightLine];
+    for (const e of boundingLines) {
+        e.opacity = 0;
+        unfoldCad.entities.add(e);
+    }
+
+    const titleFontStyle = {size: 16};
+    const infoTextFontStyle = {size: 12};
+
+    const code = params.codes?.[i] || "";
+    const titleText = new CadMtext({text: "刨坑生产单", anchor: [0, 0], fontStyle: titleFontStyle});
+    const codeText = new CadMtext({text: `订单编号: ${code}`, anchor: [1, 0], fontStyle: titleFontStyle});
+    titleText.insert.set(0, height);
+    codeText.insert.set(width, height);
+    unfoldCad.entities.add(titleText, codeText);
+    await unfoldCadViewer.render(titleText);
+    const titleHeight = titleText.boundingRect.height;
+
+    const contentWidth = width;
+    const contentHeight = height - titleHeight - 5;
+    const rowNum = unfold.length > rowNumMin * colNum ? rowNumMax : rowNumMin;
+    const boxWidth = contentWidth / colNum;
+    const boxHeight = contentHeight / rowNum;
+    for (let j = 0; j < rowNum; j++) {
+        const y = (j + 1) * boxHeight;
+        const rowLine = new CadLine({start: [0, y], end: [width, y]});
+        unfoldCad.entities.add(rowLine);
+    }
+    for (let j = 0; j < colNum - 1; j++) {
+        const x = (j + 1) * boxWidth;
+        const colLine = new CadLine({start: [x, 0], end: [x, contentHeight]});
+        unfoldCad.entities.add(colLine);
+    }
+    const materialResult = params.orders?.[i]?.materialResult || {};
+    const projectConfig = params.projectConfig || {};
+    const projectName = params.projectName || "";
+    for (const [j, {cad, offsetStrs}] of unfold.entries()) {
+        const rowIndex = colNum - Math.floor(j / colNum);
+        const colIndex = j % colNum;
+        const boxRect = new Rectangle();
+        boxRect.min.set(colIndex * boxWidth, rowIndex * boxHeight);
+        boxRect.max.set((colIndex + 1) * boxWidth, (rowIndex + 1) * boxHeight);
+        await configCadDataForPrint(unfoldCadViewer, cad, params, {isZxpj: true, lineLengthFontStyle: {size: 10}});
+        const calcZhankai = cad.info.calcZhankai || [];
+        const bancai = cad.info.bancai || {};
+
+        const textMargin = 5;
+        let y = boxRect.bottom + textMargin;
+        const zhankaiText = getCadCalcZhankaiText(cad, calcZhankai, materialResult, bancai, projectConfig, projectName);
+        const texts = [zhankaiText].concat(offsetStrs.slice(1));
+        texts.reverse();
+        for (const text of texts) {
+            if (!text) {
+                continue;
+            }
+            const mtext = new CadMtext({text, anchor: [0.5, 1], fontStyle: infoTextFontStyle});
+            mtext.insert.set(boxRect.x, y);
+            unfoldCad.entities.add(mtext);
+            await unfoldCadViewer.render(mtext);
+            y += mtext.boundingRect.height + textMargin;
+            mtext.calcBoundingRect = false;
+        }
+
+        const imgRect = boxRect.clone();
+        imgRect.bottom = y;
+        unfoldCad.entities.merge(cad.entities);
+        await unfoldCadViewer.render(cad.entities);
+        const cadRect = cad.getBoundingRect();
+        const dx = imgRect.x - cadRect.x;
+        const dy = imgRect.y - cadRect.y;
+        const scale = Math.min(imgRect.width / cadRect.width, imgRect.height / cadRect.height);
+        cad.transform({translate: [dx, dy], scale, origin: [cadRect.x, cadRect.y]}, true);
+    }
+
+    await unfoldCadViewer.render();
+    unfoldCadViewer.center();
+    const unfoldCadImg = await unfoldCadViewer.toDataURL();
+    unfoldCadViewer.destroy();
+    return [unfoldCadImg];
+};
+
+export interface PrintCadsParamsOrder {
+    materialResult?: Formulas;
+    unfold?: {cad: CadData; offsetStrs: [string, string, string]}[];
+}
 export interface PrintCadsParams {
     cads: CadData[];
     config?: Partial<CadViewerConfig>;
@@ -470,9 +630,11 @@ export interface PrintCadsParams {
     codes?: string[];
     type?: string;
     info?: PdfDocument["info"];
-    orders?: {materialResult: Formulas}[];
+    orders?: PrintCadsParamsOrder[];
     textMap?: ObjectOf<string>;
     dropDownKeys?: string[];
+    projectConfig?: ObjectOf<any>;
+    projectName?: string;
 }
 /**
  * A4: (210 × 297)mm²
@@ -530,7 +692,7 @@ export const printCads = async (params: PrintCadsParams) => {
             }
         }
         cad.resize(localWidth * scaleX, localHeight * scaleY);
-        configCadDataForPrint(cad, data, params, false);
+        await configCadDataForPrint(cad, data, params);
         data.updatePartners().updateComponents();
         cad.data = data;
         await cad.reset().render();
@@ -647,6 +809,14 @@ export const printCads = async (params: PrintCadsParams) => {
         if (img2) {
             content.push({image: img2, width: localWidth, height: localHeight});
         }
+
+        const unfold = params.orders?.[i]?.unfold;
+        if (unfold) {
+            const unfoldImgs = await getUnfoldCadViewers(params, cad.getConfig(), [localWidth, localHeight], i, unfold);
+            for (const unfoldImg of unfoldImgs) {
+                content.push({image: unfoldImg, width: localWidth, height: localHeight});
+            }
+        }
     }
 
     if (!params.keepCad) {
@@ -656,6 +826,7 @@ export const printCads = async (params: PrintCadsParams) => {
             cad.dom.style.opacity = "";
         }, 0);
     }
+
     const now = new Date();
     const pdf = createPdf(
         {

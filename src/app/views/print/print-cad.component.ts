@@ -4,8 +4,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, setGlobal, timer} from "@app/app.common";
-import {getShuangxiangLineRects, maxLineLength, setShuangxiangLineRects, showIntersections, splitShuangxiangCad} from "@app/cad.utils";
-import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadZhankai, setLinesLength} from "@cad-viewer";
+import {CadData, CadLine, CadMtext, CadViewer, CadZhankai} from "@cad-viewer";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {ZixuanpeijianOutput, ZixuanpeijianInfo, ZixuanpeijianCadItem} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {environment} from "@env";
@@ -14,8 +13,9 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {PrintCadsParams, printCads, configCadDataForPrint} from "@src/app/cad.print";
+import {getCadCalcZhankaiText} from "@src/app/cad.utils";
 import {toFixed} from "@src/app/utils/calc";
-import {nameEquals, getCalcZhankaiText} from "@src/app/utils/zhankai";
+import {nameEquals} from "@src/app/utils/zhankai";
 import {downloadByUrl, ObjectOf, timeout} from "@utils";
 import {
     slideInDownOnEnterAnimation,
@@ -87,7 +87,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         info: {},
         orders: [],
         textMap: {},
-        dropDownKeys: []
+        dropDownKeys: [],
+        projectConfig: this.status.getProjectConfig(),
+        projectName: this.status.project
     };
     cad: CadViewer | null = null;
     zixuanpeijian: ZixuanpeijianOutput = {模块: [], 零散: []};
@@ -161,6 +163,15 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             }
             if (responseData) {
                 responseData.cads = responseData.cads.map((v) => new CadData(v));
+                if (responseData.orders) {
+                    for (const order of responseData.orders) {
+                        if (order.unfold) {
+                            for (const v of order.unfold) {
+                                v.cad = new CadData(v.cad, true);
+                            }
+                        }
+                    }
+                }
                 this.downloadUrl = responseData.url || null;
                 this.printParams = {...this.printParams, ...responseData};
                 this.printParams.info.title = "算料单 " + this.printParams.codes.join("、");
@@ -573,40 +584,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 if (!info.translate) {
                     toArrange.push([i, v]);
                 }
-                const lineLengthMap: ObjectOf<{text: string; mtext: CadMtext}> = {};
-                const shaungxiangCads = splitShuangxiangCad(v);
-                const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
-                v.entities.forEach((e) => {
-                    if (e instanceof CadLineLike) {
-                        if (!e.hideLength) {
-                            const mtext = e.children.mtext.find((ee) => ee.info.isLengthText);
-                            if (mtext) {
-                                lineLengthMap[e.id] = {text: mtext.text, mtext};
-                            }
-                        }
-                        const length = e.length;
-                        if (e instanceof CadLine && length > maxLineLength * v.suanliaodanZoom) {
-                            setLinesLength(v, [e], maxLineLength);
-                        }
-                    }
-                });
-                const rect = v.getBoundingRect();
-                v.transform({scale: v.suanliaodanZoom, origin: [rect.x, rect.y]}, true);
-                await cad.render(v.getAllEntities());
-                setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);
-                await cad.render(v.getAllEntities());
-                v.entities.toArray().forEach((e) => {
-                    if (e instanceof CadLineLike && e.id in lineLengthMap) {
-                        e.hideLength = true;
-                        const {text, mtext} = lineLengthMap[e.id];
-                        const mtext2 = mtext.clone(true);
-                        mtext2.text = text;
-                        mtext2.fontStyle.size = 24;
-                        v.entities.add(mtext2);
-                    }
-                });
-                configCadDataForPrint(cad, v, this.printParams, true);
-                showIntersections(v, this.status.getProjectConfig());
+                configCadDataForPrint(cad, v, this.printParams, {isZxpj: true, lineLengthFontStyle: {size: 24}});
             }
 
             for (const v of cads) {
@@ -814,8 +792,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
 
     getCalcZhankaiText(cad: CadData, info: ZixuanpeijianInfo) {
         const materialResult = this.materialResult || {};
-        const CAD来源 = "算料";
-
         const calcZhankai = info.zhankai.flatMap((v) => {
             let cadZhankai: CadZhankai | undefined;
             if (v.cadZhankaiIndex && v.cadZhankaiIndex > 0) {
@@ -878,34 +854,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return calc;
         });
         info.calcZhankai = calcZhankai;
-        let 板材 = info.bancai?.mingzi || "";
-        if (info.bancai && 板材 === "自定义") {
-            板材 = info.bancai.zidingyi || "";
-        }
-        const 板材厚度 = info.bancai?.houdu || "";
-        const 材料 = info.bancai?.cailiao || "";
         const 项目配置 = this.status.getProjectConfig();
         const 项目名 = this.status.project;
-        const CAD属性 = {
-            name: cad.name,
-            suanliaodanxianshibancai: cad.suanliaodanxianshibancai,
-            shuangxiangzhewan: cad.shuangxiangzhewan,
-            算料单展开显示位置: cad.算料单展开显示位置,
-            算料特殊要求: cad.算料特殊要求,
-            suanliaodanxianshi: cad.suanliaodanxianshi,
-            suanliaochuli: cad.suanliaochuli,
-            kailiaoshibaokeng: cad.kailiaoshibaokeng,
-            zhidingweizhipaokeng: cad.zhidingweizhipaokeng,
-            gudingkailiaobancai: cad.gudingkailiaobancai,
-            houtaiFenlei: cad.type,
-            bancaiwenlifangxiang: cad.bancaiwenlifangxiang,
-            zhankai: cad.zhankai,
-            overrideShuliang: undefined,
-            xianshimingzi: cad.xianshimingzi,
-            attributes: cad.attributes
-        };
-
-        const text = getCalcZhankaiText(CAD来源, calcZhankai, materialResult, 板材, 板材厚度, 材料, 项目配置, 项目名, CAD属性);
+        const text = getCadCalcZhankaiText(cad, calcZhankai, materialResult, info.bancai || {}, 项目配置, 项目名);
         return text;
     }
 }
