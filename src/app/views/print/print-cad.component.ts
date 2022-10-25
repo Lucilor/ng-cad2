@@ -493,8 +493,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             return;
         }
         const data = await openZixuanpeijianDialog(this.dialog, {
-            width: "calc(100vw - 20px)",
-            height: "calc(100vh - 10px)",
             data: {
                 step: 2,
                 data: this.zixuanpeijian,
@@ -503,7 +501,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 materialResult: this.materialResult,
                 dropDownKeys: this.printParams.dropDownKeys
             },
-            disableClose: true
         });
         if (data) {
             this.zixuanpeijian = data;

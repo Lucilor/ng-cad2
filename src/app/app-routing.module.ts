@@ -1,24 +1,25 @@
 import {NgModule} from "@angular/core";
-import {Routes, RouterModule, Route} from "@angular/router";
-import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
+import {Route, Routes, RouterModule} from "@angular/router";
 import {ProjectGuard} from "@guards/project.guard";
 import {PathResolveService} from "@services/path-resolve.service";
 import {BackupComponent} from "@views/backup/backup.component";
 import {ChangelogAdminComponent} from "@views/changelog-admin/changelog-admin.component";
+import {CleanComponent} from "@views/clean/clean.component";
 import {DingdanbiaoqianComponent} from "@views/dingdanbiaoqian/dingdanbiaoqian.component";
 import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
+import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
+import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
 import {PageNotFoundComponent} from "@views/page-not-found/page-not-found.component";
 import {PiliangjianbanComponent} from "@views/piliangjianban/piliangjianban.component";
+import {PjmkComponent} from "@views/pjmk/pjmk.component";
 import {PrintA4A015PreviewComponent} from "@views/print-a4-a015-preview/print-a4-a015-preview.component";
 import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
-import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
-import {CleanComponent} from "@views/clean/clean.component";
 
 export const routesInfo: (Route & {path: string})[] = [
     {path: "index", component: IndexComponent},
@@ -36,7 +37,8 @@ export const routesInfo: (Route & {path: string})[] = [
     {path: "select-cads", component: SelectCadsComponent, title: "选择CAD"},
     {path: "jiaowei", component: JiaoweiComponent, title: "铰位"},
     {path: "kailiaocanshu", component: KailiaocanshuComponent, title: "开料参数"},
-    {path: "clean", component: CleanComponent, title: "清理任务"}
+    {path: "clean", component: CleanComponent, title: "清理任务"},
+    {path: "pjmk", component: PjmkComponent, title: "配件模块"}
 ];
 
 const routes: Routes = [

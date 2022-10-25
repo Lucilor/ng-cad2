@@ -1,0 +1,137 @@
+{
+    "模块": [
+        {
+            "xiaoguotu": "asset/c576e5eaa63b7fb913b993904de0298c.png",
+            "jiemiantu": "",
+            "gongshishuru": [
+                ["前锁板宽", "150"],
+                ["前铰板宽", "80"]
+            ],
+            "xuanxiangshuru": [],
+            "suanliaogongshi": {
+                "前锁板宽": 150,
+                "前铰板宽": 80,
+                "锁扇锁料后宽": " 前锁板宽+40+前竖条宽1-14",
+                "锁扇铰料后宽": "前铰板宽+40-14",
+                "前中间宽": "总宽-前锁板宽-前铰板宽-40*2",
+                "总宽": "锁扇中线宽+28",
+                "前竖条宽1": "(门中门门扇背面!='推拉门中门'  || 门中门门扇背面!='平开门中门' )?0:前竖条宽"
+            },
+            "shuchubianliang": ["前中间宽", "锁扇锁料后宽", "锁扇铰料后宽"],
+            "xinghaozhuanyong": [],
+            "type1": "门扇前锁板铰板",
+            "type2": "单弧企料板",
+            "totalWidth": "935",
+            "totalHeight": "2117",
+            "id": 36,
+            "mokuaishuoming": "",
+            "cads": [
+                {
+                    "info": {
+                        "houtaiId": "633e989f5c7b0000ee002fb1",
+                        "zhankai": [
+                            {"width": "161", "height": "2136", "num": "1", "originalWidth": "ceil(双折宽)-2", "cadZhankaiIndex": 0}
+                        ],
+                        "hidden": false,
+                        "bancai": {
+                            "vid": 62,
+                            "mingzi": "氟碳砂黑",
+                            "jiguangkailiaoliubian": "",
+                            "cailiaoList": ["304", "201"],
+                            "houduList": ["1.0", "1.2"],
+                            "kailiaohouduList": {"1.0": "0.72", "1.2": "0.92"},
+                            "kouchuzhiList": {"1.0": 1, "1.2": 1},
+                            "guigeList": [
+                                [1218, 2438],
+                                [1218, 2248],
+                                [1218, 3048]
+                            ],
+                            "cailiao": "304",
+                            "houdu": "1.0"
+                        },
+                        "calcZhankai": [
+                            {
+                                "name": "前铰板",
+                                "kailiao": true,
+                                "kailiaomuban": "63525a685e2400001b00a3d3",
+                                "neikaimuban": "",
+                                "chai": false,
+                                "flip": [],
+                                "flipChai": [],
+                                "neibugongshi": [],
+                                "calcW": 161,
+                                "calcH": 2136,
+                                "num": 1,
+                                "属于正面部分": false,
+                                "属于框型部分": false,
+                                "默认展开宽": false
+                            }
+                        ]
+                    }
+                },
+                {
+                    "info": {
+                        "houtaiId": "633e989e5c7b0000ee002faf",
+                        "zhankai": [
+                            {"width": "234", "height": "2136", "num": "1", "originalWidth": "ceil(双折宽)-2", "cadZhankaiIndex": 0}
+                        ],
+                        "hidden": false,
+                        "bancai": {
+                            "vid": 62,
+                            "mingzi": "氟碳砂黑",
+                            "jiguangkailiaoliubian": "",
+                            "cailiaoList": ["304", "201"],
+                            "houduList": ["1.0", "1.2"],
+                            "kailiaohouduList": {"1.0": "0.72", "1.2": "0.92"},
+                            "kouchuzhiList": {"1.0": 1, "1.2": 1},
+                            "guigeList": [
+                                [1218, 2438],
+                                [1218, 2248],
+                                [1218, 3048]
+                            ],
+                            "cailiao": "304",
+                            "houdu": "1.0"
+                        },
+                        "calcZhankai": [
+                            {
+                                "name": "前锁板",
+                                "kailiao": true,
+                                "kailiaomuban": "",
+                                "neikaimuban": "",
+                                "chai": false,
+                                "flip": [],
+                                "flipChai": [],
+                                "neibugongshi": [],
+                                "calcW": 234,
+                                "calcH": 2136,
+                                "num": 1,
+                                "属于正面部分": false,
+                                "属于框型部分": false,
+                                "默认展开宽": false
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "零散": [],
+    "备注": [],
+    "文本映射": [],
+    "输出变量": {
+        "门扇宽": "907",
+        "门扇中间宽": "513",
+        "后门扇中间宽": "513",
+        "小扇中间宽": "",
+        "后小门扇中间宽": "",
+        "门扇高": "2117",
+        "门扇中间高": "2117",
+        "锁扇中线宽": "907",
+        "铰扇中线宽": "0",
+        "前中间宽": "625",
+        "锁扇锁料后宽": "176",
+        "锁扇铰料后宽": "106",
+        "门中门门扇背面": "",
+        "前竖条宽1": "20"
+    }
+}

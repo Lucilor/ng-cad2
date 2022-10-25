@@ -1,19 +1,10 @@
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
-import {Component, OnInit, OnDestroy, Inject, ElementRef, ViewChild} from "@angular/core";
+import {Component, OnInit, OnDestroy, ViewChild, Inject, ElementRef} from "@angular/core";
 import {Validators} from "@angular/forms";
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
+import {SafeUrl, DomSanitizer} from "@angular/platform-browser";
 import {Router} from "@angular/router";
-import {CadCollection, imgCadEmpty, setGlobal} from "@app/app.common";
-import {
-    getCadPreview,
-    getCadTotalLength,
-    getShuangxiangLineRects,
-    setDimensionText,
-    setShuangxiangLineRects,
-    splitShuangxiangCad
-} from "@app/cad.utils";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, CadZhankai, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -23,8 +14,18 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CalcService} from "@services/calc.service";
+import {CadCollection, imgCadEmpty, setGlobal} from "@src/app/app.common";
+import {
+    getCadPreview,
+    getCadTotalLength,
+    getShuangxiangLineRects,
+    setDimensionText,
+    setShuangxiangLineRects,
+    splitShuangxiangCad
+} from "@src/app/cad.utils";
 import {getCADBeishu} from "@src/app/utils/beishu";
-import {Formulas, toFixed} from "@src/app/utils/calc";
+import {Formulas} from "@src/app/utils/calc";
+import {toFixed} from "@src/app/utils/func";
 import {ObjectOf, timeout} from "@utils";
 import {cloneDeep, debounce, intersection, isEmpty, isEqual, uniq} from "lodash";
 import {BehaviorSubject} from "rxjs";
@@ -34,17 +35,17 @@ import {getOpenDialogFunc} from "../dialog.common";
 import {openKlcsDialog} from "../klcs-dialog/klcs-dialog.component";
 import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 import {
-    ZixuanpeijianTypesInfo,
-    ZixuanpeijianOutput,
-    MokuaiInputInfos,
+    CadItemContext,
     CadItemInputInfo,
-    ZixuanpeijianlingsanCadItem,
-    ZixuanpeijianInput,
-    ZixuanpeijianInfo,
+    MokuaiInputInfos,
     ZixuanpeijianCadItem,
+    ZixuanpeijianInfo,
+    ZixuanpeijianInput,
+    ZixuanpeijianlingsanCadItem,
     ZixuanpeijianMokuaiItem,
-    ZixuanpeijianTypesInfoItem,
-    CadItemContext
+    ZixuanpeijianOutput,
+    ZixuanpeijianTypesInfo,
+    ZixuanpeijianTypesInfoItem
 } from "./zixuanpeijian.types";
 
 @Component({
@@ -102,6 +103,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }, 500).bind(this);
 
     get summitBtnText() {
+        if (this.data?.stepFixed) {
+            return "提交";
+        }
         switch (this.step$.value.value) {
             case 1:
                 return "打开算料CAD";
@@ -536,6 +540,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     async submit() {
         const {value} = this.step$.value;
+        const stepFixed = this.data?.stepFixed;
         if (value === 1) {
             const errors = new Set<string>();
             if (this.data?.checkEmpty) {
@@ -557,7 +562,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             if (errors.size > 0 && this.data?.checkEmpty) {
                 this.message.error(Array.from(errors).join("<br>"));
             } else {
-                this.setStep(2, true);
+                if (stepFixed) {
+                    this.dialogRef.close(this.result);
+                } else {
+                    this.setStep(2, true);
+                }
             }
         } else if (value === 2) {
             const errors = new Set<string>();
@@ -595,12 +604,17 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 }
             }
         } else if (value === 3) {
-            this.setStep(2, true);
+            if (stepFixed) {
+                this.dialogRef.close(this.result);
+            } else {
+                this.setStep(2, true);
+            }
         }
     }
 
     cancel() {
-        if (this.step$.value.value === 2) {
+        const stepFixed = this.data?.stepFixed;
+        if (this.step$.value.value === 2 || stepFixed) {
             this.dialogRef.close();
         } else {
             this.setStep(2, true);
@@ -1344,5 +1358,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 }
 
 export const openZixuanpeijianDialog = getOpenDialogFunc<ZixuanpeijianComponent, ZixuanpeijianInput, ZixuanpeijianOutput>(
-    ZixuanpeijianComponent
+    ZixuanpeijianComponent,
+    {width: "calc(100vw - 20px)", height: "calc(100vh - 10px)", disableClose: true}
 );

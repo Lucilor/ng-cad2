@@ -65,6 +65,7 @@ import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.compone
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
 import {PageNotFoundComponent} from "@views/page-not-found/page-not-found.component";
 import {PiliangjianbanComponent} from "@views/piliangjianban/piliangjianban.component";
+import {PjmkComponent} from "@views/pjmk/pjmk.component";
 import {PrintA4A015PreviewComponent} from "@views/print-a4-a015-preview/print-a4-a015-preview.component";
 import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
@@ -130,6 +131,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
         LoginFormComponent,
         PageNotFoundComponent,
         PiliangjianbanComponent,
+        PjmkComponent,
         PrintA4A015PreviewComponent,
         PrintCadComponent,
         ProgressBarComponent,

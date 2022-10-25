@@ -5,10 +5,11 @@ import {KlkwpzSource} from "@components/klkwpz/klkwpz";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
 import {Formulas} from "@src/app/utils/calc";
+import zxpjTestData from "@src/assets/testData/zixuanpeijian.json";
 import {ObjectOf} from "@utils";
 
 export interface ZixuanpeijianTypesInfoItem {
-    id: string;
+    id: number;
     xiaoguotu: string;
     jiemiantu: string;
     gongshishuru: string[][];
@@ -33,7 +34,8 @@ export interface ZixuanpeijianInput {
     checkEmpty?: boolean;
     cadConfig?: Partial<CadViewerConfig>;
     materialResult?: Formulas;
-    dropDownKeys: string[];
+    dropDownKeys?: string[];
+    stepFixed?: boolean;
 }
 
 export interface ZixuanpeijianInfo {
@@ -99,3 +101,22 @@ export interface CadItemContext {
     j: number;
     type: "模块" | "零散";
 }
+
+export const getTestData = () => {
+    const data: Required<ZixuanpeijianInput> = {
+        step: 1,
+        checkEmpty: true,
+        stepFixed: false,
+        cadConfig: {},
+        data: {
+            模块: zxpjTestData.模块.map((item) => ({
+                ...item,
+                cads: item.cads.map((cadItem) => ({...cadItem, data: new CadData()}))
+            })),
+            零散: zxpjTestData.模块.flatMap((item) => item.cads.map((cadItem) => ({...cadItem, data: new CadData()})))
+        },
+        materialResult: zxpjTestData.输出变量,
+        dropDownKeys: ["总宽", "总高"]
+    };
+    return data;
+};
