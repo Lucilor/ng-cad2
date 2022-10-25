@@ -89,7 +89,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         textMap: {},
         dropDownKeys: [],
         projectConfig: this.status.getProjectConfig(),
-        projectName: this.status.project
+        projectName: this.status.project,
+        errors: []
     };
     cad: CadViewer | null = null;
     zixuanpeijian: ZixuanpeijianOutput = {模块: [], 零散: []};
@@ -162,6 +163,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 }
             }
             if (responseData) {
+                if (responseData.errors && responseData.errors.length > 0) {
+                    this.spinner.hide(this.loaderId);
+                    await this.message.error(responseData.errors.join("<br>"));
+                }
                 responseData.cads = responseData.cads.map((v) => new CadData(v));
                 if (responseData.orders) {
                     for (const order of responseData.orders) {

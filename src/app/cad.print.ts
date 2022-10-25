@@ -324,13 +324,13 @@ export const configCadDataForPrint = async (
     cad: CadViewer,
     data: CadData | CadEntities | CadEntity[] | CadEntity,
     params: PrintCadsParams,
-    zxpjConfig?: {isZxpj: true; lineLengthFontStyle?: FontStyle}
+    zxpjConfig?: {isZxpj: true; lineLengthFontStyle?: FontStyle; 使用显示线长?: boolean}
 ) => {
     const linewidth = params.linewidth || 1;
     const dimStyle = params.dimStyle;
     const config = cad.getConfig();
     const textMap = params.textMap || {};
-    const {isZxpj, lineLengthFontStyle} = zxpjConfig || {};
+    const {isZxpj, lineLengthFontStyle, 使用显示线长} = zxpjConfig || {};
     let es: CadEntities;
     if (data instanceof CadData) {
         es = data.entities;
@@ -464,7 +464,7 @@ export const configCadDataForPrint = async (
     }
 
     if (isZxpj && data instanceof CadData) {
-        const lineLengthMap: ObjectOf<{text: string; mtext: CadMtext}> = {};
+        const lineLengthMap: ObjectOf<{text: string; mtext: CadMtext; 显示线长?: string}> = {};
         const shaungxiangCads = splitShuangxiangCad(data);
         const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
         data.entities.forEach((e) => {
@@ -472,7 +472,7 @@ export const configCadDataForPrint = async (
                 if (!e.hideLength) {
                     const mtext = e.children.mtext.find((ee) => ee.info.isLengthText);
                     if (mtext) {
-                        lineLengthMap[e.id] = {text: mtext.text, mtext};
+                        lineLengthMap[e.id] = {text: mtext.text, mtext, 显示线长: e.显示线长};
                     }
                 }
                 const length = e.length;
@@ -489,9 +489,13 @@ export const configCadDataForPrint = async (
         data.entities.toArray().forEach((e) => {
             if (e instanceof CadLineLike && e.id in lineLengthMap) {
                 e.hideLength = true;
-                const {text, mtext} = lineLengthMap[e.id];
+                const {text, mtext, 显示线长} = lineLengthMap[e.id];
                 const mtext2 = mtext.clone(true);
-                mtext2.text = text;
+                if (使用显示线长 && 显示线长) {
+                    mtext2.text = 显示线长;
+                } else {
+                    mtext2.text = text;
+                }
                 if (lineLengthFontStyle) {
                     mtext2.fontStyle = cloneDeep(lineLengthFontStyle);
                 }
@@ -534,8 +538,11 @@ const getUnfoldCadViewers = async (
         unfoldCad.entities.add(e);
     }
 
-    const titleFontStyle = {size: 16};
-    const infoTextFontStyle = {size: 12};
+    const titleFontStyle: FontStyle = {size: 16} as const;
+    const infoTextFontStyle: FontStyle = {size: 12} as const;
+    const boxPadding = [5, 5, 5, 5] as const;
+    const imgPadding = [5, 5, 5, 5] as const;
+    const textMargin = 5 as const;
 
     const code = params.codes?.[i] || "";
     const titleText = new CadMtext({text: "刨坑生产单", anchor: [0, 0], fontStyle: titleFontStyle});
@@ -568,37 +575,40 @@ const getUnfoldCadViewers = async (
         const rowIndex = colNum - Math.floor(j / colNum);
         const colIndex = j % colNum;
         const boxRect = new Rectangle();
-        boxRect.min.set(colIndex * boxWidth, rowIndex * boxHeight);
-        boxRect.max.set((colIndex + 1) * boxWidth, (rowIndex + 1) * boxHeight);
-        await configCadDataForPrint(unfoldCadViewer, cad, params, {isZxpj: true, lineLengthFontStyle: {size: 10}});
+        boxRect.min.set(colIndex * boxWidth + boxPadding[3], rowIndex * boxHeight + boxPadding[2]);
+        boxRect.max.set((colIndex + 1) * boxWidth - boxPadding[1], (rowIndex + 1) * boxHeight - boxPadding[0]);
+        await configCadDataForPrint(unfoldCadViewer, cad, params, {isZxpj: true, lineLengthFontStyle: {size: 10}, 使用显示线长: true});
         const calcZhankai = cad.info.calcZhankai || [];
         const bancai = cad.info.bancai || {};
 
-        const textMargin = 5;
         let y = boxRect.bottom + textMargin;
         const zhankaiText = getCadCalcZhankaiText(cad, calcZhankai, materialResult, bancai, projectConfig, projectName);
-        const texts = [zhankaiText].concat(offsetStrs.slice(1));
+        const texts = [zhankaiText].concat(offsetStrs);
         texts.reverse();
         for (const text of texts) {
             if (!text) {
                 continue;
             }
-            const mtext = new CadMtext({text, anchor: [0.5, 1], fontStyle: infoTextFontStyle});
-            mtext.insert.set(boxRect.x, y);
+            const mtext = new CadMtext({text, anchor: [0, 1], fontStyle: infoTextFontStyle});
+            mtext.insert.set(boxRect.left, y);
             unfoldCad.entities.add(mtext);
             await unfoldCadViewer.render(mtext);
             y += mtext.boundingRect.height + textMargin;
             mtext.calcBoundingRect = false;
         }
+        y -= textMargin;
 
         const imgRect = boxRect.clone();
-        imgRect.bottom = y;
+        imgRect.top -= imgPadding[0];
+        imgRect.right -= imgPadding[1];
+        imgRect.bottom = y + imgPadding[2];
+        imgRect.left += imgPadding[3];
         unfoldCad.entities.merge(cad.entities);
         await unfoldCadViewer.render(cad.entities);
         const cadRect = cad.getBoundingRect();
         const dx = imgRect.x - cadRect.x;
         const dy = imgRect.y - cadRect.y;
-        const scale = Math.min(imgRect.width / cadRect.width, imgRect.height / cadRect.height);
+        const scale = Math.min(1, imgRect.width / cadRect.width, imgRect.height / cadRect.height);
         cad.transform({translate: [dx, dy], scale, origin: [cadRect.x, cadRect.y]}, true);
     }
 
@@ -635,6 +645,7 @@ export interface PrintCadsParams {
     dropDownKeys?: string[];
     projectConfig?: ObjectOf<any>;
     projectName?: string;
+    errors?: string[];
 }
 /**
  * A4: (210 × 297)mm²
