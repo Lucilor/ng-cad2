@@ -218,24 +218,25 @@ export class DingdanbiaoqianComponent implements OnInit {
             };
             const {showCadSmallImg, showCadLargeImg} = this.config;
             const imgLargeSize = [innerWidth * 0.85, innerHeight * 0.85] as [number, number];
+            const setData = (data: CadData, materialResult: Formulas = {}) => {
+                for (const e of data.entities.dimension) {
+                    setDimensionText(e, materialResult);
+                    e.setStyle({text: {color: "black"}});
+                }
+                for (const e of data.entities.mtext) {
+                    const match = e.text.match(/^#(.*)#$/);
+                    if (match && match[1] && match[1] in materialResult) {
+                        e.text = String(materialResult[match[1]]);
+                    }
+                }
+            };
             for (const {cads, 开启锁向示意图, 配合框, materialResult} of this.orders) {
                 if (开启锁向示意图) {
                     开启锁向示意图.data.type = "";
                     开启锁向示意图.data.type2 = "";
-                    if (materialResult) {
-                        for (const e of 开启锁向示意图.data.entities.dimension) {
-                            setDimensionText(e, materialResult);
-                            e.setStyle({text: {color: "black"}});
-                        }
-                        for (const e of 开启锁向示意图.data.entities.mtext) {
-                            const match = e.text.match(/^#(.*)#$/);
-                            if (match && match[1] && match[1] in materialResult) {
-                                e.text = String(materialResult[match[1]]);
-                            }
-                        }
-                        for (const e of 开启锁向示意图.data.entities.line) {
-                            e.linewidth = 5;
-                        }
+                    setData(开启锁向示意图.data, materialResult);
+                    for (const e of 开启锁向示意图.data.entities.line) {
+                        e.linewidth = 5;
                     }
                     const previewParams: Partial<CadPreviewParams> = {
                         config: {width: 开启锁向示意图Size[0], height: 开启锁向示意图Size[1], hideLineLength: true},
@@ -261,6 +262,9 @@ export class DingdanbiaoqianComponent implements OnInit {
                             autoSize: true
                         });
                     }
+                }
+                for (const cad of cads) {
+                    setData(cad.data, materialResult);
                 }
                 if (showCadSmallImg) {
                     await Promise.all(

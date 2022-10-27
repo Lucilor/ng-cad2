@@ -594,6 +594,9 @@ export const removeIntersections = (data: CadData) => {
 };
 
 export const setDimensionText = (e: CadDimension, materialResult: Formulas) => {
+    if (!(typeof e.mingzi === "string")) {
+        e.mingzi = String(e.mingzi);
+    }
     const match = e.mingzi.match(/显示公式[ ]*[:：](.*)/);
     let 显示公式: string | null = null;
     if (match && match.length > 1) {
