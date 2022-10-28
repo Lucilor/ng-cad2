@@ -152,6 +152,7 @@ $info-border: solid 1px black;
                 padding-left: 5px;
             }
             .配合框-group {
+                justify-content: flex-end;
                 .配合框 {
                     display: flex;
                     justify-content: flex-end;
@@ -171,6 +172,7 @@ $info-border: solid 1px black;
 }
 .info-border-right {
     border-right: $info-border;
+    flex: 0 0 200px;
 }
 .info-border-top {
     border-top: $info-border;

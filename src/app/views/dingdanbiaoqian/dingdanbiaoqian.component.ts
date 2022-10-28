@@ -2,7 +2,15 @@ import {Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgCadEmpty, imgEmpty, imgLoading, session, setGlobal} from "@app/app.common";
-import {CadPreviewParams, getCadPreview, setDimensionText, shouldShowIntersection} from "@app/cad.utils";
+import {
+    CadPreviewParams,
+    getCadPreview,
+    getShuangxiangLineRects,
+    setDimensionText,
+    setShuangxiangLineRects,
+    shouldShowIntersection,
+    splitShuangxiangCad
+} from "@app/cad.utils";
 import {CadData, CadLine, CadViewerConfig, Defaults, generateLineTexts, setLinesLength} from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -29,7 +37,7 @@ export class DingdanbiaoqianComponent implements OnInit {
     pagePadding = [17, 17, 5, 17] as const;
     cadSize = [218, 186] as const;
     开启锁向示意图Size = [207, 280] as const;
-    配合框Size = [150, 280] as const;
+    配合框Size = [150, 93] as const;
     sectionConfig: SectionConfig = {
         rows: [
             {
@@ -38,9 +46,8 @@ export class DingdanbiaoqianComponent implements OnInit {
                     {key: "订单编号", label: "编号", class: "alt"}
                 ]
             },
-            {
-                cells: [{key: "款式"}, {key: "开启锁向", label: "开式"}]
-            },
+            {cells: [{key: "发货方式", label: "发货方式"}]},
+            {cells: [{key: "款式"}, {key: "开启锁向", label: "开式"}]},
             {cells: [{key: "拉手信息", label: "锁型", class: "text-left"}]},
             {cells: [{key: "底框"}, {key: "门铰信息", label: "铰型"}, {key: "商标"}]},
             {
@@ -69,7 +76,7 @@ export class DingdanbiaoqianComponent implements OnInit {
     private _httpCacheKey = "订单标签请求数据";
     config = {
         showCadSmallImg: true,
-        showCadLargeImg: true
+        showCadLargeImg: false
     };
 
     constructor(
@@ -131,7 +138,10 @@ export class DingdanbiaoqianComponent implements OnInit {
                                 e.显示线长 = e.length.toString();
                             }
                         });
+                        const shuangxiangCads = splitShuangxiangCad(data);
+                        const shuangxiangRects = getShuangxiangLineRects(shuangxiangCads);
                         setLinesLength(data, lines, maxLength);
+                        setShuangxiangLineRects(shuangxiangCads, shuangxiangRects);
                     }
 
                     const isLarge = !!data.info.isLarge;
@@ -165,7 +175,7 @@ export class DingdanbiaoqianComponent implements OnInit {
                     配合框: order.配合框.map((v) => ({
                         data: new CadData(v),
                         img: imgEmpty,
-                        style: {width: 配合框Size[0] + "px", height: 配合框Size[1] / order.配合框.length + "px"}
+                        style: {width: 配合框Size[0] + "px", height: 配合框Size[1] + "px"}
                     })),
                     cads,
                     positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
@@ -338,31 +348,46 @@ export class DingdanbiaoqianComponent implements OnInit {
                 delete order.开启锁向示意图;
                 delete order.配合框;
                 delete order.materialResult;
-                let orderCurr = pushOrder();
+                let orderCurr: Order | null = null;
                 let orderPrev: Order | null = null;
-                for (let i = 0; i < cads.length; i++) {
-                    let result = this.takeEmptyPosition(orderCurr.positions, cads[i].isLarge);
-                    if (result.position) {
-                        this.setCad(cads[i], result.position);
-                        orderCurr.cads.push(cads[i]);
+                const group1: Order["cads"][0][] = [];
+                const group2: Order["cads"][0][] = [];
+                for (const cad of cads) {
+                    if (cad.data.name.match(/^[左右顶]双包边$/)) {
+                        group2.push(cad);
                     } else {
-                        if (orderPrev) {
-                            result = this.takeEmptyPosition(orderPrev.positions, cads[i].isLarge);
-                            if (result.position) {
-                                this.setCad(cads[i], result.position);
-                                orderPrev.cads.push(cads[i]);
-                            } else if (result.isFull) {
-                                orderPrev = null;
-                            }
+                        group1.push(cad);
+                    }
+                }
+                const groups = [group1, group2];
+                for (const group of groups) {
+                    orderPrev = orderCurr;
+                    orderCurr = pushOrder();
+                    for (let j = 0; j < group.length; j++) {
+                        let result = this.takeEmptyPosition(orderCurr.positions, group[j].isLarge);
+                        if (result.position) {
+                            this.setCad(group[j], result.position);
+                            orderCurr.cads.push(group[j]);
                         } else {
-                            orderPrev = orderCurr;
-                            orderCurr = pushOrder();
-                            i--;
+                            if (orderPrev) {
+                                result = this.takeEmptyPosition(orderPrev.positions, group[j].isLarge);
+                                if (result.position) {
+                                    this.setCad(group[j], result.position);
+                                    orderPrev.cads.push(group[j]);
+                                } else if (result.isFull) {
+                                    orderPrev = null;
+                                }
+                            } else {
+                                orderPrev = orderCurr;
+                                orderCurr = pushOrder();
+                                j--;
+                            }
                         }
                     }
                 }
             }
         });
+        console.log(this.orders);
         this.orders.forEach((order) => this.setPage(order));
     }
 

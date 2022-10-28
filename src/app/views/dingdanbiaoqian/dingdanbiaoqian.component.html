@@ -70,7 +70,7 @@
                             </div>
                             <div class="配合框-group" *ngIf="order['配合框']">
                                 <div class="配合框" *ngFor="let item of order['配合框']" [ngStyle]="item.style">
-                                    <div class="name">{{ item.data.name }}</div>
+                                    <div class="name" *ngIf="order['配合框'].length > 1">{{ item.data.name }}</div>
                                     <app-image [src]="item.img" [bigPicSrc]="item.img"></app-image>
                                 </div>
                             </div>
