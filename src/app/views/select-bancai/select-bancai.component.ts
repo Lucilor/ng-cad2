@@ -3,32 +3,14 @@ import {Validators} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {getFormControl, getFormGroup, TypedFormGroup} from "@app/app.common";
+import {getFormControl, getFormGroup, replaceRemoteHost, TypedFormGroup} from "@app/app.common";
 import {openSelectBancaiCadsDialog} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiCad, BancaiList} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf} from "@utils";
-
-const houduPattern = /^\d+([.]{1}\d+){0,1}$/;
-const guigePattern = /^(\d+([.]{1}\d+){0,1})[^\d^.]+(\d+([.]{1}\d+){0,1})$/;
-
-export interface BancaiCadExtend extends BancaiCad {
-    checked: boolean;
-    oversized: boolean;
-    disabled: boolean;
-}
-
-export interface BancaiForm {
-    mingzi: string;
-    cailiao: string;
-    houdu: string;
-    guige: string;
-    cads: string;
-    oversized: boolean;
-    gas: string;
-}
+import {downloadByUrl, ObjectOf} from "@utils";
+import {DateTime} from "luxon";
 
 @Component({
     selector: "app-select-bancai",
@@ -57,6 +39,8 @@ export class SelectBancaiComponent implements OnInit {
     kailiaocanshuzhiUrl = "";
     loaderId = "selectBancai";
     submitLoaderId = "selectBancaiSubmit";
+    downloadHistory: SelectBancaiDlHistory[] = [];
+    downloadName = "";
 
     get currList(): BancaiList {
         const form = this.bancaiForms[this.formIdx];
@@ -84,6 +68,7 @@ export class SelectBancaiComponent implements OnInit {
             this.table = table;
             document.title = type;
             this.type = type;
+            await this.refreshDownloadHistory();
             const result = await this.dataService.getBancais(this.table, this.codes);
             this.spinner.hide(this.loaderId);
             if (result) {
@@ -114,6 +99,7 @@ export class SelectBancaiComponent implements OnInit {
                 this.shuangxiazouxianUrl = result.上下走线;
                 this.kailiaokongweipeizhiUrl = result.开料孔位配置;
                 this.kailiaocanshuzhiUrl = result.开料参数;
+                this.downloadName = result.downloadName;
 
                 const errMsgs: string[] = [];
                 result.errors.forEach((error) => {
@@ -125,6 +111,17 @@ export class SelectBancaiComponent implements OnInit {
             }
         } else {
             this.message.alert("缺少参数");
+        }
+    }
+
+    async refreshDownloadHistory() {
+        const response = await this.dataService.post<ObjectOf<any>[]>("order/order/getKailiaoDlHistory", {codes: this.codes});
+        if (response?.data) {
+            const dlHistory = response.data;
+            this.downloadHistory = dlHistory.map<SelectBancaiDlHistory>((v) => ({
+                name: v.name,
+                date: DateTime.fromMillis(Number(v.创建时间)).toFormat("yyyy-MM-dd HH:mm:ss")
+            }));
         }
     }
 
@@ -325,15 +322,14 @@ export class SelectBancaiComponent implements OnInit {
         const {codes, table, autoGuige, type} = this;
         const skipCads = this.sortedCads.map((v) => v.filter((vv) => vv.disabled).map((vv) => vv.name)).flat();
         const response = await this.dataService.post<string | string[]>(api, {codes, bancaiCads, table, autoGuige, type, skipCads});
+        await this.refreshDownloadHistory();
         this.spinner.hide(this.submitLoaderId);
         const url = response?.data;
         if (url) {
             if (Array.isArray(url)) {
                 this.message.alert(url.map((v) => `<div>${v}</div>`).join(""));
             } else {
-                if (!open(url)) {
-                    this.message.alert(`<p>自动下载被拦截，请点击下列链接下载。</p><a href="${url}" download>下载开料结果</a>`);
-                }
+                this.downloadDxf(replaceRemoteHost(url));
             }
         }
     }
@@ -341,4 +337,36 @@ export class SelectBancaiComponent implements OnInit {
     open(url: string) {
         window.open(url);
     }
+
+    downloadDxf(url: string, isName = false) {
+        const downloadName = this.downloadName || this.codes.join(",");
+        if (isName) {
+            url = `${window.origin}/filepath/tmp/${url}.dxf`;
+        }
+        downloadByUrl(url, {filename: downloadName + ".dxf"});
+    }
+}
+
+const houduPattern = /^\d+([.]{1}\d+){0,1}$/;
+const guigePattern = /^(\d+([.]{1}\d+){0,1})[^\d^.]+(\d+([.]{1}\d+){0,1})$/;
+
+export interface BancaiCadExtend extends BancaiCad {
+    checked: boolean;
+    oversized: boolean;
+    disabled: boolean;
+}
+
+export interface BancaiForm {
+    mingzi: string;
+    cailiao: string;
+    houdu: string;
+    guige: string;
+    cads: string;
+    oversized: boolean;
+    gas: string;
+}
+
+export interface SelectBancaiDlHistory {
+    name: string;
+    date: string;
 }

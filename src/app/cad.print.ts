@@ -16,11 +16,11 @@ import {
     setLinesLength,
     FontStyle
 } from "@cad-viewer";
-import {environment} from "@src/environments/environment";
 import {isNearZero, isBetween, Point, ObjectOf, getDPI, getImageDataUrl, loadImage, Rectangle, Matrix} from "@utils";
 import {Properties} from "csstype";
 import {cloneDeep, intersection} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
+import {replaceRemoteHost} from "./app.common";
 import {
     getCadCalcZhankaiText,
     getShuangxiangLineRects,
@@ -758,10 +758,7 @@ export const printCads = async (params: PrintCadsParams) => {
                     const setImageUrl = async (cadImages: CadImage[]) => {
                         await Promise.all(
                             cadImages.map(async (e, j) => {
-                                let url2 = currUrls[j];
-                                if (!environment.production && url2.startsWith("https://www.let888.cn")) {
-                                    url2 = url2.replace("https://www.let888.cn", origin);
-                                }
+                                const url2 = replaceRemoteHost(currUrls[j]);
                                 if (url2 in imgMap && imgMap[url2]) {
                                     e.url = imgMap[url2];
                                 } else {

@@ -6,6 +6,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {Changelog} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {remoteHost} from "@src/app/app.common";
 import {downloadByString, downloadByUrl, ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
 import {DateTime} from "luxon";
@@ -206,7 +207,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     }
 
     fetchChangelog() {
-        downloadByUrl("https://www.let888.cn/static/ngcad2_changelog.json");
+        downloadByUrl(remoteHost + "/static/ngcad2_changelog.json");
     }
 
     downloadChangelog() {

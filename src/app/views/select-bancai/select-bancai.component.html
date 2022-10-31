@@ -7,7 +7,13 @@
         <button mat-flat-button [disabled]="!shuangxiazouxianUrl" (click)="open(shuangxiazouxianUrl)">上下走线</button>
         <button mat-flat-button [disabled]="!kailiaokongweipeizhiUrl" (click)="open(kailiaokongweipeizhiUrl)">开料孔位配置</button>
         <button mat-flat-button [disabled]="!kailiaocanshuzhiUrl" (click)="open(kailiaocanshuzhiUrl)">开料参数</button>
+        <button mat-flat-button [disabled]="downloadHistory.length < 1" [matMenuTriggerFor]="downloadHistoryList">下载记录</button>
     </div>
+    <mat-menu #downloadHistoryList="matMenu">
+        <button mat-menu-item *ngFor="let item of downloadHistory" (click)="downloadDxf(item.name, true)">
+            {{ item.date }}
+        </button>
+    </mat-menu>
 </div>
 
 <ng-scrollbar>

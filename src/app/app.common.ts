@@ -116,3 +116,12 @@ export type ProjectConfig = ObjectOf<string>;
 
 setGlobal("timer", timer);
 setGlobal("log", log);
+
+export const remoteHost = "https://www.let888.cn" as const;
+
+export const replaceRemoteHost = (url: string) => {
+    if (!environment.production && url.startsWith(remoteHost)) {
+        return url.replace(remoteHost, window.origin);
+    }
+    return url;
+};
