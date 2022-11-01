@@ -45,6 +45,7 @@ import {
     ZixuanpeijianMokuaiItem,
     ZixuanpeijianOutput,
     ZixuanpeijianTypesInfo,
+    ZixuanpeijianTypesInfo2,
     ZixuanpeijianTypesInfoItem
 } from "./zixuanpeijian.types";
 
@@ -59,7 +60,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     type1 = "";
     type2 = "";
     urlPrefix = "";
-    typesInfo: ZixuanpeijianTypesInfo = {};
+    typesInfo: ZixuanpeijianTypesInfo2 = {};
     options: ObjectOf<string[]> = {};
     bancaiList: BancaiList[] = [];
     result: ZixuanpeijianOutput = {模块: [], 零散: []};
@@ -637,6 +638,15 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         const shuchubianliangKeys = new Set<string>();
         const fixedBancaiOptions: string[] = [];
         const bancaiMap: ObjectOf<{cailiao: string[]; houdu: string[]}> = {};
+        for (const type1 in this.typesInfo) {
+            for (const type2 in this.typesInfo[type1]) {
+                const item = this.typesInfo[type1][type2];
+                if (item.unique) {
+                    const item2 = this.result.模块.find((v) => v.type1 === type1 && v.type2 === type2);
+                    item.disableAdd = !!item2;
+                }
+            }
+        }
         for (const item of this.result.模块) {
             for (const {info} of item.cads) {
                 if (info.bancai) {
@@ -925,7 +935,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         for (const item1 of this.result.模块) {
             for (const item2 of this.result.模块) {
                 if (item1.id === item2.id) {
-                    continue;
+                    if (item1.unique) {
+                        this.message.error(`${item1.type1}-${item1.type2}只能单选`);
+                        return false;
+                    } else {
+                        continue;
+                    }
                 }
                 const duplicateKeys = intersection(item1.shuchubianliang, item2.shuchubianliang);
                 if (duplicateKeys.length > 0) {

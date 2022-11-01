@@ -26,7 +26,12 @@
                                     ></app-image>
                                 </div>
                                 <div class="content title">
-                                    <button mat-icon-button color="primary" (click)="addMokuaiItem(type1, item.key)">
+                                    <button
+                                        mat-icon-button
+                                        color="primary"
+                                        [disabled]="item.value.disableAdd"
+                                        (click)="addMokuaiItem(type1, item.key)"
+                                    >
                                         <mat-icon>add_circle</mat-icon>
                                     </button>
                                     <div class="name">{{ item.key }}</div>

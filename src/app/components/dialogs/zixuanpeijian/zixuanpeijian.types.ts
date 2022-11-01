@@ -18,8 +18,14 @@ export interface ZixuanpeijianTypesInfoItem {
     shuchubianliang: string[];
     xinghaozhuanyong: string[];
     mokuaishuoming: string;
+    unique: boolean;
 }
 export type ZixuanpeijianTypesInfo = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoItem>>;
+
+export interface ZixuanpeijianTypesInfoItem2 extends ZixuanpeijianTypesInfoItem {
+    disableAdd?: boolean;
+}
+export type ZixuanpeijianTypesInfo2 = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoItem2>>;
 
 export interface ZixuanpeijianInputsInfoItem {
     totalWidth: InputInfo;
