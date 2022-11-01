@@ -37,7 +37,7 @@ export class DingdanbiaoqianComponent implements OnInit {
     pagePadding = [17, 17, 5, 17] as const;
     cadSize = [218, 186] as const;
     开启锁向示意图Size = [207, 280] as const;
-    配合框Size = [150, 93] as const;
+    配合框Size = [150, 90] as const;
     sectionConfig: SectionConfig = {
         rows: [
             {
