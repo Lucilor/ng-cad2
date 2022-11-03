@@ -932,8 +932,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         const materialResult = this.data?.materialResult || {};
         const shuchubianliang: Formulas = {};
         const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
-        for (const item1 of this.result.模块) {
-            for (const item2 of this.result.模块) {
+        for (const [i, item1] of this.result.模块.entries()) {
+            for (const [j, item2] of this.result.模块.entries()) {
+                if(i === j) {
+                    continue;
+                }
                 if (item1.id === item2.id) {
                     if (item1.unique) {
                         this.message.error(`${item1.type1}-${item1.type2}只能单选`);
