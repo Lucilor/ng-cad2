@@ -26,6 +26,7 @@ import {
 import {getCADBeishu} from "@src/app/utils/beishu";
 import {Formulas} from "@src/app/utils/calc";
 import {toFixed} from "@src/app/utils/func";
+import {matchOrderData} from "@src/app/utils/mongo";
 import {ObjectOf, timeout} from "@utils";
 import {cloneDeep, debounce, intersection, isEmpty, isEqual, uniq} from "lodash";
 import {BehaviorSubject} from "rxjs";
@@ -214,8 +215,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     allCads[type1][type2] = [];
                     for (const v of cads[type1][type2]) {
                         const data = new CadData(v);
+                        delete data.options.功能分类;
+                        delete data.options.配件模块;
                         allCads[type1][type2].push(data);
                     }
+                    allCads[type1][type2] = matchOrderData(allCads[type1][type2], this.data?.materialResult);
                 }
             }
             const cadViewers = this.cadViewers;
@@ -934,7 +938,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
         for (const [i, item1] of this.result.模块.entries()) {
             for (const [j, item2] of this.result.模块.entries()) {
-                if(i === j) {
+                if (i === j) {
                     continue;
                 }
                 if (item1.id === item2.id) {

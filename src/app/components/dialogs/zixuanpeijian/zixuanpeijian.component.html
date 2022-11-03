@@ -106,7 +106,7 @@
         <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
         <ng-scrollbar class="content">
             <div *ngFor="let item of result['模块']; let i = index">
-                <div>{{ item.type1 }} - {{ item.type2 }}</div>
+                <div>{{ item.type1 }}【{{ item.type2 }}】</div>
                 <div class="content cads">
                     <ng-container *ngFor="let cad of item.cads; let j = index">
                         <template *ngTemplateOutlet="cadItem; context: {$implicit: cad, i, j, type: '模块'}"></template>
