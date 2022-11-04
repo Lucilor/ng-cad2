@@ -6,7 +6,13 @@ import {ActivatedRoute} from "@angular/router";
 import {session, setGlobal, timer} from "@app/app.common";
 import {CadData, CadLine, CadMtext, CadViewer, CadZhankai} from "@cad-viewer";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
-import {ZixuanpeijianOutput, ZixuanpeijianInfo, ZixuanpeijianCadItem} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {
+    ZixuanpeijianOutput,
+    ZixuanpeijianInfo,
+    ZixuanpeijianCadItem,
+    importZixuanpeijian,
+    exportZixuanpeijian
+} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -93,7 +99,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         errors: []
     };
     cad: CadViewer | null = null;
-    zixuanpeijian: ZixuanpeijianOutput = {模块: [], 零散: []};
+    zixuanpeijian: Pick<Required<ZixuanpeijianOutput>, "模块" | "零散"> = {模块: [], 零散: []};
     comments: CadMtext[] = [];
     enableZixuanpeijian = false;
     production = environment.production;
@@ -183,30 +189,14 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 document.title = this.printParams.info.title;
                 const {codes, type} = this.printParams;
                 if (codes.length === 1) {
-                    const response2 = await this.dataService.post<
-                        ZixuanpeijianOutput & {备注: CadMtext[]; 文本映射: ObjectOf<string>; 输出变量: ObjectOf<string>}
-                    >("ngcad/getOrderZixuanpeijian", {
+                    const response2 = await this.dataService.post<ZixuanpeijianOutput>("ngcad/getOrderZixuanpeijian", {
                         code: codes[0],
                         type
                     });
                     if (response2?.data) {
-                        const {模块, 零散, 备注, 文本映射, 输出变量} = response2.data;
-                        for (const item of 模块) {
-                            for (const cad of item.cads) {
-                                cad.data = new CadData(cad.data);
-                                if (cad.displayedData) {
-                                    cad.displayedData = new CadData(cad.displayedData);
-                                }
-                            }
-                        }
-                        for (const item of 零散) {
-                            item.data = new CadData(item.data);
-                            if (item.displayedData) {
-                                item.displayedData = new CadData(item.displayedData);
-                            }
-                        }
+                        const {模块, 零散, 备注, 文本映射, 输出变量} = importZixuanpeijian(response2.data);
                         this.zixuanpeijian = {模块, 零散};
-                        this.comments = 备注.map((v) => new CadMtext(v));
+                        this.comments = 备注;
                         this.printParams.textMap = Array.isArray(文本映射) ? {} : 文本映射;
                         Object.assign(this.materialResult, Array.isArray(输出变量) ? {} : 输出变量);
                     } else {
@@ -500,7 +490,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 cadConfig: {fontStyle: {family: this.printParams.config.fontStyle?.family}},
                 materialResult: this.materialResult,
                 dropDownKeys: this.printParams.dropDownKeys
-            },
+            }
         });
         if (data) {
             this.zixuanpeijian = data;
@@ -684,17 +674,8 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!cad) {
             return;
         }
-        const getCadItem = (item: ZixuanpeijianCadItem) => ({
-            ...item,
-            data: item.data.export(),
-            displayedData: item.displayedData?.export()
-        });
-        const 模块 = this.zixuanpeijian.模块.map((item) => ({
-            ...item,
-            cads: item.cads.map(getCadItem)
-        }));
-        const 零散 = this.zixuanpeijian.零散.map(getCadItem);
-        const 备注 = this.comments.map((v) => v.export());
+        const {模块, 零散} = this.zixuanpeijian;
+        const 备注 = this.comments;
         const 文本映射 = this.printParams.textMap;
         const 输出变量: ObjectOf<string> = {};
         const materialResult = this.materialResult;
@@ -704,7 +685,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         await this.dataService.post<void>("ngcad/setOrderZixuanpeijian", {
             code: codes[0],
             type,
-            data: {模块, 零散, 备注, 文本映射, 输出变量}
+            data: exportZixuanpeijian({模块, 零散, 备注, 文本映射, 输出变量})
         });
     }
 

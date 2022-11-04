@@ -3,17 +3,17 @@
     "typesInfo": {
         "a": {
             "b": {
+                "id": 147,
                 "xiaoguotu": "",
-                "jiemiantu": "",
-                "gongshishuru": [
-                    ["a", "1"],
-                    ["b", "2"],
-                    ["c", "3"]
-                ],
+                "gongshishuru": [],
                 "xuanxiangshuru": [["d", "1"]],
-                "suanliaogongshi": {"e": "a+b"},
-                "shuchubianliang": ["e"]
+                "suanliaogongshi": {"总宽": "小后板宽", "总高": "门扇高", "铰面厚": 78},
+                "shuchubianliang": ["铰面厚"],
+                "xinghaozhuanyong": [],
+                "mokuaishuoming": "",
+                "unique": true
             }
         }
-    }
+    },
+    "options": {"a": ["b"]}
 }

@@ -28,7 +28,7 @@ import {Formulas} from "@src/app/utils/calc";
 import {toFixed} from "@src/app/utils/func";
 import {matchOrderData} from "@src/app/utils/mongo";
 import {ObjectOf, timeout} from "@utils";
-import {cloneDeep, debounce, intersection, isEmpty, isEqual, uniq} from "lodash";
+import {cloneDeep, debounce, intersection, isEmpty, isEqual, uniq, uniqueId} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {openCadEditorDialog} from "../cad-editor-dialog/cad-editor-dialog.component";
@@ -38,14 +38,15 @@ import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 import {
     CadItemContext,
     CadItemInputInfo,
+    importZixuanpeijian,
     MokuaiInputInfos,
+    Step1Data,
     ZixuanpeijianCadItem,
     ZixuanpeijianInfo,
     ZixuanpeijianInput,
     ZixuanpeijianlingsanCadItem,
     ZixuanpeijianMokuaiItem,
     ZixuanpeijianOutput,
-    ZixuanpeijianTypesInfo,
     ZixuanpeijianTypesInfo2,
     ZixuanpeijianTypesInfoItem
 } from "./zixuanpeijian.types";
@@ -56,7 +57,7 @@ import {
     styleUrls: ["./zixuanpeijian.component.scss"]
 })
 export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnDestroy {
-    spinnerId = "zixuanpeijian";
+    spinnerId = "zixuanpeijian-" + uniqueId();
     step$ = new BehaviorSubject<{value: number; refresh: boolean}>({value: 0, refresh: false});
     type1 = "";
     type2 = "";
@@ -64,7 +65,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     typesInfo: ZixuanpeijianTypesInfo2 = {};
     options: ObjectOf<string[]> = {};
     bancaiList: BancaiList[] = [];
-    result: ZixuanpeijianOutput = {模块: [], 零散: []};
+    result: ZixuanpeijianOutput = importZixuanpeijian();
     cadViewers: {模块: ObjectOf<ObjectOf<CadViewer[]>>; 零散: CadViewer[]} = {模块: {}, 零散: []};
     @ViewChild(MatMenuTrigger) contextMenu!: MatMenuTrigger;
     contextMenuData = {i: -1, j: -1};
@@ -142,7 +143,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (this.data) {
             const {step, data} = this.data;
             if (data) {
-                this.result = cloneDeep(data);
+                this.result = cloneDeep(importZixuanpeijian(data));
             }
             if (typeof step === "number") {
                 stepValue = step;
@@ -158,18 +159,19 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     async step1Fetch(updateInputInfos = true) {
-        this.spinner.show(this.spinnerId);
-        const response = await this.dataService.post<{
-            prefix: string;
-            typesInfo: ZixuanpeijianTypesInfo;
-            options: ObjectOf<string[]>;
-            cads2: CadData[];
-        }>("ngcad/getZixuanpeijianTypesInfo", {}, {testData: "zixuanpeijianTypesInfo"});
-        this.spinner.hide(this.spinnerId);
-        if (response?.data) {
-            this.urlPrefix = response.data.prefix;
-            this.typesInfo = response.data.typesInfo;
-            this.options = response.data.options;
+        let step1Data: Step1Data | undefined;
+        if (this.data?.step1Data) {
+            step1Data = this.data.step1Data;
+        } else {
+            this.spinner.show(this.spinnerId);
+            const response = await this.dataService.post<Step1Data>("ngcad/getZixuanpeijianTypesInfo", {});
+            this.spinner.hide(this.spinnerId);
+            step1Data = response?.data;
+        }
+        if (step1Data) {
+            this.urlPrefix = step1Data.prefix;
+            this.typesInfo = step1Data.typesInfo;
+            this.options = step1Data.options;
             for (const item of this.result.模块) {
                 const {type1, type2, gongshishuru, xuanxiangshuru} = item;
                 const info = this.typesInfo[type1]?.[type2];
@@ -966,7 +968,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 duplicateScbl
                     .map((v) => {
                         const keys = v.shuchubianliang.join(", ");
-                        return `${v.type1} - ${v.type2}: ${keys}`;
+                        return `${this.getMokuaiTitle(v)}: ${keys}`;
                     })
                     .join("<br>");
             this.message.error(str);
@@ -1057,7 +1059,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     }
                 }
                 if (missingKeys.length > 0) {
-                    this.message.error(`${type1} - ${type2}缺少输出变量<br>${missingKeys.join(", ")}`);
+                    this.message.error(`${this.getMokuaiTitle(v.item)}缺少输出变量<br>${missingKeys.join(", ")}`);
                     return false;
                 }
                 Object.assign(materialResult, result1.succeedTrim);
@@ -1376,6 +1378,29 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     getMubanId(data: CadData) {
         return data.zhankai[0]?.kailiaomuban;
+    }
+
+    getMokuaiTitle(item: ZixuanpeijianMokuaiItem) {
+        const {type1, type2} = item;
+        return `${type1}【${type2}】`;
+    }
+
+    async setReplaceableMokuais(item: ZixuanpeijianMokuaiItem) {
+        const typesInfo = cloneDeep(this.typesInfo);
+        delete typesInfo[item.type1][item.type2];
+        const result = await openZixuanpeijianDialog(this.dialog, {
+            data: {
+                step: 1,
+                stepFixed: true,
+                checkEmpty: this.data?.checkEmpty,
+                data: {模块: item.可替换模块},
+                可替换模块: false,
+                step1Data: {prefix: this.urlPrefix, typesInfo, options: this.options}
+            }
+        });
+        if (result) {
+            item.可替换模块 = result.模块;
+        }
     }
 }
 

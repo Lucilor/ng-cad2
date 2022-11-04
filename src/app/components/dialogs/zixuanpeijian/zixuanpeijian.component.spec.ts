@@ -7,6 +7,7 @@ import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {timeout} from "@utils";
+import {NgScrollbarModule} from "ngx-scrollbar";
 import {ZixuanpeijianComponent} from "./zixuanpeijian.component";
 import {getTestData} from "./zixuanpeijian.types";
 
@@ -19,7 +20,15 @@ describe("ZixuanpeijianComponent", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ZixuanpeijianComponent],
-            imports: [HttpModule, MatButtonModule, MatMenuModule, MessageModule, DirectivesModule, SpinnerModule],
+            imports: [
+                DirectivesModule,
+                HttpModule,
+                MatButtonModule,
+                MatMenuModule,
+                MessageModule,
+                NgScrollbarModule,
+                SpinnerModule,
+            ],
             providers: [
                 {provide: MatDialogRef, useValue: {}},
                 {provide: MAT_DIALOG_DATA, useValue: data}

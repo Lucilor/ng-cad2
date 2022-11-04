@@ -67,7 +67,12 @@
                             <button mat-icon-button color="primary" (click)="removeMokuaiItem(i)">
                                 <mat-icon>remove_circle</mat-icon>
                             </button>
-                            <div class="name">{{ item.type1 }} - {{ item.type2 }}</div>
+                            <div class="name">{{ getMokuaiTitle(item) }}</div>
+                        </div>
+                        <div class="btn-group">
+                            <button mat-raised-button color="primary" *ngIf="data?.['可替换模块']" (click)="setReplaceableMokuais(item)">
+                                可替换模块
+                            </button>
                         </div>
                         <div class="desc" cdkDragHandle>{{ item.mokuaishuoming }}</div>
                         <div class="content inputs">
@@ -106,7 +111,7 @@
         <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
         <ng-scrollbar class="content">
             <div *ngFor="let item of result['模块']; let i = index">
-                <div>{{ item.type1 }}【{{ item.type2 }}】</div>
+                <div>{{ getMokuaiTitle(item) }}</div>
                 <div class="content cads">
                     <ng-container *ngFor="let cad of item.cads; let j = index">
                         <template *ngTemplateOutlet="cadItem; context: {$implicit: cad, i, j, type: '模块'}"></template>
