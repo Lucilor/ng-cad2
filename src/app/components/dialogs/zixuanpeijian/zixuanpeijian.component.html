@@ -221,6 +221,11 @@
             </div>
         </div>
         <div class="title" (click)="openCad(cad, false, false)">
+            <ng-container *ngIf="type === '零散'">
+                <button mat-icon-button color="primary" (click)="removeLingsanItem(i)" appClickStop>
+                    <mat-icon>remove_circle</mat-icon>
+                </button>
+            </ng-container>
             <span class="name text-ellipsis">后台修改{{ cad.data.name }}</span>
         </div>
         <div class="title" *ngIf="getMubanId(cad.data)" (click)="openCad(cad, true, false)">
@@ -273,7 +278,7 @@
         <div class="btn-group">
             <ng-container *ngIf="type !== '模块'">
                 <button mat-raised-button color="primary" (click)="openKlkwpzDialog(cad)">开料孔位配置</button>
-                <button mat-raised-button color="primary" (click)="openKlcsDialog(cad)">开料参数</button>
+                <button mat-raised-button color="primary" (click)="openKlcsDialog(cad)">切内空参数</button>
             </ng-container>
         </div>
     </div>

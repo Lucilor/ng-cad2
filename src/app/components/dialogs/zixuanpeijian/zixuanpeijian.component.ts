@@ -492,11 +492,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     async openKlcsDialog(item: ZixuanpeijianCadItem) {
-        const mubanId = item.data.zhankai[0]?.kailiaomuban;
-        if (!mubanId) {
-            this.message.error("请先选择开料模板");
-            return;
-        }
         const result = await openKlcsDialog(this.dialog, {
             data: {
                 source: item.info.开料参数 || {_id: "", 名字: item.data.name + "中空参数", 分类: "切中空", 参数: []},
