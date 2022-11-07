@@ -1,4 +1,0 @@
-{
-    "peer": true,
-    "reject": ["@types/node", "@types/quill"]
-}
