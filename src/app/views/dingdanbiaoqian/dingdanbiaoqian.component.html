@@ -99,6 +99,23 @@
         </mat-expansion-panel>
     </ng-container>
 </mat-accordion>
+<div class="质检标签" *ngFor="let form of zhijianForms">
+    <div class="title">{{ form.title }}</div>
+    <div class="item" *ngFor="let item of form.items" [ngStyle]="item.style">
+        <div class="label" [ngStyle]="item.labelStyle">{{ item.label }}</div>
+        <div class="value" [ngStyle]="item.valueStyle">{{ item.value }}</div>
+    </div>
+    <div class="barcode-container">
+        <svg
+            class="barcode value"
+            [attr.jsbarcode-value]="form.barCode"
+            [attr.jsbarcode-displayvalue]="false"
+            [attr.jsbarcode-margin]="0"
+            [attr.jsbarcode-width]="2"
+            [attr.jsbarcode-height]="40"
+        ></svg>
+    </div>
+</div>
 <div class="btn-group toolbar no-print">
     <button mat-raised-button color="primary" (click)="print()">打印</button>
     <ng-container *ngIf="!production">

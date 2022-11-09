@@ -69,7 +69,8 @@ export class DingdanbiaoqianComponent implements OnInit {
     };
     production = environment.production;
     materialResult: Formulas = {};
-    type: "流程单" | "标签贴纸" | null = null;
+    type: "流程单" | "标签贴纸" | "质检标签" | null = null;
+    zhijianForms: ZhijianForm[] = [];
     @ViewChildren("barcode") barcodeEls?: QueryList<HTMLDivElement>;
 
     private _configKey = "订单标签配置";
@@ -180,7 +181,8 @@ export class DingdanbiaoqianComponent implements OnInit {
                     cads,
                     positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
                     style: {},
-                    info: Array(3).fill(order.流程单数据) || []
+                    info: Array(3).fill(order.流程单数据) || [],
+                    质检标签: order.质检标签
                 };
             });
             document.title = `${this.orders[0].code}_${DateTime.now().toFormat("yyyyMMdd")}`;
@@ -333,6 +335,8 @@ export class DingdanbiaoqianComponent implements OnInit {
     splitOrders() {
         const orders = this.orders.slice();
         this.orders = [];
+        const type = this.type;
+        this.zhijianForms = [];
         orders.forEach((order) => {
             const cads = order.cads;
             order.cads = [];
@@ -341,9 +345,9 @@ export class DingdanbiaoqianComponent implements OnInit {
                 this.orders.push(o);
                 return o;
             };
-            if (this.type === "流程单") {
+            if (type === "流程单") {
                 pushOrder();
-            } else if (this.type === "标签贴纸") {
+            } else if (type === "标签贴纸") {
                 order.info = null;
                 delete order.开启锁向示意图;
                 delete order.配合框;
@@ -385,9 +389,10 @@ export class DingdanbiaoqianComponent implements OnInit {
                         }
                     }
                 }
+            } else if (type === "质检标签" && order.质检标签) {
+                this.zhijianForms.push(order.质检标签);
             }
         });
-        console.log(this.orders);
         this.orders.forEach((order) => this.setPage(order));
     }
 
@@ -456,6 +461,7 @@ export interface Order {
     positions: number[][];
     style: Properties;
     info: ObjectOf<string | number>[] | null;
+    质检标签?: ZhijianForm;
 }
 
 export interface SectionCell {
@@ -479,4 +485,19 @@ export type DdbqData = {
     流程单数据: ObjectOf<string>;
     开启锁向示意图: ObjectOf<any>;
     配合框: ObjectOf<any>[];
+    质检标签?: ZhijianForm;
 }[];
+
+export interface ZhijianForm {
+    title: string;
+    barCode: string;
+    items: ZhijianFormItem[];
+}
+
+export interface ZhijianFormItem {
+    label: string;
+    value: string;
+    style?: Properties;
+    labelStyle?: Properties;
+    valueStyle?: Properties;
+}
