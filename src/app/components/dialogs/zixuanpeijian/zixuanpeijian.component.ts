@@ -172,16 +172,22 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             this.urlPrefix = step1Data.prefix;
             this.typesInfo = step1Data.typesInfo;
             this.options = step1Data.options;
-            for (const item of this.result.模块) {
-                const {type1, type2, gongshishuru, xuanxiangshuru} = item;
-                const info = this.typesInfo[type1]?.[type2];
-                if (info) {
-                    Object.assign(item, info);
-                    for (const v of item.gongshishuru) {
-                        v[1] = gongshishuru.find((v2) => v2[0] === v[0])?.[1] || "";
-                    }
-                    for (const v of item.xuanxiangshuru) {
-                        v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || "";
+            for (const type1 in this.typesInfo) {
+                for (const type2 in this.typesInfo[type1]) {
+                    const info = this.typesInfo[type1][type2];
+                    for (const item of this.result.模块) {
+                        if (item.id === info.id) {
+                            item.type1 = type1;
+                            item.type2 = type2;
+                            Object.assign(item, info);
+                            const {gongshishuru, xuanxiangshuru}= item;
+                            for (const v of item.gongshishuru) {
+                                v[1] = gongshishuru.find((v2) => v2[0] === v[0])?.[1] || "";
+                            }
+                            for (const v of item.xuanxiangshuru) {
+                                v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || "";
+                            }
+                        }
                     }
                 }
             }
