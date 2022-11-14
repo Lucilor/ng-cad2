@@ -245,10 +245,15 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             this.message.alert(`请选择${limit[0]}~${limit[1]}个cad`);
             return;
         }
-        this.spinner.show(this.loaderIdSubmit);
-        const result = await this.dataService.getCad({ids: this.checkedItems.slice(), collection: this.data.collection});
-        this.spinner.hide(this.loaderIdSubmit);
-        this.dialogRef.close(result.cads);
+        const ids = this.checkedItems;
+        if (ids.length > 0) {
+            this.spinner.show(this.loaderIdSubmit);
+            const result = await this.dataService.getCad({ids, collection: this.data.collection});
+            this.spinner.hide(this.loaderIdSubmit);
+            this.dialogRef.close(result.cads);
+        } else {
+            this.dialogRef.close([]);
+        }
     }
 
     close() {
