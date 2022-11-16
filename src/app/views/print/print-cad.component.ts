@@ -400,10 +400,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             const data = cad.data.components.data;
             const ids = entities.toArray(true).map((e) => e.id);
             cad.unselectAll();
-            entities.forEach((e) => (e.selected = true));
             for (const v of data) {
                 const ids2 = v.entities.toArray(true).map((e) => e.id);
-                if (intersection(ids, ids2).length > 0) {
+                if (intersection(ids, ids2).length === ids.length) {
                     v.entities.forEach((e) => (e.selected = true));
                 }
             }
@@ -577,18 +576,13 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                     toArrange.push([i, v]);
                 }
                 configCadDataForPrint(cad, v, this.printParams, {isZxpj: true, lineLengthFontStyle: {size: 24}});
-            }
-
-            for (const v of cads) {
                 await cad.render(v.getAllEntities());
                 const rect = v.getBoundingRect();
-                const info = infos[v.id];
                 let zhankaiText = v.entities.mtext.find((e) => e.info.isZhankaiText);
                 if (!zhankaiText) {
                     zhankaiText = new CadMtext({info: {isZhankaiText: true}});
                     v.entities.add(zhankaiText);
                 }
-                // zhankaiText.calcBoundingRect = false;
                 zhankaiText.fontStyle.size = 34;
                 zhankaiText.text = this.getCalcZhankaiText(v, info);
                 zhankaiText.anchor.set(0, 0);

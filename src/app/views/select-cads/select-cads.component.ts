@@ -22,7 +22,7 @@ export class SelectCadsComponent implements OnInit {
                 this.message.alert("参数错误");
                 return;
             } else {
-                data = {selectMode: "multiple", collection: "cad"};
+                data = {selectMode: "single", collection: "cad", checkedItemsLimit: [1, NaN],fixedSearch:{分类: "特定企料"}};
             }
         }
         do {

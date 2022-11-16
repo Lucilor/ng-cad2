@@ -12,31 +12,18 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {GetCadParams} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {isBetween, ObjectOf, timeout} from "@utils";
+import {isBetween, isNumber, ObjectOf, timeout} from "@utils";
 import {difference} from "lodash";
 import {BehaviorSubject, lastValueFrom} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
-export interface CadListData {
-    selectMode: "single" | "multiple";
-    checkedItems?: string[];
-    checkedItemsLimit?: number | number[];
-    options?: CadData["options"];
-    collection: CadCollection;
-    qiliao?: boolean;
-    search?: ObjectOf<any>;
-    fixedSearch?: ObjectOf<any>;
-    pageSize?: number;
-}
-
-export const customTooltipOptions: MatTooltipDefaultOptions = {
+const customTooltipOptions: MatTooltipDefaultOptions = {
     showDelay: 500,
     hideDelay: 0,
     touchendHideDelay: 0,
     position: "above"
 };
-
 @Component({
     selector: "app-cad-list",
     templateUrl: "./cad-list.component.html",
@@ -75,8 +62,14 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         private message: MessageService
     ) {
         super();
+        if (!data) {
+            this.data = {selectMode: "single", collection: "cad"};
+        }
         if (typeof data?.pageSize === "number") {
             this.pageSize = data.pageSize;
+        }
+        if (!selectModes.includes(this.data.selectMode)) {
+            this.data.selectMode = "single";
         }
     }
 
@@ -94,7 +87,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
             if (this.data.selectMode === "single") {
                 if (this.pageData[i]) {
                     const id = this.pageData[i].data.id;
-                    if (!this.checkedIndexForce && this.checkedItems[0] === id) {
+                    if (!this.checkedIndexForce && this.checkedItems[0] === id && this.checkLimit(0).valid) {
                         this.checkedItems = [];
                         await timeout(0);
                         this.singleSelectNone?.nativeElement.click();
@@ -234,15 +227,50 @@ export class CadListComponent extends Utils() implements AfterViewInit {
         return ckeckedNum > 0 && ckeckedNum < this.pageData.length;
     }
 
+    checkLimit(count: number) {
+        const limit = this.data.checkedItemsLimit;
+        const result = {valid: false, message: ""};
+        if (isNumber(limit) && this.checkedItems.length !== limit) {
+            result.message = `请选择${limit}个cad`;
+            return result;
+        }
+        if (Array.isArray(limit)) {
+            let [min, max] = limit;
+            const minIsNumber = isNumber(min);
+            const maxIsNumber = isNumber(max);
+            if (minIsNumber && maxIsNumber) {
+                if (min > max) {
+                    [min, max] = [max, min];
+                }
+                if (!isBetween(count, min, max)) {
+                    if (min === max) {
+                        result.message = `请选择${min}个cad`;
+                    } else {
+                        result.message = `请选择${min}到${max}个cad`;
+                    }
+                    return result;
+                }
+            } else if (minIsNumber) {
+                if (count < min) {
+                    result.message = `请选择至少${min}个cad`;
+                    return result;
+                }
+            } else if (maxIsNumber) {
+                if (count > max) {
+                    result.message = `请选择至多${max}个cad`;
+                    return result;
+                }
+            }
+        }
+        result.valid = true;
+        return result;
+    }
+
     async submit() {
         this.syncCheckedItems();
-        const limit = this.data.checkedItemsLimit;
-        if (typeof limit === "number" && this.checkedItems.length !== limit) {
-            this.message.alert(`请选择${limit}个cad`);
-            return;
-        }
-        if (Array.isArray(limit) && !isBetween(this.checkedItems.length, limit[0], limit[1])) {
-            this.message.alert(`请选择${limit[0]}~${limit[1]}个cad`);
+        const checkLimitResult = this.checkLimit(this.checkedItems.length);
+        if (!checkLimitResult.valid) {
+            this.message.error(checkLimitResult.message);
             return;
         }
         const ids = this.checkedItems;
@@ -268,6 +296,22 @@ export class CadListComponent extends Utils() implements AfterViewInit {
     asCadDataArray(value: CadData[]) {
         return value;
     }
+}
+
+export const selectModes = ["single", "multiple"] as const;
+
+export type SelectMode = typeof selectModes[number];
+
+export interface CadListData {
+    selectMode: SelectMode;
+    checkedItems?: string[];
+    checkedItemsLimit?: number | number[];
+    options?: CadData["options"];
+    collection: CadCollection;
+    qiliao?: boolean;
+    search?: ObjectOf<any>;
+    fixedSearch?: ObjectOf<any>;
+    pageSize?: number;
 }
 
 export const openCadListDialog = getOpenDialogFunc<CadListComponent, CadListData, CadData[]>(CadListComponent, {

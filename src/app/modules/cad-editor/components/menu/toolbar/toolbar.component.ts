@@ -228,7 +228,6 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         }, true);
         this.status.generateLineTexts();
         await cad.render();
-        cad.render();
     }
 
     printCad() {
