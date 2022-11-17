@@ -849,7 +849,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     if (typeof value === "number") {
                         group[1] = toFixed(value, this.fractionDigits);
                     } else {
-                        group[1] = value;
+                        group[1] = group[1] || value;
                     }
                 }
             }
