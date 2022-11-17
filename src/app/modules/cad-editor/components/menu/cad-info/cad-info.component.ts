@@ -51,9 +51,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     infoGroup1: InputInfo[] = [
         {label: "id", model: this._getcadDataModel("id"), type: "string", readonly: true, copyable: true},
         {label: "名字", model: this._getcadDataModel("name"), type: "string", onChange: this.setCadName.bind(this)},
-        {label: "名字2", model: this._getcadDataModel("name2"), type: "string", onChange: this.setCadName.bind(this)},
         {label: "唯一码", model: {data: () => this.data.info, key: "唯一码"}, type: "string"},
         {label: "显示名字", model: this._getcadDataModel("xianshimingzi"), type: "string"},
+        {label: "开孔对应名字", model: this._getcadDataModel("开孔对应名字"), type: "string"},
+        {label: "切内空对应名字", model: this._getcadDataModel("切内空对应名字"), type: "string"},
         {label: "分类", model: this._getcadDataModel("type"), type: "string"},
         {label: "分类2", model: this._getcadDataModel("type2"), type: "string"},
         {label: "选项", model: this._getcadDataModel("options"), type: "object", isCadOptions: true},
