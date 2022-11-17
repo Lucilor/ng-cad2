@@ -176,16 +176,14 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 for (const type2 in this.typesInfo[type1]) {
                     const info = this.typesInfo[type1][type2];
                     for (const item of this.result.模块) {
-                        if (item.id === info.id) {
-                            item.type1 = type1;
-                            item.type2 = type2;
+                        if (item.type2 === type2) {
+                            const {gongshishuru, xuanxiangshuru} = item;
                             Object.assign(item, info);
-                            const {gongshishuru, xuanxiangshuru}= item;
                             for (const v of item.gongshishuru) {
-                                v[1] = gongshishuru.find((v2) => v2[0] === v[0])?.[1] || "";
+                                v[1] = gongshishuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
                             }
                             for (const v of item.xuanxiangshuru) {
-                                v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || "";
+                                v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
                             }
                         }
                     }
@@ -944,7 +942,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 if (i === j) {
                     continue;
                 }
-                if (item1.id === item2.id) {
+                if (item1.type2 === item2.type2) {
                     if (item1.unique) {
                         this.message.error(`${item1.type1}-${item1.type2}只能单选`);
                         return false;
@@ -954,10 +952,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 }
                 const duplicateKeys = intersection(item1.shuchubianliang, item2.shuchubianliang);
                 if (duplicateKeys.length > 0) {
-                    if (!duplicateScbl.find((v) => v.id === item1.id)) {
+                    if (!duplicateScbl.find((v) => v.type2 === item1.type2)) {
                         duplicateScbl.push(item1);
                     }
-                    if (!duplicateScbl.find((v) => v.id === item2.id)) {
+                    if (!duplicateScbl.find((v) => v.type2 === item2.type2)) {
                         duplicateScbl.push(item2);
                     }
                 }
@@ -1363,7 +1361,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     async openMokuaiUrl() {
-        const ids = this.result.模块.map((v) => v.id);
+        const ids = this.result.模块.map((v) => v.type2);
         if (ids.some((v) => !v)) {
             this.message.error("当前配件模块数据是旧数据，请刷新数据");
             return;
