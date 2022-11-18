@@ -491,6 +491,7 @@ export const configCadDataForPrint = async (
                 e.hideLength = true;
                 const {text, mtext, 显示线长} = lineLengthMap[e.id];
                 const mtext2 = mtext.clone(true);
+                delete mtext2.info.isLengthText;
                 if (使用显示线长 && 显示线长) {
                     mtext2.text = 显示线长;
                 } else {
@@ -503,6 +504,7 @@ export const configCadDataForPrint = async (
             }
         });
         showIntersections(data, params.projectConfig || {});
+        await cad.render(data.getAllEntities());
     }
 };
 

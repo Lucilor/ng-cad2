@@ -16,7 +16,7 @@
   "repository": "https://github.com/Lucilor/ng-cad2.git",
   "author": "Lucilor <lucilor@me.com>",
   "license": "MIT",
-  "packageManager": "yarn@3.2.4",
+  "packageManager": "yarn@3.3.0",
   "dependencies": {
     "@angular/animations": "^14.2.10",
     "@angular/cdk": "^14.2.7",

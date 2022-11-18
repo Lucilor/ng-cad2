@@ -37,11 +37,11 @@ export const getCADBeishu = (产品分类: string, 栋数: string, CAD分类: st
     } else if (CAD分类 === "算料" && !CAD分类2.includes("多扇程序不乘倍数")) {
         beishu = 产品倍数;
     }
-    if (isNaN(beishu)) {
+    if (isNaN(beishu) || beishu <= 0) {
         beishu = 1;
     }
     let dongshu = Number(栋数);
-    if (isNaN(dongshu)) {
+    if (isNaN(dongshu) || dongshu <= 0) {
         dongshu = 1;
     }
     return beishu * dongshu;

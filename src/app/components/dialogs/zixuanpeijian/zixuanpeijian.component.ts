@@ -837,15 +837,15 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         const vars = this.data?.materialResult || {};
         const result = this.calc.calcFormulas(formulas, vars, false);
         if (result) {
-            const {succeed} = result;
+            const {succeedTrim} = result;
             for (const group of typesItem.gongshishuru) {
-                if (succeed[group[0]] > 0 && !(group[0] in gongshishuru)) {
-                    group[1] = toFixed(succeed[group[0]], this.fractionDigits);
+                if (succeedTrim[group[0]] > 0 && !(group[0] in gongshishuru)) {
+                    group[1] = toFixed(succeedTrim[group[0]], this.fractionDigits);
                 }
             }
             for (const group of typesItem.xuanxiangshuru) {
-                if (group[0] in succeed && !(group[0] in xuanxiangshuru)) {
-                    const value = succeed[group[0]];
+                if (group[0] in succeedTrim && !(group[0] in xuanxiangshuru)) {
+                    const value = succeedTrim[group[0]];
                     if (typeof value === "number") {
                         group[1] = toFixed(value, this.fractionDigits);
                     } else {
@@ -853,11 +853,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     }
                 }
             }
-            if (succeed.总宽 > 0) {
-                item.totalWidth = toFixed(succeed.总宽, this.fractionDigits);
+            if (succeedTrim.总宽 > 0) {
+                item.totalWidth = toFixed(succeedTrim.总宽, this.fractionDigits);
             }
-            if (succeed.总高 > 0) {
-                item.totalHeight = toFixed(succeed.总高, this.fractionDigits);
+            if (succeedTrim.总高 > 0) {
+                item.totalHeight = toFixed(succeedTrim.总高, this.fractionDigits);
             }
         }
         this._updateInputInfos();
@@ -937,6 +937,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         const materialResult = this.data?.materialResult || {};
         const shuchubianliang: Formulas = {};
         const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
+        const duplicateXxsr: ObjectOf<Set<string>> = {};
         for (const [i, item1] of this.result.模块.entries()) {
             for (const [j, item2] of this.result.模块.entries()) {
                 if (i === j) {
@@ -959,6 +960,24 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         duplicateScbl.push(item2);
                     }
                 }
+            }
+            for (const group of item1.xuanxiangshuru) {
+                if (group[0] in materialResult && materialResult[group[0]] !== "无") {
+                    const title = this.getMokuaiTitle(item1);
+                    if (!duplicateXxsr[title]) {
+                        duplicateXxsr[title] = new Set();
+                    }
+                    duplicateXxsr[title].add(group[0]);
+                }
+            }
+            if (Object.keys(duplicateXxsr).length > 0) {
+                const str =
+                    "以下选项输入与订单数据冲突<br>" +
+                    Object.entries(duplicateXxsr)
+                        .map(([title, keys]) => `${title}: ${Array.from(keys).join(", ")}`)
+                        .join("<br>");
+                this.message.error(str);
+                return false;
             }
         }
         if (duplicateScbl.length > 0) {
@@ -1061,7 +1080,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     this.message.error(`${this.getMokuaiTitle(v.item)}缺少输出变量<br>${missingKeys.join(", ")}`);
                     return false;
                 }
-                Object.assign(materialResult, result1.succeedTrim);
+                // Object.assign(materialResult, result1.succeedTrim);
                 v.succeed = result1.succeed;
                 v.error = result1.error;
                 if (!isEmpty(result1.error)) {
@@ -1142,7 +1161,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     formulas3.展开高 = zhankai.zhankaigao;
                     formulas3.数量 = `(${zhankai.shuliang})*(${zhankai.shuliangbeishu})`;
                     const result3 = this.calc.calcFormulas(formulas3, vars3, {data});
-                    // console.log({formulas3, vars3, result3});
                     if (!result3) {
                         return false;
                     }
