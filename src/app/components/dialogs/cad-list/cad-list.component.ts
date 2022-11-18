@@ -18,7 +18,7 @@ import {BehaviorSubject, lastValueFrom} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
-const customTooltipOptions: MatTooltipDefaultOptions = {
+export const customTooltipOptions: MatTooltipDefaultOptions = {
     showDelay: 500,
     hideDelay: 0,
     touchendHideDelay: 0,
