@@ -11,7 +11,9 @@
                 "shuchubianliang": ["铰面厚"],
                 "xinghaozhuanyong": [],
                 "mokuaishuoming": "",
-                "unique": true
+                "unique": true,
+                "shuruzongkuan": true,
+                "shuruzonggao": true
             }
         }
     },

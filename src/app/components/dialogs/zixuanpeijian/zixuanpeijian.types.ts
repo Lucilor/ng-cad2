@@ -20,6 +20,8 @@ export interface ZixuanpeijianTypesInfoItem {
     xinghaozhuanyong: string[];
     mokuaishuoming: string;
     unique: boolean;
+    shuruzongkuan: boolean;
+    shuruzonggao: boolean;
 }
 export type ZixuanpeijianTypesInfo = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoItem>>;
 

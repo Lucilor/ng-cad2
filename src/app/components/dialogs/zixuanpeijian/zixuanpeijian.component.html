@@ -76,8 +76,8 @@
                         </div>
                         <div class="desc" cdkDragHandle>{{ item.mokuaishuoming }}</div>
                         <div class="content inputs">
-                            <app-input [info]="mokuaiInputInfos[i]['总宽']"></app-input>
-                            <app-input [info]="mokuaiInputInfos[i]['总高']"></app-input>
+                            <app-input *ngIf="item.shuruzongkuan" [info]="mokuaiInputInfos[i]['总宽']"></app-input>
+                            <app-input *ngIf="item.shuruzonggao" [info]="mokuaiInputInfos[i]['总高']"></app-input>
                         </div>
                         <div class="content inputs gongshishuru">
                             <app-input

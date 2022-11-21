@@ -26,6 +26,8 @@
             "id": 36,
             "mokuaishuoming": "",
             "unique": true,
+            "shuruzongkuan": true,
+            "shuruzonggao": true,
             "cads": [
                 {
                     "info": {

@@ -556,11 +556,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (value === 1) {
             const errors = new Set<string>();
             if (this.data?.checkEmpty) {
-                for (const {totalWidth, totalHeight, gongshishuru, xuanxiangshuru} of this.result.模块) {
-                    if (!totalWidth) {
+                for (const {totalWidth, totalHeight, gongshishuru, xuanxiangshuru, shuruzongkuan, shuruzonggao} of this.result.模块) {
+                    if (!totalWidth && shuruzongkuan) {
                         errors.add("总宽不能为空");
                     }
-                    if (!totalHeight) {
+                    if (!totalHeight && shuruzonggao) {
                         errors.add("总高不能为空");
                     }
                     if (!gongshishuru.every((v) => v.every(Boolean))) {
@@ -762,8 +762,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             });
 
         this.mokuaiInputInfos = this.result.模块.map<MokuaiInputInfos>((item, i) => ({
-            总宽: {type: "string", label: "总宽", model: {key: "totalWidth", data: item}, showEmpty: true, options},
-            总高: {type: "string", label: "总高", model: {key: "totalHeight", data: item}, showEmpty: true, options},
+            总宽: {type: "string", label: "总宽", model: {key: "totalWidth", data: item}, showEmpty: item.shuruzongkuan, options},
+            总高: {type: "string", label: "总高", model: {key: "totalHeight", data: item}, showEmpty: item.shuruzonggao, options},
             公式输入: item.gongshishuru.map((group) => ({
                 type: "string",
                 label: group[0],
@@ -1000,8 +1000,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         }
         const toCalc1 = this.result.模块.map((item) => {
             const formulas = {...item.suanliaogongshi};
-            formulas.总宽 = item.totalWidth;
-            formulas.总高 = item.totalHeight;
+            if (item.shuruzongkuan) {
+                formulas.总宽 = item.totalWidth;
+            }
+            if (item.shuruzonggao) {
+                formulas.总高 = item.totalHeight;
+            }
             for (const group of item.gongshishuru) {
                 if (group[0] && group[1]) {
                     formulas[group[0]] = group[1];
