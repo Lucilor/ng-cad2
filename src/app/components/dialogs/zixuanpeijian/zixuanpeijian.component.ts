@@ -27,6 +27,7 @@ import {getCADBeishu} from "@src/app/utils/beishu";
 import {Formulas} from "@src/app/utils/calc";
 import {toFixed} from "@src/app/utils/func";
 import {matchOrderData} from "@src/app/utils/mongo";
+import {nameEquals} from "@src/app/utils/zhankai";
 import {ObjectOf, timeout} from "@utils";
 import {cloneDeep, debounce, intersection, isEmpty, isEqual, uniq, uniqueId} from "lodash";
 import {BehaviorSubject} from "rxjs";
@@ -337,7 +338,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 cads2.forEach(async (data, j) => {
                     let info: ZixuanpeijianInfo | undefined = infos[data.id];
                     if (!info) {
-                        info = {houtaiId: data.id, zhankai: []};
+                        info = {houtaiId: data.id, zhankai: [], calcZhankai: []};
                     }
                     const cadItem: ZixuanpeijianCadItem = {data, info};
                     item.cads.push(cadItem);
@@ -871,7 +872,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     addLingsanItem(i: number) {
         const data = this.lingsanCads[i].data.clone(true);
         data.name += "M";
-        this.result.零散.push({data, info: {houtaiId: this.lingsanCads[i].data.id, zhankai: []}});
+        this.result.零散.push({data, info: {houtaiId: this.lingsanCads[i].data.id, zhankai: [], calcZhankai: []}});
         this._updateInputInfos();
     }
 
@@ -1177,19 +1178,67 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 if (info.zhankai.length < 1) {
                     info.zhankai.push(this._getDefaultZhankai());
                 }
-                const zhankais3 = info.zhankai;
-                info.zhankai = [];
-                for (const zhankai of zhankais3) {
-                    const zhankai2 = info.zhankai.find((v) => v.width === zhankai.width && v.height === zhankai.height);
-                    if (zhankai2) {
-                        const result = this.calc.calcExpression(`(${zhankai.num})+(${zhankai2.num})`, vars3);
-                        if (result !== null) {
-                            zhankai2.num = String(result);
-                        }
-                    } else {
-                        info.zhankai.push(zhankai);
+                info.calcZhankai = info.zhankai.flatMap((v) => {
+                    let cadZhankai: CadZhankai | undefined;
+                    if (v.cadZhankaiIndex && v.cadZhankaiIndex > 0) {
+                        cadZhankai = data.zhankai[v.cadZhankaiIndex];
                     }
-                }
+                    if (!cadZhankai && data.zhankai.length > 0) {
+                        cadZhankai = new CadZhankai(data.zhankai[0].export());
+                        cadZhankai.zhankaikuan = v.width;
+                        cadZhankai.zhankaigao = v.height;
+                        cadZhankai.shuliang = v.num;
+                    }
+                    if (!cadZhankai) {
+                        return {};
+                    }
+                    const calc: ObjectOf<any> = {
+                        name: cadZhankai.name,
+                        kailiao: cadZhankai.kailiao,
+                        kailiaomuban: cadZhankai.kailiaomuban,
+                        neikaimuban: cadZhankai.neikaimuban,
+                        chai: cadZhankai.chai,
+                        flip: cadZhankai.flip,
+                        flipChai: cadZhankai.flipChai,
+                        neibugongshi: cadZhankai.neibugongshi,
+                        calcW: Number(v.width),
+                        calcH: Number(v.height),
+                        num: Number(v.num),
+                        包边正面按分类拼接: cadZhankai.包边正面按分类拼接,
+                        属于正面部分: false,
+                        属于框型部分: false,
+                        默认展开宽: !!nameEquals(cadZhankai.zhankaikuan, [
+                            "ceil(总长)+0",
+                            "ceil(总长)+0+(总使用差值)",
+                            "总长+(总使用差值)",
+                            "总长+0+(总使用差值)"
+                        ])
+                    };
+                    ["门扇上切", "门扇下切", "门扇上面上切", "门扇下面下切"].forEach((qiekey) => {
+                        if (cadZhankai?.zhankaigao.includes(qiekey) && materialResult[qiekey] > 0) {
+                            if (qiekey.includes("上切")) {
+                                calc["上切"] = materialResult[qiekey];
+                            } else {
+                                calc["下切"] = materialResult[qiekey];
+                            }
+                        }
+                    });
+                    if (cadZhankai.chai) {
+                        calc.num = 1;
+                        const calc2 = [];
+                        calc2.push(calc);
+                        for (let i = 1; i < calc.num; i++) {
+                            const calc1 = JSON.parse(JSON.stringify(calc));
+                            if (!calc1.flip) {
+                                calc1.flip = [];
+                            }
+                            calc1.name = `${cadZhankai.name}${i}`;
+                            calc2.push(calc1);
+                        }
+                        return calc2;
+                    }
+                    return calc;
+                });
             }
             return true;
         };

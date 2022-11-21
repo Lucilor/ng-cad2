@@ -4,14 +4,14 @@ import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, setGlobal, timer} from "@app/app.common";
-import {CadData, CadLine, CadMtext, CadViewer, CadZhankai} from "@cad-viewer";
+import {CadData, CadLine, CadMtext, CadViewer} from "@cad-viewer";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {
-    ZixuanpeijianOutput,
-    ZixuanpeijianInfo,
-    ZixuanpeijianCadItem,
+    exportZixuanpeijian,
     importZixuanpeijian,
-    exportZixuanpeijian
+    ZixuanpeijianCadItem,
+    ZixuanpeijianInfo,
+    ZixuanpeijianOutput
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -21,7 +21,6 @@ import {AppStatusService} from "@services/app-status.service";
 import {PrintCadsParams, printCads, configCadDataForPrint} from "@src/app/cad.print";
 import {getCadCalcZhankaiText} from "@src/app/cad.utils";
 import {toFixed} from "@src/app/utils/calc";
-import {nameEquals} from "@src/app/utils/zhankai";
 import {downloadByUrl, ObjectOf, timeout} from "@utils";
 import {
     slideInDownOnEnterAnimation,
@@ -769,68 +768,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
 
     getCalcZhankaiText(cad: CadData, info: ZixuanpeijianInfo) {
         const materialResult = this.materialResult || {};
-        const calcZhankai = info.zhankai.flatMap((v) => {
-            let cadZhankai: CadZhankai | undefined;
-            if (v.cadZhankaiIndex && v.cadZhankaiIndex > 0) {
-                cadZhankai = cad.zhankai[v.cadZhankaiIndex];
-            }
-            if (!cadZhankai && cad.zhankai.length > 0) {
-                cadZhankai = new CadZhankai(cad.zhankai[0].export());
-                cadZhankai.zhankaikuan = v.width;
-                cadZhankai.zhankaigao = v.height;
-                cadZhankai.shuliang = v.num;
-            }
-            if (!cadZhankai) {
-                return {};
-            }
-            const calc: ObjectOf<any> = {
-                name: cadZhankai.name,
-                kailiao: cadZhankai.kailiao,
-                kailiaomuban: cadZhankai.kailiaomuban,
-                neikaimuban: cadZhankai.neikaimuban,
-                chai: cadZhankai.chai,
-                flip: cadZhankai.flip,
-                flipChai: cadZhankai.flipChai,
-                neibugongshi: cadZhankai.neibugongshi,
-                calcW: Number(v.width),
-                calcH: Number(v.height),
-                num: Number(v.num),
-                包边正面按分类拼接: cadZhankai.包边正面按分类拼接,
-                属于正面部分: false,
-                属于框型部分: false,
-                默认展开宽: !!nameEquals(cadZhankai.zhankaikuan, [
-                    "ceil(总长)+0",
-                    "ceil(总长)+0+(总使用差值)",
-                    "总长+(总使用差值)",
-                    "总长+0+(总使用差值)"
-                ])
-            };
-            ["门扇上切", "门扇下切", "门扇上面上切", "门扇下面下切"].forEach((qiekey) => {
-                if (cadZhankai?.zhankaigao.includes(qiekey) && materialResult[qiekey] > 0) {
-                    if (qiekey.includes("上切")) {
-                        calc["上切"] = materialResult[qiekey];
-                    } else {
-                        calc["下切"] = materialResult[qiekey];
-                    }
-                }
-            });
-            if (cadZhankai.chai) {
-                calc.num = 1;
-                const calc2 = [];
-                calc2.push(calc);
-                for (let i = 1; i < calc.num; i++) {
-                    const calc1 = JSON.parse(JSON.stringify(calc));
-                    if (!calc1.flip) {
-                        calc1.flip = [];
-                    }
-                    calc1.name = `${cadZhankai.name}${i}`;
-                    calc2.push(calc1);
-                }
-                return calc2;
-            }
-            return calc;
-        });
-        info.calcZhankai = calcZhankai;
+        const calcZhankai = info.calcZhankai;
         const 项目配置 = this.status.getProjectConfig();
         const 项目名 = this.status.project;
         const text = getCadCalcZhankaiText(cad, calcZhankai, materialResult, info.bancai || {}, 项目配置, 项目名);
