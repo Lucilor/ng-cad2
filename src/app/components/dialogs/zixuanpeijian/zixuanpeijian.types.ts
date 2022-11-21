@@ -49,7 +49,7 @@ export interface ZixuanpeijianInput {
     data?: ZixuanpeijianData;
     checkEmpty?: boolean;
     cadConfig?: Partial<CadViewerConfig>;
-    materialResult?: Formulas;
+    order?: {code: string; type: string; materialResult?: Formulas};
     dropDownKeys?: string[];
     stepFixed?: boolean;
     可替换模块?: boolean;
@@ -140,7 +140,7 @@ export const getTestData = () => {
             })),
             零散: zxpjTestData.模块.flatMap((item) => item.cads.map((cadItem) => ({...cadItem, data: new CadData()})))
         },
-        materialResult: zxpjTestData.输出变量,
+        order: {code: "1", type: "order", materialResult: zxpjTestData.输出变量},
         dropDownKeys: ["总宽", "总高"],
         可替换模块: true,
         step1Data: zixuanpeijianTypesInfo

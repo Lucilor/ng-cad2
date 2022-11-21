@@ -120,6 +120,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         }
     }
 
+    get materialResult() {
+        return this.data?.order?.materialResult;
+    }
+
     constructor(
         public dialogRef: MatDialogRef<ZixuanpeijianComponent, ZixuanpeijianOutput>,
         @Inject(MAT_DIALOG_DATA) public data: ZixuanpeijianInput | null,
@@ -165,7 +169,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             step1Data = this.data.step1Data;
         } else {
             this.spinner.show(this.spinnerId);
-            const response = await this.dataService.post<Step1Data>("ngcad/getZixuanpeijianTypesInfo", {});
+            const {code, type} = this.data?.order || {};
+            const response = await this.dataService.post<Step1Data>("ngcad/getZixuanpeijianTypesInfo", {code, type});
             this.spinner.hide(this.spinnerId);
             step1Data = response?.data;
         }
@@ -173,9 +178,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             this.urlPrefix = step1Data.prefix;
             this.typesInfo = step1Data.typesInfo;
             this.options = step1Data.options;
-            for (const type1 in this.typesInfo) {
-                for (const type2 in this.typesInfo[type1]) {
-                    const info = this.typesInfo[type1][type2];
+            for (const type1 in step1Data.typesInfo) {
+                for (const type2 in step1Data.typesInfo[type1]) {
+                    const info = step1Data.typesInfo[type1][type2];
                     for (const item of this.result.模块) {
                         if (item.type2 === type2) {
                             const {gongshishuru, xuanxiangshuru} = item;
@@ -226,7 +231,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         delete data.options.配件模块;
                         allCads[type1][type2].push(data);
                     }
-                    allCads[type1][type2] = matchOrderData(allCads[type1][type2], this.data?.materialResult);
+                    allCads[type1][type2] = matchOrderData(allCads[type1][type2], this.materialResult);
                 }
             }
             const cadViewers = this.cadViewers;
@@ -458,7 +463,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (zhankai.length < 1 || !zhankai[0].originalWidth || zhankai[0].custom) {
             return;
         }
-        const vars = {...this.data?.materialResult, ...this._getCadLengthVars(data)};
+        const vars = {...this.materialResult, ...this._getCadLengthVars(data)};
         const formulas: ObjectOf<string> = {展开宽: zhankai[0].originalWidth};
         const calcResult = this.calc.calcFormulas(formulas, vars);
         const {展开宽} = calcResult?.succeed || {};
@@ -638,7 +643,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     private _updateInputInfos() {
         this.dropDownOptions.length = 0;
-        const vars = this.data?.materialResult || {};
+        const vars = this.materialResult || {};
 
         // const bancaiOptions: InputInfoString["options"] = this.bancaiList.map((v) => v.mingzi);
         const shuchubianliangKeys = new Set<string>();
@@ -835,7 +840,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         }
         this.result.模块.push(item);
         const formulas = typesItem.suanliaogongshi;
-        const vars = this.data?.materialResult || {};
+        const vars = this.materialResult || {};
         const result = this.calc.calcFormulas(formulas, vars, false);
         if (result) {
             const {succeedTrim} = result;
@@ -935,7 +940,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     private _calc(): boolean {
-        const materialResult = this.data?.materialResult || {};
+        const materialResult = this.materialResult || {};
         const shuchubianliang: Formulas = {};
         const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
         const duplicateXxsr: ObjectOf<Set<string>> = {};
@@ -1295,7 +1300,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     showItem(item: ZixuanpeijianTypesInfoItem) {
-        const xinghaoId = String(this.data?.materialResult?.型号id || "");
+        const xinghaoId = String(this.materialResult?.型号id || "");
         return !xinghaoId || !(item.xinghaozhuanyong?.length > 0) || item.xinghaozhuanyong.includes(xinghaoId);
     }
 

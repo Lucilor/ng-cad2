@@ -486,7 +486,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 data: this.zixuanpeijian,
                 checkEmpty: this.checkEmpty,
                 cadConfig: {fontStyle: {family: this.printParams.config.fontStyle?.family}},
-                materialResult: this.materialResult,
+                order: {code, type: this.printParams.type, materialResult: this.materialResult},
                 dropDownKeys: this.printParams.dropDownKeys
             }
         });
