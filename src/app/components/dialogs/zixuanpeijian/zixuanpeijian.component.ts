@@ -764,7 +764,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         this.mokuaiInputInfos = this.result.模块.map<MokuaiInputInfos>((item, i) => ({
             总宽: {type: "string", label: "总宽", model: {key: "totalWidth", data: item}, showEmpty: item.shuruzongkuan, options},
             总高: {type: "string", label: "总高", model: {key: "totalHeight", data: item}, showEmpty: item.shuruzonggao, options},
-            公式输入: item.gongshishuru.map((group) => ({
+            公式输入: (item.gongshishuru || []).map((group) => ({
                 type: "string",
                 label: group[0],
                 model: {key: "1", data: group},
@@ -787,7 +787,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     }
                 }
             })),
-            选项输入: item.xuanxiangshuru.map((group) => ({
+            选项输入: (item.xuanxiangshuru || []).map((group) => ({
                 type: "select",
                 label: group[0],
                 model: {key: "1", data: group},
@@ -809,6 +809,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         }
                     }
                 }
+            })),
+            输出文本: (item.shuchuwenben || []).map((group) => ({
+                type: "string",
+                label: group[0],
+                value: /#.*#/.test(group[1]) ? String(this.calc.calcExpression(group[1], this.materialResult)) : group[1],
+                readonly: true
             })),
             cads: getCadItemInputInfos(item.cads, "模块")
         }));

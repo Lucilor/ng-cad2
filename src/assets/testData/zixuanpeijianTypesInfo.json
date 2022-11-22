@@ -9,6 +9,7 @@
                 "xuanxiangshuru": [["d", "1"]],
                 "suanliaogongshi": {"总宽": "小后板宽", "总高": "门扇高", "铰面厚": 78},
                 "shuchubianliang": ["铰面厚"],
+                "shuchuwenben": [["a", "b"]],
                 "xinghaozhuanyong": [],
                 "mokuaishuoming": "",
                 "unique": true,

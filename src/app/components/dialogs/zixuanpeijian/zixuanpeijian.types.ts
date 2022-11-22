@@ -15,6 +15,7 @@ export interface ZixuanpeijianTypesInfoItem {
     xiaoguotu: string;
     gongshishuru: string[][];
     xuanxiangshuru: string[][];
+    shuchuwenben: string[][];
     suanliaogongshi: Formulas;
     shuchubianliang: string[];
     xinghaozhuanyong: string[];
@@ -107,6 +108,7 @@ export interface MokuaiInputInfos {
     总高: InputInfo;
     公式输入: InputInfo[];
     选项输入: InputInfo[];
+    输出文本: InputInfo[];
     cads: CadItemInputInfo[];
 }
 

@@ -574,8 +574,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                 if (!info.translate) {
                     toArrange.push([i, v]);
                 }
-                configCadDataForPrint(cad, v, this.printParams, {isZxpj: true, lineLengthFontStyle: {size: 24}});
-                await cad.render(v.getAllEntities());
+                await configCadDataForPrint(cad, v, this.printParams, {isZxpj: true, lineLengthFontStyle: {size: 24}});
                 const rect = v.getBoundingRect();
                 let zhankaiText = v.entities.mtext.find((e) => e.info.isZhankaiText);
                 if (!zhankaiText) {

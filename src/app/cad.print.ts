@@ -505,6 +505,30 @@ export const configCadDataForPrint = async (
         });
         showIntersections(data, params.projectConfig || {});
         await cad.render(data.getAllEntities());
+
+        const 宽度标注 = data.entities.dimension.find((e) => e instanceof CadDimensionLinear && e.info.宽度标注);
+        if (data.showKuandubiaozhu) {
+            let 宽度标注2: CadDimensionLinear;
+            if (宽度标注 instanceof CadDimensionLinear) {
+                宽度标注2 = 宽度标注;
+            } else {
+                宽度标注2 = new CadDimensionLinear();
+                data.entities.add(宽度标注2);
+                宽度标注2.info.宽度标注 = true;
+            }
+            const rect2 = data.entities.filter((e) => e instanceof CadLineLike).getBoundingRect();
+            data.entities.add(new CadCircle({center: [rect2.left, rect2.top], radius: 10}));
+            const space = 20;
+            宽度标注2.defPoints = [
+                new Point(rect2.left, rect2.top + space),
+                new Point(rect2.left, rect2.top),
+                new Point(rect2.right, rect2.top)
+            ];
+            宽度标注2.mingzi = "<>";
+        } else if (宽度标注) {
+            cad.remove(宽度标注);
+        }
+        await cad.render(data.getAllEntities());
     }
 };
 
