@@ -115,7 +115,7 @@ export class AppStatusService {
                 this.config.noUser = true;
             } else {
                 const response = await this.dataService.get<boolean>(
-                    "user/user/isAdmin",
+                    "ngcad/isAdmin",
                     {timeStamp: new Date().getTime()},
                     {silent: true}
                 );

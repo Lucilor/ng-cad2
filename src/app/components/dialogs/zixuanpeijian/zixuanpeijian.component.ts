@@ -1,5 +1,5 @@
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
-import {Component, OnInit, OnDestroy, ViewChild, Inject, ElementRef} from "@angular/core";
+import {Component, OnInit, OnDestroy, ViewChild, Inject, ElementRef, ViewChildren, QueryList} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
@@ -69,6 +69,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     result: ZixuanpeijianOutput = importZixuanpeijian();
     cadViewers: {模块: ObjectOf<ObjectOf<CadViewer[]>>; 零散: CadViewer[]} = {模块: {}, 零散: []};
     @ViewChild(MatMenuTrigger) contextMenu!: MatMenuTrigger;
+    @ViewChild("typesButtonContainer", {read: ElementRef}) typesButtonContainer?: ElementRef<HTMLDivElement>;
+    @ViewChildren("typesButton", {read: ElementRef}) typesButtons?: QueryList<ElementRef<HTMLButtonElement>>;
     contextMenuData = {i: -1, j: -1};
     fractionDigits = 1;
     _step1Fetched = false;
@@ -535,6 +537,17 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
             if (!this.type1) {
                 this.type1 = Object.keys(this.typesInfo)[0] || "";
+            }
+            await timeout(100);
+            if (this.typesButtonContainer && this.typesButtons) {
+                let maxWidth = 120;
+                this.typesButtons.forEach((v) => {
+                    maxWidth = Math.max(maxWidth, v.nativeElement.getBoundingClientRect().width);
+                });
+                this.typesButtonContainer.nativeElement.style.flex = `0 0 ${maxWidth}px`;
+                this.typesButtons?.forEach((v) => {
+                    v.nativeElement.style.width = `${maxWidth}px`;
+                });
             }
         } else if (value === 2) {
             if (refresh || !this._step2Fetched) {

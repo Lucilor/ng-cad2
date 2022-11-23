@@ -17,8 +17,6 @@
 }
 
 .types-info-1 {
-    flex: 0 0 120px;
-
     .content {
         flex-direction: column;
         padding-right: 5px;
@@ -33,15 +31,17 @@
     flex-wrap: wrap;
 }
 
+$border: 1px solid lightgray;
 .types-info-item {
-    $margin: 5px;
-    flex: 0 0 calc(33.33% - $margin);
-    margin-bottom: 5px;
+    padding: 5px;
+    flex: 0 0 33.33%;
+    box-sizing: border-box;
     &:not(:nth-child(3n)) {
-        margin-right: $margin;
+        border-right: $border;
     }
-    > :not(:last-child) {
-        margin-bottom: $margin;
+    &:not(:nth-child(3n + 1):nth-last-child(-n + 3)),
+    &:not(:nth-child(3n + 1):nth-last-child(-n + 3) ~ .types-info-item) {
+        border-bottom: $border;
     }
 }
 

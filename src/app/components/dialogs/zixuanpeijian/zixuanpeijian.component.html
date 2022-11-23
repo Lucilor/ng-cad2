@@ -1,13 +1,20 @@
 <div class="content" [ngSwitch]="step$.value.value">
     <div *ngSwitchCase="1" class="content step-1">
         <div class="content types-info">
-            <div class="content types-info-1">
+            <div class="content types-info-1" #typesButtonContainer>
                 <ng-scrollbar class="content">
                     <div class="content">
                         <ng-container *ngFor="let item of typesInfo | keyvalue: returnZero">
-                            <button mat-raised-button [color]="type1 === item.key ? 'accent' : 'primary'" (click)="setTypesInfo1(item.key)">
-                                {{ item.key }}
-                            </button>
+                            <div>
+                                <button
+                                    #typesButton
+                                    mat-raised-button
+                                    [color]="type1 === item.key ? 'accent' : 'primary'"
+                                    (click)="setTypesInfo1(item.key)"
+                                >
+                                    {{ item.key }}
+                                </button>
+                            </div>
                         </ng-container>
                     </div>
                 </ng-scrollbar>
