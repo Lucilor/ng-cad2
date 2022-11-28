@@ -387,14 +387,11 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (!cad || !container) {
             return;
         }
-        await this.setZixuanpeijian();
         const {width, height} = container.getBoundingClientRect();
         cad.setConfig({width, height, padding: [10], hideLineLength: false});
         if (cad.dom.parentElement !== container) {
             container.appendChild(cad.dom);
         }
-        // cad.data.entities.forEach((e) => (e.selectable = false));
-        // this.comments.forEach((e) => (e.selectable = true));
         cad.on("entitiesselect", (entities) => {
             const data = cad.data.components.data;
             const ids = entities.toArray(true).map((e) => e.id);
@@ -462,8 +459,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
             }
             this.comments = this.comments.filter((e) => !comments.find((ee) => ee.id === e.id));
         });
-        await cad.render();
-        cad.center();
     }
 
     uninitCad() {

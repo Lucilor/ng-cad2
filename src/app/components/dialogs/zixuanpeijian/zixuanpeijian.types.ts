@@ -23,6 +23,7 @@ export interface ZixuanpeijianTypesInfoItem {
     unique: boolean;
     shuruzongkuan: boolean;
     shuruzonggao: boolean;
+    standalone?: boolean;
 }
 export type ZixuanpeijianTypesInfo = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoItem>>;
 

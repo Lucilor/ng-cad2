@@ -104,6 +104,11 @@
                                 [info]="mokuaiInputInfos[i]['输出文本'][j]"
                             ></app-input>
                         </div>
+                        <div class="content inputs">
+                            <mat-slide-toggle [checked]="!item.standalone" (change)="item.standalone = !$event.checked">
+                                {{ item.standalone ? "不" : "" }}跟随变化
+                            </mat-slide-toggle>
+                        </div>
                     </div>
                 </div>
             </ng-scrollbar>

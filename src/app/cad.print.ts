@@ -467,6 +467,9 @@ export const configCadDataForPrint = async (
         const lineLengthMap: ObjectOf<{text: string; mtext: CadMtext; 显示线长?: string}> = {};
         const shaungxiangCads = splitShuangxiangCad(data);
         const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
+        await cad.render(data.getAllEntities());
+        let rect2 = data.entities.filter((e) => e instanceof CadLineLike).getBoundingRect(false);
+        const 宽度标注文本 = Math.round(rect2.width).toFixed();
         data.entities.forEach((e) => {
             if (e instanceof CadLineLike) {
                 if (!e.hideLength) {
@@ -481,7 +484,7 @@ export const configCadDataForPrint = async (
                 }
             }
         });
-        const rect = data.getBoundingRect();
+        let rect = data.getBoundingRect();
         data.transform({scale: data.suanliaodanZoom, origin: [rect.x, rect.y]}, true);
         await cad.render(data.getAllEntities());
         setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);
@@ -516,14 +519,16 @@ export const configCadDataForPrint = async (
                 data.entities.add(宽度标注2);
                 宽度标注2.info.宽度标注 = true;
             }
-            const rect2 = data.entities.filter((e) => e instanceof CadLineLike).getBoundingRect();
+            rect = data.getBoundingRect();
+            rect2 = data.entities.filter((e) => e instanceof CadLineLike).getBoundingRect();
+            rect2.top = rect.top;
             const space = 20;
             宽度标注2.defPoints = [
                 new Point(rect2.left, rect2.top + space),
                 new Point(rect2.left, rect2.top),
                 new Point(rect2.right, rect2.top)
             ];
-            宽度标注2.mingzi = Math.round(rect2.width / data.suanliaodanZoom).toFixed();
+            宽度标注2.mingzi = 宽度标注文本;
             configDimension(宽度标注2, 0);
         } else if (宽度标注) {
             cad.remove(宽度标注);

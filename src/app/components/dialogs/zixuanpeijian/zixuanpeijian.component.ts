@@ -788,13 +788,15 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     for (const [k, v] of item.gongshishuru) {
                         gongshishuru[k] = v;
                     }
-                    for (const [j, item2] of this.result.模块.entries()) {
-                        if (i === j) {
-                            continue;
-                        }
-                        for (const group2 of item2.gongshishuru) {
-                            if (group2[0] in gongshishuru) {
-                                group2[1] = gongshishuru[group2[0]];
+                    if (!item.standalone) {
+                        for (const [j, item2] of this.result.模块.entries()) {
+                            if (i === j || item2.standalone) {
+                                continue;
+                            }
+                            for (const group2 of item2.gongshishuru) {
+                                if (group2[0] in gongshishuru) {
+                                    group2[1] = gongshishuru[group2[0]];
+                                }
                             }
                         }
                     }
@@ -811,13 +813,15 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     for (const [k, v] of item.xuanxiangshuru) {
                         xuanxiangshuru[k] = v;
                     }
-                    for (const [j, item2] of this.result.模块.entries()) {
-                        if (i === j) {
-                            continue;
-                        }
-                        for (const group2 of item2.xuanxiangshuru) {
-                            if (group2[0] in xuanxiangshuru) {
-                                group2[1] = xuanxiangshuru[group2[0]];
+                    if (!item.standalone) {
+                        for (const [j, item2] of this.result.模块.entries()) {
+                            if (i === j || item2.standalone) {
+                                continue;
+                            }
+                            for (const group2 of item2.xuanxiangshuru) {
+                                if (group2[0] in xuanxiangshuru) {
+                                    group2[1] = xuanxiangshuru[group2[0]];
+                                }
                             }
                         }
                     }
@@ -1050,39 +1054,39 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     vars[name] = points[2].distanceTo(points[3]);
                 }
             }
-            return {formulas, vars, succeed: {} as Formulas, error: {} as Formulas, item};
+            return {formulas, vars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
         });
 
         let initial = true;
         let calc1Finished = false;
         let calcErrors1: Formulas = {};
         let calcErrors2: Formulas = {};
-        const indexesMap: ObjectOf<ObjectOf<number[]>> = {};
+        // const indexesMap: ObjectOf<ObjectOf<number[]>> = {};
         while (!calc1Finished) {
             calc1Finished = true;
-            const shuchubianliangFlag: ObjectOf<ObjectOf<true>> = {};
+            // const shuchubianliangFlag: ObjectOf<ObjectOf<true>> = {};
             const alertError = !initial && isEqual(calcErrors1, calcErrors2);
             calcErrors1 = calcErrors2;
             calcErrors2 = {};
-            for (const [i, v] of toCalc1.entries()) {
-                const {type1, type2} = v.item;
-                if (initial) {
-                    if (!indexesMap[type1]) {
-                        indexesMap[type1] = {};
-                    }
-                    if (!indexesMap[type1][type2]) {
-                        indexesMap[type1][type2] = [];
-                    }
-                    if (!indexesMap[type1][type2].includes(i)) {
-                        indexesMap[type1][type2].push(i);
-                    }
-                }
-                if (shuchubianliangFlag[type1]?.[type2]) {
-                    continue;
-                } else {
-                    shuchubianliangFlag[type1] = shuchubianliangFlag[type1] || {};
-                    shuchubianliangFlag[type1][type2] = true;
-                }
+            for (const v of toCalc1) {
+                // const {type1, type2} = v.item;
+                // if (initial) {
+                //     if (!indexesMap[type1]) {
+                //         indexesMap[type1] = {};
+                //     }
+                //     if (!indexesMap[type1][type2]) {
+                //         indexesMap[type1][type2] = [];
+                //     }
+                //     if (!indexesMap[type1][type2].includes(i)) {
+                //         indexesMap[type1][type2].push(i);
+                //     }
+                // }
+                // if (shuchubianliangFlag[type1]?.[type2]) {
+                //     continue;
+                // } else {
+                //     shuchubianliangFlag[type1] = shuchubianliangFlag[type1] || {};
+                //     shuchubianliangFlag[type1][type2] = true;
+                // }
                 if (!initial && isEmpty(v.error)) {
                     continue;
                 }
@@ -1110,7 +1114,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     return false;
                 }
                 // Object.assign(materialResult, result1.succeedTrim);
-                v.succeed = result1.succeed;
+                v.succeedTrim = result1.succeedTrim;
                 v.error = result1.error;
                 if (!isEmpty(result1.error)) {
                     calc1Finished = false;
@@ -1119,9 +1123,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             }
             initial = false;
         }
-        // console.log({toCalc1, allScbl, indexesMap});
+        // console.log({toCalc1, shuchubianliang});
 
-        const calcCadItem = ({data, info}: ZixuanpeijianCadItem, vars2: Formulas) => {
+        const calcCadItem = ({data, info}: ZixuanpeijianCadItem, vars2: Formulas, cadIndex: number, mokuaiIndex?: number) => {
             const formulas2: Formulas = {};
 
             const zhankais: [number, CadZhankai][] = [];
@@ -1162,7 +1166,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                         }
                     }
                 }
-                const result2 = this.calc.calcFormulas(formulas2, vars2, true);
+                const result2 = this.calc.calcFormulas(formulas2, vars2, {cadIndex, mokuaiIndex});
                 // console.log({formulas2, vars2, result2});
                 if (!result2) {
                     return false;
@@ -1271,17 +1275,16 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             return true;
         };
 
-        for (const item of this.result.模块) {
-            const {type1, type2} = item;
-            for (const cadItem of item.cads) {
-                const vars2: Formulas = {...toCalc1[indexesMap[type1][type2][0]].succeed, ...shuchubianliang};
-                if (!calcCadItem(cadItem, vars2)) {
+        for (const [i, item] of this.result.模块.entries()) {
+            for (const [j, cadItem] of item.cads.entries()) {
+                const vars2: Formulas = {...this.materialResult, ...toCalc1[i].succeedTrim, ...shuchubianliang};
+                if (!calcCadItem(cadItem, vars2, j, i)) {
                     return false;
                 }
             }
         }
-        for (const item of this.result.零散) {
-            if (!calcCadItem(item, materialResult)) {
+        for (const [i, item] of this.result.零散.entries()) {
+            if (!calcCadItem(item, materialResult, i)) {
                 return false;
             }
         }
