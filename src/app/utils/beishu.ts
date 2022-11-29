@@ -11,7 +11,7 @@ const getChanpinBeishu = (产品分类: string) => {
     } else if (["六扇平分"].includes(产品分类)) {
         beishu = 6;
     } else {
-        alert(`产品分类: ${产品分类}, 还没有处理倍数, 请先修改程序！`);
+        throw new Error(`产品分类: ${产品分类}, 还没有处理倍数, 请先修改程序！`);
     }
 
     return beishu;
@@ -30,7 +30,7 @@ const isMenzhongmenCAD = (分类2: string) => {
 
 export const getCADBeishu = (产品分类: string, 栋数: string, CAD分类: string, CAD分类2: string, 门中门扇数: string) => {
     let beishu = 1;
-    const 产品倍数 = getChanpinBeishu(产品分类);
+    const 产品倍数 = 产品分类 ? getChanpinBeishu(产品分类) : 1;
     const 门中门倍数 = 门中门扇数 ? 门中门扇数 : 1;
     if (isMenzhongmenCAD(CAD分类2)) {
         beishu = Number(门中门倍数);

@@ -1,14 +1,21 @@
 import {SafeUrl} from "@angular/platform-browser";
-import {CadViewerConfig, CadData, CadMtext} from "@cad-viewer";
+import {CadViewerConfig, CadData, CadMtext, CadZhankai, setLinesLength} from "@cad-viewer";
 import {KailiaocanshuData} from "@components/klcs/klcs.component";
 import {KlkwpzSource} from "@components/klkwpz/klkwpz";
+import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
-import {Formulas} from "@src/app/utils/calc";
+import {MessageService} from "@modules/message/services/message.service";
+import {CalcService} from "@services/calc.service";
+import {splitShuangxiangCad, getShuangxiangLineRects, setShuangxiangLineRects, getCadTotalLength} from "@src/app/cad.utils";
+import {getCADBeishu} from "@src/app/utils/beishu";
+import {Formulas, toFixed} from "@src/app/utils/calc";
+import {matchOrderData} from "@src/app/utils/mongo";
+import {nameEquals} from "@src/app/utils/zhankai";
 import zxpjTestData from "@src/assets/testData/zixuanpeijian.json";
 import zixuanpeijianTypesInfo from "@src/assets/testData/zixuanpeijianTypesInfo.json";
 import {ObjectOf} from "@utils";
-import {isEmpty} from "lodash";
+import {intersection, isEmpty, isEqual} from "lodash";
 
 export interface ZixuanpeijianTypesInfoItem {
     id: number;
@@ -24,6 +31,8 @@ export interface ZixuanpeijianTypesInfoItem {
     shuruzongkuan: boolean;
     shuruzonggao: boolean;
     standalone?: boolean;
+    ceshishuju?: Formulas;
+    calcVars?: {keys: string[]; result?: Formulas};
 }
 export type ZixuanpeijianTypesInfo = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoItem>>;
 
@@ -222,4 +231,413 @@ export const exportZixuanpeijian = (source: ZixuanpeijianData) => {
         }
     }
     return result;
+};
+
+export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem) => {
+    const {type1, type2} = item;
+    return `${type1}【${type2}】`;
+};
+
+export const getStep1Data = async (dataService: CadDataService, params: {code: string; type: string} | {mokuaiIds: string[]}) => {
+    const response = await dataService.post<Step1Data>("ngcad/getZixuanpeijianTypesInfo", params);
+    return response?.data;
+};
+
+export const getZixuanpeijianCads = async (
+    dataService: CadDataService,
+    typesInfo: ObjectOf<ObjectOf<1>>,
+    materialResult: Formulas = {}
+) => {
+    const response = await dataService.post<{cads: ObjectOf<ObjectOf<any[]>>; bancais: BancaiList[]}>(
+        "ngcad/getZixuanpeijianCads",
+        {typesInfo},
+        {testData: "zixuanpeijianCads"}
+    );
+    if (response?.data) {
+        const cads: ObjectOf<ObjectOf<CadData[]>> = {};
+        const {cads: cadsRaw, bancais} = response.data;
+        for (const type1 in cadsRaw) {
+            cads[type1] = {};
+            for (const type2 in cadsRaw[type1]) {
+                cads[type1][type2] = [];
+                for (const v of cadsRaw[type1][type2]) {
+                    const data = new CadData(v);
+                    delete data.options.功能分类;
+                    delete data.options.配件模块;
+                    cads[type1][type2].push(data);
+                }
+                if (!isEmpty(materialResult)) {
+                    cads[type1][type2] = matchOrderData(cads[type1][type2], materialResult);
+                }
+            }
+        }
+        return {cads, bancais};
+    }
+    return undefined;
+};
+
+export const getCadLengthVars = (data: CadData) => {
+    const getLength = (d: CadData) => Number(toFixed(getCadTotalLength(d), 4));
+    const vars: Formulas = {总长: getLength(data)};
+    const cads = splitShuangxiangCad(data);
+    if (cads) {
+        vars.双折宽 = getLength(cads[0]);
+        vars.双折高 = getLength(cads[1]);
+    }
+    return vars;
+};
+
+export const getDefaultZhankai = (): ZixuanpeijianInfo["zhankai"][0] => ({width: "", height: "", num: "", originalWidth: ""});
+
+export const calcZxpj = (
+    message: MessageService,
+    calc: CalcService,
+    materialResult: Formulas,
+    mokuais: ZixuanpeijianMokuaiItem[],
+    lingsans: ZixuanpeijianCadItem[],
+    fractionDigits: number
+): boolean => {
+    const shuchubianliang: Formulas = {};
+    const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
+    const duplicateXxsr: ObjectOf<Set<string>> = {};
+    for (const [i, item1] of mokuais.entries()) {
+        for (const [j, item2] of mokuais.entries()) {
+            if (i === j) {
+                continue;
+            }
+            if (item1.type2 === item2.type2) {
+                if (item1.unique) {
+                    message.error(`${item1.type1}-${item1.type2}只能单选`);
+                    return false;
+                } else {
+                    continue;
+                }
+            }
+            const duplicateKeys = intersection(item1.shuchubianliang, item2.shuchubianliang);
+            if (duplicateKeys.length > 0) {
+                if (!duplicateScbl.find((v) => v.type2 === item1.type2)) {
+                    duplicateScbl.push(item1);
+                }
+                if (!duplicateScbl.find((v) => v.type2 === item2.type2)) {
+                    duplicateScbl.push(item2);
+                }
+            }
+        }
+        for (const group of item1.xuanxiangshuru) {
+            if (group[0] in materialResult && materialResult[group[0]] !== "无") {
+                const title = getMokuaiTitle(item1);
+                if (!duplicateXxsr[title]) {
+                    duplicateXxsr[title] = new Set();
+                }
+                duplicateXxsr[title].add(group[0]);
+            }
+        }
+        if (Object.keys(duplicateXxsr).length > 0) {
+            const str =
+                "以下选项输入与订单数据冲突<br>" +
+                Object.entries(duplicateXxsr)
+                    .map(([title, keys]) => `${title}: ${Array.from(keys).join(", ")}`)
+                    .join("<br>");
+            message.error(str);
+            return false;
+        }
+    }
+    if (duplicateScbl.length > 0) {
+        const str =
+            "输出变量重复<br>" +
+            duplicateScbl
+                .map((v) => {
+                    const keys = v.shuchubianliang.join(", ");
+                    return `${getMokuaiTitle(v)}: ${keys}`;
+                })
+                .join("<br>");
+        message.error(str);
+        return false;
+    }
+    const toCalc1 = mokuais.map((item) => {
+        const formulas = {...item.suanliaogongshi};
+        if (item.shuruzongkuan) {
+            formulas.总宽 = item.totalWidth;
+        }
+        if (item.shuruzonggao) {
+            formulas.总高 = item.totalHeight;
+        }
+        if (item.ceshishuju) {
+            Object.assign(formulas, item.ceshishuju);
+        }
+        for (const group of item.gongshishuru) {
+            if (group[0] && group[1]) {
+                formulas[group[0]] = group[1];
+            }
+        }
+        for (const group of item.xuanxiangshuru) {
+            if (group[0] && group[1]) {
+                formulas[group[0]] = `'${group[1]}'`;
+            }
+        }
+        const vars: Formulas = {};
+        for (const cad of item.cads) {
+            const data = cad.data;
+            for (const e of data.entities.dimension) {
+                const name = e.mingzi;
+                if (!name || e.info.显示公式) {
+                    continue;
+                }
+                const points = data.getDimensionPoints(e);
+                if (points.length < 4) {
+                    continue;
+                }
+                vars[name] = points[2].distanceTo(points[3]);
+            }
+        }
+        return {formulas, vars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
+    });
+
+    let initial = true;
+    let calc1Finished = false;
+    let calcErrors1: Formulas = {};
+    let calcErrors2: Formulas = {};
+    // const indexesMap: ObjectOf<ObjectOf<number[]>> = {};
+    while (!calc1Finished) {
+        calc1Finished = true;
+        // const shuchubianliangFlag: ObjectOf<ObjectOf<true>> = {};
+        const alertError = !initial && isEqual(calcErrors1, calcErrors2);
+        calcErrors1 = calcErrors2;
+        calcErrors2 = {};
+        for (const v of toCalc1) {
+            // const {type1, type2} = v.item;
+            // if (initial) {
+            //     if (!indexesMap[type1]) {
+            //         indexesMap[type1] = {};
+            //     }
+            //     if (!indexesMap[type1][type2]) {
+            //         indexesMap[type1][type2] = [];
+            //     }
+            //     if (!indexesMap[type1][type2].includes(i)) {
+            //         indexesMap[type1][type2].push(i);
+            //     }
+            // }
+            // if (shuchubianliangFlag[type1]?.[type2]) {
+            //     continue;
+            // } else {
+            //     shuchubianliangFlag[type1] = shuchubianliangFlag[type1] || {};
+            //     shuchubianliangFlag[type1][type2] = true;
+            // }
+            if (!initial && isEmpty(v.error)) {
+                continue;
+            }
+            const formulas1 = v.formulas;
+            const vars1 = {...materialResult, ...v.vars};
+            const result1 = calc.calcFormulas(formulas1, vars1, alertError);
+            // console.log({formulas1, vars1, result1});
+            if (!result1) {
+                if (alertError) {
+                    return false;
+                } else {
+                    continue;
+                }
+            }
+            const missingKeys: string[] = [];
+            for (const vv of v.item.shuchubianliang) {
+                if (vv in result1.succeedTrim) {
+                    shuchubianliang[vv] = result1.succeedTrim[vv];
+                } else {
+                    missingKeys.push(vv);
+                }
+            }
+            if (missingKeys.length > 0) {
+                message.error(`${getMokuaiTitle(v.item)}缺少输出变量<br>${missingKeys.join(", ")}`);
+                return false;
+            }
+            // Object.assign(materialResult, result1.succeedTrim);
+            v.succeedTrim = result1.succeedTrim;
+            v.error = result1.error;
+            if (!isEmpty(result1.error)) {
+                calc1Finished = false;
+                calcErrors2 = {...calcErrors2, ...result1.error};
+            }
+        }
+        initial = false;
+    }
+    // console.log({toCalc1, shuchubianliang});
+
+    const calcCadItem = ({data, info}: ZixuanpeijianCadItem, vars2: Formulas, cadIndex: number, mokuaiIndex?: number) => {
+        const formulas2: Formulas = {};
+
+        const zhankais: [number, CadZhankai][] = [];
+        for (const [i, zhankai] of data.zhankai.entries()) {
+            let enabled = true;
+            for (const condition of zhankai.conditions) {
+                if (!condition.trim()) {
+                    continue;
+                }
+                const result = calc.calcExpression(condition, vars2);
+                if (result === null) {
+                    return false;
+                }
+                if (!result) {
+                    enabled = false;
+                    break;
+                }
+            }
+            if (enabled) {
+                zhankais.push([i, zhankai]);
+            }
+        }
+        if (zhankais.length < 1) {
+            info.hidden = true;
+        } else {
+            info.hidden = false;
+            for (const [j, e] of data.entities.line.entries()) {
+                if (e.gongshi) {
+                    formulas2[`线${j + 1}公式`] = e.gongshi;
+                }
+            }
+            for (const e of data.entities.dimension) {
+                if (e.info.显示公式) {
+                    if (e.info.显示公式 in vars2) {
+                        e.mingzi = toFixed(vars2[e.info.显示公式], fractionDigits);
+                    } else {
+                        e.mingzi = e.info.显示公式;
+                    }
+                }
+            }
+            const result2 = calc.calcFormulas(formulas2, vars2, {cadIndex, mokuaiIndex});
+            // console.log({formulas2, vars2, result2});
+            if (!result2) {
+                return false;
+            }
+            const shaungxiangCads = splitShuangxiangCad(data);
+            const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
+            for (const key in result2.succeedTrim) {
+                const match = key.match(/线(\d+)公式/);
+                const value = result2.succeedTrim[key];
+                if (match) {
+                    const index = Number(match[1]);
+                    // if (typeof value !== "number" || !(value > 0)) {
+                    //     message.error(`线长公式出错<br>${data.name}的第${index}根线<br>${formulas3[key]} = ${value}`);
+                    //     return false;
+                    // }
+                    setLinesLength(data, [data.entities.line[index - 1]], Number(value));
+                }
+            }
+            setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);
+            const vars3 = {...vars2, ...getCadLengthVars(data)};
+            const zhankais2: ZixuanpeijianInfo["zhankai"] = [];
+            for (const [i, zhankai] of zhankais) {
+                const formulas3: Formulas = {};
+                formulas3.展开宽 = zhankai.zhankaikuan;
+                formulas3.展开高 = zhankai.zhankaigao;
+                formulas3.数量 = `(${zhankai.shuliang})*(${zhankai.shuliangbeishu})`;
+                const result3 = calc.calcFormulas(formulas3, vars3, {data});
+                if (!result3) {
+                    return false;
+                }
+                const width = toFixed(result3.succeedTrim.展开宽, fractionDigits);
+                const height = toFixed(result3.succeedTrim.展开高, fractionDigits);
+                let num = Number(result3.succeedTrim.数量);
+                const {产品分类, 栋数, 门中门扇数} = materialResult;
+                const CAD分类 = data.type;
+                const CAD分类2 = data.type2;
+                try {
+                    num *= getCADBeishu(String(产品分类 || ""), String(栋数 || ""), CAD分类, CAD分类2, String(门中门扇数 || ""));
+                } catch (error) {
+                    if (error instanceof Error) {
+                        message.error(error.message);
+                    }
+                }
+                zhankais2.push({width, height, num: String(num), originalWidth: zhankai.zhankaikuan, cadZhankaiIndex: i});
+            }
+            info.zhankai = [...zhankais2, ...info.zhankai.filter((v) => !("cadZhankaiIndex" in v))];
+            if (info.zhankai.length < 1) {
+                info.zhankai.push(getDefaultZhankai());
+            }
+            info.calcZhankai = info.zhankai.flatMap((v) => {
+                let cadZhankai: CadZhankai | undefined;
+                if (v.cadZhankaiIndex && v.cadZhankaiIndex > 0) {
+                    cadZhankai = data.zhankai[v.cadZhankaiIndex];
+                }
+                if (!cadZhankai && data.zhankai.length > 0) {
+                    cadZhankai = new CadZhankai(data.zhankai[0].export());
+                    cadZhankai.zhankaikuan = v.width;
+                    cadZhankai.zhankaigao = v.height;
+                    cadZhankai.shuliang = v.num;
+                }
+                if (!cadZhankai) {
+                    return {};
+                }
+                const calcObj: ObjectOf<any> = {
+                    name: cadZhankai.name,
+                    kailiao: cadZhankai.kailiao,
+                    kailiaomuban: cadZhankai.kailiaomuban,
+                    neikaimuban: cadZhankai.neikaimuban,
+                    chai: cadZhankai.chai,
+                    flip: cadZhankai.flip,
+                    flipChai: cadZhankai.flipChai,
+                    neibugongshi: cadZhankai.neibugongshi,
+                    calcW: Number(v.width),
+                    calcH: Number(v.height),
+                    num: Number(v.num),
+                    包边正面按分类拼接: cadZhankai.包边正面按分类拼接,
+                    属于正面部分: false,
+                    属于框型部分: false,
+                    默认展开宽: !!nameEquals(cadZhankai.zhankaikuan, [
+                        "ceil(总长)+0",
+                        "ceil(总长)+0+(总使用差值)",
+                        "总长+(总使用差值)",
+                        "总长+0+(总使用差值)"
+                    ])
+                };
+                ["门扇上切", "门扇下切", "门扇上面上切", "门扇下面下切"].forEach((qiekey) => {
+                    if (cadZhankai?.zhankaigao.includes(qiekey) && materialResult[qiekey] > 0) {
+                        if (qiekey.includes("上切")) {
+                            calcObj["上切"] = materialResult[qiekey];
+                        } else {
+                            calcObj["下切"] = materialResult[qiekey];
+                        }
+                    }
+                });
+                if (cadZhankai.chai) {
+                    calcObj.num = 1;
+                    const calc2 = [];
+                    calc2.push(calcObj);
+                    for (let i = 1; i < calcObj.num; i++) {
+                        const calc1 = JSON.parse(JSON.stringify(calcObj));
+                        if (!calc1.flip) {
+                            calc1.flip = [];
+                        }
+                        calc1.name = `${cadZhankai.name}${i}`;
+                        calc2.push(calc1);
+                    }
+                    return calc2;
+                }
+                return calcObj;
+            });
+        }
+        return true;
+    };
+
+    for (const [i, item] of mokuais.entries()) {
+        const vars2: Formulas = {...materialResult, ...toCalc1[i].succeedTrim, ...shuchubianliang};
+        if (item.calcVars) {
+            item.calcVars.result = {};
+            for(const key of item.calcVars.keys) {
+                const value = calc.calcExpression(key, vars2);
+                if (value !== null) {
+                    item.calcVars.result[key] = value;
+                }
+            }
+        }
+        for (const [j, cadItem] of item.cads.entries()) {
+            if (!calcCadItem(cadItem, vars2, j, i)) {
+                return false;
+            }
+        }
+    }
+    for (const [i, item] of lingsans.entries()) {
+        if (!calcCadItem(item, materialResult, i)) {
+            return false;
+        }
+    }
+    return true;
 };

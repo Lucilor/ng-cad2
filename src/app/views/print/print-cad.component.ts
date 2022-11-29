@@ -193,11 +193,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
                         type
                     });
                     if (response2?.data) {
-                        const {模块, 零散, 备注, 文本映射, 输出变量} = importZixuanpeijian(response2.data);
+                        const {模块, 零散, 备注, 文本映射} = importZixuanpeijian(response2.data);
                         this.zixuanpeijian = {模块, 零散};
                         this.comments = 备注;
                         this.printParams.textMap = Array.isArray(文本映射) ? {} : 文本映射;
-                        Object.assign(this.materialResult, Array.isArray(输出变量) ? {} : 输出变量);
                     } else {
                         this.zixuanpeijian = {模块: [], 零散: []};
                     }

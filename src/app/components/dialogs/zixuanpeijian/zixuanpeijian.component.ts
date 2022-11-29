@@ -5,7 +5,7 @@ import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog
 import {MatMenuTrigger} from "@angular/material/menu";
 import {SafeUrl, DomSanitizer} from "@angular/platform-browser";
 import {Router} from "@angular/router";
-import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, CadZhankai, setLinesLength} from "@cad-viewer";
+import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
@@ -15,21 +15,10 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CalcService} from "@services/calc.service";
 import {CadCollection, imgCadEmpty, setGlobal} from "@src/app/app.common";
-import {
-    getCadPreview,
-    getCadTotalLength,
-    getShuangxiangLineRects,
-    setDimensionText,
-    setShuangxiangLineRects,
-    splitShuangxiangCad
-} from "@src/app/cad.utils";
-import {getCADBeishu} from "@src/app/utils/beishu";
-import {Formulas} from "@src/app/utils/calc";
+import {getCadPreview, setDimensionText} from "@src/app/cad.utils";
 import {toFixed} from "@src/app/utils/func";
-import {matchOrderData} from "@src/app/utils/mongo";
-import {nameEquals} from "@src/app/utils/zhankai";
 import {ObjectOf, timeout} from "@utils";
-import {cloneDeep, debounce, intersection, isEmpty, isEqual, uniq, uniqueId} from "lodash";
+import {cloneDeep, debounce, uniq, uniqueId} from "lodash";
 import {BehaviorSubject} from "rxjs";
 import {openBancaiListDialog} from "../bancai-list/bancai-list.component";
 import {openCadEditorDialog} from "../cad-editor-dialog/cad-editor-dialog.component";
@@ -39,6 +28,12 @@ import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 import {
     CadItemContext,
     CadItemInputInfo,
+    calcZxpj,
+    getCadLengthVars,
+    getDefaultZhankai,
+    getMokuaiTitle,
+    getStep1Data,
+    getZixuanpeijianCads,
     importZixuanpeijian,
     MokuaiInputInfos,
     Step1Data,
@@ -170,11 +165,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         if (this.data?.step1Data) {
             step1Data = this.data.step1Data;
         } else {
-            this.spinner.show(this.spinnerId);
             const {code, type} = this.data?.order || {};
-            const response = await this.dataService.post<Step1Data>("ngcad/getZixuanpeijianTypesInfo", {code, type});
-            this.spinner.hide(this.spinnerId);
-            step1Data = response?.data;
+            if (code && type) {
+                this.spinner.show(this.spinnerId);
+                step1Data = await getStep1Data(this.dataService, {code, type});
+                this.spinner.hide(this.spinnerId);
+            }
         }
         if (step1Data) {
             this.urlPrefix = step1Data.prefix;
@@ -214,28 +210,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                 typesInfo[type1][type2] = 1;
             }
         });
-        const response = await this.dataService.post<{cads: ObjectOf<ObjectOf<any[]>>; bancais: BancaiList[]}>(
-            "ngcad/getZixuanpeijianCads",
-            {typesInfo},
-            {testData: "zixuanpeijianCads"}
-        );
-        if (response?.data) {
-            const allCads: ObjectOf<ObjectOf<CadData[]>> = {};
-            const {cads, bancais} = response.data;
+        const zxpjCads = await getZixuanpeijianCads(this.dataService, typesInfo, this.materialResult);
+        if (zxpjCads) {
+            const {cads, bancais} = zxpjCads;
             this.bancaiList = bancais;
-            for (const type1 in cads) {
-                allCads[type1] = {};
-                for (const type2 in cads[type1]) {
-                    allCads[type1][type2] = [];
-                    for (const v of cads[type1][type2]) {
-                        const data = new CadData(v);
-                        delete data.options.功能分类;
-                        delete data.options.配件模块;
-                        allCads[type1][type2].push(data);
-                    }
-                    allCads[type1][type2] = matchOrderData(allCads[type1][type2], this.materialResult);
-                }
-            }
             const cadViewers = this.cadViewers;
             for (const type1 in cadViewers.模块) {
                 for (const type2 in cadViewers.模块[type1]) {
@@ -319,7 +297,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
             };
             for (const [i, item] of this.result.模块.entries()) {
                 const {type1, type2} = item;
-                const cads1 = allCads[type1]?.[type2] || [];
+                const cads1 = cads[type1]?.[type2] || [];
                 const cads2: CadData[] = [];
                 const infos: ObjectOf<ZixuanpeijianInfo> = {};
                 for (const {info} of item.cads) {
@@ -455,17 +433,13 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         });
     }
 
-    private _getDefaultZhankai(): ZixuanpeijianInfo["zhankai"][0] {
-        return {width: "", height: "", num: "", originalWidth: ""};
-    }
-
     async calcZhankai(item: ZixuanpeijianCadItem) {
         const {data, info} = item;
         const {zhankai} = info;
         if (zhankai.length < 1 || !zhankai[0].originalWidth || zhankai[0].custom) {
             return;
         }
-        const vars = {...this.materialResult, ...this._getCadLengthVars(data)};
+        const vars = {...this.materialResult, ...getCadLengthVars(data)};
         const formulas: ObjectOf<string> = {展开宽: zhankai[0].originalWidth};
         const calcResult = this.calc.calcFormulas(formulas, vars);
         const {展开宽} = calcResult?.succeed || {};
@@ -941,7 +915,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
     addZhankai(type: CadItemContext["type"], i: number, j: number, k: number) {
         const arr = this.getZhankaiArr(type, i, j);
-        arr.splice(k + 1, 0, this._getDefaultZhankai());
+        arr.splice(k + 1, 0, getDefaultZhankai());
         this._updateInputInfos();
     }
 
@@ -951,345 +925,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         this._updateInputInfos();
     }
 
-    private _getCadLengthVars(data: CadData) {
-        const getLength = (d: CadData) => Number(toFixed(getCadTotalLength(d), 4));
-        const vars: Formulas = {总长: getLength(data)};
-        const cads = splitShuangxiangCad(data);
-        if (cads) {
-            vars.双折宽 = getLength(cads[0]);
-            vars.双折高 = getLength(cads[1]);
-        }
-        return vars;
-    }
-
     private _calc(): boolean {
-        const materialResult = this.materialResult || {};
-        const shuchubianliang: Formulas = {};
-        const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
-        const duplicateXxsr: ObjectOf<Set<string>> = {};
-        for (const [i, item1] of this.result.模块.entries()) {
-            for (const [j, item2] of this.result.模块.entries()) {
-                if (i === j) {
-                    continue;
-                }
-                if (item1.type2 === item2.type2) {
-                    if (item1.unique) {
-                        this.message.error(`${item1.type1}-${item1.type2}只能单选`);
-                        return false;
-                    } else {
-                        continue;
-                    }
-                }
-                const duplicateKeys = intersection(item1.shuchubianliang, item2.shuchubianliang);
-                if (duplicateKeys.length > 0) {
-                    if (!duplicateScbl.find((v) => v.type2 === item1.type2)) {
-                        duplicateScbl.push(item1);
-                    }
-                    if (!duplicateScbl.find((v) => v.type2 === item2.type2)) {
-                        duplicateScbl.push(item2);
-                    }
-                }
-            }
-            for (const group of item1.xuanxiangshuru) {
-                if (group[0] in materialResult && materialResult[group[0]] !== "无") {
-                    const title = this.getMokuaiTitle(item1);
-                    if (!duplicateXxsr[title]) {
-                        duplicateXxsr[title] = new Set();
-                    }
-                    duplicateXxsr[title].add(group[0]);
-                }
-            }
-            if (Object.keys(duplicateXxsr).length > 0) {
-                const str =
-                    "以下选项输入与订单数据冲突<br>" +
-                    Object.entries(duplicateXxsr)
-                        .map(([title, keys]) => `${title}: ${Array.from(keys).join(", ")}`)
-                        .join("<br>");
-                this.message.error(str);
-                return false;
-            }
-        }
-        if (duplicateScbl.length > 0) {
-            const str =
-                "输出变量重复<br>" +
-                duplicateScbl
-                    .map((v) => {
-                        const keys = v.shuchubianliang.join(", ");
-                        return `${this.getMokuaiTitle(v)}: ${keys}`;
-                    })
-                    .join("<br>");
-            this.message.error(str);
-            return false;
-        }
-        const toCalc1 = this.result.模块.map((item) => {
-            const formulas = {...item.suanliaogongshi};
-            if (item.shuruzongkuan) {
-                formulas.总宽 = item.totalWidth;
-            }
-            if (item.shuruzonggao) {
-                formulas.总高 = item.totalHeight;
-            }
-            for (const group of item.gongshishuru) {
-                if (group[0] && group[1]) {
-                    formulas[group[0]] = group[1];
-                }
-            }
-            for (const group of item.xuanxiangshuru) {
-                if (group[0] && group[1]) {
-                    formulas[group[0]] = `'${group[1]}'`;
-                }
-            }
-            const vars: Formulas = {};
-            for (const cad of item.cads) {
-                const data = cad.data;
-                for (const e of data.entities.dimension) {
-                    const name = e.mingzi;
-                    if (!name || e.info.显示公式) {
-                        continue;
-                    }
-                    const points = data.getDimensionPoints(e);
-                    if (points.length < 4) {
-                        continue;
-                    }
-                    vars[name] = points[2].distanceTo(points[3]);
-                }
-            }
-            return {formulas, vars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
-        });
-
-        let initial = true;
-        let calc1Finished = false;
-        let calcErrors1: Formulas = {};
-        let calcErrors2: Formulas = {};
-        // const indexesMap: ObjectOf<ObjectOf<number[]>> = {};
-        while (!calc1Finished) {
-            calc1Finished = true;
-            // const shuchubianliangFlag: ObjectOf<ObjectOf<true>> = {};
-            const alertError = !initial && isEqual(calcErrors1, calcErrors2);
-            calcErrors1 = calcErrors2;
-            calcErrors2 = {};
-            for (const v of toCalc1) {
-                // const {type1, type2} = v.item;
-                // if (initial) {
-                //     if (!indexesMap[type1]) {
-                //         indexesMap[type1] = {};
-                //     }
-                //     if (!indexesMap[type1][type2]) {
-                //         indexesMap[type1][type2] = [];
-                //     }
-                //     if (!indexesMap[type1][type2].includes(i)) {
-                //         indexesMap[type1][type2].push(i);
-                //     }
-                // }
-                // if (shuchubianliangFlag[type1]?.[type2]) {
-                //     continue;
-                // } else {
-                //     shuchubianliangFlag[type1] = shuchubianliangFlag[type1] || {};
-                //     shuchubianliangFlag[type1][type2] = true;
-                // }
-                if (!initial && isEmpty(v.error)) {
-                    continue;
-                }
-                const formulas1 = v.formulas;
-                const vars1 = {...materialResult, ...v.vars};
-                const result1 = this.calc.calcFormulas(formulas1, vars1, alertError);
-                // console.log({formulas1, vars1, result1});
-                if (!result1) {
-                    if (alertError) {
-                        return false;
-                    } else {
-                        continue;
-                    }
-                }
-                const missingKeys: string[] = [];
-                for (const vv of v.item.shuchubianliang) {
-                    if (vv in result1.succeedTrim) {
-                        shuchubianliang[vv] = result1.succeedTrim[vv];
-                    } else {
-                        missingKeys.push(vv);
-                    }
-                }
-                if (missingKeys.length > 0) {
-                    this.message.error(`${this.getMokuaiTitle(v.item)}缺少输出变量<br>${missingKeys.join(", ")}`);
-                    return false;
-                }
-                // Object.assign(materialResult, result1.succeedTrim);
-                v.succeedTrim = result1.succeedTrim;
-                v.error = result1.error;
-                if (!isEmpty(result1.error)) {
-                    calc1Finished = false;
-                    calcErrors2 = {...calcErrors2, ...result1.error};
-                }
-            }
-            initial = false;
-        }
-        // console.log({toCalc1, shuchubianliang});
-
-        const calcCadItem = ({data, info}: ZixuanpeijianCadItem, vars2: Formulas, cadIndex: number, mokuaiIndex?: number) => {
-            const formulas2: Formulas = {};
-
-            const zhankais: [number, CadZhankai][] = [];
-            for (const [i, zhankai] of data.zhankai.entries()) {
-                let enabled = true;
-                for (const condition of zhankai.conditions) {
-                    if (!condition.trim()) {
-                        continue;
-                    }
-                    const result = this.calc.calcExpression(condition, vars2);
-                    if (result === null) {
-                        return false;
-                    }
-                    if (!result) {
-                        enabled = false;
-                        break;
-                    }
-                }
-                if (enabled) {
-                    zhankais.push([i, zhankai]);
-                }
-            }
-            if (zhankais.length < 1) {
-                info.hidden = true;
-            } else {
-                info.hidden = false;
-                for (const [j, e] of data.entities.line.entries()) {
-                    if (e.gongshi) {
-                        formulas2[`线${j + 1}公式`] = e.gongshi;
-                    }
-                }
-                for (const e of data.entities.dimension) {
-                    if (e.info.显示公式) {
-                        if (e.info.显示公式 in vars2) {
-                            e.mingzi = toFixed(vars2[e.info.显示公式], this.fractionDigits);
-                        } else {
-                            e.mingzi = e.info.显示公式;
-                        }
-                    }
-                }
-                const result2 = this.calc.calcFormulas(formulas2, vars2, {cadIndex, mokuaiIndex});
-                // console.log({formulas2, vars2, result2});
-                if (!result2) {
-                    return false;
-                }
-                const shaungxiangCads = splitShuangxiangCad(data);
-                const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
-                for (const key in result2.succeedTrim) {
-                    const match = key.match(/线(\d+)公式/);
-                    const value = result2.succeedTrim[key];
-                    if (match) {
-                        const index = Number(match[1]);
-                        // if (typeof value !== "number" || !(value > 0)) {
-                        //     this.message.error(`线长公式出错<br>${data.name}的第${index}根线<br>${formulas3[key]} = ${value}`);
-                        //     return false;
-                        // }
-                        setLinesLength(data, [data.entities.line[index - 1]], Number(value));
-                    }
-                }
-                setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);
-                const vars3 = {...vars2, ...this._getCadLengthVars(data)};
-                const zhankais2: ZixuanpeijianInfo["zhankai"] = [];
-                for (const [i, zhankai] of zhankais) {
-                    const formulas3: Formulas = {};
-                    formulas3.展开宽 = zhankai.zhankaikuan;
-                    formulas3.展开高 = zhankai.zhankaigao;
-                    formulas3.数量 = `(${zhankai.shuliang})*(${zhankai.shuliangbeishu})`;
-                    const result3 = this.calc.calcFormulas(formulas3, vars3, {data});
-                    if (!result3) {
-                        return false;
-                    }
-                    const width = toFixed(result3.succeedTrim.展开宽, this.fractionDigits);
-                    const height = toFixed(result3.succeedTrim.展开高, this.fractionDigits);
-                    let num = Number(result3.succeedTrim.数量);
-                    const {产品分类, 栋数, 门中门扇数} = materialResult;
-                    const CAD分类 = data.type;
-                    const CAD分类2 = data.type2;
-                    num *= getCADBeishu(String(产品分类), String(栋数), CAD分类, CAD分类2, String(门中门扇数));
-                    zhankais2.push({width, height, num: String(num), originalWidth: zhankai.zhankaikuan, cadZhankaiIndex: i});
-                }
-                info.zhankai = [...zhankais2, ...info.zhankai.filter((v) => !("cadZhankaiIndex" in v))];
-                if (info.zhankai.length < 1) {
-                    info.zhankai.push(this._getDefaultZhankai());
-                }
-                info.calcZhankai = info.zhankai.flatMap((v) => {
-                    let cadZhankai: CadZhankai | undefined;
-                    if (v.cadZhankaiIndex && v.cadZhankaiIndex > 0) {
-                        cadZhankai = data.zhankai[v.cadZhankaiIndex];
-                    }
-                    if (!cadZhankai && data.zhankai.length > 0) {
-                        cadZhankai = new CadZhankai(data.zhankai[0].export());
-                        cadZhankai.zhankaikuan = v.width;
-                        cadZhankai.zhankaigao = v.height;
-                        cadZhankai.shuliang = v.num;
-                    }
-                    if (!cadZhankai) {
-                        return {};
-                    }
-                    const calc: ObjectOf<any> = {
-                        name: cadZhankai.name,
-                        kailiao: cadZhankai.kailiao,
-                        kailiaomuban: cadZhankai.kailiaomuban,
-                        neikaimuban: cadZhankai.neikaimuban,
-                        chai: cadZhankai.chai,
-                        flip: cadZhankai.flip,
-                        flipChai: cadZhankai.flipChai,
-                        neibugongshi: cadZhankai.neibugongshi,
-                        calcW: Number(v.width),
-                        calcH: Number(v.height),
-                        num: Number(v.num),
-                        包边正面按分类拼接: cadZhankai.包边正面按分类拼接,
-                        属于正面部分: false,
-                        属于框型部分: false,
-                        默认展开宽: !!nameEquals(cadZhankai.zhankaikuan, [
-                            "ceil(总长)+0",
-                            "ceil(总长)+0+(总使用差值)",
-                            "总长+(总使用差值)",
-                            "总长+0+(总使用差值)"
-                        ])
-                    };
-                    ["门扇上切", "门扇下切", "门扇上面上切", "门扇下面下切"].forEach((qiekey) => {
-                        if (cadZhankai?.zhankaigao.includes(qiekey) && materialResult[qiekey] > 0) {
-                            if (qiekey.includes("上切")) {
-                                calc["上切"] = materialResult[qiekey];
-                            } else {
-                                calc["下切"] = materialResult[qiekey];
-                            }
-                        }
-                    });
-                    if (cadZhankai.chai) {
-                        calc.num = 1;
-                        const calc2 = [];
-                        calc2.push(calc);
-                        for (let i = 1; i < calc.num; i++) {
-                            const calc1 = JSON.parse(JSON.stringify(calc));
-                            if (!calc1.flip) {
-                                calc1.flip = [];
-                            }
-                            calc1.name = `${cadZhankai.name}${i}`;
-                            calc2.push(calc1);
-                        }
-                        return calc2;
-                    }
-                    return calc;
-                });
-            }
-            return true;
-        };
-
-        for (const [i, item] of this.result.模块.entries()) {
-            for (const [j, cadItem] of item.cads.entries()) {
-                const vars2: Formulas = {...this.materialResult, ...toCalc1[i].succeedTrim, ...shuchubianliang};
-                if (!calcCadItem(cadItem, vars2, j, i)) {
-                    return false;
-                }
-            }
-        }
-        for (const [i, item] of this.result.零散.entries()) {
-            if (!calcCadItem(item, materialResult, i)) {
-                return false;
-            }
-        }
+        const {模块, 零散} = this.result;
+        const calcResult = calcZxpj(this.message, this.calc, this.materialResult || {}, 模块, 零散, this.fractionDigits);
         this._updateInputInfos();
-        return true;
+        return calcResult;
     }
 
     // TODO: isLocal
@@ -1478,8 +1118,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
 
     getMokuaiTitle(item: ZixuanpeijianMokuaiItem) {
-        const {type1, type2} = item;
-        return `${type1}【${type2}】`;
+        return getMokuaiTitle(item);
     }
 
     async setReplaceableMokuais(item: ZixuanpeijianMokuaiItem) {
