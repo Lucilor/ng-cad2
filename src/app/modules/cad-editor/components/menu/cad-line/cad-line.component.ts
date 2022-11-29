@@ -124,7 +124,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, AfterViewI
         }
     }
 
-    readonly selectableColors = validColors;
+    readonly selectableColors = validColors.slice();
 
     constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
         super();

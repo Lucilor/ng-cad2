@@ -169,11 +169,11 @@ export interface ValidateResult {
 
 export const isShiyitu = (data: CadData) => data.type.includes("示意图") || data.type2.includes("示意图");
 
-export const LINE_LIMIT = [0.01, 0.1];
-export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"];
+export const LINE_LIMIT = [0.01, 0.1] as const;
+export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"] as const;
 export const validateLines = (data: CadData, noInfo?: boolean, tolerance = DEFAULT_TOLERANCE): ValidateResult => {
     const result: ValidateResult = {errMsg: [], lines: []};
-    if (isShiyitu(data)) {
+    if (isShiyitu(data) || data.type === "企料算料") {
         return result;
     }
     const lines = sortLines(data, tolerance);
@@ -191,6 +191,8 @@ export const validateLines = (data: CadData, noInfo?: boolean, tolerance = DEFAU
             e.info.errors.push(error);
         }
     };
+    const slopeErrMax = 5;
+    let slopeErrCount = 0;
     for (const v of lines) {
         let 刨坑起始线数量 = 0;
         let 刨坑起始线位置错误 = false;
@@ -206,7 +208,12 @@ export const validateLines = (data: CadData, noInfo?: boolean, tolerance = DEFAU
             }
             if (isBetween(dx, min, max) || isBetween(dy, min, max)) {
                 addInfoError(e, "斜率不符合要求");
-                result.errMsg.push(`线段斜率不符合要求(线长: ${e.length.toFixed(2)})`);
+                slopeErrCount++;
+                if (slopeErrCount < slopeErrMax) {
+                    result.errMsg.push(`线段斜率不符合要求(线长: ${e.length.toFixed(2)})`);
+                } else if (slopeErrCount === slopeErrMax) {
+                    result.errMsg.push("分类包含【示意图】或者分类等于【企料算料】就不会报斜率错误, 请自行判断修改");
+                }
             }
         }
         if (刨坑起始线数量 > 1) {
