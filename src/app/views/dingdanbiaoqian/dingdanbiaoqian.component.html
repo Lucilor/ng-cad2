@@ -80,6 +80,11 @@
             </ng-container>
             <ng-template #cads>
                 <div class="cads">
+                    <div class="btn-group menu" *ngIf="type === '配件模块'">
+                        <button class="out-of-page" mat-raised-button color="primary" (click)="editMokuaiFormulas(order.mokuaiIndex)">
+                            测试数据
+                        </button>
+                    </div>
                     <mat-card *ngFor="let cad of order.cads" class="cad" [ngStyle]="cad.style">
                         <div class="header">
                             <div *ngFor="let str of cad.data.info['标签信息']">{{ str }}</div>

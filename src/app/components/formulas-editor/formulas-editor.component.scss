@@ -1,0 +1,39 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    > :not(:last-child) {
+        margin-bottom: 10px;
+    }
+}
+
+.formulas-content {
+    display: flex;
+}
+
+
+.formulas-list {
+    width: 100%;
+}
+
+.formula {
+    display: flex;
+    align-items: center;
+
+    > :not(:last-child) {
+        margin-right: 5px;
+    }
+
+    .key {
+        flex: 1 1 30%;
+    }
+
+    .value {
+        flex: 1 1 70%;
+    }
+}
+
+.drag-placeholder {
+    width: 40px;
+}

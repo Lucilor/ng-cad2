@@ -24,6 +24,7 @@ export interface Order {
     style: Properties;
     info: ObjectOf<string | number>[] | null;
     质检标签?: ZhijianForm;
+    mokuaiIndex?: number;
 }
 
 export interface SectionCell {

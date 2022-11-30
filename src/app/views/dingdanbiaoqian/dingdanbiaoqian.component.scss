@@ -23,7 +23,7 @@
     padding: 10px;
     margin: 10px !important;
 
-    * {
+    :not(.out-of-page) {
         color: black !important;
         font-family: "宋体" !important;
         box-sizing: border-box;
@@ -35,6 +35,13 @@ $cads-border: solid 1px grey;
     display: flex;
     flex-wrap: wrap;
     flex: 1 1 0;
+
+    .menu {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        transform: translateX(calc(100% + 10px));
+    }
 
     .cad {
         display: flex;
@@ -223,6 +230,10 @@ $info-border: solid 1px black;
         align-items: center;
         padding: 10px;
     }
+}
+
+.mat-expansion-panel {
+    overflow: visible;
 }
 
 @media print {

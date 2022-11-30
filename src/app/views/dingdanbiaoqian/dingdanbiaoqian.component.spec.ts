@@ -9,7 +9,8 @@ import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
-import {DingdanbiaoqianComponent, Order} from "./dingdanbiaoqian.component";
+import {DingdanbiaoqianComponent} from "./dingdanbiaoqian.component";
+import {Order} from "./dingdanbiaoqian.types";
 
 const orders: Order[] = [
     {

@@ -1,0 +1,52 @@
+<div class="formulas-input">
+    <app-input [info]="formulasInputInfo"></app-input>
+    <div class="btn-group" style="margin-top: -10px">
+        <button mat-raised-button color="primary" (click)="addFormulas()">批量添加</button>
+        <button mat-raised-button color="primary" (click)="test(getFormulas(parseTextarea()))">测试</button>
+    </div>
+</div>
+
+<ng-scrollbar>
+    <div class="formulas-content">
+        <div class="formulas-list" cdkDropList (cdkDropListDropped)="dropFormula($event)">
+            <div class="btn-group">
+                <div>公式</div>
+                <button mat-raised-button color="primary" (click)="test(getFormulas())">测试</button>
+            </div>
+            <div class="formula" *ngFor="let formula of formulaList; let i = index" cdkDrag cdkDragLockAxis="y">
+                <div class="drag-placeholder" cdkDragHandle></div>
+                <button mat-icon-button color="primary" (click)="addFormula(i + 1)">
+                    <mat-icon>add_circle</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="removeFormula(i)">
+                    <mat-icon>remove_circle</mat-icon>
+                </button>
+                <app-input class="key" [info]="formulaListInputInfos[i][0]"></app-input>
+                <span> = </span>
+                <app-input class="value" [info]="formulaListInputInfos[i][1]"></app-input>
+                <div class="drag-placeholder" cdkDragHandle></div>
+            </div>
+        </div>
+    </div>
+</ng-scrollbar>
+
+<div #testResultEl *ngIf="testResult" style="display: none">
+    <div style="font-size: 18px; overflow: hidden">
+        <div style="margin-bottom: 15px">
+            <div style="color: darkturquoise; margin-bottom: 10px">成功结果</div>
+            <div class="add-empty-msg">
+                <div style="margin-bottom: 5px" *ngFor="let item of testResult.succeed | keyvalue: returnZero">
+                    {{ item.key }} = {{ item.value }}
+                </div>
+            </div>
+        </div>
+        <div>
+            <div style="color: red; margin-bottom: 10px">失败结果</div>
+            <div class="add-empty-msg">
+                <div style="margin-bottom: 5px" *ngFor="let item of testResult.error | keyvalue: returnZero">
+                    {{ item.key }} = {{ item.value }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
