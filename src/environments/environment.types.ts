@@ -1,4 +1,4 @@
 export interface Environment {
-    production: boolean;
-    unitTest?: boolean;
+  production: boolean;
+  unitTest?: boolean;
 }

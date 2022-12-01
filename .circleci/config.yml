@@ -1,55 +1,55 @@
 version: 2.1
-orbs: 
-    node: circleci/node@5.0.2
-    browser-tools: circleci/browser-tools@1.4.0
+orbs:
+  node: circleci/node@5.0.2
+  browser-tools: circleci/browser-tools@1.4.0
 commands:
-    build:
-        steps:
-            - checkout
-            - run: git submodule update --init --recursive
-            - run:
-                name: Install utils dependencies
-                command: cd ./src/cad-viewer/src/utils && yarn
-            - run:
-                name: Install cad-viewer dependencies
-                command: cd ./src/cad-viewer && yarn
-            - node/install-packages:
-                pkg-manager: yarn-berry
+  build:
+    steps:
+      - checkout
+      - run: git submodule update --init --recursive
+      - run:
+          name: Install utils dependencies
+          command: cd ./src/cad-viewer/src/utils && yarn
+      - run:
+          name: Install cad-viewer dependencies
+          command: cd ./src/cad-viewer && yarn
+      - node/install-packages:
+          pkg-manager: yarn-berry
 executors:
-    default:
-        docker:
-            - image: cimg/node:lts-browsers
-        resource_class: large
+  default:
+    docker:
+      - image: cimg/node:lts-browsers
+    resource_class: large
 
 jobs:
-    build:
-        executor: default
-        steps:
-            - build
-    lint:
-        executor: default
-        steps:
-            - build
-            - run:
-                name: Lint
-                command: yarn lint
-    unit-test:
-        executor: default
-        steps:
-            - build
-            - browser-tools/install-chrome
-            - browser-tools/install-chromedriver
-            - run:
-                name: Unit test
-                command: yarn test:ci
+  build:
+    executor: default
+    steps:
+      - build
+  lint:
+    executor: default
+    steps:
+      - build
+      - run:
+          name: Lint
+          command: yarn lint
+  unit-test:
+    executor: default
+    steps:
+      - build
+      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
+      - run:
+          name: Unit test
+          command: yarn test:ci
 
 workflows:
-    test:
-        jobs:
+  test:
+    jobs:
+      - build
+      - lint:
+          requires:
             - build
-            - lint:
-                requires:
-                    - build
-            - unit-test:
-                requires:
-                    - build
+      - unit-test:
+          requires:
+            - build

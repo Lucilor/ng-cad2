@@ -11,27 +11,27 @@ import {CadDataAttrsComponent, CadDataAttrsComponentData} from "./cad-data-attrs
 
 const data: CadDataAttrsComponentData = {a: "1", b: "2"};
 describe("CadDataAttrsComponent", () => {
-    let component: CadDataAttrsComponent;
-    let fixture: ComponentFixture<CadDataAttrsComponent>;
+  let component: CadDataAttrsComponent;
+  let fixture: ComponentFixture<CadDataAttrsComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadDataAttrsComponent],
-            imports: [BrowserAnimationsModule, FormsModule, MatFormFieldModule, MatIconModule, MatInputModule, NgScrollbarModule],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data}
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadDataAttrsComponent],
+      imports: [BrowserAnimationsModule, FormsModule, MatFormFieldModule, MatIconModule, MatInputModule, NgScrollbarModule],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data}
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CadDataAttrsComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CadDataAttrsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

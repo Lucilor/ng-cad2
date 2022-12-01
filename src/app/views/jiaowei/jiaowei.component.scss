@@ -1,49 +1,49 @@
 :host {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .toolbar {
-    padding-left: 20px;
+  padding-left: 20px;
 }
 
 .forms {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-    height: 100%;
-    font-size: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 100%;
+  font-size: 18px;
 
-    .form {
-        width: 50%;
-        padding: 10px;
-        box-sizing: border-box;
-        $border: 1px solid lightgray;
-        &:nth-child(2n + 1) {
-            border-right: $border;
-        }
-        &:not(:nth-last-child(-n + 2)) {
-            border-bottom: $border;
-        }
-
-        .title {
-            margin-bottom: 20px;
-        }
-
-        .items {
-            display: flex;
-            align-items: center;
-            margin-bottom: -10px;
-
-            > * {
-                flex: 0 0 auto;
-                width: auto;
-                &:not(:last-child) {
-                    margin-right: 10px;
-                }
-            }
-        }
+  .form {
+    width: 50%;
+    padding: 10px;
+    box-sizing: border-box;
+    $border: 1px solid lightgray;
+    &:nth-child(2n + 1) {
+      border-right: $border;
     }
+    &:not(:nth-last-child(-n + 2)) {
+      border-bottom: $border;
+    }
+
+    .title {
+      margin-bottom: 20px;
+    }
+
+    .items {
+      display: flex;
+      align-items: center;
+      margin-bottom: -10px;
+
+      > * {
+        flex: 0 0 auto;
+        width: auto;
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
+      }
+    }
+  }
 }

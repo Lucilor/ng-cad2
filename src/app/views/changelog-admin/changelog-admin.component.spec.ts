@@ -15,38 +15,38 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {ChangelogAdminComponent} from "./changelog-admin.component";
 
 describe("ChangelogAdminComponent", () => {
-    let component: ChangelogAdminComponent;
-    let fixture: ComponentFixture<ChangelogAdminComponent>;
+  let component: ChangelogAdminComponent;
+  let fixture: ComponentFixture<ChangelogAdminComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [ChangelogAdminComponent],
-            imports: [
-                DragDropModule,
-                HttpModule,
-                FormsModule,
-                MatButtonModule,
-                MatIconModule,
-                MatInputModule,
-                MatFormFieldModule,
-                MatExpansionModule,
-                MatPaginatorModule,
-                MatSelectModule,
-                MessageModule,
-                NgScrollbarModule,
-                SpinnerModule
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ChangelogAdminComponent],
+      imports: [
+        DragDropModule,
+        HttpModule,
+        FormsModule,
+        MatButtonModule,
+        MatIconModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatExpansionModule,
+        MatPaginatorModule,
+        MatSelectModule,
+        MessageModule,
+        NgScrollbarModule,
+        SpinnerModule
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(ChangelogAdminComponent);
-        component = fixture.componentInstance;
-        component.changelog = [{timeStamp: new Date().getTime(), content: [{type: "feat", items: ["1", "2"]}]}];
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ChangelogAdminComponent);
+    component = fixture.componentInstance;
+    component.changelog = [{timeStamp: new Date().getTime(), content: [{type: "feat", items: ["1", "2"]}]}];
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

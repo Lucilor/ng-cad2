@@ -1,107 +1,107 @@
 .page {
-	width: 798px;
-	height: 1120px;
-	padding: 26px 24px;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: flex-start;
-	align-content: flex-start;
-	font-family: 微软雅黑;
-	box-sizing: border-box;
-	page-break-after: always;
+  width: 798px;
+  height: 1120px;
+  padding: 26px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  font-family: 微软雅黑;
+  box-sizing: border-box;
+  page-break-after: always;
 
-	.card {
-		width: 179px;
-		height: 142px;
-		position: relative;
-		// margin: 5px;
+  .card {
+    width: 179px;
+    height: 142px;
+    position: relative;
+    // margin: 5px;
 
-		.title {
-			font-size: 23px;
-			line-height: 30px;
-			width: 100%;
-			top: 22px;
-			position: absolute;
-			text-align: left;
-			left: 8px;
-		}
+    .title {
+      font-size: 23px;
+      line-height: 30px;
+      width: 100%;
+      top: 22px;
+      position: absolute;
+      text-align: left;
+      left: 8px;
+    }
 
-		.desc-left {
-			bottom: 12px;
-			padding-left: 5px;
-			font-size: 15px;
-			line-height: 16px;
-			position: absolute;
-		}
+    .desc-left {
+      bottom: 12px;
+      padding-left: 5px;
+      font-size: 15px;
+      line-height: 16px;
+      position: absolute;
+    }
 
-		.code {
-			position: absolute;
-			top: 5px;
-			left: 10px;
-			font-size: 20px;
-			font-weight: bold;
-			white-space: nowrap;
-		}
+    .code {
+      position: absolute;
+      top: 5px;
+      left: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
 
-		.desc-right {
-			position: absolute;
-			top: 81px;
-			right: 11px;
-			font-size: 12px;
-			line-height: 13px;
-			width: 60px;
+    .desc-right {
+      position: absolute;
+      top: 81px;
+      right: 11px;
+      font-size: 12px;
+      line-height: 13px;
+      width: 60px;
 
-			& > :first-of-type {
-				top: 21px;
-				left: -97px;
-				position: absolute;
-			}
-		}
+      & > :first-of-type {
+        top: 21px;
+        left: -97px;
+        position: absolute;
+      }
+    }
 
-		.zhankai {
-			position: absolute;
-			bottom: 9px;
-			left: 12px;
-			font-size: 14px;
-			font-weight: 600;
-		}
+    .zhankai {
+      position: absolute;
+      bottom: 9px;
+      left: 12px;
+      font-size: 14px;
+      font-weight: 600;
+    }
 
-		.cad-preview {
-			position: absolute;
-			width: 92px;
-			height: 92px;
-			left: 10px;
-			top: 22px;
-		}
+    .cad-preview {
+      position: absolute;
+      width: 92px;
+      height: 92px;
+      left: 10px;
+      top: 22px;
+    }
 
-		.qrcode {
-			position: absolute;
-			width: 55px;
-			height: 55px;
-			right: 16px;
-			top: 26px;
-		}
-	}
+    .qrcode {
+      position: absolute;
+      width: 55px;
+      height: 55px;
+      right: 16px;
+      top: 26px;
+    }
+  }
 }
 
 :host {
-	display: block;
-	width: 100%;
-	height: 100%;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .menu {
-	position: fixed;
-	left: 800px;
-	bottom: 30px;
+  position: fixed;
+  left: 800px;
+  bottom: 30px;
 }
 
 @media print {
-	:host {
-		height: auto;
-	}
+  :host {
+    height: auto;
+  }
 
-	.menu {
-		display: none;
-	}
+  .menu {
+    display: none;
+  }
 }

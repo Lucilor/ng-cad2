@@ -85,145 +85,145 @@ import {AppComponent} from "./app.component";
 
 @Injectable()
 class MyMatPaginatorIntl extends MatPaginatorIntl {
-    itemsPerPageLabel = "每页条数";
-    previousPageLabel = "上一页";
-    nextPageLabel = "下一页";
-    firstPageLabel = "首页";
-    lastPageLabel = "尾页";
+  itemsPerPageLabel = "每页条数";
+  previousPageLabel = "上一页";
+  nextPageLabel = "下一页";
+  firstPageLabel = "首页";
+  lastPageLabel = "尾页";
 
-    getRangeLabel = (page: number, pageSize: number, length: number) => {
-        const totalPage = Math.ceil(length / pageSize);
-        return `第${page + 1}/${totalPage}页，共${length}条`;
-    };
+  getRangeLabel = (page: number, pageSize: number, length: number) => {
+    const totalPage = Math.ceil(length / pageSize);
+    return `第${page + 1}/${totalPage}页，共${length}条`;
+  };
 }
 
 const matFormFieldOptions: MatFormFieldDefaultOptions = {
-    appearance: "fill",
-    floatLabel: "always"
+  appearance: "fill",
+  floatLabel: "always"
 };
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        BackupComponent,
-        BancaiListComponent,
-        BbzhmkgzComponent,
-        CadEditorDialogComponent,
-        CadLineTjqzComponent,
-        CadLineTjqzSelectComponent,
-        CadListComponent,
-        CadOptionsComponent,
-        CadSearchFormComponent,
-        CadZhankaiComponent,
-        ChangelogAdminComponent,
-        ChangelogComponent,
-        CleanComponent,
-        DingdanbiaoqianComponent,
-        EditFormulasDialogComponent,
-        ExportComponent,
-        FormulasEditorComponent,
-        ImportComponent,
-        IndexComponent,
-        JiaoweiComponent,
-        JsonEditorComponent,
-        KailiaocanshuComponent,
-        KailiaokongweipeizhiComponent,
-        KlcsComponent,
-        KlcsDialogComponent,
-        KlkwpzComponent,
-        KlkwpzDialogComponent,
-        LoginFormComponent,
-        PageNotFoundComponent,
-        PiliangjianbanComponent,
-        PjmkComponent,
-        PrintA4A015PreviewComponent,
-        PrintCadComponent,
-        ProgressBarComponent,
-        ReplaceTextComponent,
-        SelectBancaiCadsComponent,
-        SelectBancaiComponent,
-        SelectCadsComponent,
-        ZixuanpeijianComponent
-    ],
-    imports: [
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        BrowserModule,
-        CadConsoleModule,
-        CadEditorModule,
-        ColorChromeModule,
-        ColorCircleModule,
-        DirectivesModule,
-        DragDropModule,
-        FormsModule,
-        HttpClientModule,
-        HttpModule,
-        ImageModule,
-        InfiniteScrollModule,
-        InputModule,
-        MatAutocompleteModule,
-        MatButtonModule,
-        MatCardModule,
-        MatCheckboxModule,
-        MatDatepickerModule,
-        MatDialogModule,
-        MatDividerModule,
-        MatExpansionModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatListModule,
-        MatMenuModule,
-        MatNativeDateModule,
-        MatPaginatorModule,
-        MatRadioModule,
-        MatSelectModule,
-        MatSlideToggleModule,
-        MatTableModule,
-        MatTabsModule,
-        MatTooltipModule,
-        MessageModule,
-        NgJsonEditorModule,
-        NgScrollbarModule,
-        QuillModule.forRoot({
-            format: "json",
-            modules: {
-                syntax: true,
-                toolbar: [
-                    ["bold", "italic", "underline", "strike"], // toggled buttons
-                    ["blockquote", "code-block"],
+  declarations: [
+    AppComponent,
+    BackupComponent,
+    BancaiListComponent,
+    BbzhmkgzComponent,
+    CadEditorDialogComponent,
+    CadLineTjqzComponent,
+    CadLineTjqzSelectComponent,
+    CadListComponent,
+    CadOptionsComponent,
+    CadSearchFormComponent,
+    CadZhankaiComponent,
+    ChangelogAdminComponent,
+    ChangelogComponent,
+    CleanComponent,
+    DingdanbiaoqianComponent,
+    EditFormulasDialogComponent,
+    ExportComponent,
+    FormulasEditorComponent,
+    ImportComponent,
+    IndexComponent,
+    JiaoweiComponent,
+    JsonEditorComponent,
+    KailiaocanshuComponent,
+    KailiaokongweipeizhiComponent,
+    KlcsComponent,
+    KlcsDialogComponent,
+    KlkwpzComponent,
+    KlkwpzDialogComponent,
+    LoginFormComponent,
+    PageNotFoundComponent,
+    PiliangjianbanComponent,
+    PjmkComponent,
+    PrintA4A015PreviewComponent,
+    PrintCadComponent,
+    ProgressBarComponent,
+    ReplaceTextComponent,
+    SelectBancaiCadsComponent,
+    SelectBancaiComponent,
+    SelectCadsComponent,
+    ZixuanpeijianComponent
+  ],
+  imports: [
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    BrowserModule,
+    CadConsoleModule,
+    CadEditorModule,
+    ColorChromeModule,
+    ColorCircleModule,
+    DirectivesModule,
+    DragDropModule,
+    FormsModule,
+    HttpClientModule,
+    HttpModule,
+    ImageModule,
+    InfiniteScrollModule,
+    InputModule,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatNativeDateModule,
+    MatPaginatorModule,
+    MatRadioModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatTableModule,
+    MatTabsModule,
+    MatTooltipModule,
+    MessageModule,
+    NgJsonEditorModule,
+    NgScrollbarModule,
+    QuillModule.forRoot({
+      format: "json",
+      modules: {
+        syntax: true,
+        toolbar: [
+          ["bold", "italic", "underline", "strike"], // toggled buttons
+          ["blockquote", "code-block"],
 
-                    [{header: 1}, {header: 2}], // custom button values
-                    [{list: "ordered"}, {list: "bullet"}],
-                    [{script: "sub"}, {script: "super"}], // superscript/subscript
-                    [{indent: "-1"}, {indent: "+1"}], // outdent/indent
-                    [{direction: "rtl"}], // text direction
+          [{header: 1}, {header: 2}], // custom button values
+          [{list: "ordered"}, {list: "bullet"}],
+          [{script: "sub"}, {script: "super"}], // superscript/subscript
+          [{indent: "-1"}, {indent: "+1"}], // outdent/indent
+          [{direction: "rtl"}], // text direction
 
-                    [{size: ["small", false, "large", "huge"]}], // custom dropdown
-                    [{header: [1, 2, 3, 4, 5, 6, false]}],
+          [{size: ["small", false, "large", "huge"]}], // custom dropdown
+          [{header: [1, 2, 3, 4, 5, 6, false]}],
 
-                    [{color: []}, {background: []}], // dropdown with defaults from theme
-                    // [{font: []}],
-                    [{align: []}],
+          [{color: []}, {background: []}], // dropdown with defaults from theme
+          // [{font: []}],
+          [{align: []}],
 
-                    ["clean"], // remove formatting button
+          ["clean"], // remove formatting button
 
-                    ["link", "image", "video"] // link and image, video
-                ]
-            }
-        }),
-        ReactiveFormsModule,
-        RecaptchaV3Module,
-        SpinnerModule,
-        TableModule
-    ],
-    providers: [
-        {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
-        {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matFormFieldOptions},
-        {provide: MAT_DATE_LOCALE, useValue: "zh-CN"},
-        {provide: RECAPTCHA_V3_SITE_KEY, useValue: "6Leil-0ZAAAAACnzpTud2QN5OuhJ10UyJJrUq70m"},
-        {provide: RECAPTCHA_BASE_URL, useValue: "https://recaptcha.net/recaptcha/api.js"}
-    ],
-    bootstrap: [AppComponent]
+          ["link", "image", "video"] // link and image, video
+        ]
+      }
+    }),
+    ReactiveFormsModule,
+    RecaptchaV3Module,
+    SpinnerModule,
+    TableModule
+  ],
+  providers: [
+    {provide: MatPaginatorIntl, useClass: MyMatPaginatorIntl},
+    {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matFormFieldOptions},
+    {provide: MAT_DATE_LOCALE, useValue: "zh-CN"},
+    {provide: RECAPTCHA_V3_SITE_KEY, useValue: "6Leil-0ZAAAAACnzpTud2QN5OuhJ10UyJJrUq70m"},
+    {provide: RECAPTCHA_BASE_URL, useValue: "https://recaptcha.net/recaptcha/api.js"}
+  ],
+  bootstrap: [AppComponent]
 })
 export class AppModule {}

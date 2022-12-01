@@ -1,17 +1,17 @@
 :host {
-    width: 80vw;
-    height: 80vh;
-    display: flex;
-    flex-direction: column;
+  width: 80vw;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
 
-    > :not(.mat-dialog-content) {
-        flex: 0 0 0;
-    }
-    > .mat-dialog-content {
-        flex: 1 1 0;
-    }
+  > :not(.mat-dialog-content) {
+    flex: 0 0 0;
+  }
+  > .mat-dialog-content {
+    flex: 1 1 0;
+  }
 }
 
 .disabled {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }

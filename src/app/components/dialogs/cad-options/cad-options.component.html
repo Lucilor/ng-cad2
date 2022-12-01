@@ -1,39 +1,39 @@
 <form>
-    <mat-form-field>
-        <mat-label>搜索选项</mat-label>
-        <input name="search" matInput type="search" (keydown)="searchKeydown($event)" [(ngModel)]="searchInput" />
-        <button mat-icon-button class="search-button" matSuffix (click)="search()">
-            <mat-icon>search</mat-icon>
-        </button>
-    </mat-form-field>
+  <mat-form-field>
+    <mat-label>搜索选项</mat-label>
+    <input name="search" matInput type="search" (keydown)="searchKeydown($event)" [(ngModel)]="searchInput" />
+    <button mat-icon-button class="search-button" matSuffix (click)="search()">
+      <mat-icon>search</mat-icon>
+    </button>
+  </mat-form-field>
 </form>
 
 <ng-scrollbar class="content">
-    <app-spinner [id]="loaderIds.optionsLoader"></app-spinner>
-    <div class="checkbox-group add-empty-msg">
-        <div class="data-container" *ngFor="let item of pageData; let i = index" [matTooltip]="item.name" [matTooltipPosition]="'above'">
-            <mat-checkbox [checked]="item.checked" (change)="onCheckboxChange(item, $event)" [disabled]="item.disabled && !item.checked">
-                {{ item.name }}
-            </mat-checkbox>
-            <br />
-            <app-image *ngIf="item.img" [src]="item.img" (click)="onCheckboxChange(item)"></app-image>
-        </div>
+  <app-spinner [id]="loaderIds.optionsLoader"></app-spinner>
+  <div class="checkbox-group add-empty-msg">
+    <div class="data-container" *ngFor="let item of pageData; let i = index" [matTooltip]="item.name" [matTooltipPosition]="'above'">
+      <mat-checkbox [checked]="item.checked" (change)="onCheckboxChange(item, $event)" [disabled]="item.disabled && !item.checked">
+        {{ item.name }}
+      </mat-checkbox>
+      <br />
+      <app-image *ngIf="item.img" [src]="item.img" (click)="onCheckboxChange(item)"></app-image>
     </div>
+  </div>
 </ng-scrollbar>
 
 <mat-paginator
-    #paginator
-    [length]="length"
-    [pageSize]="pageSize"
-    [pageSizeOptions]="pageSizeOptions"
-    showFirstLastButtons
-    (page)="changePage($event)"
+  #paginator
+  [length]="length"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="pageSizeOptions"
+  showFirstLastButtons
+  (page)="changePage($event)"
 ></mat-paginator>
 
 <div class="btn-group" mat-dialog-actions>
-    <div class="spinner-container">
-        <button mat-raised-button color="primary" (click)="submit()">确定</button>
-        <app-spinner [id]="loaderIds.submitLoaderId" [inline]="true"></app-spinner>
-    </div>
-    <button mat-raised-button color="primary" (click)="close()">取消</button>
+  <div class="spinner-container">
+    <button mat-raised-button color="primary" (click)="submit()">确定</button>
+    <app-spinner [id]="loaderIds.submitLoaderId" [inline]="true"></app-spinner>
+  </div>
+  <button mat-raised-button color="primary" (click)="close()">取消</button>
 </div>

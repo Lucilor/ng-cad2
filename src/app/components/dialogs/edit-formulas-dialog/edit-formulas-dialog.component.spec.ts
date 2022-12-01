@@ -11,25 +11,25 @@ import {EditFormulasDialogComponent, EditFormulasInput} from "./edit-formulas-di
 const data: EditFormulasInput = {formulas: {a: 1, b: 2}};
 
 describe("EditFormulasDialogComponent", () => {
-    let component: EditFormulasDialogComponent;
-    let fixture: ComponentFixture<EditFormulasDialogComponent>;
+  let component: EditFormulasDialogComponent;
+  let fixture: ComponentFixture<EditFormulasDialogComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [EditFormulasDialogComponent, FormulasEditorComponent],
-            imports: [HttpModule, InputModule, MatIconModule, MessageModule, NgScrollbarModule],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data}
-            ]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [EditFormulasDialogComponent, FormulasEditorComponent],
+      imports: [HttpModule, InputModule, MatIconModule, MessageModule, NgScrollbarModule],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data}
+      ]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(EditFormulasDialogComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(EditFormulasDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

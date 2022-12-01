@@ -1,21 +1,21 @@
 .mat-button {
-    padding: 2px 5px;
-    min-width: unset;
+  padding: 2px 5px;
+  min-width: unset;
 }
 
 .super {
-    vertical-align: super !important;
-    font-size: 0.5em;
-    color: hotpink;
+  vertical-align: super !important;
+  font-size: 0.5em;
+  color: hotpink;
 }
 
 .mat-divider {
-    display: inline;
-    border-right-color: rgba(0, 0, 0, 0.25);
-    margin: 0 3px;
+  display: inline;
+  border-right-color: rgba(0, 0, 0, 0.25);
+  margin: 0 3px;
 }
 
 .toolbar {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }

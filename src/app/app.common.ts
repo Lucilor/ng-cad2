@@ -3,10 +3,10 @@ import {environment} from "@env";
 import {LocalStorage, log, ObjectOf, SessionStorage, Timer} from "@utils";
 
 declare global {
-    interface Window {
-        parseBaobianzhengmianRules(content: string, vars?: ObjectOf<any>): {errors: string[]};
-        batchCheck(data: ObjectOf<any>[]): ObjectOf<string[]>;
-    }
+  interface Window {
+    parseBaobianzhengmianRules(content: string, vars?: ObjectOf<any>): {errors: string[]};
+    batchCheck(data: ObjectOf<any>[]): ObjectOf<string[]>;
+  }
 }
 
 export const projectName = "NgCad2";
@@ -29,87 +29,87 @@ VwIDAQAB
 `;
 
 export type CadCollection =
-    | "cad"
-    | "CADmuban"
-    | "qiliaozuhe"
-    | "qieliaocad"
-    | "order"
-    | "kailiaocadmuban"
-    | "material"
-    | "zixuanpeijian"
-    | "luomatoucad"
-    | "kailiaocanshu";
+  | "cad"
+  | "CADmuban"
+  | "qiliaozuhe"
+  | "qieliaocad"
+  | "order"
+  | "kailiaocadmuban"
+  | "material"
+  | "zixuanpeijian"
+  | "luomatoucad"
+  | "kailiaocanshu";
 
 export const timer = new Timer({color: "deeppink"});
 
 export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 
 export const splitOptions = (str: string) => {
-    if (str.includes(";")) {
-        return str.split(";");
-    } else {
-        return str.split(",");
-    }
+  if (str.includes(";")) {
+    return str.split(";");
+  } else {
+    return str.split(",");
+  }
 };
 
 export const joinOptions = (options: string[]) => options.join(";");
 
 export const replaceChars = (str: string) => {
-    const fullChars2HalfChars: ObjectOf<string> = {
-        "“": '"',
-        "”": '"',
-        "。": ".",
-        "，": ",",
-        "？": "?",
-        "！": "!",
-        "；": ";",
-        "：": ":",
-        "‘": "'",
-        "’": "'",
-        "（": "(",
-        "）": ")"
-    };
-    let tmp = "";
-    for (const char of str) {
-        if (typeof fullChars2HalfChars[char] === "string") {
-            tmp += fullChars2HalfChars[char];
-        } else {
-            tmp += char;
-        }
+  const fullChars2HalfChars: ObjectOf<string> = {
+    "“": '"',
+    "”": '"',
+    "。": ".",
+    "，": ",",
+    "？": "?",
+    "！": "!",
+    "；": ";",
+    "：": ":",
+    "‘": "'",
+    "’": "'",
+    "（": "(",
+    "）": ")"
+  };
+  let tmp = "";
+  for (const char of str) {
+    if (typeof fullChars2HalfChars[char] === "string") {
+      tmp += fullChars2HalfChars[char];
+    } else {
+      tmp += char;
     }
-    return tmp;
+  }
+  return tmp;
 };
 
 export type TypedFormGroup<T extends ObjectOf<any>> = FormGroup<{[K in keyof T]: FormControl<T[K]>}>;
 
 export const getFormControl = <T>(value: T | FormControlState<T>, opts: FormControlOptions = {}) =>
-    new FormControl(value, {...opts, nonNullable: true});
+  new FormControl(value, {...opts, nonNullable: true});
 
 export const getFormGroup = <T extends ObjectOf<any>>(controls: {[K in keyof T]: FormControl<T[K]>}, opts?: AbstractControlOptions) =>
-    new FormGroup(controls, opts);
+  new FormGroup(controls, opts);
 
 export const setGlobal = <T>(key: string, value: T, production = false) => {
-    if (!production && environment.production) {
-        return;
-    }
-    (window as any)[key] = value;
-    // Reflect.defineProperty(window, key, {value});
+  if (!production && environment.production) {
+    return;
+  }
+  (window as any)[key] = value;
+  // Reflect.defineProperty(window, key, {value});
 };
 
 export const getFormControlErrorString = (control: FormControl) => {
-    const errors = control.errors;
-    if (!errors) {
-        return null;
+  const errors = control.errors;
+  if (!errors) {
+    return null;
+  }
+  const mapFn = (str: string) => {
+    switch (str) {
+      case "required":
+        return "必填";
+      default:
+        return str;
     }
-    const mapFn = (str: string) => {
-        switch (str) {
-            case "required":
-                return "必填";
-            default:
-                return str;
-        }
-    };
-    return Object.keys(errors).map(mapFn).join(", ");
+  };
+  return Object.keys(errors).map(mapFn).join(", ");
 };
 
 export type ProjectConfig = ObjectOf<string>;
@@ -120,8 +120,8 @@ setGlobal("log", log);
 export const remoteHost = "https://www.let888.cn" as const;
 
 export const replaceRemoteHost = (url: string) => {
-    if (!environment.production && url.startsWith(remoteHost)) {
-        return url.replace(remoteHost, window.origin);
-    }
-    return url;
+  if (!environment.production && url.startsWith(remoteHost)) {
+    return url.replace(remoteHost, window.origin);
+  }
+  return url;
 };

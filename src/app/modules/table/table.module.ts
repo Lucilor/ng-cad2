@@ -12,19 +12,19 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {TableComponent} from "./components/table/table.component";
 
 @NgModule({
-    declarations: [TableComponent],
-    imports: [
-        CommonModule,
-        MatCheckboxModule,
-        MatButtonModule,
-        MatIconModule,
-        MatInputModule,
-        MatSelectModule,
-        MatSlideToggleModule,
-        MatSortModule,
-        MatTableModule,
-        NgScrollbarModule
-    ],
-    exports: [TableComponent]
+  declarations: [TableComponent],
+  imports: [
+    CommonModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatSortModule,
+    MatTableModule,
+    NgScrollbarModule
+  ],
+  exports: [TableComponent]
 })
 export class TableModule {}

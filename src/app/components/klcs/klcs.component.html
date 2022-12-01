@@ -1,23 +1,23 @@
 <div class="btn-group">
-    <button mat-raised-button color="primary" (click)="submit()">提交</button>
+  <button mat-raised-button color="primary" (click)="submit()">提交</button>
 </div>
 <div>
-    <app-input *ngFor="let info of inputInfos" [info]="info"></app-input>
+  <app-input *ngFor="let info of inputInfos" [info]="info"></app-input>
 </div>
 
 <json-editor *ngIf="useJsonEditor; else qiezhongkong" [options]="options" [data]="data['参数']"></json-editor>
 <ng-template #qiezhongkong>
-    <ng-scrollbar style="flex: 1 1 0">
-        <div class="qiezhongkong">
-            <button *ngIf="inputInfos2.length < 1" mat-raised-button color="primary" (click)="addQiezhongkongItem(0)">新增</button>
-            <div class="qiezhongkong-item" *ngFor="let group of inputInfos2; let i = index">
-                <div class="btn-group">
-                    <button mat-raised-button color="primary" (click)="addQiezhongkongItem(i)">新增</button>
-                    <button mat-raised-button color="primary" (click)="copyQiezhongkongItem(i)">复制</button>
-                    <button mat-raised-button color="primary" (click)="removeQiezhongkongItem(i)">删除</button>
-                </div>
-                <app-input *ngFor="let info of group" [info]="info" [ngClass]="info.label"></app-input>
-            </div>
+  <ng-scrollbar style="flex: 1 1 0">
+    <div class="qiezhongkong">
+      <button *ngIf="inputInfos2.length < 1" mat-raised-button color="primary" (click)="addQiezhongkongItem(0)">新增</button>
+      <div class="qiezhongkong-item" *ngFor="let group of inputInfos2; let i = index">
+        <div class="btn-group">
+          <button mat-raised-button color="primary" (click)="addQiezhongkongItem(i)">新增</button>
+          <button mat-raised-button color="primary" (click)="copyQiezhongkongItem(i)">复制</button>
+          <button mat-raised-button color="primary" (click)="removeQiezhongkongItem(i)">删除</button>
         </div>
-    </ng-scrollbar>
+        <app-input *ngFor="let info of group" [info]="info" [ngClass]="info.label"></app-input>
+      </div>
+    </div>
+  </ng-scrollbar>
 </ng-template>

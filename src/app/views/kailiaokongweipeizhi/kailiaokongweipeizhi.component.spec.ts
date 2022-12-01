@@ -9,23 +9,23 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {KailiaokongweipeizhiComponent} from "./kailiaokongweipeizhi.component";
 
 describe("KailiaokongweipeizhiComponent", () => {
-    let component: KailiaokongweipeizhiComponent;
-    let fixture: ComponentFixture<KailiaokongweipeizhiComponent>;
+  let component: KailiaokongweipeizhiComponent;
+  let fixture: ComponentFixture<KailiaokongweipeizhiComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [KailiaokongweipeizhiComponent, KlkwpzComponent],
-            imports: [HttpModule, InputModule, MatCardModule, MessageModule, NgScrollbarModule, SpinnerModule]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [KailiaokongweipeizhiComponent, KlkwpzComponent],
+      imports: [HttpModule, InputModule, MatCardModule, MessageModule, NgScrollbarModule, SpinnerModule]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(KailiaokongweipeizhiComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(KailiaokongweipeizhiComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

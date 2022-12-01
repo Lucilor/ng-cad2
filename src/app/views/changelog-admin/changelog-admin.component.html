@@ -1,157 +1,153 @@
 <ng-scrollbar>
-    <mat-accordion>
-        <div class="btn-group" style="padding-left: 20px">
-            <div class="spinner-container" *ngIf="page === 1">
-                <button mat-icon-button color="primary" (click)="addChangelogItem(0)">
-                    <mat-icon>add_circle</mat-icon>
-                </button>
-                <app-spinner [id]="loaderId + 'Add0'" [inline]="true"></app-spinner>
-            </div>
-            <button mat-raised-button color="primary" (click)="fetchChangelog()">获取文件</button>
-            <input type="file" #fileInput hidden (change)="setSourceData($event)" accept=".json" />
-            <button mat-raised-button color="primary" (click)="fileInput.click()">读取文件</button>
-            <button mat-raised-button color="primary" *ngIf="changelogRaw" (click)="downloadChangelog()">保存文件</button>
-        </div>
-        <app-spinner [id]="loaderId"></app-spinner>
-        <mat-expansion-panel *ngFor="let v of changelog; let i = index">
-            <mat-expansion-panel-header>
-                <mat-panel-title>{{ getDate(v).toFormat('yyyy-MM-dd') }}</mat-panel-title>
-                <mat-panel-description>{{ getDate(v).toFormat('HH:mm:ss') }}</mat-panel-description>
-            </mat-expansion-panel-header>
-            <div class="changelog" cdkDropList (cdkDropListDropped)="dropContent($event, i)" [cdkDropListDisabled]="isDropListDisabled(i)">
-                <div class="title">
-                    <mat-form-field>
-                        <mat-label>更新日期</mat-label>
-                        <input
-                            matInput
-                            [value]="getDate(v).toFormat('yyyy-MM-dd HH:mm:ss')"
-                            (dateChange)="onDateChange($event, i)"
-                        />
-                        <button mat-icon-button matSuffix color="primary" (click)="setTime(i)">
-                            <mat-icon>autorenew</mat-icon>
-                        </button>
-                    </mat-form-field>
-                    <div class="btn-group">
-                        <div class="spinner-container">
-                            <button mat-raised-button color="primary" (click)="setChangelogItem(i)">保存</button>
-                            <app-spinner [id]="loaderId + 'Set' + i" [inline]="true"></app-spinner>
-                        </div>
-                        <div class="spinner-container">
-                            <button mat-raised-button color="primary" (click)="removeChangelogItem(i)">删除</button>
-                            <app-spinner [id]="loaderId + 'Remove' + i" [inline]="true"></app-spinner>
-                        </div>
-                    </div>
-                </div>
-                <div class="btn-group" *ngIf="v.content.length === 0">
-                    <button mat-icon-button color="primary" (click)="addContent(i, 0)">
-                        <mat-icon>add_circle</mat-icon>
-                    </button>
-                </div>
-                <div class="content" *ngFor="let w of v.content; let j = index" cdkDrag>
-                    <div class="drag-placeholder" *cdkDragPlaceholder></div>
-                    <div class="content-type">
-                        <mat-form-field>
-                            <mat-label>更新类型</mat-label>
-                            <mat-select [(ngModel)]="w.type">
-                                <mat-option *ngFor="let key of changelogTypeKeys" [value]="key">
-                                    {{ key }}
-                                </mat-option>
-                            </mat-select>
-                            <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation(); addContent(i, j)">
-                                <mat-icon>add_circle</mat-icon>
-                            </button>
-                            <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation(); removeContent(i, j)">
-                                <mat-icon>remove_circle</mat-icon>
-                            </button>
-                        </mat-form-field>
-                    </div>
-                    <div
-                        class="content-text"
-                        cdkDropList
-                        (cdkDropListDropped)="dropContentText($event, i, j)"
-                        [cdkDropListDisabled]="isDropListDisabled(i, j)"
-                    >
-                        <mat-form-field *ngFor="let item of w.items; let k = index; trackBy: trackByIdx" cdkDrag>
-                            <div class="drag-placeholder" *cdkDragPlaceholder></div>
-                            <mat-label>更新内容</mat-label>
-                            <input
-                                type="text"
-                                matInput
-                                [(ngModel)]="w.items[k]"
-                                (focus)="focusedContentText = [i, j]"
-                                (blur)="focusedContentText = null"
-                                autocomplete="off"
-                            />
-                            <button matSuffix mat-icon-button color="primary" (click)="addItem(i, j, k)">
-                                <mat-icon>add_circle</mat-icon>
-                            </button>
-                            <button matSuffix mat-icon-button color="primary" (click)="removeItem(i, j, k)">
-                                <mat-icon>remove_circle</mat-icon>
-                            </button>
-                        </mat-form-field>
-                    </div>
-                </div>
-            </div>
-        </mat-expansion-panel>
-    </mat-accordion>
-    <div class="list" *ngIf="false">
-        <div class="changelog" *ngFor="let v of changelog; let i = index">
-            <mat-form-field>
-                <mat-label>更新日期</mat-label>
-                <input matInput [value]="getDate(v.timeStamp)" (dateChange)="onDateChange($event, i)" />
-                <button mat-icon-button matSuffix color="primary" style="height: 40px; line-height: 40px" (click)="setTime(i)">
-                    <mat-icon>autorenew</mat-icon>
-                </button>
-            </mat-form-field>
-            <div *ngFor="let w of v.content; let j = index" class="content">
-                <mat-form-field>
-                    <mat-label>更新类型</mat-label>
-                    <mat-select [(ngModel)]="w.type">
-                        <mat-option *ngFor="let key of changelogTypeKeys" [value]="key">
-                            {{ key }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <div class="items">
-                    <div class="item" *ngFor="let item of w.items; let k = index; trackBy: trackByIdx">
-                        <mat-form-field>
-                            <input type="text" matInput placeholder="更新内容" [(ngModel)]="w.items[k]" />
-                        </mat-form-field>
-                        <div class="btn-group">
-                            <button mat-icon-button color="primary" (click)="addItem(i, j, k)">
-                                <mat-icon>add</mat-icon>
-                            </button>
-                            <button mat-icon-button color="primary" (click)="removeItem(i, j, k)">
-                                <mat-icon>remove</mat-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="btn-group">
-                    <button mat-icon-button color="primary" (click)="addContent(i, j)">
-                        <mat-icon>add</mat-icon>
-                    </button>
-                    <button mat-icon-button color="primary" (click)="removeContent(i, j)">
-                        <mat-icon>remove</mat-icon>
-                    </button>
-                </div>
-            </div>
-            <div class="btn-group">
-                <button mat-icon-button color="primary" (click)="addChangelog(i)">
-                    <mat-icon>add</mat-icon>
-                </button>
-                <button mat-icon-button color="primary" (click)="removeChangelog(i)">
-                    <mat-icon>remove</mat-icon>
-                </button>
-            </div>
-        </div>
+  <mat-accordion>
+    <div class="btn-group" style="padding-left: 20px">
+      <div class="spinner-container" *ngIf="page === 1">
+        <button mat-icon-button color="primary" (click)="addChangelogItem(0)">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+        <app-spinner [id]="loaderId + 'Add0'" [inline]="true"></app-spinner>
+      </div>
+      <button mat-raised-button color="primary" (click)="fetchChangelog()">获取文件</button>
+      <input type="file" #fileInput hidden (change)="setSourceData($event)" accept=".json" />
+      <button mat-raised-button color="primary" (click)="fileInput.click()">读取文件</button>
+      <button mat-raised-button color="primary" *ngIf="changelogRaw" (click)="downloadChangelog()">保存文件</button>
     </div>
+    <app-spinner [id]="loaderId"></app-spinner>
+    <mat-expansion-panel *ngFor="let v of changelog; let i = index">
+      <mat-expansion-panel-header>
+        <mat-panel-title>{{ getDate(v).toFormat("yyyy-MM-dd") }}</mat-panel-title>
+        <mat-panel-description>{{ getDate(v).toFormat("HH:mm:ss") }}</mat-panel-description>
+      </mat-expansion-panel-header>
+      <div class="changelog" cdkDropList (cdkDropListDropped)="dropContent($event, i)" [cdkDropListDisabled]="isDropListDisabled(i)">
+        <div class="title">
+          <mat-form-field>
+            <mat-label>更新日期</mat-label>
+            <input matInput [value]="getDate(v).toFormat('yyyy-MM-dd HH:mm:ss')" (dateChange)="onDateChange($event, i)" />
+            <button mat-icon-button matSuffix color="primary" (click)="setTime(i)">
+              <mat-icon>autorenew</mat-icon>
+            </button>
+          </mat-form-field>
+          <div class="btn-group">
+            <div class="spinner-container">
+              <button mat-raised-button color="primary" (click)="setChangelogItem(i)">保存</button>
+              <app-spinner [id]="loaderId + 'Set' + i" [inline]="true"></app-spinner>
+            </div>
+            <div class="spinner-container">
+              <button mat-raised-button color="primary" (click)="removeChangelogItem(i)">删除</button>
+              <app-spinner [id]="loaderId + 'Remove' + i" [inline]="true"></app-spinner>
+            </div>
+          </div>
+        </div>
+        <div class="btn-group" *ngIf="v.content.length === 0">
+          <button mat-icon-button color="primary" (click)="addContent(i, 0)">
+            <mat-icon>add_circle</mat-icon>
+          </button>
+        </div>
+        <div class="content" *ngFor="let w of v.content; let j = index" cdkDrag>
+          <div class="drag-placeholder" *cdkDragPlaceholder></div>
+          <div class="content-type">
+            <mat-form-field>
+              <mat-label>更新类型</mat-label>
+              <mat-select [(ngModel)]="w.type">
+                <mat-option *ngFor="let key of changelogTypeKeys" [value]="key">
+                  {{ key }}
+                </mat-option>
+              </mat-select>
+              <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation(); addContent(i, j)">
+                <mat-icon>add_circle</mat-icon>
+              </button>
+              <button mat-icon-button matSuffix color="primary" (click)="$event.stopPropagation(); removeContent(i, j)">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+          <div
+            class="content-text"
+            cdkDropList
+            (cdkDropListDropped)="dropContentText($event, i, j)"
+            [cdkDropListDisabled]="isDropListDisabled(i, j)"
+          >
+            <mat-form-field *ngFor="let item of w.items; let k = index; trackBy: trackByIdx" cdkDrag>
+              <div class="drag-placeholder" *cdkDragPlaceholder></div>
+              <mat-label>更新内容</mat-label>
+              <input
+                type="text"
+                matInput
+                [(ngModel)]="w.items[k]"
+                (focus)="focusedContentText = [i, j]"
+                (blur)="focusedContentText = null"
+                autocomplete="off"
+              />
+              <button matSuffix mat-icon-button color="primary" (click)="addItem(i, j, k)">
+                <mat-icon>add_circle</mat-icon>
+              </button>
+              <button matSuffix mat-icon-button color="primary" (click)="removeItem(i, j, k)">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <div class="list" *ngIf="false">
+    <div class="changelog" *ngFor="let v of changelog; let i = index">
+      <mat-form-field>
+        <mat-label>更新日期</mat-label>
+        <input matInput [value]="getDate(v.timeStamp)" (dateChange)="onDateChange($event, i)" />
+        <button mat-icon-button matSuffix color="primary" style="height: 40px; line-height: 40px" (click)="setTime(i)">
+          <mat-icon>autorenew</mat-icon>
+        </button>
+      </mat-form-field>
+      <div *ngFor="let w of v.content; let j = index" class="content">
+        <mat-form-field>
+          <mat-label>更新类型</mat-label>
+          <mat-select [(ngModel)]="w.type">
+            <mat-option *ngFor="let key of changelogTypeKeys" [value]="key">
+              {{ key }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div class="items">
+          <div class="item" *ngFor="let item of w.items; let k = index; trackBy: trackByIdx">
+            <mat-form-field>
+              <input type="text" matInput placeholder="更新内容" [(ngModel)]="w.items[k]" />
+            </mat-form-field>
+            <div class="btn-group">
+              <button mat-icon-button color="primary" (click)="addItem(i, j, k)">
+                <mat-icon>add</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" (click)="removeItem(i, j, k)">
+                <mat-icon>remove</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button mat-icon-button color="primary" (click)="addContent(i, j)">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-icon-button color="primary" (click)="removeContent(i, j)">
+            <mat-icon>remove</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button mat-icon-button color="primary" (click)="addChangelog(i)">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button color="primary" (click)="removeChangelog(i)">
+          <mat-icon>remove</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
 </ng-scrollbar>
 <mat-paginator
-    #paginator
-    [length]="length"
-    [pageSize]="pageSize"
-    [pageSizeOptions]="pageSizeOptions"
-    [showFirstLastButtons]="true"
-    (page)="changePage($event)"
+  #paginator
+  [length]="length"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="pageSizeOptions"
+  [showFirstLastButtons]="true"
+  (page)="changePage($event)"
 ></mat-paginator>

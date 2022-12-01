@@ -1,133 +1,133 @@
 <form class="toolbar">
-    <button hidden></button>
-    <div class="search-input">
-        <mat-form-field style="width: 30%">
-            <mat-label>搜索类型</mat-label>
-            <mat-select name="search-field" [(ngModel)]="searchField">
-                <mat-option value="_id">ID</mat-option>
-                <mat-option value="名字">名字</mat-option>
-                <mat-option value="选项">选项</mat-option>
-                <mat-option value="条件">条件</mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field style="width: 70%">
-            <mat-label>搜索CAD</mat-label>
-            <input name="search-value" matInput type="search" (keydown)="searchKeydown($event)" [(ngModel)]="searchNameInput" />
-            <button mat-icon-button color="primary" type="submit" matSuffix (click)="search()">
-                <mat-icon>search</mat-icon>
-            </button>
-        </mat-form-field>
-        <ng-container *ngIf="data.options">
-            <button mat-raised-button color="primary" (click)="search(true, 'and')">父级搜索</button>
-            <button mat-raised-button color="primary" (click)="search(true, 'or')">父级搜索2</button>
-        </ng-container>
-        <button mat-raised-button color="primary" (click)="advancedSearch()">高级搜索</button>
-    </div>
-    <div class="btn-group">
-        <mat-slide-toggle [checked]="showCheckedOnly" (change)="toggleShowCheckedOnly($event)">只显示已选</mat-slide-toggle>
-        <mat-checkbox
-            [checked]="allChecked()"
-            [indeterminate]="partiallyChecked()"
-            *ngIf="data.selectMode === 'multiple'"
-            (change)="toggleSelectAll()"
-        >
-            全选<span *ngIf="checkedInOtherPages">(其他页已选)</span>
-        </mat-checkbox>
-    </div>
+  <button hidden></button>
+  <div class="search-input">
+    <mat-form-field style="width: 30%">
+      <mat-label>搜索类型</mat-label>
+      <mat-select name="search-field" [(ngModel)]="searchField">
+        <mat-option value="_id">ID</mat-option>
+        <mat-option value="名字">名字</mat-option>
+        <mat-option value="选项">选项</mat-option>
+        <mat-option value="条件">条件</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field style="width: 70%">
+      <mat-label>搜索CAD</mat-label>
+      <input name="search-value" matInput type="search" (keydown)="searchKeydown($event)" [(ngModel)]="searchNameInput" />
+      <button mat-icon-button color="primary" type="submit" matSuffix (click)="search()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+    <ng-container *ngIf="data.options">
+      <button mat-raised-button color="primary" (click)="search(true, 'and')">父级搜索</button>
+      <button mat-raised-button color="primary" (click)="search(true, 'or')">父级搜索2</button>
+    </ng-container>
+    <button mat-raised-button color="primary" (click)="advancedSearch()">高级搜索</button>
+  </div>
+  <div class="btn-group">
+    <mat-slide-toggle [checked]="showCheckedOnly" (change)="toggleShowCheckedOnly($event)">只显示已选</mat-slide-toggle>
+    <mat-checkbox
+      [checked]="allChecked()"
+      [indeterminate]="partiallyChecked()"
+      *ngIf="data.selectMode === 'multiple'"
+      (change)="toggleSelectAll()"
+    >
+      全选<span *ngIf="checkedInOtherPages">(其他页已选)</span>
+    </mat-checkbox>
+  </div>
 </form>
 
 <div class="content" [ngSwitch]="data.selectMode">
-    <ng-scrollbar *ngSwitchCase="'single'">
-        <mat-radio-group class="add-empty-msg" [value]="checkedIndex.value">
-            <mat-radio-button [value]="-1" style="display: none"><span #singleSelectNone></span></mat-radio-button>
-            <div class="data-container" *ngFor="let item of pageData; let i = index">
-                <mat-radio-button [value]="i" [matTooltip]="item.data.name" (click)="checkedIndex.next(i)">
-                    {{ item.data.name }}
-                </mat-radio-button>
-                <div class="cad-preview-container">
-                    <img class="cad-preview" [src]="item.img" (click)="checkedIndex.next(i)" />
-                </div>
-                <ng-container *ngTemplateOutlet="details; context: {$implicit: item.data}"></ng-container>
-            </div>
-        </mat-radio-group>
-    </ng-scrollbar>
-
-    <ng-scrollbar *ngSwitchCase="'multiple'">
-        <div class="checkbox-group add-empty-msg">
-            <div class="data-container" *ngFor="let item of pageData; let i = index">
-                <mat-checkbox [(ngModel)]="item.checked" [matTooltip]="item.data.name">
-                    {{ item.data.name }}
-                </mat-checkbox>
-                <div class="cad-preview-container">
-                    <img class="cad-preview" [src]="item.img" (click)="item.checked = !item.checked" />
-                </div>
-                <ng-container *ngTemplateOutlet="details; context: {$implicit: item.data}"></ng-container>
-            </div>
+  <ng-scrollbar *ngSwitchCase="'single'">
+    <mat-radio-group class="add-empty-msg" [value]="checkedIndex.value">
+      <mat-radio-button [value]="-1" style="display: none"><span #singleSelectNone></span></mat-radio-button>
+      <div class="data-container" *ngFor="let item of pageData; let i = index">
+        <mat-radio-button [value]="i" [matTooltip]="item.data.name" (click)="checkedIndex.next(i)">
+          {{ item.data.name }}
+        </mat-radio-button>
+        <div class="cad-preview-container">
+          <img class="cad-preview" [src]="item.img" (click)="checkedIndex.next(i)" />
         </div>
-    </ng-scrollbar>
+        <ng-container *ngTemplateOutlet="details; context: {$implicit: item.data}"></ng-container>
+      </div>
+    </mat-radio-group>
+  </ng-scrollbar>
 
-    <ng-scrollbar *ngSwitchCase="'table'">
-        <table mat-table [dataSource]="tableData">
-            <ng-container matColumnDef="select">
-                <th mat-header-cell *matHeaderCellDef></th>
-                <td mat-cell *matCellDef="let row">
-                    <mat-radio-button (change)="checkedColumns = [row]"> </mat-radio-button>
-                </td>
-            </ng-container>
-            <ng-container matColumnDef="mingzi">
-                <th mat-header-cell *matHeaderCellDef>名字</th>
-                <td mat-cell *matCellDef="let element">{{ element.mingzi }}</td>
-            </ng-container>
-            <ng-container matColumnDef="wenjian">
-                <th mat-header-cell *matHeaderCellDef>文件</th>
-                <td mat-cell *matCellDef="let element">{{ element.wenjian }}</td>
-            </ng-container>
-            <ng-container matColumnDef="create_time">
-                <th mat-header-cell *matHeaderCellDef>创建时间</th>
-                <td mat-cell *matCellDef="let element">{{ element.create_time }}</td>
-            </ng-container>
-            <ng-container matColumnDef="modify_time">
-                <th mat-header-cell *matHeaderCellDef>修改时间</th>
-                <td mat-cell *matCellDef="let element">{{ element.modify_time }}</td>
-            </ng-container>
+  <ng-scrollbar *ngSwitchCase="'multiple'">
+    <div class="checkbox-group add-empty-msg">
+      <div class="data-container" *ngFor="let item of pageData; let i = index">
+        <mat-checkbox [(ngModel)]="item.checked" [matTooltip]="item.data.name">
+          {{ item.data.name }}
+        </mat-checkbox>
+        <div class="cad-preview-container">
+          <img class="cad-preview" [src]="item.img" (click)="item.checked = !item.checked" />
+        </div>
+        <ng-container *ngTemplateOutlet="details; context: {$implicit: item.data}"></ng-container>
+      </div>
+    </div>
+  </ng-scrollbar>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        </table>
-    </ng-scrollbar>
+  <ng-scrollbar *ngSwitchCase="'table'">
+    <table mat-table [dataSource]="tableData">
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <mat-radio-button (change)="checkedColumns = [row]"> </mat-radio-button>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="mingzi">
+        <th mat-header-cell *matHeaderCellDef>名字</th>
+        <td mat-cell *matCellDef="let element">{{ element.mingzi }}</td>
+      </ng-container>
+      <ng-container matColumnDef="wenjian">
+        <th mat-header-cell *matHeaderCellDef>文件</th>
+        <td mat-cell *matCellDef="let element">{{ element.wenjian }}</td>
+      </ng-container>
+      <ng-container matColumnDef="create_time">
+        <th mat-header-cell *matHeaderCellDef>创建时间</th>
+        <td mat-cell *matCellDef="let element">{{ element.create_time }}</td>
+      </ng-container>
+      <ng-container matColumnDef="modify_time">
+        <th mat-header-cell *matHeaderCellDef>修改时间</th>
+        <td mat-cell *matCellDef="let element">{{ element.modify_time }}</td>
+      </ng-container>
 
-    <app-spinner [id]="loaderId" text="正在加载CAD"></app-spinner>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </ng-scrollbar>
+
+  <app-spinner [id]="loaderId" text="正在加载CAD"></app-spinner>
 </div>
 
 <div mat-dialog-actions>
-    <div class="btn-group">
-        <div class="spinner-container">
-            <button mat-raised-button color="primary" (click)="submit()">确定</button>
-            <app-spinner [id]="loaderIdSubmit" [inline]="true"></app-spinner>
-        </div>
-        <button mat-raised-button color="primary" (click)="close()">取消</button>
+  <div class="btn-group">
+    <div class="spinner-container">
+      <button mat-raised-button color="primary" (click)="submit()">确定</button>
+      <app-spinner [id]="loaderIdSubmit" [inline]="true"></app-spinner>
     </div>
-    <mat-paginator
-        #paginator
-        [length]="length"
-        [pageSize]="pageSize"
-        [pageSizeOptions]="pageSizeOptions"
-        [showFirstLastButtons]="true"
-        (page)="changePage($event)"
-    ></mat-paginator>
+    <button mat-raised-button color="primary" (click)="close()">取消</button>
+  </div>
+  <mat-paginator
+    #paginator
+    [length]="length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    [showFirstLastButtons]="true"
+    (page)="changePage($event)"
+  ></mat-paginator>
 </div>
 
 <ng-template #details let-data>
-    <mat-list class="details" *ngFor="let v of asCadDataArray([data])">
-        <mat-divider></mat-divider>
-        <div matSubheader>选项</div>
-        <mat-list-item *ngFor="let k of keysOf(v.options)" [matTooltip]="k + ': ' + v.options[k]">
-            <span class="text">{{ k }}: {{ data.options[k] }}</span>
-        </mat-list-item>
-        <mat-divider></mat-divider>
-        <div matSubheader>条件</div>
-        <mat-list-item *ngFor="let c of v.conditions" [matTooltip]="c">
-            <span class="text">{{ c }}</span>
-        </mat-list-item>
-    </mat-list>
+  <mat-list class="details" *ngFor="let v of asCadDataArray([data])">
+    <mat-divider></mat-divider>
+    <div matSubheader>选项</div>
+    <mat-list-item *ngFor="let k of keysOf(v.options)" [matTooltip]="k + ': ' + v.options[k]">
+      <span class="text">{{ k }}: {{ data.options[k] }}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+    <div matSubheader>条件</div>
+    <mat-list-item *ngFor="let c of v.conditions" [matTooltip]="c">
+      <span class="text">{{ c }}</span>
+    </mat-list-item>
+  </mat-list>
 </ng-template>

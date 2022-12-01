@@ -1,190 +1,190 @@
 :host {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 .content {
-    display: flex;
-    flex: 1 1 0;
+  display: flex;
+  flex: 1 1 0;
 }
 
 .types-info {
-    > :not(:last-child) {
-        margin-right: 10px;
-    }
+  > :not(:last-child) {
+    margin-right: 10px;
+  }
 }
 
 .types-info-1 {
-    .content {
-        flex-direction: column;
-        padding-right: 5px;
+  .content {
+    flex-direction: column;
+    padding-right: 5px;
 
-        > :not(:last-child) {
-            margin-bottom: 5px;
-        }
+    > :not(:last-child) {
+      margin-bottom: 5px;
     }
+  }
 }
 
 .types-info-items {
-    flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 $border: 1px solid lightgray;
 .types-info-item {
-    padding: 5px;
-    flex: 0 0 33.33%;
-    box-sizing: border-box;
-    &:not(:nth-child(3n)) {
-        border-right: $border;
-    }
-    &:not(:nth-child(3n + 1):nth-last-child(-n + 3)),
-    &:not(:nth-child(3n + 1):nth-last-child(-n + 3) ~ .types-info-item) {
-        border-bottom: $border;
-    }
+  padding: 5px;
+  flex: 0 0 33.33%;
+  box-sizing: border-box;
+  &:not(:nth-child(3n)) {
+    border-right: $border;
+  }
+  &:not(:nth-child(3n + 1):nth-last-child(-n + 3)),
+  &:not(:nth-child(3n + 1):nth-last-child(-n + 3) ~ .types-info-item) {
+    border-bottom: $border;
+  }
 }
 
 .title {
-    padding: 0 5px;
-    cursor: pointer;
+  padding: 0 5px;
+  cursor: pointer;
 
-    .mat-icon-button {
-        width: auto;
-        height: auto;
-        line-height: 1em;
-    }
+  .mat-icon-button {
+    width: auto;
+    height: auto;
+    line-height: 1em;
+  }
 
-    .name {
-        flex: 1 1 0;
-        text-align: left;
-    }
+  .name {
+    flex: 1 1 0;
+    text-align: left;
+  }
 }
 
 .cad-container {
-    position: relative;
+  position: relative;
 
-    .floating-titles {
-        position: absolute;
-        left: 0;
-        bottom: 5px;
-        color: white;
-    }
+  .floating-titles {
+    position: absolute;
+    left: 0;
+    bottom: 5px;
+    color: white;
+  }
 }
 
 .images {
-    > * {
-        height: 300px;
-    }
+  > * {
+    height: 300px;
+  }
 }
 
 .cads {
-    flex-wrap: wrap;
+  flex-wrap: wrap;
 
-    .cad {
-        padding: 5px;
-        box-sizing: border-box;
-        position: relative;
-    }
+  .cad {
+    padding: 5px;
+    box-sizing: border-box;
+    position: relative;
+  }
 }
 
 .inputs {
-    align-items: center;
+  align-items: center;
 
-    > {
-        *:not(:first-child) {
-            margin-left: 5px;
-        }
-
-        app-input {
-            width: 0;
-            flex: 1 1 0;
-            &.readonly {
-                ::ng-deep {
-                    .mat-form-field-underline {
-                        display: none;
-                    }
-                }
-            }
-        }
-
-        :not(app-input) {
-            margin-top: -15px;
-        }
+  > {
+    *:not(:first-child) {
+      margin-left: 5px;
     }
 
-    &.gongshishuru {
-        flex-wrap: wrap;
-        > * {
-            flex: 0 0 calc(50% - 2.5px);
-            &:nth-child(2n) {
-                margin-left: 5px;
-            }
-            &:nth-child(2n + 1) {
-                margin-left: 0;
-            }
+    app-input {
+      width: 0;
+      flex: 1 1 0;
+      &.readonly {
+        ::ng-deep {
+          .mat-form-field-underline {
+            display: none;
+          }
         }
+      }
     }
+
+    :not(app-input) {
+      margin-top: -15px;
+    }
+  }
+
+  &.gongshishuru {
+    flex-wrap: wrap;
+    > * {
+      flex: 0 0 calc(50% - 2.5px);
+      &:nth-child(2n) {
+        margin-left: 5px;
+      }
+      &:nth-child(2n + 1) {
+        margin-left: 0;
+      }
+    }
+  }
 }
 
 .mat-icon-button {
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  flex: 0 0 auto;
 }
 
 .toolbar {
-    justify-content: center;
+  justify-content: center;
 
-    > * {
-        flex: 1 1 0;
-        &:nth-child(1) {
-            text-align: right;
-        }
+  > * {
+    flex: 1 1 0;
+    &:nth-child(1) {
+      text-align: right;
     }
+  }
 }
 
 .mat-divider {
-    margin: 0 10px;
+  margin: 0 10px;
 }
 
 .lingsan-cads {
-    display: flex;
-    flex-wrap: wrap;
-    flex: 1 1 0;
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1 1 0;
 
-    > * {
-        width: 33.33%;
-        display: flex;
-        flex-direction: column;
-        padding: 5px;
-        box-sizing: border-box;
-    }
+  > * {
+    width: 33.33%;
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    box-sizing: border-box;
+  }
 }
 
 .dropdown-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+
+  > * {
+    width: 33.33%;
     display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
 
-    > * {
-        width: 33.33%;
-        display: flex;
-
-        .divider {
-            margin: 0 5px;
-        }
+    .divider {
+      margin: 0 5px;
     }
+  }
 }
 .step-1 .dropdown-list {
-    .shuchubianliang .value {
-        display: none;
-    }
+  .shuchubianliang .value {
+    display: none;
+  }
 }
 
 .btn-group {
-    .divider {
-        width: 50px;
-    }
+  .divider {
+    width: 50px;
+  }
 }

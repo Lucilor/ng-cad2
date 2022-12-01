@@ -6,14 +6,14 @@ import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {ProjectGuard} from "./project.guard";
 
 describe("ProjectGuard", () => {
-    let guard: ProjectGuard;
+  let guard: ProjectGuard;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({imports: [HttpModule, MessageModule, RouterTestingModule, SpinnerModule]});
-        guard = TestBed.inject(ProjectGuard);
-    });
+  beforeEach(() => {
+    TestBed.configureTestingModule({imports: [HttpModule, MessageModule, RouterTestingModule, SpinnerModule]});
+    guard = TestBed.inject(ProjectGuard);
+  });
 
-    it("should be created", () => {
-        expect(guard).toBeTruthy();
-    });
+  it("should be created", () => {
+    expect(guard).toBeTruthy();
+  });
 });

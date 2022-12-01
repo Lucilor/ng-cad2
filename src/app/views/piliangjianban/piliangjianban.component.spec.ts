@@ -11,51 +11,51 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {Bancai, PiliangjianbanComponent} from "./piliangjianban.component";
 
 const bancais: Bancai[] = [
-    {
-        data: [
-            {
-                cad: new CadData(),
-                code: "1",
-                num: 100,
-                zhankaiSize: [100, 100],
-                unfolded: new CadData(),
-                img: imgCadEmpty,
-                imgLarge: imgCadEmpty
-            }
-        ],
-        id: "123",
-        厚度: "",
-        数量: 20,
-        材料: "",
-        板材: "",
-        气体: "",
-        规格: [20, 10],
-        expanded: true,
-        pageNum: 1,
-        pageBreakAfter: "always",
-        printPageIndex: 0
-    }
+  {
+    data: [
+      {
+        cad: new CadData(),
+        code: "1",
+        num: 100,
+        zhankaiSize: [100, 100],
+        unfolded: new CadData(),
+        img: imgCadEmpty,
+        imgLarge: imgCadEmpty
+      }
+    ],
+    id: "123",
+    厚度: "",
+    数量: 20,
+    材料: "",
+    板材: "",
+    气体: "",
+    规格: [20, 10],
+    expanded: true,
+    pageNum: 1,
+    pageBreakAfter: "always",
+    printPageIndex: 0
+  }
 ];
 
 describe("PiliangjianbanComponent", () => {
-    let component: PiliangjianbanComponent;
-    let fixture: ComponentFixture<PiliangjianbanComponent>;
+  let component: PiliangjianbanComponent;
+  let fixture: ComponentFixture<PiliangjianbanComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [PiliangjianbanComponent],
-            imports: [HttpModule, ImageModule, MatCardModule, MatExpansionModule, MessageModule, NgScrollbarModule, SpinnerModule]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [PiliangjianbanComponent],
+      imports: [HttpModule, ImageModule, MatCardModule, MatExpansionModule, MessageModule, NgScrollbarModule, SpinnerModule]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(PiliangjianbanComponent);
-        component = fixture.componentInstance;
-        component.getBancais(bancais);
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(PiliangjianbanComponent);
+    component = fixture.componentInstance;
+    component.getBancais(bancais);
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

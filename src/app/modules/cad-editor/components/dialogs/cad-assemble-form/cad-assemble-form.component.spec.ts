@@ -8,25 +8,25 @@ import {CadAssembleFormComponent, CadAssembleFormInput} from "./cad-assemble-for
 const data: CadAssembleFormInput = {x: 1, y: 2};
 
 describe("CadAssembleFormComponent", () => {
-    let component: CadAssembleFormComponent;
-    let fixture: ComponentFixture<CadAssembleFormComponent>;
+  let component: CadAssembleFormComponent;
+  let fixture: ComponentFixture<CadAssembleFormComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadAssembleFormComponent],
-            imports: [HttpModule, InputModule, MessageModule],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data}
-            ]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadAssembleFormComponent],
+      imports: [HttpModule, InputModule, MessageModule],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data}
+      ]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(CadAssembleFormComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(CadAssembleFormComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

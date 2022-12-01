@@ -14,174 +14,174 @@ import {openCadOptionsDialog} from "../cad-options/cad-options.component";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
-    selector: "app-cad-zhankai",
-    templateUrl: "./cad-zhankai.component.html",
-    styleUrls: ["./cad-zhankai.component.scss"]
+  selector: "app-cad-zhankai",
+  templateUrl: "./cad-zhankai.component.html",
+  styleUrls: ["./cad-zhankai.component.scss"]
 })
 export class CadZhankaiComponent extends Utils() {
-    checkedIndices = new Set<number>();
-    keysMap = {
-        kaiqi: "开启",
-        chanpinfenlei: "产品分类",
-        flip: "翻转"
-    };
-    flipOptions: {name: string; value: FlipType}[] = [
-        {name: "无", value: ""},
-        {name: "水平翻转", value: "h"}
-    ];
-    get emptyFlipItem(): CadZhankai["flip"][0] {
-        return {kaiqi: "", chanpinfenlei: "", fanzhuanfangshi: ""};
+  checkedIndices = new Set<number>();
+  keysMap = {
+    kaiqi: "开启",
+    chanpinfenlei: "产品分类",
+    flip: "翻转"
+  };
+  flipOptions: {name: string; value: FlipType}[] = [
+    {name: "无", value: ""},
+    {name: "水平翻转", value: "h"}
+  ];
+  get emptyFlipItem(): CadZhankai["flip"][0] {
+    return {kaiqi: "", chanpinfenlei: "", fanzhuanfangshi: ""};
+  }
+  nameErrorMsg: string[] = [];
+  nameMatcher: ErrorStateMatcher = {
+    isErrorState: (control) => {
+      const value = control?.value;
+      if (!value) {
+        return true;
+      }
+      return false;
+      // return this.data.filter((v) => v.name === value).length > 1;
     }
-    nameErrorMsg: string[] = [];
-    nameMatcher: ErrorStateMatcher = {
-        isErrorState: (control) => {
-            const value = control?.value;
-            if (!value) {
-                return true;
-            }
-            return false;
-            // return this.data.filter((v) => v.name === value).length > 1;
-        }
-    };
-    get valid() {
-        return this.nameErrorMsg.every((v) => !v);
-    }
+  };
+  get valid() {
+    return this.nameErrorMsg.every((v) => !v);
+  }
 
-    constructor(
-        public dialogRef: MatDialogRef<CadZhankaiComponent, CadZhankai[]>,
-        @Inject(MAT_DIALOG_DATA) public data: CadData["zhankai"],
-        private route: ActivatedRoute,
-        private dialog: MatDialog,
-        private message: MessageService,
-        private status: AppStatusService
-    ) {
-        super();
-        this.data = cloneDeep(this.data);
-    }
+  constructor(
+    public dialogRef: MatDialogRef<CadZhankaiComponent, CadZhankai[]>,
+    @Inject(MAT_DIALOG_DATA) public data: CadData["zhankai"],
+    private route: ActivatedRoute,
+    private dialog: MatDialog,
+    private message: MessageService,
+    private status: AppStatusService
+  ) {
+    super();
+    this.data = cloneDeep(this.data);
+  }
 
-    submit() {
-        if (this.valid) {
-            this.dialogRef.close(this.data);
-        }
+  submit() {
+    if (this.valid) {
+      this.dialogRef.close(this.data);
     }
+  }
 
-    cancel() {
-        this.dialogRef.close();
-    }
+  cancel() {
+    this.dialogRef.close();
+  }
 
-    openCadmuban(item: CadZhankai, key: "kailiaomuban" | "neikaimuban") {
-        this.status.openCadInNewTab(item[key], "kailiaocadmuban");
-    }
+  openCadmuban(item: CadZhankai, key: "kailiaomuban" | "neikaimuban") {
+    this.status.openCadInNewTab(item[key], "kailiaocadmuban");
+  }
 
-    async selectCadmuban(item: CadZhankai, key: "kailiaomuban" | "neikaimuban") {
-        const checkedItems = [item[key]];
-        const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
-        if (result?.length) {
-            item[key] = result[0].id;
-        }
+  async selectCadmuban(item: CadZhankai, key: "kailiaomuban" | "neikaimuban") {
+    const checkedItems = [item[key]];
+    const result = await openCadListDialog(this.dialog, {data: {selectMode: "single", collection: "kailiaocadmuban", checkedItems}});
+    if (result?.length) {
+      item[key] = result[0].id;
     }
+  }
 
-    onCheckboxChange(event: MatCheckboxChange, i: number) {
-        if (event.checked) {
-            this.checkedIndices.add(i);
-        } else {
-            this.checkedIndices.delete(i);
-        }
+  onCheckboxChange(event: MatCheckboxChange, i: number) {
+    if (event.checked) {
+      this.checkedIndices.add(i);
+    } else {
+      this.checkedIndices.delete(i);
     }
+  }
 
-    onCheckboxChanglick(event: Event) {
-        event.stopPropagation();
-    }
+  onCheckboxChanglick(event: Event) {
+    event.stopPropagation();
+  }
 
-    addItem() {
-        this.data.push(new CadZhankai());
-        this.validate();
-    }
+  addItem() {
+    this.data.push(new CadZhankai());
+    this.validate();
+  }
 
-    selectAll() {
-        this.data.forEach((_v, i) => this.checkedIndices.add(i));
-        this.checkedIndices.delete(0);
-    }
+  selectAll() {
+    this.data.forEach((_v, i) => this.checkedIndices.add(i));
+    this.checkedIndices.delete(0);
+  }
 
-    unselectAll() {
-        this.checkedIndices.clear();
-    }
+  unselectAll() {
+    this.checkedIndices.clear();
+  }
 
-    copyItem(i: number) {
-        this.data.splice(i + 1, 0, cloneDeep(this.data[i]));
-        this.validate();
-    }
+  copyItem(i: number) {
+    this.data.splice(i + 1, 0, cloneDeep(this.data[i]));
+    this.validate();
+  }
 
-    removeItem(i: number) {
-        if (i === 0) {
-            this.message.alert("不能删除第一项");
-            return;
-        } else {
-            this.data.splice(i, 1);
-        }
-        this.validate();
+  removeItem(i: number) {
+    if (i === 0) {
+      this.message.alert("不能删除第一项");
+      return;
+    } else {
+      this.data.splice(i, 1);
     }
+    this.validate();
+  }
 
-    async selectOptions(obj: any, field: string) {
-        const name = (this.keysMap as any)[field];
-        const checkedItems = splitOptions(obj[field]);
-        const result = await openCadOptionsDialog(this.dialog, {data: {name, checkedItems}});
-        if (Array.isArray(result)) {
-            obj[field] = joinOptions(result);
-        }
+  async selectOptions(obj: any, field: string) {
+    const name = (this.keysMap as any)[field];
+    const checkedItems = splitOptions(obj[field]);
+    const result = await openCadOptionsDialog(this.dialog, {data: {name, checkedItems}});
+    if (Array.isArray(result)) {
+      obj[field] = joinOptions(result);
     }
+  }
 
-    async addFlipChai(i: number) {
-        const result = await this.message.prompt({promptData: {placeholder: "请输入序号", type: "number"}});
-        if (typeof result === "string" && result) {
-            const num = Number(result);
-            if (!(num > 0)) {
-                this.message.snack("请输入大于0的数字");
-                return;
-            }
-            const flipChai = this.data[i].flipChai;
-            if (flipChai[num] !== undefined) {
-                this.message.snack("该序号已存在");
-                return;
-            }
-            flipChai[num] = "h";
-        }
+  async addFlipChai(i: number) {
+    const result = await this.message.prompt({promptData: {placeholder: "请输入序号", type: "number"}});
+    if (typeof result === "string" && result) {
+      const num = Number(result);
+      if (!(num > 0)) {
+        this.message.snack("请输入大于0的数字");
+        return;
+      }
+      const flipChai = this.data[i].flipChai;
+      if (flipChai[num] !== undefined) {
+        this.message.snack("该序号已存在");
+        return;
+      }
+      flipChai[num] = "h";
     }
+  }
 
-    removeFlipChai(i: number, key: string) {
-        delete this.data[i].flipChai[key];
-    }
+  removeFlipChai(i: number, key: string) {
+    delete this.data[i].flipChai[key];
+  }
 
-    validate() {
-        const names: string[] = [];
-        this.nameErrorMsg = [];
-        this.data.forEach((v, i) => {
-            this.nameErrorMsg[i] = v.name ? "" : "名字不能为空";
-            if (v.name) {
-                this.nameErrorMsg[i] = "";
-                names.push(v.name);
-            } else {
-                this.nameErrorMsg[i] = "名字不能为空";
-            }
-        });
-        // const map: ObjectOf<number[]> = {};
-        // names.forEach((v, i) => (map[v] ? map[v].push(i) : (map[v] = [i])));
-        // for (const v in map) {
-        //     if (map[v].length > 1) {
-        //         map[v].forEach((i) => (this.nameErrorMsg[i] = "名字不能重复"));
-        //     }
-        // }
-    }
+  validate() {
+    const names: string[] = [];
+    this.nameErrorMsg = [];
+    this.data.forEach((v, i) => {
+      this.nameErrorMsg[i] = v.name ? "" : "名字不能为空";
+      if (v.name) {
+        this.nameErrorMsg[i] = "";
+        names.push(v.name);
+      } else {
+        this.nameErrorMsg[i] = "名字不能为空";
+      }
+    });
+    // const map: ObjectOf<number[]> = {};
+    // names.forEach((v, i) => (map[v] ? map[v].push(i) : (map[v] = [i])));
+    // for (const v in map) {
+    //     if (map[v].length > 1) {
+    //         map[v].forEach((i) => (this.nameErrorMsg[i] = "名字不能重复"));
+    //     }
+    // }
+  }
 }
 
 export const openCadZhankaiDialog = getOpenDialogFunc<CadZhankaiComponent, CadZhankai[], CadZhankai[]>(CadZhankaiComponent);
 
 export const editCadZhankai = async (dialog: MatDialog, data: CadData) => {
-    const result = await openCadZhankaiDialog(dialog, {data: data.zhankai});
-    if (result) {
-        data.zhankai = result;
-        if (result.length) {
-            data.name = result[0].name;
-        }
+  const result = await openCadZhankaiDialog(dialog, {data: data.zhankai});
+  if (result) {
+    data.zhankai = result;
+    if (result.length) {
+      data.name = result[0].name;
     }
+  }
 };

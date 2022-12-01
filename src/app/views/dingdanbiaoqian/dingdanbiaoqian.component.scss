@@ -1,287 +1,287 @@
 :host {
-    display: flex;
-    flex-direction: column;
-    width: 100vw;
-    height: 100vh;
-    overflow: auto;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
 }
 
 .toolbar {
-    position: fixed;
-    left: 1137px;
-    top: 60px;
+  position: fixed;
+  left: 1137px;
+  top: 60px;
 }
 @media screen and (max-width: 1260px) {
-    .toolbar {
-        left: unset;
-        right: 0;
-    }
+  .toolbar {
+    left: unset;
+    right: 0;
+  }
 }
 
 .page {
-    box-sizing: border-box;
-    padding: 10px;
-    margin: 10px !important;
+  box-sizing: border-box;
+  padding: 10px;
+  margin: 10px !important;
 
-    :not(.out-of-page) {
-        color: black !important;
-        font-family: "宋体" !important;
-        box-sizing: border-box;
-    }
+  :not(.out-of-page) {
+    color: black !important;
+    font-family: "宋体" !important;
+    box-sizing: border-box;
+  }
 }
 
 $cads-border: solid 1px grey;
 .cads {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1 1 0;
+
+  .menu {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    transform: translateX(calc(100% + 10px));
+  }
+
+  .cad {
     display: flex;
-    flex-wrap: wrap;
-    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 8px;
+    box-sizing: border-box;
+    box-shadow: none;
+    // border: $cads-border;
+    position: absolute;
 
-    .menu {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        transform: translateX(calc(100% + 10px));
+    .header {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      > * {
+        font-size: 17px;
+        line-height: 17px;
+      }
     }
 
-    .cad {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        padding: 8px;
-        box-sizing: border-box;
-        box-shadow: none;
-        // border: $cads-border;
-        position: absolute;
-
-        .header {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-
-            > * {
-                font-size: 17px;
-                line-height: 17px;
-            }
-        }
-
-        .img {
-            flex: 1 1 0;
-        }
-
-        .cad-size {
-            span:first-of-type {
-                border: $cads-border;
-                padding: 0 10px;
-                background-color: #e5e5e5;
-            }
-        }
+    .img {
+      flex: 1 1 0;
     }
+
+    .cad-size {
+      span:first-of-type {
+        border: $cads-border;
+        padding: 0 10px;
+        background-color: #e5e5e5;
+      }
+    }
+  }
 }
 
 $info-border: solid 1px black;
 .info {
-    display: flex;
-    flex-wrap: wrap;
-    height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
 
-    .section {
+  .section {
+    display: flex;
+    flex-direction: column;
+    border: $info-border;
+    flex: 1 1 0;
+    height: 100%;
+    &:not(:last-child) {
+      margin-right: 5px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      &:not(:last-child) {
+        border-bottom: $info-border;
+      }
+
+      .cell {
         display: flex;
-        flex-direction: column;
-        border: $info-border;
         flex: 1 1 0;
         height: 100%;
-        &:not(:last-child) {
-            margin-right: 5px;
+        &.border {
+          &:not(:last-child) {
+            border-right: $info-border;
+          }
+          .label {
+            border-right: $info-border;
+          }
         }
 
-        .row {
+        .label,
+        .value {
+          word-break: break-word;
+          padding: 3px;
+          display: flex;
+          align-items: center;
+          &.center {
+            justify-content: center;
+          }
+        }
+        .value {
+          flex: 1 1 0;
+        }
+
+        &.alt {
+          .value {
+            font-weight: bold;
+            font-size: 18px;
+          }
+        }
+        &.text-left {
+          .value {
+            justify-content: flex-start;
+          }
+        }
+      }
+    }
+
+    .示意图 {
+      display: flex;
+
+      > * {
+        display: flex;
+        flex-direction: column;
+
+        app-image {
+          height: 100%;
+        }
+      }
+      .开启锁向示意图 {
+        align-items: flex-start;
+        padding-left: 5px;
+      }
+      .配合框-group {
+        justify-content: flex-end;
+        padding-bottom: 10px;
+        .配合框 {
+          display: flex;
+          justify-content: flex-end;
+          padding-right: 5px;
+
+          .name {
             display: flex;
             align-items: center;
-            &:not(:last-child) {
-                border-bottom: $info-border;
-            }
-
-            .cell {
-                display: flex;
-                flex: 1 1 0;
-                height: 100%;
-                &.border {
-                    &:not(:last-child) {
-                        border-right: $info-border;
-                    }
-                    .label {
-                        border-right: $info-border;
-                    }
-                }
-
-                .label,
-                .value {
-                    word-break: break-word;
-                    padding: 3px;
-                    display: flex;
-                    align-items: center;
-                    &.center {
-                        justify-content: center;
-                    }
-                }
-                .value {
-                    flex: 1 1 0;
-                }
-
-                &.alt {
-                    .value {
-                        font-weight: bold;
-                        font-size: 18px;
-                    }
-                }
-                &.text-left {
-                    .value {
-                        justify-content: flex-start;
-                    }
-                }
-            }
+          }
         }
-
-        .示意图 {
-            display: flex;
-
-            > * {
-                display: flex;
-                flex-direction: column;
-
-                app-image {
-                    height: 100%;
-                }
-            }
-            .开启锁向示意图 {
-                align-items: flex-start;
-                padding-left: 5px;
-            }
-            .配合框-group {
-                justify-content: flex-end;
-                padding-bottom: 10px;
-                .配合框 {
-                    display: flex;
-                    justify-content: flex-end;
-                    padding-right: 5px;
-
-                    .name {
-                        display: flex;
-                        align-items: center;
-                    }
-                }
-            }
-        }
+      }
     }
+  }
 }
 .info-border-left {
-    border-left: $info-border;
+  border-left: $info-border;
 }
 .info-border-right {
-    border-right: $info-border;
-    flex: 0 0 200px;
+  border-right: $info-border;
+  flex: 0 0 200px;
 }
 .info-border-top {
-    border-top: $info-border;
+  border-top: $info-border;
 }
 .info-border-bottom {
-    border-bottom: $info-border;
+  border-bottom: $info-border;
 }
 
 .质检标签 {
-    width: 59mm;
-    height: 100mm;
-    box-sizing: border-box;
-    padding: 10px;
-    font-family: 宋体;
-    white-space: pre;
+  width: 59mm;
+  height: 100mm;
+  box-sizing: border-box;
+  padding: 10px;
+  font-family: 宋体;
+  white-space: pre;
+  display: flex;
+  flex-direction: column;
+
+  .title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .item {
+    border-bottom: 1px solid black;
+    font-size: 18px;
     display: flex;
-    flex-direction: column;
+    min-height: 25px;
+    align-items: center;
+    padding: 5px 0;
+    box-sizing: border-box;
 
-    .title {
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
+    .label {
+      flex: 0 0 50px;
     }
 
-    .item {
-        border-bottom: 1px solid black;
-        font-size: 18px;
-        display: flex;
-        min-height: 25px;
-        align-items: center;
-        padding: 5px 0;
-        box-sizing: border-box;
-
-        .label {
-            flex: 0 0 50px;
-        }
-
-        .value {
-            flex: 1 1 0;
-            font-weight: bold;
-        }
+    .value {
+      flex: 1 1 0;
+      font-weight: bold;
     }
+  }
 
-    .barcode-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-    }
+  .barcode-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  }
 }
 
 .mat-expansion-panel {
-    overflow: visible;
+  overflow: visible;
 }
 
 @media print {
-    :host {
-        height: auto;
-        overflow: hidden;
-    }
+  :host {
+    height: auto;
+    overflow: hidden;
+  }
 
-    .page {
-        margin: 0 !important;
-        box-shadow: none;
-    }
+  .page {
+    margin: 0 !important;
+    box-shadow: none;
+  }
 }
 :host ::ng-deep {
-    @media print {
-        .page .mat-expansion-indicator,
-        .no-print {
-            display: none;
-        }
+  @media print {
+    .page .mat-expansion-indicator,
+    .no-print {
+      display: none;
     }
+  }
 
-    .mat-expansion-panel-content {
-        height: 100%;
-    }
+  .mat-expansion-panel-content {
+    height: 100%;
+  }
 
-    .mat-expansion-panel-body {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        padding: 0;
-    }
+  .mat-expansion-panel-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+  }
 }
 
 .mat-card {
-    box-shadow: 0px 2px 6px -1px rgb(0 0 0 / 20%), 0px 1px 6px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+  box-shadow: 0px 2px 6px -1px rgb(0 0 0 / 20%), 0px 1px 6px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
 }
 .mat-card-header {
-    width: 100%;
+  width: 100%;
 }
 .mat-card-footer {
-    margin: 0;
-    font-size: 34px;
-    line-height: 34px;
+  margin: 0;
+  font-size: 34px;
+  line-height: 34px;
 }
 
 .footer {
-    text-align: center;
-    // position: absolute;
-    // left: 0;
-    // bottom: -5px;
+  text-align: center;
+  // position: absolute;
+  // left: 0;
+  // bottom: -5px;
 }

@@ -12,33 +12,33 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {ImportComponent} from "./import.component";
 
 describe("ImportComponent", () => {
-    let component: ImportComponent;
-    let fixture: ComponentFixture<ImportComponent>;
+  let component: ImportComponent;
+  let fixture: ComponentFixture<ImportComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [ImportComponent, ProgressBarComponent],
-            imports: [
-                FormsModule,
-                HttpModule,
-                MatCardModule,
-                MatDialogModule,
-                MatFormFieldModule,
-                MatInputModule,
-                MatRadioModule,
-                NgScrollbarModule,
-                SpinnerModule
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ImportComponent, ProgressBarComponent],
+      imports: [
+        FormsModule,
+        HttpModule,
+        MatCardModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRadioModule,
+        NgScrollbarModule,
+        SpinnerModule
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(ImportComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ImportComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

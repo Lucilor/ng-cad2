@@ -1,15 +1,15 @@
 :host {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 app-cad-editor {
-    flex: 1 1 0;
+  flex: 1 1 0;
 }
 
 .toolbar {
-    margin-top: -19px;
-    justify-content: flex-end;
+  margin-top: -19px;
+  justify-content: flex-end;
 }

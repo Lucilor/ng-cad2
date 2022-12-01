@@ -1,61 +1,61 @@
 <form class="header">
-    <div>
-        <button mat-raised-button color="primary" (click)="search()">搜索</button>
-    </div>
-    <mat-form-field style="width: 100%">
-        <mat-label>按名字搜索</mat-label>
-        <input type="text" matInput name="searchName" [(ngModel)]="searchParams.name" />
-    </mat-form-field>
-    <mat-form-field>
-        <mat-label>按日期搜索</mat-label>
-        <input
-            matInput
-            type="datetime"
-            name="searchTime"
-            [matDatepicker]="picker"
-            [min]="minTime"
-            [max]="maxTime"
-            [(ngModel)]="searchTime"
-            readonly
-            (click)="picker.open()"
-        />
-        <button *ngIf="searchParams.time" matSuffix mat-icon-button (click)="resetSearchTime()">
-            <mat-icon>close</mat-icon>
-        </button>
-        <mat-datepicker #picker>
-            <ng-template>
-                <span>确定</span>
-            </ng-template>
-        </mat-datepicker>
-    </mat-form-field>
+  <div>
+    <button mat-raised-button color="primary" (click)="search()">搜索</button>
+  </div>
+  <mat-form-field style="width: 100%">
+    <mat-label>按名字搜索</mat-label>
+    <input type="text" matInput name="searchName" [(ngModel)]="searchParams.name" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>按日期搜索</mat-label>
+    <input
+      matInput
+      type="datetime"
+      name="searchTime"
+      [matDatepicker]="picker"
+      [min]="minTime"
+      [max]="maxTime"
+      [(ngModel)]="searchTime"
+      readonly
+      (click)="picker.open()"
+    />
+    <button *ngIf="searchParams.time" matSuffix mat-icon-button (click)="resetSearchTime()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <mat-datepicker #picker>
+      <ng-template>
+        <span>确定</span>
+      </ng-template>
+    </mat-datepicker>
+  </mat-form-field>
 </form>
 <ng-scrollbar>
-    <div class="cads">
-        <mat-card class="cad" *ngFor="let item of data; let i = index">
-            <mat-card-header>
-                <mat-card-title>{{ item.data.name }}</mat-card-title>
-                <mat-card-subtitle>{{ item.title }}</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-                <div class="cad-preview" (click)="alertInfo(i)">
-                    <img [src]="item.img" />
-                </div>
-                <div class="btn-group">
-                    <button mat-raised-button color="primary" (click)="restore(i)">恢复备份</button>
-                    <button mat-raised-button color="primary" (click)="remove(i)">删除备份</button>
-                </div>
-            </mat-card-content>
-        </mat-card>
-    </div>
+  <div class="cads">
+    <mat-card class="cad" *ngFor="let item of data; let i = index">
+      <mat-card-header>
+        <mat-card-title>{{ item.data.name }}</mat-card-title>
+        <mat-card-subtitle>{{ item.title }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="cad-preview" (click)="alertInfo(i)">
+          <img [src]="item.img" />
+        </div>
+        <div class="btn-group">
+          <button mat-raised-button color="primary" (click)="restore(i)">恢复备份</button>
+          <button mat-raised-button color="primary" (click)="remove(i)">删除备份</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </ng-scrollbar>
 <div class="footer">
-    <mat-paginator
-        #paginator
-        [length]="cadsCount"
-        [pageSize]="searchParams.limit"
-        [pageSizeOptions]="pageSizeOptions"
-        showFirstLastButtons
-        (page)="changePage($event)"
-    ></mat-paginator>
+  <mat-paginator
+    #paginator
+    [length]="cadsCount"
+    [pageSize]="searchParams.limit"
+    [pageSizeOptions]="pageSizeOptions"
+    showFirstLastButtons
+    (page)="changePage($event)"
+  ></mat-paginator>
 </div>
 <app-spinner [id]="loaderId"></app-spinner>

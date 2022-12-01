@@ -7,7 +7,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MessageModule} from "@modules/message/message.module";
 
 @NgModule({
-    declarations: [],
-    imports: [CommonModule, HttpClientModule, BrowserAnimationsModule, RouterModule.forRoot([]), MessageModule, NgxUiLoaderHttpModule]
+  declarations: [],
+  imports: [CommonModule, HttpClientModule, BrowserAnimationsModule, RouterModule.forRoot([]), MessageModule, NgxUiLoaderHttpModule]
 })
 export class HttpModule {}

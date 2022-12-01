@@ -9,23 +9,23 @@ import {MessageModule} from "@modules/message/message.module";
 import {ExportComponent} from "./export.component";
 
 describe("ExportComponent", () => {
-    let component: ExportComponent;
-    let fixture: ComponentFixture<ExportComponent>;
+  let component: ExportComponent;
+  let fixture: ComponentFixture<ExportComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [ExportComponent, ProgressBarComponent],
-            imports: [HttpModule, FormsModule, MatFormFieldModule, MatInputModule, MatRadioModule, MessageModule]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ExportComponent, ProgressBarComponent],
+      imports: [HttpModule, FormsModule, MatFormFieldModule, MatInputModule, MatRadioModule, MessageModule]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(ExportComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ExportComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

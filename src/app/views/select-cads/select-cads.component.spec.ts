@@ -16,39 +16,39 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {SelectCadsComponent} from "./select-cads.component";
 
 describe("SelectCadsComponent", () => {
-    let component: SelectCadsComponent;
-    let fixture: ComponentFixture<SelectCadsComponent>;
+  let component: SelectCadsComponent;
+  let fixture: ComponentFixture<SelectCadsComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [SelectCadsComponent],
-            imports: [
-                BrowserAnimationsModule,
-                FormsModule,
-                HttpModule,
-                MatCheckboxModule,
-                MatDividerModule,
-                MatIconModule,
-                MatInputModule,
-                MatFormFieldModule,
-                MatSelectModule,
-                MatSlideToggleModule,
-                MatPaginatorModule,
-                MessageModule,
-                MessageModule,
-                NgScrollbarModule,
-                SpinnerModule
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [SelectCadsComponent],
+      imports: [
+        BrowserAnimationsModule,
+        FormsModule,
+        HttpModule,
+        MatCheckboxModule,
+        MatDividerModule,
+        MatIconModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatPaginatorModule,
+        MessageModule,
+        MessageModule,
+        NgScrollbarModule,
+        SpinnerModule
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(SelectCadsComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(SelectCadsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

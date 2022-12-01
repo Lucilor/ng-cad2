@@ -1,27 +1,27 @@
 :host {
-    width: calc(80vw - 48px);
-    height: calc(75vh - 48px);
-    display: flex;
-    flex-direction: column;
+  width: calc(80vw - 48px);
+  height: calc(75vh - 48px);
+  display: flex;
+  flex-direction: column;
 
-    > ng-scrollbar {
-        flex: 1 1 0;
-    }
+  > ng-scrollbar {
+    flex: 1 1 0;
+  }
 }
 
 .mat-form-field {
-    display: block;
-    width: 100%;
+  display: block;
+  width: 100%;
 }
 
 .mat-card {
-    margin: 5px;
+  margin: 5px;
 }
 
 .mat-card-title {
-    transform: translateX(-16px);
+  transform: translateX(-16px);
 }
 
 .actions {
-    text-align: center;
+  text-align: center;
 }

@@ -5,52 +5,52 @@ import {JsonEditorComponent as JsonEditorComponent2, JsonEditorOptions} from "an
 import {getOpenDialogFunc} from "../dialog.common";
 
 export interface JsonEditorData {
-    json?: any;
-    options?: Partial<JsonEditorOptions>;
+  json?: any;
+  options?: Partial<JsonEditorOptions>;
 }
 
 @Component({
-    selector: "app-json-editor",
-    templateUrl: "./json-editor.component.html",
-    styleUrls: ["./json-editor.component.scss"]
+  selector: "app-json-editor",
+  templateUrl: "./json-editor.component.html",
+  styleUrls: ["./json-editor.component.scss"]
 })
 export class JsonEditorComponent implements OnInit {
-    @ViewChild(JsonEditorComponent2, {static: false}) editor?: JsonEditorComponent2;
+  @ViewChild(JsonEditorComponent2, {static: false}) editor?: JsonEditorComponent2;
 
-    get options() {
-        return this.data.options as JsonEditorOptions;
+  get options() {
+    return this.data.options as JsonEditorOptions;
+  }
+
+  constructor(public dialogRef: MatDialogRef<JsonEditorComponent, any>, @Inject(MAT_DIALOG_DATA) public data: JsonEditorData) {}
+
+  ngOnInit() {
+    if (!this.data.json) {
+      this.data.json = {};
     }
-
-    constructor(public dialogRef: MatDialogRef<JsonEditorComponent, any>, @Inject(MAT_DIALOG_DATA) public data: JsonEditorData) {}
-
-    ngOnInit() {
-        if (!this.data.json) {
-            this.data.json = {};
-        }
-        if (!this.data.options) {
-            this.data.options = new JsonEditorOptions();
-            this.data.options.modes = ["code", "text", "tree", "view"];
-            this.data.options.mode = "code";
-            // this.data.options.onChange = () => {
-            // 	this.editor
-            // };
-        }
+    if (!this.data.options) {
+      this.data.options = new JsonEditorOptions();
+      this.data.options.modes = ["code", "text", "tree", "view"];
+      this.data.options.mode = "code";
+      // this.data.options.onChange = () => {
+      // 	this.editor
+      // };
     }
+  }
 
-    submit() {
-        if (!this.editor) {
-            this.dialogRef.close();
-            return;
-        }
-        const valid = this.editor.isValidJson();
-        if (valid) {
-            this.dialogRef.close(this.editor.get());
-        }
+  submit() {
+    if (!this.editor) {
+      this.dialogRef.close();
+      return;
     }
+    const valid = this.editor.isValidJson();
+    if (valid) {
+      this.dialogRef.close(this.editor.get());
+    }
+  }
 
-    cancel() {
-        this.dialogRef.close();
-    }
+  cancel() {
+    this.dialogRef.close();
+  }
 }
 
 export const openJsonEditorDialog = getOpenDialogFunc<JsonEditorComponent, JsonEditorData, any>(JsonEditorComponent);

@@ -1,6 +1,6 @@
 import {Environment} from "./environment.types";
 
 export const environment: Environment = {
-    production: false,
-    unitTest: true
+  production: false,
+  unitTest: true
 };

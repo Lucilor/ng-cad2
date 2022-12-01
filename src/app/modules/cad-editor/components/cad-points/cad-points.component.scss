@@ -1,31 +1,31 @@
 .point {
-	position: absolute;
-	border-radius: 20px;
-	background-color: white;
-	cursor: pointer;
-	transform: translate(-50%, -50%);
-	user-select: none;
+  position: absolute;
+  border-radius: 20px;
+  background-color: white;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  user-select: none;
 
-	$active-color: rgb(0, 0, 255);
-	animation: point 2.2s linear infinite;
-	&:hover {
-		opacity: 0.9;
-		background-color: $active-color;
-	}
-	&.active {
-		background-color: $active-color;
-		animation: unset;
-	}
+  $active-color: rgb(0, 0, 255);
+  animation: point 2.2s linear infinite;
+  &:hover {
+    opacity: 0.9;
+    background-color: $active-color;
+  }
+  &.active {
+    background-color: $active-color;
+    animation: unset;
+  }
 
-	@keyframes point {
-		0% {
-			transform: translate(-50%, -50%) scale(1);
-		}
-		50% {
-			transform: translate(-50%, -50%) scale(1.2);
-		}
-		100% {
-			transform: translate(-50%, -50%) scale(1);
-		}
-	}
+  @keyframes point {
+    0% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
 }

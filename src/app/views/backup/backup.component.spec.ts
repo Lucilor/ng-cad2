@@ -17,40 +17,40 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {BackupComponent} from "./backup.component";
 
 describe("BackupComponent", () => {
-    let component: BackupComponent;
-    let fixture: ComponentFixture<BackupComponent>;
+  let component: BackupComponent;
+  let fixture: ComponentFixture<BackupComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [BackupComponent],
-            imports: [
-                FormsModule,
-                HttpModule,
-                ImageModule,
-                MatButtonModule,
-                MatCardModule,
-                MatDatepickerModule,
-                MatFormFieldModule,
-                MatIconModule,
-                MatInputModule,
-                MatNativeDateModule,
-                MatPaginatorModule,
-                MessageModule,
-                NgScrollbarModule,
-                SpinnerModule
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [BackupComponent],
+      imports: [
+        FormsModule,
+        HttpModule,
+        ImageModule,
+        MatButtonModule,
+        MatCardModule,
+        MatDatepickerModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatNativeDateModule,
+        MatPaginatorModule,
+        MessageModule,
+        NgScrollbarModule,
+        SpinnerModule
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(BackupComponent);
-        component = fixture.componentInstance;
-        const now = new Date();
-        component.data = [{time: now.getTime(), title: now.toLocaleTimeString(), img: "", data: new CadData()}];
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(BackupComponent);
+    component = fixture.componentInstance;
+    const now = new Date();
+    component.data = [{time: now.getTime(), title: now.toLocaleTimeString(), img: "", data: new CadData()}];
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

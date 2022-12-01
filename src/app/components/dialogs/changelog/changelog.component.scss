@@ -1,32 +1,32 @@
 :host {
-    display: block;
-    width: calc(80vw - 48px);
-    height: calc(80vh - 48px);
-    display: flex;
-    flex-direction: column;
+  display: block;
+  width: calc(80vw - 48px);
+  height: calc(80vh - 48px);
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 0.5em;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
 }
 
 .type {
-    font-size: 1.1em;
+  font-size: 1.1em;
 }
 
 .items {
-    margin-block-start: 0.5em;
-    margin-block-end: 0.5em;
+  margin-block-start: 0.5em;
+  margin-block-end: 0.5em;
 }
 
 .mat-divider {
-    border-top-color: rgba(0, 0, 0, 0.5);
-    margin: 0.5em 0;
+  border-top-color: rgba(0, 0, 0, 0.5);
+  margin: 0.5em 0;
 }
 
 .footer {
-    text-align: center;
-    color: gray;
+  text-align: center;
+  color: gray;
 }

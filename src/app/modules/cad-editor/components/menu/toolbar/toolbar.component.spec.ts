@@ -9,23 +9,23 @@ import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {ToolbarComponent} from "./toolbar.component";
 
 describe("ToolbarComponent", () => {
-    let component: ToolbarComponent;
-    let fixture: ComponentFixture<ToolbarComponent>;
+  let component: ToolbarComponent;
+  let fixture: ComponentFixture<ToolbarComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [ToolbarComponent],
-            imports: [MatDividerModule, MatMenuModule, CadConsoleModule, HttpModule, MessageModule, RouterTestingModule, SpinnerModule]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ToolbarComponent],
+      imports: [MatDividerModule, MatMenuModule, CadConsoleModule, HttpModule, MessageModule, RouterTestingModule, SpinnerModule]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(ToolbarComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ToolbarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

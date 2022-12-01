@@ -33,55 +33,55 @@ import {ToolbarComponent} from "../menu/toolbar/toolbar.component";
 import {CadEditorComponent} from "./cad-editor.component";
 
 describe("CadEditorComponent", () => {
-    let component: CadEditorComponent;
-    let fixture: ComponentFixture<CadEditorComponent>;
+  let component: CadEditorComponent;
+  let fixture: ComponentFixture<CadEditorComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [
-                AnchorSelectorComponent,
-                CadDimensionComponent,
-                CadEditorComponent,
-                CadInfoComponent,
-                CadLayerInputComponent,
-                CadLineComponent,
-                CadMtextComponent,
-                CadPointsComponent,
-                SubCadsComponent,
-                ToolbarComponent
-            ],
-            imports: [
-                CadConsoleModule,
-                ColorChromeModule,
-                ColorCircleModule,
-                DragDropModule,
-                FormsModule,
-                HttpModule,
-                InputModule,
-                MatAutocompleteModule,
-                MatButtonModule,
-                MatCheckboxModule,
-                MatDividerModule,
-                MatFormFieldModule,
-                MatIconModule,
-                MatInputModule,
-                MatMenuModule,
-                MatOptionModule,
-                MatSelectModule,
-                MatSlideToggleModule,
-                MatTabsModule,
-                MatTooltipModule,
-                NgScrollbarModule,
-                SpinnerModule
-            ]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [
+        AnchorSelectorComponent,
+        CadDimensionComponent,
+        CadEditorComponent,
+        CadInfoComponent,
+        CadLayerInputComponent,
+        CadLineComponent,
+        CadMtextComponent,
+        CadPointsComponent,
+        SubCadsComponent,
+        ToolbarComponent
+      ],
+      imports: [
+        CadConsoleModule,
+        ColorChromeModule,
+        ColorCircleModule,
+        DragDropModule,
+        FormsModule,
+        HttpModule,
+        InputModule,
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatDividerModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatMenuModule,
+        MatOptionModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatTabsModule,
+        MatTooltipModule,
+        NgScrollbarModule,
+        SpinnerModule
+      ]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(CadEditorComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(CadEditorComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

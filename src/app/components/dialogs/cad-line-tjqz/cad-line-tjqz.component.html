@@ -1,31 +1,31 @@
 <div class="title">条件取值设置</div>
 <div class="btn-group">
-    <div class="spinner-container">
-        <button mat-raised-button color="accent" (click)="submit()">保存</button>
-        <app-spinner [id]="loaderId" [inline]="true"></app-spinner>
-    </div>
-    <button mat-raised-button color="normal" (click)="close()">关闭</button>
+  <div class="spinner-container">
+    <button mat-raised-button color="accent" (click)="submit()">保存</button>
+    <app-spinner [id]="loaderId" [inline]="true"></app-spinner>
+  </div>
+  <button mat-raised-button color="normal" (click)="close()">关闭</button>
 </div>
 <div class="content">
-    <app-table
-        #tableLeft
-        [title]="'条件取值'"
-        [data]="dataLeft"
-        [columns]="columnsLeft"
-        [newItem]="newItemLeft"
-        [validator]="validatorLeft"
-        [editable]="true"
-        [activeRows]="activeRowsLeft"
-        (cellChange)="onCellChange($event)"
-        (rowClick)="onRowClick($event)"
-    ></app-table>
-    <div class="divider"></div>
-    <app-table
-        title="条件取值数据"
-        [data]="dataRight"
-        [columns]="columnsRight"
-        [newItem]="newItemRight"
-        [editable]="true"
-        (cellFocus)="onCellFocusRight($event)"
-    ></app-table>
+  <app-table
+    #tableLeft
+    [title]="'条件取值'"
+    [data]="dataLeft"
+    [columns]="columnsLeft"
+    [newItem]="newItemLeft"
+    [validator]="validatorLeft"
+    [editable]="true"
+    [activeRows]="activeRowsLeft"
+    (cellChange)="onCellChange($event)"
+    (rowClick)="onRowClick($event)"
+  ></app-table>
+  <div class="divider"></div>
+  <app-table
+    title="条件取值数据"
+    [data]="dataRight"
+    [columns]="columnsRight"
+    [newItem]="newItemRight"
+    [editable]="true"
+    (cellFocus)="onCellFocusRight($event)"
+  ></app-table>
 </div>

@@ -1,47 +1,48 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
-    "compileOnSave": false,
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["DOM", "ESNext"],
+    "paths": {
+      "@utils": ["src/cad-viewer/src/utils/src"],
+      "@cad-viewer": ["src/cad-viewer/src"],
+      "@components/*": ["src/app/components/*"],
+      "@guards/*": ["src/app/guards/*"],
+      "@mixins/*": ["src/app/mixins/*"],
+      "@modules/*": ["src/app/modules/*"],
+      "@services/*": ["src/app/services/*"],
+      "@views/*": ["src/app/views/*"],
+      "@src/*": ["src/*"],
+      "@app/*": ["src/app/*"],
+      "@env": ["src/environments/environment.ts"]
+    },
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "useDefineForClassFields": false
+  },
+  "angularCompilerOptions": {
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "ts-node": {
     "compilerOptions": {
-        "baseUrl": "./",
-        "outDir": "./dist/out-tsc",
-        "forceConsistentCasingInFileNames": true,
-        "strict": true,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
-        "sourceMap": true,
-        "declaration": false,
-        "experimentalDecorators": true,
-        "moduleResolution": "node",
-        "importHelpers": true,
-        "target": "ES2020",
-        "module": "ESNext",
-        "lib": ["DOM", "ESNext"],
-        "paths": {
-            "@utils": ["src/cad-viewer/src/utils/src"],
-            "@cad-viewer": ["src/cad-viewer/src"],
-            "@components/*": ["src/app/components/*"],
-            "@guards/*": ["src/app/guards/*"],
-            "@mixins/*": ["src/app/mixins/*"],
-            "@modules/*": ["src/app/modules/*"],
-            "@services/*": ["src/app/services/*"],
-            "@views/*": ["src/app/views/*"],
-            "@src/*": ["src/*"],
-            "@app/*": ["src/app/*"],
-            "@env": ["src/environments/environment.ts"]
-        },
-        "allowJs": true,
-        "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true
-    },
-    "angularCompilerOptions": {
-        "strictInjectionParameters": true,
-        "strictInputAccessModifiers": true,
-        "strictTemplates": true
-    },
-    "ts-node": {
-        "compilerOptions": {
-            "module": "CommonJS",
-            "esModuleInterop": true
-        }
+      "module": "CommonJS",
+      "esModuleInterop": true
     }
+  }
 }

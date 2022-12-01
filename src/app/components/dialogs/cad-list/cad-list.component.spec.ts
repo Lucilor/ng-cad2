@@ -18,42 +18,42 @@ import {CadListComponent, CadListData, customTooltipOptions} from "./cad-list.co
 
 const data: CadListData = {selectMode: "multiple", collection: "cad"};
 describe("CadListComponent", () => {
-    let component: CadListComponent;
-    let fixture: ComponentFixture<CadListComponent>;
+  let component: CadListComponent;
+  let fixture: ComponentFixture<CadListComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadListComponent],
-            imports: [
-                FormsModule,
-                HttpModule,
-                MatCheckboxModule,
-                MatDividerModule,
-                MatIconModule,
-                MatInputModule,
-                MatFormFieldModule,
-                MatSelectModule,
-                MatSlideToggleModule,
-                MatPaginatorModule,
-                MessageModule,
-                NgScrollbarModule,
-                SpinnerModule
-            ],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data},
-                {provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: customTooltipOptions}
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadListComponent],
+      imports: [
+        FormsModule,
+        HttpModule,
+        MatCheckboxModule,
+        MatDividerModule,
+        MatIconModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatPaginatorModule,
+        MessageModule,
+        NgScrollbarModule,
+        SpinnerModule
+      ],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data},
+        {provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: customTooltipOptions}
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CadListComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CadListComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

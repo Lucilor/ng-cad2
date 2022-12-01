@@ -11,32 +11,24 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {ChangelogComponent} from "./changelog.component";
 
 describe("ChangelogComponent", () => {
-    let component: ChangelogComponent;
-    let fixture: ComponentFixture<ChangelogComponent>;
+  let component: ChangelogComponent;
+  let fixture: ComponentFixture<ChangelogComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [ChangelogComponent],
-            imports: [
-                HttpModule,
-                InfiniteScrollModule,
-                MatDividerModule,
-                MessageModule,
-                NgScrollbarModule,
-                RouterTestingModule,
-                SpinnerModule
-            ],
-            providers: [{provide: MatDialogRef, useValue: {}}]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ChangelogComponent],
+      imports: [HttpModule, InfiniteScrollModule, MatDividerModule, MessageModule, NgScrollbarModule, RouterTestingModule, SpinnerModule],
+      providers: [{provide: MatDialogRef, useValue: {}}]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(ChangelogComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ChangelogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

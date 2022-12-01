@@ -12,33 +12,33 @@ import {CadPointsComponent} from "../../cad-points/cad-points.component";
 import {CadInfoComponent} from "./cad-info.component";
 
 describe("CadInfoComponent", () => {
-    let component: CadInfoComponent;
-    let fixture: ComponentFixture<CadInfoComponent>;
+  let component: CadInfoComponent;
+  let fixture: ComponentFixture<CadInfoComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadInfoComponent, CadPointsComponent],
-            imports: [
-                FormsModule,
-                HttpModule,
-                InputModule,
-                MatButtonModule,
-                MatFormFieldModule,
-                MatIconModule,
-                MatInputModule,
-                MessageModule,
-                SpinnerModule
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadInfoComponent, CadPointsComponent],
+      imports: [
+        FormsModule,
+        HttpModule,
+        InputModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MessageModule,
+        SpinnerModule
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CadInfoComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CadInfoComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

@@ -10,27 +10,27 @@ import {BbzhmkgzComponent, BbzhmkgzComponentData} from "./bbzhmkgz.component";
 
 const data: BbzhmkgzComponentData = {value: "test", vars: {a: "1", b: "2"}};
 describe("BbzhmkgzComponent", () => {
-    let component: BbzhmkgzComponent;
-    let fixture: ComponentFixture<BbzhmkgzComponent>;
+  let component: BbzhmkgzComponent;
+  let fixture: ComponentFixture<BbzhmkgzComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [BbzhmkgzComponent],
-            imports: [BrowserAnimationsModule, FormsModule, MatFormFieldModule, MatInputModule, MessageModule, NgScrollbarModule],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data}
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [BbzhmkgzComponent],
+      imports: [BrowserAnimationsModule, FormsModule, MatFormFieldModule, MatInputModule, MessageModule, NgScrollbarModule],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data}
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(BbzhmkgzComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(BbzhmkgzComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

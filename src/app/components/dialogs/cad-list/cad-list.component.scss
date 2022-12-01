@@ -1,113 +1,113 @@
 :host {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
-    > :not(.contnet) {
-        flex: 0 0 0;
-    }
+  > :not(.contnet) {
+    flex: 0 0 0;
+  }
 
-    > .content {
-        flex: 1 1 0;
-        height: 0;
-        position: relative;
-    }
+  > .content {
+    flex: 1 1 0;
+    height: 0;
+    position: relative;
+  }
 }
 
 mat-paginator,
 .data-container {
-    line-height: 1.5rem;
-    font-size: 1rem;
+  line-height: 1.5rem;
+  font-size: 1rem;
 }
 
 mat-radio-group,
 .checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .data-container {
-    display: flex;
-    flex-direction: column;
-    padding: 12px;
-    width: 20%;
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  width: 20%;
+  box-sizing: border-box;
 
-    img {
-        cursor: pointer;
+  img {
+    cursor: pointer;
+  }
+
+  .details {
+    .mat-subheader {
+      padding: 0;
+      height: auto;
+      color: #0378d5;
     }
 
-    .details {
-        .mat-subheader {
-            padding: 0;
-            height: auto;
-            color: #0378d5;
-        }
+    .mat-list-item {
+      font-size: 0.9rem;
+      line-height: 1.15rem;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      height: auto;
 
-        .mat-list-item {
-            font-size: 0.9rem;
-            line-height: 1.15rem;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            height: auto;
-
-            .mat-list-item-content {
-                padding: 0;
-            }
-        }
-
-        .mat-divider {
-            margin: 5px 0;
-        }
-
-        .text {
-            width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+      .mat-list-item-content {
+        padding: 0;
+      }
     }
+
+    .mat-divider {
+      margin: 5px 0;
+    }
+
+    .text {
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }
 
 .mat-dialog-actions {
-    margin-bottom: 0;
-    box-sizing: border-box;
-    min-height: unset;
+  margin-bottom: 0;
+  box-sizing: border-box;
+  min-height: unset;
 
-    .btn-group {
-        flex: 1 1 0;
-        justify-content: center;
-    }
+  .btn-group {
+    flex: 1 1 0;
+    justify-content: center;
+  }
 
-    mat-paginator {
-        margin: -24px 0;
-    }
+  mat-paginator {
+    margin: -24px 0;
+  }
 }
 
 .search-input {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    > *:not(:last-child) {
-        margin-right: 5px;
-    }
+  > *:not(:last-child) {
+    margin-right: 5px;
+  }
 }
 
 table {
-    width: 100%;
+  width: 100%;
 }
 
 .cad-preview-container {
-    width: 100%;
-    height: 0;
-    padding-bottom: 50%;
-    position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 50%;
+  position: relative;
 
-    img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        cursor: pointer;
-    }
+  img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+  }
 }

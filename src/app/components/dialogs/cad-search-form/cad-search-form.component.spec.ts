@@ -13,38 +13,38 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {CadSearchFormComponent} from "./cad-search-form.component";
 
 describe("CadSearchFormComponent", () => {
-    let component: CadSearchFormComponent;
-    let fixture: ComponentFixture<CadSearchFormComponent>;
+  let component: CadSearchFormComponent;
+  let fixture: ComponentFixture<CadSearchFormComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadSearchFormComponent],
-            imports: [
-                FormsModule,
-                HttpModule,
-                MatButtonModule,
-                MatCardModule,
-                MatIconModule,
-                MatInputModule,
-                MatFormFieldModule,
-                MatSelectModule,
-                MessageModule,
-                NgScrollbarModule
-            ],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: {}}
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadSearchFormComponent],
+      imports: [
+        FormsModule,
+        HttpModule,
+        MatButtonModule,
+        MatCardModule,
+        MatIconModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MessageModule,
+        NgScrollbarModule
+      ],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: {}}
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CadSearchFormComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CadSearchFormComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

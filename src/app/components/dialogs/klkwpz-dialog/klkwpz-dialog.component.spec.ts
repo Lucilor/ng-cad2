@@ -12,25 +12,25 @@ import {KlkwpzDialogData, KlkwpzDialogComponent} from "./klkwpz-dialog.component
 const data: KlkwpzDialogData = {source: testData as any};
 
 describe("KlkwpzDialogComponent", () => {
-    let component: KlkwpzDialogComponent;
-    let fixture: ComponentFixture<KlkwpzDialogComponent>;
+  let component: KlkwpzDialogComponent;
+  let fixture: ComponentFixture<KlkwpzDialogComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [KlkwpzDialogComponent, KlkwpzComponent],
-            imports: [HttpModule, InputModule, MatCardModule, MessageModule, NgScrollbarModule],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data}
-            ]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [KlkwpzDialogComponent, KlkwpzComponent],
+      imports: [HttpModule, InputModule, MatCardModule, MessageModule, NgScrollbarModule],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data}
+      ]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(KlkwpzDialogComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(KlkwpzDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

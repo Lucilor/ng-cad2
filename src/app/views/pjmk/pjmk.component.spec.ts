@@ -7,22 +7,22 @@ import {MessageModule} from "@modules/message/message.module";
 import {PjmkComponent} from "./pjmk.component";
 
 describe("PjmkComponent", () => {
-    let component: PjmkComponent;
-    let fixture: ComponentFixture<PjmkComponent>;
+  let component: PjmkComponent;
+  let fixture: ComponentFixture<PjmkComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [PjmkComponent],
-            imports: [HttpModule, MatButtonModule, MatMenuModule, MessageModule]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [PjmkComponent],
+      imports: [HttpModule, MatButtonModule, MatMenuModule, MessageModule]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(PjmkComponent);
-        component = fixture.componentInstance;
-        component.data = importZixuanpeijian(getTestData().data);
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(PjmkComponent);
+    component = fixture.componentInstance;
+    component.data = importZixuanpeijian(getTestData().data);
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

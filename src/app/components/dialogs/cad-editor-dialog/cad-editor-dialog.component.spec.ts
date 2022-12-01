@@ -8,25 +8,25 @@ import {CadEditorDialogComponent, CadEditorInput} from "./cad-editor-dialog.comp
 const data: CadEditorInput = {data: new CadData({name: "test"}), collection: "cad"};
 
 describe("CadEditorDialogComponent", () => {
-    let component: CadEditorDialogComponent;
-    let fixture: ComponentFixture<CadEditorDialogComponent>;
+  let component: CadEditorDialogComponent;
+  let fixture: ComponentFixture<CadEditorDialogComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadEditorDialogComponent],
-            imports: [CadEditorModule, HttpModule],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data}
-            ]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadEditorDialogComponent],
+      imports: [CadEditorModule, HttpModule],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data}
+      ]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(CadEditorDialogComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(CadEditorDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });
