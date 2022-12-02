@@ -3,15 +3,15 @@ import {MatDialog, MatDialogConfig} from "@angular/material/dialog";
 import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {lastValueFrom} from "rxjs";
 import {
+  AlertMessageData,
+  BookMessageData,
+  ButtonMessageData,
+  ConfirmMessageData,
+  EditorMessageData,
+  IFrameMessageData,
   MessageData,
   MessageDataMap,
-  AlertMessageData,
-  ConfirmMessageData,
   PromptMessageData,
-  BookMessageData,
-  EditorMessageData,
-  ButtonMessageData,
-  IFrameMessageData
 } from "../components/message/message-types";
 import {MessageComponent} from "../components/message/message.component";
 

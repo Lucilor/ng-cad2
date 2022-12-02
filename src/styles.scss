@@ -70,9 +70,9 @@ body {
   align-items: center;
 
   > * {
-    margin-bottom: 5px !important;
+    margin-bottom: 5px;
     &:not(:last-child) {
-      margin-right: 5px !important;
+      margin-right: 5px;
     }
   }
 }

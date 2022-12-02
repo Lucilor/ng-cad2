@@ -65,4 +65,7 @@ export class ChangelogComponent {
   }
 }
 
-export const openChangelogDialog = getOpenDialogFunc<ChangelogComponent, void, void>(ChangelogComponent);
+export const openChangelogDialog = getOpenDialogFunc<ChangelogComponent, void, void>(ChangelogComponent, {
+  width: "80vw",
+  height: "80vh"
+});

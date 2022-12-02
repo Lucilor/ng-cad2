@@ -7,7 +7,7 @@
     "build": "ng build --configuration production",
     "test": "ng test",
     "test:ci": "ng test --watch=false --progress=false --browsers=ChromeHeadless",
-    "lint": "ng lint",
+    "lint": "ng lint --fix",
     "e2e": "ng e2e",
     "prepare": "husky install"
   },

@@ -10,11 +10,11 @@ export type ProgressBarStatus = "hidden" | "progress" | "success" | "error";
 })
 export class ProgressBarComponent {
   @Input()
-  progressBar = new ProgressBar(1);
+    progressBar = new ProgressBar(1);
   @Input()
-  status: ProgressBarStatus = "hidden";
+    status: ProgressBarStatus = "hidden";
   @Input()
-  msg = "";
+    msg = "";
 
   clickTextsRandom = new ListRandom([
     "(〃'▽'〃)",

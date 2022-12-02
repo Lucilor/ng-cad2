@@ -3,9 +3,7 @@
   "env": {
     "es6": true
   },
-  "rules": {
-    "@typescript-eslint/indent": ["error", 2]
-  },
+  "rules": {},
   "overrides": [
     {
       "files": ["*.ts"],
