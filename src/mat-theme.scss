@@ -2,7 +2,7 @@
 
 @include mat.core();
 
-$app-typography: mat.define-typography-config(
+$app-typography: mat.define-rem-typography-config(
   $font-family: "Roboto, 微软雅黑, sans-serif"
 );
 $primary: mat.define-palette(mat.$indigo-palette, 500); // $deeppurple form color_palette
@@ -16,7 +16,7 @@ $app-theme: mat.define-light-theme(
       warn: $warn
     ),
     typography: $app-typography,
-    density: 0
+    density: -1
   )
 );
 @include mat.all-component-themes($app-theme);
@@ -65,4 +65,8 @@ $app-theme: mat.define-light-theme(
 
 .mat-mdc-button.mdc-button {
   min-width: unset;
+}
+
+.mat-mdc-dialog-surface .mat-mdc-dialog-actions {
+  justify-content: center;
 }

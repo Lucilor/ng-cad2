@@ -278,11 +278,9 @@
   </div>
 </ng-template>
 
-<div class="toolbar btn-group">
-  <div>
-    <button mat-raised-button color="primary" (click)="submit()">{{ summitBtnText }}</button>
-  </div>
-  <div><button mat-raised-button (click)="cancel()">取消</button></div>
+<div matDialogActions>
+  <button mat-raised-button color="primary" (click)="submit()">{{ summitBtnText }}</button>
+  <button mat-raised-button (click)="cancel()">取消</button>
 </div>
 
 <app-spinner [id]="spinnerId"></app-spinner>

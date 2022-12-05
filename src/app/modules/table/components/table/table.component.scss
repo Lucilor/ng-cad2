@@ -39,9 +39,6 @@
         border-right: 1px solid rgba(0, 0, 0, 0.12);
       }
 
-      &.mat-column-select {
-        flex: 0 0 0;
-      }
       &:not(.mat-column-select) {
         flex: 1 1 0;
       }
@@ -49,12 +46,29 @@
       &.error {
         background-color: #ffcece;
       }
+
+      .mat-mdc-form-field {
+        ::ng-deep {
+          .mat-mdc-text-field-wrapper {
+            padding: 0;
+            background-color: transparent;
+
+            .mat-mdc-form-field-focus-overlay {
+              display: none;
+            }
+          }
+
+          .mat-mdc-form-field-subscript-wrapper {
+            display: none;
+          }
+        }
+      }
     }
   }
 
-  th.mat-header-cell,
-  td.mat-cell,
-  td.mat-footer-cell {
+  th.mat-mdc-header-cell,
+  td.mat-mdc-cell,
+  td.mat-mdc-footer-cell {
     padding: 0 5px;
   }
 
@@ -70,7 +84,7 @@
   font-size: 1rem;
   line-height: 1rem;
 
-  .mat-form-field {
+  .mat-mdc-form-field {
     margin-bottom: -1.25em;
   }
 

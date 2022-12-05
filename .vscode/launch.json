@@ -8,29 +8,25 @@
       "type": "msedge",
       "request": "attach",
       "name": "Attach to Edge",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}"
+      "port": 9222
     },
     {
       "type": "msedge",
       "request": "launch",
       "name": "Launch Edge against localhost",
-      "url": "https://localhost:4200",
-      "webRoot": "${workspaceFolder}"
+      "url": "https://localhost:4200"
     },
     {
       "type": "chrome",
       "request": "attach",
       "name": "Attach to Chrome",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}"
+      "port": 9222
     },
     {
       "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome against localhost",
-      "url": "https://localhost:4200",
-      "webRoot": "${workspaceFolder}"
+      "url": "https://localhost:4200"
     }
   ]
 }

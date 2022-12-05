@@ -11,7 +11,7 @@ import {
   IFrameMessageData,
   MessageData,
   MessageDataMap,
-  PromptMessageData,
+  PromptMessageData
 } from "../components/message/message-types";
 import {MessageComponent} from "../components/message/message.component";
 

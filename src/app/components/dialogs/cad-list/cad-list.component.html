@@ -38,7 +38,7 @@
 
 <div class="content" [ngSwitch]="data.selectMode">
   <ng-scrollbar *ngSwitchCase="'single'">
-    <mat-radio-group class="add-empty-msg" [value]="checkedIndex.value">
+    <mat-radio-group class="radio-group add-empty-msg" [value]="checkedIndex.value">
       <mat-radio-button [value]="-1" style="display: none"><span #singleSelectNone></span></mat-radio-button>
       <div class="data-container" *ngFor="let item of pageData; let i = index">
         <mat-radio-button [value]="i" [matTooltip]="item.data.name" (click)="checkedIndex.next(i)">
@@ -99,7 +99,7 @@
   <app-spinner [id]="loaderId" text="正在加载CAD"></app-spinner>
 </div>
 
-<div mat-dialog-actions>
+<div matDialogActions>
   <div class="btn-group">
     <div class="spinner-container">
       <button mat-raised-button color="primary" (click)="submit()">确定</button>
@@ -117,16 +117,16 @@
   ></mat-paginator>
 </div>
 
-<ng-template #details let-data>
-  <mat-list class="details" *ngFor="let v of asCadDataArray([data])">
+<ng-template #details let-data [appTypedTemplate]="{$implicit: cadDataType}">
+  <mat-list class="details">
     <mat-divider></mat-divider>
     <div matSubheader>选项</div>
-    <mat-list-item *ngFor="let k of keysOf(v.options)" [matTooltip]="k + ': ' + v.options[k]">
+    <mat-list-item *ngFor="let k of keysOf(data.options)" [matTooltip]="k + ': ' + data.options[k]">
       <span class="text">{{ k }}: {{ data.options[k] }}</span>
     </mat-list-item>
     <mat-divider></mat-divider>
     <div matSubheader>条件</div>
-    <mat-list-item *ngFor="let c of v.conditions" [matTooltip]="c">
+    <mat-list-item *ngFor="let c of data.conditions" [matTooltip]="c">
       <span class="text">{{ c }}</span>
     </mat-list-item>
   </mat-list>

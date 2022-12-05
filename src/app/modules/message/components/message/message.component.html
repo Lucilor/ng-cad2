@@ -53,7 +53,7 @@
     </mat-form-field>
   </ng-container>
 </div>
-<div mat-dialog-actions class="btn-group hidden-if-empty" style="justify-content: center" [ngSwitch]="data.type">
+<div matDialogActions class="hidden-if-empty" style="justify-content: center" [ngSwitch]="data.type">
   <ng-container *ngSwitchCase="'alert'">
     <button mat-raised-button (click)="cancel()" cdkFocusInitial>
       {{ cast(data, "alert").btnTexts?.ok || "好的" }}

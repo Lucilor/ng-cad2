@@ -1,18 +1,18 @@
 :host {
-  display: block;
   width: calc(100vw - 48px);
   height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .cards {
-  flex: 1 1 0;
   display: flex;
   flex-wrap: wrap;
   background-color: #5d5d5d;
 
-  .mat-card {
+  .card {
     width: calc(33.33% - 20px);
     margin: 10px;
     box-sizing: border-box;
@@ -30,27 +30,25 @@
         width: 100%;
       }
 
-      .mat-form-field {
+      .mat-mdc-form-field {
         box-sizing: border-box;
         padding: 5px;
+        flex: 1 1 auto;
       }
 
       .btn-group {
         margin: 0;
         position: absolute;
-        top: -9px;
-        right: 0;
+        top: 18px;
+        right: 8px;
         z-index: 1;
 
         button {
           padding: 0;
           min-width: unset;
+          background-color: transparent;
         }
       }
     }
   }
-}
-
-.btn-group {
-  text-align: center;
 }

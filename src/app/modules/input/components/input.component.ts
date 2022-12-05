@@ -152,7 +152,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
   colorText = "";
 
   @HostBinding("class")
-    class: string[] = [];
+  class: string[] = [];
 
   @ViewChild("formField", {read: ElementRef}) formField?: ElementRef<HTMLElement>;
   @ViewChild("colorChrome") colorChrome?: ChromeComponent;

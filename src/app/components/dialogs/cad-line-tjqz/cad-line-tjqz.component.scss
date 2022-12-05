@@ -3,6 +3,8 @@
   height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .title {

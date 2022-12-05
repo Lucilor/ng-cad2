@@ -3,6 +3,8 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
 
   > :not(.contnet) {
     flex: 0 0 0;
@@ -21,7 +23,7 @@ mat-paginator,
   font-size: 1rem;
 }
 
-mat-radio-group,
+.radio-group,
 .checkbox-group {
   display: flex;
   flex-wrap: wrap;
@@ -39,33 +41,29 @@ mat-radio-group,
   }
 
   .details {
-    .mat-subheader {
+    .mat-mdc-subheader {
       padding: 0;
+      margin: 0;
       height: auto;
       color: #0378d5;
     }
 
-    .mat-list-item {
-      font-size: 0.9rem;
-      line-height: 1.15rem;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
+    .mat-mdc-list-item {
       height: auto;
+      padding: 0;
 
-      .mat-list-item-content {
-        padding: 0;
+      .text {
+        font-size: 14px;
+        line-height: 16px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        letter-spacing: normal;
       }
     }
 
     .mat-divider {
       margin: 5px 0;
-    }
-
-    .text {
-      width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
   }
 }

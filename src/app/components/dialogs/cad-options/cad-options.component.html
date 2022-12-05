@@ -30,10 +30,12 @@
   (page)="changePage($event)"
 ></mat-paginator>
 
-<div class="btn-group" mat-dialog-actions>
-  <div class="spinner-container">
-    <button mat-raised-button color="primary" (click)="submit()">确定</button>
-    <app-spinner [id]="loaderIds.submitLoaderId" [inline]="true"></app-spinner>
-  </div>
+<div matDialogActions>
+  <button mat-raised-button color="primary" (click)="submit()">
+    <span>确定</span>
+    <div class="spinner-container">
+      <app-spinner [id]="loaderIds.submitLoaderId" [inline]="true"></app-spinner>
+    </div>
+  </button>
   <button mat-raised-button color="primary" (click)="close()">取消</button>
 </div>

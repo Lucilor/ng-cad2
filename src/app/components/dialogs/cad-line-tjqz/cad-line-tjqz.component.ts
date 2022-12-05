@@ -1,17 +1,17 @@
-import {Component, ViewChild, Inject} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
+import {Component, Inject, ViewChild} from "@angular/core";
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatTableDataSource} from "@angular/material/table";
 import {CadLine} from "@cad-viewer";
 import {CadConsoleService} from "@modules/cad-console/services/cad-console.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {
+  CellEvent,
   ColumnInfo,
-  TableComponent,
   ItemGetter,
-  TableValidator,
-  TableErrorState,
   RowEvent,
-  CellEvent
+  TableComponent,
+  TableErrorState,
+  TableValidator
 } from "@modules/table/components/table/table.component";
 import {AppStatusService} from "@services/app-status.service";
 import {cloneDeep} from "lodash";

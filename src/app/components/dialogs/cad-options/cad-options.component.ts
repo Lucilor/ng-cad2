@@ -131,4 +131,7 @@ export class CadOptionsComponent implements AfterViewInit {
   }
 }
 
-export const openCadOptionsDialog = getOpenDialogFunc<CadOptionsComponent, CadOptionsData, string[]>(CadOptionsComponent);
+export const openCadOptionsDialog = getOpenDialogFunc<CadOptionsComponent, CadOptionsData, string[]>(CadOptionsComponent, {
+  width: "80vw",
+  height: "80vh"
+});

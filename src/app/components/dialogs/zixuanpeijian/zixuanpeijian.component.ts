@@ -1138,5 +1138,5 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
 export const openZixuanpeijianDialog = getOpenDialogFunc<ZixuanpeijianComponent, ZixuanpeijianInput, ZixuanpeijianOutput>(
   ZixuanpeijianComponent,
-  {width: "calc(100vw - 20px)", height: "calc(100vh - 10px)", disableClose: true}
+  {width: "100vw", height: "100vh", disableClose: true}
 );

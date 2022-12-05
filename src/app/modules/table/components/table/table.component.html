@@ -37,22 +37,26 @@
           (click)="onRowClick(item, rowIdx)"
         >
           <ng-container *ngIf="isColumnEditable(column); else notEditable" [ngSwitch]="column.type">
-            <input
-              *ngSwitchCase="'string'"
-              type="text"
-              matInput
-              [value]="item[column.field]"
-              (input)="setCellValue($event, colIdx, rowIdx, item)"
-              (focus)="onCellFocus($event, colIdx, rowIdx, item)"
-              (blur)="onCellBlur($event, colIdx, rowIdx, item)"
-            />
-            <input
-              *ngSwitchCase="'number'"
-              matInput
-              type="number"
-              [value]="item[column.field]"
-              (input)="setCellValue($event, colIdx, rowIdx, item)"
-            />
+            <mat-form-field *ngSwitchCase="'string'">
+              <input
+                type="text"
+                matInput
+                [value]="item[column.field]"
+                (input)="setCellValue($event, colIdx, rowIdx, item)"
+                (focus)="onCellFocus($event, colIdx, rowIdx, item)"
+                (blur)="onCellBlur($event, colIdx, rowIdx, item)"
+              />
+            </mat-form-field>
+            <mat-form-field *ngSwitchCase="'number'">
+              <input
+                matInput
+                type="number"
+                [value]="item[column.field]"
+                (input)="setCellValue($event, colIdx, rowIdx, item)"
+                (focus)="onCellFocus($event, colIdx, rowIdx, item)"
+                (blur)="onCellBlur($event, colIdx, rowIdx, item)"
+              />
+            </mat-form-field>
             <mat-slide-toggle
               *ngSwitchCase="'boolean'"
               [checked]="item[column.field] === true"

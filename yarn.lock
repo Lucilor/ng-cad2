@@ -1988,14 +1988,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@es-joy/jsdoccomment@npm:~0.36.0":
-  version: 0.36.0
-  resolution: "@es-joy/jsdoccomment@npm:0.36.0"
+"@es-joy/jsdoccomment@npm:~0.36.1":
+  version: 0.36.1
+  resolution: "@es-joy/jsdoccomment@npm:0.36.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40es-joy%2Fjsdoccomment%2F-%2Fjsdoccomment-0.36.1.tgz"
   dependencies:
-    comment-parser: "npm:1.3.1"
-    esquery: "npm:^1.4.0"
-    jsdoc-type-pratt-parser: "npm:~3.1.0"
-  checksum: c2fa95bc01f6b2a0caa521adaa37562b10b12095b5308948f3e122880d2ae9684c09e5b0e0809ac3e31e17580886d2d3b41fbf4ff4831649efce8cba8e30cf5c
+    comment-parser: 1.3.1
+    esquery: ^1.4.0
+    jsdoc-type-pratt-parser: ~3.1.0
+  checksum: 28e697779230dc6a95b1f233a8c2a72b64fbea686e407106e5d4292083421a997452731c414de26c10bee86e8e0397c5fb84d6ecfd4b472a29735e1af103ddb6
   languageName: node
   linkType: hard
 
@@ -3378,14 +3378,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/gulp@npm:^4.0.9":
-  version: 4.0.9
-  resolution: "@types/gulp@npm:4.0.9"
+"@types/gulp@npm:^4.0.10":
+  version: 4.0.10
+  resolution: "@types/gulp@npm:4.0.10::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Fgulp%2F-%2Fgulp-4.0.10.tgz"
   dependencies:
-    "@types/undertaker": "npm:*"
-    "@types/vinyl-fs": "npm:*"
-    chokidar: "npm:^3.3.1"
-  checksum: d0fe14866cc2c233c4116941f7c275b1b907d5b40de8bf92899e4152979cd6c51a71d407ac752f0434a7ed95a97979f61c1dd05b82fdee73088809476f8d9f85
+    "@types/undertaker": ">=1.2.6"
+    "@types/vinyl-fs": "*"
+    chokidar: ^3.3.1
+  checksum: ac85fc1ad53bf3e093b72e88700db61b10997e9facf82fe6dc0dd50fcd89af39ef1342baaaf34609174601e84066607e29598d0b99fe9e75e1f197097cba0308
   languageName: node
   linkType: hard
 
@@ -3435,10 +3435,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.188":
-  version: 4.14.188
-  resolution: "@types/lodash@npm:4.14.188"
-  checksum: 89c32f0a18e0da6ae914b430e76b3d0451c4c85b9c838b440c0c9a8d4966c8e2a76dbb30964c7126402856b2997ec56a8c36d8d6461ec14387689ec37594f09f
+"@types/lodash@npm:^4.14.191":
+  version: 4.14.191
+  resolution: "@types/lodash@npm:4.14.191::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Flodash%2F-%2Flodash-4.14.191.tgz"
+  checksum: ba0d5434e10690869f32d5ea49095250157cae502f10d57de0a723fd72229ce6c6a4979576f0f13e0aa9fbe3ce2457bfb9fa7d4ec3d6daba56730a51906d1491
   languageName: node
   linkType: hard
 
@@ -3484,10 +3484,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.11.9":
-  version: 18.11.9
-  resolution: "@types/node@npm:18.11.9"
-  checksum: cc0aae109e9b7adefc32eecb838d6fad931663bb06484b5e9cbbbf74865c721b03d16fd8d74ad90e31dbe093d956a7c2c306ba5429ba0c00f3f7505103d7a496
+"@types/node@npm:^18.11.10":
+  version: 18.11.10
+  resolution: "@types/node@npm:18.11.10::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Fnode%2F-%2Fnode-18.11.10.tgz"
+  checksum: 0f60cb090b2ee91fcd3dc4311bc1ed7889b92f14644c0069f100776f86474c12eebbcc6c75bc0d7d96b975a103b4d5d6b3c22b4e88bea6e7f4e2b1bb0daf5ea8
   languageName: node
   linkType: hard
 
@@ -3517,7 +3517,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prettier@npm:^2":
+"@types/prettier@npm:^2.7.1":
   version: 2.7.1
   resolution: "@types/prettier@npm:2.7.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Fprettier%2F-%2Fprettier-2.7.1.tgz"
   checksum: 5e3f58e229d6c73b5f5cae2e8f96c1c4a5b5805f83459e17a045ba8e96152b1d38e86b63e3172fb159dac923388699660862b75b2d37e54220805f0e691e26f1
@@ -3540,9 +3540,9 @@ __metadata:
 
 "@types/quill@npm:^1.3.10":
   version: 1.3.10
-  resolution: "@types/quill@npm:1.3.10"
+  resolution: "@types/quill@npm:1.3.10::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Fquill%2F-%2Fquill-1.3.10.tgz"
   dependencies:
-    parchment: "npm:^1.1.2"
+    parchment: ^1.1.2
   checksum: e629157d11a8398c945e9d9e6b3ebb678f996b195976ddfcabd9771ac7e55a4ebbab3b0c320dc8eb0033715ea5fd197758ac14b4f50bf1d12fd3648fe24d1cb5
   languageName: node
   linkType: hard
@@ -3610,21 +3610,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/undertaker@npm:*":
+"@types/undertaker@npm:>=1.2.6":
   version: 1.2.8
-  resolution: "@types/undertaker@npm:1.2.8"
+  resolution: "@types/undertaker@npm:1.2.8::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Fundertaker%2F-%2Fundertaker-1.2.8.tgz"
   dependencies:
-    "@types/node": "npm:*"
-    "@types/undertaker-registry": "npm:*"
-    async-done: "npm:~1.3.2"
+    "@types/node": "*"
+    "@types/undertaker-registry": "*"
+    async-done: ~1.3.2
   checksum: c17c88b54c199bdbc115d5e50839291fd096d99db69e663ae244136b3254b57913bdf4bd3bfd02ef32c99677bd12ac945df5fd990e08282abd633e59cc5c3e94
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^8.3.4":
-  version: 8.3.4
-  resolution: "@types/uuid@npm:8.3.4"
-  checksum: 6f11f3ff70f30210edaa8071422d405e9c1d4e53abbe50fdce365150d3c698fe7bbff65c1e71ae080cbfb8fded860dbb5e174da96fdbbdfcaa3fb3daa474d20f
+"@types/uuid@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@types/uuid@npm:9.0.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Fuuid%2F-%2Fuuid-9.0.0.tgz"
+  checksum: 59ae56d9547c8758588659da2a2b4c97cce79c2aae1798c892bb29452ef08e87859dea2ec3a66bfa88d0d2153147520be2b1893be920f9f0bc9c53a3207ea6aa
   languageName: node
   linkType: hard
 
@@ -3658,7 +3658,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^5.43.0":
+"@typescript-eslint/eslint-plugin@npm:^5.45.0":
   version: 5.45.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.45.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Feslint-plugin%2F-%2Feslint-plugin-5.45.0.tgz"
   dependencies:
@@ -3681,7 +3681,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^5.43.0":
+"@typescript-eslint/parser@npm:^5.45.0":
   version: 5.45.0
   resolution: "@typescript-eslint/parser@npm:5.45.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Fparser%2F-%2Fparser-5.45.0.tgz"
   dependencies:
@@ -4243,16 +4243,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ang-jsoneditor@npm:^1.10.5":
-  version: 1.10.5
-  resolution: "ang-jsoneditor@npm:1.10.5"
+"ang-jsoneditor@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "ang-jsoneditor@npm:2.0.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fang-jsoneditor%2F-%2Fang-jsoneditor-2.0.0.tgz"
   dependencies:
-    tslib: "npm:^2.0.0"
+    tslib: ^2.3.0
   peerDependencies:
     "@angular/common": "*"
     "@angular/core": "*"
     jsoneditor: ^9.1.8
-  checksum: abaebdf8ba2e3d319cc6b5b568eb0044f16d9cda09755942b911c5fbcc748552a34fbea38104893be612ed98a7d02648eb28776637888ddc7709c017290fecd7
+  checksum: 7868172074a90e28b7d65bb028d0e39beaedbf845d5f14d1bbef72ccd39388b20aebe07d4956de3f1a994363ce77a7eb2254ce954ef2aa0b9b3b862c4a71bb06
   languageName: node
   linkType: hard
 
@@ -4771,14 +4771,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "axios@npm:1.1.3"
+"axios@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "axios@npm:1.2.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Faxios%2F-%2Faxios-1.2.0.tgz"
   dependencies:
-    follow-redirects: "npm:^1.15.0"
-    form-data: "npm:^4.0.0"
-    proxy-from-env: "npm:^1.1.0"
-  checksum: cab3b17bf6092c9387f7023d699db093cfa23650b56c4422cd474d124b78b2e3b5a520f932c330664a58ab85b867b1c25a95cace475ef72d236888c852b84e6d
+    follow-redirects: ^1.15.0
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: f08ce214e957dfde45b837f8d3c7861424608fb7df32faa638835e338782a9f4c0b05074e92e0e8dcca3a1e6250112fbbe1b15a6b21104da633d84745bbb79cc
   languageName: node
   linkType: hard
 
@@ -7091,6 +7091,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-config-prettier@npm:^8.5.0":
+  version: 8.5.0
+  resolution: "eslint-config-prettier@npm:8.5.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Feslint-config-prettier%2F-%2Feslint-config-prettier-8.5.0.tgz"
+  peerDependencies:
+    eslint: ">=7.0.0"
+  bin:
+    eslint-config-prettier: bin/cli.js
+  checksum: 0d0f5c32e7a0ad91249467ce71ca92394ccd343178277d318baf32063b79ea90216f4c81d1065d60f96366fdc60f151d4d68ae7811a58bd37228b84c2083f893
+  languageName: node
+  linkType: hard
+
 "eslint-import-resolver-node@npm:^0.3.6":
   version: 0.3.6
   resolution: "eslint-import-resolver-node@npm:0.3.6"
@@ -7134,20 +7145,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsdoc@npm:39.6.2":
-  version: 39.6.2
-  resolution: "eslint-plugin-jsdoc@npm:39.6.2"
+"eslint-plugin-jsdoc@npm:39.6.4":
+  version: 39.6.4
+  resolution: "eslint-plugin-jsdoc@npm:39.6.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Feslint-plugin-jsdoc%2F-%2Feslint-plugin-jsdoc-39.6.4.tgz"
   dependencies:
-    "@es-joy/jsdoccomment": "npm:~0.36.0"
-    comment-parser: "npm:1.3.1"
-    debug: "npm:^4.3.4"
-    escape-string-regexp: "npm:^4.0.0"
-    esquery: "npm:^1.4.0"
-    semver: "npm:^7.3.8"
-    spdx-expression-parse: "npm:^3.0.1"
+    "@es-joy/jsdoccomment": ~0.36.1
+    comment-parser: 1.3.1
+    debug: ^4.3.4
+    escape-string-regexp: ^4.0.0
+    esquery: ^1.4.0
+    semver: ^7.3.8
+    spdx-expression-parse: ^3.0.1
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0
-  checksum: 613c541a644d441e5465139b2a1934842a29c701fb89f0380f105be28180c1fa2f3c08b421b134b87fef194d4fb4dab4006a972a084e476eebb14cf5bb9399fe
+  checksum: 2976112ae997b9f246eba98d849359a0df46ea07c0a9d6d90c3b76a29c253b9e92d1d46d6cf86f878e442653b97591e5ea01d05a6accdb078339c39e8767723e
   languageName: node
   linkType: hard
 
@@ -7215,9 +7226,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.28.0":
-  version: 8.28.0
-  resolution: "eslint@npm:8.28.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Feslint%2F-%2Feslint-8.28.0.tgz"
+"eslint@npm:^8.29.0":
+  version: 8.29.0
+  resolution: "eslint@npm:8.29.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Feslint%2F-%2Feslint-8.29.0.tgz"
   dependencies:
     "@eslint/eslintrc": ^1.3.3
     "@humanwhocodes/config-array": ^0.11.6
@@ -7260,7 +7271,7 @@ __metadata:
     text-table: ^0.2.0
   bin:
     eslint: bin/eslint.js
-  checksum: 1b793486b2ec80f0602d75fff7116f7c39a3286f523608a999eead9bec4154a06841785d2b4fb87f8292a94cf85778c1dbfaec727772a09c4d604fdb9ff0809a
+  checksum: e05204b05907b82d910983995cb946e0ba62ca514eb2b6791c43f623333b143564a2eee0139909d31c10935c21877d815b1f76dd674a59cb91c471064325c4ab
   languageName: node
   linkType: hard
 
@@ -8617,10 +8628,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"highlight.js@npm:^11.6.0":
-  version: 11.6.0
-  resolution: "highlight.js@npm:11.6.0"
-  checksum: 3908eb34a4b442ca1e20c1ae6415ea935fbbcdb2b532a89948d82b0fa4ad41fc5de3802a0de4e88a0bcb7d97d4445579048cd2aab1d105ac47f59dd58a9a98ae
+"highlight.js@npm:^11.7.0":
+  version: 11.7.0
+  resolution: "highlight.js@npm:11.7.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fhighlight.js%2F-%2Fhighlight.js-11.7.0.tgz"
+  checksum: 19e3fb8b56f4b361b057a8523b989dfeb6479bbd1e29cec3fac6fa5c78d09927d5fa61b7dba6631fdb57cfdca9b3084aa4da49405ceaf4a67f67beae2ed5b77d
   languageName: node
   linkType: hard
 
@@ -10497,10 +10508,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"luxon@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "luxon@npm:3.1.0"
-  checksum: f8a850b759ba7a2e009d904c522ed7bc264bf4add57578f8948e52a0ed96b627b025b5aad8032295b570ae19fac41f0ffab91bdb128715fb0cc020798a7ba886
+"luxon@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "luxon@npm:3.1.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fluxon%2F-%2Fluxon-3.1.1.tgz"
+  checksum: 388fb35d3c51a19d8b305a3338e7e74634b08562e7d2f9ed5c05a7f4bc9ee1c1ab6a2546b6d9c4c104516b24043757d65f5f3fe3d78b206fbf55a9586ab62230
   languageName: node
   linkType: hard
 
@@ -10649,10 +10660,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"material-icons@npm:^1.12.1":
-  version: 1.12.1
-  resolution: "material-icons@npm:1.12.1"
-  checksum: cb0937fcf11d869c0aae0562415040014f5e4377b7e6ecab1ce611880915b4bc6b7de14ccd4a479575dbf6e44aea86e9b6d12d591627910602927a9e163b7820
+"material-icons@npm:^1.13.1":
+  version: 1.13.1
+  resolution: "material-icons@npm:1.13.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fmaterial-icons%2F-%2Fmaterial-icons-1.13.1.tgz"
+  checksum: d23060ed5cde5bb1c53a776820ae851b82cd54143777e06b6d30ec68b143e5c9557a5c302ba13a395b880cee5201668c33da4b68d691aa69a10f1cad4e76543d
   languageName: node
   linkType: hard
 
@@ -11130,36 +11141,37 @@ __metadata:
     "@angular/router": ^15.0.2
     "@types/archiver": ^5.3.1
     "@types/color": ^3.0.3
-    "@types/gulp": ^4.0.9
+    "@types/gulp": ^4.0.10
     "@types/gulp-zip": ^4.0.2
     "@types/jasmine": ~4.3.0
     "@types/jasminewd2": ~2.0.10
-    "@types/lodash": ^4.14.188
+    "@types/lodash": ^4.14.191
     "@types/luxon": ^3.1.0
     "@types/md5": ^2.3.2
     "@types/minimist": ^1.2.2
-    "@types/node": ^18.11.9
+    "@types/node": ^18.11.10
     "@types/pdfmake": ^0.2.2
-    "@types/prettier": ^2
+    "@types/prettier": ^2.7.1
     "@types/quill": ^1.3.10
-    "@types/uuid": ^8.3.4
-    "@typescript-eslint/eslint-plugin": ^5.43.0
-    "@typescript-eslint/parser": ^5.43.0
-    ang-jsoneditor: ^1.10.5
+    "@types/uuid": ^9.0.0
+    "@typescript-eslint/eslint-plugin": ^5.45.0
+    "@typescript-eslint/parser": ^5.45.0
+    ang-jsoneditor: ^2.0.0
     angular-animations: ^0.11.0
     archiver: ^5.3.1
-    axios: ^1.1.3
+    axios: ^1.2.0
     browser-image-compression: ^2.0.0
     color: ^4.2.3
     csstype: ^3.1.1
-    eslint: ^8.28.0
+    eslint: ^8.29.0
+    eslint-config-prettier: ^8.5.0
     eslint-plugin-import: 2.26.0
-    eslint-plugin-jsdoc: 39.6.2
+    eslint-plugin-jsdoc: 39.6.4
     eslint-plugin-prefer-arrow: 1.2.3
     form-data: ^4.0.0
     gulp: ^4.0.2
     gulp-zip: ^5.1.0
-    highlight.js: ^11.6.0
+    highlight.js: ^11.7.0
     husky: ^8.0.2
     jasmine-core: ~4.5.0
     jasmine-spec-reporter: ~7.0.0
@@ -11172,14 +11184,14 @@ __metadata:
     karma-jasmine: ~5.1.0
     karma-jasmine-html-reporter: ^2.0.0
     lodash: ^4.17.21
-    luxon: ^3.1.0
-    material-icons: ^1.12.1
+    luxon: ^3.1.1
+    material-icons: ^1.13.1
     md5: ^2.3.0
     minimist: ^1.2.7
-    ng-recaptcha: ^10.0.0
+    ng-recaptcha: ^11.0.0
     ngx-color: ^8.0.3
     ngx-infinite-scroll: ^14.0.1
-    ngx-quill: ^19.0.1
+    ngx-quill: ^20.0.0
     ngx-scrollbar: ^10.0.1
     ngx-ui-loader: ^13.0.0
     pdfmake: ^0.2.6
@@ -11187,7 +11199,7 @@ __metadata:
     print-js: ^1.6.0
     protractor: ~7.0.0
     quill: ^1.3.7
-    rxjs: ~7.5.7
+    rxjs: ~7.6.0
     ts-node: ^10.9.1
     tslib: ^2.4.1
     typescript: ~4.8.4
@@ -11196,15 +11208,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"ng-recaptcha@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "ng-recaptcha@npm:10.0.0"
+"ng-recaptcha@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "ng-recaptcha@npm:11.0.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fng-recaptcha%2F-%2Fng-recaptcha-11.0.0.tgz"
   dependencies:
-    "@types/grecaptcha": "npm:^3.0.3"
-    tslib: "npm:^2.2.0"
+    "@types/grecaptcha": ^3.0.3
+    tslib: ^2.2.0
   peerDependencies:
-    "@angular/core": ^14.0.0
-  checksum: ab9fd6a9b544b30a5f086b3e6997a64fb4754faa2d32c8d8ff33500b94a43f70eff6bb58ce7fb9c3f6cad0225f032640959d97b9358fb2391da1e5e8dbe4be09
+    "@angular/core": ^15.0.0
+  checksum: 4be46c027a611d2df88e505a94f57ec2f3d1da33738c0bbe5abd917b6e75f244c992e8e66ea440ea30277d5e571bd01c032ef44d2d9842a8c773beefda917584
   languageName: node
   linkType: hard
 
@@ -11234,16 +11246,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ngx-quill@npm:^19.0.1":
-  version: 19.0.1
-  resolution: "ngx-quill@npm:19.0.1"
+"ngx-quill@npm:^20.0.0":
+  version: 20.0.0
+  resolution: "ngx-quill@npm:20.0.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fngx-quill%2F-%2Fngx-quill-20.0.0.tgz"
   dependencies:
-    tslib: "npm:^2.3.0"
+    tslib: ^2.3.0
   peerDependencies:
-    "@angular/core": ^14.0.0
+    "@angular/core": ^14.0.0 || ^15.0.0
     quill: ^1.3.7
     rxjs: ^7.0.0
-  checksum: d112555f625a72e71a7346d826f9f4da8fad2d57d9988a965436f0c73720fa0176993f7d220d233549a23f9d079f2858f5f155d05e219923bcb4bcda4aefd53c
+  checksum: e90c89dffcad4f8f4bf43f9257096785d470e3c1853f9dad450d67fe9492e6b0eec806450cba072d05eb8d9951797fe6a0756d493f64d66936348e9875d214d5
   languageName: node
   linkType: hard
 
@@ -13242,12 +13254,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:~7.5.7":
-  version: 7.5.7
-  resolution: "rxjs@npm:7.5.7"
+"rxjs@npm:~7.6.0":
+  version: 7.6.0
+  resolution: "rxjs@npm:7.6.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Frxjs%2F-%2Frxjs-7.6.0.tgz"
   dependencies:
-    tslib: "npm:^2.1.0"
-  checksum: edabcdb73b0f7e0f5f6e05c2077aff8c52222ac939069729704357d6406438acca831c24210db320aba269e86dbe1a400f3769c89101791885121a342fb15d9c
+    tslib: ^2.1.0
+  checksum: b3abbbfe1ddfd06fca9314b83cbd13bcddc3320429218136f75c79a4802ac430dd13873364aac1ded54fd457f8c77df332d205a92d8a1c61656565bb718c50af
   languageName: node
   linkType: hard
 
@@ -14664,7 +14676,7 @@ __metadata:
 
 "typescript@npm:~4.8.4":
   version: 4.8.4
-  resolution: "typescript@npm:4.8.4"
+  resolution: "typescript@npm:4.8.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Ftypescript%2F-%2Ftypescript-4.8.4.tgz"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -14674,7 +14686,7 @@ __metadata:
 
 "typescript@patch:typescript@~4.8.4#~builtin<compat/typescript>":
   version: 4.8.4
-  resolution: "typescript@patch:typescript@npm%3A4.8.4#~builtin<compat/typescript>::version=4.8.4&hash=0102e9"
+  resolution: "typescript@patch:typescript@npm%3A4.8.4%3A%3A__archiveUrl=https%253A%252F%252Fregistry.npmmirror.com%252Ftypescript%252F-%252Ftypescript-4.8.4.tgz#~builtin<compat/typescript>::version=4.8.4&hash=0102e9"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver

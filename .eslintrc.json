@@ -19,24 +19,16 @@
         "plugin:@angular-eslint/ng-cli-compat",
         "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
         "plugin:@angular-eslint/template/process-inline-templates",
-        "plugin:@angular-eslint/recommended--extra"
+        "plugin:@angular-eslint/recommended--extra",
+        "prettier"
       ],
       "rules": {
-        "@typescript-eslint/indent": ["error", 2],
         "@typescript-eslint/naming-convention": [
           "error",
           {
             "selector": "default",
             "format": null,
             "leadingUnderscore": "allowSingleOrDouble"
-          }
-        ],
-        "@typescript-eslint/quotes": [
-          "error",
-          "double",
-          {
-            "allowTemplateLiterals": true,
-            "avoidEscape": true
           }
         ],
         "@typescript-eslint/no-unused-vars": [
@@ -46,23 +38,13 @@
           }
         ],
         "guard-for-in": "off",
-        "no-underscore-dangle": "off",
-        // "no-console": "off",
-        "object-curly-spacing": ["error", "never"],
-        "array-bracket-spacing": ["error", "never"]
+        "no-underscore-dangle": "off"
       }
     },
     {
       "files": ["*.component.html", "index.html"],
       "extends": ["plugin:@angular-eslint/template/recommended"],
-      "rules": {
-        "max-len": [
-          "error",
-          {
-            "code": 140
-          }
-        ]
-      }
+      "rules": {}
     },
     {
       "files": ["*.component.ts"],

@@ -49,6 +49,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
   showCheckedOnly = false;
   loaderId = "cadList";
   loaderIdSubmit = "cadListSubmit";
+  cadDataType!: CadData;
   @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
   @ViewChild("singleSelectNone", {read: ElementRef}) singleSelectNone?: ElementRef<HTMLSpanElement>;
 
@@ -291,10 +292,6 @@ export class CadListComponent extends Utils() implements AfterViewInit {
   toggleShowCheckedOnly(evnet: MatSlideToggleChange) {
     this.showCheckedOnly = evnet.checked;
     this.search();
-  }
-
-  asCadDataArray(value: CadData[]) {
-    return value;
   }
 }
 
