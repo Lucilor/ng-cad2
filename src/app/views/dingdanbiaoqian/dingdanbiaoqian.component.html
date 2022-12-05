@@ -80,7 +80,8 @@
             </ng-container>
             <ng-template #cads>
                 <div class="cads">
-                    <div class="btn-group menu" *ngIf="type === '配件模块'">
+                    <div class="btn-group menu no-print" *ngIf="type === '配件模块'">
+                        <div class="out-of-page">{{ getMokuaiTitle(order.mokuaiIndex) }}</div>
                         <button class="out-of-page" mat-raised-button color="primary" (click)="editMokuaiFormulas(order.mokuaiIndex)">
                             测试数据
                         </button>
@@ -91,10 +92,12 @@
                         </div>
                         <app-image class="img" [src]="cad.img" [bigPicSrc]="cad.imgLarge" [ngStyle]="cad.imgStyle"></app-image>
                         <mat-card-footer>
-                            <div class="cad-size" *ngIf="cad.calcW > 0 && cad.calcH > 0">
-                                <span>{{ cad.calcW }}</span>
+                            <div class="cad-size" *ngFor="let zhankai of cad.zhankai">
+                                <span>{{ zhankai.width }}</span>
                                 <span style="font-size: 25px">×</span>
-                                <span>{{ cad.calcH }}</span>
+                                <span>{{ zhankai.height }}</span>
+                                <span style="font-size: 25px">=</span>
+                                <span>{{ zhankai.num }}</span>
                             </div>
                         </mat-card-footer>
                     </mat-card>
