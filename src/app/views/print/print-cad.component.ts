@@ -336,7 +336,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         if (count < 2) {
             return [source];
         }
-        yValues.sort();
+        yValues.sort((a, b) => a - b);
         const result: CadData[] = Array(count);
         for (let i = 0; i < yValues.length - 1; i++) {
             result[i] = new CadData();
