@@ -54,15 +54,12 @@ $cads-border: solid 1px grey;
     // border: $cads-border;
     position: absolute;
 
-    .header {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-
-      > * {
-        font-size: 17px;
-        line-height: 17px;
-      }
+    .menu {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      margin: 0;
     }
 
     .img {

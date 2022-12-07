@@ -239,7 +239,7 @@ export class CadPortable {
       return {data, errors: [], skipErrorCheck: new Set()};
     });
     const slgses: SlgsInfo[] = [];
-    const {cadFields, slgsFields, skipFields} = this;
+    const {cadFields, skipFields} = this;
     const globalOptions: CadData["options"] = {};
     let xinghaoInfo: XinghaoInfo | undefined;
     for (const e of sourceCad.entities.toArray()) {
@@ -257,11 +257,6 @@ export class CadPortable {
           sourceCadMap.slgses[obj.名字] = {text: e};
           for (const key in obj) {
             const value = obj[key];
-            slgsFields.forEach((field) => {
-              if (value.includes(field)) {
-                errors.push(`${field}缺少冒号`);
-              }
-            });
             const key2 = cadFields[key];
             if (key === "条件") {
               slgsData.条件 = value ? [value] : [];
@@ -359,16 +354,6 @@ export class CadPortable {
               continue;
             }
             const value = obj[key];
-            for (const fieldKey in cadFields) {
-              if (fieldKey === "分类" && value.includes("产品分类")) {
-                continue;
-              }
-              if (value.includes(fieldKey)) {
-                cad.errors.push(`${fieldKey}缺少冒号`);
-                cad.skipErrorCheck.add(key);
-                cad.skipErrorCheck.add(fieldKey);
-              }
-            }
             if (key === "展开") {
               zhankaiObjs = Array.from(value.matchAll(/\[([^\]]*)\]/g)).map((vv) => {
                 const arr = vv[1].split(",").map((v) => v.trim());

@@ -15,10 +15,9 @@ export interface Order {
     img: SafeUrl;
     imgLarge?: SafeUrl;
     imgSize: [number, number];
-    calcW: number;
-    calcH: number;
     style: Properties;
     imgStyle: Properties;
+    zhankai?: {width: string; height: string; num?: string}[];
   }[];
   positions: number[][];
   style: Properties;

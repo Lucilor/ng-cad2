@@ -43,11 +43,21 @@ import {DdbqData, Order, SectionCell, SectionConfig, ZhijianForm} from "./dingda
 })
 export class DingdanbiaoqianComponent implements OnInit {
   orders: Order[] = [];
-  cadsRowNum = 4;
-  cadsColNum = 5;
+  cadsWidth = 1088;
+  cadsHeight = 770;
+  get cadsRowNum() {
+    return this.type === "配件模块" ? 3 : 4;
+  }
+  get cadsColNum() {
+    return this.type === "配件模块" ? 4 : 5;
+  }
   pageSize = [1122, 792] as const;
   pagePadding = [17, 17, 5, 17] as const;
-  cadSize = [218, 186] as const;
+  get cadSize() {
+    const w = Math.floor(this.cadsWidth / this.cadsColNum);
+    const h = Math.floor(this.cadsHeight / this.cadsRowNum);
+    return [w, h] as const;
+  }
   开启锁向示意图Size = [207, 280] as const;
   配合框Size = [150, 90] as const;
   sectionConfig: SectionConfig = {
@@ -172,8 +182,7 @@ export class DingdanbiaoqianComponent implements OnInit {
             imgLarge,
             imgSize: isLarge ? [218, 240] : [218, 96],
             isLarge,
-            calcW: cad.calcW,
-            calcH: cad.calcH,
+            zhankai: [{width: cad.calcW, height: cad.calcH}],
             style: {},
             imgStyle: {}
           };
@@ -260,6 +269,8 @@ export class DingdanbiaoqianComponent implements OnInit {
           tmpCadViewer.setConfig(previewParams2.config || {});
         }
         await configCadDataForPrint(tmpCadViewer, data, {cads: []}, {isZxpj: true});
+        previewParams2.fixedMtextSize = 30;
+        delete previewParams2.maxZoom;
       }
       const imgUrl = await getCadPreview(collection, data, previewParams2);
       return this.sanitizer.bypassSecurityTrustUrl(imgUrl);
@@ -478,16 +489,17 @@ export class DingdanbiaoqianComponent implements OnInit {
       const order: Order = {
         code: getMokuaiTitle(mokuai),
         cads: mokuai.cads.map((v) => {
-          v.data.info.标签信息 = ["第一行", "第二行"];
+          const imgWidth = cadSize[0] - 16;
+          const imgHeight = cadSize[1] - 16 - v.info.zhankai.length * 38;
+          v.data.info.标签信息 = [];
           return {
             data: v.data,
             img: "",
-            imgSize: [...cadSize],
+            imgSize: [imgWidth, imgHeight],
             isLarge: false,
-            calcW: 100,
-            calcH: 100,
             style: {},
-            imgStyle: {}
+            imgStyle: {},
+            zhankai: v.info.zhankai
           };
         }),
         positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
@@ -495,6 +507,7 @@ export class DingdanbiaoqianComponent implements OnInit {
         info: null,
         mokuaiIndex: i
       };
+      order.cads = [...cloneDeep(order.cads), ...cloneDeep(order.cads), ...cloneDeep(order.cads), ...cloneDeep(order.cads)];
       return order;
     });
     await this.updateImgs(true);
@@ -544,6 +557,14 @@ export class DingdanbiaoqianComponent implements OnInit {
 
   clearHttpCache() {
     session.remove(this._httpCacheKey);
+  }
+
+  getMokuaiTitle(mokuaiIndex = -1) {
+    const mokuai = this.mokuais[mokuaiIndex];
+    if (!mokuai) {
+      return "";
+    }
+    return getMokuaiTitle(mokuai);
   }
 
   async editMokuaiFormulas(mokuaiIndex = -1) {
