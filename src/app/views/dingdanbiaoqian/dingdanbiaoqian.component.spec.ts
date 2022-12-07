@@ -22,10 +22,12 @@ const orders: Order[] = [
         img: imgEmpty,
         imgLarge: imgEmpty,
         imgSize: [100, 100],
-        calcW: 100,
-        calcH: 100,
         style: {},
-        imgStyle: {}
+        imgStyle: {},
+        zhankai: [
+          {width: "100", height: "100", num: "10"},
+          {width: "200", height: "200", num: "20"}
+        ]
       }
     ],
     positions: [],

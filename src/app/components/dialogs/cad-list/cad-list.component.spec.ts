@@ -10,6 +10,7 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS} from "@angular/material/tooltip";
+import {DirectivesModule} from "@modules/directives/directives.module";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
@@ -25,6 +26,7 @@ describe("CadListComponent", () => {
     await TestBed.configureTestingModule({
       declarations: [CadListComponent],
       imports: [
+        DirectivesModule,
         FormsModule,
         HttpModule,
         MatCheckboxModule,

@@ -94,8 +94,10 @@
                 <span>{{ zhankai.width }}</span>
                 <span style="font-size: 25px">×</span>
                 <span>{{ zhankai.height }}</span>
-                <span style="font-size: 25px">=</span>
-                <span>{{ zhankai.num }}</span>
+                <ng-container *ngIf="hasZhankaiNum(zhankai)">
+                  <span style="font-size: 25px">=</span>
+                  <span>{{ zhankai.num }}</span>
+                </ng-container>
               </div>
             </mat-card-footer>
           </mat-card>

@@ -2209,6 +2209,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@maaxgr/ang-jsoneditor@npm:^14.0.0":
+  version: 14.0.0
+  resolution: "@maaxgr/ang-jsoneditor@npm:14.0.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40maaxgr%2Fang-jsoneditor%2F-%2Fang-jsoneditor-14.0.0.tgz"
+  dependencies:
+    tslib: ^2.3.0
+  peerDependencies:
+    "@angular/common": ^14
+    "@angular/core": ^14
+    jsoneditor: ^9.1.4
+  checksum: 068771021d7c51bb4545b564d6ff67ce5fb9dc1b3057bd713ac611f124c8901be5f31bff4b9f2ec6408b8cacd0a4e5354b11a6c34a817373d2d1fd612d8e61c2
+  languageName: node
+  linkType: hard
+
 "@material/animation@npm:15.0.0-canary.7971d6ad5.0":
   version: 15.0.0-canary.7971d6ad5.0
   resolution: "@material/animation@npm:15.0.0-canary.7971d6ad5.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40material%2Fanimation%2F-%2Fanimation-15.0.0-canary.7971d6ad5.0.tgz"
@@ -4240,19 +4253,6 @@ __metadata:
   version: 1.0.1
   resolution: "amdefine@npm:1.0.1"
   checksum: 9d4e15b94641643a9385b2841b4cb2bcf4e8e2f741ea4bd475c93ad7bab261ad4ed827a32e9c549b38b98759c4526c173ae4e6dde8caeb75ee5cebedc9863762
-  languageName: node
-  linkType: hard
-
-"ang-jsoneditor@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "ang-jsoneditor@npm:2.0.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fang-jsoneditor%2F-%2Fang-jsoneditor-2.0.0.tgz"
-  dependencies:
-    tslib: ^2.3.0
-  peerDependencies:
-    "@angular/common": "*"
-    "@angular/core": "*"
-    jsoneditor: ^9.1.8
-  checksum: 7868172074a90e28b7d65bb028d0e39beaedbf845d5f14d1bbef72ccd39388b20aebe07d4956de3f1a994363ce77a7eb2254ce954ef2aa0b9b3b862c4a71bb06
   languageName: node
   linkType: hard
 
@@ -11139,6 +11139,7 @@ __metadata:
     "@angular/platform-browser": ^15.0.2
     "@angular/platform-browser-dynamic": ^15.0.2
     "@angular/router": ^15.0.2
+    "@maaxgr/ang-jsoneditor": ^14.0.0
     "@types/archiver": ^5.3.1
     "@types/color": ^3.0.3
     "@types/gulp": ^4.0.10
@@ -11156,7 +11157,6 @@ __metadata:
     "@types/uuid": ^9.0.0
     "@typescript-eslint/eslint-plugin": ^5.45.1
     "@typescript-eslint/parser": ^5.45.1
-    ang-jsoneditor: ^2.0.0
     angular-animations: ^0.11.0
     archiver: ^5.3.1
     axios: ^1.2.1

@@ -16,7 +16,7 @@ $app-theme: mat.define-light-theme(
       warn: $warn
     ),
     typography: $app-typography,
-    density: -1
+    density: 0
   )
 );
 @include mat.all-component-themes($app-theme);
@@ -69,4 +69,8 @@ $app-theme: mat.define-light-theme(
 
 .mat-mdc-dialog-surface .mat-mdc-dialog-actions {
   justify-content: center;
+
+  > :not(:first-child) {
+    margin-left: 8px;
+  }
 }

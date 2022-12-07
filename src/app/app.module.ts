@@ -46,6 +46,7 @@ import {FormulasEditorComponent} from "@components/formulas-editor/formulas-edit
 import {KlcsComponent} from "@components/klcs/klcs.component";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
+import {AngJsoneditorModule} from "@maaxgr/ang-jsoneditor";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
 import {CadEditorModule} from "@modules/cad-editor/cad-editor.module";
 import {DirectivesModule} from "@modules/directives/directives.module";
@@ -73,7 +74,6 @@ import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
-import {NgJsonEditorModule} from "ang-jsoneditor";
 import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_BASE_URL} from "ng-recaptcha";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
@@ -146,6 +146,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     ZixuanpeijianComponent
   ],
   imports: [
+    AngJsoneditorModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     BrowserModule,
@@ -183,7 +184,6 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     MatTabsModule,
     MatTooltipModule,
     MessageModule,
-    NgJsonEditorModule,
     NgScrollbarModule,
     QuillModule.forRoot({
       format: "json",

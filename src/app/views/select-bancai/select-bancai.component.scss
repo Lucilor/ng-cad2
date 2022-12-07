@@ -8,17 +8,12 @@
 
 .bancai {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
   margin: 10px;
 
   > *:not(:last-child) {
     margin-right: 5px;
-  }
-
-  .mat-form-field {
-    width: 0;
-    flex: 1 1 0;
   }
 }
 

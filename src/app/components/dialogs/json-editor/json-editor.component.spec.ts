@@ -1,6 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {NgJsonEditorModule} from "ang-jsoneditor";
+import {AngJsoneditorModule} from "@maaxgr/ang-jsoneditor";
 import {JsonEditorComponent} from "./json-editor.component";
 
 describe("JsonEditorComponent", () => {
@@ -10,7 +10,7 @@ describe("JsonEditorComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [JsonEditorComponent],
-      imports: [NgJsonEditorModule],
+      imports: [AngJsoneditorModule],
       providers: [
         {provide: MatDialogRef, useValue: {}},
         {provide: MAT_DIALOG_DATA, useValue: {}}

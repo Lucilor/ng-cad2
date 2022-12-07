@@ -31,11 +31,9 @@
 ></mat-paginator>
 
 <div matDialogActions>
-  <button mat-raised-button color="primary" (click)="submit()">
-    <span>确定</span>
-    <div class="spinner-container">
-      <app-spinner [id]="loaderIds.submitLoaderId" [inline]="true"></app-spinner>
-    </div>
-  </button>
+  <div class="spinner-container">
+    <button mat-raised-button color="primary" (click)="submit()">确定</button>
+    <app-spinner [id]="loaderIds.submitLoaderId" [inline]="true"></app-spinner>
+  </div>
   <button mat-raised-button color="primary" (click)="close()">取消</button>
 </div>

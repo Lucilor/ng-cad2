@@ -588,4 +588,8 @@ export class DingdanbiaoqianComponent implements OnInit {
       this.spinner.hide(this.spinner.defaultLoaderId);
     }
   }
+
+  hasZhankaiNum(zhankai: NonNullable<Order["cads"][0]["zhankai"]>[0]) {
+    return typeof zhankai.num === "number";
+  }
 }
