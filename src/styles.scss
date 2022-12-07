@@ -250,3 +250,17 @@ input[type="number"] {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-110 {
+  flex: 1 1 0;
+}

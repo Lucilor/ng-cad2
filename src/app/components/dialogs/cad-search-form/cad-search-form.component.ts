@@ -92,4 +92,7 @@ export class CadSearchFormComponent implements OnInit {
   }
 }
 
-export const openCadSearchFormDialog = getOpenDialogFunc<CadSearchFormComponent, CadSearchData, CadData["options"]>(CadSearchFormComponent);
+export const openCadSearchFormDialog = getOpenDialogFunc<CadSearchFormComponent, CadSearchData, CadData["options"]>(
+  CadSearchFormComponent,
+  {width: "80%", height: "80%"}
+);

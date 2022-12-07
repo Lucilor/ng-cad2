@@ -1,0 +1,45 @@
+<div class="flex-row flex-110">
+  <div class="flex-column">
+    <div class="menu left">
+      <div class="btn-group">
+        <button mat-raised-button color="accent">保存</button>
+        <button mat-raised-button color="primary">设计主页</button>
+      </div>
+      <mat-slide-toggle [checked]="true">多选</mat-slide-toggle>
+      <div class="inputs">
+        <app-input #stepInputs *ngFor="let info of leftMenuInputInfos" [info]="info"></app-input>
+        <div class="btn-group" *ngIf="leftMenuInputInfos.length > 0">
+          <button mat-raised-button color="primary" (click)="addStep()">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex-column flex-110">
+    <div class="menu top">
+      <div class="btn-group">
+        <button
+          mat-flat-button
+          *ngFor="let type of stepTypes"
+          [color]="stepType === type ? 'accent' : 'primary'"
+          (click)="setStepType(type)"
+        >
+          {{ type }}
+        </button>
+        <button mat-flat-button color="primary">选择生成零件</button>
+        <button mat-flat-button color="primary">选中生成正面</button>
+        <button mat-flat-button color="primary">选中生成背面</button>
+        <button mat-flat-button color="primary">约束</button>
+      </div>
+      <div class="steps">
+        <div class="step" *ngFor="let step of steps; let i = index" (click)="selectStep(i)">
+          <button mat-button [color]="stepIndex === i ? 'accent' : 'primary'">{{ step.type }}</button>
+          <mat-icon mat-icon-button *ngIf="i < steps.length - 1">navigate_next</mat-icon>
+        </div>
+      </div>
+    </div>
+    <div class="flex-row flex-110">
+      <div #contentEl class="content"></div>
+      <div class="menu right"></div>
+    </div>
+  </div>
+</div>

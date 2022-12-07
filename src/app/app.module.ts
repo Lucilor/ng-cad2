@@ -63,6 +63,7 @@ import {DingdanbiaoqianComponent} from "@views/dingdanbiaoqian/dingdanbiaoqian.c
 import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
+import {Index2Component} from "@views/index2/index2.component";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
@@ -124,6 +125,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     FormulasEditorComponent,
     ImportComponent,
     IndexComponent,
+    Index2Component,
     JiaoweiComponent,
     JsonEditorComponent,
     KailiaocanshuComponent,

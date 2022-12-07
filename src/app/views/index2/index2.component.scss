@@ -1,0 +1,47 @@
+:host {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  --left-menu-width: 200px;
+  --right-menu-width: 200px;
+}
+
+.menu {
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 0 5px 1px rgb(0 0 0 / 20%);
+  box-sizing: border-box;
+
+  &.top {
+    width: 100%;
+  }
+
+  &.left {
+    width: var(--left-menu-width);
+    height: 100%;
+  }
+
+  &.right {
+    width: var(--right-menu-width);
+    height: 100%;
+  }
+}
+
+.content {
+  flex: 1 1 0;
+  background-color: black;
+  position: relative;
+
+  ::ng-deep .cad-viewer {
+    position: absolute;
+  }
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+
+  .step {
+    display: flex;
+    align-items: center;
+  }
+}

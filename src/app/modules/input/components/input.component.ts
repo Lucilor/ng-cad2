@@ -1,5 +1,7 @@
 import {AfterViewInit, Component, ElementRef, HostBinding, Input, ViewChild} from "@angular/core";
+import {FormControl, ValidationErrors} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
+import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
 import {ColoredObject} from "@cad-viewer";
@@ -8,13 +10,10 @@ import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf, timeout} from "@utils";
+import {isEmpty} from "lodash";
 import {Color} from "ngx-color";
 import {ChromeComponent} from "ngx-color/chrome";
 import {InputInfo, InputInfoBase, InputInfoTypeMap} from "./types";
-
-interface SuffixIconsType {
-  $implicit: InputInfoBase["suffixIcons"];
-}
 
 @Component({
   selector: "app-input",
@@ -64,6 +63,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
         this.class.push(value.class);
       }
     }
+    this.validateValue();
   }
   private _onChangeTimeout = -1;
 
@@ -156,6 +156,29 @@ export class InputComponent extends Utils() implements AfterViewInit {
 
   @ViewChild("formField", {read: ElementRef}) formField?: ElementRef<HTMLElement>;
   @ViewChild("colorChrome") colorChrome?: ChromeComponent;
+  errors: ValidationErrors | null = null;
+  get errorMsg(): string {
+    if (!this.errors) {
+      return "";
+    }
+    for (const key in this.errors) {
+      const value = this.errors[key];
+      let msg = "";
+      if (typeof value === "string") {
+        msg = value;
+      } else {
+        msg = key;
+      }
+      if (msg === "required") {
+        return `${this.info.label}不能为空`;
+      }
+      return msg;
+    }
+    return "";
+  }
+  errorStateMatcher: ErrorStateMatcher = {
+    isErrorState: () => !this.isValid()
+  };
 
   constructor(private message: MessageService, private dialog: MatDialog, private status: AppStatusService) {
     super();
@@ -191,6 +214,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
 
   async onChange(value = this.value, isAutocomplete = false) {
     const info = this.info;
+    this.validateValue(value);
     switch (info.type) {
       case "string":
         if (info.options && !isAutocomplete) {
@@ -226,6 +250,21 @@ export class InputComponent extends Utils() implements AfterViewInit {
       default:
         break;
     }
+  }
+
+  validateValue(value = this.value) {
+    const validators = this.info.validators;
+    if (!validators) {
+      return null;
+    }
+    const control = new FormControl(value, validators);
+    control.updateValueAndValidity();
+    this.errors = control.errors;
+    return this.errors;
+  }
+
+  isValid() {
+    return isEmpty(this.errors);
   }
 
   onAutocompleteChange(event: MatAutocompleteSelectedEvent) {
@@ -349,4 +388,8 @@ export class InputComponent extends Utils() implements AfterViewInit {
       this.value = [];
     }
   }
+}
+
+interface SuffixIconsType {
+  $implicit: InputInfoBase["suffixIcons"];
 }

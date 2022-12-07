@@ -52,6 +52,12 @@ $app-theme: mat.define-light-theme(
       border-bottom-width: 2px;
     }
   }
+
+  .mdc-text-field,
+  .mat-mdc-form-field-hint-wrapper,
+  .mat-mdc-form-field-error-wrapper {
+    padding: 0 5px;
+  }
 }
 
 .mat-mdc-dialog-container {
@@ -73,4 +79,10 @@ $app-theme: mat.define-light-theme(
   > :not(:first-child) {
     margin-left: 8px;
   }
+}
+
+.mat-mdc-option .mdc-list-item__primary-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

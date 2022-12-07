@@ -1,6 +1,6 @@
 :host {
-  width: calc(80vw - 48px);
-  height: calc(75vh - 48px);
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
 
@@ -9,19 +9,6 @@
   }
 }
 
-.mat-form-field {
-  display: block;
-  width: 100%;
-}
-
-.mat-card {
+.mat-mdc-card {
   margin: 5px;
-}
-
-.mat-card-title {
-  transform: translateX(-16px);
-}
-
-.actions {
-  text-align: center;
 }

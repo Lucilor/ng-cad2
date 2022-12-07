@@ -20,6 +20,8 @@ export interface InputInfoBase<T = any> {
   autoFocus?: boolean;
   placeholder?: string;
   class?: string | string[];
+  validators?: AbstractControlOptions["validators"];
+  name?: string;
 }
 
 export interface InputInfoString<T = any> extends InputInfoBase<T> {
@@ -29,7 +31,6 @@ export interface InputInfoString<T = any> extends InputInfoBase<T> {
   textarea?: {autosize?: {minRows?: number; maxRows?: number}};
   onInput?: (val: string) => void;
   onChange?: (val: string) => void;
-  validators?: AbstractControlOptions["validators"];
   options?: InputInfoOptions;
   fixedOptions?: string[];
   optionInputOnly?: boolean;
@@ -43,6 +44,9 @@ export interface InputInfoNumber<T = any> extends InputInfoBase<T> {
   max?: number;
   onInput?: (val: number) => void;
   onChange?: (val: number) => void;
+  options?: InputInfoOptions;
+  fixedOptions?: string[];
+  optionInputOnly?: boolean;
 }
 
 export interface InputInfoObject<T = any> extends InputInfoBase<T> {

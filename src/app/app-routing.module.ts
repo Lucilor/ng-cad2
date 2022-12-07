@@ -9,6 +9,7 @@ import {DingdanbiaoqianComponent} from "@views/dingdanbiaoqian/dingdanbiaoqian.c
 import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
+import {Index2Component} from "@views/index2/index2.component";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
@@ -23,6 +24,7 @@ import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
 
 export const routesInfo: (Route & {path: string})[] = [
   {path: "index", component: IndexComponent},
+  {path: "index2", component: Index2Component},
   {path: "print-cad", component: PrintCadComponent, title: "打印CAD"},
   {path: "printA4A015Preview", component: PrintA4A015PreviewComponent, title: "订单配件标签"},
   {path: "import", component: ImportComponent, title: "导入CAD"},
