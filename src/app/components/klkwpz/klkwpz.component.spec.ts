@@ -7,22 +7,22 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {KlkwpzComponent} from "./klkwpz.component";
 
 describe("KlkwpzComponent", () => {
-    let component: KlkwpzComponent;
-    let fixture: ComponentFixture<KlkwpzComponent>;
+  let component: KlkwpzComponent;
+  let fixture: ComponentFixture<KlkwpzComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [KlkwpzComponent],
-            imports: [HttpModule, InputModule, MatCardModule, MessageModule, NgScrollbarModule]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [KlkwpzComponent],
+      imports: [HttpModule, InputModule, MatCardModule, MessageModule, NgScrollbarModule]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(KlkwpzComponent);
-        component = fixture.componentInstance;
-        component.data = {test: [{face: "123"}]};
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(KlkwpzComponent);
+    component = fixture.componentInstance;
+    component.data = {test: [{face: "123"}]};
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

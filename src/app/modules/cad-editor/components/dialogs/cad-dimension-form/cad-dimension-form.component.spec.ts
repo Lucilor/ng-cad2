@@ -12,35 +12,35 @@ import {CadDimensionData, CadDimensionFormComponent} from "./cad-dimension-form.
 
 const data: CadDimensionData = {data: new CadDimensionLinear()};
 describe("CadDimensionFormComponent", () => {
-    let component: CadDimensionFormComponent;
-    let fixture: ComponentFixture<CadDimensionFormComponent>;
+  let component: CadDimensionFormComponent;
+  let fixture: ComponentFixture<CadDimensionFormComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadDimensionFormComponent],
-            imports: [
-                BrowserAnimationsModule,
-                MatInputModule,
-                MatFormFieldModule,
-                MatSelectModule,
-                MatSlideToggleModule,
-                NgScrollbarModule,
-                ReactiveFormsModule
-            ],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data}
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadDimensionFormComponent],
+      imports: [
+        BrowserAnimationsModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        NgScrollbarModule,
+        ReactiveFormsModule
+      ],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data}
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CadDimensionFormComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CadDimensionFormComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

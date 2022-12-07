@@ -25,44 +25,44 @@ item.flip = [{kaiqi: "a", chanpinfenlei: "b", fanzhuanfangshi: "vh"}];
 item.flipChai = {1: "h", 2: "v"};
 const data: CadData["zhankai"] = [item];
 describe("CadZhankaiComponent", () => {
-    let component: CadZhankaiComponent;
-    let fixture: ComponentFixture<CadZhankaiComponent>;
+  let component: CadZhankaiComponent;
+  let fixture: ComponentFixture<CadZhankaiComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadZhankaiComponent],
-            imports: [
-                BrowserAnimationsModule,
-                DirectivesModule,
-                FormsModule,
-                HttpModule,
-                MatCardModule,
-                MatCheckboxModule,
-                MatFormFieldModule,
-                MatIconModule,
-                MatInputModule,
-                MatSelectModule,
-                MatSlideToggleModule,
-                MessageModule,
-                NgScrollbarModule,
-                ReactiveFormsModule,
-                RouterTestingModule,
-                SpinnerModule
-            ],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data}
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadZhankaiComponent],
+      imports: [
+        BrowserAnimationsModule,
+        DirectivesModule,
+        FormsModule,
+        HttpModule,
+        MatCardModule,
+        MatCheckboxModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MessageModule,
+        NgScrollbarModule,
+        ReactiveFormsModule,
+        RouterTestingModule,
+        SpinnerModule
+      ],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data}
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CadZhankaiComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CadZhankaiComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

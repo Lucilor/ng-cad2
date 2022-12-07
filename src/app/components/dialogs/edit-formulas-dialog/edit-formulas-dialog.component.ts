@@ -5,34 +5,34 @@ import {Formulas} from "@src/app/utils/calc";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
-    selector: "app-edit-formulas-dialog",
-    templateUrl: "./edit-formulas-dialog.component.html",
-    styleUrls: ["./edit-formulas-dialog.component.scss"]
+  selector: "app-edit-formulas-dialog",
+  templateUrl: "./edit-formulas-dialog.component.html",
+  styleUrls: ["./edit-formulas-dialog.component.scss"]
 })
 export class EditFormulasDialogComponent {
-    @ViewChild("formulasEditor") formulasEditor?: FormulasEditorComponent;
+  @ViewChild("formulasEditor") formulasEditor?: FormulasEditorComponent;
 
-    constructor(
-        public dialogRef: MatDialogRef<EditFormulasDialogComponent, EditFormulasOutput>,
-        @Inject(MAT_DIALOG_DATA) public data?: EditFormulasInput
-    ) {}
+  constructor(
+    public dialogRef: MatDialogRef<EditFormulasDialogComponent, EditFormulasOutput>,
+    @Inject(MAT_DIALOG_DATA) public data?: EditFormulasInput
+  ) {}
 
-    submit() {
-        this.dialogRef.close(this.formulasEditor?.getFormulas());
-    }
+  submit() {
+    this.dialogRef.close(this.formulasEditor?.getFormulas());
+  }
 
-    cancel() {
-        this.dialogRef.close();
-    }
+  cancel() {
+    this.dialogRef.close();
+  }
 }
 
 export const openEditFormulasDialog = getOpenDialogFunc<EditFormulasDialogComponent, EditFormulasInput, EditFormulasOutput>(
-    EditFormulasDialogComponent,
-    {width: "calc(100vw - 20px)", height: "calc(100vh - 10px)", disableClose: true}
+  EditFormulasDialogComponent,
+  {width: "calc(100vw - 20px)", height: "calc(100vh - 10px)", disableClose: true}
 );
 
 export interface EditFormulasInput {
-    formulas?: Formulas;
+  formulas?: Formulas;
 }
 
 export type EditFormulasOutput = Formulas;

@@ -1,67 +1,67 @@
 $bg-color: #616161;
 
 :host {
-    display: flex;
-    flex-direction: column;
-    width: 100vw;
-    height: 100vh;
-    background-color: $bg-color;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  background-color: $bg-color;
 }
 
 .toolbar {
-    text-align: right;
-    background-color: $bg-color;
+  text-align: right;
+  background-color: $bg-color;
 }
 
 .toolbar-toggle {
-    position: fixed;
-    right: 10px;
-    top: 50px;
-    z-index: 1;
-    opacity: 0.6;
-    transition: 0.3s;
-    &:hover {
-        opacity: 1;
-    }
+  position: fixed;
+  right: 10px;
+  top: 50px;
+  z-index: 1;
+  opacity: 0.6;
+  transition: 0.3s;
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .content {
+  display: flex;
+  flex: 1 1 0;
+
+  .效果图 {
+    width: 300px;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 10px 10px 10px;
+
+    .text {
+      color: white;
+      text-align: center;
+    }
+    .title {
+      font-size: 30px;
+      line-height: 50px;
+    }
+    app-image {
+      flex: 1 1 0;
+      cursor: pointer;
+      background-color: white;
+    }
+  }
+
+  .cad-container {
     flex: 1 1 0;
+    display: flex;
+  }
 
-    .效果图 {
-        width: 300px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 10px 10px 10px 10px;
-
-        .text {
-            color: white;
-            text-align: center;
-        }
-        .title {
-            font-size: 30px;
-            line-height: 50px;
-        }
-        app-image {
-            flex: 1 1 0;
-            cursor: pointer;
-            background-color: white;
-        }
-    }
-
-    .cad-container {
-        flex: 1 1 0;
-        display: flex;
-    }
-
-    .输出变量 {
-        background-color: white;
-        margin: 0 10px;
-        padding: 5px;
-        position: absolute;
-        right: 100px;
-        top: 80px;
-    }
+  .输出变量 {
+    background-color: white;
+    margin: 0 10px;
+    padding: 5px;
+    position: absolute;
+    right: 100px;
+    top: 80px;
+  }
 }

@@ -1,11 +1,11 @@
 {
-    "type": "object",
-    "additionalProperties": false,
-    "required": ["$schema", "token"],
-    "properties": {
-        "$schema": {"type": "string", "format": "uri-reference"},
-        "host": {"type": "string", "format": "uri-reference", "description": "api host"},
-        "token": {"type": "string", "description": "api token"},
-        "targetDir": {"type": "string", "format": "uri-reference", "description": "target directory"}
-    }
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "token"],
+  "properties": {
+    "$schema": {"type": "string", "format": "uri-reference"},
+    "host": {"type": "string", "format": "uri-reference", "description": "api host"},
+    "token": {"type": "string", "description": "api token"},
+    "targetDir": {"type": "string", "format": "uri-reference", "description": "target directory"}
+  }
 }

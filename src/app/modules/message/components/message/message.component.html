@@ -1,105 +1,105 @@
 <ng-container [ngSwitch]="data.type">
-    <div *ngSwitchCase="'iframe'" class="iframe-toolbar">
-        <h2 class="iframe-title" [innerHTML]="titleHTML"></h2>
-        <button mat-icon-button (click)="cancel()">
-            <mat-icon>close</mat-icon>
-        </button>
-    </div>
-    <ng-container *ngSwitchDefault>
-        <h2 mat-dialog-title class="title hidden-if-empty" [innerHTML]="titleHTML" [ngClass]="titleClass"></h2>
-        <h3 mat-dialog-title class="sub-title hidden-if-empty" [innerHTML]="subTitleHTML"></h3>
-    </ng-container>
+  <div *ngSwitchCase="'iframe'" class="iframe-toolbar">
+    <h2 class="iframe-title" [innerHTML]="titleHTML"></h2>
+    <button mat-icon-button (click)="cancel()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div class="title-container" *ngSwitchDefault>
+    <h2 mat-dialog-title class="title hidden-if-empty" [innerHTML]="titleHTML" [ngClass]="titleClass"></h2>
+    <h3 mat-dialog-title class="sub-title hidden-if-empty" [innerHTML]="subTitleHTML"></h3>
+  </div>
 </ng-container>
 <div mat-dialog-content [ngSwitch]="data.type" [ngClass]="data.type">
-    <ng-container *ngSwitchCase="'editor'">
-        <quill-editor [(ngModel)]="data.content" [preserveWhitespace]="true"> </quill-editor>
-    </ng-container>
-    <ng-container *ngSwitchCase="'iframe'">
-        <iframe #iframe [src]="iframeSrc" frameborder="0"></iframe>
-    </ng-container>
-    <ng-container *ngSwitchDefault="">
-        <div [innerHTML]="contentHTML"></div>
-        <mat-form-field *ngIf="data.type === 'prompt'" [ngSwitch]="promptData.type">
-            <mat-label>{{ promptData.label }}</mat-label>
-            <textarea
-                matInput
-                #contentInput
-                *ngSwitchCase="'textarea'"
-                cdkTextareaAutosize
-                [formControl]="input"
-                [type]="promptData.type || ''"
-                [placeholder]="promptData.placeholder || ''"
-                [matAutocomplete]="auto"
-            ></textarea>
-            <input
-                matInput
-                #contentInput
-                *ngSwitchDefault
-                [formControl]="input"
-                [type]="promptData.type || ''"
-                [placeholder]="promptData.placeholder || ''"
-                (keydown)="onKeyDown($event)"
-                [matAutocomplete]="auto"
-            />
-            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-                <mat-option *ngFor="let option of autoCompleteOptions | async" [value]="option.value">
-                    {{ option.value }}<span *ngIf="option.label">({{ option.label }})</span>
-                </mat-option>
-            </mat-autocomplete>
-            <mat-hint>{{ promptData.hint || "" }}</mat-hint>
-            <mat-error *ngIf="input.invalid">
-                {{ inputErrors }}
-            </mat-error>
-        </mat-form-field>
-    </ng-container>
+  <ng-container *ngSwitchCase="'editor'">
+    <quill-editor [(ngModel)]="data.content" [preserveWhitespace]="true"> </quill-editor>
+  </ng-container>
+  <ng-container *ngSwitchCase="'iframe'">
+    <iframe #iframe [src]="iframeSrc" frameborder="0"></iframe>
+  </ng-container>
+  <ng-container *ngSwitchDefault="">
+    <div [innerHTML]="contentHTML"></div>
+    <mat-form-field *ngIf="data.type === 'prompt'" [ngSwitch]="promptData.type">
+      <mat-label>{{ promptData.label }}</mat-label>
+      <textarea
+        matInput
+        #contentInput
+        *ngSwitchCase="'textarea'"
+        cdkTextareaAutosize
+        [formControl]="input"
+        [type]="promptData.type || ''"
+        [placeholder]="promptData.placeholder || ''"
+        [matAutocomplete]="auto"
+      ></textarea>
+      <input
+        matInput
+        #contentInput
+        *ngSwitchDefault
+        [formControl]="input"
+        [type]="promptData.type || ''"
+        [placeholder]="promptData.placeholder || ''"
+        (keydown)="onKeyDown($event)"
+        [matAutocomplete]="auto"
+      />
+      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+        <mat-option *ngFor="let option of autoCompleteOptions | async" [value]="option.value">
+          {{ option.value }}<span *ngIf="option.label">({{ option.label }})</span>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-hint>{{ promptData.hint || "" }}</mat-hint>
+      <mat-error *ngIf="input.invalid">
+        {{ inputErrors }}
+      </mat-error>
+    </mat-form-field>
+  </ng-container>
 </div>
-<div mat-dialog-actions class="btn-group hidden-if-empty" style="justify-content: center" [ngSwitch]="data.type">
-    <ng-container *ngSwitchCase="'alert'">
-        <button mat-raised-button (click)="cancel()" cdkFocusInitial>
-            {{ cast(data, "alert").btnTexts?.ok || "好的" }}
-        </button>
-    </ng-container>
-    <ng-container *ngSwitchCase="'confirm'">
-        <button mat-raised-button (click)="submit()">
-            {{ cast(data, "confirm").btnTexts?.yes || "当然" }}
-        </button>
-        <button mat-raised-button (click)="cancel()" cdkFocusInitial>
-            {{ cast(data, "confirm").btnTexts?.no || "算了" }}
-        </button>
-    </ng-container>
-    <ng-container *ngSwitchCase="'prompt'">
-        <button mat-raised-button (click)="submit()" cdkFocusInitial>
-            {{ cast(data, "prompt").btnTexts?.submit || "确定" }}
-        </button>
-        <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
-            {{ cast(data, "prompt").btnTexts?.cancel || "取消" }}
-        </button>
-    </ng-container>
-    <ng-container *ngSwitchCase="'book'">
-        <button mat-raised-button (click)="setPage(page - 1)" [disabled]="page <= minPage">
-            {{ cast(data, "book").btnTexts?.prev || "上一页" }}
-        </button>
-        <button mat-raised-button (click)="setPage(page + 1)" [disabled]="page >= maxPage">
-            {{ cast(data, "book").btnTexts?.prev || "下一页" }}
-        </button>
-        <button mat-raised-button (click)="cancel()">
-            {{ cast(data, "book").btnTexts?.exit || "退出" }}
-        </button>
-    </ng-container>
-    <ng-container *ngSwitchCase="'editor'">
-        <button mat-raised-button (click)="submit()" cdkFocusInitial>
-            {{ cast(data, "editor").btnTexts?.submit || "确定" }}
-        </button>
-        <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
-            {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
-        </button>
-    </ng-container>
-    <ng-container *ngSwitchCase="'button'">
-        <button mat-raised-button *ngFor="let button of cast(data, 'button').buttons" (click)="submit(button)">
-            {{ getButtonLabel(button) }}
-        </button>
-        <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
-            {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
-        </button>
-    </ng-container>
+<div matDialogActions class="hidden-if-empty" style="justify-content: center" [ngSwitch]="data.type">
+  <ng-container *ngSwitchCase="'alert'">
+    <button mat-raised-button (click)="cancel()" cdkFocusInitial>
+      {{ cast(data, "alert").btnTexts?.ok || "好的" }}
+    </button>
+  </ng-container>
+  <ng-container *ngSwitchCase="'confirm'">
+    <button mat-raised-button (click)="submit()">
+      {{ cast(data, "confirm").btnTexts?.yes || "当然" }}
+    </button>
+    <button mat-raised-button (click)="cancel()" cdkFocusInitial>
+      {{ cast(data, "confirm").btnTexts?.no || "算了" }}
+    </button>
+  </ng-container>
+  <ng-container *ngSwitchCase="'prompt'">
+    <button mat-raised-button (click)="submit()" cdkFocusInitial>
+      {{ cast(data, "prompt").btnTexts?.submit || "确定" }}
+    </button>
+    <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
+      {{ cast(data, "prompt").btnTexts?.cancel || "取消" }}
+    </button>
+  </ng-container>
+  <ng-container *ngSwitchCase="'book'">
+    <button mat-raised-button (click)="setPage(page - 1)" [disabled]="page <= minPage">
+      {{ cast(data, "book").btnTexts?.prev || "上一页" }}
+    </button>
+    <button mat-raised-button (click)="setPage(page + 1)" [disabled]="page >= maxPage">
+      {{ cast(data, "book").btnTexts?.prev || "下一页" }}
+    </button>
+    <button mat-raised-button (click)="cancel()">
+      {{ cast(data, "book").btnTexts?.exit || "退出" }}
+    </button>
+  </ng-container>
+  <ng-container *ngSwitchCase="'editor'">
+    <button mat-raised-button (click)="submit()" cdkFocusInitial>
+      {{ cast(data, "editor").btnTexts?.submit || "确定" }}
+    </button>
+    <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
+      {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
+    </button>
+  </ng-container>
+  <ng-container *ngSwitchCase="'button'">
+    <button mat-raised-button *ngFor="let button of cast(data, 'button').buttons" (click)="submit(button)">
+      {{ getButtonLabel(button) }}
+    </button>
+    <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
+      {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
+    </button>
+  </ng-container>
 </div>

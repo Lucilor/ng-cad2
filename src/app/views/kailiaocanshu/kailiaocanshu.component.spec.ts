@@ -9,23 +9,23 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {KailiaocanshuComponent} from "./kailiaocanshu.component";
 
 describe("KailiaocanshuComponent", () => {
-    let component: KailiaocanshuComponent;
-    let fixture: ComponentFixture<KailiaocanshuComponent>;
+  let component: KailiaocanshuComponent;
+  let fixture: ComponentFixture<KailiaocanshuComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [KailiaocanshuComponent, KlcsComponent],
-            imports: [HttpModule, InputModule, MessageModule, NgScrollbarModule, SpinnerModule]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [KailiaocanshuComponent, KlcsComponent],
+      imports: [HttpModule, InputModule, MessageModule, NgScrollbarModule, SpinnerModule]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(KailiaocanshuComponent);
-        component = fixture.componentInstance;
-        const 参数: QiezhongkongItem[] = [importObject({}, defaultQiezhongkongItem)];
-        component.data = {_id: "1", 名字: "test", 分类: "切中空", 参数};
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(KailiaocanshuComponent);
+    component = fixture.componentInstance;
+    const 参数: QiezhongkongItem[] = [importObject({}, defaultQiezhongkongItem)];
+    component.data = {_id: "1", 名字: "test", 分类: "切中空", 参数};
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

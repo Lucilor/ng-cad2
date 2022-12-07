@@ -9,23 +9,23 @@ import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {CadAssembleComponent} from "./cad-assemble.component";
 
 describe("CadAssembleComponent", () => {
-    let component: CadAssembleComponent;
-    let fixture: ComponentFixture<CadAssembleComponent>;
+  let component: CadAssembleComponent;
+  let fixture: ComponentFixture<CadAssembleComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadAssembleComponent],
-            imports: [FormsModule, HttpModule, MatFormFieldModule, MatInputModule, MatSelectModule, MessageModule, SpinnerModule]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadAssembleComponent],
+      imports: [FormsModule, HttpModule, MatFormFieldModule, MatInputModule, MatSelectModule, MessageModule, SpinnerModule]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CadAssembleComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CadAssembleComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

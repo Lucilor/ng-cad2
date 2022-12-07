@@ -1,12 +1,12 @@
 <div class="btn-group">
-    <button mat-raised-button color="primary" (click)="createClean()">添加</button>
-    <button mat-raised-button color="primary" (click)="start()" [disabled]="taskStartTime !== null">执行</button>
-    <button mat-raised-button color="primary" (click)="resetClean()">重置</button>
-    <button mat-raised-button color="primary" (click)="clearMsgs()">清空信息</button>
-    <app-input [info]="deleteLimitInfo"></app-input>
+  <button mat-raised-button color="primary" (click)="createClean()">添加</button>
+  <button mat-raised-button color="primary" (click)="start()" [disabled]="taskStartTime !== null">执行</button>
+  <button mat-raised-button color="primary" (click)="resetClean()">重置</button>
+  <button mat-raised-button color="primary" (click)="clearMsgs()">清空信息</button>
+  <app-input [info]="deleteLimitInfo"></app-input>
 </div>
 <ng-scrollbar style="flex: 1 1 0">
-    <div class="msgs">
-        <div class="msg" *ngFor="let msg of msgs" [ngClass]="msg.type">{{ msg.content }}</div>
-    </div>
+  <div class="msgs">
+    <div class="msg" *ngFor="let msg of msgs" [ngClass]="msg.type">{{ msg.content }}</div>
+  </div>
 </ng-scrollbar>

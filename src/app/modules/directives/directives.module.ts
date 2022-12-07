@@ -5,8 +5,8 @@ import {ReplaceFullCharsDirective} from "./replace-full-chars.directive";
 import {TypedTemplateDirective} from "./typed-template.directive";
 
 @NgModule({
-    declarations: [ClickStopPropagationDirective, ReplaceFullCharsDirective, TypedTemplateDirective],
-    imports: [CommonModule],
-    exports: [ClickStopPropagationDirective, ReplaceFullCharsDirective, TypedTemplateDirective]
+  declarations: [ClickStopPropagationDirective, ReplaceFullCharsDirective, TypedTemplateDirective],
+  imports: [CommonModule],
+  exports: [ClickStopPropagationDirective, ReplaceFullCharsDirective, TypedTemplateDirective]
 })
 export class DirectivesModule {}

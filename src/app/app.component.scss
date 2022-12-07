@@ -1,18 +1,18 @@
 .nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    cursor: pointer;
-    z-index: 1001;
+  position: fixed;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+  z-index: 1001;
 
-    .mat-icon {
-        width: 30px;
-        height: 30px;
-    }
+  .mat-icon {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 @media print {
-    .nav {
-        display: none;
-    }
+  .nav {
+    display: none;
+  }
 }

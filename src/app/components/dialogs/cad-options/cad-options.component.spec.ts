@@ -13,37 +13,37 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {CadOptionsComponent} from "./cad-options.component";
 
 describe("CadOptionsComponent", () => {
-    let component: CadOptionsComponent;
-    let fixture: ComponentFixture<CadOptionsComponent>;
+  let component: CadOptionsComponent;
+  let fixture: ComponentFixture<CadOptionsComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadOptionsComponent],
-            imports: [
-                FormsModule,
-                HttpModule,
-                MatIconModule,
-                MatInputModule,
-                MatFormFieldModule,
-                MatPaginatorModule,
-                MessageModule,
-                NgScrollbarModule,
-                SpinnerModule
-            ],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: {}}
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadOptionsComponent],
+      imports: [
+        FormsModule,
+        HttpModule,
+        MatIconModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatPaginatorModule,
+        MessageModule,
+        NgScrollbarModule,
+        SpinnerModule
+      ],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: {}}
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CadOptionsComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CadOptionsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

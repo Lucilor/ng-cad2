@@ -4,14 +4,14 @@ import {CadConsoleModule} from "../cad-console.module";
 import {CadConsoleService} from "./cad-console.service";
 
 describe("CadConsoleService", () => {
-    let service: CadConsoleService;
+  let service: CadConsoleService;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({imports: [CadConsoleModule, SpinnerModule]});
-        service = TestBed.inject(CadConsoleService);
-    });
+  beforeEach(() => {
+    TestBed.configureTestingModule({imports: [CadConsoleModule, SpinnerModule]});
+    service = TestBed.inject(CadConsoleService);
+  });
 
-    it("should be created", () => {
-        expect(service).toBeTruthy();
-    });
+  it("should be created", () => {
+    expect(service).toBeTruthy();
+  });
 });

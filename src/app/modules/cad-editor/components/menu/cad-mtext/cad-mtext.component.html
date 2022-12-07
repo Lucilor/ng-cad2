@@ -1,6 +1,6 @@
 <div class="btn-group">
-    <button mat-raised-button color="primary" (click)="addMtext()">添加文本</button>
-    <button mat-raised-button color="primary" (click)="cloneMtexts()">复制文本</button>
+  <button mat-raised-button color="primary" (click)="addMtext()">添加文本</button>
+  <button mat-raised-button color="primary" (click)="cloneMtexts()">复制文本</button>
 </div>
 
 <app-input *ngFor="let info of inputInfos" [info]="info"></app-input>

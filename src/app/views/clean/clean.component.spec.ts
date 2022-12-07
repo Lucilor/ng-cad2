@@ -6,21 +6,21 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {CleanComponent} from "./clean.component";
 
 describe("CleanComponent", () => {
-    let component: CleanComponent;
-    let fixture: ComponentFixture<CleanComponent>;
+  let component: CleanComponent;
+  let fixture: ComponentFixture<CleanComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CleanComponent],
-            imports: [HttpModule, InputModule, MessageModule, NgScrollbarModule]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CleanComponent],
+      imports: [HttpModule, InputModule, MessageModule, NgScrollbarModule]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(CleanComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(CleanComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

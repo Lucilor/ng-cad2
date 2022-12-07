@@ -1,17 +1,17 @@
 <form>
-    <mat-form-field *ngIf="data.value">
-        <mat-label>{{ data.value.key }}</mat-label>
-        <input matInput type="text" [(ngModel)]="data.value.value" [name]="data.value.key" />
-    </mat-form-field>
-    <mat-form-field *ngFor="let item of data.options">
-        <mat-label>{{ item.key }}</mat-label>
-        <input matInput type="text" [(ngModel)]="item.value" [name]="item.key" />
-		<button mat-icon-button matSuffix color="primary" (click)="onListClick(item)">
-			<mat-icon>list</mat-icon>
-		</button>
-    </mat-form-field>
+  <mat-form-field *ngIf="data.value">
+    <mat-label>{{ data.value.key }}</mat-label>
+    <input matInput type="text" [(ngModel)]="data.value.value" [name]="data.value.key" />
+  </mat-form-field>
+  <mat-form-field *ngFor="let item of data.options">
+    <mat-label>{{ item.key }}</mat-label>
+    <input matInput type="text" [(ngModel)]="item.value" [name]="item.key" />
+    <button mat-icon-button matSuffix color="primary" (click)="onListClick(item)">
+      <mat-icon>list</mat-icon>
+    </button>
+  </mat-form-field>
 </form>
-<div class="btn-group">
-    <button mat-raised-button color="normal" (click)="submit()">确定</button>
-    <button mat-raised-button color="normal" (click)="close()">取消</button>
+<div matDialogActions>
+  <button mat-raised-button color="normal" (click)="submit()">确定</button>
+  <button mat-raised-button color="normal" (click)="close()">取消</button>
 </div>

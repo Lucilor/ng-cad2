@@ -7,21 +7,21 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {JiaoweiComponent} from "./jiaowei.component";
 
 describe("JiaoweiComponent", () => {
-    let component: JiaoweiComponent;
-    let fixture: ComponentFixture<JiaoweiComponent>;
+  let component: JiaoweiComponent;
+  let fixture: ComponentFixture<JiaoweiComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [JiaoweiComponent],
-            imports: [HttpModule, MatButtonModule, MessageModule, NgScrollbarModule, SpinnerModule]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [JiaoweiComponent],
+      imports: [HttpModule, MatButtonModule, MessageModule, NgScrollbarModule, SpinnerModule]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(JiaoweiComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(JiaoweiComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

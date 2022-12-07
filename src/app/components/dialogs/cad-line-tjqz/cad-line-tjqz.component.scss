@@ -1,35 +1,37 @@
 :host {
-	width: calc(100vw - 48px);
-	height: calc(100vh - 48px);
-	display: flex;
-	flex-direction: column;
+  width: calc(100vw - 48px);
+  height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .title {
-	text-align: center;
-	font-size: 1.5rem;
-	line-height: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  line-height: 1.5rem;
 }
 
 .content {
-	display: flex;
-	flex-grow: 1;
-	justify-content: space-between;
-	align-items: center;
+  display: flex;
+  flex-grow: 1;
+  justify-content: space-between;
+  align-items: center;
 
-	app-table {
-		width: 50%;
-		height: 100%;
-	}
+  app-table {
+    width: 50%;
+    height: 100%;
+  }
 
-	.mat-icon {
-		cursor: default;
-	}
+  .mat-icon {
+    cursor: default;
+  }
 }
 
 .divider {
-	height: 100%;
-	width: 1px;
-	background-color: gray;
-	margin: 0 20px;
+  height: 100%;
+  width: 1px;
+  background-color: gray;
+  margin: 0 20px;
 }

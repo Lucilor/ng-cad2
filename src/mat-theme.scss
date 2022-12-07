@@ -1,95 +1,76 @@
 @use "@angular/material" as mat;
 
-$app-typography: mat.define-typography-config(
-    $font-family: "Roboto, 微软雅黑, sans-serif",
-    $display-4: mat.define-typography-level(112px, 112px, 300),
-    $display-3: mat.define-typography-level(56px, 56px, 400),
-    $display-2: mat.define-typography-level(45px, 48px, 400),
-    $display-1: mat.define-typography-level(34px, 40px, 400),
-    $headline: mat.define-typography-level(24px, 32px, 400),
-    $title: mat.define-typography-level(20px, 32px, 500),
-    $subheading-2: mat.define-typography-level(16px, 28px, 400),
-    $subheading-1: mat.define-typography-level(15px, 24px, 400),
-    $body-2: mat.define-typography-level(14px, 24px, 500),
-    $body-1: mat.define-typography-level(14px, 20px, 400),
-    $caption: mat.define-typography-level(12px, 20px, 400),
-    $button: mat.define-typography-level(14px, 14px, 400),
-    $input: mat.define-typography-level(16px, 1.25, 400)
+@include mat.core();
+
+$app-typography: mat.define-rem-typography-config(
+  $font-family: "Roboto, 微软雅黑, sans-serif"
 );
-
-@include mat.core($app-typography);
-
-$primary: mat.define-palette(mat.$indigo-palette); // $deeppurple form color_palette
+$primary: mat.define-palette(mat.$indigo-palette, 500); // $deeppurple form color_palette
 $accent: mat.define-palette(mat.$pink-palette, A200, A100, A400); // $blue form color_palette
 $warn: mat.define-palette(mat.$red-palette); // $red form color_palette
-$app-theme: mat.define-light-theme($primary, $accent, $warn);
+$app-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $primary,
+      accent: $accent,
+      warn: $warn
+    ),
+    typography: $app-typography,
+    density: 0
+  )
+);
 @include mat.all-component-themes($app-theme);
 
-body,
-html {
-    font-size: mat.font-size($app-typography, body-1);
-    font-family: mat.font-family($app-typography);
-    line-height: mat.line-height($app-typography, body-1);
-}
+.mat-mdc-form-field {
+  width: 100%;
+  flex: 1 1 0;
+  font-size: 18px;
 
-.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-prefix .mat-icon-button,
-.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-suffix .mat-icon-button {
-    width: inherit !important;
-    height: inherit !important;
-    .mat-icon {
-        width: 25px;
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    display: flex;
+
+    .mat-mdc-icon-button {
+      width: inherit;
+      height: inherit;
+      padding: 0;
+
+      .mat-mdc-button-touch-target {
+        display: none;
+      }
     }
-}
+  }
 
-.mat-form-field {
-    width: 100%;
-    flex: 1 1 0;
+  .mat-mdc-floating-label {
+    color: blue !important;
     font-size: 18px;
+  }
 
-    .mat-form-field-wrapper {
-        padding-bottom: 1.2em !important;
+  &.empty {
+    .mdc-line-ripple::before {
+      border-bottom-color: red;
+      border-bottom-width: 2px;
     }
-
-    .mat-form-field-label {
-        color: blue;
-    }
-}
-.mat-form-field,
-app-input {
-    &.empty {
-        .mat-form-field-underline {
-            background-color: red;
-            height: 1.5px;
-        }
-    }
-}
-.mat-form-field-appearance-fill .mat-form-field-flex {
-    background-color: transparent;
-    padding: 0 !important;
+  }
 }
 
-.mat-checkbox {
-    display: inline-block;
-    max-width: 100%;
-}
-.mat-checkbox-layout {
-    width: 100%;
-}
-.mat-checkbox-label {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: left;
-}
-.mat-checkbox-inner-container {
-    margin: auto 8px !important;
+.mat-mdc-dialog-container {
+  --mdc-dialog-supporting-text-color: black;
 }
 
-.mat-menu-content {
-    overflow: hidden;
+.mat-mdc-snack-bar-container {
+  $container-color: mat.get-color-from-palette($primary, 500);
+  --mdc-snackbar-container-color: #{$container-color};
 }
 
-.mat-radio-label-content {
-    overflow: hidden;
-    text-overflow: ellipsis;
+.mat-mdc-button.mdc-button {
+  min-width: unset;
+}
+
+.mat-mdc-dialog-surface .mat-mdc-dialog-actions {
+  justify-content: center;
+
+  > :not(:first-child) {
+    margin-left: 8px;
+  }
 }

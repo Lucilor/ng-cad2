@@ -1,124 +1,118 @@
 <ng-scrollbar>
-    <div class="container max-width">
-        <div class="toolbars">
-            <mat-card class="toolbar">
-                <input #fileInputNormal type="file" accept=".dxf" hidden (change)="importDxf($event, false, loaderIds.importLoader)" />
-                <mat-card-content class="content">
-                    <div class="btn-group">
-                        <div class="spinner-container">
-                            <button mat-raised-button color="primary" (click)="fileInputNormal.click()" [disabled]="!canSubmit(false)">
-                                导入框型锁边铰边
-                            </button>
-                            <app-spinner [id]="loaderIds.importLoader" [inline]="true"></app-spinner>
-                        </div>
-                        <div class="spinner-container">
-                            <button
-                                mat-raised-button
-                                color="primary"
-                                (click)="importDxf(null, false, loaderIds.reimportLoader)"
-                                [disabled]="!sourceCad || !canSubmit(true)"
-                            >
-                                重新导入选中文件
-                            </button>
-                            <app-spinner [id]="loaderIds.reimportLoader" [inline]="true"></app-spinner>
-                        </div>
-                    </div>
-                    <div class="form">
-                        <mat-form-field *ngFor="let name of keysOf(importConfigNormal)">
-                            <mat-label>{{ importConfigNormal[name].label }}</mat-label>
-                            <input type="text" matInput value="1" hidden />
-                            <mat-radio-group [(ngModel)]="importConfigNormal[name].value" required>
-                                <mat-radio-button [value]="true">是</mat-radio-button>
-                                <mat-radio-button [value]="false">否</mat-radio-button>
-                            </mat-radio-group>
-                        </mat-form-field>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-            <mat-card class="toolbar">
-                <input
-                    #fileInputSuanliao
-                    type="file"
-                    accept=".dxf"
-                    hidden
-                    (change)="importDxf($event, true, loaderIds.importSuanliaoLoader)"
-                />
-                <mat-card-content class="content">
-                    <div class="btn-group">
-                        <div class="spinner-container">
-                            <button mat-raised-button color="primary" (click)="fileInputSuanliao.click()" [disabled]="!canSubmit(true)">
-                                替换导入型号算料dxf文件
-                            </button>
-                            <app-spinner [id]="loaderIds.importSuanliaoLoader" [inline]="true"></app-spinner>
-                        </div>
-                        <div class="spinner-container">
-                            <button
-                                mat-raised-button
-                                color="primary"
-                                (click)="importDxf(null, true, loaderIds.reimportSuanliaoLoader)"
-                                [disabled]="!sourceCad || !canSubmit(true)"
-                            >
-                                重新导入选中文件
-                            </button>
-                            <app-spinner [id]="loaderIds.reimportSuanliaoLoader" [inline]="true"></app-spinner>
-                        </div>
-                    </div>
-                    <div class="form">
-                        <mat-form-field *ngFor="let name of keysOf(importConfigSuanliao)">
-                            <mat-label>{{ importConfigSuanliao[name].label }}</mat-label>
-                            <input type="text" matInput value="1" hidden />
-                            <mat-radio-group [(ngModel)]="importConfigSuanliao[name].value" required>
-                                <mat-radio-button [value]="true">是</mat-radio-button>
-                                <mat-radio-button [value]="false">否</mat-radio-button>
-                            </mat-radio-group>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>使用公式的线段最大长度</mat-label>
-                            <mat-hint *ngIf="maxLineLength > 0; else ignoreMaxLength">
-                                长于{{ maxLineLength }}的线段会被调整至{{ maxLineLength }}
-                            </mat-hint>
-                            <ng-template #ignoreMaxLength>
-                                <mat-hint>最大长度不大于0则不调整</mat-hint>
-                            </ng-template>
-                            <input type="number" step="1" matInput [(ngModel)]="maxLineLength" />
-                        </mat-form-field>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-        </div>
-        <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
-
-        <div class="btn-group">
+  <div class="container max-width">
+    <div class="toolbars">
+      <mat-card class="toolbar">
+        <input #fileInputNormal type="file" accept=".dxf" hidden (change)="importDxf($event, false, loaderIds.importLoader)" />
+        <mat-card-content class="content">
+          <div class="btn-group">
             <div class="spinner-container">
-                <button mat-raised-button (click)="downloadSourceCad()" [disabled]="!sourceCad || !cadsParsed">下载dxf文件</button>
-                <app-spinner [id]="loaderIds.downloadSourceCad" [inline]="true"></app-spinner>
+              <button mat-raised-button color="primary" (click)="fileInputNormal.click()" [disabled]="!canSubmit(false)">
+                导入框型锁边铰边
+              </button>
+              <app-spinner [id]="loaderIds.importLoader" [inline]="true"></app-spinner>
             </div>
-            <button mat-raised-button (click)="downloadBatchCheckData()" [disabled]="!batchCheckData || !cadsParsed">下载json数据</button>
-        </div>
-        <div class="cads">
-            <ng-container *ngFor="let cad of cads">
-                <div *ngIf="cad.errors.length > 0" class="cad">
-                    <div>名字: {{ cad.data.name }}</div>
-                    <div>唯一码: {{ cad.data.info["唯一码"] }}</div>
-                    <ul>
-                        <li class="error" *ngFor="let error of cad.errors" [innerHtml]="error"></li>
-                    </ul>
-                </div>
-            </ng-container>
-            <ng-container *ngFor="let slgs of slgses">
-                <div *ngIf="slgs.errors.length > 0" class="cad">
-                    <div>名字: {{ slgs.data["名字"] }}</div>
-                    <ul>
-                        <li class="error" *ngFor="let error of slgs.errors" [innerHtml]="error"></li>
-                    </ul>
-                </div>
-            </ng-container>
-            <div *ngIf="xinghaoInfo && xinghaoInfo.errors.length > 0" class="cad">
-                <div>型号配置</div>
-                <ul>
-                    <li class="error" *ngFor="let error of xinghaoInfo.errors" [innerHtml]="error"></li>
-                </ul>
+            <div class="spinner-container">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="importDxf(null, false, loaderIds.reimportLoader)"
+                [disabled]="!sourceCad || !canSubmit(true)"
+              >
+                重新导入选中文件
+              </button>
+              <app-spinner [id]="loaderIds.reimportLoader" [inline]="true"></app-spinner>
             </div>
-        </div>
+          </div>
+          <div class="form">
+            <mat-form-field *ngFor="let name of keysOf(importConfigNormal)">
+              <mat-label>{{ importConfigNormal[name].label }}</mat-label>
+              <input type="text" matInput value="1" hidden />
+              <mat-radio-group [(ngModel)]="importConfigNormal[name].value" required>
+                <mat-radio-button [value]="true">是</mat-radio-button>
+                <mat-radio-button [value]="false">否</mat-radio-button>
+              </mat-radio-group>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="toolbar">
+        <input #fileInputSuanliao type="file" accept=".dxf" hidden (change)="importDxf($event, true, loaderIds.importSuanliaoLoader)" />
+        <mat-card-content class="content">
+          <div class="btn-group">
+            <div class="spinner-container">
+              <button mat-raised-button color="primary" (click)="fileInputSuanliao.click()" [disabled]="!canSubmit(true)">
+                替换导入型号算料dxf文件
+              </button>
+              <app-spinner [id]="loaderIds.importSuanliaoLoader" [inline]="true"></app-spinner>
+            </div>
+            <div class="spinner-container">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="importDxf(null, true, loaderIds.reimportSuanliaoLoader)"
+                [disabled]="!sourceCad || !canSubmit(true)"
+              >
+                重新导入选中文件
+              </button>
+              <app-spinner [id]="loaderIds.reimportSuanliaoLoader" [inline]="true"></app-spinner>
+            </div>
+          </div>
+          <div class="form">
+            <mat-form-field *ngFor="let name of keysOf(importConfigSuanliao)">
+              <mat-label>{{ importConfigSuanliao[name].label }}</mat-label>
+              <input type="text" matInput value="1" hidden />
+              <mat-radio-group [(ngModel)]="importConfigSuanliao[name].value" required>
+                <mat-radio-button [value]="true">是</mat-radio-button>
+                <mat-radio-button [value]="false">否</mat-radio-button>
+              </mat-radio-group>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>使用公式的线段最大长度</mat-label>
+              <mat-hint *ngIf="maxLineLength > 0; else ignoreMaxLength">
+                长于{{ maxLineLength }}的线段会被调整至{{ maxLineLength }}
+              </mat-hint>
+              <ng-template #ignoreMaxLength>
+                <mat-hint>最大长度不大于0则不调整</mat-hint>
+              </ng-template>
+              <input type="number" step="1" matInput [(ngModel)]="maxLineLength" />
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
+    <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
+
+    <div class="btn-group">
+      <div class="spinner-container">
+        <button mat-raised-button (click)="downloadSourceCad()" [disabled]="!sourceCad || !cadsParsed">下载dxf文件</button>
+        <app-spinner [id]="loaderIds.downloadSourceCad" [inline]="true"></app-spinner>
+      </div>
+      <button mat-raised-button (click)="downloadBatchCheckData()" [disabled]="!batchCheckData || !cadsParsed">下载json数据</button>
+    </div>
+    <div class="cads">
+      <ng-container *ngFor="let cad of cads">
+        <div *ngIf="cad.errors.length > 0" class="cad">
+          <div>名字: {{ cad.data.name }}</div>
+          <div>唯一码: {{ cad.data.info["唯一码"] }}</div>
+          <ul>
+            <li class="error" *ngFor="let error of cad.errors" [innerHtml]="error"></li>
+          </ul>
+        </div>
+      </ng-container>
+      <ng-container *ngFor="let slgs of slgses">
+        <div *ngIf="slgs.errors.length > 0" class="cad">
+          <div>名字: {{ slgs.data["名字"] }}</div>
+          <ul>
+            <li class="error" *ngFor="let error of slgs.errors" [innerHtml]="error"></li>
+          </ul>
+        </div>
+      </ng-container>
+      <div *ngIf="xinghaoInfo && xinghaoInfo.errors.length > 0" class="cad">
+        <div>型号配置</div>
+        <ul>
+          <li class="error" *ngFor="let error of xinghaoInfo.errors" [innerHtml]="error"></li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </ng-scrollbar>

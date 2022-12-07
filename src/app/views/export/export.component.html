@@ -1,40 +1,40 @@
 <div class="container max-width">
-    <div class="btn-group">
-        <mat-form-field>
-            <mat-label>导出ID</mat-label>
-            <input type="text" matInput value="1" hidden />
-            <mat-radio-group [(ngModel)]="exportParams.exportId" required>
-                <mat-radio-button [value]="true">是</mat-radio-button>
-                <mat-radio-button [value]="false">否</mat-radio-button>
-            </mat-radio-group>
-        </mat-form-field>
-        <mat-form-field>
-            <mat-label>导出唯一码</mat-label>
-            <input type="text" matInput value="1" hidden />
-            <mat-radio-group [(ngModel)]="exportParams.exportUniqCode" required>
-                <mat-radio-button [value]="true">是</mat-radio-button>
-                <mat-radio-button [value]="false">否</mat-radio-button>
-            </mat-radio-group>
-        </mat-form-field>
-    </div>
-    <div class="btn-group">
-        <ng-container *ngIf="!direct">
-            <button mat-raised-button color="primary" (click)="exportCads('包边正面')">包边正面</button>
-            <button mat-raised-button color="primary" (click)="exportCads('框型和企料')">框型和企料</button>
-            <button mat-raised-button color="primary" (click)="exportCads('指定型号')">指定型号</button>
-            <button mat-raised-button color="primary" (click)="exportCads('企料分体')">企料分体</button>
-            <button mat-raised-button color="primary" (click)="exportCads('企料')">企料</button>
-            <button mat-raised-button color="primary" (click)="exportCads('框型')">框型</button>
-        </ng-container>
-        <button
-            mat-raised-button
-            *ngIf="exportCache && exportCache.ids.length > 0; else choose"
-            color="primary"
-            (click)="exportCads('导出选中')"
-        >
-            导出选中
-        </button>
-        <ng-template #choose><button mat-raised-button color="primary" (click)="exportCads('自由选择')">自由选择</button></ng-template>
-    </div>
-    <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
+  <div class="btn-group">
+    <mat-form-field>
+      <mat-label>导出ID</mat-label>
+      <input type="text" matInput value="1" hidden />
+      <mat-radio-group [(ngModel)]="exportParams.exportId" required>
+        <mat-radio-button [value]="true">是</mat-radio-button>
+        <mat-radio-button [value]="false">否</mat-radio-button>
+      </mat-radio-group>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>导出唯一码</mat-label>
+      <input type="text" matInput value="1" hidden />
+      <mat-radio-group [(ngModel)]="exportParams.exportUniqCode" required>
+        <mat-radio-button [value]="true">是</mat-radio-button>
+        <mat-radio-button [value]="false">否</mat-radio-button>
+      </mat-radio-group>
+    </mat-form-field>
+  </div>
+  <div class="btn-group">
+    <ng-container *ngIf="!direct">
+      <button mat-raised-button color="primary" (click)="exportCads('包边正面')">包边正面</button>
+      <button mat-raised-button color="primary" (click)="exportCads('框型和企料')">框型和企料</button>
+      <button mat-raised-button color="primary" (click)="exportCads('指定型号')">指定型号</button>
+      <button mat-raised-button color="primary" (click)="exportCads('企料分体')">企料分体</button>
+      <button mat-raised-button color="primary" (click)="exportCads('企料')">企料</button>
+      <button mat-raised-button color="primary" (click)="exportCads('框型')">框型</button>
+    </ng-container>
+    <button
+      mat-raised-button
+      *ngIf="exportCache && exportCache.ids.length > 0; else choose"
+      color="primary"
+      (click)="exportCads('导出选中')"
+    >
+      导出选中
+    </button>
+    <ng-template #choose><button mat-raised-button color="primary" (click)="exportCads('自由选择')">自由选择</button></ng-template>
+  </div>
+  <app-progress-bar [progressBar]="progressBar" [status]="progressBarStatus" [msg]="msg"></app-progress-bar>
 </div>

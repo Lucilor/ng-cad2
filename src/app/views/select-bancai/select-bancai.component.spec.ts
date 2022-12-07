@@ -11,33 +11,33 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {SelectBancaiComponent} from "./select-bancai.component";
 
 describe("SelectBancaiComponent", () => {
-    let component: SelectBancaiComponent;
-    let fixture: ComponentFixture<SelectBancaiComponent>;
+  let component: SelectBancaiComponent;
+  let fixture: ComponentFixture<SelectBancaiComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [SelectBancaiComponent],
-            imports: [
-                FormsModule,
-                HttpModule,
-                MatAutocompleteModule,
-                MatMenuModule,
-                MatSlideToggleModule,
-                MessageModule,
-                NgScrollbarModule,
-                RouterTestingModule,
-                SpinnerModule
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [SelectBancaiComponent],
+      imports: [
+        FormsModule,
+        HttpModule,
+        MatAutocompleteModule,
+        MatMenuModule,
+        MatSlideToggleModule,
+        MessageModule,
+        NgScrollbarModule,
+        RouterTestingModule,
+        SpinnerModule
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(SelectBancaiComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(SelectBancaiComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

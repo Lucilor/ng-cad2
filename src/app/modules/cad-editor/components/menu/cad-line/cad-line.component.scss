@@ -1,12 +1,12 @@
 :host ::ng-deep .circle-picker {
-    background-color: gray;
-    padding: 5px;
+  background-color: gray;
+  padding: 5px;
 }
 
 .form-item {
-    display: flex;
+  display: flex;
 
-    > *:not(:last-child) {
-        margin-right: 5px;
-    }
+  > *:not(:last-child) {
+    margin-right: 5px;
+  }
 }

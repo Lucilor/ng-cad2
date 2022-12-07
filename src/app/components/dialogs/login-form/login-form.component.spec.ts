@@ -14,38 +14,38 @@ import {LoginFormComponent, LoginFormData} from "./login-form.component";
 const data: LoginFormData = {project: {id: "test", name: "测试"}, baseUrl: ""};
 
 describe("LoginFormComponent", () => {
-    let component: LoginFormComponent;
-    let fixture: ComponentFixture<LoginFormComponent>;
+  let component: LoginFormComponent;
+  let fixture: ComponentFixture<LoginFormComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [LoginFormComponent],
-            imports: [
-                BrowserAnimationsModule,
-                HttpClientModule,
-                MatFormFieldModule,
-                MatIconModule,
-                MatInputModule,
-                MessageModule,
-                ReactiveFormsModule,
-                RecaptchaV3Module,
-                SpinnerModule
-            ],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data},
-                {provide: RECAPTCHA_V3_SITE_KEY, useValue: ""}
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [LoginFormComponent],
+      imports: [
+        BrowserAnimationsModule,
+        HttpClientModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MessageModule,
+        ReactiveFormsModule,
+        RecaptchaV3Module,
+        SpinnerModule
+      ],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data},
+        {provide: RECAPTCHA_V3_SITE_KEY, useValue: ""}
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(LoginFormComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(LoginFormComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

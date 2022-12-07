@@ -5,51 +5,51 @@ import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {SelectBancaiCadsComponent, SelectBancaiCadsData} from "./select-bancai-cads.component";
 
 const data: SelectBancaiCadsData = {
-    cads: [
-        {
-            id: "cad1",
-            name: "cad1",
-            width: 1000,
-            height: 1000,
-            bancai: {mingzi: "baicai1", cailiao: "cailiao1", houdu: "1.2", guige: [2000, 2000]},
-            checked: false,
-            oversized: false,
-            disabled: false
-        },
-        {
-            id: "cad2",
-            name: "cad2",
-            width: 10000,
-            height: 10000,
-            bancai: {mingzi: "baicai2", cailiao: "cailiao2", houdu: "0.8", guige: [2000, 2000]},
-            checked: true,
-            oversized: true,
-            disabled: true
-        }
-    ]
+  cads: [
+    {
+      id: "cad1",
+      name: "cad1",
+      width: 1000,
+      height: 1000,
+      bancai: {mingzi: "baicai1", cailiao: "cailiao1", houdu: "1.2", guige: [2000, 2000]},
+      checked: false,
+      oversized: false,
+      disabled: false
+    },
+    {
+      id: "cad2",
+      name: "cad2",
+      width: 10000,
+      height: 10000,
+      bancai: {mingzi: "baicai2", cailiao: "cailiao2", houdu: "0.8", guige: [2000, 2000]},
+      checked: true,
+      oversized: true,
+      disabled: true
+    }
+  ]
 };
 describe("SelectBancaiCadsComponent", () => {
-    let component: SelectBancaiCadsComponent;
-    let fixture: ComponentFixture<SelectBancaiCadsComponent>;
+  let component: SelectBancaiCadsComponent;
+  let fixture: ComponentFixture<SelectBancaiCadsComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [SelectBancaiCadsComponent],
-            imports: [FormsModule, MatCheckboxModule],
-            providers: [
-                {provide: MatDialogRef, useValue: {}},
-                {provide: MAT_DIALOG_DATA, useValue: data}
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [SelectBancaiCadsComponent],
+      imports: [FormsModule, MatCheckboxModule],
+      providers: [
+        {provide: MatDialogRef, useValue: {}},
+        {provide: MAT_DIALOG_DATA, useValue: data}
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(SelectBancaiCadsComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(SelectBancaiCadsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

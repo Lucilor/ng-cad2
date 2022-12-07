@@ -1,307 +1,302 @@
 <ng-container [ngSwitch]="info.type">
-    <ng-container *ngSwitchCase="'string'">
-        <mat-form-field #formField [ngClass]="{empty: isEmpty(value)}">
-            <mat-label>{{ info.label }}</mat-label>
-            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
-            <input
-                *ngIf="!cast(info, 'string').textarea"
-                matInput
-                [readonly]="info.readonly"
-                [disabled]="info.disabled || false"
-                [autocomplete]="info.autocomplete || ''"
-                [(ngModel)]="value"
-                type="text"
-                (change)="onChange()"
-                (input)="onInput()"
-                [matAutocomplete]="auto"
-                [placeholder]="info.placeholder || ''"
-            />
-            <textarea
-                *ngIf="cast(info, 'string').textarea"
-                matInput
-                [cdkTextareaAutosize]="!!cast(info, 'string').textarea?.autosize"
-                [cdkAutosizeMinRows]="cast(info, 'string').textarea?.autosize?.minRows"
-                [cdkAutosizeMaxRows]="cast(info, 'string').textarea?.autosize?.maxRows"
-                [readonly]="info.readonly"
-                [disabled]="info.disabled || false"
-                [autocomplete]="info.autocomplete || ''"
-                [(ngModel)]="value"
-                type="text"
-                (change)="onChange()"
-                (input)="onInput()"
-                [matAutocomplete]="auto"
-                [placeholder]="info.placeholder || ''"
-            ></textarea>
-            <button mat-icon-button matSuffix *ngIf="optionKey" color="primary" (click)="selectOptions(optionKey, info.model?.key)">
-                <mat-icon>list</mat-icon>
-            </button>
-            <button mat-icon-button matSuffix *ngIf="info.copyable" color="primary" (click)="copy()">
-                <mat-icon>content_copy</mat-icon>
-            </button>
-            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
-                <mat-icon>{{ icon.name }}</mat-icon>
-            </button>
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onAutocompleteChange($event)">
-                <mat-option
-                    *ngFor="let option of filteredOptions"
-                    [value]="option.value"
-                    [matTooltip]="option.label === option.value ? option.label : option.label + '=' + option.value"
-                    [matTooltipShowDelay]="500"
-                    [matTooltipPosition]="'right'"
-                >
-                    {{ option.label }}
-                </mat-option>
-            </mat-autocomplete>
+  <ng-container *ngSwitchCase="'string'">
+    <mat-form-field #formField [ngClass]="{empty: isEmpty(value)}">
+      <mat-label>{{ info.label }}</mat-label>
+      <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+      <input
+        *ngIf="!cast(info, 'string').textarea"
+        matInput
+        [readonly]="info.readonly"
+        [disabled]="info.disabled || false"
+        [autocomplete]="info.autocomplete || ''"
+        [(ngModel)]="value"
+        type="text"
+        (change)="onChange()"
+        (input)="onInput()"
+        [matAutocomplete]="auto"
+        [placeholder]="info.placeholder || ''"
+      />
+      <textarea
+        *ngIf="cast(info, 'string').textarea"
+        matInput
+        [cdkTextareaAutosize]="!!cast(info, 'string').textarea?.autosize"
+        [cdkAutosizeMinRows]="cast(info, 'string').textarea?.autosize?.minRows"
+        [cdkAutosizeMaxRows]="cast(info, 'string').textarea?.autosize?.maxRows"
+        [readonly]="info.readonly"
+        [disabled]="info.disabled || false"
+        [autocomplete]="info.autocomplete || ''"
+        [(ngModel)]="value"
+        type="text"
+        (change)="onChange()"
+        (input)="onInput()"
+        [matAutocomplete]="auto"
+        [placeholder]="info.placeholder || ''"
+      ></textarea>
+      <button mat-icon-button matSuffix *ngIf="optionKey" color="primary" (click)="selectOptions(optionKey, info.model?.key)">
+        <mat-icon>list</mat-icon>
+      </button>
+      <button mat-icon-button matSuffix *ngIf="info.copyable" color="primary" (click)="copy()">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+      <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+        <mat-icon>{{ icon.name }}</mat-icon>
+      </button>
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onAutocompleteChange($event)">
+        <mat-option
+          *ngFor="let option of filteredOptions"
+          [value]="option.value"
+          [matTooltip]="option.label === option.value ? option.label : option.label + '=' + option.value"
+          [matTooltipShowDelay]="500"
+          [matTooltipPosition]="'right'"
+        >
+          {{ option.label }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  </ng-container>
+  <ng-container *ngSwitchCase="'number'">
+    <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+      <mat-label>{{ info.label }}</mat-label>
+      <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+      <input
+        matInput
+        [readonly]="info.readonly"
+        [disabled]="info.disabled || false"
+        [autocomplete]="info.autocomplete"
+        [(ngModel)]="value"
+        type="number"
+        [step]="cast(info, 'number').step"
+        [min]="cast(info, 'number').max ?? null"
+        [max]="cast(info, 'number').max ?? null"
+        (change)="onChange()"
+        (input)="onInput()"
+      />
+      <button mat-icon-button matSuffix *ngIf="info.copyable" color="primary" (click)="copy()">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+      <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+        <mat-icon>{{ icon.name }}</mat-icon>
+      </button>
+    </mat-form-field>
+  </ng-container>
+  <ng-container *ngSwitchCase="'object'">
+    <div class="sub-form-field">
+      <div class="label">
+        <span>{{ info.label }}</span>
+        <span *ngIf="info.hint">({{ info.hint }})</span>
+      </div>
+      <div *ngIf="keysOf(value).length === 0">
+        <button mat-icon-button color="primary" (click)="objectAdd(value, '')">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+      </div>
+      <div *ngFor="let key of keysOf(asObject(value))">
+        <mat-form-field style="width: 30%" [ngClass]="{empty: isEmpty(key)}">
+          <input
+            type="text"
+            matInput
+            [readonly]="info.readonly"
+            [disabled]="info.disabled || false"
+            [autocomplete]="info.autocomplete"
+            [value]="key"
+            (change)="changeObjectKey(value, key, $event)"
+          />
         </mat-form-field>
-    </ng-container>
-    <ng-container *ngSwitchCase="'number'">
-        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
-            <mat-label>{{ info.label }}</mat-label>
-            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
-            <input
-                matInput
-                [readonly]="info.readonly"
-                [disabled]="info.disabled || false"
-                [autocomplete]="info.autocomplete"
-                [(ngModel)]="value"
-                type="number"
-                [step]="cast(info, 'number').step"
-                [min]="cast(info, 'number').max ?? null"
-                [max]="cast(info, 'number').max ?? null"
-                (change)="onChange()"
-                (input)="onInput()"
-            />
-            <button mat-icon-button matSuffix *ngIf="info.copyable" color="primary" (click)="copy()">
-                <mat-icon>content_copy</mat-icon>
-            </button>
-            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
-                <mat-icon>{{ icon.name }}</mat-icon>
-            </button>
+        <mat-form-field style="width: 70%" [ngClass]="{empty: isEmpty(value[key])}">
+          <input
+            type="text"
+            matInput
+            [readonly]="info.readonly"
+            [disabled]="info.disabled || false"
+            [autocomplete]="info.autocomplete"
+            [(ngModel)]="value[key]"
+            [ngModelOptions]="{standalone: true}"
+          />
+          <button mat-icon-button matSuffix color="primary" (click)="selectOptions(info.model?.key, key)">
+            <mat-icon>list</mat-icon>
+          </button>
+          <button mat-icon-button matSuffix color="primary" (click)="objectAdd(value, '', '')">
+            <mat-icon>add_circle</mat-icon>
+          </button>
+          <button mat-icon-button matSuffix color="primary" (click)="objectRemove(value, key)">
+            <mat-icon>remove_circle</mat-icon>
+          </button>
+          <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+            <mat-icon>{{ icon.name }}</mat-icon>
+          </button>
         </mat-form-field>
-    </ng-container>
-    <ng-container *ngSwitchCase="'object'">
-        <div class="sub-form-field">
-            <div class="label">
-                <span>{{ info.label }}</span>
-                <span *ngIf="info.hint">({{ info.hint }})</span>
-            </div>
-            <div *ngIf="keysOf(value).length === 0">
-                <button mat-icon-button color="primary" (click)="objectAdd(value, '')">
-                    <mat-icon>add_circle</mat-icon>
-                </button>
-            </div>
-            <div *ngFor="let key of keysOf(asObject(value))">
-                <mat-form-field style="width: 30%" [ngClass]="{empty: isEmpty(key)}">
-                    <input
-                        type="text"
-                        matInput
-                        [readonly]="info.readonly"
-                        [disabled]="info.disabled || false"
-                        [autocomplete]="info.autocomplete"
-                        [value]="key"
-                        (change)="changeObjectKey(value, key, $event)"
-                    />
-                </mat-form-field>
-                <mat-form-field style="width: 70%" [ngClass]="{empty: isEmpty(value[key])}">
-                    <input
-                        type="text"
-                        matInput
-                        [readonly]="info.readonly"
-                        [disabled]="info.disabled || false"
-                        [autocomplete]="info.autocomplete"
-                        [(ngModel)]="value[key]"
-                        [ngModelOptions]="{standalone: true}"
-                    />
-                    <button mat-icon-button matSuffix color="primary" (click)="selectOptions(info.model?.key, key)">
-                        <mat-icon>list</mat-icon>
-                    </button>
-                    <button mat-icon-button matSuffix color="primary" (click)="objectAdd(value, '', '')">
-                        <mat-icon>add_circle</mat-icon>
-                    </button>
-                    <button mat-icon-button matSuffix color="primary" (click)="objectRemove(value, key)">
-                        <mat-icon>remove_circle</mat-icon>
-                    </button>
-                    <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
-                        <mat-icon>{{ icon.name }}</mat-icon>
-                    </button>
-                </mat-form-field>
-            </div>
-        </div>
-    </ng-container>
-    <ng-container *ngSwitchCase="'array'">
-        <div class="sub-form-field">
-            <div class="label">
-                <span>{{ info.label }}</span>
-                <span *ngIf="info.hint">({{ info.hint }})</span>
-            </div>
-            <div *ngIf="value.length === 0">
-                <button mat-icon-button color="primary" (click)="arrayAdd(value, '')">
-                    <mat-icon>add_circle</mat-icon>
-                </button>
-            </div>
-            <mat-form-field [ngClass]="{empty: isEmpty(value[j])}" *ngFor="let c of ' '.repeat(value.length).split(''); let j = index">
-                <input
-                    matInput
-                    type="text"
-                    [readonly]="info.readonly"
-                    [disabled]="info.disabled || false"
-                    [autocomplete]="info.autocomplete"
-                    [(ngModel)]="value[j]"
-                    [ngModelOptions]="{standalone: true}"
-                />
-                <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(value, '', j + 1)">
-                    <mat-icon>add_circle</mat-icon>
-                </button>
-                <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(value, j)">
-                    <mat-icon>remove_circle</mat-icon>
-                </button>
-                <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
-                    <mat-icon>{{ icon.name }}</mat-icon>
-                </button>
-            </mat-form-field>
-        </div>
-    </ng-container>
-    <ng-container *ngSwitchCase="'boolean'">
-        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
-            <mat-label>{{ info.label }}</mat-label>
-            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
-            <mat-select
-                [disabled]="info.disabled || false"
-                [(ngModel)]="value"
-                (selectionChange)="onChange()"
-                [placeholder]="info.placeholder || ''"
-            >
-                <mat-option [value]="true">是</mat-option>
-                <mat-option [value]="false">否</mat-option>
+      </div>
+    </div>
+  </ng-container>
+  <ng-container *ngSwitchCase="'array'">
+    <div class="sub-form-field">
+      <div class="label">
+        <span>{{ info.label }}</span>
+        <span *ngIf="info.hint">({{ info.hint }})</span>
+      </div>
+      <div *ngIf="value.length === 0">
+        <button mat-icon-button color="primary" (click)="arrayAdd(value, '')">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+      </div>
+      <mat-form-field [ngClass]="{empty: isEmpty(value[j])}" *ngFor="let c of ' '.repeat(value.length).split(''); let j = index">
+        <input
+          matInput
+          type="text"
+          [readonly]="info.readonly"
+          [disabled]="info.disabled || false"
+          [autocomplete]="info.autocomplete"
+          [(ngModel)]="value[j]"
+          [ngModelOptions]="{standalone: true}"
+        />
+        <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(value, '', j + 1)">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+        <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(value, j)">
+          <mat-icon>remove_circle</mat-icon>
+        </button>
+        <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+          <mat-icon>{{ icon.name }}</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  </ng-container>
+  <ng-container *ngSwitchCase="'boolean'">
+    <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+      <mat-label>{{ info.label }}</mat-label>
+      <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+      <mat-select
+        [disabled]="info.disabled || false"
+        [(ngModel)]="value"
+        (selectionChange)="onChange()"
+        [placeholder]="info.placeholder || ''"
+      >
+        <mat-option [value]="true">是</mat-option>
+        <mat-option [value]="false">否</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </ng-container>
+  <ng-container *ngSwitchCase="'select'">
+    <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+      <mat-label>{{ info.label }}</mat-label>
+      <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+      <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()">
+        <mat-select-trigger *ngIf="optionText" [innerHtml]="optionText"></mat-select-trigger>
+        <mat-option *ngFor="let option of options" [value]="option.value">
+          {{ option.label || option.value }}
+        </mat-option>
+      </mat-select>
+      <button *ngIf="cast(info, 'select').clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clearOption()">
+        <mat-icon>cancel</mat-icon>
+      </button>
+      <button mat-icon-button matSuffix color="primary" appClickStop *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+        <mat-icon>{{ icon.name }}</mat-icon>
+      </button>
+    </mat-form-field>
+  </ng-container>
+  <ng-container *ngSwitchCase="'selectMulti'">
+    <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+      <mat-label>{{ info.label }}</mat-label>
+      <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+      <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()" multiple>
+        <mat-select-trigger *ngIf="optionText" [innerHtml]="optionText"></mat-select-trigger>
+        <mat-option *ngFor="let option of options" [value]="option.value">
+          {{ option.label || option.value }}
+        </mat-option>
+      </mat-select>
+      <button *ngIf="cast(info, 'select').clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clearOption()">
+        <mat-icon>cancel</mat-icon>
+      </button>
+      <button mat-icon-button matSuffix color="primary" appClickStop *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+        <mat-icon>{{ icon.name }}</mat-icon>
+      </button>
+    </mat-form-field>
+  </ng-container>
+  <ng-container *ngSwitchCase="'coordinate'">
+    <div class="sub-form-field" *ngIf="cast(info, 'coordinate').compact; else coordinate">
+      <div class="label">
+        <span>{{ info.label }}</span>
+        <span *ngIf="info.hint">({{ info.hint }})</span>
+      </div>
+      <div>
+        <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[0])}">
+          <mat-label>{{ cast(info, "coordinate").labelX || "x" }}</mat-label>
+          <ng-container>
+            <mat-select [(ngModel)]="value[0]" (change)="onChange()">
+              <mat-option [value]="0">左</mat-option>
+              <mat-option [value]="0.5">中</mat-option>
+              <mat-option [value]="1">右</mat-option>
             </mat-select>
+          </ng-container>
+          <ng-template #anchorX>
+            <input matInput type="number" [(ngModel)]="value[0]" (change)="onChange()" />
+          </ng-template>
         </mat-form-field>
-    </ng-container>
-    <ng-container *ngSwitchCase="'select'">
-        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
-            <mat-label>{{ info.label }}</mat-label>
-            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
-            <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()">
-                <mat-select-trigger *ngIf="optionText" [innerHtml]="optionText"></mat-select-trigger>
-                <mat-option *ngFor="let option of options" [value]="option.value">
-                    {{ option.label || option.value }}
-                </mat-option>
+        <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[1])}">
+          <mat-label>{{ cast(info, "coordinate").labelY || "y" }}</mat-label>
+          <ng-container>
+            <mat-select [(ngModel)]="value[1]" (change)="onChange()">
+              <mat-option [value]="1">上</mat-option>
+              <mat-option [value]="0.5">中</mat-option>
+              <mat-option [value]="0">下</mat-option>
             </mat-select>
-            <button *ngIf="cast(info, 'select').clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clearOption()">
-                <mat-icon>cancel</mat-icon>
-            </button>
-            <button mat-icon-button matSuffix color="primary" appClickStop *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
-                <mat-icon>{{ icon.name }}</mat-icon>
-            </button>
+          </ng-container>
         </mat-form-field>
-    </ng-container>
-    <ng-container *ngSwitchCase="'selectMulti'">
-        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
-            <mat-label>{{ info.label }}</mat-label>
-            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
-            <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()" multiple>
-                <mat-select-trigger *ngIf="optionText" [innerHtml]="optionText"></mat-select-trigger>
-                <mat-option *ngFor="let option of options" [value]="option.value">
-                    {{ option.label || option.value }}
-                </mat-option>
-            </mat-select>
-            <button *ngIf="cast(info, 'select').clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clearOption()">
-                <mat-icon>cancel</mat-icon>
-            </button>
-            <button mat-icon-button matSuffix color="primary" appClickStop *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
-                <mat-icon>{{ icon.name }}</mat-icon>
-            </button>
-        </mat-form-field>
-    </ng-container>
-    <ng-container *ngSwitchCase="'coordinate'">
-        <div class="sub-form-field" *ngIf="cast(info, 'coordinate').compact; else coordinate">
-            <div class="label">
-                <span>{{ info.label }}</span>
-                <span *ngIf="info.hint">({{ info.hint }})</span>
-            </div>
-            <div>
-                <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[0])}">
-                    <mat-label>{{ cast(info, "coordinate").labelX || "x" }}</mat-label>
-                    <ng-container>
-                        <mat-select [(ngModel)]="value[0]" (change)="onChange()">
-                            <mat-option [value]="0">左</mat-option>
-                            <mat-option [value]="0.5">中</mat-option>
-                            <mat-option [value]="1">右</mat-option>
-                        </mat-select>
-                    </ng-container>
-                    <ng-template #anchorX>
-                        <input matInput type="number" [(ngModel)]="value[0]" (change)="onChange()" />
-                    </ng-template>
-                </mat-form-field>
-                <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[1])}">
-                    <mat-label>{{ cast(info, "coordinate").labelY || "y" }}</mat-label>
-                    <ng-container>
-                        <mat-select [(ngModel)]="value[1]" (change)="onChange()">
-                            <mat-option [value]="1">上</mat-option>
-                            <mat-option [value]="0.5">中</mat-option>
-                            <mat-option [value]="0">下</mat-option>
-                        </mat-select>
-                    </ng-container>
-                </mat-form-field>
-            </div>
+      </div>
+    </div>
+    <ng-template #coordinate>
+      <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+        <mat-label>{{ info.label }}</mat-label>
+        <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+        <input matInput type="text" placeholder="请选择锚点" [value]="anchorStr" readonly [disabled]="info.disabled || false" />
+        <button mat-icon-button matSuffix color="primary" [matMenuTriggerFor]="editable ? anchor : null">
+          <mat-icon>list</mat-icon>
+        </button>
+        <mat-menu #anchor="matMenu">
+          <app-anchor-selector [x]="value[0]" [y]="value[1]" (anchorChangeEnd)="onChange($event)" appClickStop></app-anchor-selector>
+        </mat-menu>
+        <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+          <mat-icon>{{ icon.name }}</mat-icon>
+        </button>
+      </mat-form-field>
+    </ng-template>
+  </ng-container>
+  <ng-container *ngSwitchCase="'color'">
+    <mat-form-field [ngClass]="{empty: isEmpty(value)}">
+      <mat-label>{{ info.label }}</mat-label>
+      <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
+      <input
+        matInput
+        [value]="colorText"
+        [style]="{color: colorValue, backgroundColor: colorBg, transition: '0.3s'}"
+        [matMenuTriggerFor]="editable ? colorPicker : null"
+        readonly
+        [disabled]="info.disabled || false"
+      />
+      <mat-menu #colorPicker="matMenu">
+        <color-chrome #colorChrome [color]="value" (onChangeComplete)="onChange($event.color)" appClickStop> </color-chrome>
+      </mat-menu>
+      <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
+        <mat-icon>{{ icon.name }}</mat-icon>
+      </button>
+    </mat-form-field>
+  </ng-container>
+  <ng-container *ngSwitchCase="'group'">
+    <ng-container *ngIf="info.label">
+      <div class="sub-form-field">
+        <div class="label">
+          <span>{{ info.label }}</span>
+          <span *ngIf="info.hint">({{ info.hint }})</span>
         </div>
-        <ng-template #coordinate>
-            <mat-form-field [ngClass]="{empty: isEmpty(value)}">
-                <mat-label>{{ info.label }}</mat-label>
-                <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
-                <input matInput type="text" placeholder="请选择锚点" [value]="anchorStr" readonly [disabled]="info.disabled || false" />
-                <button mat-icon-button matSuffix color="primary" [matMenuTriggerFor]="editable ? anchor : null">
-                    <mat-icon>list</mat-icon>
-                </button>
-                <mat-menu #anchor="matMenu">
-                    <app-anchor-selector
-                        [x]="value[0]"
-                        [y]="value[1]"
-                        (anchorChangeEnd)="onChange($event)"
-                        appClickStop
-                    ></app-anchor-selector>
-                </mat-menu>
-                <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
-                    <mat-icon>{{ icon.name }}</mat-icon>
-                </button>
-            </mat-form-field>
-        </ng-template>
+        <div class="group">
+          <app-input *ngFor="let info2 of cast(info, 'group').infos" [info]="info2"></app-input>
+        </div>
+      </div>
     </ng-container>
-    <ng-container *ngSwitchCase="'color'">
-        <mat-form-field [ngClass]="{empty: isEmpty(value)}">
-            <mat-label>{{ info.label }}</mat-label>
-            <mat-hint *ngIf="info.hint">{{ info.hint }}</mat-hint>
-            <input
-                matInput
-                [value]="colorText"
-                [style]="{color: colorValue, backgroundColor: colorBg, transition: '0.3s'}"
-                [matMenuTriggerFor]="editable ? colorPicker : null"
-                readonly
-                [disabled]="info.disabled || false"
-            />
-            <mat-menu #colorPicker="matMenu">
-                <color-chrome #colorChrome [color]="value" (onChangeComplete)="onChange($event.color)" appClickStop> </color-chrome>
-            </mat-menu>
-            <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
-                <mat-icon>{{ icon.name }}</mat-icon>
-            </button>
-        </mat-form-field>
+    <ng-container *ngIf="!info.label">
+      <div class="group">
+        <app-input *ngFor="let info2 of cast(info, 'group').infos" [info]="info2"></app-input>
+      </div>
     </ng-container>
-    <ng-container *ngSwitchCase="'group'">
-        <ng-container *ngIf="info.label">
-            <div class="sub-form-field">
-                <div class="label">
-                    <span>{{ info.label }}</span>
-                    <span *ngIf="info.hint">({{ info.hint }})</span>
-                </div>
-                <div class="group">
-                    <app-input *ngFor="let info2 of cast(info, 'group').infos" [info]="info2"></app-input>
-                </div>
-            </div>
-        </ng-container>
-        <ng-container *ngIf="!info.label">
-            <div class="group">
-                <app-input *ngFor="let info2 of cast(info, 'group').infos" [info]="info2"></app-input>
-            </div>
-        </ng-container>
-    </ng-container>
+  </ng-container>
 </ng-container>

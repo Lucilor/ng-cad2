@@ -1,10 +1,10 @@
 <router-outlet></router-outlet>
 <app-spinner></app-spinner>
 <div class="nav" *ngIf="!isProd" cdkDrag>
-    <mat-icon color="primary" [matMenuTriggerFor]="links">apps</mat-icon>
-    <mat-menu #links="matMenu">
-        <button mat-menu-item *ngFor="let routeInfo of routesInfo" [routerLink]="routeInfo.path" [queryParamsHandling]="'merge'">
-            {{ routeInfo.title || routeInfo.path }}
-        </button>
-    </mat-menu>
+  <mat-icon color="primary" [matMenuTriggerFor]="links">apps</mat-icon>
+  <mat-menu #links="matMenu">
+    <button mat-menu-item *ngFor="let routeInfo of routesInfo" [routerLink]="routeInfo.path" [queryParamsHandling]="'merge'">
+      {{ routeInfo.title || routeInfo.path }}
+    </button>
+  </mat-menu>
 </div>

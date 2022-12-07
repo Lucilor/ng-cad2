@@ -4,42 +4,42 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {NgxUiLoaderConfig} from "ngx-ui-loader";
 
 @Component({
-    selector: "app-spinner",
-    templateUrl: "./spinner.component.html",
-    styleUrls: ["./spinner.component.scss"]
+  selector: "app-spinner",
+  templateUrl: "./spinner.component.html",
+  styleUrls: ["./spinner.component.scss"]
 })
 export class SpinnerComponent extends Subscribed() implements OnInit, AfterViewInit {
-    @Input() id = "master";
-    @Input() text = "";
-    @Input() inline = false;
-    @Input() config: NgxUiLoaderConfig = {};
-    @ViewChild("loader") loader?: any;
+  @Input() id = "master";
+  @Input() text = "";
+  @Input() inline = false;
+  @Input() config: NgxUiLoaderConfig = {};
+  @ViewChild("loader") loader?: any;
 
-    constructor(private spinner: SpinnerService) {
-        super();
+  constructor(private spinner: SpinnerService) {
+    super();
+  }
+
+  ngOnInit() {
+    if (this.inline) {
+      if (this.config.fgsSize === undefined) {
+        this.config.fgsSize = 30;
+      }
+      if (this.config.hasProgressBar === undefined) {
+        this.config.hasProgressBar = false;
+      }
     }
-
-    ngOnInit() {
+    this.subscribe(this.spinner.spinnerShow$, ({id, config}) => {
+      if (id === this.id) {
         if (this.inline) {
-            if (this.config.fgsSize === undefined) {
-                this.config.fgsSize = 30;
-            }
-            if (this.config.hasProgressBar === undefined) {
-                this.config.hasProgressBar = false;
-            }
+          this.text = "";
+        } else if (config?.text) {
+          this.text = config.text;
         }
-        this.subscribe(this.spinner.spinnerShow$, ({id, config}) => {
-            if (id === this.id) {
-                if (this.inline) {
-                    this.text = "";
-                } else if (config?.text) {
-                    this.text = config.text;
-                }
-            }
-        });
-    }
+      }
+    });
+  }
 
-    ngAfterViewInit() {
-        Object.assign(this.loader, this.config);
-    }
+  ngAfterViewInit() {
+    Object.assign(this.loader, this.config);
+  }
 }

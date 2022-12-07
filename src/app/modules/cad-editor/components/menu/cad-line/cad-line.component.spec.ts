@@ -17,38 +17,38 @@ import {CadLayerInputComponent} from "../cad-layer-input/cad-layer-input.compone
 import {CadLineComponent} from "./cad-line.component";
 
 describe("CadLineComponent", () => {
-    let component: CadLineComponent;
-    let fixture: ComponentFixture<CadLineComponent>;
+  let component: CadLineComponent;
+  let fixture: ComponentFixture<CadLineComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [CadLineComponent, CadLayerInputComponent],
-            imports: [
-                CadConsoleModule,
-                ColorCircleModule,
-                FormsModule,
-                HttpModule,
-                MatAutocompleteModule,
-                MatButtonModule,
-                MatCheckboxModule,
-                MatFormFieldModule,
-                MatIconModule,
-                MatInputModule,
-                MatMenuModule,
-                MatSelectModule,
-                MessageModule,
-                SpinnerModule
-            ]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [CadLineComponent, CadLayerInputComponent],
+      imports: [
+        CadConsoleModule,
+        ColorCircleModule,
+        FormsModule,
+        HttpModule,
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatMenuModule,
+        MatSelectModule,
+        MessageModule,
+        SpinnerModule
+      ]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CadLineComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CadLineComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

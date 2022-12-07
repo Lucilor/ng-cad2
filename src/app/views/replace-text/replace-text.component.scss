@@ -1,38 +1,38 @@
 :host {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    flex-direction: column;
-    padding: 10px;
-    box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .form {
-    display: flex;
-    padding: 10px;
+  display: flex;
+  padding: 10px;
 
-    > *:not(:last-child) {
-        margin-right: 10px;
-    }
+  > *:not(:last-child) {
+    margin-right: 10px;
+  }
 }
 
 .to-be-replaced-list {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 
-    > * {
-        width: calc(25% - 20px);
-        margin: 10px;
-        box-sizing: border-box;
-    }
+  > * {
+    width: calc(25% - 20px);
+    margin: 10px;
+    box-sizing: border-box;
+  }
 }
 
 .matched-text {
-    display: inline-block;
-    width: 100%;
-    padding: 3px 0;
+  display: inline-block;
+  width: 100%;
+  padding: 3px 0;
 
-    &:not(:last-child) {
-        border-bottom: 1px solid #b1b1b1;
-    }
+  &:not(:last-child) {
+    border-bottom: 1px solid #b1b1b1;
+  }
 }

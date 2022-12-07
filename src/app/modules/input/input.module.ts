@@ -16,23 +16,23 @@ import {AnchorSelectorComponent} from "./components/anchor-selector/anchor-selec
 import {InputComponent} from "./components/input.component";
 
 @NgModule({
-    declarations: [AnchorSelectorComponent, InputComponent],
-    imports: [
-        ColorChromeModule,
-        ColorCircleModule,
-        CommonModule,
-        DirectivesModule,
-        FormsModule,
-        MatAutocompleteModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatMenuModule,
-        MatSelectModule,
-        MatTooltipModule,
-        ReactiveFormsModule
-    ],
-    exports: [AnchorSelectorComponent, InputComponent]
+  declarations: [AnchorSelectorComponent, InputComponent],
+  imports: [
+    ColorChromeModule,
+    ColorCircleModule,
+    CommonModule,
+    DirectivesModule,
+    FormsModule,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatMenuModule,
+    MatSelectModule,
+    MatTooltipModule,
+    ReactiveFormsModule
+  ],
+  exports: [AnchorSelectorComponent, InputComponent]
 })
 export class InputModule {}

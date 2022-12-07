@@ -1,96 +1,54 @@
 {
-    "root": true,
-    "env": {
-        "es6": true
+  "root": true,
+  "env": {
+    "es6": true
+  },
+  "rules": {},
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "parserOptions": {
+        "project": "tsconfig.json",
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/ng-cli-compat",
+        "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:@angular-eslint/recommended--extra",
+        "prettier"
+      ],
+      "rules": {
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": "default",
+            "format": null,
+            "leadingUnderscore": "allowSingleOrDouble"
+          }
+        ],
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "argsIgnorePattern": "."
+          }
+        ],
+        "guard-for-in": "off",
+        "no-underscore-dangle": "off"
+      }
     },
-    "overrides": [
-        {
-            "files": ["*.ts"],
-            "parserOptions": {
-                "project": "tsconfig.json",
-                "createDefaultProgram": true
-            },
-            "extends": [
-                "eslint:recommended",
-                "plugin:@typescript-eslint/eslint-recommended",
-                "plugin:@typescript-eslint/recommended",
-                "plugin:@angular-eslint/recommended",
-                "plugin:@angular-eslint/ng-cli-compat",
-                "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
-                "plugin:@angular-eslint/template/process-inline-templates",
-                "plugin:@angular-eslint/recommended--extra"
-            ],
-            "rules": {
-                "@angular-eslint/directive-selector": [
-                    "error",
-                    {
-                        "type": "attribute",
-                        "prefix": "app",
-                        "style": "camelCase"
-                    }
-                ],
-                "@angular-eslint/component-selector": [
-                    "error",
-                    {
-                        "type": "element",
-                        "prefix": "app",
-                        "style": "kebab-case"
-                    }
-                ],
-                // "@typescript-eslint/indent": [
-                //     "error",
-                //     4,
-                //     {
-                //         "SwitchCase": 1
-                //     }
-                // ],
-                "@typescript-eslint/naming-convention": [
-                    "error",
-                    {
-                        "selector": "default",
-                        "format": null,
-                        "leadingUnderscore": "allowSingleOrDouble"
-                    }
-                ],
-                "@typescript-eslint/quotes": [
-                    "error",
-                    "double",
-                    {
-                        "allowTemplateLiterals": true,
-                        "avoidEscape": true
-                    }
-                ],
-                "@typescript-eslint/no-unused-vars": [
-                    "warn",
-                    {
-                        "argsIgnorePattern": "."
-                    }
-                ],
-                "@typescript-eslint/explicit-module-boundary-types": "off",
-                "guard-for-in": "off",
-                "no-underscore-dangle": "off",
-                "no-console": "off",
-                "object-curly-spacing": ["error", "never"],
-                "array-bracket-spacing": ["error", "never"],
-                "no-shadow": "off",
-                "@typescript-eslint/no-shadow": ["error"]
-            }
-        },
-        {
-            "files": ["*.component.html", "index.html"],
-            "extends": ["plugin:@angular-eslint/template/recommended"],
-            "rules": {
-                "max-len": [
-                    "error",
-                    {
-                        "code": 140
-                    }
-                ]
-            }
-        },
-        {
-            "files": ["*.component.ts"],
-            "extends": ["plugin:@angular-eslint/template/process-inline-templates"]
-        }
-    ]
+    {
+      "files": ["*.component.html", "index.html"],
+      "extends": ["plugin:@angular-eslint/template/recommended"],
+      "rules": {}
+    },
+    {
+      "files": ["*.component.ts"],
+      "extends": ["plugin:@angular-eslint/template/process-inline-templates"]
+    }
+  ]
 }

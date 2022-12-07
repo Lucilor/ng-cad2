@@ -22,32 +22,32 @@ import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.componen
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
 
 export const routesInfo: (Route & {path: string})[] = [
-    {path: "index", component: IndexComponent},
-    {path: "print-cad", component: PrintCadComponent, title: "打印CAD"},
-    {path: "printA4A015Preview", component: PrintA4A015PreviewComponent, title: "订单配件标签"},
-    {path: "import", component: ImportComponent, title: "导入CAD"},
-    {path: "export", component: ExportComponent, title: "导出CAD"},
-    {path: "backup", component: BackupComponent, title: "备份CAD"},
-    {path: "select-bancai", component: SelectBancaiComponent, title: "激光开料排版"},
-    {path: "changelog-admin", component: ChangelogAdminComponent, title: "编辑更新日志"},
-    {path: "kailiaokongweipeizhi", component: KailiaokongweipeizhiComponent, title: "开料孔位配置"},
-    {path: "replace-text", component: ReplaceTextComponent, title: "文本替换"},
-    {path: "piliangjianban", component: PiliangjianbanComponent, title: "批量剪板"},
-    {path: "dingdanbiaoqian", component: DingdanbiaoqianComponent, title: "订单标签"},
-    {path: "select-cads", component: SelectCadsComponent, title: "选择CAD"},
-    {path: "jiaowei", component: JiaoweiComponent, title: "铰位"},
-    {path: "kailiaocanshu", component: KailiaocanshuComponent, title: "开料参数"},
-    {path: "clean", component: CleanComponent, title: "清理任务"},
-    {path: "pjmk", component: PjmkComponent, title: "配件模块"}
+  {path: "index", component: IndexComponent},
+  {path: "print-cad", component: PrintCadComponent, title: "打印CAD"},
+  {path: "printA4A015Preview", component: PrintA4A015PreviewComponent, title: "订单配件标签"},
+  {path: "import", component: ImportComponent, title: "导入CAD"},
+  {path: "export", component: ExportComponent, title: "导出CAD"},
+  {path: "backup", component: BackupComponent, title: "备份CAD"},
+  {path: "select-bancai", component: SelectBancaiComponent, title: "激光开料排版"},
+  {path: "changelog-admin", component: ChangelogAdminComponent, title: "编辑更新日志"},
+  {path: "kailiaokongweipeizhi", component: KailiaokongweipeizhiComponent, title: "开料孔位配置"},
+  {path: "replace-text", component: ReplaceTextComponent, title: "文本替换"},
+  {path: "piliangjianban", component: PiliangjianbanComponent, title: "批量剪板"},
+  {path: "dingdanbiaoqian", component: DingdanbiaoqianComponent, title: "订单标签"},
+  {path: "select-cads", component: SelectCadsComponent, title: "选择CAD"},
+  {path: "jiaowei", component: JiaoweiComponent, title: "铰位"},
+  {path: "kailiaocanshu", component: KailiaocanshuComponent, title: "开料参数"},
+  {path: "clean", component: CleanComponent, title: "清理任务"},
+  {path: "pjmk", component: PjmkComponent, title: "配件模块"}
 ];
 
 const routes: Routes = [
-    {path: "", children: [{path: "", pathMatch: "full", redirectTo: routesInfo[0].path}, ...routesInfo], canActivate: [ProjectGuard]},
-    {path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
+  {path: "", children: [{path: "", pathMatch: "full", redirectTo: routesInfo[0].path}, ...routesInfo], canActivate: [ProjectGuard]},
+  {path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule]
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
 })
 export class AppRoutingModule {}

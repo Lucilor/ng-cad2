@@ -5,266 +5,248 @@
 @import "./cad-viewer/src/cad-viewer.scss";
 
 @font-face {
-    font-family: "Fira Code Retina";
-    src: url("assets/fonts/FIRACODE-RETINA.TTF");
+  font-family: "Fira Code Retina";
+  src: url("assets/fonts/FIRACODE-RETINA.TTF");
 }
 
 /* roboto-300 - latin */
 @font-face {
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 300;
-    src: url("assets/fonts/roboto-v27-latin-300.eot"); /* IE9 Compat Modes */
-    src: local(""), url("assets/fonts/roboto-v27-latin-300.eot?#iefix") format("embedded-opentype"),
-        /* IE6-IE8 */ url("assets/fonts/roboto-v27-latin-300.woff2") format("woff2"),
-        /* Super Modern Browsers */ url("assets/fonts/roboto-v27-latin-300.woff") format("woff"),
-        /* Modern Browsers */ url("assets/fonts/roboto-v27-latin-300.ttf") format("truetype"),
-        /* Safari, Android, iOS */ url("assets/fonts/roboto-v27-latin-300.svg#Roboto") format("svg"); /* Legacy iOS */
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 300;
+  src: url("assets/fonts/roboto-v27-latin-300.eot"); /* IE9 Compat Modes */
+  src: local(""), url("assets/fonts/roboto-v27-latin-300.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("assets/fonts/roboto-v27-latin-300.woff2") format("woff2"),
+    /* Super Modern Browsers */ url("assets/fonts/roboto-v27-latin-300.woff") format("woff"),
+    /* Modern Browsers */ url("assets/fonts/roboto-v27-latin-300.ttf") format("truetype"),
+    /* Safari, Android, iOS */ url("assets/fonts/roboto-v27-latin-300.svg#Roboto") format("svg"); /* Legacy iOS */
 }
 /* roboto-regular - latin */
 @font-face {
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 400;
-    src: url("assets/fonts/roboto-v27-latin-regular.eot"); /* IE9 Compat Modes */
-    src: local(""), url("assets/fonts/roboto-v27-latin-regular.eot?#iefix") format("embedded-opentype"),
-        /* IE6-IE8 */ url("assets/fonts/roboto-v27-latin-regular.woff2") format("woff2"),
-        /* Super Modern Browsers */ url("assets/fonts/roboto-v27-latin-regular.woff") format("woff"),
-        /* Modern Browsers */ url("assets/fonts/roboto-v27-latin-regular.ttf") format("truetype"),
-        /* Safari, Android, iOS */ url("assets/fonts/roboto-v27-latin-regular.svg#Roboto") format("svg"); /* Legacy iOS */
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  src: url("assets/fonts/roboto-v27-latin-regular.eot"); /* IE9 Compat Modes */
+  src: local(""), url("assets/fonts/roboto-v27-latin-regular.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("assets/fonts/roboto-v27-latin-regular.woff2") format("woff2"),
+    /* Super Modern Browsers */ url("assets/fonts/roboto-v27-latin-regular.woff") format("woff"),
+    /* Modern Browsers */ url("assets/fonts/roboto-v27-latin-regular.ttf") format("truetype"),
+    /* Safari, Android, iOS */ url("assets/fonts/roboto-v27-latin-regular.svg#Roboto") format("svg"); /* Legacy iOS */
 }
 /* roboto-500 - latin */
 @font-face {
-    font-family: "Roboto";
-    font-style: normal;
-    font-weight: 500;
-    src: url("assets/fonts/roboto-v27-latin-500.eot"); /* IE9 Compat Modes */
-    src: local(""), url("assets/fonts/roboto-v27-latin-500.eot?#iefix") format("embedded-opentype"),
-        /* IE6-IE8 */ url("assets/fonts/roboto-v27-latin-500.woff2") format("woff2"),
-        /* Super Modern Browsers */ url("assets/fonts/roboto-v27-latin-500.woff") format("woff"),
-        /* Modern Browsers */ url("assets/fonts/roboto-v27-latin-500.ttf") format("truetype"),
-        /* Safari, Android, iOS */ url("assets/fonts/roboto-v27-latin-500.svg#Roboto") format("svg"); /* Legacy iOS */
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 500;
+  src: url("assets/fonts/roboto-v27-latin-500.eot"); /* IE9 Compat Modes */
+  src: local(""), url("assets/fonts/roboto-v27-latin-500.eot?#iefix") format("embedded-opentype"),
+    /* IE6-IE8 */ url("assets/fonts/roboto-v27-latin-500.woff2") format("woff2"),
+    /* Super Modern Browsers */ url("assets/fonts/roboto-v27-latin-500.woff") format("woff"),
+    /* Modern Browsers */ url("assets/fonts/roboto-v27-latin-500.ttf") format("truetype"),
+    /* Safari, Android, iOS */ url("assets/fonts/roboto-v27-latin-500.svg#Roboto") format("svg"); /* Legacy iOS */
 }
 
 .hljs {
-    font-family: "Fira Code Retina", monospace;
+  font-family: "Fira Code Retina", monospace;
 }
 
 body {
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
 }
 
 @media print {
-    body {
-        overflow: hidden auto;
-    }
+  body {
+    overflow: hidden auto;
+  }
 }
 
 .btn-group {
-    margin: 5px 5px 0 5px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+  margin: 5px 5px 0 5px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 
-    > * {
-        margin-bottom: 5px !important;
-        &:not(:last-child) {
-            margin-right: 5px !important;
-        }
+  > * {
+    margin-bottom: 5px;
+    &:not(:last-child) {
+      margin-right: 5px;
     }
+  }
 }
 
 *[disabled] {
-    cursor: not-allowed !important;
+  cursor: not-allowed !important;
 }
 
 .add-empty-msg:empty::after {
-    content: "空空如也";
-    color: #888888;
-    font-size: 1rem;
-}
-
-form {
-    font-size: 1rem;
-
-    .form-item-group {
-        &.hint {
-            margin-bottom: 12px;
-        }
-
-        mat-hint {
-            font-size: 0.9rem;
-        }
-    }
-
-    mat-form-field {
-        width: 100%;
-    }
+  content: "空空如也";
+  color: #888888;
+  font-size: 1rem;
 }
 
 .not-allowed {
-    position: relative;
+  position: relative;
 
-    &::after {
-        content: "DISABLED";
-        cursor: not-allowed;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.33);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: black;
-    }
+  &::after {
+    content: "DISABLED";
+    cursor: not-allowed;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.33);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+  }
 }
 
-.mat-menu-item {
-    display: flex !important;
-    justify-content: space-between;
-    padding: 0 10px;
+.mat-mdc-menu-item {
+  display: flex !important;
+  justify-content: space-between;
+  padding: 0 10px;
 
-    .shortcut {
-        text-align: right;
-        font-size: 0.75rem;
-        color: #868686;
-        margin-left: 10px;
-    }
+  .shortcut {
+    text-align: right;
+    font-size: 0.75rem;
+    color: #868686;
+    margin-left: 10px;
+  }
 }
 
 // ngx scrollbar
 ng-scrollbar.ng-scrollbar {
-    --scrollbar-border-radius: 7px;
-    --scrollbar-padding: 0px;
-    --scrollbar-viewport-margin: 0;
-    --scrollbar-track-color: transparent;
-    --scrollbar-wrapper-color: transparent;
-    --scrollbar-thumb-color: rgba(0, 0, 0, 0.3);
-    --scrollbar-thumb-hover-color: rgba(0, 0, 0, 0.5);
-    --scrollbar-size: 3px;
-    --scrollbar-hover-size: 5px;
-    --scrollbar-thumb-transition: height ease-out 150ms, width ease-out 150ms;
-    --scrollbar-track-transition: height ease-out 150ms, width ease-out 150ms;
-    .ng-scroll-content {
-        display: block;
-        min-width: unset;
-    }
+  --scrollbar-border-radius: 7px;
+  --scrollbar-padding: 0px;
+  --scrollbar-viewport-margin: 0;
+  --scrollbar-track-color: transparent;
+  --scrollbar-wrapper-color: transparent;
+  --scrollbar-thumb-color: rgba(0, 0, 0, 0.3);
+  --scrollbar-thumb-hover-color: rgba(0, 0, 0, 0.5);
+  --scrollbar-size: 3px;
+  --scrollbar-hover-size: 5px;
+  --scrollbar-thumb-transition: height ease-out 150ms, width ease-out 150ms;
+  --scrollbar-track-transition: height ease-out 150ms, width ease-out 150ms;
+  .ng-scroll-content {
+    display: block;
+    min-width: unset;
+  }
 }
 
 .sub-form-field,
 .sub-form-field-item {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid gray;
-    border-radius: 20px;
-    box-sizing: border-box;
-    padding: 5px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid gray;
+  border-radius: 20px;
+  box-sizing: border-box;
+  padding: 5px;
 
-    &:empty {
-        display: none;
-    }
+  &:empty {
+    display: none;
+  }
 }
 .sub-form-field {
-    .label {
-        color: rgba(0, 0, 0, 0.54);
-    }
+  .label {
+    color: rgba(0, 0, 0, 0.54);
+  }
 }
 
 .drag-placeholder {
-    background: #ccc;
-    border: dotted 3px #999;
-    min-height: 60px;
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-    cursor: move;
+  background: #ccc;
+  border: dotted 3px #999;
+  min-height: 60px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  cursor: move;
 }
 
 // resizable-element
 .resize-handle-top,
 .resize-handle-bottom {
-    position: absolute;
-    height: 5px;
-    cursor: row-resize;
-    width: 100%;
-    left: 0;
+  position: absolute;
+  height: 5px;
+  cursor: row-resize;
+  width: 100%;
+  left: 0;
 }
 .resize-handle-top {
-    top: 0;
+  top: 0;
 }
 .resize-handle-bottom {
-    bottom: 0;
+  bottom: 0;
 }
 .resize-handle-left,
 .resize-handle-right {
-    position: absolute;
-    height: 100%;
-    cursor: col-resize;
-    width: 5px;
-    top: 0;
+  position: absolute;
+  height: 100%;
+  cursor: col-resize;
+  width: 5px;
+  top: 0;
 }
 .resize-handle-left {
-    left: 0;
+  left: 0;
 }
 .resize-handle-right {
-    right: 0;
+  right: 0;
 }
 
 .grecaptcha-badge {
-    display: none;
+  display: none;
 }
 .max-width {
-    max-width: 1000px;
-    margin: auto;
+  max-width: 1000px;
+  margin: auto;
 }
 
 .flex-row {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 .flex-column {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 .flex-110 {
-    flex: 1 1 0;
+  flex: 1 1 0;
 }
 
 .cad-preview {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    background-color: black;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: black;
 }
 
 /* Remove Input Arrows/Spinners */
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 /* Firefox */
 input[type="number"] {
-    -moz-appearance: textfield;
+  -moz-appearance: textfield;
 }
 
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .hidden-if-empty {
-    &:empty {
-        display: none;
-    }
+  &:empty {
+    display: none;
+  }
 }
 
 .text-ellipsis {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

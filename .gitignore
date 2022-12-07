@@ -55,3 +55,4 @@ Thumbs.db
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+!.yarn/patches

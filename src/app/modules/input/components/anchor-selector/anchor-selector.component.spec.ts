@@ -7,23 +7,23 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AnchorSelectorComponent} from "./anchor-selector.component";
 
 describe("AnchorSelectorComponent", () => {
-    let component: AnchorSelectorComponent;
-    let fixture: ComponentFixture<AnchorSelectorComponent>;
+  let component: AnchorSelectorComponent;
+  let fixture: ComponentFixture<AnchorSelectorComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [AnchorSelectorComponent],
-            imports: [FormsModule, MatAutocompleteModule, MatInputModule, MatFormFieldModule, BrowserAnimationsModule]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [AnchorSelectorComponent],
+      imports: [FormsModule, MatAutocompleteModule, MatInputModule, MatFormFieldModule, BrowserAnimationsModule]
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(AnchorSelectorComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(AnchorSelectorComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

@@ -6,21 +6,21 @@ import {NgScrollbarModule} from "ngx-scrollbar";
 import {FormulasEditorComponent} from "./formulas-editor.component";
 
 describe("FormulasEditorComponent", () => {
-    let component: FormulasEditorComponent;
-    let fixture: ComponentFixture<FormulasEditorComponent>;
+  let component: FormulasEditorComponent;
+  let fixture: ComponentFixture<FormulasEditorComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [FormulasEditorComponent],
-            imports: [HttpModule, InputModule, MessageModule, NgScrollbarModule]
-        }).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [FormulasEditorComponent],
+      imports: [HttpModule, InputModule, MessageModule, NgScrollbarModule]
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(FormulasEditorComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+    fixture = TestBed.createComponent(FormulasEditorComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it("should create", () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

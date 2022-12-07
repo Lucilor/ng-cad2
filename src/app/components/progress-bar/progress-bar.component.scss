@@ -1,99 +1,99 @@
 .progress-bar {
-    position: relative;
-    width: 100%;
-    height: 50px;
-    border-radius: 25px;
-    line-height: 50px;
-    font-size: 20px;
+  position: relative;
+  width: 100%;
+  height: 50px;
+  border-radius: 25px;
+  line-height: 50px;
+  font-size: 20px;
+  box-shadow: 0 4px 8px 0px rgb(0 0 0 / 20%), 0 6px 20px 0px rgb(0 0 0 / 19%);
+  transition: 0.3s;
+  cursor: pointer;
+  overflow: hidden;
+  &:hover {
+    box-shadow: 0 4px 8px 0px rgb(0 0 0 / 36%), 0 6px 20px 6px rgb(0 0 0 / 19%);
+  }
+  &:active {
     box-shadow: 0 4px 8px 0px rgb(0 0 0 / 20%), 0 6px 20px 0px rgb(0 0 0 / 19%);
-    transition: 0.3s;
-    cursor: pointer;
+  }
+
+  .progress-bar-msg {
+    width: 100%;
+    height: 100%;
+    text-align: center;
     overflow: hidden;
-    &:hover {
-        box-shadow: 0 4px 8px 0px rgb(0 0 0 / 36%), 0 6px 20px 6px rgb(0 0 0 / 19%);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    user-select: none;
+    &.click {
+      animation: progress-slide 10s linear infinite, progress-flicker 5s alternate infinite;
     }
-    &:active {
-        box-shadow: 0 4px 8px 0px rgb(0 0 0 / 20%), 0 6px 20px 0px rgb(0 0 0 / 19%);
-    }
+  }
 
-    .progress-bar-msg {
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        user-select: none;
-        &.click {
-            animation: progress-slide 10s linear infinite, progress-flicker 5s alternate infinite;
-        }
-    }
+  .progress-bar-layer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background-color: white;
+    transition: 0.3s;
+    mix-blend-mode: soft-light;
+  }
 
-    .progress-bar-layer {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 50%;
-        height: 100%;
-        background-color: white;
-        transition: 0.3s;
-        mix-blend-mode: soft-light;
-    }
-
-    &.progress {
-        background: linear-gradient(90deg, #496eaa, #21eaff, #d82dc4, #21eaff, #496eaa);
-        background-size: 1500% 300%;
-        animation: progress 50s ease infinite;
-    }
-    &.success {
-        background-color: green;
-        color: white;
-    }
-    &.error {
-        background-color: red;
-        color: white;
-    }
+  &.progress {
+    background: linear-gradient(90deg, #496eaa, #21eaff, #d82dc4, #21eaff, #496eaa);
+    background-size: 1500% 300%;
+    animation: progress 50s ease infinite;
+  }
+  &.success {
+    background-color: green;
+    color: white;
+  }
+  &.error {
+    background-color: red;
+    color: white;
+  }
 }
 
 @keyframes progress {
-    0% {
-        background-position: 0% 0%;
-    }
-    50% {
-        background-position: 50% 100%;
-    }
-    100% {
-        background-position: 100% 0%;
-    }
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+  100% {
+    background-position: 100% 0%;
+  }
 }
 
 $slide-px: 3px;
 @keyframes progress-slide {
-    0%,
-    40%,
-    100% {
-        transform: translateX(0);
-    }
-    20% {
-        transform: translateX($slide-px);
-    }
-    60% {
-        transform: translateX(-$slide-px);
-    }
+  0%,
+  40%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX($slide-px);
+  }
+  60% {
+    transform: translateX(-$slide-px);
+  }
 }
 @keyframes progress-flicker {
-    0%,
-    18%,
-    22%,
-    25%,
-    53%,
-    57%,
-    100% {
-        text-shadow: 0 0 4px #ff5fff, 0 0 11px #ff5fff, 0 0 19px #fa71bc, 0 0 40px #fa71bc, 0 0 50px #e969f9;
-    }
-    20%,
-    24%,
-    55% {
-        text-shadow: none;
-    }
+  0%,
+  18%,
+  22%,
+  25%,
+  53%,
+  57%,
+  100% {
+    text-shadow: 0 0 4px #ff5fff, 0 0 11px #ff5fff, 0 0 19px #fa71bc, 0 0 40px #fa71bc, 0 0 50px #e969f9;
+  }
+  20%,
+  24%,
+  55% {
+    text-shadow: none;
+  }
 }

@@ -1,43 +1,41 @@
 :host {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    max-width: calc(100vw - 48px);
-    max-height: calc(100vh - 48px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  // padding: 20px 20px 0 20px;
+  // box-sizing: border-box;
 }
 
-.mat-form-field {
-    // font-size: 18px;
-    width: 100%;
-    background-color: #efefef;
-
-    textarea {
-        overflow: hidden;
-    }
+.mat-mdc-form-field {
+  textarea {
+    overflow: hidden;
+  }
 }
 
 .mat-dialog-content {
-    max-height: unset;
-    &.iframe {
-        flex: 1 1 0;
-        overflow: hidden;
-    }
+  max-height: unset;
+  &.iframe {
+    flex: 1 1 0;
+    overflow: hidden;
+  }
 }
 
 iframe {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .iframe-toolbar {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    .iframe-title {
-        flex: 1 1 0;
-        text-align: center;
-        margin: 0;
-    }
+  .iframe-title {
+    flex: 1 1 0;
+    text-align: center;
+    margin: 0;
+  }
 }
