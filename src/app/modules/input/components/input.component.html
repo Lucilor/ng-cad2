@@ -65,7 +65,7 @@
         [errorStateMatcher]="errorStateMatcher"
         [readonly]="info.readonly"
         [disabled]="info.disabled || false"
-        [autocomplete]="info.autocomplete"
+        [autocomplete]="info.autocomplete || ''"
         [(ngModel)]="value"
         type="number"
         [step]="cast(info, 'number').step"
@@ -73,6 +73,8 @@
         [max]="cast(info, 'number').max ?? null"
         (change)="onChange()"
         (input)="onInput()"
+        [matAutocomplete]="auto"
+        [placeholder]="info.placeholder || ''"
       />
       <button mat-icon-button matSuffix *ngIf="info.copyable" color="primary" (click)="copy()">
         <mat-icon>content_copy</mat-icon>

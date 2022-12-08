@@ -1,12 +1,16 @@
 import {AfterViewInit, Component, ElementRef, QueryList, ViewChild, ViewChildren} from "@angular/core";
 import {AbstractControl, Validators} from "@angular/forms";
-import {CadData, CadLine, CadViewer} from "@cad-viewer";
+import {SafeUrl} from "@angular/platform-browser";
+import {CadData, CadLine, CadViewer, sortLines} from "@cad-viewer";
+import {CadDataService} from "@modules/http/services/cad-data.service";
 import {InputComponent} from "@modules/input/components/input.component";
 import {InputInfo} from "@modules/input/components/types";
 import {getInputValues} from "@modules/input/components/utils";
 import {MessageService} from "@modules/message/services/message.service";
-import {setGlobal} from "@src/app/app.common";
-import {Point, timeout} from "@utils";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {CadCollection, setGlobal} from "@src/app/app.common";
+import {getCadPreview} from "@src/app/cad.utils";
+import {ObjectOf, Point, timeout} from "@utils";
 
 @Component({
   selector: "app-index2",
@@ -21,11 +25,22 @@ export class Index2Component implements AfterViewInit {
   steps: Index2Step[] = [];
   stepIndex = -1;
   leftMenuInputInfos: InputInfo[] = [];
+  leftMenuCads: {data: CadData; img: SafeUrl; selected: boolean}[] = [];
+  inputValues: ObjectOf<any> = {};
   @ViewChildren("stepInputs") stepInputs?: QueryList<InputComponent>;
 
-  constructor(private message: MessageService) {
+  private _cadsCache: ObjectOf<Index2Component["leftMenuCads"]> = {};
+
+  constructor(private message: MessageService, private spinner: SpinnerService, private dataService: CadDataService) {
     setGlobal("index2", this);
-    this.cad.setConfig({backgroundColor: "black", padding: [10]});
+    this.cad.setConfig({
+      backgroundColor: "black",
+      padding: [10],
+      selectMode: "multiple",
+      minLinewidth: 2,
+      hideLineLength: true,
+      hideLineGongshi: true
+    });
   }
 
   ngAfterViewInit() {
@@ -43,18 +58,30 @@ export class Index2Component implements AfterViewInit {
     cad.resize(rect.width, rect.height);
   }
 
-  updateLeftMenu() {
-    const {stepType, stepIndex} = this;
-    const step = this.steps[stepIndex];
+  async updateLeftMenu() {
+    const step = this.steps[this.stepIndex];
+    this.leftMenuInputInfos = [];
+    this.leftMenuCads = [];
+    if (step) {
+      this.stepType = step.type;
+    }
+    const {stepType} = this;
     if (stepType === "直线") {
-      const step2 = step.type === "直线" ? step : null;
+      const step2 = step?.type === "直线" ? step : null;
       this.leftMenuInputInfos = [
         {
           type: "number",
           name: "angle",
           label: "角度",
           value: step2?.angle ?? 0,
-          validators: [Validators.required]
+          validators: [Validators.required],
+          options: [
+            {label: "→", value: 0},
+            {label: "↑", value: 90},
+            {label: "←", value: 180},
+            {label: "↓", value: 270}
+          ],
+          noFilterOptions: true
         },
         {
           label: "长度",
@@ -73,8 +100,29 @@ export class Index2Component implements AfterViewInit {
           ]
         }
       ];
-    } else {
-      this.leftMenuInputInfos = [];
+    } else if (stepType) {
+      let collection: CadCollection;
+      let search: ObjectOf<any>;
+      if (stepType === "开孔库") {
+        collection = "cad";
+        search = {分类: "孔"};
+      } else {
+        collection = "cad";
+        search = {分类: "孔"};
+      }
+      if (this._cadsCache[stepType]) {
+        this.leftMenuCads = this._cadsCache[stepType];
+      } else {
+        this.spinner.show(this.spinner.defaultLoaderId);
+        const cads = (await this.dataService.getCad({collection, search})).cads;
+        this.spinner.hide(this.spinner.defaultLoaderId);
+        this.leftMenuCads = cads.map((data) => ({data, img: "", selected: false}));
+        await timeout(0);
+        for (const v of this.leftMenuCads) {
+          v.img = await getCadPreview(collection, v.data);
+        }
+        this._cadsCache[stepType] = this.leftMenuCads;
+      }
     }
   }
 
@@ -83,25 +131,48 @@ export class Index2Component implements AfterViewInit {
     this.updateLeftMenu();
   }
 
-  async addStep() {
+  getStep() {
     if (!this.stepInputs) {
-      return;
+      return null;
     }
     const type = this.stepType;
-    if (!type) {
+    if (type === "直线") {
+      const values = getInputValues(this.stepInputs.toArray(), this.message);
+      if (!values) {
+        return null;
+      }
+      return {type, ...values} as Index2Step;
+    } else if (type) {
+      const selected = this.leftMenuCads.find((v) => v.selected);
+      if (!selected) {
+        this.message.error("请选择一个cad");
+        return null;
+      }
+      return {type, data: selected.data} as Index2Step;
+    }
+    return null;
+  }
+
+  addStep(i?: number) {
+    const step = this.getStep();
+    if (!step) {
       return;
     }
-    const values = getInputValues(this.stepInputs.toArray(), this.message);
-    if (!values) {
-      return;
-    }
-    const step = {type, ...values} as Index2Step;
-    if (this.stepIndex >= 0) {
+    if (typeof i === "number") {
       this.steps.splice(this.stepIndex, 0, step);
     } else {
       this.steps.push(step);
     }
-    await this.updateSteps();
+    this.updateSteps();
+  }
+
+  replaceStep(i: number) {
+    const step = this.getStep();
+    if (!step) {
+      return;
+    }
+    this.steps[i] = step;
+    this.updateSteps();
   }
 
   removeStep(i: number) {
@@ -125,15 +196,34 @@ export class Index2Component implements AfterViewInit {
         const endPoint = startPoint.clone().add(dx, dy);
         e.end.copy(endPoint);
         startPoint = endPoint;
+      } else {
+        const cadData = step.data.clone(true);
+        const lineGroups = sortLines(cadData);
+        if (lineGroups.length !== 1) {
+          this.message.error(`cad${cadData.name}不是可以一笔画成的图形`);
+          continue;
+        }
+        const lines = lineGroups[0];
+        const translate = startPoint.clone().sub(lines[0].start);
+        cadData.transform({translate}, true);
+        data.entities.merge(cadData.entities);
+        startPoint = lines[lines.length - 1].end;
       }
     }
     const cad = this.cad;
     await cad.reset(data).render();
     cad.center();
+    this.updateLeftMenu();
   }
 
   selectStep(i: number) {
     this.stepIndex = this.stepIndex === i ? -1 : i;
+    this.updateLeftMenu();
+  }
+
+  selectLeftMenuCad(cad: Index2Component["leftMenuCads"][0]) {
+    this.leftMenuCads.forEach((v) => (v.selected = false));
+    cad.selected = !cad.selected;
   }
 }
 

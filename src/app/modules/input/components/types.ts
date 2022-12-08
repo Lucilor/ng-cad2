@@ -33,6 +33,7 @@ export interface InputInfoString<T = any> extends InputInfoBase<T> {
   onChange?: (val: string) => void;
   options?: InputInfoOptions;
   fixedOptions?: string[];
+  noFilterOptions?: boolean;
   optionInputOnly?: boolean;
 }
 
@@ -44,8 +45,9 @@ export interface InputInfoNumber<T = any> extends InputInfoBase<T> {
   max?: number;
   onInput?: (val: number) => void;
   onChange?: (val: number) => void;
-  options?: InputInfoOptions;
+  options?: InputInfoOptions<number>;
   fixedOptions?: string[];
+  noFilterOptions?: boolean;
   optionInputOnly?: boolean;
 }
 
@@ -132,4 +134,4 @@ export interface InputInfoTypeMap {
   group: InputInfoGroup;
 }
 
-export type InputInfoOptions = ({value: string; label?: string} | string)[];
+export type InputInfoOptions<T = string> = ({value: T; label?: string} | T)[];

@@ -38,12 +38,16 @@ export class InputComponent extends Utils() implements AfterViewInit {
         data[key] = value.value;
       }
     }
-    if (value.type === "select" || value.type === "selectMulti" || value.type === "string") {
+    const type = value.type;
+    if (type === "select" || type === "selectMulti" || type === "string" || type === "number") {
       this.options = (value.options || []).map((v) => {
         if (typeof v === "string") {
           return {value: v, label: v};
         }
-        return {label: v.label || v.value, value: v.value};
+        if (typeof v === "number") {
+          return {value: String(v), label: String(v)};
+        }
+        return {label: v.label || String(v.value), value: String(v.value)};
       });
     }
     this.class = [];
@@ -119,9 +123,15 @@ export class InputComponent extends Utils() implements AfterViewInit {
   // }
   get filteredOptions() {
     const val = this.value;
-    const fixedOptions = this.info.type === "string" ? this.info.fixedOptions || [] : [];
+    const type = this.info.type;
+    let fixedOptions: string[] = [];
+    let noFilterOptions = false;
+    if (type === "string" || type === "number") {
+      fixedOptions = this.info.fixedOptions ?? [];
+      noFilterOptions = this.info.noFilterOptions ?? false;
+    }
     return this.options.filter(({value, label}) => {
-      if (fixedOptions.includes(value) || fixedOptions.includes(label)) {
+      if (noFilterOptions || fixedOptions.includes(value) || fixedOptions.includes(label)) {
         return true;
       }
       return value.includes(val) || label.includes(val);

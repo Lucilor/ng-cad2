@@ -5,13 +5,29 @@
         <button mat-raised-button color="accent">保存</button>
         <button mat-raised-button color="primary">设计主页</button>
       </div>
-      <mat-slide-toggle [checked]="true">多选</mat-slide-toggle>
-      <div class="inputs">
-        <app-input #stepInputs *ngFor="let info of leftMenuInputInfos" [info]="info"></app-input>
-        <div class="btn-group" *ngIf="leftMenuInputInfos.length > 0">
-          <button mat-raised-button color="primary" (click)="addStep()">确定</button>
-        </div>
+      <mat-divider></mat-divider>
+      <div class="btn-group" *ngIf="stepType">
+        <button mat-raised-button color="primary" (click)="addStep()">添加</button>
+        <ng-container *ngIf="stepIndex >= 0">
+          <button mat-raised-button color="primary" (click)="addStep(stepIndex)">插入</button>
+          <button mat-raised-button color="primary" (click)="replaceStep(stepIndex)">替换</button>
+          <button mat-raised-button color="primary" (click)="removeStep(stepIndex)">删除</button>
+        </ng-container>
       </div>
+      <ng-scrollbar>
+        <div class="inputs" *ngIf="leftMenuInputInfos.length > 0">
+          <app-input #stepInputs *ngFor="let info of leftMenuInputInfos" [info]="info"></app-input>
+        </div>
+        <div class="cads" *ngIf="leftMenuCads.length > 0">
+          <div class="cad" *ngFor="let cad of leftMenuCads">
+            <img class="cad-preview" [src]="cad.img" (click)="selectLeftMenuCad(cad)" />
+            <div class="flex-row" style="align-items: center">
+              <mat-radio-button [checked]="cad.selected"></mat-radio-button>
+              <div class="cad-name" (click)="selectLeftMenuCad(cad)">{{ cad.data.name }}</div>
+            </div>
+          </div>
+        </div>
+      </ng-scrollbar>
     </div>
   </div>
   <div class="flex-column flex-110">
