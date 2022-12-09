@@ -78,6 +78,6 @@ import {ToolbarComponent} from "./components/menu/toolbar/toolbar.component";
     ReactiveFormsModule,
     SpinnerModule
   ],
-  exports: [CadEditorComponent]
+  exports: [CadEditorComponent, CadPointsComponent]
 })
 export class CadEditorModule {}

@@ -6,14 +6,6 @@
         <button mat-raised-button color="primary">设计主页</button>
       </div>
       <mat-divider></mat-divider>
-      <div class="btn-group" *ngIf="stepType">
-        <button mat-raised-button color="primary" (click)="addStep()">添加</button>
-        <ng-container *ngIf="stepIndex >= 0">
-          <button mat-raised-button color="primary" (click)="addStep(stepIndex)">插入</button>
-          <button mat-raised-button color="primary" (click)="replaceStep(stepIndex)">替换</button>
-          <button mat-raised-button color="primary" (click)="removeStep(stepIndex)">删除</button>
-        </ng-container>
-      </div>
       <ng-scrollbar>
         <div class="inputs" *ngIf="leftMenuInputInfos.length > 0">
           <app-input #stepInputs *ngFor="let info of leftMenuInputInfos" [info]="info"></app-input>
@@ -36,26 +28,34 @@
         <button
           mat-flat-button
           *ngFor="let type of stepTypes"
-          [color]="stepType === type ? 'accent' : 'primary'"
+          [color]="stepType$.value === type ? 'accent' : 'primary'"
           (click)="setStepType(type)"
         >
           {{ type }}
         </button>
         <button mat-flat-button color="primary">选择生成零件</button>
-        <button mat-flat-button color="primary">选中生成正面</button>
+        <button mat-flat-button color="primary" (click)="generateFront()">选中生成正面</button>
         <button mat-flat-button color="primary">选中生成背面</button>
         <button mat-flat-button color="primary">约束</button>
       </div>
-      <div class="steps">
-        <div class="step" *ngFor="let step of steps; let i = index" (click)="selectStep(i)">
-          <button mat-button [color]="stepIndex === i ? 'accent' : 'primary'">{{ step.type }}</button>
-          <mat-icon mat-icon-button *ngIf="i < steps.length - 1">navigate_next</mat-icon>
-        </div>
-      </div>
     </div>
     <div class="flex-row flex-110">
-      <div #contentEl class="content"></div>
+      <div class="flex-column flex-110">
+        <div #contentEl class="content"></div>
+        <div class="menu bottom">
+          <mat-form-field>
+            <input
+              #bottomInputEl
+              matInput
+              [(ngModel)]="bottomInput.value"
+              [disabled]="bottomInput.disabled"
+              (keydown)="onBottomValueChange($event)"
+            />
+          </mat-form-field>
+        </div>
+      </div>
       <div class="menu right"></div>
     </div>
   </div>
 </div>
+<app-cad-points></app-cad-points>

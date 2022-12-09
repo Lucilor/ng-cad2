@@ -1,6 +1,10 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDividerModule} from "@angular/material/divider";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
+import {CadEditorModule} from "@modules/cad-editor/cad-editor.module";
 import {HttpModule} from "@modules/http/http.module";
 import {InputModule} from "@modules/input/input.module";
 import {MessageModule} from "@modules/message/message.module";
@@ -14,7 +18,19 @@ describe("Index2Component", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [Index2Component],
-      imports: [HttpModule, InputModule, MatButtonModule, MatDividerModule, MessageModule, NgScrollbarModule]
+      imports: [
+        CadEditorModule,
+        FormsModule,
+        HttpModule,
+        InputModule,
+        MatButtonModule,
+        MatDividerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MessageModule,
+        NgScrollbarModule,
+        ReactiveFormsModule
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(Index2Component);
