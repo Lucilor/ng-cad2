@@ -2,8 +2,7 @@
 **/.svn
 **/.hg
 **/node_modules
-.angular
-.yarn
-dist
-src/cad-viewer
-
+**/.yarn
+**/.angular
+**/lib
+**/dist
