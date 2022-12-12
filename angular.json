@@ -51,7 +51,7 @@
           },
           "configurations": {
             "production": {
-              "outputPath": "dist",
+              "outputPath": "dist/ng-cad2",
               "baseHref": "/static/ng-cad2/",
               "fileReplacements": [
                 {

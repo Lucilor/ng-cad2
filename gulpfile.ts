@@ -25,7 +25,6 @@ if (!fs.existsSync(configPath)) {
     jsonc.stringify(
       {
         $schema: "./.schemas/gulp.config.schema.json",
-        host: "",
         token: "",
         targetDir: ""
       },
@@ -33,23 +32,25 @@ if (!fs.existsSync(configPath)) {
     )
   );
 }
-const {host, token, targetDir} = jsonc.parse(fs.readFileSync("./gulp.config.json").toString());
+const {token} = jsonc.parse(fs.readFileSync("./gulp.config.json").toString());
+const host = "https://www.let888.cn";
+const targetDir = "./dist";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const args = minimist(process.argv.slice(2));
-const targetDistDir = targetDir + "/ng-cad2";
+// const targetDistDir = targetDir + "/ng-cad2";
 const tmpDir = "./.tmp";
 const zipName = "upload.zip";
-const changelogName = "ngcad2_changelog.json";
-const changelogPath = path.join(targetDir, changelogName);
+// const changelogName = "ngcad2_changelog.json";
+// const changelogPath = path.join(targetDir, changelogName);
 const backupName = "ng_cad2";
 
 gulp.task("build", () => child_process.exec("npm run build"));
-gulp.task("clean", (callback) => {
-  fs.rmSync(targetDistDir, {recursive: true, force: true});
-  callback();
-});
-gulp.task("copy", () => gulp.src("./dist/**").pipe(gulp.dest(targetDistDir)));
+// gulp.task("clean", (callback) => {
+//   fs.rmSync(targetDistDir, {recursive: true, force: true});
+//   callback();
+// });
+// gulp.task("copy", () => gulp.src("./dist/**").pipe(gulp.dest(targetDistDir)));
 
 gulp.task("zip", (callback) => {
   const globs = ["ng-cad2/**/*"];
@@ -68,10 +69,10 @@ gulp.task("zip", (callback) => {
   return gulp.src(globs, {dot: true, cwd: targetDir, base: targetDir}).pipe(zip(zipName)).pipe(gulp.dest(tmpDir));
 });
 
-gulp.task("fetchChangelog", async () => {
-  const response = await axios.get(host + "/static/ngcad2_changelog.json");
-  fs.writeFileSync(changelogPath, JSON.stringify(response.data));
-});
+// gulp.task("fetchChangelog", async () => {
+//   const response = await axios.get(host + "/static/ngcad2_changelog.json");
+//   fs.writeFileSync(changelogPath, JSON.stringify(response.data));
+// });
 
 gulp.task("upload", async () => {
   const url = host + "/n/kgs/index/login/upload";
@@ -85,4 +86,4 @@ gulp.task("restore", async () => {
   console.log(response.data);
 });
 
-gulp.task("default", gulp.series("build", "clean", "copy", "zip", "upload"));
+gulp.task("default", gulp.series("build", "zip", "upload"));

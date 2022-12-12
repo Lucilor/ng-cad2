@@ -1,33 +1,43 @@
 import {AfterViewInit, Component, ElementRef, QueryList, ViewChild, ViewChildren} from "@angular/core";
 import {AbstractControl, Validators} from "@angular/forms";
 import {SafeUrl} from "@angular/platform-browser";
-import {CadArc, CadData, CadLine, CadLineLike, sortLines} from "@cad-viewer";
+import {CadData, CadEntities, CadLine, CadLineLike, sortLines} from "@cad-viewer";
+import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {InputComponent} from "@modules/input/components/input.component";
 import {InputInfo} from "@modules/input/components/types";
 import {getInputValues} from "@modules/input/components/utils";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {AppStatusService} from "@services/app-status.service";
+import {AppConfigService} from "@services/app-config.service";
+import {AppStatusService, CadPoints} from "@services/app-status.service";
 import {CadCollection, setGlobal} from "@src/app/app.common";
 import {getCadPreview} from "@src/app/cad.utils";
 import {isNearZero, ObjectOf, Point} from "@utils";
-import {BehaviorSubject, take} from "rxjs";
+import {BehaviorSubject, skip, Subscription, take} from "rxjs";
 
 @Component({
   selector: "app-index2",
   templateUrl: "./index2.component.html",
   styleUrls: ["./index2.component.scss"]
 })
-export class Index2Component implements AfterViewInit {
+export class Index2Component extends Subscribed() implements AfterViewInit {
   @ViewChild("contentEl", {read: ElementRef}) contentEl?: ElementRef<HTMLDivElement>;
   stepType$ = new BehaviorSubject(null as Index2StepType | null);
   stepTypes = index2StepTypes;
   leftMenuInputData = {angle: 0, length: 1};
   leftMenuInputInfos: InputInfo[] = [];
-  leftMenuCads: {data: CadData; img: SafeUrl; selected: boolean}[] = [];
+  leftMenuCads: {data: CadData; img: SafeUrl}[] = [];
   inputValues: ObjectOf<any> = {};
-  bottomInput = {value: "", output: new BehaviorSubject(""), disabled: true};
+  bottomInput = {
+    label: "",
+    value: "",
+    output: new BehaviorSubject(""),
+    disabled: true,
+    placeholder: "",
+    prevSubscription: null as Subscription | null
+  };
+  cadPoints = {prevSubscription: null as Subscription | null};
   @ViewChild("bottomInputEl") bottomInputEl?: ElementRef<HTMLInputElement>;
   cadData1 = new CadData();
   cadData2 = new CadData();
@@ -40,10 +50,12 @@ export class Index2Component implements AfterViewInit {
     private message: MessageService,
     private spinner: SpinnerService,
     private dataService: CadDataService,
-    private status: AppStatusService
+    private status: AppStatusService,
+    private config: AppConfigService
   ) {
+    super();
     setGlobal("index2", this);
-    this.status.cad.setConfig({
+    this.config.setConfig({
       backgroundColor: "black",
       padding: [10],
       selectMode: "multiple",
@@ -52,6 +64,10 @@ export class Index2Component implements AfterViewInit {
       hideLineGongshi: true
     });
     this.stepType$.subscribe(this._onStepTypeChange.bind(this));
+    this.status.cad.on("entitiesselect", this._onEntitiesSelect.bind(this));
+    this.cadData1.entities.add(new CadLine({start: [0, 0], end: [Math.SQRT2, Math.SQRT2]}));
+    this.cadData1.entities.add(new CadLine({start: [Math.SQRT2, Math.SQRT2], end: [Math.SQRT2 + 2, Math.SQRT2]}));
+    this.cadData1.entities.add(new CadLine({start: [Math.SQRT2 + 2, Math.SQRT2], end: [Math.SQRT2 * 2 + 2, 0]}));
   }
 
   ngAfterViewInit() {
@@ -129,7 +145,7 @@ export class Index2Component implements AfterViewInit {
         const cads = (await this.dataService.getCad({collection, search})).cads;
         for (const data of cads) {
           const img = await getCadPreview("cad", data);
-          this.leftMenuCads.push({data, img, selected: false});
+          this.leftMenuCads.push({data, img});
         }
         this.spinner.hide(this.spinner.defaultLoaderId);
         this._cadsCache[stepType] = this.leftMenuCads;
@@ -137,8 +153,10 @@ export class Index2Component implements AfterViewInit {
     }
   }
 
-  openBottomInput() {
+  openBottomInput(label: string) {
     this.bottomInput.disabled = false;
+    this.bottomInput.label = label;
+    this.bottomInput.value = "";
     setTimeout(() => {
       this.bottomInputEl?.nativeElement.focus();
     }, 0);
@@ -146,6 +164,7 @@ export class Index2Component implements AfterViewInit {
 
   closeBottomInput() {
     this.bottomInput.disabled = true;
+    this.bottomInput.label = "";
     this.bottomInput.value = "";
   }
 
@@ -158,36 +177,85 @@ export class Index2Component implements AfterViewInit {
     this.updateLeftMenu();
   }
 
-  private _onStepTypeChange(stepType: Index2StepType | null) {
+  isTypeDisabled(stepType: Index2StepType) {
+    const allowedTypes: Index2StepType[] = ["直线"];
+    if (allowedTypes.includes(stepType)) {
+      return false;
+    }
+    return true;
+  }
+
+  private async _onStepTypeChange(stepType: Index2StepType | null) {
     // const subs: Subscription[] = [];
     if (stepType === "直线") {
       const entities = this.cadData1.entities;
-      if (entities.length > 0) {
-        this.status.setCadPoints(this.cadData1.entities);
-      } else {
-        this.openBottomInput();
-        const values: string[] = [];
-        this.bottomInput.output.pipe(take(3)).subscribe(async (value) => {
+      const points = await this.getCadPointsValues(this.cadData1.entities, 1);
+      const start = this.status.cad.getWorldPoint(points[0].x, points[0].y);
+      const values = await this.getBottomInputValues([{label: "线段长度"}, {label: "线段角度"}]);
+      const length = Number(values[0]);
+      const angle = Number(values[1]);
+      const dx = length * Math.cos((angle * Math.PI) / 180);
+      const dy = length * Math.sin((angle * Math.PI) / 180);
+      const e = new CadLine({start});
+      e.end.copy(e.start.clone().add(dx, dy));
+      entities.add(e);
+      await this.updateCadViewer();
+      this.setStepType(stepType, false);
+    } else {
+      this.clearBottomInput();
+      this.clearCadPoints();
+    }
+  }
+
+  private async _onEntitiesSelect(entities: CadEntities) {}
+
+  getBottomInputValues(list: {label: string}[]) {
+    const num = list.length;
+    return new Promise<string[]>((resolve) => {
+      this.openBottomInput(list[0].label);
+      const values: string[] = [];
+      this.bottomInput.prevSubscription?.unsubscribe();
+      this.bottomInput.prevSubscription = this.bottomInput.output
+        .pipe(skip(1))
+        .pipe(take(num))
+        .subscribe(async (value) => {
           values.push(value);
-          if (values.length === 3) {
-            const length = Number(values[1]);
-            const angle = Number(values[2]);
-            const dx = length * Math.cos((angle * Math.PI) / 180);
-            const dy = length * Math.sin((angle * Math.PI) / 180);
-            const e = new CadLine();
-            e.end.copy(e.start.clone().add(dx, dy));
-            entities.add(e);
-            await this.updateCadViewer();
-            this.setStepType(stepType, false);
-            this.closeBottomInput();
-            console.log("values", values);
+          if (values.length === num) {
+            this.clearBottomInput();
+            resolve(values);
+          } else {
+            this.bottomInput.label = list[values.length].label;
           }
         });
-      }
-    } else {
-      this.closeBottomInput();
-      this.status.setCadPoints();
-    }
+    });
+  }
+
+  clearBottomInput() {
+    this.bottomInput.prevSubscription?.unsubscribe();
+    this.bottomInput.prevSubscription = null;
+    this.closeBottomInput();
+  }
+
+  getCadPointsValues(entities: CadEntities, num: number) {
+    return new Promise<CadPoints>((resolve) => {
+      this.status.setCadPoints(entities);
+      this.config.setConfig({cadPointsAnywhere: true});
+      this.cadPoints.prevSubscription?.unsubscribe();
+      this.cadPoints.prevSubscription = this.status.cadPoints$.subscribe((points) => {
+        const actived = points.filter((p) => p.active);
+        if (actived.length === num) {
+          this.clearCadPoints(actived);
+          resolve(actived);
+        }
+      });
+    });
+  }
+
+  clearCadPoints(cadPoints: CadPoints = []) {
+    this.cadPoints.prevSubscription?.unsubscribe();
+    this.cadPoints.prevSubscription = null;
+    this.status.cadPoints$.next(cadPoints);
+    this.config.setConfig({cadPointsAnywhere: false});
   }
 
   getStep() {
@@ -202,35 +270,44 @@ export class Index2Component implements AfterViewInit {
       }
       return {type, ...values} as Index2Step;
     } else if (type) {
-      const selected = this.leftMenuCads.find((v) => v.selected);
-      if (!selected) {
-        this.message.error("请选择一个cad");
-        return null;
-      }
-      return {type, data: selected.data} as Index2Step;
+      // const selected = this.leftMenuCads.find((v) => v.selected);
+      // if (!selected) {
+      //   this.message.error("请选择一个cad");
+      //   return null;
+      // }
+      // return {type, data: selected.data} as Index2Step;
     }
     return null;
   }
 
   selectLeftMenuCad(cad: Index2Component["leftMenuCads"][0]) {
-    this.leftMenuCads.forEach((v) => (v.selected = false));
-    cad.selected = true;
+    const stepType = this.stepType$.value;
+    if (stepType === "开孔库") {
+    }
   }
 
   async generateFront() {
-    const entities = this.status.cad.selected().clone();
+    const entities = this.status.cad.selected().clone(true);
     if (entities.length < 1) {
       this.message.error("没有选中");
       return;
     }
-    const data = new CadData();
+    const heightStr = await this.message.prompt({promptData: {type: "number", label: "高度"}});
+    if (!heightStr) {
+      return;
+    }
+    const height = Number(heightStr);
+    if (isNaN(height)) {
+      this.message.error("高度输入有误");
+    }
+    const data = this.cadData2;
+    data.entities.empty();
     data.entities.merge(entities);
     const lineGroups = sortLines(data);
     if (lineGroups.length !== 1) {
       this.message.error("选中的线必须可以一笔画成");
       return;
     }
-    const height = 5;
     const entities2 = entities.clone(true);
     entities2.transform({translate: [0, height]}, true);
     data.entities.merge(entities2);
@@ -250,32 +327,26 @@ export class Index2Component implements AfterViewInit {
     };
     const addLinesArr = (lines: CadLineLike[], position: "top" | "bottom") => {
       for (const e of lines) {
-        let e2: CadLine | undefined;
-        if (e instanceof CadLine) {
-          e2 = e;
-        } else if (e instanceof CadArc) {
-          e2 = new CadLine({start: e.curve.startPoint, end: e.curve.endPoint});
-          e2._boundingRectCalc.transform({translate: [0, height]});
-        }
-        if (e2?.isHorizontal()) {
-          if (position === "top") {
-            addPoint(pointsTop, position, e.start);
-            addPoint(pointsTop, position, e.end);
-          } else {
-            addPoint(pointsBottom, position, e.start);
-            addPoint(pointsBottom, position, e.end);
-          }
+        if (position === "top") {
+          addPoint(pointsTop, position, e.start);
+          addPoint(pointsTop, position, e.end);
+        } else {
+          addPoint(pointsBottom, position, e.start);
+          addPoint(pointsBottom, position, e.end);
         }
       }
     };
     addLinesArr(lineGroups[0], "bottom");
     addLinesArr(sortLines(new CadData({entities: entities2}))[0], "top");
+    console.log(pointsTop);
     for (let i = 0; i < pointsTop.length; i++) {
       const e = new CadLine({start: pointsBottom[i], end: pointsTop[i]});
       data.entities.add(e);
     }
-    const img = await getCadPreview("cad", data);
-    this.message.alert(`<img class="cad-preview" src="${img}">`);
+    const rect1 = this.cadData1.getBoundingRect();
+    const rect2 = data.getBoundingRect();
+    data.transform({translate: [rect1.x - rect2.x, rect1.top - rect2.bottom + rect1.height / 3]}, true);
+    this.updateCadViewer();
   }
 
   onBottomValueChange(event: KeyboardEvent) {

@@ -92,6 +92,12 @@ export class AppStatusService {
     this.components.mode$.subscribe((mode) => {
       this.config.setConfig("subCadsMultiSelect", mode === "multiple");
     });
+    this.cad.on("click", (event) => {
+      if (this.config.getConfig("cadPointsAnywhere")) {
+        const {clientX: x, clientY: y} = event;
+        this.cadPoints$.next([...this.cadPoints$.value, {x, y, lines: [], active: true}]);
+      }
+    });
   }
 
   private _replaceText(source: CadData, text: string, data: CadData) {

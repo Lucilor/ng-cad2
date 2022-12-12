@@ -14,7 +14,6 @@
           <div class="cad" *ngFor="let cad of leftMenuCads">
             <img class="cad-preview" [src]="cad.img" (click)="selectLeftMenuCad(cad)" />
             <div class="flex-row" style="align-items: center">
-              <mat-radio-button [checked]="cad.selected"></mat-radio-button>
               <div class="cad-name" (click)="selectLeftMenuCad(cad)">{{ cad.data.name }}</div>
             </div>
           </div>
@@ -29,14 +28,15 @@
           mat-flat-button
           *ngFor="let type of stepTypes"
           [color]="stepType$.value === type ? 'accent' : 'primary'"
+          [disabled]="isTypeDisabled(type)"
           (click)="setStepType(type)"
         >
           {{ type }}
         </button>
-        <button mat-flat-button color="primary">选择生成零件</button>
+        <button mat-flat-button color="primary" disabled>选择生成零件</button>
         <button mat-flat-button color="primary" (click)="generateFront()">选中生成正面</button>
-        <button mat-flat-button color="primary">选中生成背面</button>
-        <button mat-flat-button color="primary">约束</button>
+        <button mat-flat-button color="primary" disabled>选中生成背面</button>
+        <button mat-flat-button color="primary" disabled>约束</button>
       </div>
     </div>
     <div class="flex-row flex-110">
@@ -44,11 +44,13 @@
         <div #contentEl class="content"></div>
         <div class="menu bottom">
           <mat-form-field>
+            <mat-label>{{ bottomInput.label }}</mat-label>
             <input
               #bottomInputEl
               matInput
               [(ngModel)]="bottomInput.value"
               [disabled]="bottomInput.disabled"
+              [placeholder]="bottomInput.placeholder"
               (keydown)="onBottomValueChange($event)"
             />
           </mat-form-field>
