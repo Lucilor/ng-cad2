@@ -14,6 +14,7 @@
         type="text"
         (change)="onChange()"
         (input)="onInput()"
+        (blur)="onBlur()"
         [matAutocomplete]="auto"
         [placeholder]="info.placeholder || ''"
       />
@@ -31,6 +32,7 @@
         type="text"
         (change)="onChange()"
         (input)="onInput()"
+        (blur)="onBlur()"
         [matAutocomplete]="auto"
         [placeholder]="info.placeholder || ''"
       ></textarea>
@@ -54,6 +56,7 @@
           {{ option.label }}
         </mat-option>
       </mat-autocomplete>
+      <mat-error>{{ errorMsg }}</mat-error>
     </mat-form-field>
   </ng-container>
   <ng-container *ngSwitchCase="'number'">
@@ -73,6 +76,7 @@
         [max]="cast(info, 'number').max ?? null"
         (change)="onChange()"
         (input)="onInput()"
+        (blur)="onBlur()"
         [matAutocomplete]="auto"
         [placeholder]="info.placeholder || ''"
       />

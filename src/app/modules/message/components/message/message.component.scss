@@ -10,12 +10,6 @@
   // box-sizing: border-box;
 }
 
-.mat-mdc-form-field {
-  textarea {
-    overflow: hidden;
-  }
-}
-
 .mat-dialog-content {
   max-height: unset;
   &.iframe {

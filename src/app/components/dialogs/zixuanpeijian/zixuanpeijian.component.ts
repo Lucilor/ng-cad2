@@ -257,27 +257,21 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
                     return;
                   }
                 }
-                const lineLengthText = await this.message.prompt({
-                  title: "修改线长",
-                  promptData: {value: entity.text, type: "number"}
-                });
-                if (lineLengthText) {
-                  const lineLength = Number(lineLengthText);
-                  if (isNaN(lineLength) || lineLength <= 0) {
-                    return;
-                  }
-                  setLinesLength(data2, [parent], lineLength);
-                  parent.gongshi = "";
-                  await viewer.render();
-                  viewer.center();
-                  // this.calcZhankai(cadItem);
-                  this._calc();
+                const lineLength = await this.message.prompt(
+                  {value: Number(entity.text), type: "number", label: "线长"},
+                  {title: "修改线长"}
+                );
+                if (lineLength === null) {
+                  return;
                 }
+                setLinesLength(data2, [parent], lineLength);
+                parent.gongshi = "";
+                await viewer.render();
+                viewer.center();
+                // this.calcZhankai(cadItem);
+                this._calc();
               } else if (entity instanceof CadLineLike) {
-                const name = await this.message.prompt({
-                  title: "修改线名字",
-                  promptData: {value: entity.mingzi, type: "string"}
-                });
+                const name = await this.message.prompt({value: entity.mingzi, type: "string", label: "线名字"}, {title: "修改线名字"});
                 if (name) {
                   entity.mingzi = name;
                   await viewer.render();
@@ -885,10 +879,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
   async copyLingsanCad(i: number) {
     const data = this.lingsanCads[i].data;
-    const name = await this.message.prompt({
-      title: "复制零散配件",
-      promptData: {label: "零散配件名字", value: data.name + "_复制", validators: Validators.required}
-    });
+    const name = await this.message.prompt(
+      {type: "string", label: "零散配件名字", value: data.name + "_复制", validators: Validators.required},
+      {title: "复制零散配件"}
+    );
     if (!name) {
       return;
     }

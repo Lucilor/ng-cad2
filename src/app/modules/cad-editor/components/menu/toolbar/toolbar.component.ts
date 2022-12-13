@@ -137,8 +137,10 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
   async rotate(clockwise?: boolean) {
     let angle = 0;
     if (clockwise === undefined) {
-      const input = await this.message.prompt({promptData: {type: "number", placeholder: "输入角度"}});
-      angle = Number(input);
+      angle = await this.message.prompt({type: "number", label: "输入角度"});
+      if (angle === null) {
+        return;
+      }
     } else {
       if (clockwise === true) {
         angle = 90;
@@ -192,13 +194,11 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
   async setShowGongshi() {
     const numStr = await this.message.prompt({
-      promptData: {
-        type: "number",
-        hint: "请输入大于0的数字",
-        value: this.config.getConfig("lineGongshi").toString(),
-        placeholder: "公式字体大小",
-        validators: [(control) => (control.value > 0 ? null : {公式字体大小必须大于0: true})]
-      }
+      type: "number",
+      label: "公式字体大小",
+      hint: "请输入大于0的数字",
+      value: this.config.getConfig("lineGongshi"),
+      validators: [(control) => (control.value > 0 ? null : {公式字体大小必须大于0: true})]
     });
     if (numStr !== null) {
       this.config.setConfig("lineGongshi", Number(numStr));
@@ -207,9 +207,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
   }
 
   async setPointSize() {
-    const pointSize = this.config.getConfig("pointSize").toString();
-    const result = await this.message.prompt({promptData: {value: pointSize, type: "number", placeholder: "选取点大小"}});
-    const n = Number(result);
+    const pointSize = this.config.getConfig("pointSize");
+    const n = await this.message.prompt({value: pointSize, type: "number", label: "选取点大小"});
     if (!isNaN(n)) {
       this.config.setConfig("pointSize", n);
     }
@@ -271,10 +270,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
 
   async scaleComponents(factorNum?: number) {
     if (factorNum === undefined) {
-      const factorStr = await this.message.prompt({
-        title: "放大装配CAD",
-        promptData: {type: "number", placeholder: "请输入放大倍数"}
-      });
+      const factorStr = await this.message.prompt({type: "number", label: "放大倍数"});
       if (typeof factorStr !== "string") {
         return;
       }
@@ -317,7 +313,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
   async editGongshi() {
     const line = await this._checkSelectedOnlyOne();
     if (line) {
-      const gongshi = await this.message.prompt({title: "编辑公式", promptData: {value: line.gongshi, placeholder: "公式"}});
+      const gongshi = await this.message.prompt({value: line.gongshi, type: "string", label: "公式"});
       if (gongshi !== null) {
         line.gongshi = gongshi;
         this.status.cad.render(line);

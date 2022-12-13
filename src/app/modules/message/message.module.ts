@@ -8,6 +8,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS} from "@angular/material/snack-bar";
+import {InputModule} from "@modules/input/input.module";
 import hljs from "highlight.js";
 import {QuillModule} from "ngx-quill";
 import {MessageComponent} from "./components/message/message.component";
@@ -18,7 +19,7 @@ import {MessageComponent} from "./components/message/message.component";
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
+    InputModule,
     MatAutocompleteModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -52,7 +53,8 @@ import {MessageComponent} from "./components/message/message.component";
           ["link", "image", "video"] // link and image, video
         ]
       }
-    })
+    }),
+    ReactiveFormsModule
   ],
   providers: [
     {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {maxWidth: "unset"}},

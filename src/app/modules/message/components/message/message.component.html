@@ -19,38 +19,9 @@
   </ng-container>
   <ng-container *ngSwitchDefault="">
     <div [innerHTML]="contentHTML"></div>
-    <mat-form-field *ngIf="data.type === 'prompt'" [ngSwitch]="promptData.type">
-      <mat-label>{{ promptData.label }}</mat-label>
-      <textarea
-        matInput
-        #contentInput
-        *ngSwitchCase="'textarea'"
-        cdkTextareaAutosize
-        [formControl]="input"
-        [type]="promptData.type || ''"
-        [placeholder]="promptData.placeholder || ''"
-        [matAutocomplete]="auto"
-      ></textarea>
-      <input
-        matInput
-        #contentInput
-        *ngSwitchDefault
-        [formControl]="input"
-        [type]="promptData.type || ''"
-        [placeholder]="promptData.placeholder || ''"
-        (keydown)="onKeyDown($event)"
-        [matAutocomplete]="auto"
-      />
-      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-        <mat-option *ngFor="let option of autoCompleteOptions | async" [value]="option.value">
-          {{ option.value }}<span *ngIf="option.label">({{ option.label }})</span>
-        </mat-option>
-      </mat-autocomplete>
-      <mat-hint>{{ promptData.hint || "" }}</mat-hint>
-      <mat-error *ngIf="input.invalid">
-        {{ inputErrors }}
-      </mat-error>
-    </mat-form-field>
+    <div *ngIf="data.type === 'form'" (keydown)="onKeyDown($event)">
+      <app-input #formInput *ngFor="let info of inputs" [info]="info"></app-input>
+    </div>
   </ng-container>
 </div>
 <div matDialogActions class="hidden-if-empty" style="justify-content: center" [ngSwitch]="data.type">
@@ -67,12 +38,12 @@
       {{ cast(data, "confirm").btnTexts?.no || "算了" }}
     </button>
   </ng-container>
-  <ng-container *ngSwitchCase="'prompt'">
+  <ng-container *ngSwitchCase="'form'">
     <button mat-raised-button (click)="submit()" cdkFocusInitial>
-      {{ cast(data, "prompt").btnTexts?.submit || "确定" }}
+      {{ cast(data, "form").btnTexts?.submit || "确定" }}
     </button>
     <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
-      {{ cast(data, "prompt").btnTexts?.cancel || "取消" }}
+      {{ cast(data, "form").btnTexts?.cancel || "取消" }}
     </button>
   </ng-container>
   <ng-container *ngSwitchCase="'book'">

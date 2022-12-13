@@ -1,5 +1,6 @@
 import {HttpClient} from "@angular/common/http";
 import {AfterViewInit, Component, Inject} from "@angular/core";
+import {Validators} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {getFormControl, getFormGroup} from "@app/app.common";
 import {MessageService} from "@modules/message/services/message.service";
@@ -74,11 +75,10 @@ export class LoginFormComponent implements AfterViewInit {
     let response: ObjectOf<any> = await lastValueFrom(this.http.post(`${baseUrl}/login/in`, data));
     this.spinner.hide(this.spinner.defaultLoaderId);
     if (response.status === -1) {
-      const phonecode = await this.message.prompt({
-        title: "请输入验证码",
-        promptData: {placeholder: "验证码"},
-        disableCancel: true
-      });
+      const phonecode = await this.message.prompt(
+        {type: "string", label: "验证码", validators: Validators.required},
+        {title: "请输入验证码", disableCancel: true}
+      );
       data.set("phonecode", phonecode || "");
       this.spinner.show(this.spinner.defaultLoaderId);
       response = await lastValueFrom(this.http.post(`${baseUrl}/login/in`, data));

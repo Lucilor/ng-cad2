@@ -86,10 +86,10 @@ export class BancaiListComponent {
     this.checkedIndex.next(i);
     if (bancai.mingzi === "自定义") {
       await timeout(0);
-      const zidingyi = await this.message.prompt({
-        title: "自定义板材",
-        promptData: {placeholder: "自定义板材", value: this.zidingyi, validators: Validators.required}
-      });
+      const zidingyi = await this.message.prompt(
+        {type: "string", label: "自定义板材", value: this.zidingyi, validators: Validators.required},
+        {title: "自定义板材"}
+      );
       if (zidingyi) {
         this.zidingyi = zidingyi;
       } else {

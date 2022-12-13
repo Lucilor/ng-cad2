@@ -1,4 +1,5 @@
-import {AbstractControlOptions} from "@angular/forms";
+import {InputInfo} from "@modules/input/components/types";
+import {ObjectOf} from "@utils";
 
 export interface BaseMessageData {
   title?: string;
@@ -23,19 +24,9 @@ export interface ButtonMessageData extends BaseMessageData {
   buttons: (string | {label: string; value: string})[];
 }
 
-export interface PromptData {
-  type?: string;
-  hint?: string;
-  label?: string;
-  value?: string;
-  placeholder?: string;
-  validators?: AbstractControlOptions["validators"];
-  options?: {value: string; label?: string}[];
-}
-
-export interface PromptMessageData extends BaseMessageData {
-  type: "prompt";
-  promptData?: PromptData;
+export interface FormMessageData extends BaseMessageData {
+  type: "form";
+  inputs: InputInfo[];
   btnTexts?: {submit?: string; cancel?: string};
 }
 
@@ -66,7 +57,7 @@ export interface IFrameMessageData extends BaseMessageData {
 export type MessageData =
   | AlertMessageData
   | ConfirmMessageData
-  | PromptMessageData
+  | FormMessageData
   | BookMessageData
   | EditorMessageData
   | ButtonMessageData
@@ -75,9 +66,11 @@ export type MessageData =
 export interface MessageDataMap {
   alert: AlertMessageData;
   confirm: ConfirmMessageData;
-  prompt: PromptMessageData;
+  form: FormMessageData;
   book: BookMessageData;
   editor: EditorMessageData;
   button: ButtonMessageData;
   iframe: IFrameMessageData;
 }
+
+export type MessageOutput = boolean | string | ObjectOf<any> | null | undefined;

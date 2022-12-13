@@ -1,5 +1,5 @@
 import {Component, OnInit} from "@angular/core";
-import {AbstractControl} from "@angular/forms";
+import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {session} from "@app/app.common";
 import {CadExportParams, CadPortable, CadSourceParams, ExportType} from "@app/cad.portable";
@@ -106,17 +106,9 @@ export class ExportComponent implements OnInit {
         break;
       case "指定型号": {
         const xinghao = await this.message.prompt({
-          title: "请输入型号",
-          promptData: {
-            type: "text",
-            placeholder: "请输入型号",
-            validators: (control: AbstractControl) => {
-              if (!control.value) {
-                return {required: true};
-              }
-              return null;
-            }
-          }
+          type: "string",
+          label: "指定型号",
+          validators: Validators.required
         });
         if (!xinghao) {
           finish("hidden");

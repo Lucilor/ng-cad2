@@ -292,11 +292,10 @@ export class Index2Component extends Subscribed() implements AfterViewInit {
       this.message.error("没有选中");
       return;
     }
-    const heightStr = await this.message.prompt({promptData: {type: "number", label: "高度"}});
-    if (!heightStr) {
+    const height = await this.message.prompt({type: "number", label: "高度"});
+    if (height === null) {
       return;
     }
-    const height = Number(heightStr);
     if (isNaN(height)) {
       this.message.error("高度输入有误");
     }

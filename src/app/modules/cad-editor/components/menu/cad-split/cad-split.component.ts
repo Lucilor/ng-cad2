@@ -58,7 +58,7 @@ export class CadSplitComponent extends Subscribed() implements OnInit, OnDestroy
       return;
     }
     this._splitCadLock = true;
-    const name = await this.message.prompt({promptData: {placeholder: "请输入CAD的名称", value: "新建CAD"}});
+    const name = await this.message.prompt({type: "string", label: "CAD的名称", value: "新建CAD"});
     if (name === null) {
       this._splitCadLock = false;
       return;

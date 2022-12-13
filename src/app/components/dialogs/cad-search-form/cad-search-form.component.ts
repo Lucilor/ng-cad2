@@ -1,4 +1,5 @@
 import {Component, EventEmitter, OnInit} from "@angular/core";
+import {Validators} from "@angular/forms";
 import {MatDialogRef} from "@angular/material/dialog";
 import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -51,7 +52,7 @@ export class CadSearchFormComponent implements OnInit {
   }
 
   async addOption() {
-    const name = await this.message.prompt({promptData: {placeholder: "请输入选项名字"}});
+    const name = await this.message.prompt({type: "string", label: "选项名字", validators: Validators.required});
     if (!name) {
       return;
     }

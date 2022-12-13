@@ -134,5 +134,6 @@ export class CadDimensionFormComponent {
 }
 
 export const openCadDimensionFormDialog = getOpenDialogFunc<CadDimensionFormComponent, CadDimensionData, CadDimensionLinear>(
-  CadDimensionFormComponent
+  CadDimensionFormComponent,
+  {height: "65%"}
 );

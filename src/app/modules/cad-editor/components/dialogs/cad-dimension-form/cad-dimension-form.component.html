@@ -1,104 +1,102 @@
-<h1 mat-dialog-title>编辑标注</h1>
-<div mat-dialog-content>
-  <ng-scrollbar>
-    <form [formGroup]="form">
-      <mat-form-field>
-        <mat-label>名字</mat-label>
-        <input formControlName="mingzi" matInput />
-        <mat-error>{{ checkMqNull() }}</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>显示公式文本</mat-label>
-        <input formControlName="xianshigongshiwenben" matInput />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>区间</mat-label>
-        <input formControlName="qujian" matInput />
-        <mat-error>{{ checkMqNull() }}</mat-error>
-        <mat-error>{{ checkQujian() }}</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>CAD1</mat-label>
-        <input formControlName="cad1" matInput />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>CAD2</mat-label>
-        <input formControlName="cad2" matInput />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>线1位置</mat-label>
-        <mat-select formControlName="e1Location">
-          <mat-option value="start">起点</mat-option>
-          <mat-option value="center">中点</mat-option>
-          <mat-option value="end">终点</mat-option>
-          <mat-option value="min">最小值</mat-option>
-          <mat-option value="max">最大值</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>线2位置</mat-label>
-        <mat-select formControlName="e2Location">
-          <mat-option value="start">起点</mat-option>
-          <mat-option value="center">中点</mat-option>
-          <mat-option value="end">终点</mat-option>
-          <mat-option value="min">最小值</mat-option>
-          <mat-option value="max">最大值</mat-option>
-          <mat-option value="minX">minX</mat-option>
-          <mat-option value="maxX">maxX</mat-option>
-          <mat-option value="minY">minY</mat-option>
-          <mat-option value="maxY">maxY</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>方向</mat-label>
-        <mat-select formControlName="axis">
-          <mat-option value="x">x</mat-option>
-          <mat-option value="y">y</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>ref</mat-label>
-        <mat-select formControlName="ref">
-          <mat-option value="entity1">entity1</mat-option>
-          <mat-option value="entity2">entity2</mat-option>
-          <mat-option value="maxX">maxX</mat-option>
-          <mat-option value="maxY">maxY</mat-option>
-          <mat-option value="minX">minX</mat-option>
-          <mat-option value="minY">minY</mat-option>
-          <mat-option value="minLength">minLength</mat-option>
-          <mat-option value="maxLength">maxLength</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>距离</mat-label>
-        <input type="number" matInput formControlName="distance" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>字体大小</mat-label>
-        <input type="number" matInput formControlName="fontSize" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>取值范围</mat-label>
-        <input type="text" matInput formControlName="quzhifanwei" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>隐藏尺寸线</mat-label>
-        <input type="text" matInput hidden value=" " />
-        <mat-slide-toggle [checked]="getHideDimLines()" (change)="setHideDimLines($event)"></mat-slide-toggle>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>小数处理</mat-label>
-        <mat-select formControlName="xiaoshuchuli">
-          <mat-option value="四舍五入">四舍五入</mat-option>
-          <mat-option value="舍去小数">舍去小数</mat-option>
-          <mat-option value="小数进一">小数进一</mat-option>
-          <mat-option value="保留一位">保留一位</mat-option>
-          <mat-option value="保留两位">保留两位</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </form>
-  </ng-scrollbar>
-</div>
+<h1>编辑标注</h1>
+<ng-scrollbar class="content">
+  <form [formGroup]="form">
+    <mat-form-field>
+      <mat-label>名字</mat-label>
+      <input formControlName="mingzi" matInput />
+      <mat-error>{{ checkMqNull() }}</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>显示公式文本</mat-label>
+      <input formControlName="xianshigongshiwenben" matInput />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>区间</mat-label>
+      <input formControlName="qujian" matInput />
+      <mat-error>{{ checkMqNull() }}</mat-error>
+      <mat-error>{{ checkQujian() }}</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>CAD1</mat-label>
+      <input formControlName="cad1" matInput />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>CAD2</mat-label>
+      <input formControlName="cad2" matInput />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>线1位置</mat-label>
+      <mat-select formControlName="e1Location">
+        <mat-option value="start">起点</mat-option>
+        <mat-option value="center">中点</mat-option>
+        <mat-option value="end">终点</mat-option>
+        <mat-option value="min">最小值</mat-option>
+        <mat-option value="max">最大值</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>线2位置</mat-label>
+      <mat-select formControlName="e2Location">
+        <mat-option value="start">起点</mat-option>
+        <mat-option value="center">中点</mat-option>
+        <mat-option value="end">终点</mat-option>
+        <mat-option value="min">最小值</mat-option>
+        <mat-option value="max">最大值</mat-option>
+        <mat-option value="minX">minX</mat-option>
+        <mat-option value="maxX">maxX</mat-option>
+        <mat-option value="minY">minY</mat-option>
+        <mat-option value="maxY">maxY</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>方向</mat-label>
+      <mat-select formControlName="axis">
+        <mat-option value="x">x</mat-option>
+        <mat-option value="y">y</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>ref</mat-label>
+      <mat-select formControlName="ref">
+        <mat-option value="entity1">entity1</mat-option>
+        <mat-option value="entity2">entity2</mat-option>
+        <mat-option value="maxX">maxX</mat-option>
+        <mat-option value="maxY">maxY</mat-option>
+        <mat-option value="minX">minX</mat-option>
+        <mat-option value="minY">minY</mat-option>
+        <mat-option value="minLength">minLength</mat-option>
+        <mat-option value="maxLength">maxLength</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>距离</mat-label>
+      <input type="number" matInput formControlName="distance" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>字体大小</mat-label>
+      <input type="number" matInput formControlName="fontSize" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>取值范围</mat-label>
+      <input type="text" matInput formControlName="quzhifanwei" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>隐藏尺寸线</mat-label>
+      <input type="text" matInput hidden value=" " />
+      <mat-slide-toggle [checked]="getHideDimLines()" (change)="setHideDimLines($event)"></mat-slide-toggle>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>小数处理</mat-label>
+      <mat-select formControlName="xiaoshuchuli">
+        <mat-option value="四舍五入">四舍五入</mat-option>
+        <mat-option value="舍去小数">舍去小数</mat-option>
+        <mat-option value="小数进一">小数进一</mat-option>
+        <mat-option value="保留一位">保留一位</mat-option>
+        <mat-option value="保留两位">保留两位</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</ng-scrollbar>
 <div matDialogActions>
   <button mat-raised-button color="primary" (click)="submit()">确定</button>
   <button mat-raised-button color="primary" (click)="cancel()">取消</button>

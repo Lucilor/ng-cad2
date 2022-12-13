@@ -1,5 +1,6 @@
 import {animate, style, transition, trigger} from "@angular/animations";
 import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
+import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {getList, CadCollection} from "@app/app.common";
 import {CadArc, CadData, CadDimensionLinear} from "@cad-viewer";
@@ -223,9 +224,8 @@ export class CadConsoleComponent implements OnInit {
         startAngle = endAngle - 180;
       } else {
         if (radius === undefined) {
-          radius = Number(await this.message.prompt({promptData: {type: "number", placeholder: "请输入圆角半径"}}));
-          if (!(radius > 0)) {
-            this.message.alert("请输入大于零的数字");
+          radius = await this.message.prompt({type: "number", label: "圆角半径", validators: [Validators.required, Validators.min(0)]});
+          if (radius === null) {
             return;
           }
         }

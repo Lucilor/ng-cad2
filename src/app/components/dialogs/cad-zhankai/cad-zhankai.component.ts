@@ -1,4 +1,5 @@
 import {Component, Inject} from "@angular/core";
+import {Validators} from "@angular/forms";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
@@ -132,20 +133,16 @@ export class CadZhankaiComponent extends Utils() {
   }
 
   async addFlipChai(i: number) {
-    const result = await this.message.prompt({promptData: {placeholder: "请输入序号", type: "number"}});
-    if (typeof result === "string" && result) {
-      const num = Number(result);
-      if (!(num > 0)) {
-        this.message.snack("请输入大于0的数字");
-        return;
-      }
-      const flipChai = this.data[i].flipChai;
-      if (flipChai[num] !== undefined) {
-        this.message.snack("该序号已存在");
-        return;
-      }
-      flipChai[num] = "h";
+    const num = await this.message.prompt({label: "序号", type: "number", validators: Validators.min(0)});
+    if (num === null) {
+      return;
     }
+    const flipChai = this.data[i].flipChai;
+    if (flipChai[num] !== undefined) {
+      this.message.snack("该序号已存在");
+      return;
+    }
+    flipChai[num] = "h";
   }
 
   removeFlipChai(i: number, key: string) {

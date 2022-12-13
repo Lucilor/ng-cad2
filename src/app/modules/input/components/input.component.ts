@@ -67,7 +67,9 @@ export class InputComponent extends Utils() implements AfterViewInit {
         this.class.push(value.class);
       }
     }
-    this.validateValue();
+    if (value.initialValidate) {
+      this.validateValue();
+    }
   }
   private _onChangeTimeout = -1;
 
@@ -293,6 +295,10 @@ export class InputComponent extends Utils() implements AfterViewInit {
       default:
         break;
     }
+  }
+
+  onBlur() {
+    this.validateValue();
   }
 
   async selectOptions(optionKey?: string, key?: string) {

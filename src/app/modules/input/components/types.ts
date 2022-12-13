@@ -21,6 +21,7 @@ export interface InputInfoBase<T = any> {
   placeholder?: string;
   class?: string | string[];
   validators?: AbstractControlOptions["validators"];
+  initialValidate?: boolean;
   name?: string;
 }
 

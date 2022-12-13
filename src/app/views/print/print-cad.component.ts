@@ -15,6 +15,7 @@ import {
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
+import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
@@ -125,6 +126,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     // return materialResult;
   }
 
+  get CommentInputInfo(): InputInfo {
+    return {validators: Validators.required, type: "string", label: "备注", textarea: {autosize: {minRows: 2, maxRows: 5}}};
+  }
+
   constructor(
     private route: ActivatedRoute,
     private dataService: CadDataService,
@@ -215,6 +220,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
     window.addEventListener("keydown", this._onKeyDown);
     await this.getOrderImage();
+    this.message.prompt({type: "string", label: "1", validators: Validators.required});
   }
 
   ngOnDestroy() {
@@ -433,12 +439,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         const isComment = entity.info.isComment;
         const canModify = isNaN(Number(entity.text));
         if (isComment || canModify) {
-          const text = await this.message.prompt({
-            title: "备注",
-            promptData: {value: entity.text, validators: Validators.required, type: "textarea"}
-          });
+          const text = await this.message.prompt(this.CommentInputInfo);
           if (text) {
-            if (!isComment) {
+            if (!text) {
               this.printParams.textMap[entity.text] = text;
             }
             entity.text = text;
@@ -726,7 +729,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
       return;
     }
     if (!mtext) {
-      const text = await this.message.prompt({title: "备注", promptData: {validators: Validators.required, type: "textarea"}});
+      const text = await this.message.prompt(this.CommentInputInfo);
       if (!text) {
         return;
       }
