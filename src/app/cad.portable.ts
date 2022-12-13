@@ -357,6 +357,13 @@ export class CadPortable {
             if (key === "展开") {
               zhankaiObjs = Array.from(value.matchAll(/\[([^\]]*)\]/g)).map((vv) => {
                 const arr = vv[1].split(",").map((v) => v.trim());
+                if (obj.分类 === "包边正面") {
+                  if (arr.length !== 4) {
+                    cad.errors.push("包边正面展开必须是4项, 有两个展开高");
+                  }
+                  arr[1] = arr[1] + "," + arr[2];
+                  arr.splice(2, 1);
+                }
                 const zhankaikuan = arr[0];
                 const zhankaigao = arr[1];
                 const shuliang = arr[2];

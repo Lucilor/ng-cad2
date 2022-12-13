@@ -220,7 +220,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
     window.addEventListener("keydown", this._onKeyDown);
     await this.getOrderImage();
-    this.message.prompt({type: "string", label: "1", validators: Validators.required});
   }
 
   ngOnDestroy() {

@@ -28,7 +28,7 @@ if (!fs.existsSync(configPath)) {
         token: "",
         targetDir: ""
       },
-      {space: 4}
+      {space: 2}
     )
   );
 }
@@ -38,41 +38,16 @@ const targetDir = "./dist";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const args = minimist(process.argv.slice(2));
-// const targetDistDir = targetDir + "/ng-cad2";
 const tmpDir = "./.tmp";
 const zipName = "upload.zip";
-// const changelogName = "ngcad2_changelog.json";
-// const changelogPath = path.join(targetDir, changelogName);
 const backupName = "ng_cad2";
 
-gulp.task("build", () => child_process.exec("npm run build"));
-// gulp.task("clean", (callback) => {
-//   fs.rmSync(targetDistDir, {recursive: true, force: true});
-//   callback();
-// });
-// gulp.task("copy", () => gulp.src("./dist/**").pipe(gulp.dest(targetDistDir)));
+gulp.task("build", () => child_process.exec("yarn build"));
 
-gulp.task("zip", (callback) => {
+gulp.task("zip", () => {
   const globs = ["ng-cad2/**/*"];
-  // if (!args.noChangelog) {
-  //     globs.push(changelogName);
-  //     const changelog = JSON.parse(fs.readFileSync(changelogPath).toString());
-  //     const now = new Date();
-  //     const then = new Date(changelog[0].timeStamp);
-  //     if (now.getFullYear() !== then.getFullYear() || now.getMonth() !== then.getMonth() || now.getDate() !== then.getDate()) {
-  //         callback(new Error("changelog time error"));
-  //         return;
-  //     }
-  //     changelog[0].timeStamp = new Date().getTime();
-  //     fs.writeFileSync(changelogPath, JSON.stringify(changelog));
-  // }
   return gulp.src(globs, {dot: true, cwd: targetDir, base: targetDir}).pipe(zip(zipName)).pipe(gulp.dest(tmpDir));
 });
-
-// gulp.task("fetchChangelog", async () => {
-//   const response = await axios.get(host + "/static/ngcad2_changelog.json");
-//   fs.writeFileSync(changelogPath, JSON.stringify(response.data));
-// });
 
 gulp.task("upload", async () => {
   const url = host + "/n/kgs/index/login/upload";
