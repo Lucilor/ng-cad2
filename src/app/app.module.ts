@@ -67,6 +67,7 @@ import {Index2Component} from "@views/index2/index2.component";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
+import {MsbjComponent} from "@views/msbj/msbj.component";
 import {PageNotFoundComponent} from "@views/page-not-found/page-not-found.component";
 import {PiliangjianbanComponent} from "@views/piliangjianban/piliangjianban.component";
 import {PjmkComponent} from "@views/pjmk/pjmk.component";
@@ -124,8 +125,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     ExportComponent,
     FormulasEditorComponent,
     ImportComponent,
-    IndexComponent,
     Index2Component,
+    IndexComponent,
     JiaoweiComponent,
     JsonEditorComponent,
     KailiaocanshuComponent,
@@ -135,6 +136,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     KlkwpzComponent,
     KlkwpzDialogComponent,
     LoginFormComponent,
+    MsbjComponent,
     PageNotFoundComponent,
     PiliangjianbanComponent,
     PjmkComponent,

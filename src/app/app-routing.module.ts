@@ -13,6 +13,7 @@ import {Index2Component} from "@views/index2/index2.component";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
+import {MsbjComponent} from "@views/msbj/msbj.component";
 import {PageNotFoundComponent} from "@views/page-not-found/page-not-found.component";
 import {PiliangjianbanComponent} from "@views/piliangjianban/piliangjianban.component";
 import {PjmkComponent} from "@views/pjmk/pjmk.component";
@@ -40,7 +41,8 @@ export const routesInfo: (Route & {path: string})[] = [
   {path: "jiaowei", component: JiaoweiComponent, title: "铰位"},
   {path: "kailiaocanshu", component: KailiaocanshuComponent, title: "开料参数"},
   {path: "clean", component: CleanComponent, title: "清理任务"},
-  {path: "pjmk", component: PjmkComponent, title: "配件模块"}
+  {path: "pjmk", component: PjmkComponent, title: "配件模块"},
+  {path: "门扇布局", component: MsbjComponent, title: "门扇布局"}
 ];
 
 const routes: Routes = [

@@ -1,0 +1,18 @@
+<div #rectContainer class="rect-container">
+  <div class="rects">
+    <div class="rect" *ngFor="let info of rectInfosRelative" [ngStyle]="getRectStyle(info)"></div>
+  </div>
+  <div class="menu btn-group" *ngIf="!production">
+    <button mat-raised-button color="primary" (click)="generateRects(true, true)">重新生成</button>
+  </div>
+</div>
+<div class="mokuai-container flex-110">
+  <div class="list left flex-110"></div>
+  <div class="menu flex-column">
+    <div class="btn-group">
+      <button mat-icon-button color="primary"><mat-icon>add</mat-icon></button>
+      <button mat-icon-button color="primary"><mat-icon>close</mat-icon></button>
+    </div>
+  </div>
+  <div class="list right flex-110"></div>
+</div>
