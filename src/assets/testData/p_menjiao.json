@@ -1,0 +1,28 @@
+[
+  {
+    "vid": 2,
+    "mingzi": "插铰",
+    "menjiaoleixing": "插铰",
+    "zhutaomen": "3*4",
+    "gongyi": "1",
+    "menshanhoudu": "11*17",
+    "menkuangpeiheweizuixiaokuan": 30,
+    "jiaowei": "[{\"from\":\"top\",\"position\":-150},{\"from\":\"bottom\",\"position\":250},{\"from\":\"top\",\"position\":-650},{\"from\":\"split\"}]",
+    "morenmenjiaoshuliang": 3,
+    "morenzhi": 1,
+    "caozuo": null
+  },
+  {
+    "vid": 1,
+    "mingzi": "沉铰",
+    "menjiaoleixing": "沉铰",
+    "zhutaomen": "3*4",
+    "gongyi": "1",
+    "menshanhoudu": "11*17*18",
+    "menkuangpeiheweizuixiaokuan": 25,
+    "jiaowei": "[{\"from\":\"top\",\"position\":-150},{\"from\":\"bottom\",\"position\":250},{\"from\":\"top\",\"position\":-650},{\"from\":\"split\"}]",
+    "morenmenjiaoshuliang": 3,
+    "morenzhi": 0,
+    "caozuo": null
+  }
+]

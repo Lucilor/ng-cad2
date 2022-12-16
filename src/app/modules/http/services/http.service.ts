@@ -102,18 +102,18 @@ export class HttpService {
     if (typeof options?.offlineMode === "boolean") {
       offlineMode = options.offlineMode;
     }
-    if (offlineMode && !environment.production) {
+    const getTestData = async (): Promise<CustomResponse<T>> => {
+      const data2 = await lastValueFrom(this.http.get<T>(`${location.origin}/assets/testData/${testData}.json`, options));
+      return {code: 0, msg: "", data: data2};
+    };
+    if ((offlineMode && !environment.production) || environment.unitTest) {
       if (testData) {
-        const data2 = await lastValueFrom(this.http.get<T>(`${location.origin}/assets/testData/${testData}.json`, options));
-        return {code: 0, msg: "", data: data2};
+        return await getTestData();
       } else {
         return null;
       }
     }
     const rawData = {...data};
-    if (environment.unitTest) {
-      return null;
-    }
     const encrypt = options?.encrypt ?? "no";
     const silent = !!options?.silent;
     const timerName = `http.request.${url}.${timer.now}`;
@@ -208,8 +208,7 @@ export class HttpService {
       }
     } catch (error) {
       if (testData) {
-        const data2 = await lastValueFrom(this.http.get<T>(`${location.origin}/assets/testData/${testData}.json`, options));
-        return {code: 0, msg: "", data: data2};
+        return await getTestData();
       }
       if (error instanceof HttpErrorResponse) {
         const text = error.error?.text;

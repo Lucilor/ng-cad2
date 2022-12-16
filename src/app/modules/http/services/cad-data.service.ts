@@ -13,7 +13,8 @@ import {
   Changelog,
   QueryMongodbParams,
   QueryMysqlParams,
-  TableSelectParams
+  TableSelectParams,
+  TableUpdateParams
 } from "./cad-data.service.types";
 import {CadImgCache} from "./cad-img-cache";
 import {CustomResponse, HttpOptions, HttpService} from "./http.service";
@@ -277,8 +278,13 @@ export class CadDataService extends HttpService {
     return response?.data || null;
   }
 
-  async tableSelect<T>(params: TableSelectParams, options?: HttpOptions) {
+  async tableSelect<T = any>(params: TableSelectParams, options?: HttpOptions) {
     params = {page: 1, limit: 10, ...params};
-    return await this.post<T>("jichu/jichu/table_select", params, options);
+    const resposne = await this.post<T[]>("jichu/jichu/table_select", params, {testData: params.table, ...options});
+    return resposne?.data || [];
+  }
+
+  async tableUpdate<T = any>(params: TableUpdateParams, options?: HttpOptions) {
+    await this.post<T[]>("jichu/jichu/table_update", params, options);
   }
 }

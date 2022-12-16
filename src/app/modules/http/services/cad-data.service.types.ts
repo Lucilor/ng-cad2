@@ -88,8 +88,14 @@ export interface QueryMysqlParams {
 }
 
 export interface TableSelectParams {
-  xiaodaohang: string;
+  table: string;
   page?: number;
   limit?: number;
   search?: ObjectOf<any>;
+  fields?: string[];
+}
+
+export interface TableUpdateParams {
+  table: string;
+  tableData: {vid: string} & ObjectOf<any>;
 }

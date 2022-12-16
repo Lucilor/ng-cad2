@@ -1,5 +1,6 @@
 :host {
   display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
   padding: 10px;
@@ -19,6 +20,13 @@
     .rect {
       position: absolute;
       border: 1px solid black;
+      transition: 0.3s;
+      &.is-buju {
+        cursor: pointer;
+      }
+      &.active {
+        border: 2px solid black;
+      }
     }
   }
 
@@ -38,10 +46,10 @@
 
   .list {
     border: 1px solid black;
+    overflow: auto;
   }
+}
 
-  .menu {
-    width: 40px;
-    align-items: center;
-  }
+.list-item {
+  background-color: white;
 }

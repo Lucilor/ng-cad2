@@ -1,18 +1,50 @@
-<div #rectContainer class="rect-container">
-  <div class="rects">
-    <div class="rect" *ngFor="let info of rectInfosRelative" [ngStyle]="getRectStyle(info)"></div>
-  </div>
-  <div class="menu btn-group" *ngIf="!production">
-    <button mat-raised-button color="primary" (click)="generateRects(true, true)">重新生成</button>
-  </div>
+<div class="btn-group">
+  <button mat-raised-button color="primary" (click)="generateRects(true, true)">重新生成矩形</button>
+  <button mat-raised-button color="primary" (click)="submit()">提交</button>
 </div>
-<div class="mokuai-container flex-110">
-  <div class="list left flex-110"></div>
-  <div class="menu flex-column">
-    <div class="btn-group">
-      <button mat-icon-button color="primary"><mat-icon>add</mat-icon></button>
-      <button mat-icon-button color="primary"><mat-icon>close</mat-icon></button>
+<div class="content flex-row flex-110">
+  <div #rectContainer class="rect-container">
+    <div class="rects">
+      <div
+        class="rect"
+        *ngFor="let info of rectInfosRelative"
+        [ngClass]="{'is-buju': info.isBuju, active: info.active}"
+        [ngStyle]="getRectStyle(info)"
+        (click)="onRectClick(info)"
+      ></div>
     </div>
   </div>
-  <div class="list right flex-110"></div>
+  <div class="mokuai-container flex-110" cdkDropListGroup>
+    <mat-selection-list
+      #listLeft
+      class="list flex-110"
+      [multiple]="false"
+      cdkDropList
+      [cdkDropListData]="mokuaisSelected"
+      (cdkDropListDropped)="dropMokuai($event)"
+    >
+      <mat-list-option class="list-item" *ngFor="let item of mokuaisSelected" [value]="item.name" cdkDrag>{{ item.name }}</mat-list-option>
+    </mat-selection-list>
+    <div class="menu flex-column">
+      <button mat-icon-button color="primary" [disabled]="this.listRight?.selectedOptions?.isEmpty()" (click)="selectMokuai()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-icon-button color="primary" [disabled]="this.listLeft?.selectedOptions?.isEmpty()" (click)="deselectMokuai()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <mat-selection-list
+      #listRight
+      class="list flex-110"
+      [multiple]="false"
+      cdkDropList
+      [cdkDropListData]="mokuaisNotSelected"
+      (cdkDropListDropped)="dropMokuai($event)"
+      cdkDropListSortingDisabled
+    >
+      <mat-list-option class="list-item" *ngFor="let item of mokuaisNotSelected" [value]="item.name" cdkDrag>{{
+        item.name
+      }}</mat-list-option>
+    </mat-selection-list>
+  </div>
 </div>

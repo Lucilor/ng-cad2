@@ -276,7 +276,7 @@ export class ImportComponent extends Utils() implements OnInit {
     const options: [string, string[]][] = [];
     const optionKeys = Object.keys(cad.options).sort();
     optionKeys.forEach((key) => {
-      options.push([key, cad.options[key].split(";").sort()]);
+      options.push([key, CadPortable.splitOptionValue(cad.options[key]).sort()]);
     });
     return md5(
       JSON.stringify({
@@ -293,7 +293,7 @@ export class ImportComponent extends Utils() implements OnInit {
     const options: [string, string[]][] = [];
     const optionKeys = Object.keys(slgs.选项).sort();
     optionKeys.forEach((key) => {
-      options.push([key, slgs.选项[key].split(";").sort()]);
+      options.push([key, CadPortable.splitOptionValue(slgs.选项[key]).sort()]);
     });
     if (Array.isArray(slgs.条件)) {
       slgs.条件.sort();
@@ -445,7 +445,7 @@ export class ImportComponent extends Utils() implements OnInit {
   private async _validateOptions(options: ObjectOf<string>) {
     const errors: string[] = [];
     for (const optionKey in options) {
-      const optionValues = CadPortable.getOptionValues(options[optionKey]);
+      const optionValues = CadPortable.splitOptionValue(options[optionKey]);
       const tmpVals: string[] = [];
       const duplicateValues: string[] = [];
       optionValues.forEach((v) => {
@@ -534,7 +534,7 @@ export class ImportComponent extends Utils() implements OnInit {
       扇锁企料: [{type: "小锁料", options: {isNot: {产品分类: ["单门", "", undefined, null]}}}]
       // 铰企料: ["中铰料"]
     };
-    data.info.锁边自动绑定可搭配铰边?.split(";").forEach((v) => {
+    CadPortable.splitOptionValue(data.info.锁边自动绑定可搭配铰边).forEach((v) => {
       infoObj.锁企料.push({type: "铰企料", options: {is: {铰边: v}}, hint: v});
     });
     let infoArray: PeiheInfo[] | undefined;

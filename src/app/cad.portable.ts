@@ -389,7 +389,7 @@ export class CadPortable {
               if (typeof defaultValue === "boolean") {
                 (data[key2] as boolean) = value === "是";
               } else if (Array.isArray(defaultValue)) {
-                (data[key2] as string[]) = value.split(";").map((v) => v.trim());
+                (data[key2] as string[]) = this.splitOptionValue(value);
               } else {
                 (data[key2] as string) = value;
               }
@@ -399,8 +399,8 @@ export class CadPortable {
               if (globalOptions[key]) {
                 cad.errors.push(`多余的选项[${key}]`);
               } else {
-                const optionValues = value.split(";").map((v) => v.trim());
-                data.options[key] = optionValues.filter((v) => v).join(";");
+                const optionValues = this.splitOptionValue(value);
+                data.options[key] = this.joinOptionValue(optionValues);
               }
             }
           }
@@ -813,17 +813,21 @@ export class CadPortable {
     });
   }
 
-  static getOptionValues(str: string | undefined | null) {
+  static splitOptionValue(str: string | undefined | null) {
     if (!str) {
       return [];
     }
-    return str.split(";");
+    return str.replaceAll(" ", "").split(";").filter(Boolean);
+  }
+
+  static joinOptionValue(strs: string[]) {
+    return strs.filter(Boolean).join(";");
   }
 
   static getOptions(options: CadData["options"]) {
     const result: ObjectOf<string[]> = {};
     for (const key in options) {
-      result[key] = this.getOptionValues(options[key]);
+      result[key] = this.splitOptionValue(options[key]);
     }
     return result;
   }
@@ -854,8 +858,8 @@ export class CadPortable {
         }
       }
       for (const optionName in options) {
-        const values1 = this.getOptionValues(options[optionName]);
-        const values2 = this.getOptionValues(cad.options[optionName]);
+        const values1 = this.splitOptionValue(options[optionName]);
+        const values2 = this.splitOptionValue(cad.options[optionName]);
         if (values2.length < 1 || cad.options[optionName] === "所有") {
           continue;
         }
@@ -864,7 +868,7 @@ export class CadPortable {
         }
       }
       for (const optionName in options) {
-        this.getOptionValues(cad.options[optionName]).forEach((v) => {
+        this.splitOptionValue(cad.options[optionName]).forEach((v) => {
           if (!result.options[optionName]) {
             result.options[optionName] = [v];
           } else if (!result.options[optionName].includes(v)) {
@@ -880,7 +884,7 @@ export class CadPortable {
       result.options.产品分类.push("单门");
     }
     for (const optionName in options) {
-      if (difference(options[optionName].split(";"), result.options[optionName]).length > 0) {
+      if (difference(this.splitOptionValue(options[optionName]), result.options[optionName]).length > 0) {
         return result;
       }
     }

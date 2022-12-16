@@ -2,9 +2,12 @@ import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {setGlobal} from "@app/app.common";
 import {CadDataService} from "@modules/http/services/cad-data.service";
+import {TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
-import {ObjectOf} from "@utils";
 import {Jiaowei, jiaoweiAnchorOptions} from "./jiaowei";
+
+const table = "p_menjiao" as const;
+const dataField = "jiaowei" as const;
 
 @Component({
   selector: "app-jiaowei",
@@ -19,24 +22,13 @@ export class JiaoweiComponent implements OnInit {
 
   async ngOnInit() {
     setGlobal("jiaowei", this);
-    const {id, encode} = this.router.snapshot.queryParams;
-    const response = await this.dataService.post<ObjectOf<any>[]>(
-      "jichu/jichu/table_select/" + encode,
-      {
-        table: "p_menjiao",
-        search: {vid: id},
-        page: 1,
-        limit: 1
-      },
-      {testData: "jiaowei"}
-    );
-    if (response?.data && response.data.length > 0) {
-      try {
-        this.jiaowei.import(JSON.parse(response.data[0].jiaowei));
-      } catch (error) {
-        console.error(error);
-        this.message.error("数据格式错误");
-      }
+    const {id} = this.router.snapshot.queryParams;
+    const data = await this.dataService.tableSelect({table, search: {vid: id}});
+    try {
+      this.jiaowei.import(JSON.parse(data[0][dataField]));
+    } catch (error) {
+      console.error(error);
+      this.message.error("数据格式错误");
     }
     for (const num of ["2", "3", "4", "5"]) {
       if (!this.jiaowei.data[num]) {
@@ -46,8 +38,9 @@ export class JiaoweiComponent implements OnInit {
   }
 
   submit() {
-    const {id, encode} = this.router.snapshot.queryParams;
-    const tableData = {vid: id, jiaowei: JSON.stringify(this.jiaowei.export())};
-    this.dataService.post("jichu/jichu/table_update/" + encode, {table: "p_menjiao", tableData});
+    const {id} = this.router.snapshot.queryParams;
+    const tableData: TableUpdateParams["tableData"] = {vid: id};
+    tableData[dataField] = JSON.stringify(this.jiaowei.export());
+    this.dataService.tableUpdate({table, tableData});
   }
 }
