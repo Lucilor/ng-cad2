@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
-import {session} from "@app/app.common";
+import {session, setGlobal} from "@app/app.common";
 import {CadExportParams, CadPortable, CadSourceParams, ExportType} from "@app/cad.portable";
 import {CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
@@ -36,7 +36,9 @@ export class ExportComponent implements OnInit {
     private dataService: CadDataService,
     private message: MessageService,
     private status: AppStatusService
-  ) {}
+  ) {
+    setGlobal("exporter", this);
+  }
 
   ngOnInit() {
     this.exportCache = session.load<ExportCache>("exportParams");

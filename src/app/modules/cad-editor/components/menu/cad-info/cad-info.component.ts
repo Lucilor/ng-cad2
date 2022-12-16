@@ -167,8 +167,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       clearable: true,
       options: ["门框板材", "底框板材", "门扇板材", "辅板1", "辅板2", "辅板3", "辅板4", "辅板5", "辅板6", "辅板7", "辅板8", "辅板9"]
     },
-    {label: "拉码碰撞判断", model: this._getcadDataModel("拉码碰撞判断"), type: "boolean"},
-    {label: "双向折弯附加值", model: this._getcadDataModel("双向折弯附加值"), type: "string"}
+    {label: "拉码碰撞判断", model: this._getcadDataModel("拉码碰撞判断"), type: "boolean"}
   ];
   bjxTypes = 激光开料标记线类型;
   bjxIntersectionKey = "激光开料标记线";

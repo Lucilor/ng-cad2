@@ -425,4 +425,18 @@
       </mat-select>
     </mat-form-field>
   </div>
+  <div class="form-item">
+    <mat-form-field>
+      <mat-label>双向折弯附加值</mat-label>
+      <input
+        matInput
+        type="text"
+        [value]="getLineText('双向折弯附加值')"
+        (input)="setLineText($event, '双向折弯附加值')"
+        (focus)="focusedField = '双向折弯附加值'"
+        (blur)="focusedField = ''"
+        name="双向折弯附加值"
+      />
+    </mat-form-field>
+  </div>
 </form>

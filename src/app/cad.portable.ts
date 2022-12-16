@@ -999,7 +999,8 @@ export class CadPortable {
       显示线长: "显示线长",
       下一个折弯标线: "nextZhewan",
       展开方式: "zhankaifangshi",
-      指定展开长: "zidingzhankaichang"
+      指定展开长: "zidingzhankaichang",
+      双向折弯附加值: "双向折弯附加值"
     };
     for (const k in lineKeys) {
       const v = e[lineKeys[k]];
