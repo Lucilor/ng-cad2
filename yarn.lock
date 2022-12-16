@@ -15,24 +15,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/architect@npm:0.1500.3":
-  version: 0.1500.3
-  resolution: "@angular-devkit/architect@npm:0.1500.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Farchitect%2F-%2Farchitect-0.1500.3.tgz"
+"@angular-devkit/architect@npm:0.1500.4":
+  version: 0.1500.4
+  resolution: "@angular-devkit/architect@npm:0.1500.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Farchitect%2F-%2Farchitect-0.1500.4.tgz"
   dependencies:
-    "@angular-devkit/core": 15.0.3
+    "@angular-devkit/core": 15.0.4
     rxjs: 6.6.7
-  checksum: 0e3d58522ee494fc284a20dd23f17ab080991f86e36ee5da833c4c3da3f4b077bcd03020d97cebcfc415b92571e61753299bd8c949905256fa9ef53f889a31cc
+  checksum: 80900e0ac44b8c5e84ea2c8edb5ca1469b75a7e2cbbbb5da7a9a833f423bcbd208a10d41346e19dfc0092a257275fc90bbde26c6fe8a3ee6d03b4cb24fb2b195
   languageName: node
   linkType: hard
 
-"@angular-devkit/build-angular@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular-devkit/build-angular@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Fbuild-angular%2F-%2Fbuild-angular-15.0.3.tgz"
+"@angular-devkit/build-angular@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular-devkit/build-angular@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Fbuild-angular%2F-%2Fbuild-angular-15.0.4.tgz"
   dependencies:
     "@ampproject/remapping": 2.2.0
-    "@angular-devkit/architect": 0.1500.3
-    "@angular-devkit/build-webpack": 0.1500.3
-    "@angular-devkit/core": 15.0.3
+    "@angular-devkit/architect": 0.1500.4
+    "@angular-devkit/build-webpack": 0.1500.4
+    "@angular-devkit/core": 15.0.4
     "@babel/core": 7.20.2
     "@babel/generator": 7.20.4
     "@babel/helper-annotate-as-pure": 7.18.6
@@ -43,7 +43,7 @@ __metadata:
     "@babel/runtime": 7.20.1
     "@babel/template": 7.18.10
     "@discoveryjs/json-ext": 0.5.7
-    "@ngtools/webpack": 15.0.3
+    "@ngtools/webpack": 15.0.4
     ansi-colors: 4.1.3
     autoprefixer: 10.4.13
     babel-loader: 9.1.0
@@ -53,7 +53,7 @@ __metadata:
     chokidar: 3.5.3
     copy-webpack-plugin: 11.0.0
     critters: 0.0.16
-    css-loader: 6.7.1
+    css-loader: 6.7.3
     esbuild: 0.15.13
     esbuild-wasm: 0.15.13
     glob: 8.0.3
@@ -117,26 +117,26 @@ __metadata:
       optional: true
     tailwindcss:
       optional: true
-  checksum: 94da3efdcbbb01ba04113c1616a29eb49259ee82317d1fb520725a6d7c29d8bfc61fc6f80ef407005ed5d9661a22f9194eddbe10098326287feb7d7990d89bd2
+  checksum: dbd7ad99edcc4bdc7c9dddd3ec055c66c0605ff9b86d261c27a5fb6e49ab9ef87e506d2925764ab405eb6b0dc25eb1222e81beac7cf07c2576c5ba324c0a65a4
   languageName: node
   linkType: hard
 
-"@angular-devkit/build-webpack@npm:0.1500.3":
-  version: 0.1500.3
-  resolution: "@angular-devkit/build-webpack@npm:0.1500.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Fbuild-webpack%2F-%2Fbuild-webpack-0.1500.3.tgz"
+"@angular-devkit/build-webpack@npm:0.1500.4":
+  version: 0.1500.4
+  resolution: "@angular-devkit/build-webpack@npm:0.1500.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Fbuild-webpack%2F-%2Fbuild-webpack-0.1500.4.tgz"
   dependencies:
-    "@angular-devkit/architect": 0.1500.3
+    "@angular-devkit/architect": 0.1500.4
     rxjs: 6.6.7
   peerDependencies:
     webpack: ^5.30.0
     webpack-dev-server: ^4.0.0
-  checksum: cb1652b64a777aa541f0824e4cfc0cfaba78b200410a73639fe5d6aa31c2bdfb0547541a0eee9feb30a13aae70abd97fdc86cf23553e3b0867d70d8b431a33d3
+  checksum: 393e7498aa16eb250c22b60bc433ac49e84178900357ca5b50ad17065df42f484171a5fcda21abd6bce8f8bf269f2aaddc5f19b84b05fdb74c12010ed87a6a7d
   languageName: node
   linkType: hard
 
-"@angular-devkit/core@npm:15.0.3":
-  version: 15.0.3
-  resolution: "@angular-devkit/core@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Fcore%2F-%2Fcore-15.0.3.tgz"
+"@angular-devkit/core@npm:15.0.4":
+  version: 15.0.4
+  resolution: "@angular-devkit/core@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Fcore%2F-%2Fcore-15.0.4.tgz"
   dependencies:
     ajv: 8.11.0
     ajv-formats: 2.1.1
@@ -148,20 +148,20 @@ __metadata:
   peerDependenciesMeta:
     chokidar:
       optional: true
-  checksum: aae2659a6b8ccd3109e890f88452ecfdd59a7a3da25af445139c78733ebe2208a95cf3da4c3a79d37c9a09f2327f5143df2784690d881f5086e83d00b0063d52
+  checksum: e2d7488cae4f11b008fdf3cc10cb6cfdec09a7ba36b31b7199308d21cae016bfaf41701c5e1003af6dbc1d02b929471f89a924fc258da7129d72cc9b945136cc
   languageName: node
   linkType: hard
 
-"@angular-devkit/schematics@npm:15.0.3":
-  version: 15.0.3
-  resolution: "@angular-devkit/schematics@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Fschematics%2F-%2Fschematics-15.0.3.tgz"
+"@angular-devkit/schematics@npm:15.0.4":
+  version: 15.0.4
+  resolution: "@angular-devkit/schematics@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular-devkit%2Fschematics%2F-%2Fschematics-15.0.4.tgz"
   dependencies:
-    "@angular-devkit/core": 15.0.3
+    "@angular-devkit/core": 15.0.4
     jsonc-parser: 3.2.0
     magic-string: 0.26.7
     ora: 5.4.1
     rxjs: 6.6.7
-  checksum: c33b38ccd0c3fb2fb68cea0831c9e7fc8b09b8640190ebfcc2ad8b3dc0eecc01e8005bdc3d3cae08a803818c731b39dbe2ea1121433e1342fc01820fb77fd782
+  checksum: f9f574a0bb1931589f6c0ee32348faf7335d9d2b3411c4fc5768a7c64bae677d21ca2f100758f7e66f1fc8585ee5360dcc64c0115892c42ec756d5a182846dad
   languageName: node
   linkType: hard
 
@@ -253,20 +253,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/animations@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/animations@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fanimations%2F-%2Fanimations-15.0.3.tgz"
+"@angular/animations@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/animations@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fanimations%2F-%2Fanimations-15.0.4.tgz"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
-    "@angular/core": 15.0.3
-  checksum: 6d4821eb47a0a9a1ef4fa01c8d63656a490e6ab8688e68bff33abbe042cd72f40407d70069297bc0a12fd65da32ec67d95b0a352707da6a5aff49daf156a6328
+    "@angular/core": 15.0.4
+  checksum: 49f457b0ab34bc8eae8947bb75bb83b837460895ac24adb537239d2d488eef717fbec3cd58bc9695a2a16216121fc146acffa0ab3d4e89385de7114114147654
   languageName: node
   linkType: hard
 
-"@angular/cdk@npm:^15.0.2":
-  version: 15.0.2
-  resolution: "@angular/cdk@npm:15.0.2::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcdk%2F-%2Fcdk-15.0.2.tgz"
+"@angular/cdk@npm:^15.0.3":
+  version: 15.0.3
+  resolution: "@angular/cdk@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcdk%2F-%2Fcdk-15.0.3.tgz"
   dependencies:
     parse5: ^7.1.2
     tslib: ^2.3.0
@@ -277,18 +277,18 @@ __metadata:
   dependenciesMeta:
     parse5:
       optional: true
-  checksum: b171fbb8863ebd5822072c8a7d6b0979f3fc1d162c12fafe68d5d599a79a2339e07aacc72c0ea2bbc027c80cc88422f0e25408d522bf917ca1a55bab6f43b856
+  checksum: 134b4077deaf094c47ca422a196130a79501200fee6932c1ed1cf5283c9589f3b18fbd93ebb925bc8fe0d2575c949581089236787ab8e5e8448a62a2dfacb0dc
   languageName: node
   linkType: hard
 
-"@angular/cli@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/cli@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcli%2F-%2Fcli-15.0.3.tgz"
+"@angular/cli@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/cli@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcli%2F-%2Fcli-15.0.4.tgz"
   dependencies:
-    "@angular-devkit/architect": 0.1500.3
-    "@angular-devkit/core": 15.0.3
-    "@angular-devkit/schematics": 15.0.3
-    "@schematics/angular": 15.0.3
+    "@angular-devkit/architect": 0.1500.4
+    "@angular-devkit/core": 15.0.4
+    "@angular-devkit/schematics": 15.0.4
+    "@schematics/angular": 15.0.4
     "@yarnpkg/lockfile": 1.1.0
     ansi-colors: 4.1.3
     ini: 3.0.1
@@ -305,90 +305,90 @@ __metadata:
     yargs: 17.6.2
   bin:
     ng: bin/ng.js
-  checksum: 5445bb4bdd2cd890d4518c036c6a885f546da9ba7e2ed94e2ac8b0c002ebeb47b9ea12e3bfbfb35f14ac444b0790bbf238384bf5b474399c4e1f069ab4b1d05d
+  checksum: 14c327ca6fc41e51f47c97217e7044faf6df35b135906e137e133ede0104a3bfd3f66a370b169c1655cbebbda1fac72eba72bcfe0b56cc22953f6ef44cdbe560
   languageName: node
   linkType: hard
 
-"@angular/common@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/common@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcommon%2F-%2Fcommon-15.0.3.tgz"
+"@angular/common@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/common@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcommon%2F-%2Fcommon-15.0.4.tgz"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
-    "@angular/core": 15.0.3
+    "@angular/core": 15.0.4
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: e94a424b48658ac6ea5abfad685f3565826c841b790a88b8de943e0f1241537ae47a39264ffd80286f0f5349c90f858a39edab6dfa7cb0c40e081190328e0c55
+  checksum: c220ead880258400ce0b3d321563c7f0313e818951d57f044537164be8e2d3499184707449ae02ab88cc6c6b3cc916ad0d209df7bea5ca4d3e433956cc16c3cf
   languageName: node
   linkType: hard
 
-"@angular/compiler-cli@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/compiler-cli@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcompiler-cli%2F-%2Fcompiler-cli-15.0.3.tgz"
+"@angular/compiler-cli@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/compiler-cli@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcompiler-cli%2F-%2Fcompiler-cli-15.0.4.tgz"
   dependencies:
     "@babel/core": ^7.17.2
+    "@jridgewell/sourcemap-codec": ^1.4.14
     chokidar: ^3.0.0
     convert-source-map: ^1.5.1
     dependency-graph: ^0.11.0
     magic-string: ^0.27.0
     reflect-metadata: ^0.1.2
     semver: ^7.0.0
-    sourcemap-codec: ^1.4.8
     tslib: ^2.3.0
     yargs: ^17.2.1
   peerDependencies:
-    "@angular/compiler": 15.0.3
+    "@angular/compiler": 15.0.4
     typescript: ">=4.8.2 <4.9"
   bin:
     ng-xi18n: bundles/src/bin/ng_xi18n.js
     ngc: bundles/src/bin/ngc.js
     ngcc: bundles/ngcc/main-ngcc.js
-  checksum: 0b7a1bb7a55f9e40b1ab8f79fa30c6bc47d2a56676198a8947159b373a19cd3d883b119d2f1d9f2522b1c7c256b7927259ed9421bc555a6e6fbf5e491a02816c
+  checksum: 1ca50ac958d3eecafedf971cc8b553a48990d12cc085dd00239743bc209b7af5faa21c876b957ac9918fc9025c9b4138cb6f5f4a659d6ecce82c430ecfcb77a0
   languageName: node
   linkType: hard
 
-"@angular/compiler@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/compiler@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcompiler%2F-%2Fcompiler-15.0.3.tgz"
+"@angular/compiler@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/compiler@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcompiler%2F-%2Fcompiler-15.0.4.tgz"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
-    "@angular/core": 15.0.3
+    "@angular/core": 15.0.4
   peerDependenciesMeta:
     "@angular/core":
       optional: true
-  checksum: 587cb69e86b2987df18ca9b5b351453c561a7fea5045006b496ed8feef46d573c97787cc6f874ab43919cb0ec17a8c031c9c56abca7bebfe40c1468a7c76806f
+  checksum: ea4f5be7ab6b1c63986bb4971d81aace6a5c47b64d608ec02d7e73152242ad1292181c02815e9a04edbd4943d47da843dc9730ddd348e6a502db082a19f3ccc3
   languageName: node
   linkType: hard
 
-"@angular/core@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/core@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcore%2F-%2Fcore-15.0.3.tgz"
+"@angular/core@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/core@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fcore%2F-%2Fcore-15.0.4.tgz"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
     rxjs: ^6.5.3 || ^7.4.0
     zone.js: ~0.11.4 || ~0.12.0
-  checksum: 42a9fa14151d34ffc390373a0a298792aac9da80bc2afd005cb3c773139cad827fced10ef249488b615e08958b3046066f87cd2692d24b84882232449c600900
+  checksum: bdd044b51674f29a667a5d9e10d4f619f34761cb43a7764fac0806edcb0d41f0231a97aef4ce8934eaac1ed7f6636c0222f0e5b5d0c19674aacbb43414422b02
   languageName: node
   linkType: hard
 
-"@angular/forms@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/forms@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fforms%2F-%2Fforms-15.0.3.tgz"
+"@angular/forms@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/forms@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fforms%2F-%2Fforms-15.0.4.tgz"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
-    "@angular/common": 15.0.3
-    "@angular/core": 15.0.3
-    "@angular/platform-browser": 15.0.3
+    "@angular/common": 15.0.4
+    "@angular/core": 15.0.4
+    "@angular/platform-browser": 15.0.4
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: b76b8e120b41e31d74aeceaa4fd3dfe8fd04173e6c3d2e3667ff96efa54b32d7a73d71a2c5cd0c6846db5cb87ce05d426ef4fee80b105fff7af017d065f2bffb
+  checksum: aafb32e2bba4fb26d2045a6d0d6bf19fef5d9f9f25f2e43b5a91fa4136b923b50abd6d52a2c84bf957a2e5309081e8c0b1a9c55775bba8455357ec6e6097c8f3
   languageName: node
   linkType: hard
 
-"@angular/material@npm:^15.0.2":
-  version: 15.0.2
-  resolution: "@angular/material@npm:15.0.2::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fmaterial%2F-%2Fmaterial-15.0.2.tgz"
+"@angular/material@npm:^15.0.3":
+  version: 15.0.3
+  resolution: "@angular/material@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fmaterial%2F-%2Fmaterial-15.0.3.tgz"
   dependencies:
     "@material/animation": 15.0.0-canary.7971d6ad5.0
     "@material/auto-init": 15.0.0-canary.7971d6ad5.0
@@ -440,57 +440,57 @@ __metadata:
     tslib: ^2.3.0
   peerDependencies:
     "@angular/animations": ^15.0.0 || ^16.0.0
-    "@angular/cdk": 15.0.2
+    "@angular/cdk": 15.0.3
     "@angular/common": ^15.0.0 || ^16.0.0
     "@angular/core": ^15.0.0 || ^16.0.0
     "@angular/forms": ^15.0.0 || ^16.0.0
     "@angular/platform-browser": ^15.0.0 || ^16.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: a79da5b714a58fc219b4f70f27950f9dcc618efaa4d846d0d1617f03466b79cc3ebc6def43f5b21ed0722c191b1ae5458002a0d2afa44d07fd0aa5d97727bf2b
+  checksum: 75174e8af189b44bb378354ef979fa263d913f2e4708e72ebad3bc14abb05a41629dd56de46edf1e273da0029ec34447ed1981f2fc96751a97d03e19142b0b46
   languageName: node
   linkType: hard
 
-"@angular/platform-browser-dynamic@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/platform-browser-dynamic@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fplatform-browser-dynamic%2F-%2Fplatform-browser-dynamic-15.0.3.tgz"
+"@angular/platform-browser-dynamic@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/platform-browser-dynamic@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fplatform-browser-dynamic%2F-%2Fplatform-browser-dynamic-15.0.4.tgz"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
-    "@angular/common": 15.0.3
-    "@angular/compiler": 15.0.3
-    "@angular/core": 15.0.3
-    "@angular/platform-browser": 15.0.3
-  checksum: d96da30aec3e885312aa59035527e18b589ca98ba9b27827e5bb4acfc7e91c508af2eef5d9d8dfa6d02e26b6bc9de664f9d920e4a2bd70c1fd5f4e9231730eb3
+    "@angular/common": 15.0.4
+    "@angular/compiler": 15.0.4
+    "@angular/core": 15.0.4
+    "@angular/platform-browser": 15.0.4
+  checksum: 1a3ad7b5b259ac7ee63a9392cd32d1a4d83a1a9493b81fc1b46e6194a6af9395d9335ab58b23fcc7adb2ea887384117d51ca76571e4ad0fbb2ed747cfc9a8584
   languageName: node
   linkType: hard
 
-"@angular/platform-browser@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/platform-browser@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fplatform-browser%2F-%2Fplatform-browser-15.0.3.tgz"
+"@angular/platform-browser@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/platform-browser@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Fplatform-browser%2F-%2Fplatform-browser-15.0.4.tgz"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
-    "@angular/animations": 15.0.3
-    "@angular/common": 15.0.3
-    "@angular/core": 15.0.3
+    "@angular/animations": 15.0.4
+    "@angular/common": 15.0.4
+    "@angular/core": 15.0.4
   peerDependenciesMeta:
     "@angular/animations":
       optional: true
-  checksum: c6004d23058dd2658334e5602c2aeb5159348b677a097781c25d2de79c4e853d7f5cac0cc7af1ca9adaedf4db4933ab54e82cbff7a90cce3079bdbf1f75c155c
+  checksum: a8cd2d4c7b1bf38f5c04ef6cc31399153a66f56b08698d59306568a850d602029e7b1a8962906007c8e8b73959c97c8062dffdf389250d8def79cbac45eae4bc
   languageName: node
   linkType: hard
 
-"@angular/router@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@angular/router@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Frouter%2F-%2Frouter-15.0.3.tgz"
+"@angular/router@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@angular/router@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40angular%2Frouter%2F-%2Frouter-15.0.4.tgz"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
-    "@angular/common": 15.0.3
-    "@angular/core": 15.0.3
-    "@angular/platform-browser": 15.0.3
+    "@angular/common": 15.0.4
+    "@angular/core": 15.0.4
+    "@angular/platform-browser": 15.0.4
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: b11cc09435dd5c8b2f5a61aeaffbe56e9d468709fb8f324761a5e00cdd487cd667707e1721c558b6136804f3d030b6b08f93aa851c260241270130785ba3c8a1
+  checksum: 970ae295fca61011fe4ff120124645505e0c99c68e7b659c81fdeead4dec734f204401082fe648bbcbc5bd7a955c5e544036ae8138d406597496e1d18b158351
   languageName: node
   linkType: hard
 
@@ -2182,7 +2182,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/sourcemap-codec@npm:^1.4.13":
+"@jridgewell/sourcemap-codec@npm:^1.4.13, @jridgewell/sourcemap-codec@npm:^1.4.14":
   version: 1.4.14
   resolution: "@jridgewell/sourcemap-codec@npm:1.4.14::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40jridgewell%2Fsourcemap-codec%2F-%2Fsourcemap-codec-1.4.14.tgz"
   checksum: 61100637b6d173d3ba786a5dff019e1a74b1f394f323c1fee337ff390239f053b87266c7a948777f4b1ee68c01a8ad0ab61e5ff4abb5a012a0b091bec391ab97
@@ -3027,14 +3027,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ngtools/webpack@npm:15.0.3":
-  version: 15.0.3
-  resolution: "@ngtools/webpack@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40ngtools%2Fwebpack%2F-%2Fwebpack-15.0.3.tgz"
+"@ngtools/webpack@npm:15.0.4":
+  version: 15.0.4
+  resolution: "@ngtools/webpack@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40ngtools%2Fwebpack%2F-%2Fwebpack-15.0.4.tgz"
   peerDependencies:
     "@angular/compiler-cli": ^15.0.0
     typescript: ~4.8.2
     webpack: ^5.54.0
-  checksum: 830bba1e9bd45e2ee44e533a746253712c900d3c5bc6f0351f7ee25bb965bd07a00a7fcb1c67cf428a6536c88eafa132f633e44530f987fa4c209c14f56378ec
+  checksum: 56264999f457359e215a4cd3c489f97878f7b7e3a91dca5106b633e40da1d5fe376db8b744262edef73b4051137fe9f8048104ba94b245e3c82daa2cd9f622af
   languageName: node
   linkType: hard
 
@@ -3152,14 +3152,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@schematics/angular@npm:15.0.3":
-  version: 15.0.3
-  resolution: "@schematics/angular@npm:15.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40schematics%2Fangular%2F-%2Fangular-15.0.3.tgz"
+"@schematics/angular@npm:15.0.4":
+  version: 15.0.4
+  resolution: "@schematics/angular@npm:15.0.4::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40schematics%2Fangular%2F-%2Fangular-15.0.4.tgz"
   dependencies:
-    "@angular-devkit/core": 15.0.3
-    "@angular-devkit/schematics": 15.0.3
+    "@angular-devkit/core": 15.0.4
+    "@angular-devkit/schematics": 15.0.4
     jsonc-parser: 3.2.0
-  checksum: 87c4207c51c2f00c069d6174d4205889152a0c03c8d6ecdadea714d8b889de706cc4278d82e0e7ed23e3187fe080ebf8571f683f0a839a1c2eb776274cc5daa2
+  checksum: 81836a72a073540cc8892bb3857a6364d418deb656abd70ff25af412e94f13098f8dd87080013906f3f501d119250d63c7fba83c4adfcb4a0ae0367bde244a0b
   languageName: node
   linkType: hard
 
@@ -3504,10 +3504,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.11.13":
-  version: 18.11.13
-  resolution: "@types/node@npm:18.11.13"
-  checksum: b0c1aa3bd2f5df8240e61096a49d6d4be600109b824d23408ec4ba1ec057dc0c60588e09f73b8a60455ad26d367e9c5562fad8403099f885cbc7b4cace83ec4c
+"@types/node@npm:^18.11.15":
+  version: 18.11.15
+  resolution: "@types/node@npm:18.11.15::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Fnode%2F-%2Fnode-18.11.15.tgz"
+  checksum: cae8692a5cee0316f93ee0342237eb921f70c51afb37c661c711a925a4642654ae7e404c5a80899d481c0cfaff3a6891ef04bacd330a2e72734192bfc91dc2d8
   languageName: node
   linkType: hard
 
@@ -3678,13 +3678,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^5.46.0":
-  version: 5.46.0
-  resolution: "@typescript-eslint/eslint-plugin@npm:5.46.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Feslint-plugin%2F-%2Feslint-plugin-5.46.0.tgz"
+"@typescript-eslint/eslint-plugin@npm:^5.46.1":
+  version: 5.46.1
+  resolution: "@typescript-eslint/eslint-plugin@npm:5.46.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Feslint-plugin%2F-%2Feslint-plugin-5.46.1.tgz"
   dependencies:
-    "@typescript-eslint/scope-manager": 5.46.0
-    "@typescript-eslint/type-utils": 5.46.0
-    "@typescript-eslint/utils": 5.46.0
+    "@typescript-eslint/scope-manager": 5.46.1
+    "@typescript-eslint/type-utils": 5.46.1
+    "@typescript-eslint/utils": 5.46.1
     debug: ^4.3.4
     ignore: ^5.2.0
     natural-compare-lite: ^1.4.0
@@ -3697,24 +3697,24 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 5b7dde66a3db3d3009c9da5c1357d72c19b94d75474d8f51b6ac765962aa181bf8fe88fcca02a70faaceb2ed5739f790313d1d521d77149cab94ab5e3a987cf3
+  checksum: 4ea4af5faa5c509113d575bf6ea1f76989f253b4839bb98bcda28450be7fc8a87788169e822b0f6d739aee67e32e824440ef00cebc294d4212ffb3fed1f0756a
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^5.46.0":
-  version: 5.46.0
-  resolution: "@typescript-eslint/parser@npm:5.46.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Fparser%2F-%2Fparser-5.46.0.tgz"
+"@typescript-eslint/parser@npm:^5.46.1":
+  version: 5.46.1
+  resolution: "@typescript-eslint/parser@npm:5.46.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Fparser%2F-%2Fparser-5.46.1.tgz"
   dependencies:
-    "@typescript-eslint/scope-manager": 5.46.0
-    "@typescript-eslint/types": 5.46.0
-    "@typescript-eslint/typescript-estree": 5.46.0
+    "@typescript-eslint/scope-manager": 5.46.1
+    "@typescript-eslint/types": 5.46.1
+    "@typescript-eslint/typescript-estree": 5.46.1
     debug: ^4.3.4
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 34e2e8fb35050ac119ed2696293ecd9a1b40c3ccc915d06b8d48880c6656e8f40665b969807b76058eb9198227481653f1d1465a89a4ac6a98bc7ab9850ada1f
+  checksum: 784fe3ae688da85784b271c10d1e0b807583f4c370e32aa7a09b2584d0f7b92316a93cccbd9458bdf08f169b220097a4b0456bc5f62a210607a13a5fae84c972
   languageName: node
   linkType: hard
 
@@ -3728,13 +3728,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/scope-manager@npm:5.46.0":
-  version: 5.46.0
-  resolution: "@typescript-eslint/scope-manager@npm:5.46.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Fscope-manager%2F-%2Fscope-manager-5.46.0.tgz"
+"@typescript-eslint/scope-manager@npm:5.46.1":
+  version: 5.46.1
+  resolution: "@typescript-eslint/scope-manager@npm:5.46.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Fscope-manager%2F-%2Fscope-manager-5.46.1.tgz"
   dependencies:
-    "@typescript-eslint/types": 5.46.0
-    "@typescript-eslint/visitor-keys": 5.46.0
-  checksum: 10d992a6f9bbe747a8fb5f8b02732e3a289d2667e32ea835de825efe7a841688e683ae1d15d250df84c2ada313b9a3f41c9c9b5ae924c3d9b90d73f23241ae7f
+    "@typescript-eslint/types": 5.46.1
+    "@typescript-eslint/visitor-keys": 5.46.1
+  checksum: bf934603dc9c7da71eb26f415d13018f2a96dbba193a773bc440a5c93828365f09bb3db9be55189dfbbace414c6c48d7fad246c0d9717dab4676d0d79d6d8676
   languageName: node
   linkType: hard
 
@@ -3755,12 +3755,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/type-utils@npm:5.46.0":
-  version: 5.46.0
-  resolution: "@typescript-eslint/type-utils@npm:5.46.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Ftype-utils%2F-%2Ftype-utils-5.46.0.tgz"
+"@typescript-eslint/type-utils@npm:5.46.1":
+  version: 5.46.1
+  resolution: "@typescript-eslint/type-utils@npm:5.46.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Ftype-utils%2F-%2Ftype-utils-5.46.1.tgz"
   dependencies:
-    "@typescript-eslint/typescript-estree": 5.46.0
-    "@typescript-eslint/utils": 5.46.0
+    "@typescript-eslint/typescript-estree": 5.46.1
+    "@typescript-eslint/utils": 5.46.1
     debug: ^4.3.4
     tsutils: ^3.21.0
   peerDependencies:
@@ -3768,7 +3768,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 96feae3b67b78bc74b916bb7c3c654c13c6f000fc1f6945709764010fb6644e7cbf7749faa6ab0562255197b49fbf7c28c9a5b558378fa74e2cd38aeddc459cb
+  checksum: a47f1b73ac773a7f33421a8e8f9bc6e047f55236e3257b2c9eaa04d18595ab6505129ffdab86685e9c3bef564091315a2347150cd6e61a511cc2160667458014
   languageName: node
   linkType: hard
 
@@ -3779,10 +3779,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/types@npm:5.46.0":
-  version: 5.46.0
-  resolution: "@typescript-eslint/types@npm:5.46.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Ftypes%2F-%2Ftypes-5.46.0.tgz"
-  checksum: 162e2e7841369598d3018f315545e85b79e57cc2f9033770397dbbdab0c80d72a8ee791710d10570b70624b5f343f7f8fc7ffabaec62f708cd7bfc5b432ad595
+"@typescript-eslint/types@npm:5.46.1":
+  version: 5.46.1
+  resolution: "@typescript-eslint/types@npm:5.46.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Ftypes%2F-%2Ftypes-5.46.1.tgz"
+  checksum: 91143d3304b8c70d69d9c8e5b7428cce3a222eacfbeb99e592d278668bcf998760731deae064a76157b9a0fc4911fe3178aa24e4ea6fe2ba68dd37113834c924
   languageName: node
   linkType: hard
 
@@ -3804,12 +3804,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/typescript-estree@npm:5.46.0":
-  version: 5.46.0
-  resolution: "@typescript-eslint/typescript-estree@npm:5.46.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Ftypescript-estree%2F-%2Ftypescript-estree-5.46.0.tgz"
+"@typescript-eslint/typescript-estree@npm:5.46.1":
+  version: 5.46.1
+  resolution: "@typescript-eslint/typescript-estree@npm:5.46.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Ftypescript-estree%2F-%2Ftypescript-estree-5.46.1.tgz"
   dependencies:
-    "@typescript-eslint/types": 5.46.0
-    "@typescript-eslint/visitor-keys": 5.46.0
+    "@typescript-eslint/types": 5.46.1
+    "@typescript-eslint/visitor-keys": 5.46.1
     debug: ^4.3.4
     globby: ^11.1.0
     is-glob: ^4.0.3
@@ -3818,7 +3818,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 645f9fd65836019073fd7af5bfa0e4c3d47303deda0917c4d8fb6ed6790bebaaeb7020a7a104b96c5fda707eb20e248c38fc711cdc83439775c563ef9f169746
+  checksum: 21499b927b4118cd51e841b2e1b7e55621135f923f461b75dc8ca8442de38a82da5a0232dce5229e0266b6fc12d70696e0e912fcf1483d4c44f02e4cad39ed98
   languageName: node
   linkType: hard
 
@@ -3840,21 +3840,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:5.46.0":
-  version: 5.46.0
-  resolution: "@typescript-eslint/utils@npm:5.46.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Futils%2F-%2Futils-5.46.0.tgz"
+"@typescript-eslint/utils@npm:5.46.1":
+  version: 5.46.1
+  resolution: "@typescript-eslint/utils@npm:5.46.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Futils%2F-%2Futils-5.46.1.tgz"
   dependencies:
     "@types/json-schema": ^7.0.9
     "@types/semver": ^7.3.12
-    "@typescript-eslint/scope-manager": 5.46.0
-    "@typescript-eslint/types": 5.46.0
-    "@typescript-eslint/typescript-estree": 5.46.0
+    "@typescript-eslint/scope-manager": 5.46.1
+    "@typescript-eslint/types": 5.46.1
+    "@typescript-eslint/typescript-estree": 5.46.1
     eslint-scope: ^5.1.1
     eslint-utils: ^3.0.0
     semver: ^7.3.7
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-  checksum: f4962a7d34f55c44b238df550d45aacbc7b8fcba7d172fd96ee17eb5ce964481e3e68376205598146f4f3aa69df7627686a9bd16022b51246d6e9fe94ffb2bb8
+  checksum: db9fd1dfb2390e66041f9529d564f38ccf74042de68e0e1e3d319ba4d02d7cd969d75dc056f938b98acab53ad7c1e36c68eabb15c0b2e2296b081652fa8d3820
   languageName: node
   linkType: hard
 
@@ -3868,13 +3868,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/visitor-keys@npm:5.46.0":
-  version: 5.46.0
-  resolution: "@typescript-eslint/visitor-keys@npm:5.46.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Fvisitor-keys%2F-%2Fvisitor-keys-5.46.0.tgz"
+"@typescript-eslint/visitor-keys@npm:5.46.1":
+  version: 5.46.1
+  resolution: "@typescript-eslint/visitor-keys@npm:5.46.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2F%40typescript-eslint%2Fvisitor-keys%2F-%2Fvisitor-keys-5.46.1.tgz"
   dependencies:
-    "@typescript-eslint/types": 5.46.0
+    "@typescript-eslint/types": 5.46.1
     eslint-visitor-keys: ^3.3.0
-  checksum: 83ec2514b2469db395f006576c934bd60b21e74e2e67c183f8d9249954119c56074de286ce8c55d42e20b06d0083d4665f3baf0eed720712203796be488f0944
+  checksum: 952cf20e29a040e0820e52d6815097abf042ea8e1fd5d013c0a319284ea0e2e29e0ca9ef244717450a6eb9d32ebf7fa9ed91185675a27adc35c9ad070d561b7c
   languageName: node
   linkType: hard
 
@@ -5999,21 +5999,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-loader@npm:6.7.1":
-  version: 6.7.1
-  resolution: "css-loader@npm:6.7.1"
+"css-loader@npm:6.7.3":
+  version: 6.7.3
+  resolution: "css-loader@npm:6.7.3::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fcss-loader%2F-%2Fcss-loader-6.7.3.tgz"
   dependencies:
-    icss-utils: "npm:^5.1.0"
-    postcss: "npm:^8.4.7"
-    postcss-modules-extract-imports: "npm:^3.0.0"
-    postcss-modules-local-by-default: "npm:^4.0.0"
-    postcss-modules-scope: "npm:^3.0.0"
-    postcss-modules-values: "npm:^4.0.0"
-    postcss-value-parser: "npm:^4.2.0"
-    semver: "npm:^7.3.5"
+    icss-utils: ^5.1.0
+    postcss: ^8.4.19
+    postcss-modules-extract-imports: ^3.0.0
+    postcss-modules-local-by-default: ^4.0.0
+    postcss-modules-scope: ^3.0.0
+    postcss-modules-values: ^4.0.0
+    postcss-value-parser: ^4.2.0
+    semver: ^7.3.8
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 170fdbc630a05a43679ef60fa97694766b568dbde37adccc0faafa964fc675f08b976bc68837bb73b61d60240e8d2cbcbf51540fe94ebc9dafc56e7c46ba5527
+  checksum: 473cc32b6c837c2848e2051ad1ba331c1457449f47442e75a8c480d9891451434ada241f7e3de2347e57de17fcd84610b3bcfc4a9da41102cdaedd1e17902d31
   languageName: node
   linkType: hard
 
@@ -11128,24 +11128,24 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "ng-cad2@workspace:."
   dependencies:
-    "@angular-devkit/build-angular": ^15.0.3
+    "@angular-devkit/build-angular": ^15.0.4
     "@angular-eslint/builder": ^15.1.0
     "@angular-eslint/eslint-plugin": ^15.1.0
     "@angular-eslint/eslint-plugin-template": ^15.1.0
     "@angular-eslint/schematics": ^15.1.0
     "@angular-eslint/template-parser": ^15.1.0
-    "@angular/animations": ^15.0.3
-    "@angular/cdk": ^15.0.2
-    "@angular/cli": ^15.0.3
-    "@angular/common": ^15.0.3
-    "@angular/compiler": ^15.0.3
-    "@angular/compiler-cli": ^15.0.3
-    "@angular/core": ^15.0.3
-    "@angular/forms": ^15.0.3
-    "@angular/material": ^15.0.2
-    "@angular/platform-browser": ^15.0.3
-    "@angular/platform-browser-dynamic": ^15.0.3
-    "@angular/router": ^15.0.3
+    "@angular/animations": ^15.0.4
+    "@angular/cdk": ^15.0.3
+    "@angular/cli": ^15.0.4
+    "@angular/common": ^15.0.4
+    "@angular/compiler": ^15.0.4
+    "@angular/compiler-cli": ^15.0.4
+    "@angular/core": ^15.0.4
+    "@angular/forms": ^15.0.4
+    "@angular/material": ^15.0.3
+    "@angular/platform-browser": ^15.0.4
+    "@angular/platform-browser-dynamic": ^15.0.4
+    "@angular/router": ^15.0.4
     "@maaxgr/ang-jsoneditor": ^14.0.0
     "@types/archiver": ^5.3.1
     "@types/color": ^3.0.3
@@ -11157,13 +11157,13 @@ __metadata:
     "@types/luxon": ^3.1.0
     "@types/md5": ^2.3.2
     "@types/minimist": ^1.2.2
-    "@types/node": ^18.11.13
+    "@types/node": ^18.11.15
     "@types/pdfmake": ^0.2.2
     "@types/prettier": ^2.7.1
     "@types/quill": ^1.3.10
     "@types/uuid": ^9.0.0
-    "@typescript-eslint/eslint-plugin": ^5.46.0
-    "@typescript-eslint/parser": ^5.46.0
+    "@typescript-eslint/eslint-plugin": ^5.46.1
+    "@typescript-eslint/parser": ^5.46.1
     angular-animations: ^0.11.0
     archiver: ^5.3.1
     axios: ^1.2.1
@@ -11198,7 +11198,7 @@ __metadata:
     ng-recaptcha: ^11.0.0
     ngx-color: ^8.0.3
     ngx-infinite-scroll: ^15.0.0
-    ngx-quill: ^20.0.0
+    ngx-quill: ^20.0.1
     ngx-scrollbar: ^10.0.1
     ngx-ui-loader: ^13.0.0
     pdfmake: ^0.2.6
@@ -11206,7 +11206,7 @@ __metadata:
     print-js: ^1.6.0
     protractor: ~7.0.0
     quill: ^1.3.7
-    rxjs: ~7.6.0
+    rxjs: ~7.8.0
     ts-node: ^10.9.1
     tslib: ^2.4.1
     typescript: ~4.8.4
@@ -11253,16 +11253,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ngx-quill@npm:^20.0.0":
-  version: 20.0.0
-  resolution: "ngx-quill@npm:20.0.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fngx-quill%2F-%2Fngx-quill-20.0.0.tgz"
+"ngx-quill@npm:^20.0.1":
+  version: 20.0.1
+  resolution: "ngx-quill@npm:20.0.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fngx-quill%2F-%2Fngx-quill-20.0.1.tgz"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
     "@angular/core": ^14.0.0 || ^15.0.0
     quill: ^1.3.7
     rxjs: ^7.0.0
-  checksum: e90c89dffcad4f8f4bf43f9257096785d470e3c1853f9dad450d67fe9492e6b0eec806450cba072d05eb8d9951797fe6a0756d493f64d66936348e9875d214d5
+  checksum: 14e3e0196a5ae0fb58b0a6a86a76cbda3091b3cb14648d631de80af84956d16583e23d59e1027cbb873dc3d00de68d4db886abe6358e19d4ca9b4627f23431f2
   languageName: node
   linkType: hard
 
@@ -12385,7 +12385,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.2.14, postcss@npm:^8.3.7, postcss@npm:^8.4.7":
+"postcss@npm:^8.2.14, postcss@npm:^8.3.7":
   version: 8.4.16
   resolution: "postcss@npm:8.4.16"
   dependencies:
@@ -12393,6 +12393,17 @@ __metadata:
     picocolors: "npm:^1.0.0"
     source-map-js: "npm:^1.0.2"
   checksum: 10eee25efd77868036403858577da0cefaf2e0905feeaba5770d5438ccdddba3d01cba8063e96b8aac4c6daa0ed413dd5ae0554a433a3c4db38df1d134cffc1f
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.19":
+  version: 8.4.20
+  resolution: "postcss@npm:8.4.20::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fpostcss%2F-%2Fpostcss-8.4.20.tgz"
+  dependencies:
+    nanoid: ^3.3.4
+    picocolors: ^1.0.0
+    source-map-js: ^1.0.2
+  checksum: 1a5609ea1c1b204f9c2974a0019ae9eef2d99bf645c2c9aac675166c4cb1005be7b5e2ba196160bc771f5d9ac896ed883f236f888c891e835e59d28fff6651aa
   languageName: node
   linkType: hard
 
@@ -13261,12 +13272,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:~7.6.0":
-  version: 7.6.0
-  resolution: "rxjs@npm:7.6.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Frxjs%2F-%2Frxjs-7.6.0.tgz"
+"rxjs@npm:~7.8.0":
+  version: 7.8.0
+  resolution: "rxjs@npm:7.8.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Frxjs%2F-%2Frxjs-7.8.0.tgz"
   dependencies:
     tslib: ^2.1.0
-  checksum: b3abbbfe1ddfd06fca9314b83cbd13bcddc3320429218136f75c79a4802ac430dd13873364aac1ded54fd457f8c77df332d205a92d8a1c61656565bb718c50af
+  checksum: 61b4d4fd323c1043d8d6ceb91f24183b28bcf5def4f01ca111511d5c6b66755bc5578587fe714ef5d67cf4c9f2e26f4490d4e1d8cabf9bd5967687835e9866a2
   languageName: node
   linkType: hard
 
