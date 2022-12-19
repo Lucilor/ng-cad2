@@ -1,50 +1,59 @@
 <div class="btn-group">
-  <button mat-raised-button color="primary" (click)="generateRects(true, true)">重新生成矩形</button>
   <button mat-raised-button color="primary" (click)="submit()">提交</button>
+  <ng-container *ngIf="!production">
+    <button mat-raised-button color="primary" (click)="generateRects(true, true)">重新生成矩形</button>
+    <div>颜色范围</div>
+    <div class="flex-row" style="height: 64px; align-items: flex-end">
+      <mat-slider [min]="0" [max]="255" discrete style="width: 300px">
+        <input [(ngModel)]="rgbMin" matSliderStartThumb />
+        <input [(ngModel)]="rgbMax" matSliderEndThumb />
+      </mat-slider>
+    </div>
+  </ng-container>
 </div>
-<div class="content flex-row flex-110">
-  <div #rectContainer class="rect-container">
-    <div class="rects">
-      <div
-        class="rect"
-        *ngFor="let info of rectInfosRelative"
-        [ngClass]="{'is-buju': info.isBuju, active: info.active}"
-        [ngStyle]="getRectStyle(info)"
-        (click)="onRectClick(info)"
-      ></div>
+<div class="content flex-row">
+  <div class="rect-container flex-column">
+    <div class="title">选择要配置可选模块的布局</div>
+    <div #rectOuter class="rect-outer flex-110">
+      <div class="rects">
+        <div
+          class="rect"
+          *ngFor="let info of rectInfosRelative"
+          [ngClass]="{'is-buju': info.isBuju, active: info.active}"
+          [ngStyle]="getRectStyle(info)"
+          (click)="onRectClick(info)"
+        ></div>
+      </div>
     </div>
   </div>
-  <div class="mokuai-container flex-110" cdkDropListGroup>
-    <mat-selection-list
-      #listLeft
-      class="list flex-110"
-      [multiple]="false"
-      cdkDropList
-      [cdkDropListData]="mokuaisSelected"
-      (cdkDropListDropped)="dropMokuai($event)"
-    >
-      <mat-list-option class="list-item" *ngFor="let item of mokuaisSelected" [value]="item.name" cdkDrag>{{ item.name }}</mat-list-option>
-    </mat-selection-list>
-    <div class="menu flex-column">
-      <button mat-icon-button color="primary" [disabled]="this.listRight?.selectedOptions?.isEmpty()" (click)="selectMokuai()">
-        <mat-icon>add</mat-icon>
-      </button>
-      <button mat-icon-button color="primary" [disabled]="this.listLeft?.selectedOptions?.isEmpty()" (click)="deselectMokuai()">
-        <mat-icon>close</mat-icon>
-      </button>
+  <div class="mokuai-container flex-column flex-110" cdkDropListGroup>
+    <div class="title">可选模块分类</div>
+    <div class="flex-row flex-110">
+      <ng-template *ngTemplateOutlet="mokuaiListT; context: {$implicit: mokuaisSelected, class: 'selected'}"></ng-template>
+      <div class="menu flex-column">
+        <button mat-icon-button color="primary" [disabled]="mokuaiListSelected?.selectedOptions?.isEmpty()" (click)="selectMokuai()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button color="primary" [disabled]="mokuaiListNotSelected?.selectedOptions?.isEmpty()" (click)="deselectMokuai()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <ng-template *ngTemplateOutlet="mokuaiListT; context: {$implicit: mokuaisNotSelected, class: 'not-selected'}"></ng-template>
+
+      <ng-template #mokuaiListT [appTypedTemplate]="mokuaiListDataType" let-mokuais let-class="class">
+        <mat-selection-list
+          #mokuaiList
+          [id]="id"
+          class="list flex-110"
+          [multiple]="false"
+          cdkDropList
+          [cdkDropListData]="mokuais"
+          (cdkDropListDropped)="dropMokuai($event)"
+          cdkDropListSortingDisabled
+        >
+          <mat-list-option class="list-item" *ngFor="let item of mokuais" [value]="item.vid" cdkDrag>{{ item.mingzi }}</mat-list-option>
+        </mat-selection-list>
+      </ng-template>
     </div>
-    <mat-selection-list
-      #listRight
-      class="list flex-110"
-      [multiple]="false"
-      cdkDropList
-      [cdkDropListData]="mokuaisNotSelected"
-      (cdkDropListDropped)="dropMokuai($event)"
-      cdkDropListSortingDisabled
-    >
-      <mat-list-option class="list-item" *ngFor="let item of mokuaisNotSelected" [value]="item.name" cdkDrag>{{
-        item.name
-      }}</mat-list-option>
-    </mat-selection-list>
   </div>
 </div>

@@ -1,3 +1,4 @@
+import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {ObjectOf} from "@utils";
 
 export class Jiaowei {
@@ -116,3 +117,7 @@ export interface JiaoweiDataItem {
   disabled: boolean;
 }
 export type JiaoweiData = ObjectOf<JiaoweiDataItem>;
+
+export interface JiaoweiTableData extends TableDataBase {
+  jiaowei?: string;
+}

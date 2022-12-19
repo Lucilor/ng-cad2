@@ -5,6 +5,7 @@ import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {exportZixuanpeijian, importZixuanpeijian, ZixuanpeijianOutput} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
+import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {setGlobal} from "@src/app/app.common";
 
@@ -47,7 +48,11 @@ export class PjmkComponent implements OnInit {
       this.message.error("缺少参数: table");
       return;
     }
-    const records = await this.dataService.queryMySql({table, filter: {where: {vid: id}}, fields: ["mingzi", "peijianmokuai"]});
+    const records = await this.dataService.queryMySql<{peijianmokuai: string} & TableDataBase>({
+      table,
+      filter: {where: {vid: id}},
+      fields: ["mingzi", "peijianmokuai"]
+    });
     if (records?.length > 0) {
       this.name = records[0].mingzi || "";
       try {

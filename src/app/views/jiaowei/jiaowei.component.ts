@@ -4,10 +4,9 @@ import {setGlobal} from "@app/app.common";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
-import {Jiaowei, jiaoweiAnchorOptions} from "./jiaowei";
+import {Jiaowei, jiaoweiAnchorOptions, JiaoweiTableData} from "./jiaowei";
 
 const table = "p_menjiao" as const;
-const dataField = "jiaowei" as const;
 
 @Component({
   selector: "app-jiaowei",
@@ -23,9 +22,9 @@ export class JiaoweiComponent implements OnInit {
   async ngOnInit() {
     setGlobal("jiaowei", this);
     const {id} = this.router.snapshot.queryParams;
-    const data = await this.dataService.tableSelect({table, search: {vid: id}});
+    const data = await this.dataService.queryMySql<JiaoweiTableData>({table, filter: {where: {vid: id}}});
     try {
-      this.jiaowei.import(JSON.parse(data[0][dataField]));
+      this.jiaowei.import(JSON.parse(data[0].jiaowei || ""));
     } catch (error) {
       console.error(error);
       this.message.error("数据格式错误");
@@ -39,8 +38,8 @@ export class JiaoweiComponent implements OnInit {
 
   submit() {
     const {id} = this.router.snapshot.queryParams;
-    const tableData: TableUpdateParams["tableData"] = {vid: id};
-    tableData[dataField] = JSON.stringify(this.jiaowei.export());
+    const tableData: TableUpdateParams<JiaoweiTableData>["tableData"] = {vid: id};
+    tableData.jiaowei = JSON.stringify(this.jiaowei.export());
     this.dataService.tableUpdate({table, tableData});
   }
 }

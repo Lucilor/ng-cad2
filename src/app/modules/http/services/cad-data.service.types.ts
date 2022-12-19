@@ -87,15 +87,12 @@ export interface QueryMysqlParams {
   limit?: number;
 }
 
-export interface TableSelectParams {
+export interface TableUpdateParams<T extends TableDataBase = TableDataBase> {
   table: string;
-  page?: number;
-  limit?: number;
-  search?: ObjectOf<any>;
-  fields?: string[];
+  tableData: {vid: number} & Omit<Partial<T>, "vid">;
 }
 
-export interface TableUpdateParams {
-  table: string;
-  tableData: {vid: string} & ObjectOf<any>;
+export interface TableDataBase {
+  vid: number;
+  mingzi: string;
 }

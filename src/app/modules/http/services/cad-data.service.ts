@@ -13,8 +13,8 @@ import {
   Changelog,
   QueryMongodbParams,
   QueryMysqlParams,
-  TableSelectParams,
-  TableUpdateParams
+  TableUpdateParams,
+  TableDataBase
 } from "./cad-data.service.types";
 import {CadImgCache} from "./cad-img-cache";
 import {CustomResponse, HttpOptions, HttpService} from "./http.service";
@@ -246,13 +246,14 @@ export class CadDataService extends HttpService {
     return response && response.code === 0;
   }
 
-  async queryMongodb<T extends ObjectOf<any>>(params: QueryMongodbParams) {
-    const response = await this.post<T[]>("ngcad/queryMongodb", params);
+  async queryMongodb<T extends ObjectOf<any>>(params: QueryMongodbParams, options?: HttpOptions) {
+    const response = await this.post<T[]>("ngcad/queryMongodb", params, options);
     return response?.data ?? [];
   }
 
-  async queryMySql<T extends ObjectOf<any>>(params: QueryMysqlParams) {
-    const response = await this.post<T[]>("ngcad/queryMysql", params);
+  async queryMySql<T extends TableDataBase>(params: QueryMysqlParams, options?: HttpOptions) {
+    params = {page: 1, limit: 10, ...params};
+    const response = await this.post<T[]>("ngcad/queryMysql", params, {testData: params.table, ...options});
     return response?.data ?? [];
   }
 
@@ -276,12 +277,6 @@ export class CadDataService extends HttpService {
   async getShortUrl(name: string, data: ObjectOf<any> = {}, options?: HttpOptions) {
     const response = await this.post<string>("ngcad/getShortUrl", {name, data}, options);
     return response?.data || null;
-  }
-
-  async tableSelect<T = any>(params: TableSelectParams, options?: HttpOptions) {
-    params = {page: 1, limit: 10, ...params};
-    const resposne = await this.post<T[]>("jichu/jichu/table_select", params, {testData: params.table, ...options});
-    return resposne?.data || [];
   }
 
   async tableUpdate<T = any>(params: TableUpdateParams, options?: HttpOptions) {

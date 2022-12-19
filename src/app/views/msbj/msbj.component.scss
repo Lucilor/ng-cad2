@@ -7,6 +7,14 @@
   box-sizing: border-box;
 }
 
+.content {
+  height: 66.66%;
+  
+  .title {
+    text-align: center;
+  }
+}
+
 .rect-container {
   position: relative;
   width: 50%;
@@ -20,7 +28,6 @@
     .rect {
       position: absolute;
       border: 1px solid black;
-      transition: 0.3s;
       &.is-buju {
         cursor: pointer;
       }
@@ -28,12 +35,6 @@
         border: 2px solid black;
       }
     }
-  }
-
-  .menu {
-    position: absolute;
-    top: 0;
-    left: 0;
   }
 }
 
