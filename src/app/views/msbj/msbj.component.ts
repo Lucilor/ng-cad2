@@ -1,12 +1,15 @@
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from "@angular/cdk/drag-drop";
 import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, QueryList, ViewChild, ViewChildren} from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
 import {MatSelectionList} from "@angular/material/list";
 import {ActivatedRoute} from "@angular/router";
+import {openEditFormulasDialog} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {QueryMysqlParams, TableDataBase, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {setGlobal} from "@src/app/app.common";
+import {Formulas} from "@src/app/utils/calc";
 import {environment} from "@src/environments/environment";
 import {ObjectOf, Rectangle} from "@utils";
 import {Properties} from "csstype";
@@ -22,26 +25,37 @@ export class MsbjComponent implements AfterViewInit {
   table = "";
   id = "";
   msbjInfo: MsbjInfo | null = null;
-  rectInfosRaw: MsbjRectInfoRaw[] = [];
   rectInfosAbsolute: MsbjRectInfo[] = [];
   rectInfosRelative: MsbjRectInfo[] = [];
   rectColors: ObjectOf<string> = {};
   currRectInfo: MsbjRectInfo | null = null;
-  mokuaisAll: MsbjMokuai[] = [];
-  mokuaisSelected: MsbjMokuai[] = [];
-  mokuaisNotSelected: MsbjMokuai[] = [];
+  fenleisAll: MsbjFenlei[] = [];
+  fenleisSelected: MsbjFenlei[] = [];
+  fenleisNotSelected: MsbjFenlei[] = [];
   dataField: keyof Omit<MsbjTableData, keyof TableDataBase> = "peizhishuju";
-  mokuaiListDataType!: {$implicit: MsbjMokuai[]; class: string};
+  fenleiListDataType!: {$implicit: MsbjFenlei[]; class: string};
   rgbMin = 200;
   rgbMax = 245;
+  altColors = [
+    "rgb(231, 224, 200)",
+    "rgb(218, 235, 202)",
+    "rgb(240, 203, 230)",
+    "rgb(234, 205, 230)",
+    "rgb(208, 215, 243)",
+    "rgb(211, 201, 201)",
+    "rgb(219, 205, 212)",
+    "rgb(245, 228, 239)",
+    "rgb(231, 212, 203)",
+    "rgb(237, 229, 223)"
+  ];
   multiSelect = true;
   @ViewChild("rectOuter") rectOuter?: ElementRef<HTMLDivElement>;
-  @ViewChildren("mokuaiList") mokuaiLists?: QueryList<MatSelectionList>;
-  get mokuaiListSelected() {
-    return this.mokuaiLists?.find((v) => v._element.nativeElement.classList.contains("selected"));
+  @ViewChildren("fenleiList") fenleiLists?: QueryList<MatSelectionList>;
+  get fenleiListSelected() {
+    return this.fenleiLists?.find((v) => v._element.nativeElement.classList.contains("selected"));
   }
-  get mokuaiListNotSelected(){
-    return this.mokuaiLists?.find((v) => v._element.nativeElement.classList.contains("not-selected"));
+  get fenleiListNotSelected() {
+    return this.fenleiLists?.find((v) => v._element.nativeElement.classList.contains("not-selected"));
   }
 
   constructor(
@@ -49,7 +63,8 @@ export class MsbjComponent implements AfterViewInit {
     private dataService: CadDataService,
     private message: MessageService,
     private spinner: SpinnerService,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     setGlobal("msbj", this);
   }
@@ -58,61 +73,66 @@ export class MsbjComponent implements AfterViewInit {
     const {table, id, field} = this.route.snapshot.queryParams;
     this.table = table || "";
     this.id = id || "";
-    this.dataField = field === "peizhishuju" ? field : "menshanbujumorenmokuai";
+    this.dataField = field === "peizhishuju" ? field : "menshanbujumorenfenlei";
     this.multiSelect = this.dataField === "peizhishuju";
-    await this.generateRects(true);
     this.spinner.show(this.spinner.defaultLoaderId);
+    const params: QueryMysqlParams = {table: "p_gongnengfenlei", fields: ["mingzi"]};
+    if (this.msbjInfo?.menshanbuju) {
+      params.filter = {where: {vid: this.msbjInfo.menshanbuju}};
+    }
+    const fenleis = await this.dataService.queryMySql(params);
+    this.fenleisAll = fenleis.map((v) => ({...v, selected: false}));
+    this.fenleisSelected = [];
+    this.fenleisNotSelected = [];
+
     const msbjData = await this.dataService.queryMySql<MsbjTableData>({table, filter: {where: {vid: this.id}}});
     if (msbjData[0]) {
       this.msbjInfo = {
         vid: msbjData[0].vid,
         name: msbjData[0].mingzi,
-        mokuais: {},
         multiSelect: this.dataField === "peizhishuju",
-        menshanbuju: msbjData[0].menshanbuju
+        menshanbuju: msbjData[0].menshanbuju,
+        rectInfos: []
       };
-      let mokuais = null;
+      let rectInfos1: MsbjRectInfoRaw[] | null = null;
       try {
-        mokuais = JSON.parse(msbjData[0][this.dataField] || "");
+        rectInfos1 = window.node2rect(JSON.parse(msbjData[0].node || ""));
       } catch (error) {}
-      if (mokuais && typeof mokuais === "object") {
-        this.msbjInfo.mokuais = mokuais;
+      let rectInfos2: MsbjRectInfoRaw[] | null = null;
+      try {
+        rectInfos2 = JSON.parse(msbjData[0][this.dataField] || "");
+      } catch (error) {}
+      if (rectInfos1) {
+        for (const info1 of rectInfos1) {
+          info1.可选模块分类 = fenleis.map((v) => v.vid);
+          const info2 = rectInfos2?.find((v) => v.vid === info1.vid);
+          if (info2) {
+            Object.assign(info1, info2);
+          }
+        }
+        this.msbjInfo.rectInfos = rectInfos1.map((v) => ({...v, selected: false}));
       }
     } else {
       this.msbjInfo = null;
     }
-
-    const params: QueryMysqlParams = {table: "p_gongnengfenlei", fields: ["mingzi"]};
-    if (this.msbjInfo?.menshanbuju) {
-      params.filter = {where: {vid: this.msbjInfo.menshanbuju}};
-    } else {
-    }
-    const fenleis = await this.dataService.queryMySql(params);
-    this.mokuaisAll = fenleis.map((v) => ({...v, selected: false}));
-    this.mokuaisSelected = [];
-    this.mokuaisNotSelected = [];
     this.spinner.hide(this.spinner.defaultLoaderId);
+
+    this.generateRects(true);
     window.addEventListener("resize", () => this.generateRects());
   }
 
-  async generateRects(fetchData?: boolean, resetColors?: boolean) {
-    let rectInfosRaw: MsbjRectInfoRaw[];
-    if (fetchData) {
-      this.spinner.show(this.spinner.defaultLoaderId);
-      const response = await this.dataService.post<MsbjRectInfoRaw[]>("ngcad/getMsbjRects", {id: this.id}, {testData: "rectInfos"});
-      this.spinner.hide(this.spinner.defaultLoaderId);
-      rectInfosRaw = response?.data || [];
-      this.rectInfosRaw = rectInfosRaw;
-    } else {
-      rectInfosRaw = this.rectInfosRaw;
-    }
+  generateRects(resetColors?: boolean) {
     this.rectInfosAbsolute = [];
     this.rectInfosRelative = [];
     const totalRect = Rectangle.min;
-    rectInfosRaw.forEach((infoRaw) => {
+    const names = new Set<string>();
+    this.msbjInfo?.rectInfos.forEach((infoRaw) => {
       const infoAbsolute = new MsbjRectInfo(infoRaw);
       this.rectInfosAbsolute.push(infoAbsolute);
       totalRect.expandByRect(infoAbsolute.rect);
+      if (infoAbsolute.raw.mingzi) {
+        names.add(infoAbsolute.raw.mingzi);
+      }
     });
     const {width, height, left, bottom} = totalRect;
     if (resetColors) {
@@ -120,22 +140,39 @@ export class MsbjComponent implements AfterViewInit {
     }
     const rectColors = this.rectColors;
     const randRGB = () => random(this.rgbMin, this.rgbMax);
+    let i = 0;
+    const altColors = this.altColors;
+    const randColor = () => {
+      if (i < altColors.length) {
+        return altColors[i++];
+      }
+      return `rgb(${randRGB()}, ${randRGB()}, ${randRGB()})`;
+    };
+    let charCode = 65;
     this.rectInfosAbsolute.forEach((infoAbsolute) => {
       const infoRelative = cloneDeep(infoAbsolute);
       const {min, max} = infoRelative.rect;
       min.set((min.x - left) / width, (min.y - bottom) / height);
       max.set((max.x - left) / width, (max.y - bottom) / height);
-      if (infoRelative.isBuju) {
-        if (rectColors[infoRelative.vid]) {
-          infoRelative.bgColor = rectColors[infoRelative.vid];
+      const raw = infoRelative.raw;
+      if (raw.isBuju) {
+        if (rectColors[raw.vid]) {
+          infoRelative.bgColor = rectColors[raw.vid];
         } else {
           let color: string;
           const list = Object.values(rectColors);
           do {
-            color = `rgb(${randRGB()}, ${randRGB()}, ${randRGB()})`;
+            color = randColor();
           } while (list.includes(color));
           infoRelative.bgColor = color;
-          rectColors[infoRelative.vid] = color;
+          rectColors[raw.vid] = color;
+        }
+        if (!raw.mingzi) {
+          let mingzi: string;
+          do {
+            mingzi = String.fromCharCode(charCode++);
+          } while (names.has(mingzi));
+          raw.mingzi = mingzi;
         }
       }
       this.rectInfosRelative.push(infoRelative);
@@ -171,63 +208,57 @@ export class MsbjComponent implements AfterViewInit {
   }
 
   onRectClick(info: MsbjRectInfo) {
-    if (!info.isBuju) {
+    const {fenleisSelected, fenleisNotSelected} = this;
+    fenleisSelected.length = 0;
+    fenleisNotSelected.length = 0;
+    this.rectInfosRelative.forEach((v) => (v.active = false));
+    if (!info.raw.isBuju) {
+      this.currRectInfo = null;
       return;
     }
-    this.rectInfosRelative.forEach((v) => (v.active = false));
     this.currRectInfo = info;
     info.active = true;
-    const mokuais = this.msbjInfo?.mokuais[info.vid] || [];
-    const {mokuaisSelected, mokuaisNotSelected} = this;
-    mokuaisSelected.length = 0;
-    mokuaisNotSelected.length = 0;
-    this.mokuaisAll.forEach((mokuai) => {
-      if (mokuais.includes(mokuai.vid)) {
-        mokuaisSelected.push(mokuai);
+    const fenleis = info.raw.可选模块分类 || [];
+    this.fenleisAll.forEach((fenlei) => {
+      if (fenleis.includes(fenlei.vid)) {
+        fenleisSelected.push(fenlei);
       } else {
-        mokuaisNotSelected.push(mokuai);
+        fenleisNotSelected.push(fenlei);
       }
     });
   }
 
   updateCurrRectInfo() {
-    const {msbjInfo, currRectInfo} = this;
-    if (!msbjInfo || !currRectInfo) {
+    const {currRectInfo} = this;
+    if (!currRectInfo) {
       return;
     }
-    const mokuais = this.mokuaisSelected.map((v) => v.vid);
-    if (mokuais.length > 0) {
-      msbjInfo.mokuais[currRectInfo.vid] = mokuais;
-    } else {
-      delete msbjInfo.mokuais[currRectInfo.vid];
-    }
+    currRectInfo.raw.可选模块分类 = this.fenleisSelected.map((v) => v.vid);
   }
 
-  selectMokuai() {
-    const vid = this.mokuaiListNotSelected?.selectedOptions.selected[0]?.value;
-    const {mokuaisNotSelected, mokuaisSelected} = this;
-    const i = mokuaisNotSelected.findIndex((v) => v.vid === vid);
-    if (i >= 0) {
-      mokuaisSelected.push(mokuaisNotSelected.splice(i, 1)[0]);
-      this.updateCurrRectInfo();
-      this.changeDetector.detectChanges();
-    }
+  sortFenleis(fenleis: MsbjFenlei[]) {
+    const {fenleisAll} = this;
+    const getIndex = (fenlei: MsbjFenlei) => fenleisAll.findIndex((v) => v.vid === fenlei.vid);
+    fenleis.sort((a, b) => getIndex(a) - getIndex(b));
   }
 
-  deselectMokuai() {
-    const vid = this.mokuaiListSelected?.selectedOptions.selected[0]?.value;
-    const {mokuaisAll, mokuaisNotSelected, mokuaisSelected} = this;
-    const i = mokuaisSelected.findIndex((v) => v.vid === vid);
-    if (i >= 0) {
-      mokuaisNotSelected.push(mokuaisSelected.splice(i, 1)[0]);
-      const getIndex = (mokuai: MsbjMokuai) => mokuaisAll.findIndex((v) => v.vid === mokuai.vid);
-      mokuaisNotSelected.sort((a, b) => getIndex(a) - getIndex(b));
-      this.updateCurrRectInfo();
-      this.changeDetector.detectChanges();
-    }
+  selectFenlei(i: number) {
+    const {fenleisNotSelected, fenleisSelected} = this;
+    fenleisSelected.push(fenleisNotSelected.splice(i, 1)[0]);
+    this.sortFenleis(fenleisSelected);
+    this.updateCurrRectInfo();
+    this.changeDetector.detectChanges();
   }
 
-  dropMokuai(event: CdkDragDrop<MsbjMokuai[]>) {
+  deselectFenlei(i: number) {
+    const {fenleisNotSelected, fenleisSelected} = this;
+    fenleisNotSelected.push(fenleisSelected.splice(i, 1)[0]);
+    this.sortFenleis(fenleisNotSelected);
+    this.updateCurrRectInfo();
+    this.changeDetector.detectChanges();
+  }
+
+  dropFenlei(event: CdkDragDrop<MsbjFenlei[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -242,19 +273,33 @@ export class MsbjComponent implements AfterViewInit {
       return;
     }
     const tableData: TableUpdateParams<MsbjTableData>["tableData"] = {vid: msbjInfo.vid};
-    tableData[this.dataField] = JSON.stringify(msbjInfo.mokuais);
+    const rectInfos = this.rectInfosRelative.filter((v) => v.raw.isBuju).map((v) => v.raw);
+    tableData[this.dataField] = JSON.stringify(rectInfos);
+    console.log(rectInfos);
     this.spinner.show(this.spinner.defaultLoaderId);
     await this.dataService.tableUpdate({table, tableData});
     this.spinner.hide(this.spinner.defaultLoaderId);
+  }
+
+  async editFormulas() {
+    const info = this.currRectInfo;
+    if (!info) {
+      this.message.error("没有选中矩形");
+      return;
+    }
+    const result = await openEditFormulasDialog(this.dialog, {data: {formulas: info.raw.模块大小关系}});
+    if (result) {
+      info.raw.模块大小关系 = result;
+    }
   }
 }
 
 export interface MsbjInfo {
   vid: number;
   name: string;
-  mokuais: ObjectOf<number[]>;
   multiSelect: boolean;
   menshanbuju?: string;
+  rectInfos: MsbjRectInfoRaw[];
 }
 
 export interface MsbjRectInfoRaw {
@@ -270,32 +315,34 @@ export interface MsbjRectInfoRaw {
       h: number;
     };
   };
+  mingzi?: string;
+  可选模块分类?: number[];
+  选中模块分类?: number;
+  选中模块?: number[];
+  模块大小关系?: Formulas;
 }
 
 export class MsbjRectInfo {
   id: string;
-  vid: number;
-  isBuju: boolean;
   rect: Rectangle;
   bgColor?: string;
   active = false;
 
-  constructor(data: MsbjRectInfoRaw) {
+  constructor(public raw: MsbjRectInfoRaw) {
     this.id = uniqueId();
-    this.vid = data.vid;
-    this.isBuju = data.isBuju;
-    const {x, y} = data.rect.origin;
-    const {w, h} = data.rect.size;
+    const {x, y} = raw.rect.origin;
+    const {w, h} = raw.rect.size;
     this.rect = new Rectangle([x, y], [x + w, y + h]);
   }
 }
 
-export interface MsbjMokuai extends TableDataBase {
+export interface MsbjFenlei extends TableDataBase {
   selected?: boolean;
 }
 
 export interface MsbjTableData extends TableDataBase {
   peizhishuju?: string;
   menshanbuju?: string;
-  menshanbujumorenmokuai?: string;
+  menshanbujumorenfenlei?: string;
+  node?: string;
 }

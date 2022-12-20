@@ -5,19 +5,20 @@
   height: 100%;
   padding: 10px;
   box-sizing: border-box;
+  --rect-container-height: 66.66%;
 }
 
 .content {
-  height: 66.66%;
-  
   .title {
-    text-align: center;
+    font-size: 1.2em;
+    padding: 10px 0;
   }
 }
 
 .rect-container {
   position: relative;
   width: 50%;
+  height: var(--rect-container-height);
   box-sizing: border-box;
 
   .rects {
@@ -28,20 +29,23 @@
     .rect {
       position: absolute;
       border: 1px solid black;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
       &.is-buju {
         cursor: pointer;
       }
       &.active {
-        border: 2px solid black;
+        border: 2px solid red;
       }
     }
   }
 }
 
-.mokuai-container {
+.fenlei-container {
   display: flex;
 
-  > :not(:last-child) {
+  .fenlei-lists > :not(:last-child) {
     margin-right: 10px;
   }
 
@@ -49,8 +53,26 @@
     border: 1px solid black;
     overflow: auto;
   }
+
+  .daxiaoguanxi {
+    flex: 0 0 calc(100% - var(--rect-container-height));
+  }
 }
 
 .list-item {
   background-color: white;
+}
+
+.formulas {
+  flex-wrap: wrap;
+  max-height: 100%;
+  overflow: auto;
+
+  .formula {
+    padding: 10px;
+
+    .divider {
+      margin: 0 5px;
+    }
+  }
 }

@@ -8,7 +8,6 @@ export class ClickStopPropagationDirective {
 
   @HostListener("click", ["$event"])
   public onClick(event: MouseEvent) {
-    console.log(event);
     event.stopPropagation();
   }
 }

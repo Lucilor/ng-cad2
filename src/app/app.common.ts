@@ -6,8 +6,17 @@ declare global {
   interface Window {
     parseBaobianzhengmianRules(content: string, vars?: ObjectOf<any>): {errors: string[]};
     batchCheck(data: ObjectOf<any>[]): ObjectOf<string[]>;
+    node2rect(node: any): any;
   }
 }
+export const remoteHost = "https://www.let888.cn" as const;
+const addJs = (name: string) => {
+  const script = document.createElement("script");
+  script.src = `${remoteHost}/static/js/${name}.js?${new Date().getTime()}`;
+  document.head.append(script);
+};
+addJs("batchUploadChecker");
+addJs("node2rect");
 
 export const projectName = "NgCad2";
 export const session = new SessionStorage(projectName);
@@ -116,8 +125,6 @@ export type ProjectConfig = ObjectOf<string>;
 
 setGlobal("timer", timer);
 setGlobal("log", log);
-
-export const remoteHost = "https://www.let888.cn" as const;
 
 export const replaceRemoteHost = (url: string) => {
   if (!environment.production && url.startsWith(remoteHost)) {
