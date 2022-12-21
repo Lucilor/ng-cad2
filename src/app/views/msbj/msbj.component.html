@@ -1,30 +1,38 @@
+<div class="title">门扇布局配置</div>
 <div class="content flex-row flex-110">
   <div class="rect-container flex-column">
-    <div class="btn-group">
-      <button mat-raised-button color="primary" (click)="submit()">提交</button>
-      <ng-container *ngIf="!production">
-        <button mat-raised-button color="primary" (click)="generateRects(true)">重新生成矩形</button>
-        <div>颜色范围</div>
-        <div class="flex-row" style="height: 64px; align-items: flex-end">
-          <mat-slider [min]="0" [max]="255" discrete style="width: 300px">
-            <input [(ngModel)]="rgbMin" matSliderStartThumb />
-            <input [(ngModel)]="rgbMax" matSliderEndThumb />
-          </mat-slider>
-        </div>
-      </ng-container>
-    </div>
-    <div #rectOuter class="rect-outer flex-110">
-      <div class="rects">
-        <div
-          class="rect flex-row"
-          *ngFor="let info of rectInfosRelative"
-          [ngClass]="{'is-buju': info.raw.isBuju, active: info.active}"
-          [ngStyle]="getRectStyle(info)"
-          (click)="onRectClick(info)"
-        >
-          <div class="title">{{ info.raw.mingzi }}</div>
+    <div class="rect-area flex-column">
+      <div class="btn-group">
+        <button mat-raised-button color="primary" (click)="submit()">提交</button>
+        <ng-container *ngIf="!production">
+          <button mat-raised-button color="primary" (click)="generateRects(true)">重新生成矩形</button>
+          <!-- <div>颜色范围</div>
+          <div class="flex-row" style="height: 64px; align-items: flex-end">
+            <mat-slider [min]="0" [max]="255" discrete style="width: 300px">
+              <input [(ngModel)]="rgbMin" matSliderStartThumb />
+              <input [(ngModel)]="rgbMax" matSliderEndThumb />
+            </mat-slider>
+          </div> -->
+        </ng-container>
+      </div>
+      <div #rectOuter class="rect-outer flex-110" (click)="setCurrRectInfo(null)">
+        <div class="rects">
+          <div
+            [id]="info.id"
+            class="rect flex-row"
+            *ngFor="let info of rectInfosRelative"
+            [ngClass]="{'is-buju': info.raw.isBuju, active: info.id === currRectInfo?.id}"
+            [ngStyle]="getRectStyle(info)"
+            (click)="setCurrRectInfo(info)"
+            appClickStop
+          >
+            <div class="title">{{ info.raw.mingzi }}</div>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="flex-110" (click)="setCurrRectInfo(null)">
+      <div class="title center">{{ msbjInfo?.name }}</div>
     </div>
   </div>
   <div class="fenlei-container flex-column flex-110" cdkDropListGroup>
@@ -38,11 +46,11 @@
     <div class="fenlei-lists flex-row flex-110">
       <div class="flex-column flex-110">
         <div class="title">可选模块分类</div>
-        <ng-template *ngTemplateOutlet="fenleiListT; context: {$implicit: fenleisSelected, class: 'selected'}"></ng-template>
+        <ng-template *ngTemplateOutlet="fenleiListT; context: {$implicit: fenleisNotSelected, class: 'not-selected'}"></ng-template>
       </div>
       <div class="flex-column flex-110">
-        <div class="title">备选模块分类</div>
-        <ng-template *ngTemplateOutlet="fenleiListT; context: {$implicit: fenleisNotSelected, class: 'not-selected'}"></ng-template>
+        <div class="title">已选模块分类</div>
+        <ng-template *ngTemplateOutlet="fenleiListT; context: {$implicit: fenleisSelected, class: 'selected'}"></ng-template>
       </div>
 
       <ng-template #fenleiListT [appTypedTemplate]="fenleiListDataType" let-fenleis let-class="class">

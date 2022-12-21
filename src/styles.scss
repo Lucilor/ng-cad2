@@ -273,3 +273,18 @@ input[type="number"] {
 .flex-110 {
   flex: 1 1 0;
 }
+
+:root {
+  --title-size: 1.5rem;
+}
+
+.title {
+  font-size: var(--title-size);
+  padding: 0.5em;
+  &.center {
+    text-align: center;
+  }
+  &.bold {
+    font-weight: bold;
+  }
+}

@@ -5,21 +5,17 @@
   height: 100%;
   padding: 10px;
   box-sizing: border-box;
-  --rect-container-height: 66.66%;
-}
-
-.content {
-  .title {
-    font-size: 1.2em;
-    padding: 10px 0;
-  }
+  --rect-area-height: 66.66%;
+  --title-size: 1.2rem;
 }
 
 .rect-container {
   position: relative;
   width: 50%;
-  height: var(--rect-container-height);
-  box-sizing: border-box;
+
+  .rect-area {
+    height: var(--rect-area-height);
+  }
 
   .rects {
     position: relative;
@@ -55,7 +51,7 @@
   }
 
   .daxiaoguanxi {
-    flex: 0 0 calc(100% - var(--rect-container-height));
+    flex: 0 0 calc(100% - var(--rect-area-height));
   }
 }
 

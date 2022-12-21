@@ -1,5 +1,5 @@
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from "@angular/cdk/drag-drop";
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, QueryList, ViewChild, ViewChildren} from "@angular/core";
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, QueryList, ViewChild, ViewChildren} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectionList} from "@angular/material/list";
 import {ActivatedRoute} from "@angular/router";
@@ -20,7 +20,7 @@ import {cloneDeep, random, uniqueId} from "lodash";
   templateUrl: "./msbj.component.html",
   styleUrls: ["./msbj.component.scss"]
 })
-export class MsbjComponent implements AfterViewInit {
+export class MsbjComponent implements AfterViewInit, OnDestroy {
   production = environment.production;
   table = "";
   id = "";
@@ -57,6 +57,10 @@ export class MsbjComponent implements AfterViewInit {
   get fenleiListNotSelected() {
     return this.fenleiLists?.find((v) => v._element.nativeElement.classList.contains("not-selected"));
   }
+
+  private _onWindowResize = (() => {
+    this.generateRects();
+  }).bind(this);
 
   constructor(
     private route: ActivatedRoute,
@@ -118,7 +122,11 @@ export class MsbjComponent implements AfterViewInit {
     this.spinner.hide(this.spinner.defaultLoaderId);
 
     this.generateRects(true);
-    window.addEventListener("resize", () => this.generateRects());
+    window.addEventListener("resize", this._onWindowResize);
+  }
+
+  ngOnDestroy() {
+    window.removeEventListener("resize", this._onWindowResize);
   }
 
   generateRects(resetColors?: boolean) {
@@ -207,25 +215,23 @@ export class MsbjComponent implements AfterViewInit {
     };
   }
 
-  onRectClick(info: MsbjRectInfo) {
+  setCurrRectInfo(info: MsbjRectInfo | null) {
     const {fenleisSelected, fenleisNotSelected} = this;
     fenleisSelected.length = 0;
     fenleisNotSelected.length = 0;
-    this.rectInfosRelative.forEach((v) => (v.active = false));
-    if (!info.raw.isBuju) {
+    if (info?.raw.isBuju) {
+      this.currRectInfo = info;
+      const fenleis = info.raw.选中模块分类 || [];
+      this.fenleisAll.forEach((fenlei) => {
+        if (fenleis.includes(fenlei.vid)) {
+          fenleisSelected.push(fenlei);
+        } else {
+          fenleisNotSelected.push(fenlei);
+        }
+      });
+    } else {
       this.currRectInfo = null;
-      return;
     }
-    this.currRectInfo = info;
-    info.active = true;
-    const fenleis = info.raw.可选模块分类 || [];
-    this.fenleisAll.forEach((fenlei) => {
-      if (fenleis.includes(fenlei.vid)) {
-        fenleisSelected.push(fenlei);
-      } else {
-        fenleisNotSelected.push(fenlei);
-      }
-    });
   }
 
   updateCurrRectInfo() {
@@ -233,7 +239,7 @@ export class MsbjComponent implements AfterViewInit {
     if (!currRectInfo) {
       return;
     }
-    currRectInfo.raw.可选模块分类 = this.fenleisSelected.map((v) => v.vid);
+    currRectInfo.raw.选中模块分类 = this.fenleisSelected.map((v) => v.vid);
   }
 
   sortFenleis(fenleis: MsbjFenlei[]) {
@@ -317,7 +323,7 @@ export interface MsbjRectInfoRaw {
   };
   mingzi?: string;
   可选模块分类?: number[];
-  选中模块分类?: number;
+  选中模块分类?: number[];
   选中模块?: number[];
   模块大小关系?: Formulas;
 }
@@ -326,7 +332,6 @@ export class MsbjRectInfo {
   id: string;
   rect: Rectangle;
   bgColor?: string;
-  active = false;
 
   constructor(public raw: MsbjRectInfoRaw) {
     this.id = uniqueId();
