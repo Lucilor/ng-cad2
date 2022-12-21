@@ -354,6 +354,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     const append = input.hasAttribute("append");
     const mainCad = input.hasAttribute("main-cad");
     const data = this.contextMenuCad.data;
+    console.log(append, mainCad);
     if (append) {
       const resData = await this.dataService.uploadDxf(file);
       if (resData) {
@@ -387,8 +388,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
             data.entities = data2.entities;
           } else {
             data.entities = resData.entities;
-            data.partners = resData.partners;
-            data.components = resData.components;
+            // data.partners = resData.partners;
+            // data.components = resData.components;
             data.zhidingweizhipaokeng = resData.zhidingweizhipaokeng;
             data.info = resData.info;
           }

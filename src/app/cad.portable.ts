@@ -925,9 +925,8 @@ export class CadPortable {
     const tol = 5;
     entities.forEach((e) => {
       if (!this.intersectionLayers.includes(e.layer)) {
-        return;
+        e.layer = this.intersectionLayers[0];
       }
-      entities.remove(e);
       let p: Point | undefined;
       if (e instanceof CadLeader) {
         p = e.vertices[0];
@@ -940,6 +939,7 @@ export class CadPortable {
       for (const v of map) {
         if (v.lines.length === 2 && p.distanceTo(v.point) <= tol) {
           cad[this.intersectionLayersMap[e.layer]].push([v.lines[0].id, v.lines[1].id]);
+          entities.remove(e);
           break;
         }
       }
