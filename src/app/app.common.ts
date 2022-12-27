@@ -61,7 +61,7 @@ export const splitOptions = (str: string) => {
   }
 };
 
-export const joinOptions = (options: string[]) => options.join(";");
+export const joinOptions = (options: (string | {mingzi: string})[]) => options.map((v) => (typeof v === "string" ? v : v.mingzi)).join(";");
 
 export const replaceChars = (str: string) => {
   const fullChars2HalfChars: ObjectOf<string> = {

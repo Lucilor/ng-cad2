@@ -1,0 +1,14 @@
+[
+  {
+    "vid": 1,
+    "mingzi": "1",
+    "xinghao": "1",
+    "suoshanzhengmian": "1",
+    "suoshanbeimian": "0",
+    "jiaoshanzhengmian": "0",
+    "jiaoshanbeimian": "0",
+    "xiaoshanzhengmian": "0",
+    "xiaoshanbeimian": "0",
+    "peizhishuju": "{\"锁扇正面\":{\"选中布局\":3},\"锁扇背面\":{},\"铰扇正面\":{},\"铰扇背面\":{},\"小扇正面\":{},\"小扇背面\":{}}"
+  }
+]

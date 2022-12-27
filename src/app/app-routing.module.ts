@@ -22,6 +22,7 @@ import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
+import {XhmrmsbjComponent} from "@views/xhmrmsbj/xhmrmsbj.component";
 
 export const routesInfo: (Route & {path: string})[] = [
   {path: "index", component: IndexComponent},
@@ -42,7 +43,8 @@ export const routesInfo: (Route & {path: string})[] = [
   {path: "kailiaocanshu", component: KailiaocanshuComponent, title: "开料参数"},
   {path: "clean", component: CleanComponent, title: "清理任务"},
   {path: "pjmk", component: PjmkComponent, title: "配件模块"},
-  {path: "门扇布局", component: MsbjComponent, title: "门扇布局"}
+  {path: "门扇布局", component: MsbjComponent, title: "门扇布局"},
+  {path: "型号默认门扇布局", component: XhmrmsbjComponent, title: "型号默认门扇布局"}
 ];
 
 const routes: Routes = [

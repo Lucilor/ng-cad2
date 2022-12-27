@@ -15,34 +15,14 @@
           </div> -->
         </ng-container>
       </div>
-      <div #rectOuter class="rect-outer flex-110" (click)="setCurrRectInfo(null)">
-        <div class="rects">
-          <div
-            [id]="info.id"
-            class="rect flex-row"
-            *ngFor="let info of rectInfosRelative"
-            [ngClass]="{'is-buju': info.raw.isBuju, active: info.id === currRectInfo?.id}"
-            [ngStyle]="getRectStyle(info)"
-            (click)="setCurrRectInfo(info)"
-            appClickStop
-          >
-            <div class="title">{{ info.raw.mingzi }}</div>
-          </div>
-        </div>
-      </div>
+      <app-msbj-rects [rectInfos]="this.msbjInfo?.rectInfos" (selectRect)="setCurrRectInfo($event)"></app-msbj-rects>
     </div>
     <div class="flex-110" (click)="setCurrRectInfo(null)">
       <div class="title center">{{ msbjInfo?.name }}</div>
     </div>
   </div>
   <div class="fenlei-container flex-column flex-110" cdkDropListGroup>
-    <div class="btn-group">
-      <mat-form-field>
-        <mat-label>名字</mat-label>
-        <input type="text" matInput *ngIf="currRectInfo; else emptyInput" [(ngModel)]="currRectInfo.raw.mingzi" autocomplete="off" />
-        <ng-template #emptyInput><input matInput readonly /></ng-template>
-      </mat-form-field>
-    </div>
+    <app-input [info]="nameInputInfo"></app-input>
     <div class="fenlei-lists flex-row flex-110">
       <div class="flex-column flex-110">
         <div class="title">可选模块分类</div>
@@ -78,11 +58,11 @@
     <div class="daxiaoguanxi flex-column">
       <div class="btn-group">
         <div class="title">模块大小关系</div>
-        <button mat-raised-button color="primary" [disabled]="!currRectInfo" (click)="editFormulas()">编辑</button>
+        <button mat-raised-button color="primary" [disabled]="!msbjRects?.currRectInfo" (click)="editFormulas()">编辑</button>
       </div>
       <ng-scrollbar>
         <div class="formulas flex-row">
-          <div class="formula flex-row" *ngFor="let item of currRectInfo?.raw?.['模块大小关系']| keyvalue">
+          <div class="formula flex-row" *ngFor="let item of msbjRects?.currRectInfo?.raw?.['模块大小关系']| keyvalue">
             <div class="key">{{ item.key }}</div>
             <div class="divider">=</div>
             <div class="value">{{ item.value }}</div>

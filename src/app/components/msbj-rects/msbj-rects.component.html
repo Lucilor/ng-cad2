@@ -1,0 +1,15 @@
+<div #rectOuter class="flex-110" (click)="setCurrRectInfo(null)">
+  <div class="rects">
+    <div
+      [id]="info.id"
+      class="rect flex-row"
+      *ngFor="let info of rectInfosRelative"
+      [ngClass]="{'is-buju': info.raw.isBuju, active: info.id === currRectInfo?.id}"
+      [ngStyle]="getRectStyle(info)"
+      (click)="setCurrRectInfo(info)"
+      appClickStop
+    >
+      <div class="title">{{ info.raw.mingzi }}</div>
+    </div>
+  </div>
+</div>

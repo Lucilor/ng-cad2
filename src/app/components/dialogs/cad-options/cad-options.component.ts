@@ -4,18 +4,10 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {OptionsData} from "@modules/http/services/cad-data.service.types";
+import {OptionsData, TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {lastValueFrom} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
-
-interface CadOptionsData {
-  data?: CadData;
-  name: string;
-  checkedItems: string[];
-  multi?: boolean;
-  xinghao?: string;
-}
 
 @Component({
   selector: "app-cad-options",
@@ -33,8 +25,8 @@ export class CadOptionsComponent implements AfterViewInit {
   loaderIds = {optionsLoader: "cadOptions", submitLoaderId: "cadOptionsSubmit"};
   @ViewChild("paginator", {read: MatPaginator}) paginator?: MatPaginator;
   constructor(
-    public dialogRef: MatDialogRef<CadOptionsComponent, string[]>,
-    @Inject(MAT_DIALOG_DATA) public data: CadOptionsData,
+    public dialogRef: MatDialogRef<CadOptionsComponent, CadOptionsOutput>,
+    @Inject(MAT_DIALOG_DATA) public data: CadOptionsInput,
     private dataService: CadDataService,
     private spinner: SpinnerService
   ) {
@@ -61,7 +53,7 @@ export class CadOptionsComponent implements AfterViewInit {
       values: this.checkedItems
     });
     this.spinner.hide(this.loaderIds.submitLoaderId);
-    this.dialogRef.close(data.data.map((v) => v.name));
+    this.dialogRef.close(data.data.map((v) => ({vid: v.vid, mingzi: v.name})));
   }
 
   close() {
@@ -104,7 +96,13 @@ export class CadOptionsComponent implements AfterViewInit {
     });
     this.spinner.hide(this.loaderIds.optionsLoader);
     this.length = data.count;
-    this.pageData = data.data.map((v) => ({...v, checked: this.checkedItems.includes(v.name)}));
+    this.pageData = data.data.map((v) => {
+      let checked = this.checkedItems.includes(v.name);
+      if (this.data.checkedVids && this.data.checkedVids.includes(v.vid)) {
+        checked = true;
+      }
+      return {...v, checked};
+    });
     return data;
   }
 
@@ -131,7 +129,18 @@ export class CadOptionsComponent implements AfterViewInit {
   }
 }
 
-export const openCadOptionsDialog = getOpenDialogFunc<CadOptionsComponent, CadOptionsData, string[]>(CadOptionsComponent, {
+export const openCadOptionsDialog = getOpenDialogFunc<CadOptionsComponent, CadOptionsInput, CadOptionsOutput>(CadOptionsComponent, {
   width: "80vw",
   height: "80vh"
 });
+
+export interface CadOptionsInput {
+  data?: CadData;
+  name: string;
+  checkedItems?: string[];
+  checkedVids?: number[];
+  multi?: boolean;
+  xinghao?: string;
+}
+
+export type CadOptionsOutput = TableDataBase[];

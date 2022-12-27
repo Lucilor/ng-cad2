@@ -1,0 +1,30 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  --title-size: 1.2rem;
+}
+
+.menshan-options {
+  --border: 1px solid black;
+  border: var(--border);
+
+  .menshan-option {
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    cursor: pointer;
+    &:not(:last-child) {
+      border-bottom: var(--border);
+    }
+    &:hover {
+      background-color: lightgray;
+    }
+    &.active {
+      background-color: gray;
+    }
+  }
+}

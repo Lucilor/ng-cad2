@@ -45,7 +45,7 @@ export interface GetOptionsParams {
 }
 
 export interface OptionsData {
-  data: {name: string; img: string | null; disabled: boolean}[];
+  data: {vid: number; name: string; img: string | null; disabled: boolean}[];
   count: number;
 }
 

@@ -175,7 +175,7 @@ export class CadDataService extends HttpService {
       return {
         data: (response.data as any[]).map((v: any) => {
           const img = v.xiaotu ? `${origin}/filepath/${v.xiaotu}` : null;
-          return {name: v.mingzi, img, disabled: !!v.tingyong};
+          return {vid: v.vid, name: v.mingzi, img, disabled: !!v.tingyong};
         }),
         count: response.count || 0
       };
@@ -252,7 +252,6 @@ export class CadDataService extends HttpService {
   }
 
   async queryMySql<T extends TableDataBase>(params: QueryMysqlParams, options?: HttpOptions) {
-    params = {page: 1, limit: 10, ...params};
     const response = await this.post<T[]>("ngcad/queryMysql", params, {testData: params.table, ...options});
     return response?.data ?? [];
   }

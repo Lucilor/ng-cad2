@@ -46,6 +46,7 @@ import {ZixuanpeijianComponent} from "@components/dialogs/zixuanpeijian/zixuanpe
 import {FormulasEditorComponent} from "@components/formulas-editor/formulas-editor.component";
 import {KlcsComponent} from "@components/klcs/klcs.component";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
+import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {ProgressBarComponent} from "@components/progress-bar/progress-bar.component";
 import {AngJsoneditorModule} from "@maaxgr/ang-jsoneditor";
 import {CadConsoleModule} from "@modules/cad-console/cad-console.module";
@@ -77,6 +78,7 @@ import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
+import {XhmrmsbjComponent} from "@views/xhmrmsbj/xhmrmsbj.component";
 import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_BASE_URL} from "ng-recaptcha";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
@@ -138,6 +140,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     KlkwpzDialogComponent,
     LoginFormComponent,
     MsbjComponent,
+    MsbjRectsComponent,
     PageNotFoundComponent,
     PiliangjianbanComponent,
     PjmkComponent,
@@ -148,6 +151,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     SelectBancaiCadsComponent,
     SelectBancaiComponent,
     SelectCadsComponent,
+    XhmrmsbjComponent,
     ZixuanpeijianComponent
   ],
   imports: [
