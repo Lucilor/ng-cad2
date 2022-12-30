@@ -18,7 +18,7 @@ export interface MsbjRectInfoRaw {
   mingzi?: string;
   可选模块分类?: number[];
   选中模块分类?: number[];
-  选中模块?: number[];
+  选中模块?: number;
   模块大小关系?: Formulas;
 }
 

@@ -233,12 +233,15 @@ export const exportZixuanpeijian = (source: ZixuanpeijianData) => {
   return result;
 };
 
-export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem) => {
+export const getMokuaiTitle = (item: {type1: string; type2: string}) => {
   const {type1, type2} = item;
+  if (!type1 && !type2) {
+    return "";
+  }
   return `${type1}【${type2}】`;
 };
 
-export const getStep1Data = async (dataService: CadDataService, params: {code: string; type: string} | {mokuaiIds: string[]}) => {
+export const getStep1Data = async (dataService: CadDataService, params?: {code: string; type: string} | {mokuaiIds: string[]}) => {
   const response = await dataService.post<Step1Data>("ngcad/getZixuanpeijianTypesInfo", params);
   return response?.data;
 };

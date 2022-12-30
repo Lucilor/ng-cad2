@@ -28,3 +28,22 @@
     }
   }
 }
+
+.mokuai {
+  width: 20%;
+  height: 300px;
+  padding: 5px;
+  box-sizing: border-box;
+  &:not(.active) {
+    cursor: pointer;
+  }
+
+  .xiaoguotu {
+    height: 0;
+  }
+
+  .title {
+    font-size: 1rem;
+    text-align: center;
+  }
+}

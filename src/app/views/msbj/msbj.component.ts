@@ -5,6 +5,7 @@ import {MatSelectionList} from "@angular/material/list";
 import {ActivatedRoute} from "@angular/router";
 import {openEditFormulasDialog} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
+import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {QueryMysqlParams, TableDataBase, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
@@ -12,7 +13,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {setGlobal} from "@src/app/app.common";
 import {environment} from "@src/environments/environment";
-import {MsbjInfo, MsbjRectInfo, MsbjFenlei, MsbjData} from "./msbj.types";
+import {MsbjInfo, MsbjFenlei, MsbjData} from "./msbj.types";
 
 @Component({
   selector: "app-msjgbj",

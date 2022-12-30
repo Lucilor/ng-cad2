@@ -63,6 +63,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
   bancaiList: BancaiList[] = [];
   result: ZixuanpeijianOutput = importZixuanpeijian();
   cadViewers: {模块: ObjectOf<ObjectOf<CadViewer[]>>; 零散: CadViewer[]} = {模块: {}, 零散: []};
+  getMokuaiTitle = getMokuaiTitle;
   @ViewChild(MatMenuTrigger) contextMenu!: MatMenuTrigger;
   @ViewChild("typesButtonContainer", {read: ElementRef}) typesButtonContainer?: ElementRef<HTMLDivElement>;
   @ViewChildren("typesButton", {read: ElementRef}) typesButtons?: QueryList<ElementRef<HTMLButtonElement>>;
@@ -1105,10 +1106,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
 
   getMubanId(data: CadData) {
     return data.zhankai[0]?.kailiaomuban;
-  }
-
-  getMokuaiTitle(item: ZixuanpeijianMokuaiItem) {
-    return getMokuaiTitle(item);
   }
 
   async setReplaceableMokuais(item: ZixuanpeijianMokuaiItem) {
