@@ -39,6 +39,7 @@ export class MsbjRectsComponent implements OnInit, OnDestroy {
     this._rectInfos = value;
     this.generateRects(true);
   }
+  @Input() selectRectBefore?: (info: MsbjRectInfo | null) => boolean;
   @Output() selectRect = new EventEmitter<MsbjRectInfo | null>();
 
   private _onWindowResize = (() => {
@@ -65,6 +66,9 @@ export class MsbjRectsComponent implements OnInit, OnDestroy {
   }
 
   setCurrRectInfo(info: MsbjRectInfo | null) {
+    if (this.selectRectBefore && !this.selectRectBefore(info)) {
+      return;
+    }
     if (info?.raw.isBuju) {
       this.currRectInfo = info;
     } else {
