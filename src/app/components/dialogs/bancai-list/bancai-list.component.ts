@@ -7,7 +7,6 @@ import {MessageService} from "@modules/message/services/message.service";
 import {session, setGlobal} from "@src/app/app.common";
 import {timeout} from "@utils";
 import {debounce} from "lodash";
-import {BehaviorSubject} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
@@ -16,7 +15,6 @@ import {getOpenDialogFunc} from "../dialog.common";
   styleUrls: ["./bancai-list.component.scss"]
 })
 export class BancaiListComponent {
-  checkedIndex = new BehaviorSubject<number>(-1);
   filterText = "";
   filterInputInfo: InputInfo = {
     type: "string",
@@ -28,7 +26,7 @@ export class BancaiListComponent {
       this.saveFilterText();
     }, 500)
   };
-  list: {bancai: BancaiList; hidden: boolean}[] = [];
+  list: {bancai: BancaiList; hidden: boolean; checked: boolean}[] = [];
   zidingyi = "";
   zidingyiIndex = -1;
 
@@ -37,24 +35,36 @@ export class BancaiListComponent {
     @Inject(MAT_DIALOG_DATA) public data: BancaiListInput,
     private message: MessageService
   ) {
-    const {checkedItem, list} = this.data || {};
-    if (checkedItem) {
-      this.checkedIndex.next(list.findIndex((v) => checkedItem.mingzi === v.mingzi));
-      this.zidingyi = checkedItem.zidingyi || "";
+    const {checkedItems, list} = this.data || {};
+    if (checkedItems) {
+      if (this.data.multi) {
+      } else {
+        const checkedItem = checkedItems[0];
+        if (checkedItem) {
+          this.zidingyi = checkedItem.zidingyi || "";
+        }
+      }
     }
-    this.list = list.map((bancai) => ({bancai, hidden: false}));
+    const checkedItemNames = checkedItems?.map((v) => v.mingzi) || [];
+    this.list = list.map((bancai) => ({bancai, hidden: false, checked: checkedItemNames.includes(bancai.mingzi)}));
     this.loadFilterText();
     this.filterList();
     setGlobal("bancai", this);
   }
 
   submit() {
-    const i = this.checkedIndex.value;
-    const bancai = {...this.data.list[i]};
-    if (bancai.mingzi === "自定义") {
-      bancai.zidingyi = this.zidingyi;
+    const bancais: BancaiList[] = [];
+    for (const item of this.list) {
+      if (!item.checked) {
+        continue;
+      }
+      const bancai = item.bancai;
+      if (bancai.mingzi === "自定义") {
+        bancai.zidingyi = this.zidingyi;
+      }
+      bancais.push(bancai);
     }
-    this.dialogRef.close(bancai);
+    this.dialogRef.close(bancais);
   }
 
   cancel() {
@@ -80,10 +90,13 @@ export class BancaiListComponent {
     this.filterText = session.load("bancaiListSearchText") || "";
   }
 
-  async setCheckIndex(i: number) {
-    const j = this.checkedIndex.value;
-    const bancai = this.data.list[i];
-    this.checkedIndex.next(i);
+  async onCheckboxChange(item: BancaiListComponent["list"][number]) {
+    const bancai = item.bancai;
+    const checked = item.checked;
+    const checkedArr = this.list.map((v) => v.checked);
+    if (!this.data.multi) {
+      this.list.forEach((v) => (v.checked = false));
+    }
     if (bancai.mingzi === "自定义") {
       await timeout(0);
       const zidingyi = await this.message.prompt(
@@ -93,13 +106,17 @@ export class BancaiListComponent {
       if (zidingyi) {
         this.zidingyi = zidingyi;
       } else {
-        this.checkedIndex.next(j);
+        for (const [i, v] of this.list.entries()) {
+          v.checked = checkedArr[i];
+        }
+        return;
       }
     }
+    item.checked = !checked;
   }
 
   selectZidingyi() {
-    this.setCheckIndex(this.zidingyiIndex);
+    this.onCheckboxChange(this.list[this.zidingyiIndex]);
   }
 }
 
@@ -110,7 +127,8 @@ export const openBancaiListDialog = getOpenDialogFunc<BancaiListComponent, Banca
 
 export interface BancaiListInput {
   list: BancaiList[];
-  checkedItem?: BancaiList;
+  checkedItems?: BancaiList[];
+  multi?: boolean;
 }
 
-export type BancaiListOutput = BancaiList;
+export type BancaiListOutput = BancaiList[];

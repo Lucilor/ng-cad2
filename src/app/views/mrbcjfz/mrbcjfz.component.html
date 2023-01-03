@@ -1,0 +1,25 @@
+<div class="btn-group">
+  <button mat-raised-button color="primary">提交</button>
+</div>
+<div class="flex-row flex-110">
+  <ng-scrollbar style="width: 50%">
+    <div class="flex-column" *ngFor="let key of bancaiKeys; let i = index">
+      <div class="bancai-info flex-row">
+        <div class="title">{{ key }}:</div>
+        <div class="bancai-text flex-110" (click)="editBancaiForm(key)">{{ getBancaiTitle(key) }}</div>
+      </div>
+      <div (click)="selectCads(key)">cads</div>
+      <div>huajians</div>
+    </div>
+  </ng-scrollbar>
+  <div class="flex-row flex-110">
+    <ng-scrollbar *ngIf="!isCadsHidden" style="width: 100%">
+      <div class="cad-list flex-row">
+        <div class="cad flex-column" *ngFor="let cad of cads">
+          <app-image class="cad-preview" [src]="cad.img"></app-image>
+          <div class="title center">{{ cad.data.name }}</div>
+        </div>
+      </div>
+    </ng-scrollbar>
+  </div>
+</div>

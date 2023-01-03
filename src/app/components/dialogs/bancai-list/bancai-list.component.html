@@ -3,16 +3,15 @@
   <button mat-raised-button color="primary" *ngIf="zidingyiIndex >= 0" (click)="selectZidingyi()">自定义</button>
 </div>
 <ng-scrollbar class="content">
-  <mat-radio-group class="bancai-list" [value]="checkedIndex.value">
-    <mat-radio-button [value]="-1" style="display: none"><span #singleSelectNone></span></mat-radio-button>
+  <div class="bancai-list">
     <ng-container *ngFor="let item of list; let i = index">
       <div class="bancai" *ngIf="!item.hidden">
-        <mat-radio-button class="name" [matTooltip]="item.bancai.mingzi" [value]="i" (click)="setCheckIndex(i)">
+        <mat-checkbox class="name" [matTooltip]="item.bancai.mingzi" [checked]="item.checked" (change)="onCheckboxChange(item)">
           {{ item.bancai.mingzi }}
-        </mat-radio-button>
+        </mat-checkbox>
       </div>
     </ng-container>
-  </mat-radio-group>
+  </div>
 </ng-scrollbar>
 <div class="btn-group">
   <button mat-raised-button color="primary" (click)="submit()">确定</button>

@@ -216,7 +216,8 @@ ng-scrollbar.ng-scrollbar {
   flex: 1 1 0;
 }
 
-.cad-preview {
+img.cad-preview,
+.cad-preview img {
   width: 100%;
   height: 100%;
   object-fit: contain;

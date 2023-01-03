@@ -26,6 +26,8 @@ import {MatTabsModule} from "@angular/material/tabs";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {BrowserModule} from "@angular/platform-browser";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {BancaiFormComponent} from "@components/bancai-form/bancai-form.component";
+import {BancaiFormDialogComponent} from "@components/dialogs/bancai-form-dialog/bancai-form-dialog.component";
 import {BancaiListComponent} from "@components/dialogs/bancai-list/bancai-list.component";
 import {BbzhmkgzComponent} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
 import {CadEditorDialogComponent} from "@components/dialogs/cad-editor-dialog/cad-editor-dialog.component";
@@ -69,6 +71,7 @@ import {Index2Component} from "@views/index2/index2.component";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
+import {MrbcjfzComponent} from "@views/mrbcjfz/mrbcjfz.component";
 import {MsbjComponent} from "@views/msbj/msbj.component";
 import {PageNotFoundComponent} from "@views/page-not-found/page-not-found.component";
 import {PiliangjianbanComponent} from "@views/piliangjianban/piliangjianban.component";
@@ -111,6 +114,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
   declarations: [
     AppComponent,
     BackupComponent,
+    BancaiFormComponent,
+    BancaiFormDialogComponent,
     BancaiListComponent,
     BbzhmkgzComponent,
     CadEditorDialogComponent,
@@ -139,6 +144,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     KlkwpzComponent,
     KlkwpzDialogComponent,
     LoginFormComponent,
+    MrbcjfzComponent,
     MsbjComponent,
     MsbjRectsComponent,
     PageNotFoundComponent,

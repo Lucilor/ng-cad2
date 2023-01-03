@@ -8,7 +8,7 @@ type Value<T> = T | ((...args: any[]) => T);
 export interface InputInfoBase<T = any> {
   label: string;
   floatLabel?: FloatLabelType;
-  model?: {data: T | (() => T); key: string};
+  model?: {data: T | (() => T); key: keyof T};
   value?: Value<any>;
   readonly?: boolean;
   copyable?: boolean;

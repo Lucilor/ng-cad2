@@ -998,11 +998,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
   }
 
   async openBancaiListDialog(info: ZixuanpeijianInfo) {
-    const bancai = await openBancaiListDialog(this.dialog, {data: {list: this.bancaiList, checkedItem: info.bancai}});
-    if (!bancai) {
+    const bancai = await openBancaiListDialog(this.dialog, {data: {list: this.bancaiList, checkedItems: info.bancai ? [info.bancai] : []}});
+    if (!bancai?.[0]) {
       return;
     }
-    this._setInfoBancai(info, bancai);
+    this._setInfoBancai(info, bancai[0]);
     this._updateInputInfos();
   }
 
@@ -1030,18 +1030,18 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     const bancaiName = this._getCurrBancaiName();
     const bancaiPrev = this.bancaiList.find((v) => v.mingzi === bancaiName);
     const bancai = await openBancaiListDialog(this.dialog, {
-      data: {list: this.bancaiList, checkedItem: bancaiPrev}
+      data: {list: this.bancaiList, checkedItems: bancaiPrev ? [bancaiPrev] : []}
     });
-    if (!bancai) {
+    if (!bancai?.[0]) {
       return;
     }
     for (const item of this.result.模块) {
       for (const {info} of item.cads) {
-        this._setInfoBancai(info, bancai);
+        this._setInfoBancai(info, bancai[0]);
       }
     }
     for (const {info} of this.result.零散) {
-      this._setInfoBancai(info, bancai);
+      this._setInfoBancai(info, bancai[0]);
     }
     this._updateInputInfos();
   }

@@ -301,7 +301,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
     this.validateValue();
   }
 
-  async selectOptions(key?: string, optionKey?: string) {
+  async selectOptions(key?: keyof any, optionKey?: string) {
     const data = this.status.cad.data;
     if (key && optionKey) {
       const value = (data as any)[key];

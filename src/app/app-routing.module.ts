@@ -13,6 +13,7 @@ import {Index2Component} from "@views/index2/index2.component";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
+import {MrbcjfzComponent} from "@views/mrbcjfz/mrbcjfz.component";
 import {MsbjComponent} from "@views/msbj/msbj.component";
 import {PageNotFoundComponent} from "@views/page-not-found/page-not-found.component";
 import {PiliangjianbanComponent} from "@views/piliangjianban/piliangjianban.component";
@@ -44,7 +45,8 @@ export const routesInfo: (Route & {path: string})[] = [
   {path: "clean", component: CleanComponent, title: "清理任务"},
   {path: "pjmk", component: PjmkComponent, title: "配件模块"},
   {path: "门扇布局", component: MsbjComponent, title: "门扇布局"},
-  {path: "型号默认门扇布局", component: XhmrmsbjComponent, title: "型号默认门扇布局"}
+  {path: "型号默认门扇布局", component: XhmrmsbjComponent, title: "型号默认门扇布局"},
+  {path: "默认板材及分组", component: MrbcjfzComponent, title: "默认板材及分组"}
 ];
 
 const routes: Routes = [
