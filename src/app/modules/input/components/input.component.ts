@@ -301,34 +301,19 @@ export class InputComponent extends Utils() implements AfterViewInit {
     this.validateValue();
   }
 
-  async selectOptions(optionKey?: string, key?: string) {
+  async selectOptions(key?: string, optionKey?: string) {
     const data = this.status.cad.data;
-    if (optionKey === "huajian") {
-      if (!key) {
-        return;
-      }
-      const checkedItems = splitOptions(data.xinghaohuajian[key]);
-      const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems, xinghao: key}});
-      if (Array.isArray(result)) {
-        data.xinghaohuajian[key] = joinOptions(result);
-      }
-    } else if (optionKey === "bancai") {
-      if (key) {
-        let value = (data as any)[key];
-        if (typeof value !== "string") {
-          value = "";
-        }
-        const checkedItems = splitOptions(value);
-        const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems, multi: false}});
-        if (Array.isArray(result)) {
+    if (key && optionKey) {
+      const value = (data as any)[key];
+      const isObject = value && typeof value === "object";
+      const checkedItems = splitOptions(isObject ? value[optionKey] : value);
+      const result = await openCadOptionsDialog(this.dialog, {data: {data, name: optionKey, checkedItems}});
+      if (result) {
+        if (isObject) {
+          (data as any)[key][optionKey] = joinOptions(result);
+        } else {
           (data as any)[key] = joinOptions(result);
         }
-      }
-    } else if (optionKey && key) {
-      const checkedItems = splitOptions((data as any)[optionKey][key]);
-      const result = await openCadOptionsDialog(this.dialog, {data: {data, name: key, checkedItems}});
-      if (result) {
-        (data as any)[optionKey][key] = joinOptions(result);
       }
     }
   }

@@ -1,6 +1,5 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {splitOptions, joinOptions} from "@app/app.common";
 import {
   CadBaseLine,
   CadData,
@@ -15,7 +14,6 @@ import {
   suanliaodanxianshiValues
 } from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
-import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {openKlkwpzDialog} from "@components/dialogs/klkwpz-dialog/klkwpz-dialog.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
@@ -57,7 +55,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     {label: "切内空对应名字", model: this._getcadDataModel("切内空对应名字"), type: "string"},
     {label: "分类", model: this._getcadDataModel("type"), type: "string"},
     {label: "分类2", model: this._getcadDataModel("type2"), type: "string"},
-    {label: "选项", model: this._getcadDataModel("options"), type: "object", isCadOptions: true},
+    {label: "选项", model: this._getcadDataModel("options"), type: "object"},
     {label: "条件", model: this._getcadDataModel("conditions"), type: "array"}
   ];
   infoGroup2: InputInfo[] = [
@@ -85,8 +83,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       type: "select",
       options: ["自动排版", "不排版", "必须排版"]
     },
-    {label: "默认开料板材", model: this._getcadDataModel("morenkailiaobancai"), type: "string", optionKey: "bancai"},
-    {label: "固定开料板材", model: this._getcadDataModel("gudingkailiaobancai"), type: "string", optionKey: "bancai"},
+    {label: "默认开料板材", model: this._getcadDataModel("morenkailiaobancai"), type: "string", optionKey: "板材"},
+    {label: "默认开料材料", model: this._getcadDataModel("默认开料材料"), type: "string", optionKey: "材料"},
+    {label: "默认开料板材厚度", model: this._getcadDataModel("默认开料板材厚度"), type: "string", optionKey: "板材厚度"},
+    {label: "固定开料板材", model: this._getcadDataModel("gudingkailiaobancai"), type: "string", optionKey: "板材"},
     {
       label: "算料处理",
       model: this._getcadDataModel("suanliaochuli"),
@@ -107,7 +107,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     },
     {label: "自定义属性", type: "string", disabled: true, suffixIcons: [{name: "list", onClick: () => this.editAttributes(this.data)}]},
     // {label: "展开", type: "string", disabled: true, suffixIcons: [{name: "list", onClick: () => this.editZhankai(this.data)}]},
-    {label: "型号花件", model: this._getcadDataModel("xinghaohuajian"), type: "object", isCadOptions: true},
+    {label: "型号花件", model: this._getcadDataModel("xinghaohuajian"), type: "object"},
     {label: "必须绑定花件", model: this._getcadDataModel("needsHuajian"), type: "boolean"},
     {label: "可独立板材", model: this._getcadDataModel("kedulibancai"), type: "boolean"},
     {label: "必须选择板材", model: this._getcadDataModel("必须选择板材"), type: "boolean"},
@@ -159,7 +159,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
         {name: "list", onClick: () => this.selectCadmuban()}
       ]
     },
-    {label: "对应计算条数的配件", model: this._getcadDataModel("对应计算条数的配件"), type: "object", isCadOptions: true},
+    {label: "对应计算条数的配件", model: this._getcadDataModel("对应计算条数的配件"), type: "object"},
     {
       label: "指定板材分组",
       model: this._getcadDataModel("指定板材分组"),
@@ -331,31 +331,6 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       }
     }
     return null;
-  }
-
-  async selectOptions(data: CadData, optionKey: string, key: string) {
-    if (optionKey === "huajian") {
-      if (!key) {
-        return;
-      }
-      const checkedItems = splitOptions(data.xinghaohuajian[key]);
-      const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "花件", checkedItems, xinghao: key}});
-      if (Array.isArray(result)) {
-        data.xinghaohuajian[key] = joinOptions(result);
-      }
-    } else if (optionKey === "bancai") {
-      const checkedItems = splitOptions(data.morenkailiaobancai);
-      const result = await openCadOptionsDialog(this.dialog, {data: {data, name: "板材", checkedItems, multi: false}});
-      if (Array.isArray(result) && key) {
-        (data as any)[key] = joinOptions(result);
-      }
-    } else {
-      const checkedItems = splitOptions((data as any)[optionKey][key]);
-      const result = await openCadOptionsDialog(this.dialog, {data: {data, name: key, checkedItems}});
-      if (result) {
-        (data as any)[optionKey][key] = joinOptions(result);
-      }
-    }
   }
 
   getBaselineItemColor(i: number) {

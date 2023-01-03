@@ -54,14 +54,28 @@ export const timer = new Timer({color: "deeppink"});
 export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 
 export const splitOptions = (str: string) => {
-  if (str.includes(";")) {
-    return str.split(";");
-  } else {
-    return str.split(",");
+  if (!str) {
+    return [];
   }
+  const regExps = [/[;；]/, /[，,]/, /[*]/];
+  for (const regExp of regExps) {
+    if (regExp.test(str)) {
+      return str.split(regExp);
+    }
+  }
+  return [str];
 };
 
-export const joinOptions = (options: (string | {mingzi: string})[]) => options.map((v) => (typeof v === "string" ? v : v.mingzi)).join(";");
+export const joinOptions = (options: (string | {mingzi: string})[], separator: ";" | "," | "*" = ";") => {
+  const values: string[] = [];
+  for (const option of options) {
+    const value = typeof option === "string" ? option : option.mingzi;
+    if (value && !values.includes(value)) {
+      values.push(value);
+    }
+  }
+  return values.join(separator);
+};
 
 export const replaceChars = (str: string) => {
   const fullChars2HalfChars: ObjectOf<string> = {

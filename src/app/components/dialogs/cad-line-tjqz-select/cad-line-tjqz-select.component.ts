@@ -2,6 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadData} from "@cad-viewer";
 import {MessageService} from "@modules/message/services/message.service";
+import {joinOptions, splitOptions} from "@src/app/app.common";
 import {cloneDeep} from "lodash";
 import {openCadOptionsDialog} from "../cad-options/cad-options.component";
 import {getOpenDialogFunc} from "../dialog.common";
@@ -25,10 +26,10 @@ export class CadLineTjqzSelectComponent {
 
   async onListClick(item: CadLineTjqzSelectData["options"][0]) {
     const name = item.key;
-    const checkedItems = item.value.split("*");
+    const checkedItems = splitOptions(item.value);
     const result = await openCadOptionsDialog(this.dialog, {data: {data: new CadData(), name, checkedItems}});
     if (result) {
-      item.value = result.join("*");
+      item.value = joinOptions(result, "*");
     }
   }
 

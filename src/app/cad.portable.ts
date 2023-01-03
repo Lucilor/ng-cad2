@@ -123,7 +123,10 @@ export class CadPortable {
     固定开料板材: "gudingkailiaobancai",
     条件: "conditions",
     对应计算条数的配件: "对应计算条数的配件",
-    指定板材分组: "指定板材分组"
+    指定板材分组: "指定板材分组",
+    默认开料材料: "默认开料材料",
+    默认开料板材厚度: "默认开料板材厚度",
+    算料单显示放大倍数: "suanliaodanZoom"
   };
   static infoFields = ["唯一码", "修改包边正面宽规则", "锁边自动绑定可搭配铰边", "使用模板开料"];
   static slgsFields = ["名字", "分类", "条件", "选项", "算料公式"];

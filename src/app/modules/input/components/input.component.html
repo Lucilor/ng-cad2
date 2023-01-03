@@ -36,7 +36,7 @@
         [matAutocomplete]="auto"
         [placeholder]="info.placeholder || ''"
       ></textarea>
-      <button mat-icon-button matSuffix *ngIf="optionKey" color="primary" (click)="selectOptions(optionKey, info.model?.key)">
+      <button mat-icon-button matSuffix *ngIf="optionKey" color="primary" (click)="selectOptions(info.model?.key, optionKey)">
         <mat-icon>list</mat-icon>
       </button>
       <button mat-icon-button matSuffix *ngIf="info.copyable" color="primary" (click)="copy()">
