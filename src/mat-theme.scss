@@ -86,3 +86,16 @@ $app-theme: mat.define-light-theme(
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.mat-mdc-menu-item {
+  display: flex !important;
+  justify-content: space-between;
+  padding: 0 10px;
+
+  .shortcut {
+    text-align: right;
+    font-size: 0.75rem;
+    color: #868686;
+    margin-left: 10px;
+  }
+}

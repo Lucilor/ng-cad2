@@ -6,32 +6,57 @@
   padding: 20px;
   box-sizing: border-box;
   --title-size: 1rem;
+  --active-color: lightgray;
+  --item-margin: 2px;
+  --item-padding: 5px;
 }
 
-.bancai-info {
-  align-items: center;
-  > :not(:last-child) {
-    margin-right: 10px;
+.bancai {
+  margin: var(--item-margin);
+  padding: var(--item-padding);
+  box-sizing: border-box;
+  &.active {
+    background-color: var(--active-color);
   }
 
-  .title {
-    white-space: nowrap;
-    justify-content: flex-end;
-  }
+  .bancai-info {
+    align-items: center;
+    > :not(:last-child) {
+      margin-right: 10px;
+    }
 
-  .bancai-text {
-    height: 100%;
-    cursor: pointer;
+    .title {
+      white-space: nowrap;
+      justify-content: flex-end;
+    }
   }
 }
 
-.cad-list {
+.item-list {
   flex-wrap: wrap;
 
-  .cad {
-    width: 25%;
-    padding: 5px;
+  .item {
+    width: calc(25% - var(--item-margin) * 2);
+    margin: var(--item-margin);
+    padding: var(--item-padding);
     box-sizing: border-box;
     cursor: pointer;
+    &.active {
+      background-color: var(--active-color);
+    }
+
+    app-image:not(.cad-preview) {
+      height: 150px;
+    }
+
+    .title {
+      .mat-mdc-icon-button {
+        padding: 0;
+      }
+    }
   }
+}
+
+.mat-divider {
+  margin: 5px;
 }

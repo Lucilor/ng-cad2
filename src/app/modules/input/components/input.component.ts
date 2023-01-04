@@ -4,12 +4,11 @@ import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
-import {ColoredObject} from "@cad-viewer";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
-import {AppStatusService} from "@services/app-status.service";
 import {ObjectOf, timeout} from "@utils";
+import Color2 from "color";
 import {isEmpty} from "lodash";
 import {Color} from "ngx-color";
 import {ChromeComponent} from "ngx-color/chrome";
@@ -192,7 +191,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
     isErrorState: () => !this.isValid()
   };
 
-  constructor(private message: MessageService, private dialog: MatDialog, private status: AppStatusService) {
+  constructor(private message: MessageService, private dialog: MatDialog) {
     super();
   }
 
@@ -302,7 +301,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
   }
 
   async selectOptions(key?: keyof any, optionKey?: string) {
-    const data = this.status.cad.data;
+    const data = this.model.data;
     if (key && optionKey) {
       const value = (data as any)[key];
       const isObject = value && typeof value === "object";
@@ -310,9 +309,9 @@ export class InputComponent extends Utils() implements AfterViewInit {
       const result = await openCadOptionsDialog(this.dialog, {data: {data, name: optionKey, checkedItems}});
       if (result) {
         if (isObject) {
-          (data as any)[key][optionKey] = joinOptions(result);
+          data[key][optionKey] = joinOptions(result);
         } else {
-          (data as any)[key] = joinOptions(result);
+          data[key] = joinOptions(result);
         }
       }
     }
@@ -369,8 +368,8 @@ export class InputComponent extends Utils() implements AfterViewInit {
     const value = color.hex;
     this.colorText = value.toUpperCase();
     try {
-      const c = new ColoredObject(value);
-      if (c.getColor().isLight()) {
+      const c = new Color2(value);
+      if (c.isLight()) {
         this.colorBg = "black";
       } else {
         this.colorBg = "white";

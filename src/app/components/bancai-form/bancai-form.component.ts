@@ -71,6 +71,9 @@ export class BancaiFormComponent implements OnInit {
     const kexuanbancai = this.data.kexuanbancai;
     if (Array.isArray(kexuanbancai)) {
       const checkedItems = this.bancaiList.filter((v) => kexuanbancai.includes(v.mingzi));
+      if (kexuanbancai.includes("全部")) {
+        checkedItems.push({mingzi: "全部", cailiaoList: [], guigeList: [], houduList: []});
+      }
       this.kexuanbancaiInputInfo = {
         type: "string",
         label: "可选板材",

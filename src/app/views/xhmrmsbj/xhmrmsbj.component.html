@@ -19,7 +19,11 @@
     <div class="flex-row" style="height: 50%">
       <div class="flex-column" style="width: 300px">
         <div class="title">布局：{{ activeMsbj?.name }}</div>
-        <app-msbj-rects [rectInfos]="activeMsbj?.rectInfos" [selectRectBefore]="selectRectBefore.bind(this)" (selectRect)="selectRect($event)"></app-msbj-rects>
+        <app-msbj-rects
+          [rectInfos]="activeMsbj?.rectInfos"
+          [selectRectBefore]="selectRectBefore.bind(this)"
+          (selectRect)="selectRect($event)"
+        ></app-msbj-rects>
         <div class="btn-group" style="justify-content: center">
           <button mat-raised-button color="primary" (click)="setMsbj()">更换布局</button>
         </div>

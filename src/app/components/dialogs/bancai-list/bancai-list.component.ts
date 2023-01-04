@@ -35,7 +35,8 @@ export class BancaiListComponent {
     @Inject(MAT_DIALOG_DATA) public data: BancaiListInput,
     private message: MessageService
   ) {
-    const {checkedItems, list} = this.data || {};
+    const {checkedItems} = this.data || {};
+    let list = this.data.list;
     if (checkedItems) {
       if (this.data.multi) {
       } else {
@@ -46,6 +47,9 @@ export class BancaiListComponent {
       }
     }
     const checkedItemNames = checkedItems?.map((v) => v.mingzi) || [];
+    if (this.data.multi) {
+      list = [{mingzi: "全部", cailiaoList: [], houduList: [], guigeList: []}, ...list];
+    }
     this.list = list.map((bancai) => ({bancai, hidden: false, checked: checkedItemNames.includes(bancai.mingzi)}));
     this.loadFilterText();
     this.filterList();

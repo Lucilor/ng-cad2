@@ -1,24 +1,69 @@
 <div class="btn-group">
-  <button mat-raised-button color="primary">提交</button>
+  <button mat-raised-button color="primary" (click)="submit()">提交</button>
 </div>
 <div class="flex-row flex-110">
-  <ng-scrollbar style="width: 50%">
-    <div class="flex-column" *ngFor="let key of bancaiKeys; let i = index">
-      <div class="bancai-info flex-row">
-        <div class="title">{{ key }}:</div>
-        <div class="bancai-text flex-110" (click)="editBancaiForm(key)">{{ getBancaiTitle(key) }}</div>
-      </div>
-      <div (click)="selectCads(key)">cads</div>
-      <div>huajians</div>
-    </div>
-  </ng-scrollbar>
-  <div class="flex-row flex-110">
-    <ng-scrollbar *ngIf="!isCadsHidden" style="width: 100%">
-      <div class="cad-list flex-row">
-        <div class="cad flex-column" *ngFor="let cad of cads">
-          <app-image class="cad-preview" [src]="cad.img"></app-image>
-          <div class="title center">{{ cad.data.name }}</div>
+  <div class="flex-row" style="width: 50%">
+    <ng-scrollbar class="flex-110">
+      <div
+        class="bancai flex-column"
+        [ngClass]="{active: key === activeBancaiKey}"
+        *ngFor="let key of bancaiKeys; let i = index"
+        (click)="selectBancaiKey(key)"
+      >
+        <div class="bancai-info flex-row">
+          <div class="title">{{ key }}:</div>
+          <div class="bancai-text" [ngStyle]="getBancaiStyle(key)">{{ getBancaiTitle(key) }}</div>
+          <button mat-raised-button color="primary" (click)="editBancaiForm(key)">编辑</button>
         </div>
+        <div class="item-list flex-row">
+          <ng-container *ngFor="let item of cads">
+            <div class="item flex-column" *ngIf="xinghao['默认板材'][key].CAD.includes(item.id)" (click)="selectListItem(item, 'CAD', key)">
+              <app-image class="cad-preview" [src]="item.img"></app-image>
+              <div class="title center">
+                {{ item.data.name }}
+              </div>
+            </div>
+          </ng-container>
+        </div>
+        <div class="item-list flex-row">
+          <ng-container *ngFor="let item of huajians">
+            <div
+              class="item flex-column"
+              *ngIf="xinghao['默认板材'][key]['花件'].includes(item.id)"
+              (click)="selectListItem(item, '花件', key)"
+            >
+              <app-image [src]="item.data.xiaotu"></app-image>
+              <div class="title center">{{ item.data.mingzi }}</div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-scrollbar>
+  </div>
+  <mat-divider vertical></mat-divider>
+  <div class="flex-column flex-110">
+    <ng-scrollbar class="flex-110">
+      <div class="item-list flex-row">
+        <ng-container *ngFor="let item of cads">
+          <div class="item flex-column" *ngIf="!item.selected" (click)="selectListItem(item, 'CAD')">
+            <app-image class="cad-preview" [src]="item.img"></app-image>
+            <div class="title center">
+              {{ item.data.name }}
+              <button mat-icon-button color="primary" (click)="openCad(item)"><mat-icon>open_in_new</mat-icon></button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </ng-scrollbar>
+    <mat-divider></mat-divider>
+    <ng-scrollbar class="flex-110">
+      <div class="item-list flex-row">
+        <ng-container *ngFor="let item of huajians">
+          <div class="item flex-column" *ngIf="!item.selected" (click)="selectListItem(item, '花件')">
+            <app-image [src]="item.data.xiaotu"></app-image>
+            <div class="title center">{{ item.data.mingzi }}</div>
+          </div>
+        </ng-container>
       </div>
     </ng-scrollbar>
   </div>

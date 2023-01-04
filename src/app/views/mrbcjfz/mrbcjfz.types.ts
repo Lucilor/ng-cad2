@@ -17,7 +17,7 @@ export interface MrbcjfzXinghao extends TableDataBase {
 
 export interface MrbcjfzHuajian extends TableDataBase {
   xiaotu?: string;
-  bancaigensuihuajian?: string;
+  shihuajian?: number;
 }
 
 export class MrbcjfzXinghaoInfo {
@@ -40,7 +40,6 @@ export interface MrbcjfzInfo {
   选中板材厚度: string;
   选中板材分组: string;
   可选板材: string[];
-  独立板材: boolean;
   花件: string[];
   CAD: string[];
 }
@@ -55,7 +54,6 @@ export const getMrbcjfzInfo = (source: Partial<MrbcjfzInfo> = {}): MrbcjfzInfo =
   选中板材厚度: "",
   选中板材分组: "",
   可选板材: [],
-  独立板材: false,
   花件: [],
   CAD: [],
   ...source
@@ -67,8 +65,46 @@ export interface MrbcjfzBancaiInputs {
   houdu: InputInfo<MrbcjfzInfo>;
 }
 
-export interface MrbcjfzCadInfo {
+export interface MrbcjfzListItem {
+  id: string;
+  selected?: boolean;
+}
+
+export const listItemKeys = ["CAD", "花件"] as const;
+export type ListItemKey = typeof listItemKeys[number];
+
+export interface MrbcjfzCadInfo extends MrbcjfzListItem {
   data: CadData;
   img: string;
-  hidden: boolean;
 }
+
+export interface MrbcjfzHuajianInfo extends MrbcjfzListItem {
+  data: MrbcjfzHuajian;
+}
+
+export const filterCad = (info: MrbcjfzCadInfo) => {
+  const data = info.data;
+  if (data.gudingkailiaobancai || data.板材绑定选项) {
+    return false;
+  }
+  const typeReg = /激光花|花件|示意图|装配示意图|特定企料|横截面示意图|纵截面示意图/;
+  if (typeReg.test(data.type) || typeReg.test(data.type2)) {
+    return false;
+  }
+  if (data.options.花件 || Object.keys(data.options).some((v2) => v2.includes("压条"))) {
+    return false;
+  }
+  return true;
+};
+
+export const filterHuajian = (info: MrbcjfzHuajianInfo) => {
+  const data = info.data;
+  if (data.shihuajian) {
+    return false;
+  }
+  const mingziReg = /压条|压边|门徽|猫眼|LOGO|商标/;
+  if (mingziReg.test(data.mingzi)) {
+    return false;
+  }
+  return true;
+};

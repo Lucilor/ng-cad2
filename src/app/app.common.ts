@@ -49,8 +49,6 @@ export type CadCollection =
   | "luomatoucad"
   | "kailiaocanshu";
 
-export const timer = new Timer({color: "deeppink"});
-
 export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
 
 export const splitOptions = (str: string) => {
@@ -137,6 +135,7 @@ export const getFormControlErrorString = (control: FormControl) => {
 
 export type ProjectConfig = ObjectOf<string>;
 
+export const timer = new Timer({color: "deeppink"});
 setGlobal("timer", timer);
 setGlobal("log", log);
 

@@ -1,6 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
+import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {MatRadioModule} from "@angular/material/radio";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {HttpModule} from "@modules/http/http.module";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
@@ -15,7 +15,7 @@ const bancais: BancaiList[] = [
 ];
 const data: BancaiListInput = {
   list: bancais,
-  checkedItem: bancais[0]
+  checkedItems: bancais
 };
 
 describe("BancaiListComponent", () => {
@@ -25,7 +25,7 @@ describe("BancaiListComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [BancaiListComponent],
-      imports: [HttpModule, InputModule, MatRadioModule, MatTooltipModule, MessageModule, NgScrollbarModule],
+      imports: [HttpModule, InputModule, MatCheckboxModule, MatTooltipModule, MessageModule, NgScrollbarModule],
       providers: [
         {provide: MatDialogRef, useValue: {}},
         {provide: MAT_DIALOG_DATA, useValue: data}

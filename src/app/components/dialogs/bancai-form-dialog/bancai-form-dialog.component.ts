@@ -23,8 +23,18 @@ export class BancaiFormDialogComponent {
 
   submit() {
     const data = {...this.data.data};
-    if (Object.values(data).some((v) => !v)) {
-      this.message.error("内容不能为空");
+    const emptyKeys: string[] = [];
+    if (!data.bancai) {
+      emptyKeys.push("板材");
+    }
+    if (!data.cailiao) {
+      emptyKeys.push("材料");
+    }
+    if (!data.houdu) {
+      emptyKeys.push("厚度");
+    }
+    if (emptyKeys.length > 0) {
+      this.message.error(`${emptyKeys.join("/")}不能为空`);
       return;
     }
     this.dialogRef.close(data);
