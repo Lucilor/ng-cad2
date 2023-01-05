@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {ValidationErrors} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
@@ -12,6 +12,7 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {setGlobal} from "@src/app/app.common";
 import {getCadPreview} from "@src/app/cad.utils";
+import {timeout} from "@utils";
 import {Properties} from "csstype";
 import {isEmpty} from "lodash";
 import {
@@ -24,6 +25,7 @@ import {
   MrbcjfzHuajianInfo,
   MrbcjfzInfo,
   MrbcjfzListItem,
+  MrbcjfzQiliaoInfo,
   MrbcjfzResponseData,
   MrbcjfzXinghao,
   MrbcjfzXinghaoInfo
@@ -35,11 +37,15 @@ import {
   styleUrls: ["./mrbcjfz.component.scss"]
 })
 export class MrbcjfzComponent implements OnInit {
-  id = "";
-  table = "";
+  @Input() id = 0;
+  @Input() table = "";
+  @Input() closeable = false;
+  @Output() dataSubmit = new EventEmitter<MrbcjfzXinghaoInfo>();
+  @Output() dataClose = new EventEmitter<void>();
   xinghao: MrbcjfzXinghaoInfo = new MrbcjfzXinghaoInfo({vid: 0, mingzi: ""});
   cads: MrbcjfzCadInfo[] = [];
   huajians: MrbcjfzHuajianInfo[] = [];
+  qiliaos: MrbcjfzQiliaoInfo[] = [];
   bancaiKeys: string[] = [];
   bancaiList: BancaiList[] = [];
   bancaiInputs: InputInfo<MrbcjfzInfo>[][] = [];
@@ -63,9 +69,16 @@ export class MrbcjfzComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const {id, table} = this.route.snapshot.queryParams;
-    this.id = id || "";
-    this.table = table || "";
+    let {id, table} = this;
+    if (!id || !table) {
+      const params = this.route.snapshot.queryParams;
+      id = params.id ? Number(params.id) : 0;
+      table = params.table || "";
+      this.id = id;
+      this.table = table;
+    } else {
+      await timeout(0);
+    }
     const response = await this.dataService.post<MrbcjfzResponseData>(
       "peijian/xinghao/bancaifenzuIndex",
       {table, id},
@@ -84,6 +97,7 @@ export class MrbcjfzComponent implements OnInit {
         })
         .filter(filterCad);
       this.huajians = response.data.huajians.map((v) => ({data: v, id: String(v.vid)})).filter(filterHuajian);
+      this.qiliaos = response.data.qiliaos.map((v) => ({data: v, id: String(v.vid)}));
       this.bancaiKeys = response.data.bancaiKeys;
       this.bancaiList = response.data.bancaiList;
       this.updateXinghao();
@@ -122,15 +136,6 @@ export class MrbcjfzComponent implements OnInit {
     }
   }
 
-  getBancaiTitle(key: string) {
-    const info = this.xinghao.默认板材[key];
-    const arr = [info.默认开料板材, info.默认开料材料, info.默认开料板材厚度].filter(Boolean);
-    if (arr.length < 3) {
-      return "请选择";
-    }
-    return arr.join("/");
-  }
-
   validateBancai(bancai: MrbcjfzInfo) {
     const {CAD, 花件, 默认开料板材, 默认开料材料, 默认开料板材厚度} = bancai;
     const errors: ValidationErrors = {};
@@ -162,6 +167,9 @@ export class MrbcjfzComponent implements OnInit {
     }
     if (key === "花件") {
       return this.huajians;
+    }
+    if (key === "企料") {
+      return this.qiliaos;
     }
     return [];
   }
@@ -224,6 +232,9 @@ export class MrbcjfzComponent implements OnInit {
     if (this.huajians.some((v) => !v.selected)) {
       errorMsg.push("有花件未选择");
     }
+    if (this.qiliaos.some((v) => !v.selected)) {
+      errorMsg.push("有企料未选择");
+    }
     if (errorMsg.length) {
       this.message.error(errorMsg.join("<br>"));
       return;
@@ -233,6 +244,11 @@ export class MrbcjfzComponent implements OnInit {
     this.spinner.show(this.spinner.defaultLoaderId);
     await this.dataService.tableUpdate({table, tableData});
     this.spinner.hide(this.spinner.defaultLoaderId);
+    this.dataSubmit.emit(this.xinghao);
+  }
+
+  close() {
+    this.dataClose.emit();
   }
 
   openCad(item: MrbcjfzListItem) {

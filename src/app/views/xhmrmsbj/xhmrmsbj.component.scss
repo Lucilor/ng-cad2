@@ -9,8 +9,8 @@
 }
 
 .menshan-options {
-  --border: 1px solid black;
   border: var(--border);
+  width: 100px;
 
   .menshan-option {
     justify-content: center;
@@ -45,5 +45,13 @@
   .title {
     font-size: 1rem;
     text-align: center;
+  }
+}
+
+.xinghao-info {
+  cursor: pointer;
+
+  > div {
+    line-height: 1.5em;
   }
 }

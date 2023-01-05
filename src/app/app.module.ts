@@ -43,6 +43,7 @@ import {JsonEditorComponent} from "@components/dialogs/json-editor/json-editor.c
 import {KlcsDialogComponent} from "@components/dialogs/klcs-dialog/klcs-dialog.component";
 import {KlkwpzDialogComponent} from "@components/dialogs/klkwpz-dialog/klkwpz-dialog.component";
 import {LoginFormComponent} from "@components/dialogs/login-form/login-form.component";
+import {MrbcjfzDialogComponent} from "@components/dialogs/mrbcjfz-dialog/mrbcjfz-dialog.component";
 import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {ZixuanpeijianComponent} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {FormulasEditorComponent} from "@components/formulas-editor/formulas-editor.component";
@@ -145,6 +146,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     KlkwpzDialogComponent,
     LoginFormComponent,
     MrbcjfzComponent,
+    MrbcjfzDialogComponent,
     MsbjComponent,
     MsbjRectsComponent,
     PageNotFoundComponent,

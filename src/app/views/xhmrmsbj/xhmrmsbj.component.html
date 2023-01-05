@@ -2,12 +2,16 @@
   <button mat-raised-button color="primary" (click)="submit()">提交</button>
 </div>
 <div class="flex-row flex-110">
+  <div class="xinghao-info flex-column" *ngIf="xinghao" (click)="openMrbcjfzDialog()">
+    <ng-container *ngFor="let item of xinghao['默认板材'] | keyvalue; returnZero">
+      <div *ngIf="xinghao.getBancaiTitle(item.key)">{{ item.key }}: {{ xinghao.getBancaiTitle(item.key) }}</div>
+    </ng-container>
+  </div>
   <div class="flex-column">
-    <div class="title">选择要模块替换的门扇</div>
     <div class="flex-column menshan-options">
       <div
         class="flex-row menshan-option"
-        *ngFor="let item of dataInfo?.menshanbujuInfos | keyvalue : returnZero"
+        *ngFor="let item of data?.menshanbujuInfos | keyvalue : returnZero"
         [ngClass]="{active: activeMenshanKey === item.key}"
         (click)="selectMenshanKey(item.key)"
       >

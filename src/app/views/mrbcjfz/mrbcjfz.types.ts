@@ -7,6 +7,7 @@ export interface MrbcjfzResponseData {
   xinghao: MrbcjfzXinghao;
   cads: any[];
   huajians: MrbcjfzHuajian[];
+  qiliaos: TableDataBase[];
   bancaiKeys: string[];
   bancaiList: BancaiList[];
 }
@@ -28,6 +29,18 @@ export class MrbcjfzXinghaoInfo {
       this.默认板材 = JSON.parse(raw.morenbancai || "");
     } catch (error) {}
   }
+
+  getBancaiTitle(key: string, placeholder = "") {
+    const info = this.默认板材[key];
+    if (!info) {
+      return "";
+    }
+    const arr = [info.默认开料板材, info.默认开料材料, info.默认开料板材厚度].filter(Boolean);
+    if (arr.length < 3) {
+      return placeholder;
+    }
+    return arr.join("/");
+  }
 }
 
 export interface MrbcjfzInfo {
@@ -42,6 +55,7 @@ export interface MrbcjfzInfo {
   可选板材: string[];
   花件: string[];
   CAD: string[];
+  企料: string[];
 }
 
 export const getMrbcjfzInfo = (source: Partial<MrbcjfzInfo> = {}): MrbcjfzInfo => ({
@@ -56,6 +70,7 @@ export const getMrbcjfzInfo = (source: Partial<MrbcjfzInfo> = {}): MrbcjfzInfo =
   可选板材: [],
   花件: [],
   CAD: [],
+  企料: [],
   ...source
 });
 
@@ -70,7 +85,7 @@ export interface MrbcjfzListItem {
   selected?: boolean;
 }
 
-export const listItemKeys = ["CAD", "花件"] as const;
+export const listItemKeys = ["CAD", "花件", "企料"] as const;
 export type ListItemKey = typeof listItemKeys[number];
 
 export interface MrbcjfzCadInfo extends MrbcjfzListItem {
@@ -80,6 +95,10 @@ export interface MrbcjfzCadInfo extends MrbcjfzListItem {
 
 export interface MrbcjfzHuajianInfo extends MrbcjfzListItem {
   data: MrbcjfzHuajian;
+}
+
+export interface MrbcjfzQiliaoInfo extends MrbcjfzListItem {
+  data: TableDataBase;
 }
 
 export const filterCad = (info: MrbcjfzCadInfo) => {

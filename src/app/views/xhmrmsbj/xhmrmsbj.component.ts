@@ -2,16 +2,18 @@ import {Component, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
+import {openMrbcjfzDialog} from "@components/dialogs/mrbcjfz-dialog/mrbcjfz-dialog.component";
 import {getMokuaiTitle, getStep1Data, Step1Data, ZixuanpeijianTypesInfoItem} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {TableUpdateParams} from "@modules/http/services/cad-data.service.types";
+import {BancaiList, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {setGlobal} from "@src/app/app.common";
+import {MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {cloneDeep, isEqual} from "lodash";
-import {XhmrmsbjData, XhmrmsbjInfo} from "./xhmrmsbj.types";
+import {XhmrmsbjTableData, XhmrmsbjData} from "./xhmrmsbj.types";
 
 @Component({
   selector: "app-xhmrmsbj",
@@ -21,15 +23,17 @@ import {XhmrmsbjData, XhmrmsbjInfo} from "./xhmrmsbj.types";
 export class XhmrmsbjComponent implements OnInit {
   table = "";
   id = "";
+  tableData: XhmrmsbjTableData | null = null;
   data: XhmrmsbjData | null = null;
-  dataInfo: XhmrmsbjInfo | null = null;
   msbjs: MsbjInfo[] = [];
   step1Data: Step1Data = {prefix: "", options: {}, typesInfo: {}};
+  xinghao: MrbcjfzXinghaoInfo | null = null;
+  bancaiList: BancaiList[] = [];
   activeMenshanKey: string | null = null;
   activeMsbj: MsbjInfo | null = null;
   activeRectInfo: MsbjRectInfo | null = null;
   get activeMsbjInfo() {
-    return this.dataInfo?.menshanbujuInfos[this.activeMenshanKey || ""];
+    return this.data?.menshanbujuInfos[this.activeMenshanKey || ""];
   }
   getMokuaiTitle = getMokuaiTitle;
   showMokuais = false;
@@ -49,12 +53,20 @@ export class XhmrmsbjComponent implements OnInit {
     const {table, id} = this.route.snapshot.queryParams;
     this.table = table;
     this.id = id;
-    const records = await this.dataService.queryMySql<XhmrmsbjData>({table, filter: {where: {vid: id}}});
-    this.data = records?.[0] || null;
-    this.dataInfo = this.data ? new XhmrmsbjInfo(this.data) : null;
+    const records = await this.dataService.queryMySql<XhmrmsbjTableData>({table, filter: {where: {vid: id}}});
+    this.tableData = records?.[0] || null;
+    this.data = this.tableData ? new XhmrmsbjData(this.tableData) : null;
     const records2 = await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     this.msbjs = records2.map((item) => new MsbjInfo(item, "peizhishuju"));
     const step1Data = await getStep1Data(this.dataService);
+    console.log(this.tableData);
+    const records3 = await this.dataService.queryMySql<MrbcjfzXinghao>({
+      table: "p_xinghao",
+      filter: {where: {vid: this.tableData?.xinghao}}
+    });
+    this.xinghao = records3?.[0] ? new MrbcjfzXinghaoInfo(records3[0]) : null;
+    const response = await this.dataService.post<BancaiList[]>("ngcad/getBancaiList");
+    this.bancaiList = response?.data || [];
     if (step1Data) {
       this.step1Data = step1Data;
     }
@@ -68,9 +80,9 @@ export class XhmrmsbjComponent implements OnInit {
     const msbj = this.activeMsbj;
     const msbjInfo = this.activeMsbjInfo;
     if (msbj && msbjInfo) {
-      const 选中模块 = msbjInfo.选中模块 || {};
       for (const rectInfo of msbj.rectInfos) {
-        if (rectInfo.isBuju && !(rectInfo.vid in 选中模块)) {
+        const 选中模块 = msbjInfo.模块节点?.find((v) => v.层id === rectInfo.vid);
+        if (rectInfo.isBuju && !选中模块) {
           this.message.error("布局中存在未选中的模块");
           return;
         }
@@ -87,7 +99,7 @@ export class XhmrmsbjComponent implements OnInit {
   }
 
   async setMsbj() {
-    const infos = this.dataInfo?.menshanbujuInfos;
+    const infos = this.data?.menshanbujuInfos;
     const key = this.activeMenshanKey;
     if (!key || !infos) {
       return;
@@ -103,15 +115,15 @@ export class XhmrmsbjComponent implements OnInit {
       infos[key].选中布局 = result[0].vid;
       this.setActiveMsbj(infos[key].选中布局);
       const msbjAfter = this.activeMsbj;
-      const 选中模块 = infos[key].选中模块;
-      if (选中模块 && msbjBefore) {
-        for (const rectInfoBefore of msbjBefore.rectInfos) {
-          const rectInfoAfter = msbjAfter?.rectInfos.find((item) => item.vid === rectInfoBefore.vid);
-          if (!rectInfoAfter && rectInfoBefore.vid in 选中模块) {
-            delete 选中模块[rectInfoBefore.vid];
-          }
-        }
-      }
+      // const 选中模块 = infos[key].选中模块;
+      // if (选中模块 && msbjBefore) {
+      //   for (const rectInfoBefore of msbjBefore.rectInfos) {
+      //     const rectInfoAfter = msbjAfter?.rectInfos.find((item) => item.vid === rectInfoBefore.vid);
+      //     if (!rectInfoAfter && rectInfoBefore.vid in 选中模块) {
+      //       delete 选中模块[rectInfoBefore.vid];
+      //     }
+      //   }
+      // }
     }
   }
 
@@ -142,14 +154,14 @@ export class XhmrmsbjComponent implements OnInit {
     if (!mokuai || !msbjInfo || !rectInfo) {
       return;
     }
-    if (!msbjInfo.选中模块) {
-      msbjInfo.选中模块 = {};
-    }
-    msbjInfo.选中模块[rectInfo.raw.vid] = mokuai.id;
+    // if (!msbjInfo.选中模块) {
+    //   msbjInfo.选中模块 = [];
+    // }
+    // msbjInfo.选中模块[rectInfo.raw.vid] = mokuai.id;
   }
 
   getMokuaiTemplate(rectInfo: MsbjRectInfo | null): XhmrmsbjComponent["mokuaiTemplateType"] {
-    const mokuaiId = this.activeMsbjInfo?.选中模块?.[rectInfo?.raw.vid || ""];
+    const mokuaiId = this.activeMsbjInfo?.模块节点?.find((v) => v.层id === rectInfo?.raw.vid)?.选中模块.模块id;
     if (mokuaiId) {
       for (const type1 in this.step1Data.typesInfo) {
         const type1Info = this.step1Data.typesInfo[type1];
@@ -165,27 +177,37 @@ export class XhmrmsbjComponent implements OnInit {
   }
 
   async submit() {
-    const {table, dataInfo} = this;
+    const {table, data: dataInfo} = this;
     if (!dataInfo) {
       return;
     }
-    for (const menshanKey in dataInfo.menshanbujuInfos) {
-      const msbjInfo = dataInfo.menshanbujuInfos[menshanKey];
-      const msbj = this.msbjs.find((item) => item.vid === msbjInfo.选中布局);
-      const 选中模块 = msbjInfo.选中模块 || {};
-      if (msbj) {
-        for (const rectInfo of msbj.rectInfos) {
-          if (rectInfo.isBuju && !选中模块[rectInfo.vid]) {
-            this.message.error("布局中存在未选中的模块");
-            return;
-          }
-        }
-      }
-    }
+    // for (const menshanKey in dataInfo.menshanbujuInfos) {
+    //   const msbjInfo = dataInfo.menshanbujuInfos[menshanKey];
+    //   const msbj = this.msbjs.find((item) => item.vid === msbjInfo.选中布局);
+    //   const 选中模块 = msbjInfo.选中模块 || {};
+    //   if (msbj) {
+    //     for (const rectInfo of msbj.rectInfos) {
+    //       if (rectInfo.isBuju && !选中模块[rectInfo.vid]) {
+    //         this.message.error("布局中存在未选中的模块");
+    //         return;
+    //       }
+    //     }
+    //   }
+    // }
     const tableData: TableUpdateParams<MsbjData>["tableData"] = {vid: dataInfo.vid};
     tableData.peizhishuju = JSON.stringify(dataInfo.menshanbujuInfos);
     this.spinner.show(this.spinner.defaultLoaderId);
     await this.dataService.tableUpdate({table, tableData});
     this.spinner.hide(this.spinner.defaultLoaderId);
+  }
+
+  async openMrbcjfzDialog() {
+    if (!this.xinghao) {
+      return;
+    }
+    const result = await openMrbcjfzDialog(this.dialog, {data: {id: this.xinghao.raw.vid, table: "p_xinghao"}});
+    if (result) {
+      this.xinghao = result;
+    }
   }
 }

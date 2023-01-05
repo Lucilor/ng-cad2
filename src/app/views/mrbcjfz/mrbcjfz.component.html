@@ -1,5 +1,6 @@
 <div class="btn-group">
   <button mat-raised-button color="primary" (click)="submit()">提交</button>
+  <button mat-raised-button color="primary" *ngIf="closeable" (click)="close()">关闭</button>
 </div>
 <div class="flex-row flex-110">
   <div class="flex-row" style="width: 50%">
@@ -12,7 +13,7 @@
       >
         <div class="bancai-info flex-row">
           <div class="title">{{ key }}:</div>
-          <div class="bancai-text" [ngStyle]="getBancaiStyle(key)">{{ getBancaiTitle(key) }}</div>
+          <div class="bancai-text" [ngStyle]="getBancaiStyle(key)">{{ xinghao.getBancaiTitle(key, "请选择") }}</div>
           <button mat-raised-button color="primary" (click)="editBancaiForm(key)">编辑</button>
         </div>
         <div class="item-list flex-row">
@@ -21,6 +22,19 @@
               <app-image class="cad-preview" [src]="item.img"></app-image>
               <div class="title center">
                 {{ item.data.name }}
+              </div>
+            </div>
+          </ng-container>
+        </div>
+        <div class="item-list flex-row">
+          <ng-container *ngFor="let item of qiliaos">
+            <div
+              class="item flex-column"
+              *ngIf="xinghao['默认板材'][key]['企料'].includes(item.id)"
+              (click)="selectListItem(item, '企料', key)"
+            >
+              <div class="title center">
+                {{ item.data.mingzi }}
               </div>
             </div>
           </ng-container>
@@ -51,6 +65,16 @@
               {{ item.data.name }}
               <button mat-icon-button color="primary" (click)="openCad(item)"><mat-icon>open_in_new</mat-icon></button>
             </div>
+          </div>
+        </ng-container>
+      </div>
+    </ng-scrollbar>
+    <mat-divider></mat-divider>
+    <ng-scrollbar style="height: 105px">
+      <div class="item-list flex-row">
+        <ng-container *ngFor="let item of qiliaos">
+          <div class="item flex-column" *ngIf="!item.selected" (click)="selectListItem(item, '企料')">
+            <div class="title center">{{ item.data.mingzi }}</div>
           </div>
         </ng-container>
       </div>
