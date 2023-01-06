@@ -37,6 +37,7 @@ import {
   importZixuanpeijian,
   MokuaiInputInfos,
   Step1Data,
+  updateMokuaiItems,
   ZixuanpeijianCadItem,
   ZixuanpeijianInfo,
   ZixuanpeijianInput,
@@ -177,23 +178,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
       this.urlPrefix = step1Data.prefix;
       this.typesInfo = step1Data.typesInfo;
       this.options = step1Data.options;
-      for (const type1 in step1Data.typesInfo) {
-        for (const type2 in step1Data.typesInfo[type1]) {
-          const info = step1Data.typesInfo[type1][type2];
-          for (const item of this.result.模块) {
-            if (item.type2 === type2) {
-              const {gongshishuru, xuanxiangshuru} = item;
-              Object.assign(item, info);
-              for (const v of item.gongshishuru) {
-                v[1] = gongshishuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
-              }
-              for (const v of item.xuanxiangshuru) {
-                v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
-              }
-            }
-          }
-        }
-      }
+      updateMokuaiItems(this.result.模块, step1Data.typesInfo);
     }
     if (updateInputInfos) {
       this._updateInputInfos();

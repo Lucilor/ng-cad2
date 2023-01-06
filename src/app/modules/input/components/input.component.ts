@@ -113,6 +113,14 @@ export class InputComponent extends Utils() implements AfterViewInit {
     return this.info.suffixIcons || [];
   }
 
+  get hint() {
+    const hint = this.info.hint;
+    if (typeof hint === "function") {
+      return hint();
+    }
+    return hint || "";
+  }
+
   options: {value: string; label: string}[] = [];
   // get selectedValue() {
   //     const value = this.value;

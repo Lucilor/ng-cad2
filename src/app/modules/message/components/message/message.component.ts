@@ -129,6 +129,8 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
       if (data.inputs.length > 0 && !data.inputs.some((v) => v.autoFocus)) {
         data.inputs[0].autoFocus = true;
       }
+    } else if (data.type === "book") {
+      this.setPage(0);
     } else if (data.type === "iframe") {
       this.iframeSrc = this.sanitizer.bypassSecurityTrustResourceUrl(data.content);
     }

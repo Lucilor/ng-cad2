@@ -137,9 +137,9 @@ export class MrbcjfzComponent implements OnInit {
   }
 
   validateBancai(bancai: MrbcjfzInfo) {
-    const {CAD, 花件, 默认开料板材, 默认开料材料, 默认开料板材厚度} = bancai;
+    const {CAD, 花件, 企料, 默认开料板材, 默认开料材料, 默认开料板材厚度} = bancai;
     const errors: ValidationErrors = {};
-    if (CAD.length > 0 || 花件.length > 0) {
+    if ([CAD, 花件, 企料].some((v) => v.length > 0)) {
       if (![默认开料板材, 默认开料材料, 默认开料板材厚度].every(Boolean)) {
         errors.required = true;
       }

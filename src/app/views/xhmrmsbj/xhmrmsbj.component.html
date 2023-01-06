@@ -1,63 +1,93 @@
-<div class="btn-group">
-  <button mat-raised-button color="primary" (click)="submit()">提交</button>
-</div>
-<div class="flex-row flex-110">
-  <div class="xinghao-info flex-column" *ngIf="xinghao" (click)="openMrbcjfzDialog()">
-    <ng-container *ngFor="let item of xinghao['默认板材'] | keyvalue : returnZero">
-      <div *ngIf="xinghao.getBancaiTitle(item.key)">{{ item.key }}: {{ xinghao.getBancaiTitle(item.key) }}</div>
+<div class="flex-row" style="justify-content: space-between">
+  <div class="btn-group">
+    <button
+      mat-raised-button
+      [color]="name === activeTabName ? 'accent' : 'primary'"
+      *ngFor="let name of tabNames"
+      (click)="setTabName(name)"
+    >
+      {{ name }}
+    </button>
+    <div>型号：{{ xinghao?.raw?.mingzi }}</div>
+  </div>
+  <div class="btn-group" [ngSwitch]="activeTabName">
+    <ng-container *ngSwitchCase="'门扇模块'">
+      <button mat-stroked-button color="primary" (click)="submit()">保存型号默认门扇布局</button>
+      <button mat-stroked-button color="primary">另存为新型号默认门扇布局</button>
     </ng-container>
   </div>
-  <div class="flex-column">
-    <div class="flex-column menshan-options">
-      <div
-        class="flex-row menshan-option"
-        *ngFor="let item of data?.menshanbujuInfos | keyvalue : returnZero"
-        [ngClass]="{active: activeMenshanKey === item.key}"
-        (click)="selectMenshanKey(item.key)"
-      >
-        {{ item.key }}
-      </div>
-    </div>
-  </div>
-  <div class="flex-110 flex-column">
-    <div class="flex-row" style="height: 50%">
-      <div class="flex-column" style="width: 300px">
-        <div class="title">布局：{{ activeMsbj?.name }}</div>
-        <app-msbj-rects
-          [rectInfos]="activeMsbj?.rectInfos"
-          [selectRectBefore]="selectRectBefore.bind(this)"
-          (selectRect)="selectRect($event)"
-        ></app-msbj-rects>
-        <div class="btn-group" style="justify-content: center">
-          <button mat-raised-button color="primary" (click)="setMsbj()">更换布局</button>
-        </div>
-      </div>
-      <div class="flex-110 flex-column">
-        <div class="flex-110"></div>
-        <div class="flex-110 flex-row">
-          <ng-container *ngIf="showMokuais">
-            <ng-template *ngTemplateOutlet="mokuaiT; context: getMokuaiTemplate(activeRectInfo)"></ng-template>
-          </ng-container>
-          <div class="flex-110"></div>
-        </div>
-      </div>
-    </div>
-    <ng-scrollbar class="flex-110">
-      <div class="flex-row" style="flex-wrap: wrap" [ngStyle]="{display: showMokuais ? 'flex' : 'none'}">
-        <ng-container *ngFor="let item of step1Data.typesInfo | keyvalue : returnZero">
-          <ng-container *ngFor="let item2 of item.value | keyvalue : returnZero">
-            <ng-template *ngTemplateOutlet="mokuaiT; context: {$implicit: item2.value, type1: item.key, type2: item2.key}"></ng-template>
-          </ng-container>
-        </ng-container>
-      </div>
-    </ng-scrollbar>
-  </div>
 </div>
+<ng-container [ngSwitch]="activeTabName">
+  <div class="flex-row flex-110" *ngSwitchCase="'门扇模块'">
+    <div class="flex-column">
+      <div class="flex-column menshan-options">
+        <div
+          class="flex-row menshan-option"
+          *ngFor="let item of data?.menshanbujuInfos | keyvalue : returnZero"
+          [ngClass]="{active: activeMenshanKey === item.key}"
+          (click)="selectMenshanKey(item.key)"
+        >
+          {{ item.key }}
+        </div>
+      </div>
+    </div>
+    <mat-divider vertical></mat-divider>
+    <div class="flex-110 flex-column">
+      <div class="flex-row flex-110">
+        <div class="flex-column" style="width: 300px">
+          <div class="title">布局：{{ activeMsbj?.name }}</div>
+          <app-msbj-rects
+            [rectInfos]="activeMsbj?.rectInfos"
+            [selectRectBefore]="selectRectBefore.bind(this)"
+            (selectRect)="selectRect($event)"
+          ></app-msbj-rects>
+          <div class="btn-group" style="justify-content: center">
+            <button mat-raised-button color="primary" (click)="setMsbj()">更换布局</button>
+          </div>
+        </div>
+        <div class="flex-110 flex-row">
+          <div class="flex-110 flex-column">
+            <div class="flex-110">模块大小</div>
+            <div class="flex-110" *ngIf="showMokuais">
+              <ng-template *ngTemplateOutlet="mokuaiT; context: getMokuaiTemplate(activeRectInfo)"></ng-template>
+            </div>
+          </div>
+          <div class="flex-column flex-110">
+            <div class="mokuai-inputs flex-row flex-110">
+              <app-input *ngFor="let info of mokuaiInputInfos" [info]="info"></app-input>
+            </div>
+            <div class="flex-110">板材选择</div>
+          </div>
+        </div>
+      </div>
+      <div class="flex-column flex-110">
+        <div class="btn-group">
+          <button mat-raised-button color="primary" *ngIf="activeRectInfo" (click)="setKexuanmokuai()">设置可选模块</button>
+        </div>
+        <ng-scrollbar class="flex-110">
+          <div class="flex-row" style="flex-wrap: wrap" [ngStyle]="{display: showMokuais ? 'flex' : 'none'}">
+            <ng-container *ngFor="let mokuai of mokuais">
+              <ng-container *ngIf="isMokuaiKexuan(mokuai)">
+                <ng-template *ngTemplateOutlet="mokuaiT; context: {$implicit: mokuai}"> </ng-template>
+              </ng-container>
+            </ng-container>
+          </div>
+        </ng-scrollbar>
+      </div>
+    </div>
+    <mat-divider vertical></mat-divider>
+    <div class="xinghao-info flex-column" *ngIf="xinghao" (click)="openMrbcjfzDialog()">
+      <ng-container *ngFor="let item of xinghao['默认板材'] | keyvalue : returnZero">
+        <div *ngIf="xinghao.getBancaiTitle(item.key)">{{ item.key }}: {{ xinghao.getBancaiTitle(item.key) }}</div>
+      </ng-container>
+    </div>
+  </div>
+</ng-container>
 
-<ng-template #mokuaiT [appTypedTemplate]="mokuaiTemplateType" let-mokuai let-type1="type1" let-type2="type2" let-isActive="isActive">
+<ng-template #mokuaiT [appTypedTemplate]="mokuaiTemplateType" let-mokuai let-isActive="isActive">
   <div class="flex-column mokuai" [ngClass]="{active: isActive}" (click)="selectMokuai(mokuai)">
     <div class="title" *ngIf="isActive">当前模块：</div>
     <app-image class="xiaoguotu flex-110" [src]="mokuai?.xiaoguotu" [prefix]="step1Data.prefix"></app-image>
-    <div class="title">{{ getMokuaiTitle({type1, type2})||'无' }}</div>
+    <div class="title" *ngIf="mokuai">{{ getMokuaiTitle(mokuai) || "无" }}</div>
   </div>
 </ng-template>

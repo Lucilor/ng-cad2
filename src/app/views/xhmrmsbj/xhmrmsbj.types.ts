@@ -1,4 +1,4 @@
-import {ZixuanpeijianTypesInfoItem} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {updateMokuaiItems, ZixuanpeijianMokuaiItem, ZixuanpeijianTypesInfo} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf} from "@utils";
@@ -16,7 +16,7 @@ export class XhmrmsbjData {
   menshanbujuInfos: ObjectOf<XhmrmsbjInfo>;
   // 板材材质信息:
 
-  constructor(data: XhmrmsbjTableData) {
+  constructor(data: XhmrmsbjTableData, typesInfo: ZixuanpeijianTypesInfo) {
     this.vid = data.vid;
     this.name = data.mingzi;
     let info: any = null;
@@ -29,6 +29,14 @@ export class XhmrmsbjData {
     }
     for (const key of menshanKeys) {
       this.menshanbujuInfos[key] = info[key] || {};
+      const 模块节点 = this.menshanbujuInfos[key].模块节点 || [];
+      for (const v of 模块节点) {
+        updateMokuaiItems(v.可选模块, typesInfo, true);
+        const 选中模块 = v.选中模块;
+        if (选中模块) {
+          v.选中模块 = v.可选模块.find((v2) => v2.id === 选中模块.id);
+        }
+      }
     }
   }
 }
@@ -36,36 +44,23 @@ export class XhmrmsbjData {
 export interface XhmrmsbjInfo {
   选中布局?: number;
   模块大小关系?: Formulas;
-  模块节点?: {
-    层id: number;
-    层名字: string;
-    可选模块: XhmrmsbjMokuai[];
-    选中模块: XhmrmsbjMokuai;
-  }[];
+  模块节点?: XhmrmsbjInfoMokuaiNode[];
 }
 
-export class XhmrmsbjMokuai {
-  模块id: number;
-  模块名字: string;
-  公式输入: Formulas;
-  选项输入: Formulas;
+export interface XhmrmsbjInfoMokuaiNode {
+  层id: number;
+  层名字: string;
+  可选模块: XhmrmsbjMokuai[];
+  选中模块?: XhmrmsbjMokuai;
+}
+
+export interface XhmrmsbjMokuai extends ZixuanpeijianMokuaiItem {
   板材数据: ObjectOf<{
     花件: string[];
     CAD: string[];
     选中板材分组: string;
   }>;
-
-  constructor(info: ZixuanpeijianTypesInfoItem, type1: string, type2: string) {
-    this.模块id = info.id;
-    this.模块名字 = type2;
-    this.公式输入 = {};
-    for (const [k, v] of info.gongshishuru) {
-      this.公式输入[k] = v;
-    }
-    this.选项输入 = {};
-    for (const [k, v] of info.xuanxiangshuru) {
-      this.选项输入[k] = v;
-    }
-    this.板材数据 = {};
-  }
 }
+
+export const xhmrmsbjTabNames = ["锁边铰边", "门扇模块", "子件更换"] as const;
+export type XhmrmsbjTabName = typeof xhmrmsbjTabNames[number];

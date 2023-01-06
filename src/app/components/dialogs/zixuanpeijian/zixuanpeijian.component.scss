@@ -5,6 +5,7 @@
   height: 100%;
   padding: 20px;
   box-sizing: border-box;
+  --title-size: 1rem;
 }
 
 .content {
@@ -50,12 +51,7 @@ $border: 1px solid lightgray;
 .title {
   padding: 0 5px;
   cursor: pointer;
-
-  .mat-icon-button {
-    width: auto;
-    height: auto;
-    line-height: 1em;
-  }
+  align-items: center;
 
   .name {
     flex: 1 1 0;

@@ -114,8 +114,8 @@ export interface CadItemInputInfo {
 }
 
 export interface MokuaiInputInfos {
-  总宽: InputInfo;
-  总高: InputInfo;
+  总宽: InputInfo<ZixuanpeijianMokuaiItem>;
+  总高: InputInfo<ZixuanpeijianMokuaiItem>;
   公式输入: InputInfo[];
   选项输入: InputInfo[];
   输出文本: InputInfo[];
@@ -233,7 +233,7 @@ export const exportZixuanpeijian = (source: ZixuanpeijianData) => {
   return result;
 };
 
-export const getMokuaiTitle = (item: {type1: string; type2: string}) => {
+export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem) => {
   const {type1, type2} = item;
   if (!type1 && !type2) {
     return "";
@@ -277,6 +277,36 @@ export const getZixuanpeijianCads = async (
     return {cads, bancais};
   }
   return undefined;
+};
+
+export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: ZixuanpeijianTypesInfo, useSlgs = false) => {
+  for (const type1 in typesInfo) {
+    for (const type2 in typesInfo[type1]) {
+      const info = typesInfo[type1][type2];
+      for (const item of items) {
+        if (item.type2 === type2) {
+          const {gongshishuru, xuanxiangshuru, suanliaogongshi} = item;
+          Object.assign(item, info);
+          if (useSlgs) {
+            const getValue = (key: string, value: string) => {
+              if (!value && key in suanliaogongshi) {
+                return String(suanliaogongshi[key]);
+              }
+              return value;
+            };
+            item.totalWidth = getValue("总宽", item.totalWidth);
+            item.totalHeight = getValue("总高", item.totalWidth);
+          }
+          for (const v of item.gongshishuru) {
+            v[1] = gongshishuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
+          }
+          for (const v of item.xuanxiangshuru) {
+            v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
+          }
+        }
+      }
+    }
+  }
 };
 
 export const getCadLengthVars = (data: CadData) => {

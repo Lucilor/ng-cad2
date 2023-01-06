@@ -101,6 +101,12 @@ $app-theme: mat.define-light-theme(
 }
 
 mat-divider.mat-divider {
-  margin: 5px;
+  --divider-margin: 5px;
   border-color: rgb(0, 0, 0, 0.7);
+}
+mat-divider.mat-divider-horizontal {
+  margin: var(--divider-margin) 0;
+}
+mat-divider.mat-divider-vertical {
+  margin: 0 var(--divider-margin);
 }

@@ -24,7 +24,7 @@
       background-color: lightgray;
     }
     &.active {
-      background-color: gray;
+      background-color: lightgray;
     }
   }
 }
@@ -53,5 +53,18 @@
 
   > div {
     padding: 15px;
+  }
+}
+
+.mokuai-inputs {
+  flex-wrap: wrap;
+  --mokuai-inputs-space: 2px;
+
+  app-input {
+    width: calc(50% - var(--mokuai-inputs-space));
+    box-sizing: border-box;
+    &:nth-child(odd) {
+      margin-right: calc(var(--mokuai-inputs-space) * 2);
+    }
   }
 }

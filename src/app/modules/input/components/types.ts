@@ -14,7 +14,7 @@ export interface InputInfoBase<T = any> {
   copyable?: boolean;
   disabled?: boolean;
   suffixIcons?: {name: string; onClick: () => void}[];
-  hint?: string;
+  hint?: Value<string>;
   autocomplete?: "on" | "off";
   showEmpty?: boolean;
   autoFocus?: boolean;

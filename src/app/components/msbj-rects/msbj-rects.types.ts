@@ -1,9 +1,9 @@
+import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {Formulas} from "@src/app/utils/calc";
 import {Rectangle} from "@utils";
 import {uniqueId} from "lodash";
 
-export interface MsbjRectInfoRaw {
-  vid: number;
+export interface MsbjRectInfoRaw extends TableDataBase {
   isBuju: boolean;
   rect: {
     origin: {
@@ -15,7 +15,6 @@ export interface MsbjRectInfoRaw {
       h: number;
     };
   };
-  mingzi?: string;
   可选模块分类?: number[];
   选中模块分类?: number[];
   选中模块?: number;
