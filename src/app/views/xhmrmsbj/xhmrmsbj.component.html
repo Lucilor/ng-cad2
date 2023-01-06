@@ -3,7 +3,7 @@
 </div>
 <div class="flex-row flex-110">
   <div class="xinghao-info flex-column" *ngIf="xinghao" (click)="openMrbcjfzDialog()">
-    <ng-container *ngFor="let item of xinghao['默认板材'] | keyvalue; returnZero">
+    <ng-container *ngFor="let item of xinghao['默认板材'] | keyvalue : returnZero">
       <div *ngIf="xinghao.getBancaiTitle(item.key)">{{ item.key }}: {{ xinghao.getBancaiTitle(item.key) }}</div>
     </ng-container>
   </div>

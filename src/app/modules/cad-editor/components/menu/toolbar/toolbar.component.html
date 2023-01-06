@@ -1,5 +1,5 @@
 <div class="toolbar">
-  <div>
+  <div class="flex-row" style="flex-wrap: wrap">
     <button mat-button [matMenuTriggerFor]="file">文件</button>
     <mat-menu #file="matMenu">
       <ng-container *ngIf="(isCadLocal$ | async) === false">
