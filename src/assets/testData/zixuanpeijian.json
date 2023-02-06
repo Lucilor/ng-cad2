@@ -29,6 +29,7 @@
       "unique": true,
       "shuruzongkuan": true,
       "shuruzonggao": true,
+      "morenbancai": null,
       "cads": [
         {
           "info": {

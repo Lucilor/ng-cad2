@@ -10,7 +10,7 @@
     </button>
     <div>型号：{{ xinghao?.raw?.mingzi }}</div>
   </div>
-  <div class="btn-group" [ngSwitch]="activeTabName">
+  <div class="btn-group" [ngSwitch]="activeTabName" *ngIf="!isFromOrder">
     <ng-container *ngSwitchCase="'门扇模块'">
       <button mat-stroked-button color="primary" (click)="submit()">保存型号默认门扇布局</button>
       <button mat-stroked-button color="primary">另存为新型号默认门扇布局</button>
@@ -42,7 +42,7 @@
             (selectRect)="selectRect($event)"
           ></app-msbj-rects>
           <div class="btn-group" style="justify-content: center">
-            <button mat-raised-button color="primary" (click)="setMsbj()">更换布局</button>
+            <button mat-raised-button color="primary" *ngIf="!isFromOrder" (click)="setMsbj()">更换布局</button>
           </div>
         </div>
         <div class="flex-110 flex-row">
@@ -53,14 +53,36 @@
             </div>
           </div>
           <div class="flex-column flex-110">
-            <div class="mokuai-inputs flex-row flex-110">
-              <app-input *ngFor="let info of mokuaiInputInfos" [info]="info"></app-input>
+            <ng-scrollbar class="flex-110">
+              <div class="mokuai-inputs flex-row">
+                <app-input *ngFor="let info of mokuaiInputInfos" [info]="info"></app-input>
+              </div>
+            </ng-scrollbar>
+            <div class="flex-110 flex-column" *ngIf="xinghao">
+              <div>板材选择</div>
+              <ng-scrollbar>
+                <ng-container *ngFor="let item of activeMorenbancai | keyvalue : returnZero">
+                  <mat-form-field *ngIf="!isMrbcjfzInfoEmpty(item.value)">
+                    <mat-label>{{ item.key }}</mat-label>
+                    <mat-select
+                      class="value"
+                      [value]="item.value['默认对应板材分组']"
+                      (selectionChange)="onBancaiSelect(item.value, $event.value)"
+                    >
+                      <ng-container *ngFor="let item2 of xinghao['默认板材'] | keyvalue : returnZero">
+                        <mat-option *ngIf="xinghao.getBancaiTitle(item2.key)" [value]="item2.key">
+                          {{ item2.key }}: {{ xinghao.getBancaiTitle(item2.key) }}
+                        </mat-option>
+                      </ng-container>
+                    </mat-select>
+                  </mat-form-field>
+                </ng-container>
+              </ng-scrollbar>
             </div>
-            <div class="flex-110">板材选择</div>
           </div>
         </div>
       </div>
-      <div class="flex-column flex-110">
+      <div class="flex-column flex-110" *ngIf="!isFromOrder">
         <div class="btn-group">
           <button mat-raised-button color="primary" *ngIf="activeRectInfo" (click)="setKexuanmokuai()">设置可选模块</button>
         </div>
@@ -76,7 +98,7 @@
       </div>
     </div>
     <mat-divider vertical></mat-divider>
-    <div class="xinghao-info flex-column" *ngIf="xinghao" (click)="openMrbcjfzDialog()">
+    <div class="xinghao-info flex-column" [ngClass]="{editable: !isFromOrder}" *ngIf="xinghao" (click)="openMrbcjfzDialog()">
       <ng-container *ngFor="let item of xinghao['默认板材'] | keyvalue : returnZero">
         <div *ngIf="xinghao.getBancaiTitle(item.key)">{{ item.key }}: {{ xinghao.getBancaiTitle(item.key) }}</div>
       </ng-container>

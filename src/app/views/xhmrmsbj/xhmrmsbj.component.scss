@@ -49,7 +49,9 @@
 }
 
 .xinghao-info {
-  cursor: pointer;
+  &.editable {
+    cursor: pointer;
+  }
 
   > div {
     padding: 15px;
@@ -66,5 +68,15 @@
     &:nth-child(odd) {
       margin-right: calc(var(--mokuai-inputs-space) * 2);
     }
+  }
+}
+
+.bancaixuanze-item {
+  > :not(:last-child) {
+    margin-right: 5px;
+  }
+
+  .key {
+    flex: 0 0 auto;
   }
 }

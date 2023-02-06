@@ -15,6 +15,7 @@ import {nameEquals} from "@src/app/utils/zhankai";
 import zxpjTestData from "@src/assets/testData/zixuanpeijian.json";
 import zixuanpeijianTypesInfo from "@src/assets/testData/zixuanpeijianTypesInfo.json";
 import {ObjectOf} from "@utils";
+import {MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {intersection, isEmpty, isEqual} from "lodash";
 
 export interface ZixuanpeijianTypesInfoItem {
@@ -30,6 +31,7 @@ export interface ZixuanpeijianTypesInfoItem {
   unique: boolean;
   shuruzongkuan: boolean;
   shuruzonggao: boolean;
+  morenbancai: ObjectOf<MrbcjfzInfo> | null;
   standalone?: boolean;
   ceshishuju?: Formulas;
   calcVars?: {keys: string[]; result?: Formulas};
@@ -285,7 +287,7 @@ export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: Z
       const info = typesInfo[type1][type2];
       for (const item of items) {
         if (item.type2 === type2) {
-          const {gongshishuru, xuanxiangshuru, suanliaogongshi} = item;
+          const {gongshishuru, xuanxiangshuru, suanliaogongshi, morenbancai} = item;
           Object.assign(item, info);
           if (useSlgs) {
             const getValue = (key: string, value: string) => {
@@ -302,6 +304,16 @@ export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: Z
           }
           for (const v of item.xuanxiangshuru) {
             v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
+          }
+          if (morenbancai) {
+            if (!item.morenbancai) {
+              item.morenbancai = {};
+            }
+            for (const key in item.morenbancai) {
+              if (morenbancai[key]) {
+                item.morenbancai[key] = morenbancai[key];
+              }
+            }
           }
         }
       }

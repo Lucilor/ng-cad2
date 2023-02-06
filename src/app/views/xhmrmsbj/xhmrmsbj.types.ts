@@ -50,17 +50,9 @@ export interface XhmrmsbjInfo {
 export interface XhmrmsbjInfoMokuaiNode {
   层id: number;
   层名字: string;
-  可选模块: XhmrmsbjMokuai[];
-  选中模块?: XhmrmsbjMokuai;
-}
-
-export interface XhmrmsbjMokuai extends ZixuanpeijianMokuaiItem {
-  板材数据: ObjectOf<{
-    花件: string[];
-    CAD: string[];
-    选中板材分组: string;
-  }>;
+  可选模块: ZixuanpeijianMokuaiItem[];
+  选中模块?: ZixuanpeijianMokuaiItem;
 }
 
 export const xhmrmsbjTabNames = ["锁边铰边", "门扇模块", "子件更换"] as const;
-export type XhmrmsbjTabName = typeof xhmrmsbjTabNames[number];
+export type XhmrmsbjTabName = (typeof xhmrmsbjTabNames)[number];

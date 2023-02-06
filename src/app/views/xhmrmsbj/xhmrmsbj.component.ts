@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from "@angular/core";
+import {Component, HostListener, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
@@ -20,10 +20,10 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {setGlobal} from "@src/app/app.common";
 import {timeout} from "@utils";
-import {MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
+import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {cloneDeep, isEqual} from "lodash";
-import {menshanKeys, XhmrmsbjData, XhmrmsbjMokuai, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
+import {menshanKeys, XhmrmsbjData, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
 
 @Component({
   selector: "app-xhmrmsbj",
@@ -33,12 +33,14 @@ import {menshanKeys, XhmrmsbjData, XhmrmsbjMokuai, XhmrmsbjTableData, XhmrmsbjTa
 export class XhmrmsbjComponent implements OnInit {
   table = "";
   id = "";
+  isFromOrder = false;
+  token = "";
   tableData: XhmrmsbjTableData | null = null;
   data: XhmrmsbjData | null = null;
   fenleis: TableDataBase[] = [];
   msbjs: MsbjInfo[] = [];
   step1Data: Step1Data = {prefix: "", options: {}, typesInfo: {}};
-  mokuais: XhmrmsbjMokuai[] = [];
+  mokuais: ZixuanpeijianMokuaiItem[] = [];
   xinghao: MrbcjfzXinghaoInfo | null = null;
   bancaiList: BancaiList[] = [];
   activeMenshanKey: string | null = null;
@@ -50,12 +52,16 @@ export class XhmrmsbjComponent implements OnInit {
   get activeMokuaiNode() {
     return this.activeMsbjInfo?.模块节点?.find((v) => v.层id === this.activeRectInfo?.raw.vid);
   }
+  get activeMorenbancai() {
+    return this.activeMokuaiNode?.选中模块?.morenbancai || {};
+  }
   getMokuaiTitle = getMokuaiTitle;
   showMokuais = false;
-  mokuaiTemplateType!: {$implicit: XhmrmsbjMokuai | null; isActive?: boolean};
+  mokuaiTemplateType!: {$implicit: ZixuanpeijianMokuaiItem | null; isActive?: boolean};
   tabNames = xhmrmsbjTabNames;
   activeTabName: XhmrmsbjTabName = "门扇模块";
   mokuaiInputInfos: InputInfo[] = [];
+  isMrbcjfzInfoEmpty = isMrbcjfzInfoEmpty;
   @ViewChild(MsbjRectsComponent) msbjRectsComponent?: MsbjRectsComponent;
 
   constructor(
@@ -76,30 +82,70 @@ export class XhmrmsbjComponent implements OnInit {
       for (const type1 in step1Data.typesInfo) {
         for (const type2 in step1Data.typesInfo[type1]) {
           const info = step1Data.typesInfo[type1][type2];
-          this.mokuais.push({...info, type1, type2, totalWidth: "", totalHeight: "", cads: [], 板材数据: {}});
+          this.mokuais.push({...info, type1, type2, totalWidth: "", totalHeight: "", cads: []});
         }
       }
     }
 
-    const {table, id} = this.route.snapshot.queryParams;
-    this.table = table;
-    this.id = id;
-    const records = await this.dataService.queryMySql<XhmrmsbjTableData>({table, filter: {where: {vid: id}}});
-    this.tableData = records?.[0] || null;
-    this.data = this.tableData ? new XhmrmsbjData(this.tableData, this.step1Data.typesInfo) : null;
+    const {table, id, token} = this.route.snapshot.queryParams;
+    if (table && id) {
+      this.table = table;
+      this.id = id;
+      this.isFromOrder = false;
+      const records = await this.dataService.queryMySql<XhmrmsbjTableData>({table, filter: {where: {vid: id}}});
+      this.tableData = records?.[0] || null;
+      this.data = this.tableData ? new XhmrmsbjData(this.tableData, this.step1Data.typesInfo) : null;
+      const xinghaos = await this.dataService.queryMySql<MrbcjfzXinghao>({
+        table: "p_xinghao",
+        filter: {where: {vid: this.tableData?.xinghao}}
+      });
+      this.xinghao = xinghaos[0] ? new MrbcjfzXinghaoInfo(xinghaos[0]) : null;
+    } else if (token) {
+      this.isFromOrder = true;
+      this.token = token;
+      this.dataService.token = token;
+      window.parent.postMessage({type: "门扇模块", action: "requestData"}, "*");
+      await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
+    }
     this.fenleis = await this.dataService.queryMySql<TableDataBase>({table: "p_gongnengfenlei", fields: ["vid", "mingzi"]});
-    const records2 = await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
-    this.msbjs = records2.map((item) => new MsbjInfo(item, "peizhishuju"));
-    const records3 = await this.dataService.queryMySql<MrbcjfzXinghao>({
-      table: "p_xinghao",
-      filter: {where: {vid: this.tableData?.xinghao}}
-    });
-    this.xinghao = records3?.[0] ? new MrbcjfzXinghaoInfo(records3[0]) : null;
+    const menshanbujus = await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
+    this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, "peizhishuju"));
     const response = await this.dataService.post<BancaiList[]>("ngcad/getBancaiList");
     this.bancaiList = response?.data || [];
 
     await timeout(0);
     this.selectMenshanKey(menshanKeys[0]);
+  }
+
+  @HostListener("window:message", ["$event"])
+  onMessage(event: MessageEvent) {
+    const data = event.data;
+    if (!data || typeof data !== "object" || data.type !== "门扇模块") {
+      return;
+    }
+    switch (data.action) {
+      case "requestData":
+        {
+          const {型号选中门扇布局, 型号选中板材, 型号} = data.data;
+          this.data = new XhmrmsbjData({vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局)}, this.step1Data.typesInfo);
+          this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: 型号, morenbancai: JSON.stringify(型号选中板材)});
+        }
+        break;
+      case "submitData":
+        window.parent.postMessage(
+          {
+            type: "门扇模块",
+            action: "submitData",
+            data: {
+              型号选中门扇布局: this.data?.menshanbujuInfos
+            }
+          },
+          "*"
+        );
+        break;
+      default:
+        break;
+    }
   }
 
   returnZero() {
@@ -190,7 +236,7 @@ export class XhmrmsbjComponent implements OnInit {
     }
   }
 
-  selectMokuai(mokuai: XhmrmsbjMokuai | null) {
+  selectMokuai(mokuai: ZixuanpeijianMokuaiItem | null) {
     const mokuaiNode = this.activeMokuaiNode;
     const rectInfo = this.activeRectInfo;
     if (!mokuai || !mokuaiNode || !rectInfo) {
@@ -222,8 +268,8 @@ export class XhmrmsbjComponent implements OnInit {
   }
 
   async submit() {
-    const {table, data: dataInfo} = this;
-    if (!dataInfo) {
+    const {table, data: dataInfo, isFromOrder} = this;
+    if (!dataInfo || isFromOrder) {
       return;
     }
     const errorMenshanKeys: string[] = [];
@@ -245,7 +291,7 @@ export class XhmrmsbjComponent implements OnInit {
   }
 
   async openMrbcjfzDialog() {
-    if (!this.xinghao) {
+    if (!this.xinghao || this.isFromOrder) {
       return;
     }
     const result = await openMrbcjfzDialog(this.dialog, {data: {id: this.xinghao.raw.vid, table: "p_xinghao"}});
@@ -291,7 +337,7 @@ export class XhmrmsbjComponent implements OnInit {
       mokuaiNode.可选模块 = mokuaiNode.可选模块.filter((v) => result.模块.find((v2) => v.id === v2.id));
       for (const item of result.模块) {
         if (!mokuaiNode.可选模块.find((v) => v.id === item.id)) {
-          mokuaiNode.可选模块.push({...item, 板材数据: {}});
+          mokuaiNode.可选模块.push(item);
         }
         const 选中模块 = mokuaiNode.选中模块;
         if (选中模块 && !mokuaiNode.可选模块.find((v) => v.id === 选中模块.id)) {
@@ -299,5 +345,12 @@ export class XhmrmsbjComponent implements OnInit {
         }
       }
     }
+  }
+
+  onBancaiSelect(item: MrbcjfzInfo, value: string) {
+    item.默认对应板材分组 = value;
+    item.默认开料材料 = "";
+    item.默认开料板材 = "";
+    item.默认开料板材厚度 = "";
   }
 }

@@ -19,6 +19,7 @@ import {
   filterCad,
   filterHuajian,
   getMrbcjfzInfo,
+  isMrbcjfzInfoEmpty,
   ListItemKey,
   listItemKeys,
   MrbcjfzCadInfo,
@@ -97,7 +98,7 @@ export class MrbcjfzComponent implements OnInit {
         })
         .filter(filterCad);
       this.huajians = response.data.huajians.map((v) => ({data: v, id: String(v.vid)})).filter(filterHuajian);
-      this.qiliaos = response.data.qiliaos.map((v) => ({data: v, id: String(v.vid)}));
+      this.qiliaos = response.data.qiliaos.map((v) => ({data: v, id: String(v.mingzi)}));
       this.bancaiKeys = response.data.bancaiKeys;
       this.bancaiList = response.data.bancaiList;
       this.updateXinghao();
@@ -137,9 +138,9 @@ export class MrbcjfzComponent implements OnInit {
   }
 
   validateBancai(bancai: MrbcjfzInfo) {
-    const {CAD, 花件, 企料, 默认开料板材, 默认开料材料, 默认开料板材厚度} = bancai;
+    const {默认开料板材, 默认开料材料, 默认开料板材厚度} = bancai;
     const errors: ValidationErrors = {};
-    if ([CAD, 花件, 企料].some((v) => v.length > 0)) {
+    if (!isMrbcjfzInfoEmpty(bancai)) {
       if (![默认开料板材, 默认开料材料, 默认开料板材厚度].every(Boolean)) {
         errors.required = true;
       }
@@ -232,9 +233,9 @@ export class MrbcjfzComponent implements OnInit {
     if (this.huajians.some((v) => !v.selected)) {
       errorMsg.push("有花件未选择");
     }
-    if (this.qiliaos.some((v) => !v.selected)) {
-      errorMsg.push("有企料未选择");
-    }
+    // if (this.qiliaos.some((v) => !v.selected)) {
+    //   errorMsg.push("有企料未选择");
+    // }
     if (errorMsg.length) {
       this.message.error(errorMsg.join("<br>"));
       return;

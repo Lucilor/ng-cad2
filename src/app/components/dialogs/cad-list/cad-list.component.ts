@@ -297,7 +297,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
 
 export const selectModes = ["single", "multiple"] as const;
 
-export type SelectMode = typeof selectModes[number];
+export type SelectMode = (typeof selectModes)[number];
 
 export interface CadListData {
   selectMode: SelectMode;

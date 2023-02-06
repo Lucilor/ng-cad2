@@ -532,7 +532,7 @@ export class Calc {
   }
 }
 
-export type CalcResult = ReturnType<typeof Calc["calcFormulas"]>;
+export type CalcResult = ReturnType<(typeof Calc)["calcFormulas"]>;
 
 let inited = false;
 const initCalc = () => {

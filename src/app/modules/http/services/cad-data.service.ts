@@ -170,7 +170,7 @@ export class CadDataService extends HttpService {
       postData.xuanxiang = exportData.options;
       postData.tiaojian = exportData.conditions;
     }
-    const response = await this.post<any>("peijian/cad/getOptions", postData);
+    const response = await this.post<any>("ngcad/getOptions", postData);
     if (response && response.data) {
       return {
         data: (response.data as any[]).map((v: any) => {
@@ -280,5 +280,14 @@ export class CadDataService extends HttpService {
 
   async tableUpdate<T = any>(params: TableUpdateParams, options?: HttpOptions) {
     await this.post<T[]>("jichu/jichu/table_update", params, options);
+  }
+
+  async getRedisData(key: string, isString = true, options?: HttpOptions) {
+    const response = await this.post<{value: any}>("ngcad/getRedisData", {key, isString}, options);
+    return response?.data?.value;
+  }
+
+  async setRedisData(value: any, key?: string, expireTime?: number, options?: HttpOptions) {
+    await this.post<{key: string; expireTime: number}>("ngcad/setRedisData", {key, value, expireTime}, options);
   }
 }

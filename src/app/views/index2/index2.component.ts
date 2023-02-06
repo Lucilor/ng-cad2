@@ -358,7 +358,7 @@ export class Index2Component extends Subscribed() implements AfterViewInit {
 
 export const index2StepTypes = ["配件库", "开孔库", "模具库", "直线"] as const;
 
-export type Index2StepType = typeof index2StepTypes[number];
+export type Index2StepType = (typeof index2StepTypes)[number];
 
 export interface Index2StepBase {
   type: Index2StepType;

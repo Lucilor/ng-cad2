@@ -10965,13 +10965,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"material-icons@npm:^1.13.1":
-  version: 1.13.1
-  resolution: "material-icons@npm:1.13.1::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fmaterial-icons%2F-%2Fmaterial-icons-1.13.1.tgz"
-  checksum: d23060ed5cde5bb1c53a776820ae851b82cd54143777e06b6d30ec68b143e5c9557a5c302ba13a395b880cee5201668c33da4b68d691aa69a10f1cad4e76543d
-  languageName: node
-  linkType: hard
-
 "md5@npm:^2.3.0":
   version: 2.3.0
   resolution: "md5@npm:2.3.0"
@@ -11506,7 +11499,6 @@ __metadata:
     karma-jasmine-html-reporter: ^2.0.0
     lodash: ^4.17.21
     luxon: ^3.2.1
-    material-icons: ^1.13.1
     md5: ^2.3.0
     minimist: ^1.2.7
     ng-recaptcha: ^11.0.0

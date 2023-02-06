@@ -283,7 +283,7 @@ export interface KailiaocanshuData {
 }
 
 export const qiezhongkongTypes = ["单线框", "双线框", "90度拼接双线框"] as const;
-export type QiezhongkongType = typeof qiezhongkongTypes[number];
+export type QiezhongkongType = (typeof qiezhongkongTypes)[number];
 
 export interface QiezhongkongItem {
   type: QiezhongkongType;

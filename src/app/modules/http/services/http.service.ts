@@ -58,6 +58,7 @@ export class HttpService {
   private _loginPromise: ReturnType<typeof openLoginFormDialog> | null = null;
   lastResponse: CustomResponse<any> | null = null;
   offlineMode = false;
+  token = "";
 
   constructor(injector: Injector) {
     this.dialog = injector.get(MatDialog);
@@ -119,6 +120,7 @@ export class HttpService {
     const timerName = `http.request.${url}.${timer.now}`;
     timer.start(timerName);
     const rawUrl = url;
+    const token = this.token;
     if (!url.startsWith("http")) {
       url = `${this.baseURL}${url}`;
     }
@@ -134,6 +136,9 @@ export class HttpService {
               if (data[key] !== undefined) {
                 queryArr.push(`${key}=${data[key]}`);
               }
+            }
+            if (token) {
+              queryArr.push(token);
             }
             if (queryArr.length) {
               url += `?${queryArr.join("&")}`;
@@ -170,6 +175,9 @@ export class HttpService {
           }
         }
         files.forEach((v) => formData.append(v.key, v.file));
+        if (token) {
+          formData.append("token", token);
+        }
         response = await lastValueFrom(this.http.post<CustomResponse<T>>(url, formData, options));
       }
       if (!response) {

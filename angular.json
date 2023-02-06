@@ -53,6 +53,10 @@
             "production": {
               "outputPath": "dist/ng-cad2",
               "baseHref": "/static/ng-cad2/",
+              "index": {
+                "input": "src/index.prod.html",
+                "output": "index.html"
+              },
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",

@@ -85,6 +85,7 @@ export interface QueryMysqlParams {
   fields?: string[];
   page?: number;
   limit?: number;
+  token?: string;
 }
 
 export interface TableUpdateParams<T extends TableDataBase = TableDataBase> {

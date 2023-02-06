@@ -14,7 +14,8 @@
         "mokuaishuoming": "",
         "unique": true,
         "shuruzongkuan": true,
-        "shuruzonggao": true
+        "shuruzonggao": true,
+        "morenbancai": null
       }
     }
   },

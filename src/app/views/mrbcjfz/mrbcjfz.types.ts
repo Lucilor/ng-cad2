@@ -35,11 +35,15 @@ export class MrbcjfzXinghaoInfo {
     if (!info) {
       return "";
     }
-    const arr = [info.默认开料板材, info.默认开料材料, info.默认开料板材厚度].filter(Boolean);
-    if (arr.length < 3) {
-      return placeholder;
+    const {默认开料板材, 默认开料材料, 默认开料板材厚度, 选中板材, 选中材料, 选中板材厚度} = info;
+    const arr1 = [默认开料板材, 默认开料材料, 默认开料板材厚度].filter(Boolean);
+    const arr2 = [选中板材, 选中材料, 选中板材厚度].filter(Boolean);
+    if (arr2.length > 0) {
+      return arr2.join("/");
+    } else if (arr1.length > 0) {
+      return arr1.join("/");
     }
-    return arr.join("/");
+    return placeholder;
   }
 }
 
@@ -86,7 +90,7 @@ export interface MrbcjfzListItem {
 }
 
 export const listItemKeys = ["CAD", "花件", "企料"] as const;
-export type ListItemKey = typeof listItemKeys[number];
+export type ListItemKey = (typeof listItemKeys)[number];
 
 export interface MrbcjfzCadInfo extends MrbcjfzListItem {
   data: CadData;
@@ -121,9 +125,14 @@ export const filterHuajian = (info: MrbcjfzHuajianInfo) => {
   if (data.shihuajian) {
     return false;
   }
-  const mingziReg = /压条|压边|门徽|猫眼|LOGO|商标/;
+  const mingziReg = /压条|压边|门徽|猫眼|LOGO|商标|花件|木板/;
   if (mingziReg.test(data.mingzi)) {
     return false;
   }
   return true;
+};
+
+export const isMrbcjfzInfoEmpty = (bancai: MrbcjfzInfo) => {
+  const {CAD, 花件, 企料} = bancai;
+  return [CAD, 花件, 企料].every((v) => !v || v.length < 1);
 };
