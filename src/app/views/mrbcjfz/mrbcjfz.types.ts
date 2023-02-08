@@ -87,6 +87,7 @@ export interface MrbcjfzBancaiInputs {
 export interface MrbcjfzListItem {
   id: string;
   selected?: boolean;
+  isVirtual?: boolean;
 }
 
 export const listItemKeys = ["CAD", "花件", "企料"] as const;
@@ -125,7 +126,7 @@ export const filterHuajian = (info: MrbcjfzHuajianInfo) => {
   if (data.shihuajian) {
     return false;
   }
-  const mingziReg = /压条|压边|门徽|猫眼|LOGO|商标|花件|木板/;
+  const mingziReg = /压条|压边|门徽|猫眼|LOGO|商标|花件|木板|阴影|门铰|拉手/;
   if (mingziReg.test(data.mingzi)) {
     return false;
   }

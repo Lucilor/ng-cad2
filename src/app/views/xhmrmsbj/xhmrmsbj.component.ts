@@ -2,6 +2,7 @@ import {Component, HostListener, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
+import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {openMrbcjfzDialog} from "@components/dialogs/mrbcjfz-dialog/mrbcjfz-dialog.component";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {
@@ -143,6 +144,11 @@ export class XhmrmsbjComponent implements OnInit {
           "*"
         );
         break;
+      case "保存模块大小":
+        if (this.activeMsbjInfo) {
+          this.activeMsbjInfo.模块大小输入 = data.data.values;
+        }
+        break;
       default:
         break;
     }
@@ -156,7 +162,7 @@ export class XhmrmsbjComponent implements OnInit {
     const msbj = this.activeMsbj;
     const msbjInfo = this.activeMsbjInfo;
     if (msbj && msbjInfo) {
-      for (const rectInfo of msbj.rectInfos) {
+      for (const rectInfo of msbj.peizhishuju.模块节点) {
         const 选中模块 = msbjInfo.模块节点?.find((v) => v.层id === rectInfo.vid)?.选中模块;
         if (rectInfo.isBuju && !选中模块) {
           this.message.error("布局中存在未选中的模块");
@@ -178,7 +184,7 @@ export class XhmrmsbjComponent implements OnInit {
       if (!msbjInfo.模块节点) {
         msbjInfo.模块节点 = [];
       }
-      for (const info of msbj?.rectInfos.filter((v) => v.isBuju) || []) {
+      for (const info of msbj?.peizhishuju?.模块节点.filter((v) => v.isBuju) || []) {
         const node = msbjInfo.模块节点.find((v) => v.层id === info.vid);
         if (node) {
           node.层名字 = info.mingzi;
@@ -189,7 +195,7 @@ export class XhmrmsbjComponent implements OnInit {
     }
 
     await timeout(0);
-    const rect = this.activeMsbj?.rectInfos?.filter((v) => v.isBuju)[0];
+    const rect = this.activeMsbj?.peizhishuju?.模块节点?.filter((v) => v.isBuju)[0];
     const msbjRectsComponent = this.msbjRectsComponent;
     if (rect && msbjRectsComponent && msbjRectsComponent.rectInfos) {
       msbjRectsComponent.setCurrRectInfo(msbjRectsComponent.rectInfosRelative.filter((v) => v.raw.isBuju)[0]);
@@ -309,6 +315,10 @@ export class XhmrmsbjComponent implements OnInit {
     return !!nodes.find((v) => v.可选模块.find((v2) => v2.id === mokuai.id));
   }
 
+  isMokuaiActive(mokuai: ZixuanpeijianTypesInfoItem) {
+    return this.activeMokuaiNode?.选中模块?.id === mokuai.id;
+  }
+
   async setKexuanmokuai() {
     const rectInfo = this.activeRectInfo;
     const mokuaiNode = this.activeMokuaiNode;
@@ -352,5 +362,32 @@ export class XhmrmsbjComponent implements OnInit {
     item.默认开料材料 = "";
     item.默认开料板材 = "";
     item.默认开料板材厚度 = "";
+  }
+
+  getMsbj(id: number) {
+    return this.msbjs.find((v) => v.vid === id);
+  }
+
+  async editMokuaidaxiao() {
+    const msbj = this.activeMsbj;
+    if (!msbj) {
+      return;
+    }
+    if (this.isFromOrder) {
+      const data = {config: msbj.peizhishuju.模块大小关系, values: this.activeMsbjInfo?.模块大小输入};
+      window.parent.postMessage({type: "门扇模块", action: "编辑模块大小", data}, "*");
+      return;
+    } else {
+      const data = await openJsonEditorDialog(this.dialog, {data: {json: msbj.peizhishuju.模块大小关系}});
+      if (data) {
+        msbj.peizhishuju.模块大小关系 = data;
+        const table = "p_menshanbuju";
+        const tableData: TableUpdateParams<MsbjData>["tableData"] = {vid: msbj.vid};
+        tableData.peizhishuju = JSON.stringify(msbj.peizhishuju);
+        this.spinner.show(this.spinner.defaultLoaderId);
+        await this.dataService.tableUpdate({table, tableData});
+        this.spinner.hide(this.spinner.defaultLoaderId);
+      }
+    }
   }
 }

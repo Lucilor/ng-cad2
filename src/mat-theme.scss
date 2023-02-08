@@ -110,3 +110,10 @@ mat-divider.mat-divider-horizontal {
 mat-divider.mat-divider-vertical {
   margin: 0 var(--divider-margin);
 }
+
+.mat-icon {
+  --icon-size: 24px;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  font-size: var(--icon-size) !important;
+}

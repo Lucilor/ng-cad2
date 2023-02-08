@@ -50,6 +50,16 @@
               <div class="title center">{{ item.data.mingzi }}</div>
             </div>
           </ng-container>
+          <!-- <div class="item flex-column" *ngFor="let item of getXinghaoList(key, '花件')" (click)="selectListItem(item, '花件', key)">
+            <ng-container *ngIf="item.isVirtual; else huajianItem">
+              <app-image [src]="''" (click)="selectListItem(item, '花件', key)"></app-image>
+              <div class="title center">{{ item.id }}</div>
+            </ng-container>
+            <ng-template #huajianItem>
+              <app-image [src]="item.data.xiaotu"></app-image>
+              <div class="title center">{{ item.data.mingzi }}</div>
+            </ng-template>
+          </div> -->
         </div>
       </div>
     </ng-scrollbar>

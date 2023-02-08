@@ -1,6 +1,5 @@
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
-import {Formulas} from "@src/app/utils/calc";
-import {Rectangle} from "@utils";
+import {ObjectOf, Rectangle} from "@utils";
 import {uniqueId} from "lodash";
 
 export interface MsbjRectInfoRaw extends TableDataBase {
@@ -18,7 +17,11 @@ export interface MsbjRectInfoRaw extends TableDataBase {
   可选模块分类?: number[];
   选中模块分类?: number[];
   选中模块?: number;
-  模块大小关系?: Formulas;
+}
+
+export interface MsbjPeizhishuju {
+  模块节点: MsbjRectInfoRaw[];
+  模块大小关系?: ObjectOf<any>;
 }
 
 export class MsbjRectInfo {

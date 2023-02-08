@@ -10,12 +10,11 @@
 
 .menshan-options {
   border: var(--border);
-  width: 100px;
 
   .menshan-option {
     justify-content: center;
     align-items: center;
-    height: 60px;
+    height: 100px;
     cursor: pointer;
     &:not(:last-child) {
       border-bottom: var(--border);
@@ -31,11 +30,22 @@
 
 .mokuai {
   width: 20%;
-  height: 300px;
+  min-width: 100px;
+  height: 250px;
   padding: 5px;
   box-sizing: border-box;
-  &:not(.active) {
-    cursor: pointer;
+  cursor: pointer;
+  position: relative;
+  &.active {
+    background-color: lightgray;
+  }
+
+  .active-sign {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: rgb(224, 46, 42);
+    --icon-size: 48px;
   }
 
   .xiaoguotu {
@@ -45,6 +55,7 @@
   .title {
     font-size: 1rem;
     text-align: center;
+    height: 80px;
   }
 }
 

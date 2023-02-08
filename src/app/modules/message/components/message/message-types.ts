@@ -22,6 +22,7 @@ export interface ConfirmMessageData extends BaseMessageData {
 export interface ButtonMessageData extends BaseMessageData {
   type: "button";
   buttons: (string | {label: string; value: string})[];
+  btnTexts?: {cancel?: string};
 }
 
 export interface FormMessageData extends BaseMessageData {

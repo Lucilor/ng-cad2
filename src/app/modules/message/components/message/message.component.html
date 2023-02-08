@@ -66,11 +66,11 @@
     </button>
   </ng-container>
   <ng-container *ngSwitchCase="'button'">
-    <button mat-raised-button *ngFor="let button of cast(data, 'button').buttons" (click)="submit(button)">
+    <button mat-raised-button color="primary" *ngFor="let button of cast(data, 'button').buttons" (click)="submit(button)">
       {{ getButtonLabel(button) }}
     </button>
     <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
-      {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
+      {{ cast(data, "button").btnTexts?.cancel || "取消" }}
     </button>
   </ng-container>
 </div>

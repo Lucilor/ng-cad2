@@ -15,7 +15,7 @@
           </div> -->
         </ng-container>
       </div>
-      <app-msbj-rects [rectInfos]="this.msbjInfo?.rectInfos" (selectRect)="setCurrRectInfo($event)"></app-msbj-rects>
+      <app-msbj-rects [rectInfos]="this.msbjInfo?.peizhishuju?.['模块节点']" (selectRect)="setCurrRectInfo($event)"></app-msbj-rects>
     </div>
     <div class="flex-110" (click)="setCurrRectInfo(null)">
       <div class="title center">{{ msbjInfo?.name }}</div>
@@ -58,17 +58,8 @@
     <div class="daxiaoguanxi flex-column">
       <div class="btn-group">
         <div class="title">模块大小关系</div>
-        <button mat-raised-button color="primary" [disabled]="!msbjRects?.currRectInfo" (click)="editFormulas()">编辑</button>
+        <button mat-raised-button color="primary" (click)="editMokuaidaxiao()">编辑</button>
       </div>
-      <ng-scrollbar>
-        <div class="formulas flex-row">
-          <div class="formula flex-row" *ngFor="let item of msbjRects?.currRectInfo?.raw?.['模块大小关系']| keyvalue">
-            <div class="key">{{ item.key }}</div>
-            <div class="divider">=</div>
-            <div class="value">{{ item.value }}</div>
-          </div>
-        </div>
-      </ng-scrollbar>
     </div>
   </div>
 </div>

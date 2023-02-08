@@ -160,7 +160,7 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
     window.removeEventListener("resize", this._resizeEditor);
   }
 
-  submit(button?: ButtonMessageData["buttons"][0]) {
+  submit(button?: ButtonMessageData["buttons"][number]) {
     if (this.data.type === "confirm") {
       this.dialogRef.close(true);
     } else if (this.data.type === "form") {

@@ -43,7 +43,7 @@ export class XhmrmsbjData {
 
 export interface XhmrmsbjInfo {
   选中布局?: number;
-  模块大小关系?: Formulas;
+  模块大小输入?: Formulas;
   模块节点?: XhmrmsbjInfoMokuaiNode[];
 }
 

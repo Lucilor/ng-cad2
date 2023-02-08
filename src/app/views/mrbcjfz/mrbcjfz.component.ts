@@ -87,22 +87,78 @@ export class MrbcjfzComponent implements OnInit {
     );
     if (response?.data) {
       this.xinghao = new MrbcjfzXinghaoInfo(response.data.xinghao);
-      this.cads = response.data.cads
-        .map((v) => {
-          const cadData = new CadData(v);
-          const item: MrbcjfzCadInfo = {data: cadData, img: "", id: cadData.id};
-          (async () => {
-            item.img = await getCadPreview("cad", item.data, {http: this.dataService});
-          })();
-          return item;
-        })
-        .filter(filterCad);
-      this.huajians = response.data.huajians.map((v) => ({data: v, id: String(v.vid)})).filter(filterHuajian);
-      this.qiliaos = response.data.qiliaos.map((v) => ({data: v, id: String(v.mingzi)}));
+      this.cads = [];
+      const cadsToRemove: MrbcjfzCadInfo[] = [];
+      response.data.cads.forEach((v) => {
+        const cadData = new CadData(v);
+        const item: MrbcjfzCadInfo = {data: cadData, img: "", id: cadData.id};
+        (async () => {
+          item.img = await getCadPreview("cad", item.data, {http: this.dataService});
+        })();
+        if (filterCad(item)) {
+          this.cads.push(item);
+        } else {
+          cadsToRemove.push(item);
+        }
+      });
+      this.huajians = [];
+      const huajiansToRemove: MrbcjfzHuajianInfo[] = [];
+      response.data.huajians.map((v) => {
+        const item: MrbcjfzHuajianInfo = {data: v, id: String(v.vid)};
+        if (filterHuajian(item)) {
+          this.huajians.push(item);
+        } else {
+          huajiansToRemove.push(item);
+        }
+      });
+      this.qiliaos = [];
+      response.data.qiliaos.forEach((v) => {
+        const item: MrbcjfzQiliaoInfo = {data: v, id: String(v.mingzi)};
+        this.qiliaos.push(item);
+      });
+      const cadsToRemove2: MrbcjfzCadInfo[] = [];
+      const huajiansToRemove2: MrbcjfzHuajianInfo[] = [];
+      for (const bancaiKey in this.xinghao.默认板材) {
+        const info = this.xinghao.默认板材[bancaiKey];
+        info.CAD.forEach((cadId) => {
+          const item = cadsToRemove.find((v) => v.id === cadId);
+          if (item && !cadsToRemove2.find((v) => v.id === cadId)) {
+            cadsToRemove2.push(item);
+          }
+        });
+        info.CAD = info.CAD.filter((v) => !cadsToRemove2.find((v2) => v2.id === v));
+        info.花件.forEach((huajianId) => {
+          const item = huajiansToRemove.find((v) => v.id === huajianId);
+          if (item && !huajiansToRemove2.find((v) => v.id === huajianId)) {
+            huajiansToRemove2.push(item);
+          }
+        });
+        info.花件 = info.花件.filter((v) => !huajiansToRemove2.find((v2) => v2.id === v));
+        if (isMrbcjfzInfoEmpty(info)) {
+          info.默认开料材料 = "";
+          info.默认开料板材 = "";
+          info.默认开料板材厚度 = "";
+        }
+      }
+      const errorMsgs: string[] = [];
+      if (cadsToRemove2.length > 0) {
+        errorMsgs.push(`删除了以下${cadsToRemove2.length}个无效cad: <br>${cadsToRemove2.map((v) => v.data.name).join("，")}`);
+      }
+      if (huajiansToRemove2.length > 0) {
+        errorMsgs.push(`删除了以下${huajiansToRemove2.length}个无效花件: <br>${huajiansToRemove2.map((v) => v.data.mingzi).join("，")}`);
+      }
       this.bancaiKeys = response.data.bancaiKeys;
       this.bancaiList = response.data.bancaiList;
       this.updateXinghao();
       this.updateListItems();
+
+      if (errorMsgs.length > 0) {
+        errorMsgs.push("<br><b>需要提交保存后才生效</b>");
+        const result = await this.message.button({content: errorMsgs.join("<br>"), buttons: ["立刻提交"], btnTexts: {cancel: "稍后提交"}});
+        if (result === "立刻提交") {
+          this.submit();
+        }
+      }
     }
   }
 
@@ -163,16 +219,11 @@ export class MrbcjfzComponent implements OnInit {
   }
 
   getList(key: ListItemKey) {
-    if (key === "CAD") {
-      return this.cads;
+    const list = this[listItemKeysMap[key]] as MrbcjfzListItem[] | undefined;
+    if (!list) {
+      return [];
     }
-    if (key === "花件") {
-      return this.huajians;
-    }
-    if (key === "企料") {
-      return this.qiliaos;
-    }
-    return [];
+    return list;
   }
 
   updateListItems(key?: ListItemKey) {
@@ -256,3 +307,9 @@ export class MrbcjfzComponent implements OnInit {
     this.status.openCadInNewTab(item.id, "cad");
   }
 }
+
+export const listItemKeysMap = {
+  CAD: "cads",
+  企料: "qiliaos",
+  花件: "huajians"
+} as const;

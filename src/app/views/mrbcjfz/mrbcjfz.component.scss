@@ -22,6 +22,8 @@
 
   .bancai-info {
     align-items: center;
+    font-size: 17px;
+    font-weight: bold;
     > :not(:last-child) {
       margin-right: 10px;
     }
@@ -47,10 +49,11 @@
     }
 
     app-image:not(.cad-preview) {
-      height: 150px;
+      height: 120px;
     }
 
     .title {
+      font-size: 15px;
       .mat-mdc-icon-button {
         padding: 0;
       }

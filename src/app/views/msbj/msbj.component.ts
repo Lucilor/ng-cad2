@@ -3,7 +3,7 @@ import {AfterViewInit, ChangeDetectorRef, Component, QueryList, ViewChild, ViewC
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectionList} from "@angular/material/list";
 import {ActivatedRoute} from "@angular/router";
-import {openEditFormulasDialog} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";
+import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -149,22 +149,22 @@ export class MsbjComponent implements AfterViewInit {
       return;
     }
     const tableData: TableUpdateParams<MsbjData>["tableData"] = {vid: msbjInfo.vid};
-    const rectInfos = this.msbjRects?.rectInfosRelative.filter((v) => v.raw.isBuju).map((v) => v.raw);
-    tableData[this.dataField] = JSON.stringify(rectInfos);
+    const rectInfos = this.msbjRects?.rectInfosRelative.map((v) => v.raw);
+    msbjInfo.peizhishuju.模块节点 = rectInfos || [];
+    tableData[this.dataField] = JSON.stringify(msbjInfo.peizhishuju);
     this.spinner.show(this.spinner.defaultLoaderId);
     await this.dataService.tableUpdate({table, tableData});
     this.spinner.hide(this.spinner.defaultLoaderId);
   }
 
-  async editFormulas() {
-    const info = this.msbjRects?.currRectInfo;
+  async editMokuaidaxiao() {
+    const info = this.msbjInfo;
     if (!info) {
-      this.message.error("没有选中矩形");
       return;
     }
-    const result = await openEditFormulasDialog(this.dialog, {data: {formulas: info.raw.模块大小关系}});
+    const result = await openJsonEditorDialog(this.dialog, {data: {json: info.peizhishuju.模块大小关系}});
     if (result) {
-      info.raw.模块大小关系 = result;
+      info.peizhishuju.模块大小关系 = result;
     }
   }
 }
