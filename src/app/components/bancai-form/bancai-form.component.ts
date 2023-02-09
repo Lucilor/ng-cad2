@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {openBancaiListDialog} from "@components/dialogs/bancai-list/bancai-list.component";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
@@ -9,9 +9,25 @@ import {InputInfo} from "@modules/input/components/types";
   templateUrl: "./bancai-form.component.html",
   styleUrls: ["./bancai-form.component.scss"]
 })
-export class BancaiFormComponent implements OnInit {
-  @Input() data: BancaiFormData = {bancai: "", cailiao: "", houdu: ""};
-  @Input() bancaiList: BancaiList[] = [];
+export class BancaiFormComponent {
+  private _data: BancaiFormData = {bancai: "", cailiao: "", houdu: ""};
+  @Input()
+  get data() {
+    return this._data;
+  }
+  set data(value) {
+    this._data = value;
+    this.update();
+  }
+  private _bancaiList: BancaiList[] = [];
+  @Input()
+  get bancaiList() {
+    return this._bancaiList;
+  }
+  set bancaiList(value) {
+    this._bancaiList = value;
+    this.update();
+  }
   bancaiInputInfo?: InputInfo<BancaiFormData>;
   cailiaoInputInfo?: InputInfo<BancaiFormData>;
   houduInputInfo?: InputInfo<BancaiFormData>;
@@ -21,10 +37,6 @@ export class BancaiFormComponent implements OnInit {
   }
 
   constructor(private dialog: MatDialog) {}
-
-  ngOnInit() {
-    this.update();
-  }
 
   update() {
     const checkedItem = this.bancaiList.find((v) => v.mingzi === this.data.bancai);
@@ -94,6 +106,8 @@ export class BancaiFormComponent implements OnInit {
       };
     }
   }
+
+  set() {}
 }
 
 export interface BancaiFormData {

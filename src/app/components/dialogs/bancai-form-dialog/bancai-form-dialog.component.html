@@ -1,5 +1,9 @@
 <app-bancai-form [data]="data.data" [bancaiList]="data.bancaiList"></app-bancai-form>
 <div matDialogActions>
+  <ng-container *ngIf="!prod">
+    <button mat-raised-button color="primary" (click)="selectRandom()">rand</button>
+    <button mat-raised-button color="primary" (click)="selectFirst()">first</button>
+  </ng-container>
   <button mat-raised-button color="primary" (click)="submit()">确定</button>
   <button mat-raised-button color="primary" (click)="cancel()">取消</button>
 </div>

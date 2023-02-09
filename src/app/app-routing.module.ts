@@ -9,7 +9,6 @@ import {DingdanbiaoqianComponent} from "@views/dingdanbiaoqian/dingdanbiaoqian.c
 import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
-import {Index2Component} from "@views/index2/index2.component";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
@@ -23,11 +22,11 @@ import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
+import {SuanliaoComponent} from "@views/suanliao/suanliao.component";
 import {XhmrmsbjComponent} from "@views/xhmrmsbj/xhmrmsbj.component";
 
 export const routesInfo: (Route & {path: string})[] = [
   {path: "index", component: IndexComponent},
-  {path: "index2", component: Index2Component},
   {path: "print-cad", component: PrintCadComponent, title: "打印CAD"},
   {path: "printA4A015Preview", component: PrintA4A015PreviewComponent, title: "订单配件标签"},
   {path: "import", component: ImportComponent, title: "导入CAD"},
@@ -46,7 +45,8 @@ export const routesInfo: (Route & {path: string})[] = [
   {path: "pjmk", component: PjmkComponent, title: "配件模块"},
   {path: "门扇布局", component: MsbjComponent, title: "门扇布局"},
   {path: "型号默认门扇布局", component: XhmrmsbjComponent, title: "型号默认门扇布局"},
-  {path: "默认板材及分组", component: MrbcjfzComponent, title: "默认板材及分组"}
+  {path: "默认板材及分组", component: MrbcjfzComponent, title: "默认板材及分组"},
+  {path: "suanliao", component: SuanliaoComponent, title: "算料"}
 ];
 
 const routes: Routes = [

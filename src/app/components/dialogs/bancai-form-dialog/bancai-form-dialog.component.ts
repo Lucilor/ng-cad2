@@ -1,8 +1,10 @@
 import {Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {BancaiFormData} from "@components/bancai-form/bancai-form.component";
+import {environment} from "@env";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
+import {random} from "lodash";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({
@@ -11,6 +13,8 @@ import {getOpenDialogFunc} from "../dialog.common";
   styleUrls: ["./bancai-form-dialog.component.scss"]
 })
 export class BancaiFormDialogComponent {
+  prod = environment.production;
+
   constructor(
     public dialogRef: MatDialogRef<BancaiFormDialogComponent, BancaiFormOutput>,
     @Inject(MAT_DIALOG_DATA) public data: BancaiFormInput,
@@ -42,6 +46,30 @@ export class BancaiFormDialogComponent {
 
   cancel() {
     this.dialogRef.close();
+  }
+
+  selectRandom() {
+    const item = this.data.bancaiList[random(this.data.bancaiList.length - 1)];
+    if (!item) {
+      return;
+    }
+    const data = {...this.data.data};
+    data.bancai = item.mingzi;
+    data.cailiao = item.cailiaoList[random(item.cailiaoList.length - 1)];
+    data.houdu = item.houduList[random(item.houduList.length - 1)];
+    this.data.data = data;
+  }
+
+  selectFirst() {
+    const item = this.data.bancaiList[0];
+    if (!item) {
+      return;
+    }
+    const data = {...this.data.data};
+    data.bancai = item.mingzi;
+    data.cailiao = item.cailiaoList[0];
+    data.houdu = item.houduList[0];
+    this.data.data = data;
   }
 }
 

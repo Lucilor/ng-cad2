@@ -9,6 +9,8 @@ export interface MrbcjfzResponseData {
   huajians: MrbcjfzHuajian[];
   qiliaos: TableDataBase[];
   bancaiKeys: string[];
+  bancaiKeysNonClear: string[];
+  bancaiKeysRequired: string[];
   bancaiList: BancaiList[];
 }
 
@@ -133,7 +135,7 @@ export const filterHuajian = (info: MrbcjfzHuajianInfo) => {
   return true;
 };
 
-export const isMrbcjfzInfoEmpty = (bancai: MrbcjfzInfo) => {
-  const {CAD, 花件, 企料} = bancai;
+export const isMrbcjfzInfoEmpty = (info: MrbcjfzInfo) => {
+  const {CAD, 花件, 企料} = info;
   return [CAD, 花件, 企料].every((v) => !v || v.length < 1);
 };

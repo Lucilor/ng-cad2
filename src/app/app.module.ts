@@ -68,7 +68,6 @@ import {DingdanbiaoqianComponent} from "@views/dingdanbiaoqian/dingdanbiaoqian.c
 import {ExportComponent} from "@views/export/export.component";
 import {ImportComponent} from "@views/import/import.component";
 import {IndexComponent} from "@views/index/index.component";
-import {Index2Component} from "@views/index2/index2.component";
 import {JiaoweiComponent} from "@views/jiaowei/jiaowei.component";
 import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.component";
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
@@ -82,6 +81,7 @@ import {PrintCadComponent} from "@views/print/print-cad.component";
 import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
+import {SuanliaoComponent} from "@views/suanliao/suanliao.component";
 import {XhmrmsbjComponent} from "@views/xhmrmsbj/xhmrmsbj.component";
 import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_BASE_URL} from "ng-recaptcha";
 import {ColorChromeModule} from "ngx-color/chrome";
@@ -134,7 +134,6 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     ExportComponent,
     FormulasEditorComponent,
     ImportComponent,
-    Index2Component,
     IndexComponent,
     JiaoweiComponent,
     JsonEditorComponent,
@@ -159,6 +158,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     SelectBancaiCadsComponent,
     SelectBancaiComponent,
     SelectCadsComponent,
+    SuanliaoComponent,
     XhmrmsbjComponent,
     ZixuanpeijianComponent
   ],

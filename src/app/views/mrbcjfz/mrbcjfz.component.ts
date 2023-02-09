@@ -14,7 +14,7 @@ import {setGlobal} from "@src/app/app.common";
 import {getCadPreview} from "@src/app/cad.utils";
 import {timeout} from "@utils";
 import {Properties} from "csstype";
-import {isEmpty} from "lodash";
+import {isEmpty, union} from "lodash";
 import {
   filterCad,
   filterHuajian,
@@ -48,6 +48,8 @@ export class MrbcjfzComponent implements OnInit {
   huajians: MrbcjfzHuajianInfo[] = [];
   qiliaos: MrbcjfzQiliaoInfo[] = [];
   bancaiKeys: string[] = [];
+  bancaiKeysNonClear: string[] = [];
+  bancaiKeysRequired: string[] = [];
   bancaiList: BancaiList[] = [];
   bancaiInputs: InputInfo<MrbcjfzInfo>[][] = [];
   activeBancaiKey: string | null = null;
@@ -87,6 +89,9 @@ export class MrbcjfzComponent implements OnInit {
     );
     if (response?.data) {
       this.xinghao = new MrbcjfzXinghaoInfo(response.data.xinghao);
+      this.bancaiKeys = response.data.bancaiKeys;
+      this.bancaiKeysNonClear = union(response.data.bancaiKeysNonClear, response.data.bancaiKeysRequired);
+      this.bancaiKeysRequired = response.data.bancaiKeysRequired;
       this.cads = [];
       const cadsToRemove: MrbcjfzCadInfo[] = [];
       response.data.cads.forEach((v) => {
@@ -134,11 +139,7 @@ export class MrbcjfzComponent implements OnInit {
           }
         });
         info.花件 = info.花件.filter((v) => !huajiansToRemove2.find((v2) => v2.id === v));
-        if (isMrbcjfzInfoEmpty(info)) {
-          info.默认开料材料 = "";
-          info.默认开料板材 = "";
-          info.默认开料板材厚度 = "";
-        }
+        this.justifyBancai(bancaiKey, info);
       }
       const errorMsgs: string[] = [];
       if (cadsToRemove2.length > 0) {
@@ -147,7 +148,6 @@ export class MrbcjfzComponent implements OnInit {
       if (huajiansToRemove2.length > 0) {
         errorMsgs.push(`删除了以下${huajiansToRemove2.length}个无效花件: <br>${huajiansToRemove2.map((v) => v.data.mingzi).join("，")}`);
       }
-      this.bancaiKeys = response.data.bancaiKeys;
       this.bancaiList = response.data.bancaiList;
       this.updateXinghao();
       this.updateListItems();
@@ -193,10 +193,18 @@ export class MrbcjfzComponent implements OnInit {
     }
   }
 
-  validateBancai(bancai: MrbcjfzInfo) {
-    const {默认开料板材, 默认开料材料, 默认开料板材厚度} = bancai;
+  justifyBancai(key: string, info: MrbcjfzInfo) {
+    if (isMrbcjfzInfoEmpty(info) && !this.bancaiKeysNonClear.includes(key)) {
+      info.默认开料材料 = "";
+      info.默认开料板材 = "";
+      info.默认开料板材厚度 = "";
+    }
+  }
+
+  validateBancai(key: string, info: MrbcjfzInfo) {
+    const {默认开料板材, 默认开料材料, 默认开料板材厚度} = info;
     const errors: ValidationErrors = {};
-    if (!isMrbcjfzInfoEmpty(bancai)) {
+    if (!isMrbcjfzInfoEmpty(info) || this.bancaiKeysRequired.includes(key)) {
       if (![默认开料板材, 默认开料材料, 默认开料板材厚度].every(Boolean)) {
         errors.required = true;
       }
@@ -207,7 +215,7 @@ export class MrbcjfzComponent implements OnInit {
   getBancaiStyle(key: string) {
     const info = this.xinghao.默认板材[key];
     const style: Properties = {};
-    if (!isEmpty(this.validateBancai(info))) {
+    if (!isEmpty(this.validateBancai(key, info))) {
       style.color = "red";
     }
     return style;
@@ -269,8 +277,9 @@ export class MrbcjfzComponent implements OnInit {
     const errorMsg: string[] = [];
     const errorBancaiKeys: string[] = [];
     for (const bancaiKey in xinghao.默认板材) {
-      const bancai = xinghao.默认板材[bancaiKey];
-      const errors = this.validateBancai(bancai);
+      const info = xinghao.默认板材[bancaiKey];
+      this.justifyBancai(bancaiKey, info);
+      const errors = this.validateBancai(bancaiKey, info);
       if (!isEmpty(errors)) {
         errorBancaiKeys.push(bancaiKey);
       }
