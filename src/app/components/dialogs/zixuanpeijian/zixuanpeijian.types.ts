@@ -15,7 +15,7 @@ import {nameEquals} from "@src/app/utils/zhankai";
 import zxpjTestData from "@src/assets/testData/zixuanpeijian.json";
 import zixuanpeijianTypesInfo from "@src/assets/testData/zixuanpeijianTypesInfo.json";
 import {ObjectOf} from "@utils";
-import {MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
+import {isMrbcjfzInfoEmpty, MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {intersection, isEmpty, isEqual} from "lodash";
 
 export interface ZixuanpeijianTypesInfoItem {
@@ -309,9 +309,18 @@ export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: Z
             if (!item.morenbancai) {
               item.morenbancai = {};
             }
+            for (const key in morenbancai) {
+              if (isMrbcjfzInfoEmpty(morenbancai[key])) {
+                morenbancai[key].默认对应板材分组 = "";
+              }
+            }
             for (const key in item.morenbancai) {
-              if (morenbancai[key]) {
-                item.morenbancai[key] = morenbancai[key];
+              if (isMrbcjfzInfoEmpty(item.morenbancai[key])) {
+                item.morenbancai[key].默认对应板材分组 = "";
+                item.morenbancai[key].选中板材分组 = "";
+              } else if (morenbancai[key]) {
+                item.morenbancai[key].默认对应板材分组 = morenbancai[key].默认对应板材分组;
+                item.morenbancai[key].选中板材分组 = morenbancai[key].选中板材分组;
               }
             }
           }
@@ -333,6 +342,27 @@ export const getCadLengthVars = (data: CadData) => {
 };
 
 export const getDefaultZhankai = (): ZixuanpeijianInfo["zhankai"][0] => ({width: "", height: "", num: "", originalWidth: ""});
+
+export const calcCadItemZhankai = async (
+  calc: CalcService,
+  materialResult: Formulas,
+  item: ZixuanpeijianCadItem,
+  fractionDigits: number
+) => {
+  const {data, info} = item;
+  const {zhankai} = info;
+  if (zhankai.length < 1 || !zhankai[0].originalWidth || zhankai[0].custom) {
+    return;
+  }
+  const vars = {...materialResult, ...getCadLengthVars(data)};
+  const formulas: ObjectOf<string> = {展开宽: zhankai[0].originalWidth};
+  const calcResult = calc.calcFormulas(formulas, vars);
+  const {展开宽} = calcResult?.succeed || {};
+  if (typeof 展开宽 === "number" && !isNaN(展开宽)) {
+    zhankai[0].width = toFixed(展开宽, fractionDigits);
+  }
+  info.zhankai = zhankai;
+};
 
 export const calcZxpj = (
   message: MessageService,

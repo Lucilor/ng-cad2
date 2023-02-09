@@ -24,7 +24,7 @@ import {timeout} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {cloneDeep, isEqual} from "lodash";
-import {menshanKeys, XhmrmsbjData, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
+import {XhmrmsbjData, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
 
 @Component({
   selector: "app-xhmrmsbj",
@@ -63,6 +63,8 @@ export class XhmrmsbjComponent implements OnInit {
   activeTabName: XhmrmsbjTabName = "门扇模块";
   mokuaiInputInfos: InputInfo[] = [];
   isMrbcjfzInfoEmpty = isMrbcjfzInfoEmpty;
+  menshanKeys = ["锁扇正面", "锁扇背面", "铰扇正面", "铰扇背面", "小扇正面", "小扇背面"];
+  messageType = "门扇模块";
   @ViewChild(MsbjRectsComponent) msbjRectsComponent?: MsbjRectsComponent;
 
   constructor(
@@ -95,7 +97,7 @@ export class XhmrmsbjComponent implements OnInit {
       this.isFromOrder = false;
       const records = await this.dataService.queryMySql<XhmrmsbjTableData>({table, filter: {where: {vid: id}}});
       this.tableData = records?.[0] || null;
-      this.data = this.tableData ? new XhmrmsbjData(this.tableData, this.step1Data.typesInfo) : null;
+      this.data = this.tableData ? new XhmrmsbjData(this.tableData, this.menshanKeys, this.step1Data.typesInfo) : null;
       const xinghaos = await this.dataService.queryMySql<MrbcjfzXinghao>({
         table: "p_xinghao",
         filter: {where: {vid: this.tableData?.xinghao}}
@@ -105,7 +107,7 @@ export class XhmrmsbjComponent implements OnInit {
       this.isFromOrder = true;
       this.token = token;
       this.dataService.token = token;
-      window.parent.postMessage({type: "门扇模块", action: "requestData"}, "*");
+      window.parent.postMessage({type: this.messageType, action: "requestData"}, "*");
       await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     }
     this.fenleis = await this.dataService.queryMySql<TableDataBase>({table: "p_gongnengfenlei", fields: ["vid", "mingzi"]});
@@ -115,27 +117,32 @@ export class XhmrmsbjComponent implements OnInit {
     this.bancaiList = response?.data || [];
 
     await timeout(0);
-    this.selectMenshanKey(menshanKeys[0]);
+    this.selectMenshanKey(this.menshanKeys[0]);
   }
 
   @HostListener("window:message", ["$event"])
   onMessage(event: MessageEvent) {
     const data = event.data;
-    if (!data || typeof data !== "object" || data.type !== "门扇模块") {
+    const messageType=this.messageType
+    if (!data || typeof data !== "object" || data.type !== messageType) {
       return;
     }
     switch (data.action) {
       case "requestData":
         {
-          const {型号选中门扇布局, 型号选中板材, 型号} = data.data;
-          this.data = new XhmrmsbjData({vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局)}, this.step1Data.typesInfo);
+          const {型号选中门扇布局, 型号选中板材, 型号, menshanKeys} = data.data;
+          this.data = new XhmrmsbjData(
+            {vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局)},
+            menshanKeys,
+            this.step1Data.typesInfo
+          );
           this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: 型号, morenbancai: JSON.stringify(型号选中板材)});
         }
         break;
       case "submitData":
         window.parent.postMessage(
           {
-            type: "门扇模块",
+            type: messageType,
             action: "submitData",
             data: {
               型号选中门扇布局: this.data?.menshanbujuInfos
@@ -357,11 +364,26 @@ export class XhmrmsbjComponent implements OnInit {
     }
   }
 
-  onBancaiSelect(item: MrbcjfzInfo, value: string) {
-    item.默认对应板材分组 = value;
-    item.默认开料材料 = "";
-    item.默认开料板材 = "";
-    item.默认开料板材厚度 = "";
+  getBancaixuanze(item: MrbcjfzInfo) {
+    if (this.isFromOrder) {
+      return item.选中板材分组;
+    } else {
+      return item.默认对应板材分组;
+    }
+  }
+
+  setBancaixuanze(item: MrbcjfzInfo, value: string) {
+    if (this.isFromOrder) {
+      item.选中板材分组 = value;
+      item.选中板材 = "";
+      item.选中材料 = "";
+      item.选中板材厚度 = "";
+    } else {
+      item.默认对应板材分组 = value;
+      item.默认开料板材 = "";
+      item.默认开料材料 = "";
+      item.默认开料板材厚度 = "";
+    }
   }
 
   getMsbj(id: number) {
@@ -375,7 +397,7 @@ export class XhmrmsbjComponent implements OnInit {
     }
     if (this.isFromOrder) {
       const data = {config: msbj.peizhishuju.模块大小关系, values: this.activeMsbjInfo?.模块大小输入};
-      window.parent.postMessage({type: "门扇模块", action: "编辑模块大小", data}, "*");
+      window.parent.postMessage({type: this.messageType, action: "编辑模块大小", data}, "*");
       return;
     } else {
       const data = await openJsonEditorDialog(this.dialog, {data: {json: msbj.peizhishuju.模块大小关系}});

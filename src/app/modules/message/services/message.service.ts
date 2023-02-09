@@ -1,8 +1,8 @@
 import {Injectable} from "@angular/core";
-import {MatDialog, MatDialogConfig} from "@angular/material/dialog";
+import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material/dialog";
 import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {InputInfo} from "@modules/input/components/types";
-import {lastValueFrom} from "rxjs";
+import {BehaviorSubject, lastValueFrom} from "rxjs";
 import {
   AlertMessageData,
   BookMessageData,
@@ -24,6 +24,9 @@ export type MessageDataParams2<T> = Omit<MatDialogConfig<T>, "data">;
   providedIn: "root"
 })
 export class MessageService {
+  openedDialogs: MatDialogRef<MessageComponent, MessageOutput>[] = [];
+  open$ = new BehaviorSubject<MatDialogConfig<MessageData>>({});
+  close$ = new BehaviorSubject<MessageOutput>(null);
   constructor(private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
   async open(config: MatDialogConfig<MessageData>) {
@@ -33,7 +36,12 @@ export class MessageService {
       config.disableClose = true;
     }
     const ref = this.dialog.open<MessageComponent, MessageData, MessageOutput>(MessageComponent, config);
-    return await lastValueFrom(ref.afterClosed());
+    this.openedDialogs.push(ref);
+    this.open$.next(config);
+    const result = await lastValueFrom(ref.afterClosed());
+    this.openedDialogs = this.openedDialogs.filter((dialog) => dialog.id !== ref.id);
+    this.close$.next(result);
+    return result;
   }
 
   private _getData<T extends MessageData, K extends MessageData["type"]>(data: string | MessageDataParams<T>, type: K): MessageDataMap[K] {

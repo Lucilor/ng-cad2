@@ -8,15 +8,13 @@ export interface XhmrmsbjTableData extends TableDataBase {
   xinghao?: string;
 }
 
-export const menshanKeys = ["锁扇正面", "锁扇背面", "铰扇正面", "铰扇背面", "小扇正面", "小扇背面"] as const;
-
 export class XhmrmsbjData {
   vid: number;
   name: string;
   menshanbujuInfos: ObjectOf<XhmrmsbjInfo>;
   // 板材材质信息:
 
-  constructor(data: XhmrmsbjTableData, typesInfo: ZixuanpeijianTypesInfo) {
+  constructor(data: XhmrmsbjTableData, menshanKeys: string[], typesInfo: ZixuanpeijianTypesInfo) {
     this.vid = data.vid;
     this.name = data.mingzi;
     let info: any = null;

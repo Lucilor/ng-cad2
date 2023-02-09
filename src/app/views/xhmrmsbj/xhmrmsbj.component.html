@@ -67,8 +67,8 @@
                     <mat-label>{{ item.key }}</mat-label>
                     <mat-select
                       class="value"
-                      [value]="item.value['默认对应板材分组']"
-                      (selectionChange)="onBancaiSelect(item.value, $event.value)"
+                      [value]="getBancaixuanze(item.value)"
+                      (selectionChange)="setBancaixuanze(item.value, $event.value)"
                     >
                       <ng-container *ngFor="let item2 of xinghao['默认板材'] | keyvalue : returnZero">
                         <mat-option *ngIf="xinghao.getBancaiTitle(item2.key)" [value]="item2.key">

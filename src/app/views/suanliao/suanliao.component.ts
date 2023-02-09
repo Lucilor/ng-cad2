@@ -1,35 +1,72 @@
-import {Component, HostListener} from "@angular/core";
+import {Component, HostListener, OnInit} from "@angular/core";
 import {CadData} from "@cad-viewer";
-import {calcZxpj} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {calcCadItemZhankai, calcZxpj} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
+import {timeout} from "@utils";
 
 @Component({
   selector: "app-suanliao",
   templateUrl: "./suanliao.component.html",
   styleUrls: ["./suanliao.component.scss"]
 })
-export class SuanliaoComponent {
-  constructor(private message: MessageService, private calc: CalcService) {}
+export class SuanliaoComponent extends Subscribed() implements OnInit {
+  messageType = "算料";
+  isDialogOpened = false;
+
+  constructor(private message: MessageService, private calc: CalcService) {
+    super();
+  }
+
+  ngOnInit() {
+    this.subscribe(this.message.open$, (config) => {
+      this.isDialogOpened = true;
+    });
+    this.subscribe(this.message.close$, (result) => {
+      this.isDialogOpened = false;
+    });
+  }
 
   @HostListener("window:message", ["$event"])
-  onMessage(event: MessageEvent) {
+  async onMessage(event: MessageEvent) {
     const data = event.data;
-    if (!data || typeof data !== "object" || data.type !== "算料") {
+    const messageType = this.messageType;
+    if (!data || typeof data !== "object" || data.type !== messageType) {
       return;
     }
     switch (data.action) {
       case "开始算料":
         {
-          const {materialResult, mokuais} = data.data;
+          const {materialResult, 配件模块CAD: mokuais, 门扇布局CAD: lingsans} = data.data;
+          const fractionDigits = 1;
+          const setCadItem1 = (item: any) => {
+            calcCadItemZhankai(this.calc, materialResult, item, fractionDigits);
+            item.data = new CadData(item.data);
+          };
+          const setCadItem2 = (item: any) => {
+            item.data = item.data.export();
+          };
           mokuais.forEach((mokuai: any) => {
-            mokuai.cads = mokuai.cads.map((cad: any) => new CadData(cad));
+            mokuai.cads.forEach(setCadItem1);
           });
-          calcZxpj(this.message, this.calc, materialResult, mokuais, [], 1);
+          lingsans.forEach(setCadItem1);
+          calcZxpj(this.message, this.calc, materialResult, mokuais, lingsans, fractionDigits);
           mokuais.forEach((mokuai: any) => {
-            mokuai.cads = mokuai.cads.map((cad: any) => cad.export());
+            mokuai.cads.forEach(setCadItem2);
           });
-          window.parent.postMessage({type: "算料", action: "结束算料", data: {materialResult, mokuais}}, "*");
+          lingsans.forEach(setCadItem2);
+          await timeout(0);
+          if (this.message.openedDialogs.length > 0) {
+            await new Promise<void>((resolve) => {
+              this.message.close$.subscribe(() => {
+                if (this.message.openedDialogs.length < 1) {
+                  resolve();
+                }
+              });
+            });
+          }
+          window.parent.postMessage({type: messageType, action: "结束算料", data: data.data}, "*");
         }
         break;
       default:

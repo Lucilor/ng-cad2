@@ -29,8 +29,8 @@ import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 import {
   CadItemContext,
   CadItemInputInfo,
+  calcCadItemZhankai,
   calcZxpj,
-  getCadLengthVars,
   getDefaultZhankai,
   getMokuaiTitle,
   getStep1Data,
@@ -405,20 +405,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     });
   }
 
-  async calcZhankai(item: ZixuanpeijianCadItem) {
-    const {data, info} = item;
-    const {zhankai} = info;
-    if (zhankai.length < 1 || !zhankai[0].originalWidth || zhankai[0].custom) {
-      return;
-    }
-    const vars = {...this.materialResult, ...getCadLengthVars(data)};
-    const formulas: ObjectOf<string> = {展开宽: zhankai[0].originalWidth};
-    const calcResult = this.calc.calcFormulas(formulas, vars);
-    const {展开宽} = calcResult?.succeed || {};
-    if (typeof 展开宽 === "number" && !isNaN(展开宽)) {
-      zhankai[0].width = toFixed(展开宽, this.fractionDigits);
-    }
-    info.zhankai = zhankai;
+  async calcCadItemZhankai(item: ZixuanpeijianCadItem) {
+    calcCadItemZhankai(this.calc, this.materialResult || {}, item, this.fractionDigits);
   }
 
   resizeCadViewers(indexes?: [number, number]) {
