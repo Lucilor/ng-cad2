@@ -20,6 +20,7 @@
       "@utils": ["src/cad-viewer/src/utils/src"],
       "@cad-viewer": ["src/cad-viewer/src"],
       "@components/*": ["src/app/components/*"],
+      "@decorators/*": ["src/app/decorators/*"],
       "@guards/*": ["src/app/guards/*"],
       "@mixins/*": ["src/app/mixins/*"],
       "@modules/*": ["src/app/modules/*"],

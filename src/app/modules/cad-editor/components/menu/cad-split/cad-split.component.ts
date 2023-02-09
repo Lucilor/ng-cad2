@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from "@angular/core";
+import {Component, HostListener, OnInit} from "@angular/core";
 import {CadData} from "@cad-viewer";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
@@ -11,7 +11,7 @@ import {CadStatusSplit} from "@services/cad-status";
   templateUrl: "./cad-split.component.html",
   styleUrls: ["./cad-split.component.scss"]
 })
-export class CadSplitComponent extends Subscribed() implements OnInit, OnDestroy {
+export class CadSplitComponent extends Subscribed() implements OnInit {
   private _splitCadLock = false;
 
   constructor(private config: AppConfigService, private status: AppStatusService, private message: MessageService) {
@@ -32,15 +32,10 @@ export class CadSplitComponent extends Subscribed() implements OnInit, OnDestroy
         this.blur();
       }
     });
-    window.addEventListener("keydown", this._splitCad);
   }
 
-  ngOnDestroy() {
-    super.ngOnDestroy();
-    window.removeEventListener("keydown", this._splitCad);
-  }
-
-  private _splitCad = async ({key}: KeyboardEvent) => {
+  @HostListener("window:keydown")
+  async splitCad({key}: KeyboardEvent) {
     if (key !== "Enter" || this._splitCadLock) {
       return;
     }
@@ -81,7 +76,7 @@ export class CadSplitComponent extends Subscribed() implements OnInit, OnDestroy
       await this.focus();
     }
     this._splitCadLock = false;
-  };
+  }
 
   async focus() {
     const cad = this.status.cad;

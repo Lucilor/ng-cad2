@@ -67,6 +67,7 @@ export class AppStatusService {
   openCad$ = new Subject<OpenCadOptions>();
   saveCadStart$ = new Subject<void>();
   saveCadEnd$ = new Subject<void>();
+  saveCadLocked$ = new BehaviorSubject<boolean>(false);
   cadPoints$ = new BehaviorSubject<CadPoints>([]);
   setProject$ = new Subject<void>();
   isAdmin$ = new BehaviorSubject<boolean>(false);
@@ -269,6 +270,7 @@ export class AppStatusService {
 
   async saveCad(loaderId?: string) {
     this.saveCadStart$.next();
+    this.saveCadLocked$.next(true);
     await timeout(100); // 等待input事件触发
     const {dataService, message, spinner} = this;
     const collection = this.collection$.value;
@@ -297,6 +299,7 @@ export class AppStatusService {
           await dataService.setCadImg(data2.id, url, {silent: true});
         }
       });
+      this.saveCadLocked$.next(false);
     }
     spinner.hide(loaderId);
     return resData;

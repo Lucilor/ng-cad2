@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild} from "@angular/core";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {Point} from "@utils";
 import {clamp} from "lodash";
@@ -12,7 +12,7 @@ export interface AnchorEvent {
   templateUrl: "./anchor-selector.component.html",
   styleUrls: ["./anchor-selector.component.scss"]
 })
-export class AnchorSelectorComponent implements AfterViewInit, OnDestroy {
+export class AnchorSelectorComponent implements AfterViewInit {
   @Input() x = 0;
   @Input() y = 0;
   @Input() pointerSize = 10;
@@ -32,13 +32,22 @@ export class AnchorSelectorComponent implements AfterViewInit, OnDestroy {
     return this.y * this.backgroundSize + "px";
   }
 
-  onDragStarted = ((event: PointerEvent) => {
+  constructor() {}
+
+  ngAfterViewInit() {
+    this.x = clamp(this.x, 0, 1);
+    this.y = clamp(this.y, 0, 1);
+  }
+
+  @HostListener("window:pointerdown", ["$event"])
+  onDragStarted(event: PointerEvent) {
     if (event.target === this.pointer?.nativeElement) {
       this.dragging = true;
     }
-  }).bind(this);
+  }
 
-  onDragMoved = ((event: PointerEvent) => {
+  @HostListener("window:pointermove", ["$event"])
+  onDragMoved(event: PointerEvent) {
     if (this.dragging && this.background) {
       const {clientX, clientY} = event;
       const rect = this.background.nativeElement.getBoundingClientRect();
@@ -49,31 +58,15 @@ export class AnchorSelectorComponent implements AfterViewInit, OnDestroy {
       this.y = Number((y / backgroundSize).toFixed(2));
       this.anchorChange.emit({anchor: [this.x, this.y]});
     }
-  }).bind(this);
+  }
 
-  onDragEnded = ((_event: PointerEvent) => {
+  @HostListener("window:pointerup")
+  @HostListener("window:pointerleave")
+  onDragEnded() {
     if (this.dragging) {
       this.anchorChangeEnd.emit({anchor: [this.x, this.y]});
       this.dragging = false;
     }
-  }).bind(this);
-
-  constructor() {}
-
-  ngAfterViewInit() {
-    this.x = clamp(this.x, 0, 1);
-    this.y = clamp(this.y, 0, 1);
-    window.addEventListener("pointerdown", this.onDragStarted);
-    window.addEventListener("pointermove", this.onDragMoved);
-    window.addEventListener("pointerup", this.onDragEnded);
-    window.addEventListener("pointerleave", this.onDragEnded);
-  }
-
-  ngOnDestroy() {
-    window.removeEventListener("pointerdown", this.onDragStarted);
-    window.removeEventListener("pointermove", this.onDragMoved);
-    window.removeEventListener("pointerup", this.onDragEnded);
-    window.removeEventListener("pointerleave", this.onDragEnded);
   }
 
   onInputChange(event: Event | MatAutocompleteSelectedEvent, axis: "x" | "y") {

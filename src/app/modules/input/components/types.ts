@@ -93,7 +93,7 @@ export interface InputInfoCoordinate<T = any> extends InputInfoBase<T> {
   compact?: boolean;
   labelX?: string;
   labelY?: string;
-  onChange?: (val: [number, number]) => void;
+  onChange?: (val: {anchor: [number, number]}) => void;
 }
 
 export interface InputInfoColor<T = any> extends InputInfoBase<T> {

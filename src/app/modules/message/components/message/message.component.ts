@@ -1,10 +1,11 @@
 import {HttpErrorResponse} from "@angular/common/http";
-import {Component, OnInit, Inject, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewChildren, QueryList} from "@angular/core";
+import {Component, OnInit, Inject, ViewChild, ElementRef, AfterViewInit, ViewChildren, QueryList, HostListener} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml, SafeResourceUrl} from "@angular/platform-browser";
+import {Debounce} from "@decorators/debounce";
 import {InputComponent} from "@modules/input/components/input.component";
 import {ObjectOf, timeout} from "@utils";
-import {clamp, cloneDeep, debounce} from "lodash";
+import {clamp, cloneDeep} from "lodash";
 import {QuillEditorComponent, QuillViewComponent} from "ngx-quill";
 import {ButtonMessageData, MessageData, MessageDataMap, MessageOutput} from "./message-types";
 
@@ -13,7 +14,7 @@ import {ButtonMessageData, MessageData, MessageDataMap, MessageOutput} from "./m
   templateUrl: "./message.component.html",
   styleUrls: ["./message.component.scss"]
 })
-export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MessageComponent implements OnInit, AfterViewInit {
   titleHTML: SafeHtml = "";
   subTitleHTML: SafeHtml = "";
   contentHTML: SafeHtml = "";
@@ -34,17 +35,6 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return 0;
   }
-  private _resizeEditor = debounce(() => {
-    if (this.editor) {
-      const el = this.editor.editorElem;
-      const height = this._editorToolbarHeight;
-      if (height) {
-        el.style.height = `calc(100% - ${height}px)`;
-        return true;
-      }
-    }
-    return false;
-  }, 500);
 
   get inputs() {
     if (this.data.type === "form") {
@@ -136,11 +126,10 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const id = window.setInterval(() => {
-      if (this._resizeEditor()) {
+      if (this.resizeEditor()) {
         window.clearInterval(id);
       }
     }, 600);
-    window.addEventListener("resize", this._resizeEditor);
   }
 
   async ngAfterViewInit() {
@@ -156,8 +145,18 @@ export class MessageComponent implements OnInit, AfterViewInit, OnDestroy {
     // }
   }
 
-  ngOnDestroy() {
-    window.removeEventListener("resize", this._resizeEditor);
+  @HostListener("window:resize")
+  @Debounce(500)
+  resizeEditor() {
+    if (this.editor) {
+      const el = this.editor.editorElem;
+      const height = this._editorToolbarHeight;
+      if (height) {
+        el.style.height = `calc(100% - ${height}px)`;
+        return true;
+      }
+    }
+    return false;
   }
 
   submit(button?: ButtonMessageData["buttons"][number]) {

@@ -1,4 +1,5 @@
-import {Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
+import {Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild} from "@angular/core";
+import {Debounce} from "@decorators/debounce";
 import {ObjectOf, Rectangle} from "@utils";
 import {Properties} from "csstype";
 import {cloneDeep, random} from "lodash";
@@ -9,7 +10,7 @@ import {MsbjRectInfo, MsbjRectInfoRaw} from "./msbj-rects.types";
   templateUrl: "./msbj-rects.component.html",
   styleUrls: ["./msbj-rects.component.scss"]
 })
-export class MsbjRectsComponent implements OnInit, OnDestroy {
+export class MsbjRectsComponent {
   rgbMin = 200;
   rgbMax = 245;
   altColors = [
@@ -42,16 +43,10 @@ export class MsbjRectsComponent implements OnInit, OnDestroy {
   @Input() selectRectBefore?: (info: MsbjRectInfo | null) => boolean;
   @Output() selectRect = new EventEmitter<MsbjRectInfo | null>();
 
-  private _onWindowResize = (() => {
+  @HostListener("window:resize")
+  @Debounce(500)
+  onWindowResize() {
     this.generateRects();
-  }).bind(this);
-
-  ngOnInit() {
-    window.addEventListener("resize", this._onWindowResize);
-  }
-
-  ngOnDestroy() {
-    window.removeEventListener("resize", this._onWindowResize);
   }
 
   getRectStyle(info: MsbjRectInfo): Properties {

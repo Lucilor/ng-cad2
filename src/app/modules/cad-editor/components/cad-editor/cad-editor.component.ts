@@ -1,9 +1,10 @@
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {CdkDragEnd, CdkDragMove, CdkDragStart} from "@angular/cdk/drag-drop";
-import {AfterViewInit, Component, ElementRef, Input, OnDestroy, QueryList, ViewChild, ViewChildren} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, QueryList, ViewChild, ViewChildren} from "@angular/core";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
 import {CadEventCallBack} from "@cad-viewer";
+import {Debounce} from "@decorators/debounce";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadConsoleComponent} from "@modules/cad-console/components/cad-console/cad-console.component";
@@ -123,13 +124,6 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
     this.config.setConfig("scroll", scroll);
   }, 1000);
 
-  private _resize = debounce(() => {
-    const parentEl = this.cadContainer.nativeElement.parentElement;
-    if (parentEl) {
-      this.config.setConfig({width: parentEl.clientWidth, height: parentEl.clientHeight});
-    }
-  }, 500);
-
   ngAfterViewInit() {
     setGlobal("cadEditor", this);
     const cad = this.status.cad;
@@ -183,7 +177,6 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
       this.subscribe(scrollbar.scrolled, this.onScrollChange);
     });
 
-    window.addEventListener("resize", this._resize);
     this.cadConsole.command$.subscribe((command) => {
       this.cadConsoleComponent.execute(command);
     });
@@ -196,7 +189,6 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
   ngOnDestroy() {
     super.ngOnDestroy();
     const cad = this.status.cad;
-    window.removeEventListener("resize", this._resize);
     cad.off("entitiescopy", this._onEntitiesCopy);
     cad.off("entitiespaste", this._onEntitiesPaste);
   }
@@ -238,6 +230,15 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
       this._scrollChangeLock = true;
       this._scrollbar.scrollTo({top: scroll[key]});
       this._scrollChangeLock = false;
+    }
+  }
+
+  @HostListener("window:resize")
+  @Debounce(500)
+  resize() {
+    const parentEl = this.cadContainer.nativeElement.parentElement;
+    if (parentEl) {
+      this.config.setConfig({width: parentEl.clientWidth, height: parentEl.clientHeight});
     }
   }
 

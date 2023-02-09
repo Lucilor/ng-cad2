@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from "@angular/core";
+import {Component, HostListener} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {Router} from "@angular/router";
 import {local} from "@app/app.common";
@@ -23,7 +23,7 @@ import {map, startWith} from "rxjs";
   templateUrl: "./toolbar.component.html",
   styleUrls: ["./toolbar.component.scss"]
 })
-export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy {
+export class ToolbarComponent extends Subscribed() {
   openLock = false;
   keyMap: ObjectOf<() => void> = {
     s: () => this.save(),
@@ -67,7 +67,8 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     map((v) => !!v.isLocal)
   );
 
-  onKeyDown = ((event: KeyboardEvent) => {
+  @HostListener("window:keydown", ["$event"])
+  onKeyDown(event: KeyboardEvent) {
     const {ctrlKey} = event;
     if (!event.key) {
       // ? key有可能是undefined
@@ -88,7 +89,7 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
         this.backToNormal(true);
       }
     }
-  }).bind(this);
+  }
 
   constructor(
     private console: CadConsoleService,
@@ -104,14 +105,6 @@ export class ToolbarComponent extends Subscribed() implements OnInit, OnDestroy 
     this.subscribe(this.status.changelogTimeStamp$, (changelogTimeStamp) => {
       this.showNew = changelogTimeStamp > Number(local.load("changelogTimeStamp") || 0);
     });
-  }
-
-  ngOnInit() {
-    window.addEventListener("keydown", this.onKeyDown);
-  }
-
-  ngOnDestroy() {
-    window.removeEventListener("keydown", this.onKeyDown);
   }
 
   getConfig(key: keyof AppConfig) {

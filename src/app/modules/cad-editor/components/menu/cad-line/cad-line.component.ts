@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, AfterViewInit} from "@angular/core";
+import {Component, OnInit, OnDestroy, AfterViewInit, HostListener} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
@@ -84,23 +84,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, AfterViewI
   get data() {
     return this.status.cad.data;
   }
-
-  private _onKeyDown = ((event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      const cadStatus = this.status.cadStatus;
-      if (cadStatus instanceof CadStatusDrawLine) {
-        const lineDrawing = this.lineDrawing;
-        if (lineDrawing) {
-          this.status.cad.remove(lineDrawing.entity);
-          if (lineDrawing.oldEntity) {
-            lineDrawing.oldEntity.opacity = 1;
-          }
-          this.lineDrawing = null;
-          this.status.cadPoints$.next(this.status.cadPoints$.value.map((v) => ({...v, active: false})));
-        }
-      }
-    }
-  }).bind(this);
 
   private _colorText = "";
   colorValue = "";
@@ -289,7 +272,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, AfterViewI
       cad.on("entitiesremove", this._onEntitiesChange);
       cad.on("moveentities", this._updateCadPoints);
       cad.on("zoom", this._updateCadPoints);
-      window.addEventListener("keydown", this._onKeyDown);
     }
   }
 
@@ -310,7 +292,6 @@ export class CadLineComponent extends Subscribed() implements OnInit, AfterViewI
     cad.off("entitiesremove", this._onEntitiesChange);
     cad.off("moveentities", this._updateCadPoints);
     cad.off("zoom", this._updateCadPoints);
-    window.removeEventListener("keydown", this._onKeyDown);
   }
 
   private _onPointerMove: CadEventCallBack<"pointermove"> = async ({clientX, clientY, shiftKey, ctrlKey}) => {
@@ -444,6 +425,24 @@ export class CadLineComponent extends Subscribed() implements OnInit, AfterViewI
       this.status.setCadPoints(WHDashedLines.map);
     }
   };
+
+  @HostListener("window:keydown", ["$event"])
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      const cadStatus = this.status.cadStatus;
+      if (cadStatus instanceof CadStatusDrawLine) {
+        const lineDrawing = this.lineDrawing;
+        if (lineDrawing) {
+          this.status.cad.remove(lineDrawing.entity);
+          if (lineDrawing.oldEntity) {
+            lineDrawing.oldEntity.opacity = 1;
+          }
+          this.lineDrawing = null;
+          this.status.cadPoints$.next(this.status.cadPoints$.value.map((v) => ({...v, active: false})));
+        }
+      }
+    }
+  }
 
   getLineLength() {
     const lines = this.selected;

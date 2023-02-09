@@ -1,11 +1,12 @@
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
-import {Component, OnInit, OnDestroy, ViewChild, Inject, ElementRef, ViewChildren, QueryList} from "@angular/core";
+import {Component, OnInit, ViewChild, Inject, ElementRef, ViewChildren, QueryList, HostListener} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {SafeUrl, DomSanitizer} from "@angular/platform-browser";
 import {Router} from "@angular/router";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@cad-viewer";
+import {Debounce} from "@decorators/debounce";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
@@ -53,7 +54,7 @@ import {
   templateUrl: "./zixuanpeijian.component.html",
   styleUrls: ["./zixuanpeijian.component.scss"]
 })
-export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnDestroy {
+export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   spinnerId = "zixuanpeijian-" + uniqueId();
   step$ = new BehaviorSubject<{value: number; refresh: boolean}>({value: 0, refresh: false});
   type1 = "";
@@ -100,10 +101,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
   lingsanCadViewers: CadViewer[] = [];
   imgCadEmpty = imgCadEmpty;
   selectAllForm = {baicai: "", cailiao: "", houdu: ""};
-
-  onWindowResize = debounce(() => {
-    this.resizeCadViewers();
-  }, 500).bind(this);
 
   get summitBtnText() {
     if (this.data?.stepFixed) {
@@ -155,11 +152,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
     }
     this._updateInputInfos();
     this.setStep(stepValue, true);
-    window.addEventListener("resize", this.onWindowResize);
-  }
-
-  ngOnDestroy() {
-    window.removeEventListener("resize", this.onWindowResize);
   }
 
   async step1Fetch(updateInputInfos = true) {
@@ -448,6 +440,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit, OnD
         }
       }
     }
+  }
+
+  @HostListener("window:resize")
+  @Debounce(500)
+  onWindowResize() {
+    this.resizeCadViewers();
   }
 
   async openKlkwpzDialog(item: ZixuanpeijianCadItem) {

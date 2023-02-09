@@ -97,7 +97,7 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         disabled,
         value: this.getAnchor(),
         onChange: (val) => {
-          this.setAnchor(val);
+          this.setAnchor(val.anchor);
         }
       }
     ];

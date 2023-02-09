@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from "@angular/core";
+import {Component, HostListener, OnInit} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgLoading} from "@app/app.common";
@@ -39,7 +39,7 @@ export interface Bancai {
   templateUrl: "./piliangjianban.component.html",
   styleUrls: ["./piliangjianban.component.scss"]
 })
-export class PiliangjianbanComponent implements OnInit, OnDestroy {
+export class PiliangjianbanComponent implements OnInit {
   bancais: Bancai[] = [];
   cadsRowNum = 4;
   cadsColNum = 3;
@@ -58,17 +58,13 @@ export class PiliangjianbanComponent implements OnInit, OnDestroy {
     private spinner: SpinnerService
   ) {}
 
-  private _beforePrint = (() => {
-    this.bancais.forEach((bancai) => (bancai.expanded = true));
-  }).bind(this);
-
   ngOnInit() {
     setTimeout(() => this.getBancais(), 0);
-    window.addEventListener("beforeprint", this._beforePrint);
   }
 
-  ngOnDestroy() {
-    window.removeEventListener("beforeprint", this._beforePrint);
+  @HostListener("window:beforeprint")
+  beforePrint() {
+    this.bancais.forEach((bancai) => (bancai.expanded = true));
   }
 
   async getBancais(bancais?: Bancai[]) {

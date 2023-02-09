@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
@@ -13,6 +13,7 @@ import {
   ZixuanpeijianInfo,
   ZixuanpeijianOutput
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {Debounce} from "@decorators/debounce";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/types";
@@ -140,13 +141,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     private status: AppStatusService
   ) {}
 
-  private _onKeyDown = ((event: KeyboardEvent) => {
-    if (event.ctrlKey && event.key === "p") {
-      event.preventDefault();
-      this.print();
-    }
-  }).bind(this);
-
   async ngAfterViewInit() {
     await timeout(0);
     setGlobal("print", this);
@@ -218,12 +212,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     } finally {
       this.spinner.hide(this.loaderId);
     }
-    window.addEventListener("keydown", this._onKeyDown);
     await this.getOrderImage();
   }
 
   ngOnDestroy() {
-    window.removeEventListener("keydown", this._onKeyDown);
     this.cad?.destroy();
   }
 
@@ -247,6 +239,15 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
       translate[1] += dy;
     } else {
       info.translate = [dx, dy];
+    }
+  }
+
+  @HostListener("window:keydown", ["$event"])
+  @Debounce(500)
+  onKeyDown(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === "p") {
+      event.preventDefault();
+      this.print();
     }
   }
 

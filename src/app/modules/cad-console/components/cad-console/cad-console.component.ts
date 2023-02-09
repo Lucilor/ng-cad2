@@ -1,5 +1,5 @@
 import {animate, style, transition, trigger} from "@angular/animations";
-import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
+import {Component, ElementRef, HostListener, ViewChild} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {getList, CadCollection} from "@app/app.common";
@@ -8,7 +8,6 @@ import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component
 import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {Arg, Command, ValuedCommand} from "@modules/cad-console/cad-command-types";
 import {getContent, getEmphasized, getBashStyle, spaceReplacer} from "@modules/cad-console/cad-console.utils";
-import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BookData} from "@modules/message/components/message/message-types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
@@ -120,7 +119,7 @@ export const cmdNames = commands.map((v) => v.name);
     ])
   ]
 })
-export class CadConsoleComponent implements OnInit {
+export class CadConsoleComponent {
   content = {correct: "", wrong: "", hint: "", args: ""};
   currCmd: ValuedCommand = {name: "", args: []};
   history: string[] = [];
@@ -447,13 +446,8 @@ export class CadConsoleComponent implements OnInit {
     private config: AppConfigService,
     private message: MessageService,
     private dialog: MatDialog,
-    private dataService: CadDataService,
     private spinner: SpinnerService
   ) {}
-
-  ngOnInit() {
-    window.addEventListener("keydown", this.onKeyDownWin.bind(this));
-  }
 
   setSelection() {
     const selection = getSelection();
@@ -464,7 +458,8 @@ export class CadConsoleComponent implements OnInit {
     }
   }
 
-  private onKeyDownWin({ctrlKey, key}: KeyboardEvent) {
+  @HostListener("window:keydown", ["$event"])
+  onKeyDownWin({ctrlKey, key}: KeyboardEvent) {
     if (ctrlKey) {
       if (key === "`") {
         this.visible = !this.visible;
