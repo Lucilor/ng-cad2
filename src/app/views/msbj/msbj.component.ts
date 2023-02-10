@@ -1,9 +1,7 @@
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from "@angular/cdk/drag-drop";
 import {AfterViewInit, ChangeDetectorRef, Component, QueryList, ViewChild, ViewChildren} from "@angular/core";
-import {MatDialog} from "@angular/material/dialog";
 import {MatSelectionList} from "@angular/material/list";
 import {ActivatedRoute} from "@angular/router";
-import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -49,8 +47,7 @@ export class MsbjComponent implements AfterViewInit {
     private dataService: CadDataService,
     private message: MessageService,
     private spinner: SpinnerService,
-    private changeDetector: ChangeDetectorRef,
-    private dialog: MatDialog
+    private changeDetector: ChangeDetectorRef
   ) {
     setGlobal("msbj", this);
   }
@@ -162,7 +159,7 @@ export class MsbjComponent implements AfterViewInit {
     if (!info) {
       return;
     }
-    const result = await openJsonEditorDialog(this.dialog, {data: {json: info.peizhishuju.模块大小关系}});
+    const result = await this.message.json(info.peizhishuju.模块大小关系);
     if (result) {
       info.peizhishuju.模块大小关系 = result;
     }

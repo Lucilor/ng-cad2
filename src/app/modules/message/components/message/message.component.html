@@ -17,6 +17,9 @@
   <ng-container *ngSwitchCase="'iframe'">
     <iframe #iframe [src]="iframeSrc" frameborder="0"></iframe>
   </ng-container>
+  <ng-container *ngSwitchCase="'json'">
+    <json-editor [options]="jsonEditorOptions" [data]="cast(data, 'json').json"></json-editor>
+  </ng-container>
   <ng-container *ngSwitchDefault="">
     <div [innerHTML]="contentHTML"></div>
     <div *ngIf="data.type === 'form'" (keydown)="onKeyDown($event)">
@@ -26,25 +29,13 @@
 </div>
 <div matDialogActions class="hidden-if-empty" style="justify-content: center" [ngSwitch]="data.type">
   <ng-container *ngSwitchCase="'alert'">
-    <button mat-raised-button (click)="cancel()" cdkFocusInitial>
-      {{ cast(data, "alert").btnTexts?.ok || "好的" }}
-    </button>
+    <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="'confirm'">
-    <button mat-raised-button (click)="submit()">
-      {{ cast(data, "confirm").btnTexts?.yes || "当然" }}
-    </button>
-    <button mat-raised-button (click)="cancel()" cdkFocusInitial>
-      {{ cast(data, "confirm").btnTexts?.no || "算了" }}
-    </button>
+    <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="'form'">
-    <button mat-raised-button (click)="submit()" cdkFocusInitial>
-      {{ cast(data, "form").btnTexts?.submit || "确定" }}
-    </button>
-    <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
-      {{ cast(data, "form").btnTexts?.cancel || "取消" }}
-    </button>
+    <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="'book'">
     <button mat-raised-button (click)="setPage(page - 1)" [disabled]="page <= minPage">
@@ -58,19 +49,32 @@
     </button>
   </ng-container>
   <ng-container *ngSwitchCase="'editor'">
-    <button mat-raised-button (click)="submit()" cdkFocusInitial>
-      {{ cast(data, "editor").btnTexts?.submit || "确定" }}
-    </button>
-    <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
-      {{ cast(data, "editor").btnTexts?.cancel || "取消" }}
-    </button>
+    <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
+  </ng-container>
+  <ng-container *ngSwitchCase="'json'">
+    <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="'button'">
     <button mat-raised-button color="primary" *ngFor="let button of cast(data, 'button').buttons" (click)="submit(button)">
       {{ getButtonLabel(button) }}
     </button>
-    <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
-      {{ cast(data, "button").btnTexts?.cancel || "取消" }}
-    </button>
+    <ng-container *ngTemplateOutlet="cancelBtn"></ng-container>
   </ng-container>
 </div>
+
+<ng-template #confirmBtns>
+  <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
+  <ng-container *ngTemplateOutlet="cancelBtn"></ng-container>
+</ng-template>
+
+<ng-template #submitBtn>
+  <button mat-raised-button color="primary" (click)="submit()" cdkFocusInitial>
+    {{ cast(data, "confirm").btnTexts?.submit || "确定" }}
+  </button>
+</ng-template>
+
+<ng-template #cancelBtn>
+  <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
+    {{ cast(data, "confirm").btnTexts?.cancel || "取消" }}
+  </button>
+</ng-template>

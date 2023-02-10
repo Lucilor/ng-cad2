@@ -1,3 +1,4 @@
+import {JsonEditorOptions} from "@maaxgr/ang-jsoneditor";
 import {InputInfo} from "@modules/input/components/types";
 import {ObjectOf} from "@utils";
 
@@ -9,14 +10,20 @@ export interface BaseMessageData {
   contentClass?: string;
 }
 
-export interface AlertMessageData extends BaseMessageData {
-  type: "alert";
-  btnTexts?: {ok?: string};
+export interface AlertBaseMessageData {
+  btnTexts?: {submit?: string};
 }
 
-export interface ConfirmMessageData extends BaseMessageData {
+export interface ConfirmBaseMessageData {
+  btnTexts?: {submit?: string; cancel?: string};
+}
+
+export interface AlertMessageData extends BaseMessageData, AlertBaseMessageData {
+  type: "alert";
+}
+
+export interface ConfirmMessageData extends BaseMessageData, ConfirmBaseMessageData {
   type: "confirm";
-  btnTexts?: {yes?: string; no?: string};
 }
 
 export interface ButtonMessageData extends BaseMessageData {
@@ -25,10 +32,9 @@ export interface ButtonMessageData extends BaseMessageData {
   btnTexts?: {cancel?: string};
 }
 
-export interface FormMessageData extends BaseMessageData {
+export interface FormMessageData extends BaseMessageData, ConfirmBaseMessageData {
   type: "form";
   inputs: InputInfo[];
-  btnTexts?: {submit?: string; cancel?: string};
 }
 
 export interface BookPageData {
@@ -44,15 +50,20 @@ export interface BookMessageData extends BaseMessageData {
   btnTexts?: {prev?: string; next?: string; exit?: string};
 }
 
-export interface EditorMessageData extends BaseMessageData {
+export interface EditorMessageData extends BaseMessageData, ConfirmBaseMessageData {
   type: "editor";
   editable?: boolean;
-  btnTexts?: {submit?: string; cancel?: string};
 }
 
 export interface IFrameMessageData extends BaseMessageData {
   type: "iframe";
   content: string;
+}
+
+export interface JsonMessageData extends BaseMessageData, ConfirmBaseMessageData {
+  type: "json";
+  json: any;
+  options?: Partial<JsonEditorOptions>;
 }
 
 export type MessageData =
@@ -62,7 +73,8 @@ export type MessageData =
   | BookMessageData
   | EditorMessageData
   | ButtonMessageData
-  | IFrameMessageData;
+  | IFrameMessageData
+  | JsonMessageData;
 
 export interface MessageDataMap {
   alert: AlertMessageData;
@@ -72,6 +84,7 @@ export interface MessageDataMap {
   editor: EditorMessageData;
   button: ButtonMessageData;
   iframe: IFrameMessageData;
+  json: JsonMessageData;
 }
 
 export type MessageOutput = boolean | string | ObjectOf<any> | null | undefined;

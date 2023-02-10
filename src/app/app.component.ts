@@ -1,7 +1,5 @@
 import {Component} from "@angular/core";
-import {Router} from "@angular/router";
 import {environment} from "@env";
-import {Utils} from "@mixins/utils.mixin";
 import {routesInfo} from "./app-routing.module";
 
 @Component({
@@ -9,13 +7,11 @@ import {routesInfo} from "./app-routing.module";
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.scss"]
 })
-export class AppComponent extends Utils() {
+export class AppComponent {
   title = "ng-cad2";
   loaderText = "";
   isProd = environment.production;
   routesInfo = routesInfo;
 
-  constructor(private router: Router) {
-    super();
-  }
+  constructor() {}
 }

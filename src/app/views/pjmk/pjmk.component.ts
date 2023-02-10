@@ -1,7 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {exportZixuanpeijian, importZixuanpeijian, ZixuanpeijianOutput} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -77,7 +76,7 @@ export class PjmkComponent implements OnInit {
   }
 
   async editTestData() {
-    const result = await openJsonEditorDialog(this.dialog, {data: {json: this.data.测试数据}});
+    const result = await this.message.json(this.data.测试数据);
     if (result) {
       this.data.测试数据 = result;
       await this.submit();

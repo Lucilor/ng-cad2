@@ -2,7 +2,6 @@ import {Component, HostListener, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
-import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {openMrbcjfzDialog} from "@components/dialogs/mrbcjfz-dialog/mrbcjfz-dialog.component";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {
@@ -400,7 +399,7 @@ export class XhmrmsbjComponent implements OnInit {
       window.parent.postMessage({type: this.messageType, action: "编辑模块大小", data}, "*");
       return;
     } else {
-      const data = await openJsonEditorDialog(this.dialog, {data: {json: msbj.peizhishuju.模块大小关系}});
+      const data = await this.message.json(msbj.peizhishuju.模块大小关系);
       if (data) {
         msbj.peizhishuju.模块大小关系 = data;
         const table = "p_menshanbuju";

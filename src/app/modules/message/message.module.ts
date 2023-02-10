@@ -8,15 +8,19 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS} from "@angular/material/snack-bar";
+import {AngJsoneditorModule} from "@maaxgr/ang-jsoneditor";
 import {InputModule} from "@modules/input/input.module";
 import hljs from "highlight.js";
 import {QuillModule} from "ngx-quill";
+import {MessageTestComponent} from "./components/message-test/message-test.component";
 import {MessageComponent} from "./components/message/message.component";
 
 (window as any).hljs = hljs;
 @NgModule({
-  declarations: [MessageComponent],
+  declarations: [MessageComponent, MessageTestComponent],
+  exports: [MessageComponent, MessageTestComponent],
   imports: [
+    AngJsoneditorModule,
     CommonModule,
     FormsModule,
     InputModule,

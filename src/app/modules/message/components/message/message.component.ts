@@ -3,6 +3,7 @@ import {Component, OnInit, Inject, ViewChild, ElementRef, AfterViewInit, ViewChi
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml, SafeResourceUrl} from "@angular/platform-browser";
 import {Debounce} from "@decorators/debounce";
+import {JsonEditorComponent, JsonEditorOptions} from "@maaxgr/ang-jsoneditor";
 import {InputComponent} from "@modules/input/components/input.component";
 import {ObjectOf, timeout} from "@utils";
 import {clamp, cloneDeep} from "lodash";
@@ -20,10 +21,12 @@ export class MessageComponent implements OnInit, AfterViewInit {
   contentHTML: SafeHtml = "";
   iframeSrc: SafeResourceUrl = "";
   page = 0;
+  jsonEditorOptions = new JsonEditorOptions();
   @ViewChild(QuillEditorComponent) editor?: QuillViewComponent;
   @ViewChild("contentInput") contentInput?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
   @ViewChild("iframe") iframe?: ElementRef<HTMLIFrameElement>;
   @ViewChildren("formInput") formInputs?: QueryList<InputComponent>;
+  @ViewChild(JsonEditorComponent, {static: false}) jsonEditor?: JsonEditorComponent;
 
   private get _editorToolbarHeight() {
     if (this.editor) {
@@ -58,13 +61,6 @@ export class MessageComponent implements OnInit, AfterViewInit {
       return this.data.bookData.length - 1;
     }
     return 0;
-  }
-
-  get editable() {
-    if (this.data.type === "editor") {
-      return this.data.editable ?? true;
-    }
-    return false;
   }
 
   get titleClass() {
@@ -123,6 +119,11 @@ export class MessageComponent implements OnInit, AfterViewInit {
       this.setPage(0);
     } else if (data.type === "iframe") {
       this.iframeSrc = this.sanitizer.bypassSecurityTrustResourceUrl(data.content);
+    } else if (data.type === "json") {
+      this.jsonEditorOptions = new JsonEditorOptions();
+      this.jsonEditorOptions.modes = ["code", "text", "tree", "view"];
+      this.jsonEditorOptions.mode = "code";
+      Object.assign(this.jsonEditorOptions, data.options);
     }
 
     const id = window.setInterval(() => {
@@ -160,9 +161,10 @@ export class MessageComponent implements OnInit, AfterViewInit {
   }
 
   submit(button?: ButtonMessageData["buttons"][number]) {
-    if (this.data.type === "confirm") {
+    const type = this.data.type;
+    if (type === "confirm") {
       this.dialogRef.close(true);
-    } else if (this.data.type === "form") {
+    } else if (type === "form") {
       const values: ObjectOf<string> = {};
       const inputs = this.formInputs?.toArray() || [];
       for (const input of inputs) {
@@ -174,10 +176,18 @@ export class MessageComponent implements OnInit, AfterViewInit {
         values[key] = input.value;
       }
       this.dialogRef.close(values);
-    } else if (this.data.type === "editor") {
+    } else if (type === "editor") {
       this.dialogRef.close(this.data.content);
-    } else if (this.data.type === "button" && button) {
+    } else if (type === "button" && button) {
       this.dialogRef.close(typeof button === "string" ? button : button.label);
+    } else if (type === "json" && this.jsonEditor) {
+      const editor = this.jsonEditor;
+      const valid = editor.isValidJson();
+      if (valid) {
+        this.dialogRef.close(editor.get());
+      } else {
+        this.dialogRef.close();
+      }
     } else {
       this.cancel();
     }

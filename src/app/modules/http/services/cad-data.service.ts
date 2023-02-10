@@ -40,7 +40,7 @@ export class CadDataService extends HttpService {
       const yes = await this.message.confirm({
         content: "CAD模块中不存在以下数据，你可以选择生成这些CAD，或从模板中删除这些CAD。<br>" + names,
         disableCancel: true,
-        btnTexts: {yes: "生成CAD", no: "删除CAD"}
+        btnTexts: {submit: "生成CAD", cancel: "删除CAD"}
       });
       toHide.forEach((el) => {
         el.classList.remove("hidden");

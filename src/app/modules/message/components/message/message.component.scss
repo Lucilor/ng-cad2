@@ -33,3 +33,11 @@ iframe {
     margin: 0;
   }
 }
+
+:host ::ng-deep json-editor,
+:host ::ng-deep json-editor .jsoneditor,
+:host ::ng-deep json-editor > div,
+:host ::ng-deep json-editor jsoneditor-outer {
+  --json-editor-height: auto;
+  height: --json-editor-height;
+}

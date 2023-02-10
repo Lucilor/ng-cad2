@@ -6,5 +6,6 @@
     <button mat-menu-item *ngFor="let routeInfo of routesInfo" [routerLink]="routeInfo.path" [queryParamsHandling]="'merge'">
       {{ routeInfo.title || routeInfo.path }}
     </button>
+    <app-message-test></app-message-test>
   </mat-menu>
 </div>

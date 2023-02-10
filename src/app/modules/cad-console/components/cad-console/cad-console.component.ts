@@ -5,7 +5,6 @@ import {MatDialog} from "@angular/material/dialog";
 import {getList, CadCollection} from "@app/app.common";
 import {CadArc, CadData, CadDimensionLinear} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
-import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {Arg, Command, ValuedCommand} from "@modules/cad-console/cad-command-types";
 import {getContent, getEmphasized, getBashStyle, spaceReplacer} from "@modules/cad-console/cad-console.utils";
 import {BookData} from "@modules/message/components/message/message-types";
@@ -144,7 +143,7 @@ export class CadConsoleComponent {
     },
     async config() {
       const config = this.config.getConfig();
-      const result = await openJsonEditorDialog(this.dialog, {data: {json: config}});
+      const result = await this.message.json(config);
       if (result) {
         this.config.setConfig(result);
       }

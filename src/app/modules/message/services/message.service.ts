@@ -11,6 +11,7 @@ import {
   EditorMessageData,
   FormMessageData,
   IFrameMessageData,
+  JsonMessageData,
   MessageData,
   MessageDataMap,
   MessageOutput
@@ -104,6 +105,11 @@ export class MessageService {
 
   async iframe(data: string | MessageDataParams<IFrameMessageData>, others: MessageDataParams2<IFrameMessageData> = {}) {
     return String(await this.open({data: this._getData(data, "iframe"), width: "100vw", height: "100vh", ...others}));
+  }
+
+  async json(json: any, data: Omit<MessageDataParams<JsonMessageData>, "json"> = {}, others: MessageDataParams2<JsonMessageData> = {}) {
+    const data2 = {...data, content: "", json};
+    return (await this.open({data: this._getData(data2, "json"), width: "80vw", height: "80vh", ...others})) as any;
   }
 
   async snack(message: string, action?: string, config?: MatSnackBarConfig) {

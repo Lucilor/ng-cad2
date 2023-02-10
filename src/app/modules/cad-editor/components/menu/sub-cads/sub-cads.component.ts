@@ -7,7 +7,6 @@ import {imgLoading, timer} from "@app/app.common";
 import {getCadPreview, setCadData} from "@app/cad.utils";
 import {CadData, CadEntities, CadEventCallBack} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
-import {openJsonEditorDialog} from "@components/dialogs/json-editor/json-editor.component";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -445,7 +444,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
       return;
     }
     const data = this.status.closeCad(this.contextMenuCad.data);
-    const result = await openJsonEditorDialog(this.dialog, {data: {json: data.export()}});
+    const result = await this.message.json(this.dialog, data.export());
     if (result) {
       result.id = this.contextMenuCad.data.id;
       this.contextMenuCad.data.init(result);

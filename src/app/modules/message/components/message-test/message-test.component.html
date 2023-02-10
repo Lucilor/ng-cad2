@@ -1,0 +1,3 @@
+<button mat-raised-button color="primary" *ngFor="let btn of btns | keyvalue : returnZero" (click)="openMessage(btn.key, btn.value)">
+  {{ btn.key }}
+</button>

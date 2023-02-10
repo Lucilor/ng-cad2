@@ -39,7 +39,6 @@ import {CadSearchFormComponent} from "@components/dialogs/cad-search-form/cad-se
 import {CadZhankaiComponent} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {ChangelogComponent} from "@components/dialogs/changelog/changelog.component";
 import {EditFormulasDialogComponent} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";
-import {JsonEditorComponent} from "@components/dialogs/json-editor/json-editor.component";
 import {KlcsDialogComponent} from "@components/dialogs/klcs-dialog/klcs-dialog.component";
 import {KlkwpzDialogComponent} from "@components/dialogs/klkwpz-dialog/klkwpz-dialog.component";
 import {LoginFormComponent} from "@components/dialogs/login-form/login-form.component";
@@ -136,7 +135,6 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     ImportComponent,
     IndexComponent,
     JiaoweiComponent,
-    JsonEditorComponent,
     KailiaocanshuComponent,
     KailiaokongweipeizhiComponent,
     KlcsComponent,
