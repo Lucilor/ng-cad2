@@ -123,7 +123,7 @@ export class XhmrmsbjComponent implements OnInit {
   @HostListener("window:message", ["$event"])
   onMessage(event: MessageEvent) {
     const data = event.data;
-    const messageType=this.messageType
+    const messageType = this.messageType;
     if (!data || typeof data !== "object" || data.type !== messageType) {
       return;
     }

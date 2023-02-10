@@ -1,5 +1,6 @@
 import {Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild} from "@angular/core";
 import {Debounce} from "@decorators/debounce";
+import {setGlobal} from "@src/app/app.common";
 import {ObjectOf, Rectangle} from "@utils";
 import {Properties} from "csstype";
 import {cloneDeep, random} from "lodash";
@@ -42,6 +43,10 @@ export class MsbjRectsComponent {
   }
   @Input() selectRectBefore?: (info: MsbjRectInfo | null) => boolean;
   @Output() selectRect = new EventEmitter<MsbjRectInfo | null>();
+
+  constructor() {
+    setGlobal("msbjRects", this);
+  }
 
   @HostListener("window:resize")
   @Debounce(500)

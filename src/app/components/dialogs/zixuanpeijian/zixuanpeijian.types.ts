@@ -343,12 +343,7 @@ export const getCadLengthVars = (data: CadData) => {
 
 export const getDefaultZhankai = (): ZixuanpeijianInfo["zhankai"][0] => ({width: "", height: "", num: "", originalWidth: ""});
 
-export const calcCadItemZhankai = async (
-  calc: CalcService,
-  materialResult: Formulas,
-  item: ZixuanpeijianCadItem,
-  fractionDigits: number
-) => {
+export const calcCadItemZhankai = (calc: CalcService, materialResult: Formulas, item: ZixuanpeijianCadItem, fractionDigits: number) => {
   const {data, info} = item;
   const {zhankai} = info;
   if (zhankai.length < 1 || !zhankai[0].originalWidth || zhankai[0].custom) {

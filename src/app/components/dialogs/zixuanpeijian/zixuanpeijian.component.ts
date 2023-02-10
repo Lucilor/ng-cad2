@@ -29,7 +29,6 @@ import {openKlkwpzDialog} from "../klkwpz-dialog/klkwpz-dialog.component";
 import {
   CadItemContext,
   CadItemInputInfo,
-  calcCadItemZhankai,
   calcZxpj,
   getDefaultZhankai,
   getMokuaiTitle,
@@ -403,10 +402,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
       }
       e.setStyle({text: {size: 36}});
     });
-  }
-
-  async calcCadItemZhankai(item: ZixuanpeijianCadItem) {
-    calcCadItemZhankai(this.calc, this.materialResult || {}, item, this.fractionDigits);
   }
 
   resizeCadViewers(indexes?: [number, number]) {
