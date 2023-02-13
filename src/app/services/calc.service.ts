@@ -1,5 +1,4 @@
 import {Injectable} from "@angular/core";
-import {CadData} from "@cad-viewer";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf} from "@utils";
 import {isEmpty} from "lodash";
@@ -16,14 +15,14 @@ export class CalcService {
     setGlobal("calc", this, true);
   }
 
-  calcFormulas(formulas: Formulas, vars: Formulas = {}, alertError: boolean | ObjectOf<any> = true) {
+  calcFormulas(formulas: Formulas, vars: Formulas = {}, errorMsg?: CalcCustomErrorMsg) {
     try {
       const result = Calc.calcFormulas(formulas, vars);
       const {errorTrim} = result;
-      if (alertError && !isEmpty(errorTrim)) {
-        const errorStr = this.getErrorFormusStr(errorTrim, vars);
+      if (errorMsg && !isEmpty(errorTrim)) {
+        const errorStr = this.getErrorFormusStr(errorTrim, vars, errorMsg);
         this.message.error(errorStr);
-        console.warn({formulas, vars, result, alertError});
+        // console.warn({formulas, vars, result, errorMsg});
         return null;
       }
       return result;
@@ -45,9 +44,9 @@ export class CalcService {
     }
   }
 
-  calcExpression(expression: string, vars: Formulas & {input?: Formulas} = {}, alertError: boolean | {data?: CadData} = true) {
+  calcExpression(expression: string, vars: Formulas & {input?: Formulas} = {}, errorMsg?: CalcCustomErrorMsg) {
     const formulas: Formulas = {result: expression};
-    const result = this.calcFormulas(formulas, vars, alertError);
+    const result = this.calcFormulas(formulas, vars, errorMsg);
     if (!result) {
       return null;
     }
@@ -57,10 +56,11 @@ export class CalcService {
     return result.succeedTrim.result;
   }
 
-  private getErrorFormusStr(errorFormulas: Formulas, vars: Formulas, code = "", errorMsg = "") {
-    let str = `<h3>错误！请检查：${code}<br/>1、<span style="color:red">公式匹配</span>是否正确；`;
+  private getErrorFormusStr(errorFormulas: Formulas, vars: Formulas, errorMsg?: CalcCustomErrorMsg) {
+    const {code, title, prefix, suffix} = errorMsg || {};
+    let str = `${prefix || ""}<h3>${title || ""}错误！请检查：${code || ""}<br/>1、<span style="color:red">公式匹配</span>是否正确；`;
     str += `2、<span style="color:red">公式书写</span>是否正确！</h3><br/><br/>`;
-    str += errorMsg;
+    str += suffix || "";
 
     if (vars && vars["正在计算CAD名字"]) {
       str += `CAD：${vars["正在计算CAD名字"]}<br/><br/>`;
@@ -97,4 +97,12 @@ export class CalcService {
     str += "<br/><br/>";
     return str;
   }
+}
+
+export interface CalcCustomErrorMsg {
+  code?: string;
+  title?: string;
+  prefix?: string;
+  suffix?: string;
+  data?: any;
 }

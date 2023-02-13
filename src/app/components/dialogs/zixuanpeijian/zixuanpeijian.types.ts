@@ -498,7 +498,7 @@ export const calcZxpj = (
       }
       const formulas1 = v.formulas;
       const vars1 = {...materialResult, ...v.vars};
-      const result1 = calc.calcFormulas(formulas1, vars1, alertError);
+      const result1 = calc.calcFormulas(formulas1, vars1, alertError ? {} : undefined);
       // console.log({formulas1, vars1, result1});
       if (!result1) {
         if (alertError) {
@@ -572,7 +572,7 @@ export const calcZxpj = (
           }
         }
       }
-      const result2 = calc.calcFormulas(formulas2, vars2, {cadIndex, mokuaiIndex});
+      const result2 = calc.calcFormulas(formulas2, vars2, {data: {cadIndex, mokuaiIndex}});
       // console.log({formulas2, vars2, result2});
       if (!result2) {
         return false;

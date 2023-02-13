@@ -104,42 +104,42 @@
     <div class="sub-form-field">
       <div class="label">
         <span>{{ info.label }}</span>
-        <span>({{ hint }})</span>
+        <span *ngIf="info.hint">({{ hint }})</span>
       </div>
       <div *ngIf="keysOf(value).length === 0">
         <button mat-icon-button color="primary" (click)="objectAdd(value, '')">
           <mat-icon>add_circle</mat-icon>
         </button>
       </div>
-      <div *ngFor="let key of keysOf(asObject(value))">
-        <mat-form-field style="width: 30%" [ngClass]="{empty: isEmpty(key)}">
+      <div *ngFor="let item of asObject(value) | keyvalue : returnZero">
+        <mat-form-field style="width: 30%" [ngClass]="{empty: isEmpty(item.key)}">
           <input
             type="text"
             matInput
             [readonly]="info.readonly"
             [disabled]="info.disabled || false"
             [autocomplete]="info.autocomplete"
-            [value]="key"
-            (change)="changeObjectKey(value, key, $event)"
+            [value]="item.key"
+            (change)="changeObjectKey(value, item.key, $event)"
           />
         </mat-form-field>
-        <mat-form-field style="width: 70%" [ngClass]="{empty: isEmpty(value[key])}">
+        <mat-form-field style="width: 70%" [ngClass]="{empty: isEmpty(item.value)}">
           <input
             type="text"
             matInput
             [readonly]="info.readonly"
             [disabled]="info.disabled || false"
             [autocomplete]="info.autocomplete"
-            [(ngModel)]="value[key]"
+            [(ngModel)]="item.value"
             [ngModelOptions]="{standalone: true}"
           />
-          <button mat-icon-button matSuffix color="primary" (click)="selectOptions(info.model?.key, key)">
+          <button mat-icon-button matSuffix color="primary" (click)="selectOptions(info.model?.key, item.key)">
             <mat-icon>list</mat-icon>
           </button>
           <button mat-icon-button matSuffix color="primary" (click)="objectAdd(value, '', '')">
             <mat-icon>add_circle</mat-icon>
           </button>
-          <button mat-icon-button matSuffix color="primary" (click)="objectRemove(value, key)">
+          <button mat-icon-button matSuffix color="primary" (click)="objectRemove(value, item.key)">
             <mat-icon>remove_circle</mat-icon>
           </button>
           <button mat-icon-button matSuffix color="primary" *ngFor="let icon of suffixIcons" (click)="icon.onClick()">

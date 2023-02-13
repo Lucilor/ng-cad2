@@ -78,6 +78,7 @@ export class ImportComponent extends Utils() implements OnInit {
       this.importConfigNormal.requireLineId.value = false;
       this.importConfigNormal.pruneLines.value = true;
     }
+    this.keysOf(this.importConfigSuanliao);
   }
 
   private _getImportConfig(isXinghao: boolean) {

@@ -799,7 +799,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     this.result.模块.push(item);
     const formulas = typesItem.suanliaogongshi;
     const vars = this.materialResult || {};
-    const result = this.calc.calcFormulas(formulas, vars, false);
+    const result = this.calc.calcFormulas(formulas, vars);
     if (result) {
       const {succeedTrim} = result;
       for (const group of typesItem.gongshishuru) {

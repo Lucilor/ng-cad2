@@ -396,6 +396,10 @@ export class InputComponent extends Utils() implements AfterViewInit {
       this.value = [];
     }
   }
+
+  returnZero() {
+    return 0;
+  }
 }
 
 interface SuffixIconsType {

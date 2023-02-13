@@ -120,7 +120,7 @@ export class XhmrmsbjComponent implements OnInit {
   }
 
   @HostListener("window:message", ["$event"])
-  onMessage(event: MessageEvent) {
+  async onMessage(event: MessageEvent) {
     const data = event.data;
     const messageType = this.messageType;
     if (!data || typeof data !== "object" || data.type !== messageType) {
@@ -136,6 +136,9 @@ export class XhmrmsbjComponent implements OnInit {
             this.step1Data.typesInfo
           );
           this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: 型号, morenbancai: JSON.stringify(型号选中板材)});
+          await timeout(100);
+          this.msbjRectsComponent?.generateRects();
+          this.setActiveMsbj(this.activeMsbjInfo?.选中布局);
         }
         break;
       case "submitData":
@@ -144,7 +147,8 @@ export class XhmrmsbjComponent implements OnInit {
             type: messageType,
             action: "submitData",
             data: {
-              型号选中门扇布局: this.data?.menshanbujuInfos
+              型号选中门扇布局: this.data?.menshanbujuInfos,
+              门扇布局: this.msbjs
             }
           },
           "*"
@@ -312,8 +316,11 @@ export class XhmrmsbjComponent implements OnInit {
     }
   }
 
-  setTabName(name: XhmrmsbjTabName) {
+  async setTabName(name: XhmrmsbjTabName) {
     this.activeTabName = name;
+    await timeout(0);
+    this.msbjRectsComponent?.generateRects();
+    this.setActiveMsbj(this.activeMsbjInfo?.选中布局);
   }
 
   isMokuaiKexuan(mokuai: ZixuanpeijianTypesInfoItem) {
