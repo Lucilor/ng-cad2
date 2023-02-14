@@ -15,13 +15,13 @@ export class CalcService {
     setGlobal("calc", this, true);
   }
 
-  calcFormulas(formulas: Formulas, vars: Formulas = {}, errorMsg?: CalcCustomErrorMsg) {
+  async calcFormulas(formulas: Formulas, vars: Formulas = {}, errorMsg?: CalcCustomErrorMsg) {
     try {
       const result = Calc.calcFormulas(formulas, vars);
       const {errorTrim} = result;
       if (errorMsg && !isEmpty(errorTrim)) {
         const errorStr = this.getErrorFormusStr(errorTrim, vars, errorMsg);
-        this.message.error(errorStr);
+        await this.message.error(errorStr);
         // console.warn({formulas, vars, result, errorMsg});
         return null;
       }
@@ -30,23 +30,23 @@ export class CalcService {
       if (error instanceof CalcSelfReferenceError) {
         let str = error.message + "<br><br>";
         str += `${error.varName}<span style='color:red'> => </span>${error.varValue}`;
-        this.message.error(str);
+        await this.message.error(str);
       } else if (error instanceof CalcCircularReferenceError) {
         let str = error.message + "<br><br>";
         str += `${error.varName1}<span style='color:red'> => </span>${error.varValue1}<br>`;
         str += `${error.varName2}<span style='color:red'> => </span>${error.varValue2}`;
-        this.message.error(str);
+        await this.message.error(str);
       } else {
-        this.message.alert({content: error});
+        await this.message.alert({content: error});
         console.error(error);
       }
       return null;
     }
   }
 
-  calcExpression(expression: string, vars: Formulas & {input?: Formulas} = {}, errorMsg?: CalcCustomErrorMsg) {
+  async calcExpression(expression: string, vars: Formulas & {input?: Formulas} = {}, errorMsg?: CalcCustomErrorMsg) {
     const formulas: Formulas = {result: expression};
-    const result = this.calcFormulas(formulas, vars, errorMsg);
+    const result = await this.calcFormulas(formulas, vars, errorMsg);
     if (!result) {
       return null;
     }
@@ -104,5 +104,5 @@ export interface CalcCustomErrorMsg {
   title?: string;
   prefix?: string;
   suffix?: string;
-  data?: any;
+  // data?: any;
 }

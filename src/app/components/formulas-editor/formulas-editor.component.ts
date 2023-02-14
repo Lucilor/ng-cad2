@@ -116,7 +116,7 @@ export class FormulasEditorComponent {
   }
 
   async test(formulas: Formulas) {
-    const result = this.calc.calcFormulas(formulas, this.vars);
+    const result = await this.calc.calcFormulas(formulas, this.vars);
     if (result) {
       this.testResult = result;
       await timeout(200);

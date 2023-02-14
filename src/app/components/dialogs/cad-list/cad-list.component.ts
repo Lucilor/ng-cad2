@@ -54,8 +54,8 @@ export class CadListComponent extends Utils() implements AfterViewInit {
   @ViewChild("singleSelectNone", {read: ElementRef}) singleSelectNone?: ElementRef<HTMLSpanElement>;
 
   constructor(
-    public dialogRef: MatDialogRef<CadListComponent, CadData[]>,
-    @Inject(MAT_DIALOG_DATA) public data: CadListData,
+    public dialogRef: MatDialogRef<CadListComponent, CadListOutput>,
+    @Inject(MAT_DIALOG_DATA) public data: CadListInput,
     private sanitizer: DomSanitizer,
     private dataService: CadDataService,
     private dialog: MatDialog,
@@ -146,22 +146,29 @@ export class CadListComponent extends Utils() implements AfterViewInit {
       return null;
     }
     const limit = this.paginator.pageSize;
+    let result: Awaited<ReturnType<CadDataService["getCad"]>>;
     const collection = this.data.collection;
-    const search = {...this.data.search};
-    search[this.searchField] = this.searchNameInput;
-    const params: GetCadParams = {collection, page, limit, search};
-    params.qiliao = this.data.qiliao;
-    params.options = options;
-    params.optionsMatchType = matchType;
-    if (this.showCheckedOnly) {
-      params.ids = this.checkedItems.slice();
+    if (this.data.source) {
+      const total = this.data.source.length;
+      const cads = this.data.source.slice((page - 1) * limit, page * limit);
+      result = {cads, total};
+    } else {
+      const search = {...this.data.search};
+      search[this.searchField] = this.searchNameInput;
+      const params: GetCadParams = {collection, page, limit, search};
+      params.qiliao = this.data.qiliao;
+      params.options = options;
+      params.optionsMatchType = matchType;
+      if (this.showCheckedOnly) {
+        params.ids = this.checkedItems.slice();
+      }
+      if (this.data.fixedSearch) {
+        params.search = {...params.search, ...this.data.fixedSearch};
+      }
+      this.spinner.show(this.loaderId);
+      result = await this.dataService.getCad(params);
+      this.spinner.hide(this.loaderId);
     }
-    if (this.data.fixedSearch) {
-      params.search = {...params.search, ...this.data.fixedSearch};
-    }
-    this.spinner.show(this.loaderId);
-    const result = await this.dataService.getCad(params);
-    this.spinner.hide(this.loaderId);
     this.length = result.total;
     this.pageData.length = 0;
     result.cads.forEach(async (d, i) => {
@@ -299,7 +306,7 @@ export const selectModes = ["single", "multiple"] as const;
 
 export type SelectMode = (typeof selectModes)[number];
 
-export interface CadListData {
+export interface CadListInput {
   selectMode: SelectMode;
   checkedItems?: string[];
   checkedItemsLimit?: number | number[];
@@ -309,9 +316,12 @@ export interface CadListData {
   search?: ObjectOf<any>;
   fixedSearch?: ObjectOf<any>;
   pageSize?: number;
+  source?: CadData[];
 }
 
-export const openCadListDialog = getOpenDialogFunc<CadListComponent, CadListData, CadData[]>(CadListComponent, {
+export type CadListOutput = CadData[];
+
+export const openCadListDialog = getOpenDialogFunc<CadListComponent, CadListInput, CadListOutput>(CadListComponent, {
   width: "85%",
   height: "85%"
 });

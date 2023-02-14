@@ -3,15 +3,16 @@
   height: 80vh;
   display: flex;
   flex-direction: column;
-
-  > :not(.mat-dialog-content) {
-    flex: 0 0 0;
-  }
-  > .mat-dialog-content {
-    flex: 1 1 0;
-  }
 }
 
 .disabled {
   text-decoration: line-through;
+}
+
+.cads {
+  flex-wrap: wrap;
+
+  .cad {
+    width: 25%;
+  }
 }

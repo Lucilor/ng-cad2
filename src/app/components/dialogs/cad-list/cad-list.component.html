@@ -1,6 +1,6 @@
 <form class="toolbar">
   <button hidden></button>
-  <div class="search-input">
+  <div class="search-input" *ngIf="!data.source">
     <mat-form-field style="width: 30%">
       <mat-label>搜索类型</mat-label>
       <mat-select name="search-field" [(ngModel)]="searchField">

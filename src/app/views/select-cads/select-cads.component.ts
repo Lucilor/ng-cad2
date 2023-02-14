@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {session} from "@app/app.common";
-import {CadListData, openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
+import {CadListInput, openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {MessageService} from "@modules/message/services/message.service";
 import {environment} from "src/environments/environment";
 
@@ -16,7 +16,7 @@ export class SelectCadsComponent implements OnInit {
   constructor(private dialog: MatDialog, private message: MessageService) {}
 
   async ngOnInit() {
-    let data = session.load<CadListData & {fnName?: string}>(this._paramsKey);
+    let data = session.load<CadListInput & {fnName?: string}>(this._paramsKey);
     if (!data) {
       if (environment.production) {
         this.message.alert("参数错误");

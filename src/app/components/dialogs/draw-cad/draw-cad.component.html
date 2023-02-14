@@ -1,0 +1,11 @@
+<div class="btn-group" style="flex-direction: row-reverse">
+  <button mat-raised-button color="primary" (click)="close()">关闭</button>
+</div>
+<ng-scrollbar style="flex: 1 1 0">
+  <div class="flex-row items">
+    <div class="flex-column item" *ngFor="let item of items" (click)="logCad(item.data)" (contextmenu)="openCad(item.data)">
+      <div class="title center">{{ item.data.name }}</div>
+      <app-image class="cad-preview" [src]="item.img"></app-image>
+    </div>
+  </div>
+</ng-scrollbar>

@@ -38,6 +38,7 @@ import {CadOptionsComponent} from "@components/dialogs/cad-options/cad-options.c
 import {CadSearchFormComponent} from "@components/dialogs/cad-search-form/cad-search-form.component";
 import {CadZhankaiComponent} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {ChangelogComponent} from "@components/dialogs/changelog/changelog.component";
+import {DrawCadComponent} from "@components/dialogs/draw-cad/draw-cad.component";
 import {EditFormulasDialogComponent} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";
 import {KlcsDialogComponent} from "@components/dialogs/klcs-dialog/klcs-dialog.component";
 import {KlkwpzDialogComponent} from "@components/dialogs/klkwpz-dialog/klkwpz-dialog.component";
@@ -158,7 +159,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     SelectCadsComponent,
     SuanliaoComponent,
     XhmrmsbjComponent,
-    ZixuanpeijianComponent
+    ZixuanpeijianComponent,
+    DrawCadComponent
   ],
   imports: [
     AngJsoneditorModule,

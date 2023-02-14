@@ -1,10 +1,10 @@
 import {Component, HostListener, OnInit} from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {CadData} from "@cad-viewer";
 import {
   calcCadItemZhankai,
   calcZxpj,
-  getMokuaiTitle,
   ZixuanpeijianCadItem,
   ZixuanpeijianMokuaiItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
@@ -12,7 +12,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
 import {Formulas} from "@src/app/utils/calc";
-import {ObjectOf, timeout} from "@utils";
+import {ObjectOf} from "@utils";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
 import {isEmpty} from "lodash";
@@ -27,6 +27,7 @@ export class SuanliaoComponent implements OnInit {
   msbjs: MsbjInfo[] = [];
 
   constructor(
+    private dialog: MatDialog,
     private message: MessageService,
     private calc: CalcService,
     private dataService: CadDataService,
@@ -38,6 +39,7 @@ export class SuanliaoComponent implements OnInit {
     this.dataService.token = token;
     const menshanbujus = await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, "peizhishuju"));
+    window.parent.postMessage({type: this.messageType, action: "ready"}, "*");
   }
 
   @HostListener("window:message", ["$event"])
@@ -118,6 +120,7 @@ export class SuanliaoComponent implements OnInit {
                 选中模块.suanliaogongshi[key.slice(层名字.length)] = formulas[key];
               }
             }
+            选中模块.calcVars = {keys: Object.keys(选中模块.suanliaogongshi)};
           }
         }
       }
@@ -145,28 +148,20 @@ export class SuanliaoComponent implements OnInit {
       }
     }
 
-    const gongshiResult = this.calc.calcFormulas(gongshi, materialResult, {title: "计算算料公式"});
-    if (!(await this.waitForDialogClose()) || !gongshiResult || !isEmpty(gongshiResult.error)) {
+    const gongshiResult = await this.calc.calcFormulas(gongshi, materialResult);
+    if (!gongshiResult) {
       return null;
     }
     Object.assign(materialResult, gongshiResult.succeedTrim);
-    calcZxpj(this.message, this.calc, materialResult, mokuais, lingsans, fractionDigits);
+    await calcZxpj(this.dialog, this.message, this.calc, materialResult, mokuais, lingsans, fractionDigits);
     for (const mokuai of mokuais) {
-      const title = `计算${getMokuaiTitle(mokuai)}算料公式`;
-      const formulas = {...mokuai.suanliaogongshi};
-      for (const key in mokuai.suanliaogongshi) {
-        if (key in materialResult) {
-          formulas[key] = materialResult[key];
-        }
+      if (mokuai.calcVars?.result) {
+        mokuai.suanliaogongshi = mokuai.calcVars?.result;
       }
-      const calcResult = this.calc.calcFormulas(formulas, materialResult, {title});
-      if (!(await this.waitForDialogClose()) || !calcResult || !isEmpty(calcResult.error)) {
-        return null;
-      }
-      mokuai.suanliaogongshi = calcResult.succeedTrim;
+      delete mokuai.calcVars;
     }
-    await timeout(0);
-    if (!(await this.waitForDialogClose())) {
+    const gongshiResult2 = await this.calc.calcFormulas(gongshi, materialResult, {title: "计算算料公式"});
+    if (!gongshiResult2 || !isEmpty(gongshiResult2.error)) {
       return null;
     }
     const getCadItem2 = (data: ZixuanpeijianCadItem) => ({
@@ -179,20 +174,5 @@ export class SuanliaoComponent implements OnInit {
       门扇布局CAD: lingsans.map(getCadItem2)
     };
     return result;
-  }
-
-  async waitForDialogClose() {
-    if (this.message.openedDialogs.length < 1) {
-      return true;
-    }
-
-    await new Promise<void>((resolve) => {
-      this.message.close$.subscribe(() => {
-        if (this.message.openedDialogs.length < 1) {
-          resolve();
-        }
-      });
-    });
-    return false;
   }
 }

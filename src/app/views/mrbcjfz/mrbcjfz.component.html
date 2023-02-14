@@ -1,6 +1,7 @@
 <div class="btn-group">
   <button mat-raised-button color="primary" (click)="submit()">提交</button>
   <button mat-raised-button color="primary" *ngIf="closeable" (click)="close()">关闭</button>
+  <div *ngIf="xinghao.raw.mingzi" class="title">型号：{{ xinghao.raw.mingzi }}</div>
 </div>
 <div class="flex-row flex-110">
   <div class="flex-row" style="width: 50%">

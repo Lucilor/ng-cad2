@@ -246,7 +246,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
                 await viewer.render();
                 viewer.center();
                 // this.calcZhankai(cadItem);
-                this._calc();
+                await this._calc();
               } else if (entity instanceof CadLineLike) {
                 const name = await this.message.prompt({value: entity.mingzi, type: "string", label: "线名字"}, {title: "修改线名字"});
                 if (name) {
@@ -316,7 +316,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
         cadViewers.零散.push(viewer);
       }
     }
-    if (this._calc()) {
+    if (await this._calc()) {
       setTimeout(async () => {
         for (const type1 in this.cadViewers.模块) {
           for (const type2 in this.cadViewers.模块[type1]) {
@@ -559,7 +559,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
       if (errors.size > 0) {
         this.message.error(Array.from(errors).join("<br>"));
       } else {
-        if (this._calc()) {
+        if (await this._calc()) {
           this.dialogRef.close(this.result);
         }
       }
@@ -773,7 +773,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     this.lingsanInputInfos = getCadItemInputInfos(this.result.零散, "零散");
   }
 
-  addMokuaiItem(type1: string, type2: string) {
+  async addMokuaiItem(type1: string, type2: string) {
     const typesItem = cloneDeep(this.typesInfo[type1][type2]);
     const item: ZixuanpeijianMokuaiItem = {type1, type2, totalWidth: "", totalHeight: "", ...typesItem, cads: []};
     const gongshishuru: ObjectOf<string> = {};
@@ -799,7 +799,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     this.result.模块.push(item);
     const formulas = typesItem.suanliaogongshi;
     const vars = this.materialResult || {};
-    const result = this.calc.calcFormulas(formulas, vars);
+    const result = await this.calc.calcFormulas(formulas, vars);
     if (result) {
       const {succeedTrim} = result;
       for (const group of typesItem.gongshishuru) {
@@ -886,9 +886,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     this._updateInputInfos();
   }
 
-  private _calc(): boolean {
+  private async _calc() {
     const {模块, 零散} = this.result;
-    const calcResult = calcZxpj(this.message, this.calc, this.materialResult || {}, 模块, 零散, this.fractionDigits);
+    const calcResult = await calcZxpj(this.dialog, this.message, this.calc, this.materialResult || {}, 模块, 零散, this.fractionDigits);
     this._updateInputInfos();
     return calcResult;
   }

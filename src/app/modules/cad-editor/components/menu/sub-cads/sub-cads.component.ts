@@ -261,6 +261,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
       "装配示意图",
       "包边正面"
     ];
+    const sourceResponse = await this.dataService.post<any[]>("ngcad/getMenshanbujuCads", {xinghao: data.options.型号});
+    let source: CadData[] | undefined;
+    if (sourceResponse?.data) {
+      source = sourceResponse.data.map((v) => new CadData(v));
+    }
     const cads = await openCadListDialog(this.dialog, {
       data: {
         selectMode: "multiple",
@@ -271,7 +276,8 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
         search: {
           _id: {$ne: data.id},
           分类: {$not: {$in: feilei}}
-        }
+        },
+        source
       }
     });
     const shouldReplace = (cad1: CadData, cad2: CadData) => cad1.id === cad2.id;
