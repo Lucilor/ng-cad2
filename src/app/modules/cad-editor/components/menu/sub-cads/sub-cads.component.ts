@@ -263,7 +263,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     ];
     const sourceResponse = await this.dataService.post<any[]>("ngcad/getMenshanbujuCads", {xinghao: data.options.型号});
     let source: CadData[] | undefined;
-    if (sourceResponse?.data) {
+    if (sourceResponse?.data && sourceResponse.data.length > 0) {
       source = sourceResponse.data.map((v) => new CadData(v));
     }
     const cads = await openCadListDialog(this.dialog, {

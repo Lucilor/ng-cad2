@@ -84,6 +84,10 @@ export interface ZixuanpeijianInfo {
   hidden?: boolean;
   开料孔位配置?: KlkwpzSource;
   开料参数?: KailiaocanshuData;
+  门扇名字?: string;
+  布局id?: number;
+  层id?: number;
+  模块名字?: string;
 }
 
 export interface Bancai extends BancaiList {
@@ -105,6 +109,7 @@ export interface ZixuanpeijianMokuaiItem extends ZixuanpeijianTypesInfoItem {
   cads: ZixuanpeijianCadItem[];
   可替换模块?: ZixuanpeijianMokuaiItem[];
   vars?: Formulas;
+  info?: ObjectOf<any>;
 }
 
 export interface CadItemInputInfo {

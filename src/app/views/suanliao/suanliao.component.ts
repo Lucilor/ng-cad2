@@ -6,6 +6,7 @@ import {
   calcCadItemZhankai,
   calcZxpj,
   ZixuanpeijianCadItem,
+  ZixuanpeijianInfo,
   ZixuanpeijianMokuaiItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -71,10 +72,11 @@ export class SuanliaoComponent implements OnInit {
   }) {
     const {materialResult, gongshi, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames} = params;
     const fractionDigits = 1;
-    const getCadItem = (data: any) => {
+    const getCadItem = (data: any, info2?: Partial<ZixuanpeijianInfo>) => {
       const item: ZixuanpeijianCadItem = {
         data: new CadData(data),
         info: {
+          ...info2,
           houtaiId: data.id,
           zhankai: [],
           calcZhankai: []
@@ -99,7 +101,7 @@ export class SuanliaoComponent implements OnInit {
       }
       if (Array.isArray(模块节点)) {
         for (const node of 模块节点) {
-          const {选中模块, 层名字} = node;
+          const {选中模块, 层名字, 层id} = node;
           if (选中模块) {
             选中模块.shuruzongkuan = false;
             选中模块.shuruzonggao = false;
@@ -121,6 +123,8 @@ export class SuanliaoComponent implements OnInit {
               }
             }
             选中模块.calcVars = {keys: Object.keys(选中模块.suanliaogongshi)};
+            const info: Partial<ZixuanpeijianInfo> = {门扇名字: 门扇, 布局id: 选中布局id, 模块名字: 层名字, 层id};
+            选中模块.info = info;
           }
         }
       }
@@ -129,24 +133,29 @@ export class SuanliaoComponent implements OnInit {
     for (const mokuai of mokuais) {
       const {type1, type2} = mokuai;
       if (配件模块CAD[type1] && 配件模块CAD[type1][type2]) {
-        mokuai.cads = 配件模块CAD[type1][type2].map(getCadItem);
+        mokuai.cads = 配件模块CAD[type1][type2].map((v) => getCadItem(v, mokuai.info));
       } else {
         mokuai.cads = [];
       }
     }
 
-    const 选中布局ids = [];
+    const 选中布局infos: Partial<ZixuanpeijianInfo>[] = [];
     for (const name of bujuNames) {
-      if ((型号选中门扇布局[name]?.选中布局 || 0) > 0) {
-        选中布局ids.push(型号选中门扇布局[name].选中布局);
+      const 选中布局 = 型号选中门扇布局[name]?.选中布局;
+      if (选中布局 && 选中布局 > 0) {
+        选中布局infos.push({门扇名字: name, 布局id: 选中布局});
       }
     }
     const lingsans = [];
     for (const data of 门扇布局CAD) {
-      if (选中布局ids.includes(data.info.布局id)) {
-        lingsans.push(getCadItem(data));
+      const {布局id} = data.info;
+      const info = 选中布局infos.find((v) => v.布局id === 布局id);
+      if (选中布局infos.includes(布局id)) {
+        lingsans.push(getCadItem(data, info));
       }
     }
+
+    console.log(mokuais, lingsans);
 
     const gongshiResult = await this.calc.calcFormulas(gongshi, materialResult);
     if (!gongshiResult) {

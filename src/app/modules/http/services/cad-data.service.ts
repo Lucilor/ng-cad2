@@ -37,15 +37,15 @@ export class CadDataService extends HttpService {
       toHide.forEach((el) => {
         el.classList.add("hidden");
       });
-      const yes = await this.message.confirm({
+      const button = await this.message.button({
         content: "CAD模块中不存在以下数据，你可以选择生成这些CAD，或从模板中删除这些CAD。<br>" + names,
         disableCancel: true,
-        btnTexts: {submit: "生成CAD", cancel: "删除CAD"}
+        buttons: ["生成CAD", "删除CAD"]
       });
       toHide.forEach((el) => {
         el.classList.remove("hidden");
       });
-      return !!yes;
+      return button === "生成CAD";
     }
     return null;
   }

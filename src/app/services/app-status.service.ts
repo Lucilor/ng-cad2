@@ -58,7 +58,7 @@ export class AppStatusService {
   cadStatus = new CadStatusNormal();
   cadStatusEnter$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
   cadStatusExit$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
-  cad = new CadViewer(setCadData(new CadData({name: "新建CAD"}), this.project));
+  cad = new CadViewer(setCadData(new CadData({name: "新建CAD", info: {isLocal: true}}), this.project));
   components = {
     selected$: new BehaviorSubject<CadData[]>([]),
     mode$: new BehaviorSubject<"single" | "multiple">("single"),
@@ -176,11 +176,13 @@ export class AppStatusService {
     const timerName = "openCad";
     timer.start(timerName);
     const cad = this.cad;
-    const {data, center, beforeOpen, isLocal} = {center: true, isLocal: false, ...opts};
+    opts = {center: true, isLocal: false, ...opts};
+    const {data, center, beforeOpen} = opts;
     let collection = opts.collection;
     if (data) {
       cad.data = data;
     }
+    const isLocal = opts.isLocal || cad.data.info.isLocal || false;
     const newConfig: Partial<AppConfig> = {};
     if (collection && this.collection$.value !== collection) {
       this.collection$.next(collection);
@@ -197,6 +199,7 @@ export class AppStatusService {
 
     const id = cad.data.id;
     const {id: id2, collection: collection2} = this.route.snapshot.queryParams;
+    console.log(opts, cad.data);
     if (!isLocal && (id !== id2 || collection !== collection2)) {
       if (this.router.url.startsWith("/index")) {
         this.router.navigate(["/index"], {queryParams: {id, collection}, queryParamsHandling: "merge"});

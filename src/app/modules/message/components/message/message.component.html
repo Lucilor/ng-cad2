@@ -74,7 +74,7 @@
 </ng-template>
 
 <ng-template #cancelBtn>
-  <button mat-raised-button (click)="cancel()" [disabled]="data.disableCancel">
+  <button mat-raised-button (click)="cancel()" *ngIf="!data.disableCancel">
     {{ cast(data, "confirm").btnTexts?.cancel || "取消" }}
   </button>
 </ng-template>
