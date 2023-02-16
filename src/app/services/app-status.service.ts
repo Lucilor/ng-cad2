@@ -33,6 +33,7 @@ import {
   suanliaodanZoomOut,
   unsetCadData,
   updateCadPreviewImg,
+  validateCad,
   validateLines
 } from "../cad.utils";
 import {CadStatusNormal, CadStatus} from "./cad-status";
@@ -199,7 +200,6 @@ export class AppStatusService {
 
     const id = cad.data.id;
     const {id: id2, collection: collection2} = this.route.snapshot.queryParams;
-    console.log(opts, cad.data);
     if (!isLocal && (id !== id2 || collection !== collection2)) {
       if (this.router.url.startsWith("/index")) {
         this.router.navigate(["/index"], {queryParams: {id, collection}, queryParamsHandling: "merge"});
@@ -278,7 +278,7 @@ export class AppStatusService {
     const {dataService, message, spinner} = this;
     const collection = this.collection$.value;
     let resData: CadData | null = null;
-    const errMsg = this.validate(true)?.errMsg || [];
+    const errMsg = this.validate(true)?.errors || [];
     if (errMsg.length > 0) {
       const yes = await message.confirm("当前打开的CAD存在错误，是否继续保存？<br>" + errMsg.join("<br>"));
       if (!yes) {
@@ -371,7 +371,7 @@ export class AppStatusService {
     if (!force && noInfo) {
       return null;
     }
-    const result = validateLines(this.cad.data, noInfo);
+    const result = validateCad(this.cad.data, noInfo);
     this.cad.render();
     return result;
   }

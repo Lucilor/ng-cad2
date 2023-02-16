@@ -34,23 +34,23 @@
     </mat-form-field>
   </div>
   <app-input *ngFor="let info of infoGroup2" [info]="info"></app-input>
-  <div class="sub-form-field" *ngFor="let info of insertsectionInfo">
-    <div class="label">{{ info.label }}</div>
-    <div *ngIf="data[info.key].length === 0">
-      <button mat-icon-button color="primary" (click)="arrayAdd(data[info.key], [])">
+  <div class="sub-form-field" *ngFor="let key of intersectionKeys">
+    <div class="label">{{ intersectionKeysTranslate[key] }}</div>
+    <div *ngIf="data[key].length === 0">
+      <button mat-icon-button color="primary" (click)="arrayAdd(data[key], [])">
         <mat-icon>add_circle</mat-icon>
       </button>
     </div>
-    <div *ngFor="let v of data[info.key]; let j = index">
+    <div *ngFor="let v of data[key]; let j = index">
       <mat-form-field>
         <input type="text" matInput [value]="v.length ? '已指定' : '未指定'" readonly />
-        <button mat-icon-button matSuffix [color]="getPointColor(j, info.key)" (click)="selectPoint(j, info.key)">
+        <button mat-icon-button matSuffix [color]="getPointColor(j, key)" (click)="selectPoint(j, key)">
           <mat-icon>linear_scale</mat-icon>
         </button>
-        <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(data[info.key], [], j + 1)">
+        <button mat-icon-button matSuffix color="primary" (click)="arrayAdd(data[key], [], j + 1)">
           <mat-icon>add_circle</mat-icon>
         </button>
-        <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(data[info.key], j)">
+        <button mat-icon-button matSuffix color="primary" (click)="arrayRemove(data[key], j)">
           <mat-icon>remove_circle</mat-icon>
         </button>
       </mat-form-field>

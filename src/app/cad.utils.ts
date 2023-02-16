@@ -14,7 +14,8 @@ import {
   findAllAdjacentLines,
   generatePointsMap,
   getLinesDistance,
-  intersectionsKeys,
+  intersectionKeys,
+  intersectionKeysTranslate,
   sortLines
 } from "@cad-viewer";
 import {environment} from "@env";
@@ -168,21 +169,23 @@ export const unsetCadData = (data: CadData) => {
 };
 
 export interface ValidateResult {
-  errMsg: string[];
-  lines: CadLineLike[][];
+  errors: string[];
+  errorLines: CadLineLike[][];
 }
 
-export const isShiyitu = (data: CadData) => data.type.includes("示意图") || data.type2.includes("示意图");
+export const getCadTypes = (data: CadData) => [...data.type.split("*"), ...data.type2.split("*")].filter(Boolean);
+
+export const isShiyitu = (data: CadData) => getCadTypes(data).some((type) => /示意图|截面图/.test(type));
 
 export const LINE_LIMIT = [0.01, 0.1] as const;
 export const validColors = ["#ffffff", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"] as const;
-export const validateLines = (data: CadData, noInfo?: boolean, tolerance = DEFAULT_TOLERANCE): ValidateResult => {
-  const result: ValidateResult = {errMsg: [], lines: []};
+export const validateLines = (data: CadData, noInfo?: boolean, tolerance = DEFAULT_TOLERANCE) => {
+  const result: ValidateResult = {errors: [], errorLines: []};
   if (isShiyitu(data) || data.type === "企料算料") {
     return result;
   }
   const lines = sortLines(data, tolerance);
-  result.lines = lines;
+  result.errorLines = lines;
   const [min, max] = LINE_LIMIT;
   const groupMaxLength = data.shuangxiangzhewan ? 2 : 1;
   const addInfoError = (e: CadLineLike, error: string) => {
@@ -215,23 +218,23 @@ export const validateLines = (data: CadData, noInfo?: boolean, tolerance = DEFAU
         addInfoError(e, "斜率不符合要求");
         slopeErrCount++;
         if (slopeErrCount < slopeErrMax) {
-          result.errMsg.push(`线段斜率不符合要求(线长: ${e.length.toFixed(2)})`);
+          result.errors.push(`线段斜率不符合要求(线长: ${e.length.toFixed(2)})`);
         } else if (slopeErrCount === slopeErrMax) {
-          result.errMsg.push("分类包含【示意图】或者分类等于【企料算料】就不会报斜率错误, 请自行判断修改");
+          result.errors.push("分类包含【示意图】或者分类等于【企料算料】就不会报斜率错误, 请自行判断修改");
         }
       }
     }
     if (刨坑起始线数量 > 1) {
-      result.errMsg.push("不能有多根刨坑起始线");
+      result.errors.push("不能有多根刨坑起始线");
     }
     if (刨坑起始线位置错误) {
-      result.errMsg.push("刨坑起始线必须是第一根或最后一根");
+      result.errors.push("刨坑起始线必须是第一根或最后一根");
     }
   }
   if (lines.length < 1) {
-    result.errMsg.push("没有线");
+    result.errors.push("没有线");
   } else if (lines.length > groupMaxLength) {
-    result.errMsg.push("CAD分成了多段或线重叠");
+    result.errors.push("CAD分成了多段或线重叠");
     for (let i = 0; i < lines.length - 1; i++) {
       const currGroup = lines[i];
       const nextGroup = lines[i + 1];
@@ -257,6 +260,23 @@ export const validateLines = (data: CadData, noInfo?: boolean, tolerance = DEFAU
         addInfoError(l, "CAD分成了多段的断裂处");
       });
     }
+  }
+  return result;
+};
+
+export const validateCad = (data: CadData, noInfo?: boolean, tolerance = DEFAULT_TOLERANCE) => {
+  const result: ValidateResult = {errors: [], errorLines: []};
+  const entities = data.getAllEntities();
+  const idsAll = entities.toArray().map((e) => e.id);
+  for (const key of intersectionKeys) {
+    const idsToFind: string[] = data[key].flat();
+    if (intersection(idsToFind, idsAll).length !== idsToFind.length) {
+      result.errors.push(`${intersectionKeysTranslate[key]}存在无效数据`);
+    }
+  }
+  const linesResult = validateLines(data, noInfo, tolerance);
+  for (const key in result) {
+    (result as any)[key].push(...(linesResult as any)[key]);
   }
   return result;
 };
@@ -426,7 +446,7 @@ export const setShuangxiangLineRects = (
 };
 
 export const shouldShowIntersection = (data: CadData) => {
-  for (const key of intersectionsKeys) {
+  for (const key of intersectionKeys) {
     if (data[key].filter((v) => v.length > 0).length > 0) {
       return true;
     }
@@ -446,7 +466,7 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
     circle: {radius: 8, linetype: "DASHEDX2", linewidth: 2},
     text: {size: 20, text: "", offset: 0}
   };
-  for (const key of intersectionsKeys) {
+  for (const key of intersectionKeys) {
     const arr = data[key];
     for (const sortedEntities of sortedEntitiesGroups) {
       for (let i = 0; i < sortedEntities.length; i++) {

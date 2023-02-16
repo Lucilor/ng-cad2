@@ -8,7 +8,8 @@ import {
   CadJointPoint,
   CadLine,
   IntersectionKey,
-  intersectionsKeys,
+  intersectionKeys,
+  intersectionKeysTranslate,
   sortLines,
   suanliaochuliValues,
   suanliaodanxianshiValues
@@ -33,11 +34,6 @@ import {openCadDataAttrsDialog} from "../../dialogs/cad-data-attrs/cad-data-attr
 })
 export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnDestroy {
   private _cadPointsLock = false;
-  insertsectionInfo: {key: IntersectionKey; label: string}[] = [
-    {key: "zhidingweizhipaokeng", label: "指定位置刨坑"},
-    {key: "指定分体位置", label: "指定分体位置"},
-    {key: "指定位置不折", label: "指定位置不折"}
-  ];
   cadStatusIntersectionInfo: string | null = null;
   get data() {
     const components = this.status.components.selected$.value;
@@ -46,6 +42,8 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     }
     return this.status.cad.data;
   }
+  intersectionKeys = intersectionKeys;
+  intersectionKeysTranslate = intersectionKeysTranslate;
   infoGroup1: InputInfo[] = [
     {label: "id", model: this._getcadDataModel("id"), type: "string", readonly: true, copyable: true},
     {label: "名字", model: this._getcadDataModel("name"), type: "string", onChange: this.setCadName.bind(this)},
@@ -179,11 +177,10 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
 
   ngOnInit() {
     this.subscribe(this.status.cadStatusEnter$, (cadStatus) => {
-      const intersectionKeys = this.insertsectionInfo.map((v) => v.key) as string[];
       if (cadStatus instanceof CadStatusSelectJointpoint) {
         this._updateCadPoints();
       } else if (cadStatus instanceof CadStatusIntersection) {
-        if (intersectionKeys.includes(cadStatus.info) || cadStatus.info === this.bjxIntersectionKey) {
+        if (intersectionKeys.includes(cadStatus.info as any) || cadStatus.info === this.bjxIntersectionKey) {
           this.cadStatusIntersectionInfo = cadStatus.info;
           this._updateCadPoints();
         }
@@ -227,7 +224,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === this.cadStatusIntersectionInfo) {
         const key = this.cadStatusIntersectionInfo;
         const index = cadStatus.index;
-        if (intersectionsKeys.includes(key as IntersectionKey)) {
+        if (intersectionKeys.includes(key as IntersectionKey)) {
           const key2 = key as IntersectionKey;
           const lines = data[key2][index];
           if (activePoints.length < 1) {
@@ -312,7 +309,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       this.status.cadPoints$.next(points);
     } else if (cadStatus instanceof CadStatusIntersection && cadStatus.info === key) {
       const points = this.status.getCadPoints(data.getAllEntities());
-      if (intersectionsKeys.includes(key as IntersectionKey)) {
+      if (intersectionKeys.includes(key as IntersectionKey)) {
         this._setActiveCadPoint({lines: data[key as IntersectionKey][cadStatus.index]}, points);
       } else if (key === this.bjxIntersectionKey) {
         this._setActiveCadPoint({lines: data.info.激光开料标记线?.[cadStatus.index].ids}, points);
