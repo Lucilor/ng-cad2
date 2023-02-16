@@ -193,6 +193,23 @@ export class MrbcjfzComponent implements OnInit {
     }
   }
 
+  async emptyBancaiForm(key: string) {
+    if (!(await this.message.confirm("是否确定清空？"))) {
+      return;
+    }
+    const info = this.xinghao.默认板材[key];
+    info.默认开料板材 = "";
+    info.默认开料材料 = "";
+    info.默认开料板材厚度 = "";
+    info.CAD = [];
+    info.企料 = [];
+    info.花件 = [];
+    info.可选板材 = [];
+    if (this.activeBancaiKey) {
+      this.selectBancaiKey(this.activeBancaiKey);
+    }
+  }
+
   justifyBancai(key: string, info: MrbcjfzInfo) {
     if (isMrbcjfzInfoEmpty(info) && !this.bancaiKeysNonClear.includes(key)) {
       info.默认开料材料 = "";

@@ -65,6 +65,7 @@ $cads-border: solid 1px grey;
 
     .img {
       flex: 1 1 0;
+      cursor: pointer;
     }
 
     .cad-size {
@@ -74,6 +75,12 @@ $cads-border: solid 1px grey;
         background-color: #e5e5e5;
       }
     }
+  }
+
+  .ceshishuju {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
   }
 }
 

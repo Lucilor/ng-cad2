@@ -72,3 +72,15 @@
     }
   }
 }
+
+.cads {
+  .cad {
+    width: 33.33%;
+    box-sizing: border-box;
+    padding: 5px;
+
+    app-image {
+      cursor: pointer;
+    }
+  }
+}

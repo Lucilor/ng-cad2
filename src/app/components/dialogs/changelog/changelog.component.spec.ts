@@ -7,7 +7,6 @@ import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {InfiniteScrollModule} from "ngx-infinite-scroll";
 import {NgScrollbarModule} from "ngx-scrollbar";
-
 import {ChangelogComponent} from "./changelog.component";
 
 describe("ChangelogComponent", () => {

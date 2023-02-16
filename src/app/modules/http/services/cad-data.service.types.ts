@@ -42,6 +42,7 @@ export interface GetOptionsParams {
   xinghao?: string;
   includeTingyong?: boolean;
   values?: string[];
+  filter?: ObjectOf<any>;
 }
 
 export interface OptionsData {

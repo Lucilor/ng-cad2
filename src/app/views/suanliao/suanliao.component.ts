@@ -155,14 +155,15 @@ export class SuanliaoComponent implements OnInit {
       }
     }
 
-    console.log(mokuais, lingsans);
-
     const gongshiResult = await this.calc.calcFormulas(gongshi, materialResult);
     if (!gongshiResult) {
       return null;
     }
     Object.assign(materialResult, gongshiResult.succeedTrim);
-    await calcZxpj(this.dialog, this.message, this.calc, materialResult, mokuais, lingsans, fractionDigits);
+    const calcResult = await calcZxpj(this.dialog, this.message, this.calc, materialResult, mokuais, lingsans, fractionDigits);
+    if (!calcResult) {
+      return null;
+    }
     for (const mokuai of mokuais) {
       if (mokuai.calcVars?.result) {
         mokuai.suanliaogongshi = mokuai.calcVars?.result;

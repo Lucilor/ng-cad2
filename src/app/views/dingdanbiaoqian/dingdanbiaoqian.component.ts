@@ -568,6 +568,14 @@ export class DingdanbiaoqianComponent implements OnInit {
     return getMokuaiTitle(mokuai);
   }
 
+  getMokuaiFormulas(mokuaiIndex = -1) {
+    const mokuai = this.mokuais[mokuaiIndex];
+    if (!mokuai) {
+      return;
+    }
+    return mokuai.ceshishuju;
+  }
+
   async editMokuaiFormulas(mokuaiIndex = -1) {
     const mokuai = this.mokuais[mokuaiIndex];
     if (!mokuai) {
@@ -592,5 +600,13 @@ export class DingdanbiaoqianComponent implements OnInit {
 
   hasZhankaiNum(zhankai: NonNullable<Order["cads"][0]["zhankai"]>[0]) {
     return typeof zhankai.num === "number";
+  }
+
+  returnZero() {
+    return 0;
+  }
+
+  openCad(cad: Order["cads"][number]) {
+    this.status.openCadInNewTab(cad.data.id, "cad");
   }
 }

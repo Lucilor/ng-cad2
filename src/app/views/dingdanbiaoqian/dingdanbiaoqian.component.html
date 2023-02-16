@@ -88,7 +88,7 @@
             <div class="header">
               <div *ngFor="let str of cad.data.info['标签信息']">{{ str }}</div>
             </div>
-            <app-image class="img" [src]="cad.img" [bigPicSrc]="cad.imgLarge" [ngStyle]="cad.imgStyle"></app-image>
+            <app-image class="img" [src]="cad.img" [bigPicSrc]="cad.imgLarge" [ngStyle]="cad.imgStyle" (click)="openCad(cad)"></app-image>
             <mat-card-footer>
               <div class="cad-size" *ngFor="let zhankai of cad.zhankai">
                 <span>{{ zhankai.width }}</span>
@@ -101,6 +101,15 @@
               </div>
             </mat-card-footer>
           </mat-card>
+          <div class="ceshishuju no-print flex-column">
+            <div *ngFor="let item of getMokuaiFormulas(order.mokuaiIndex) | keyvalue : returnZero">
+              <div class="flex-row">
+                <div class="label">{{ item.key }}</div>
+                <div>=</div>
+                <div class="value">{{ item.value }}</div>
+              </div>
+            </div>
+          </div>
         </div>
       </ng-template>
       <div class="footer" *ngIf="type === '标签贴纸'">第{{ i + 1 }}页，共{{ orders.length }}页</div>

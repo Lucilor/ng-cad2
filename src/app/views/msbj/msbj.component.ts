@@ -1,7 +1,9 @@
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from "@angular/cdk/drag-drop";
 import {AfterViewInit, ChangeDetectorRef, Component, QueryList, ViewChild, ViewChildren} from "@angular/core";
 import {MatSelectionList} from "@angular/material/list";
+import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
+import {CadData} from "@cad-viewer";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -9,7 +11,9 @@ import {QueryMysqlParams, TableDataBase, TableUpdateParams} from "@modules/http/
 import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {setGlobal} from "@src/app/app.common";
+import {AppStatusService} from "@services/app-status.service";
+import {imgEmpty, setGlobal} from "@src/app/app.common";
+import {getCadPreview} from "@src/app/cad.utils";
 import {environment} from "@src/environments/environment";
 import {MsbjInfo, MsbjFenlei, MsbjData} from "./msbj.types";
 
@@ -33,6 +37,7 @@ export class MsbjComponent implements AfterViewInit {
     label: "名字",
     readonly: true
   };
+  cads: {data: CadData; img: SafeUrl}[] = [];
   @ViewChild(MsbjRectsComponent) msbjRects?: MsbjRectsComponent;
   @ViewChildren("fenleiList") fenleiLists?: QueryList<MatSelectionList>;
   get fenleiListSelected() {
@@ -47,7 +52,9 @@ export class MsbjComponent implements AfterViewInit {
     private dataService: CadDataService,
     private message: MessageService,
     private spinner: SpinnerService,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
+    private sanitizer: DomSanitizer,
+    private status: AppStatusService
   ) {
     setGlobal("msbj", this);
   }
@@ -70,6 +77,12 @@ export class MsbjComponent implements AfterViewInit {
     const msbjData = await this.dataService.queryMySql<MsbjData>({table, filter: {where: {vid: this.id}}});
     if (msbjData[0]) {
       this.msbjInfo = new MsbjInfo(msbjData[0], this.dataField, fenleis);
+      const getCadResult = await this.dataService.getCad({collection: "cad", search: {"选项.门扇布局": msbjData[0].mingzi}});
+      this.cads = getCadResult.cads.map((data) => {
+        const item: MsbjComponent["cads"][number] = {data, img: imgEmpty};
+        getCadPreview("cad", data).then((img) => (item.img = this.sanitizer.bypassSecurityTrustUrl(img)));
+        return item;
+      });
     } else {
       this.msbjInfo = null;
     }
@@ -163,5 +176,9 @@ export class MsbjComponent implements AfterViewInit {
     if (result) {
       info.peizhishuju.模块大小关系 = result;
     }
+  }
+
+  openCad(data: CadData) {
+    this.status.openCadInNewTab(data.id, "cad");
   }
 }

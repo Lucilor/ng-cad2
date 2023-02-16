@@ -15,9 +15,9 @@ import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {CadListComponent, CadListData, customTooltipOptions} from "./cad-list.component";
+import {CadListComponent, CadListInput, customTooltipOptions} from "./cad-list.component";
 
-const data: CadListData = {selectMode: "multiple", collection: "cad"};
+const data: CadListInput = {selectMode: "multiple", collection: "cad"};
 describe("CadListComponent", () => {
   let component: CadListComponent;
   let fixture: ComponentFixture<CadListComponent>;

@@ -6,6 +6,7 @@ import {CadData} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {OptionsData, TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {ObjectOf} from "@utils";
 import {lastValueFrom} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
 
@@ -92,7 +93,8 @@ export class CadOptionsComponent implements AfterViewInit {
       page,
       limit: this.paginator?.pageSize,
       data: this.data.data,
-      xinghao: this.data.xinghao
+      xinghao: this.data.xinghao,
+      filter: this.data.filter
     });
     this.spinner.hide(this.loaderIds.optionsLoader);
     this.length = data.count;
@@ -141,6 +143,7 @@ export interface CadOptionsInput {
   checkedVids?: number[];
   multi?: boolean;
   xinghao?: string;
+  filter?: ObjectOf<any>;
 }
 
 export type CadOptionsOutput = TableDataBase[];

@@ -16,6 +16,7 @@
           <div class="title">{{ key }}:</div>
           <div class="bancai-text" [ngStyle]="getBancaiStyle(key)">{{ xinghao.getBancaiTitle(key, "请选择") }}</div>
           <button mat-raised-button color="primary" (click)="editBancaiForm(key)">编辑</button>
+          <button mat-raised-button color="primary" (click)="emptyBancaiForm(key)">清空</button>
         </div>
         <div class="item-list flex-row">
           <ng-container *ngFor="let item of cads">
