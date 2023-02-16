@@ -24,7 +24,8 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist",
+            "outputPath": "dist/ng-cad2",
+            "baseHref": "/static/ng-cad2/",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -51,8 +52,6 @@
           },
           "configurations": {
             "production": {
-              "outputPath": "dist/ng-cad2",
-              "baseHref": "/static/ng-cad2/",
               "index": {
                 "input": "src/index.prod.html",
                 "output": "index.html"

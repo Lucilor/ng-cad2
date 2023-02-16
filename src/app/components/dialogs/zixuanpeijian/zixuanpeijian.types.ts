@@ -22,6 +22,7 @@ import {openDrawCadDialog} from "../draw-cad/draw-cad.component";
 
 export interface ZixuanpeijianTypesInfoItem {
   id: number;
+  weiyima: string;
   xiaoguotu: string;
   gongshishuru: string[][];
   xuanxiangshuru: string[][];
@@ -294,7 +295,7 @@ export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: Z
     for (const type2 in typesInfo[type1]) {
       const info = typesInfo[type1][type2];
       for (const item of items) {
-        if (item.type2 === type2) {
+        if (item.weiyima === info.weiyima) {
           const {gongshishuru, xuanxiangshuru, suanliaogongshi, morenbancai} = item;
           Object.assign(item, info);
           if (useSlgs) {
