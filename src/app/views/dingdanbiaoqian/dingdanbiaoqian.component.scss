@@ -37,8 +37,9 @@ $cads-border: solid 1px grey;
   flex: 1 1 0;
 
   .menu {
+    align-items: flex-start;
     position: absolute;
-    bottom: 0;
+    top: 0;
     right: 0;
     transform: translateX(calc(100% + 10px));
   }

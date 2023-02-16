@@ -94,6 +94,7 @@ export class DingdanbiaoqianComponent implements OnInit {
   type: "流程单" | "标签贴纸" | "质检标签" | "配件模块" | null = null;
   zhijianForms: ZhijianForm[] = [];
   mokuais: ZixuanpeijianMokuaiItem[] = [];
+  fractionDigits = 1;
   @ViewChildren("barcode") barcodeEls?: QueryList<HTMLDivElement>;
 
   private _configKey = "订单标签配置";
@@ -464,6 +465,7 @@ export class DingdanbiaoqianComponent implements OnInit {
       return;
     }
     const mokuais: ZixuanpeijianMokuaiItem[] = [];
+    const fractionDigits = this.fractionDigits;
     for (const type1 in typesInfo) {
       for (const type2 in typesInfo[type1]) {
         const item: ZixuanpeijianMokuaiItem = {
@@ -484,7 +486,7 @@ export class DingdanbiaoqianComponent implements OnInit {
       }
     }
     this.mokuais = mokuais;
-    calcZxpj(this.dialog, this.message, this.calc, {}, mokuais, [], 1);
+    await calcZxpj(this.dialog, this.message, this.calc, {}, mokuais, [], fractionDigits);
     this.orders = mokuais.map((mokuai, i) => {
       const order: Order = {
         code: getMokuaiTitle(mokuai),
@@ -507,7 +509,6 @@ export class DingdanbiaoqianComponent implements OnInit {
         info: null,
         mokuaiIndex: i
       };
-      order.cads = [...cloneDeep(order.cads), ...cloneDeep(order.cads), ...cloneDeep(order.cads), ...cloneDeep(order.cads)];
       return order;
     });
     await this.updateImgs(true);

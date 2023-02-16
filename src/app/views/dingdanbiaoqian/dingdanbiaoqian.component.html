@@ -80,7 +80,7 @@
       </ng-container>
       <ng-template #cads>
         <div class="cads">
-          <div class="btn-group menu no-print" *ngIf="type === '配件模块'">
+          <div class="btn-group menu no-print flex-column" *ngIf="type === '配件模块'">
             <div class="out-of-page">{{ getMokuaiTitle(order.mokuaiIndex) }}</div>
             <button class="out-of-page" mat-raised-button color="primary" (click)="editMokuaiFormulas(order.mokuaiIndex)">测试数据</button>
           </div>
