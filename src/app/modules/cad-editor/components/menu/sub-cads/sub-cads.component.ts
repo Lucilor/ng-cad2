@@ -261,7 +261,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
       "装配示意图",
       "包边正面"
     ];
-    const sourceResponse = await this.dataService.post<any[]>("ngcad/getMenshanbujuCads", {xinghao: data.options.型号});
+    const sourceResponse = await this.dataService.post<any[]>("ngcad/getMenshanbujuCads", {xinghao: data.options.型号, matchXinghao: true});
     let source: CadData[] | undefined;
     if (sourceResponse?.data && sourceResponse.data.length > 0) {
       source = sourceResponse.data.map((v) => new CadData(v));

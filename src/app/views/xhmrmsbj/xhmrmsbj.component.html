@@ -50,6 +50,7 @@
             [rectInfos]="activeMsbj?.peizhishuju?.['模块节点']"
             [selectRectBefore]="selectRectBefore.bind(this)"
             (selectRect)="selectRect($event)"
+            (generateRectsEnd)="generateRectsEnd()"
           ></app-msbj-rects>
         </div>
         <div class="flex-110 flex-row">

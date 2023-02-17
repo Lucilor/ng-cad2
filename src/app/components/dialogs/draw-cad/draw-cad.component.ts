@@ -39,7 +39,7 @@ export class DrawCadComponent implements OnInit {
     this.status.openCadInNewTab(data.id, this.data.collection);
   }
 
-  close(){
+  close() {
     this.dialogRef.close();
   }
 }

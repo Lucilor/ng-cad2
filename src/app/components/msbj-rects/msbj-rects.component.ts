@@ -1,7 +1,7 @@
 import {Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild} from "@angular/core";
 import {Debounce} from "@decorators/debounce";
 import {setGlobal} from "@src/app/app.common";
-import {ObjectOf, Rectangle} from "@utils";
+import {ObjectOf, Rectangle, timeout} from "@utils";
 import {Properties} from "csstype";
 import {cloneDeep, random} from "lodash";
 import {MsbjRectInfo, MsbjRectInfoRaw} from "./msbj-rects.types";
@@ -43,6 +43,8 @@ export class MsbjRectsComponent {
   }
   @Input() selectRectBefore?: (info: MsbjRectInfo | null) => boolean;
   @Output() selectRect = new EventEmitter<MsbjRectInfo | null>();
+  @Output() generateRectsStart = new EventEmitter<void>();
+  @Output() generateRectsEnd = new EventEmitter<void>();
 
   constructor() {
     setGlobal("msbjRects", this);
@@ -77,7 +79,8 @@ export class MsbjRectsComponent {
     this.selectRect.emit(info);
   }
 
-  generateRects(resetColors?: boolean) {
+  async generateRects(resetColors?: boolean) {
+    this.generateRectsStart.emit();
     this.rectInfosAbsolute = [];
     this.rectInfosRelative = [];
     const totalRect = Rectangle.min;
@@ -136,6 +139,9 @@ export class MsbjRectsComponent {
     const el = this.rectOuter?.nativeElement;
     if (el) {
       const padding = [10, 10, 10, 10];
+      el.style.padding = "0";
+      el.style.opacity = "0";
+      await timeout(0);
       const elRect = el.getBoundingClientRect();
       const ratio1 = (elRect.width - padding[1] - padding[3]) / (elRect.height - padding[0] - padding[2]);
       const ratio2 = width / height;
@@ -149,6 +155,9 @@ export class MsbjRectsComponent {
         padding[2] += diff;
       }
       el.style.padding = `${padding[0]}px ${padding[1]}px ${padding[2]}px ${padding[3]}px`;
+      await timeout(0);
+      el.style.opacity = "1";
     }
+    this.generateRectsEnd.emit();
   }
 }

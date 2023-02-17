@@ -4,6 +4,7 @@
   width: 100vw;
   height: 100vh;
   overflow: auto;
+  align-items: center;
 }
 
 .toolbar {
@@ -196,36 +197,47 @@ $info-border: solid 1px black;
 
 .质检标签 {
   width: 59mm;
-  height: 100mm;
+  height: 99mm;
   box-sizing: border-box;
   padding: 10px;
   font-family: 宋体;
   white-space: pre;
   display: flex;
   flex-direction: column;
+  --row-height: 19px;
 
   .title {
     text-align: center;
-    font-size: 20px;
+    font-size: 23px;
     font-weight: bold;
+    padding: 7px;
   }
 
   .item {
     border-bottom: 1px solid black;
-    font-size: 18px;
+    font-size: 17px;
     display: flex;
-    min-height: 25px;
+    height: var(--row-height);
+    line-height: calc(var(--row-height) - 2px);
     align-items: center;
     padding: 5px 0;
-    box-sizing: border-box;
+
+    > * {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
 
     .label {
-      flex: 0 0 50px;
+      font-size: 16px;
+      flex: 0 0 42px;
     }
 
     .value {
+      width: 0;
       flex: 1 1 0;
       font-weight: bold;
+      white-space: normal;
     }
   }
 
@@ -233,7 +245,7 @@ $info-border: solid 1px black;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    padding: 4px;
   }
 }
 
