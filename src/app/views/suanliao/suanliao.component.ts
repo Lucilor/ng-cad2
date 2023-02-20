@@ -2,9 +2,13 @@ import {Component, HostListener, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {CadData} from "@cad-viewer";
+import {openDrawCadDialog} from "@components/dialogs/draw-cad/draw-cad.component";
 import {
   calcCadItemZhankai,
   calcZxpj,
+  getStep1Data,
+  Step1Data,
+  updateMokuaiItems,
   ZixuanpeijianCadItem,
   ZixuanpeijianInfo,
   ZixuanpeijianMokuaiItem
@@ -26,6 +30,7 @@ import {isEmpty} from "lodash";
 export class SuanliaoComponent implements OnInit {
   messageType = "算料";
   msbjs: MsbjInfo[] = [];
+  step1Data?: Step1Data;
 
   constructor(
     private dialog: MatDialog,
@@ -40,7 +45,8 @@ export class SuanliaoComponent implements OnInit {
     this.dataService.token = token;
     const menshanbujus = await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, "peizhishuju"));
-    window.parent.postMessage({type: this.messageType, action: "ready"}, "*");
+    this.step1Data = await getStep1Data(this.dataService);
+    window.parent.postMessage({type: this.messageType, action: "suanliaoReady"}, "*");
   }
 
   @HostListener("window:message", ["$event"])
@@ -51,10 +57,16 @@ export class SuanliaoComponent implements OnInit {
       return;
     }
     switch (data.action) {
-      case "开始算料":
+      case "suanliaoStart":
         {
           const result = await this.suanliao(data.data);
-          window.parent.postMessage({type: this.messageType, action: "结束算料", data: result}, "*");
+          window.parent.postMessage({type: this.messageType, action: "suanliaoEnd", data: result}, "*");
+        }
+        break;
+      case "drawCads":
+        {
+          const result = await this.drawCads(data.data);
+          window.parent.postMessage({type: this.messageType, action: "closeCads", data: result}, "*");
         }
         break;
       default:
@@ -71,7 +83,6 @@ export class SuanliaoComponent implements OnInit {
     bujuNames: string[];
   }) {
     const {materialResult, gongshi, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames} = params;
-    const fractionDigits = 1;
     const getCadItem = (data: any, info2?: Partial<ZixuanpeijianInfo>) => {
       const item: ZixuanpeijianCadItem = {
         data: new CadData(data),
@@ -82,7 +93,7 @@ export class SuanliaoComponent implements OnInit {
           calcZhankai: []
         }
       };
-      calcCadItemZhankai(this.calc, materialResult, item, fractionDigits);
+      calcCadItemZhankai(this.calc, materialResult, item);
       return item;
     };
     const mokuais: ZixuanpeijianMokuaiItem[] = [];
@@ -138,6 +149,9 @@ export class SuanliaoComponent implements OnInit {
         mokuai.cads = [];
       }
     }
+    if (this.step1Data) {
+      updateMokuaiItems(mokuais, this.step1Data.typesInfo);
+    }
 
     const 选中布局infos: Partial<ZixuanpeijianInfo>[] = [];
     for (const name of bujuNames) {
@@ -160,7 +174,7 @@ export class SuanliaoComponent implements OnInit {
       return null;
     }
     Object.assign(materialResult, gongshiResult.succeedTrim);
-    const calcResult = await calcZxpj(this.dialog, this.message, this.calc, materialResult, mokuais, lingsans, fractionDigits);
+    const calcResult = await calcZxpj(this.dialog, this.message, this.calc, materialResult, mokuais, lingsans, {changeLinesLength: false});
     if (!calcResult) {
       return null;
     }
@@ -184,5 +198,9 @@ export class SuanliaoComponent implements OnInit {
       门扇布局CAD: lingsans.map(getCadItem2)
     };
     return result;
+  }
+
+  async drawCads(data: {cads: any[]}) {
+    await openDrawCadDialog(this.dialog, {data: {cads: data.cads.map((v) => new CadData(v)), collection: "cad"}});
   }
 }

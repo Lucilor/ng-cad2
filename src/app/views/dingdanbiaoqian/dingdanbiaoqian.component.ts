@@ -465,7 +465,6 @@ export class DingdanbiaoqianComponent implements OnInit {
       return;
     }
     const mokuais: ZixuanpeijianMokuaiItem[] = [];
-    const fractionDigits = this.fractionDigits;
     for (const type1 in typesInfo) {
       for (const type2 in typesInfo[type1]) {
         const item: ZixuanpeijianMokuaiItem = {
@@ -486,7 +485,7 @@ export class DingdanbiaoqianComponent implements OnInit {
       }
     }
     this.mokuais = mokuais;
-    await calcZxpj(this.dialog, this.message, this.calc, {}, mokuais, [], fractionDigits);
+    await calcZxpj(this.dialog, this.message, this.calc, {}, mokuais, []);
     this.orders = mokuais.map((mokuai, i) => {
       const order: Order = {
         code: getMokuaiTitle(mokuai),

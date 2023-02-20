@@ -352,12 +352,7 @@ export const getCadLengthVars = (data: CadData) => {
 
 export const getDefaultZhankai = (): ZixuanpeijianInfo["zhankai"][0] => ({width: "", height: "", num: "", originalWidth: ""});
 
-export const calcCadItemZhankai = async (
-  calc: CalcService,
-  materialResult: Formulas,
-  item: ZixuanpeijianCadItem,
-  fractionDigits: number
-) => {
+export const calcCadItemZhankai = async (calc: CalcService, materialResult: Formulas, item: ZixuanpeijianCadItem, fractionDigits = 1) => {
   const {data, info} = item;
   const {zhankai} = info;
   if (zhankai.length < 1 || !zhankai[0].originalWidth || zhankai[0].custom) {
@@ -373,6 +368,10 @@ export const calcCadItemZhankai = async (
   info.zhankai = zhankai;
 };
 
+export interface CalcZxpjOptions {
+  fractionDigits?: number;
+  changeLinesLength?: boolean;
+}
 export const calcZxpj = async (
   dialog: MatDialog,
   message: MessageService,
@@ -380,8 +379,10 @@ export const calcZxpj = async (
   materialResult: Formulas,
   mokuais: ZixuanpeijianMokuaiItem[],
   lingsans: ZixuanpeijianCadItem[],
-  fractionDigits: number
+  options?: CalcZxpjOptions
 ): Promise<boolean> => {
+  const optionsAll: Required<CalcZxpjOptions> = {fractionDigits: 1, changeLinesLength: true, ...options};
+  const {fractionDigits, changeLinesLength} = optionsAll;
   const shuchubianliang: Formulas = {};
   const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
   const duplicateXxsr: ObjectOf<Set<string>> = {};
@@ -618,6 +619,7 @@ export const calcZxpj = async (
       }
 
       const result2 = await calc.calcFormulas(formulas2, vars2, {title: `计算${data.name}线公式`});
+      const calcLinesResult: Formulas = {};
       // console.log({formulas2, vars2, result2});
       if (!result2) {
         return false;
@@ -633,7 +635,16 @@ export const calcZxpj = async (
           //     message.error(`线长公式出错<br>${data.name}的第${index}根线<br>${formulas3[key]} = ${value}`);
           //     return false;
           // }
-          setLinesLength(data, [data.entities.line[index - 1]], Number(value));
+          const e = data.entities.line[index - 1];
+          const length = Number(value);
+          let name = e.mingzi;
+          if (!name) {
+            name = "线_" + e.id.replaceAll("-", "");
+          }
+          calcLinesResult[name] = length;
+          if (changeLinesLength) {
+            setLinesLength(data, [e], length);
+          }
         }
       }
       setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);
@@ -726,6 +737,7 @@ export const calcZxpj = async (
           }
           return calc2;
         }
+        Object.assign(calcObj, calcLinesResult);
         return calcObj;
       });
     }

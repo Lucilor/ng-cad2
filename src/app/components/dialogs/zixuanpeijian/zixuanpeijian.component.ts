@@ -888,7 +888,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
 
   private async _calc() {
     const {模块, 零散} = this.result;
-    const calcResult = await calcZxpj(this.dialog, this.message, this.calc, this.materialResult || {}, 模块, 零散, this.fractionDigits);
+    const calcResult = await calcZxpj(this.dialog, this.message, this.calc, this.materialResult || {}, 模块, 零散, {
+      fractionDigits: this.fractionDigits
+    });
     this._updateInputInfos();
     return calcResult;
   }
