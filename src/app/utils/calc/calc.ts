@@ -517,7 +517,7 @@ export class Calc {
         succeedTrim[key] = succeed[key];
       }
     }
-    return {succeed, succeedTrim, error, errorTrim, maybeError};
+    return {succeed, succeedTrim, error, errorTrim, maybeError, fulfilled: isEmpty(error)};
   }
 
   public static divide(numbers: number[], containers: number[], space?: number): number[] {

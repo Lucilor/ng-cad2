@@ -10,7 +10,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
 import {splitShuangxiangCad, getShuangxiangLineRects, setShuangxiangLineRects, getCadTotalLength} from "@src/app/cad.utils";
 import {getCADBeishu} from "@src/app/utils/beishu";
-import {Formulas, toFixed} from "@src/app/utils/calc";
+import {CalcResult, Formulas, toFixed} from "@src/app/utils/calc";
 import {matchOrderData} from "@src/app/utils/mongo";
 import {nameEquals} from "@src/app/utils/zhankai";
 import zxpjTestData from "@src/assets/testData/zixuanpeijian.json";
@@ -380,7 +380,7 @@ export const calcZxpj = async (
   mokuais: ZixuanpeijianMokuaiItem[],
   lingsans: ZixuanpeijianCadItem[],
   options?: CalcZxpjOptions
-): Promise<boolean> => {
+): Promise<CalcZxpjResult> => {
   const optionsAll: Required<CalcZxpjOptions> = {fractionDigits: 1, changeLinesLength: true, ...options};
   const {fractionDigits, changeLinesLength} = optionsAll;
   const shuchubianliang: Formulas = {};
@@ -394,8 +394,9 @@ export const calcZxpj = async (
       }
       if (item1.type2 === item2.type2) {
         if (item1.unique) {
-          await message.error(`${item1.type1}-${item1.type2}只能单选`);
-          return false;
+          const msg = `${item1.type1}-${item1.type2}只能单选`;
+          await message.error(msg);
+          return {success: false, error: {message: msg}};
         } else {
           continue;
         }
@@ -426,7 +427,7 @@ export const calcZxpj = async (
           .map(([title, keys]) => `${title}: ${Array.from(keys).join(", ")}`)
           .join("<br>");
       await message.error(str);
-      return false;
+      return {success: false, error: {message: str}};
     }
   }
   if (duplicateScbl.length > 0) {
@@ -439,7 +440,7 @@ export const calcZxpj = async (
         })
         .join("<br>");
     await message.error(str);
-    return false;
+    return {success: false, error: {message: str}};
   }
   const getCadDimensionVars = (items: ZixuanpeijianCadItem[]) => {
     const vars: Formulas = {};
@@ -499,12 +500,12 @@ export const calcZxpj = async (
     }
   }
   if (duplicateDimensionNames.length > 0) {
-    const msg = duplicateDimensionNames.map((v) => v.msg).join("<br>");
+    const msg0 = duplicateDimensionNames.map((v) => v.msg).join("<br>");
     const cads = duplicateDimensionNames.map((v) => v.items.map((v2) => v2.data)).flat();
-    await message.alert(`标注重复错误：<br>${msg}`);
+    const msg = `标注重复错误：<br>${msg0}`;
+    await message.alert(msg);
     await openDrawCadDialog(dialog, {data: {collection: "cad", cads}});
-
-    return false;
+    return {success: false, error: {message: msg}};
   }
 
   let initial = true;
@@ -542,11 +543,12 @@ export const calcZxpj = async (
       }
       const formulas1 = v.formulas;
       const vars1 = {...materialResult, ...lingsanVars, ...v.vars};
-      const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: "计算模块"} : undefined);
+      const result1Msg = "计算模块";
+      const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);
       // console.log({formulas1, vars1, result1});
-      if (!result1) {
+      if (!result1?.fulfilled) {
         if (alertError) {
-          return false;
+          return {success: false, error: {message: result1Msg + "出错", calc: {formulas: formulas1, vars: vars1, result: result1}}};
         } else {
           continue;
         }
@@ -560,8 +562,9 @@ export const calcZxpj = async (
         }
       }
       if (missingKeys.length > 0) {
-        await message.error(`${getMokuaiTitle(v.item)}缺少输出变量<br>${missingKeys.join(", ")}`);
-        return false;
+        const msg = `${getMokuaiTitle(v.item)}缺少输出变量<br>${missingKeys.join(", ")}`;
+        await message.error(msg);
+        return {success: false, error: {message: msg}};
       }
       // Object.assign(materialResult, result1.succeedTrim);
       v.succeedTrim = result1.succeedTrim;
@@ -576,7 +579,7 @@ export const calcZxpj = async (
   // console.log({toCalc1, shuchubianliang});
   Object.assign(materialResult, shuchubianliang);
 
-  const calcCadItem = async ({data, info}: ZixuanpeijianCadItem, vars2: Formulas) => {
+  const calcCadItem = async ({data, info}: ZixuanpeijianCadItem, vars2: Formulas): Promise<CalcZxpjResult> => {
     const formulas2: Formulas = {};
 
     const zhankais: [number, CadZhankai][] = [];
@@ -588,7 +591,7 @@ export const calcZxpj = async (
         }
         const result = await calc.calcExpression(condition, vars2);
         if (result === null) {
-          return false;
+          return {success: false, error: {message: `计算展开条件出错：${condition}`}};
         }
         if (!result) {
           enabled = false;
@@ -618,11 +621,12 @@ export const calcZxpj = async (
         }
       }
 
-      const result2 = await calc.calcFormulas(formulas2, vars2, {title: `计算${data.name}线公式`});
+      const result2Msg = `计算${data.name}线公式`;
+      const result2 = await calc.calcFormulas(formulas2, vars2, {title: result2Msg});
       const calcLinesResult: Formulas = {};
       // console.log({formulas2, vars2, result2});
-      if (!result2) {
-        return false;
+      if (!result2?.fulfilled) {
+        return {success: false, error: {message: result2Msg + "出错",calc: {formulas: formulas2, vars: vars2, result: result2}}};
       }
       const shaungxiangCads = splitShuangxiangCad(data);
       const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
@@ -655,9 +659,10 @@ export const calcZxpj = async (
         formulas3.展开宽 = zhankai.zhankaikuan;
         formulas3.展开高 = zhankai.zhankaigao;
         formulas3.数量 = `(${zhankai.shuliang})*(${zhankai.shuliangbeishu})`;
-        const result3 = await calc.calcFormulas(formulas3, vars3, {title: `计算${data.name}的第${i + 1}个展开`});
-        if (!result3) {
-          return false;
+        const result3Msg = `计算${data.name}的第${i + 1}个展开`;
+        const result3 = await calc.calcFormulas(formulas3, vars3, {title: result3Msg});
+        if (!result3?.fulfilled) {
+          return {success: false, error: {message: result3Msg + "出错",calc: {formulas: formulas3, vars: vars3, result: result3}}};
         }
         const width = toFixed(result3.succeedTrim.展开宽, fractionDigits);
         const height = toFixed(result3.succeedTrim.展开高, fractionDigits);
@@ -741,7 +746,7 @@ export const calcZxpj = async (
         return calcObj;
       });
     }
-    return true;
+    return {success: true};
   };
 
   for (const [i, item] of mokuais.entries()) {
@@ -756,15 +761,28 @@ export const calcZxpj = async (
       }
     }
     for (const cadItem of item.cads) {
-      if (!(await calcCadItem(cadItem, vars2))) {
-        return false;
+      const calcCadItemResult = await calcCadItem(cadItem, vars2);
+      if (!calcCadItemResult.success) {
+        return calcCadItemResult;
       }
     }
   }
   for (const item of lingsans) {
-    if (!(await calcCadItem(item, {...materialResult, ...lingsanVars}))) {
-      return false;
+    const calcCadItemResult = await calcCadItem(item, {...materialResult, ...lingsanVars});
+    if (!calcCadItemResult.success) {
+      return calcCadItemResult;
     }
   }
-  return true;
+  return {success: true};
 };
+
+export interface CalcZxpjResult {
+  success: boolean;
+  error?: CalcZxpjError;
+}
+
+export interface CalcZxpjError {
+  message: string;
+  calc?: {formulas: Formulas; vars: Formulas; result: CalcResult | null};
+  info?: ObjectOf<any>;
+}

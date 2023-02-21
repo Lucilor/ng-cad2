@@ -124,6 +124,7 @@ export class MessageComponent implements OnInit, AfterViewInit {
       this.jsonEditorOptions.modes = ["code", "text", "tree", "view"];
       this.jsonEditorOptions.mode = "code";
       Object.assign(this.jsonEditorOptions, data.options);
+      console.log(this);
     }
 
     const id = window.setInterval(() => {

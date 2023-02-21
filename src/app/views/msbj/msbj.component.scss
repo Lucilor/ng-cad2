@@ -49,10 +49,6 @@
     border: 1px solid black;
     overflow: auto;
   }
-
-  .daxiaoguanxi {
-    flex: 0 0 calc(100% - var(--rect-area-height));
-  }
 }
 
 .list-item {
@@ -74,8 +70,10 @@
 }
 
 .cads {
+  flex-wrap: wrap;
+
   .cad {
-    width: 33.33%;
+    width: 180px;
     box-sizing: border-box;
     padding: 5px;
 

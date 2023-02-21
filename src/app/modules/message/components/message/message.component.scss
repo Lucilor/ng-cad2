@@ -38,6 +38,6 @@ iframe {
 :host ::ng-deep json-editor .jsoneditor,
 :host ::ng-deep json-editor > div,
 :host ::ng-deep json-editor jsoneditor-outer {
-  --json-editor-height: auto; // TODO
-  height: --json-editor-height;
+  --json-editor-height: 100%;
+  height: var(--json-editor-height);
 }

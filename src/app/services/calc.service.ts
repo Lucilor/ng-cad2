@@ -23,7 +23,6 @@ export class CalcService {
         const errorStr = this.getErrorFormusStr(errorTrim, vars, errorMsg);
         await this.message.error(errorStr);
         // console.warn({formulas, vars, result, errorMsg});
-        return null;
       }
       return result;
     } catch (error) {
