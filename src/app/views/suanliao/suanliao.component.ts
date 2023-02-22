@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {CadData} from "@cad-viewer";
@@ -7,6 +7,7 @@ import {
   calcCadItemZhankai,
   calcZxpj,
   CalcZxpjError,
+  CalcZxpjOptions,
   getStep1Data,
   Step1Data,
   updateMokuaiItems,
@@ -14,6 +15,7 @@ import {
   ZixuanpeijianInfo,
   ZixuanpeijianMokuaiItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {IFrameChild} from "@mixins/iframe-child.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
@@ -27,9 +29,9 @@ import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
   templateUrl: "./suanliao.component.html",
   styleUrls: ["./suanliao.component.scss"]
 })
-export class SuanliaoComponent implements OnInit {
+export class SuanliaoComponent extends IFrameChild() implements OnInit {
   messageType = "算料";
-  actionMap: ObjectOf<{fn: (params: any) => any; action: string}> = {
+  actionMap = {
     suanliaoStart: {fn: this.suanliao, action: "suanliaoEnd"},
     drawCads: {fn: this.drawCads, action: "closeCads"}
   };
@@ -42,7 +44,9 @@ export class SuanliaoComponent implements OnInit {
     private calc: CalcService,
     private dataService: CadDataService,
     private route: ActivatedRoute
-  ) {}
+  ) {
+    super();
+  }
 
   async ngOnInit() {
     const {token} = this.route.snapshot.queryParams;
@@ -51,26 +55,6 @@ export class SuanliaoComponent implements OnInit {
     this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, "peizhishuju"));
     this.step1Data = await getStep1Data(this.dataService);
     window.parent.postMessage({type: this.messageType, action: "suanliaoReady"}, "*");
-  }
-
-  @HostListener("window:message", ["$event"])
-  async onMessage(event: MessageEvent) {
-    const data = event.data;
-    const messageType = this.messageType;
-    if (!data || typeof data !== "object" || data.type !== messageType) {
-      return;
-    }
-    const actionValue = this.actionMap[data.action];
-    if (actionValue) {
-      let result;
-      try {
-        result = await actionValue.fn.apply(this, [data.data]);
-      } catch (error) {
-        console.error(error);
-        result = error;
-      }
-      window.parent.postMessage({type: this.messageType, action: actionValue.action, data: result}, "*");
-    }
   }
 
   async suanliao(params: SuanliaoInput): Promise<SuanliaoOutput> {
@@ -115,14 +99,11 @@ export class SuanliaoComponent implements OnInit {
         for (const node of 模块节点) {
           const {选中模块, 层名字, 层id} = node;
           if (选中模块) {
-            选中模块.shuruzongkuan = false;
-            选中模块.shuruzonggao = false;
-            选中模块.unique = false;
-            mokuais.push(选中模块);
+            const suanliaogongshi: Formulas = 选中模块.suanliaogongshi;
             if (模块大小输入) {
               for (const key in 模块大小输入) {
                 const value = 模块大小输入[key];
-                选中模块.suanliaogongshi[key] = value;
+                suanliaogongshi[key] = value;
                 if (key in gongshi) {
                   gongshi[key] = value;
                 }
@@ -131,27 +112,36 @@ export class SuanliaoComponent implements OnInit {
             const keys = [层名字 + "总高", 层名字 + "总宽"];
             for (const key of keys) {
               if (formulas[key]) {
-                选中模块.suanliaogongshi[key.slice(层名字.length)] = formulas[key];
+                suanliaogongshi[key.slice(层名字.length)] = formulas[key];
               }
             }
-            选中模块.calcVars = {keys: Object.keys(选中模块.suanliaogongshi)};
             const info: Partial<ZixuanpeijianInfo> = {门扇名字: 门扇, 布局id: 选中布局id, 模块名字: 层名字, 层id};
             选中模块.info = info;
+            选中模块.info.suanliaogongshi = suanliaogongshi;
+            mokuais.push(选中模块);
           }
         }
       }
     }
 
+    if (this.step1Data) {
+      updateMokuaiItems(mokuais, this.step1Data.typesInfo);
+    }
     for (const mokuai of mokuais) {
       const {type1, type2} = mokuai;
+      mokuai.shuruzongkuan = false;
+      mokuai.shuruzonggao = false;
+      mokuai.unique = false;
+      mokuai.calcVars = {keys: Object.keys(mokuai.suanliaogongshi)};
+      if (mokuai.info?.suanliaogongshi) {
+        mokuai.suanliaogongshi = mokuai.info.suanliaogongshi;
+        delete mokuai.info.suanliaogongshi;
+      }
       if (配件模块CAD[type1] && 配件模块CAD[type1][type2]) {
         mokuai.cads = 配件模块CAD[type1][type2].map((v) => getCadItem(v, mokuai.info));
       } else {
         mokuai.cads = [];
       }
-    }
-    if (this.step1Data) {
-      updateMokuaiItems(mokuais, this.step1Data.typesInfo);
     }
 
     const 选中布局infos: Partial<ZixuanpeijianInfo>[] = [];
@@ -176,8 +166,10 @@ export class SuanliaoComponent implements OnInit {
       return result;
     }
     Object.assign(materialResult, gongshiResult.succeedTrim);
+    const calcVars: NonNullable<CalcZxpjOptions["calcVars"]> = {keys: varNames || []};
     const calcZxpjResult = await calcZxpj(this.dialog, this.message, this.calc, materialResult, mokuais, lingsans, {
-      changeLinesLength: false
+      changeLinesLength: false,
+      calcVars
     });
     if (!calcZxpjResult.success) {
       result.error = calcZxpjResult.error;
@@ -201,11 +193,9 @@ export class SuanliaoComponent implements OnInit {
     result.配件模块CAD = mokuais.map((v) => ({...v, cads: v.cads.map(getCadItem2)}));
     result.门扇布局CAD = lingsans.map(getCadItem2);
     result.fulfilled = true;
-    const a:Formulas = {}
-    for (const key of varNames) {
-      a[key] = materialResult[key];
+    if (calcVars.result) {
+      Object.assign(materialResult, calcVars.result);
     }
-    console.log(a);
     return result;
   }
 

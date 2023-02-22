@@ -371,6 +371,8 @@ export const calcCadItemZhankai = async (calc: CalcService, materialResult: Form
 export interface CalcZxpjOptions {
   fractionDigits?: number;
   changeLinesLength?: boolean;
+  calcVars?: {keys: string[]; result?: Formulas};
+  useCeshishuju?: boolean;
 }
 export const calcZxpj = async (
   dialog: MatDialog,
@@ -381,12 +383,19 @@ export const calcZxpj = async (
   lingsans: ZixuanpeijianCadItem[],
   options?: CalcZxpjOptions
 ): Promise<CalcZxpjResult> => {
-  const optionsAll: Required<CalcZxpjOptions> = {fractionDigits: 1, changeLinesLength: true, ...options};
-  const {fractionDigits, changeLinesLength} = optionsAll;
+  const optionsAll: Required<CalcZxpjOptions> = {
+    fractionDigits: 1,
+    changeLinesLength: true,
+    calcVars: {keys: []},
+    useCeshishuju: false,
+    ...options
+  };
+  const {fractionDigits, changeLinesLength, calcVars, useCeshishuju} = optionsAll;
   const shuchubianliang: Formulas = {};
   const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
   const duplicateXxsr: ObjectOf<Set<string>> = {};
   const dimensionNamesMap: ObjectOf<{item: ZixuanpeijianCadItem}[]> = {};
+  const varsGlobal: Formulas = {};
   for (const [i, item1] of mokuais.entries()) {
     for (const [j, item2] of mokuais.entries()) {
       if (i === j) {
@@ -472,7 +481,7 @@ export const calcZxpj = async (
     if (item.shuruzonggao) {
       formulas.总高 = item.totalHeight;
     }
-    if (item.ceshishuju) {
+    if (useCeshishuju && item.ceshishuju) {
       Object.assign(formulas, item.ceshishuju);
     }
     for (const group of item.gongshishuru) {
@@ -489,6 +498,19 @@ export const calcZxpj = async (
     return {formulas, vars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
   });
   const lingsanVars = getCadDimensionVars(lingsans);
+  const duplicateNames = intersection(Object.keys(dimensionNamesMap), Object.keys(materialResult));
+  if (duplicateNames.length > 0) {
+    const str = `错误：公式输入值或标注同时存在：${duplicateNames.join("，")}，请修改`;
+    await message.error(str);
+    const cads: CadData[] = [];
+    for (const name of duplicateNames) {
+      for (const v of dimensionNamesMap[name]) {
+        cads.push(v.item.data);
+      }
+    }
+    await openDrawCadDialog(dialog, {data: {cads, collection: "cad"}});
+    return {success: false, error: {message: str, cads}};
+  }
   const duplicateDimensionNames: {msg: string; items: ZixuanpeijianCadItem[]}[] = [];
   for (const name in dimensionNamesMap) {
     const group = dimensionNamesMap[name];
@@ -505,7 +527,7 @@ export const calcZxpj = async (
     const msg = `标注重复错误：<br>${msg0}`;
     await message.alert(msg);
     await openDrawCadDialog(dialog, {data: {collection: "cad", cads}});
-    return {success: false, error: {message: msg}};
+    return {success: false, error: {message: msg, cads}};
   }
 
   let initial = true;
@@ -543,16 +565,17 @@ export const calcZxpj = async (
       }
       const formulas1 = v.formulas;
       const vars1 = {...materialResult, ...lingsanVars, ...v.vars};
-      const result1Msg = "计算模块";
+      const result1Msg = `计算模块（${getMokuaiTitle(v.item)}）`;
       const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);
       // console.log({formulas1, vars1, result1});
       if (!result1?.fulfilled) {
         if (alertError) {
           return {success: false, error: {message: result1Msg + "出错", calc: {formulas: formulas1, vars: vars1, result: result1}}};
-        } else {
+        } else if (!result1) {
           continue;
         }
       }
+      Object.assign(varsGlobal, result1.succeedTrim);
       const missingKeys: string[] = [];
       for (const vv of v.item.shuchubianliang) {
         if (vv in result1.succeedTrim) {
@@ -579,7 +602,8 @@ export const calcZxpj = async (
   // console.log({toCalc1, shuchubianliang});
   Object.assign(materialResult, shuchubianliang);
 
-  const calcCadItem = async ({data, info}: ZixuanpeijianCadItem, vars2: Formulas): Promise<CalcZxpjResult> => {
+  const calcCadItem = async (item: ZixuanpeijianCadItem, vars2: Formulas, mokuai?: ZixuanpeijianMokuaiItem): Promise<CalcZxpjResult> => {
+    const {data, info} = item;
     const formulas2: Formulas = {};
 
     const zhankais: [number, CadZhankai][] = [];
@@ -621,13 +645,15 @@ export const calcZxpj = async (
         }
       }
 
-      const result2Msg = `计算${data.name}线公式`;
+      const mokuaiTitle = mokuai ? `（${getMokuaiTitle(mokuai)}）` : "";
+      const result2Msg = `计算${mokuaiTitle}${data.name}线公式`;
       const result2 = await calc.calcFormulas(formulas2, vars2, {title: result2Msg});
       const calcLinesResult: Formulas = {};
       // console.log({formulas2, vars2, result2});
       if (!result2?.fulfilled) {
-        return {success: false, error: {message: result2Msg + "出错",calc: {formulas: formulas2, vars: vars2, result: result2}}};
+        return {success: false, error: {message: result2Msg + "出错", calc: {formulas: formulas2, vars: vars2, result: result2}}};
       }
+      Object.assign(varsGlobal, result2.succeedTrim);
       const shaungxiangCads = splitShuangxiangCad(data);
       const shaungxiangRects = getShuangxiangLineRects(shaungxiangCads);
       for (const key in result2.succeedTrim) {
@@ -662,8 +688,9 @@ export const calcZxpj = async (
         const result3Msg = `计算${data.name}的第${i + 1}个展开`;
         const result3 = await calc.calcFormulas(formulas3, vars3, {title: result3Msg});
         if (!result3?.fulfilled) {
-          return {success: false, error: {message: result3Msg + "出错",calc: {formulas: formulas3, vars: vars3, result: result3}}};
+          return {success: false, error: {message: result3Msg + "出错", calc: {formulas: formulas3, vars: vars3, result: result3}}};
         }
+        Object.assign(varsGlobal, result3.succeedTrim);
         const width = toFixed(result3.succeedTrim.展开宽, fractionDigits);
         const height = toFixed(result3.succeedTrim.展开高, fractionDigits);
         let num = Number(result3.succeedTrim.数量);
@@ -749,19 +776,25 @@ export const calcZxpj = async (
     return {success: true};
   };
 
+  const calcVarsResult = async (keys: string[], vars: Formulas) => {
+    const result: Formulas = {};
+    for (const key of keys) {
+      const value = await calc.calcExpression(key, vars);
+      if (value !== null) {
+        result[key] = value;
+      }
+    }
+    return result;
+  };
+
+  calcVars.result = await calcVarsResult(calcVars.keys, varsGlobal);
   for (const [i, item] of mokuais.entries()) {
     const vars2: Formulas = {...materialResult, ...lingsanVars, ...toCalc1[i].succeedTrim, ...shuchubianliang};
     if (item.calcVars) {
-      item.calcVars.result = {};
-      for (const key of item.calcVars.keys) {
-        const value = await calc.calcExpression(key, vars2);
-        if (value !== null) {
-          item.calcVars.result[key] = value;
-        }
-      }
+      item.calcVars.result = await calcVarsResult(item.calcVars.keys, vars2);
     }
     for (const cadItem of item.cads) {
-      const calcCadItemResult = await calcCadItem(cadItem, vars2);
+      const calcCadItemResult = await calcCadItem(cadItem, vars2, item);
       if (!calcCadItemResult.success) {
         return calcCadItemResult;
       }
@@ -783,6 +816,7 @@ export interface CalcZxpjResult {
 
 export interface CalcZxpjError {
   message: string;
+  cads?: CadData[];
   calc?: {formulas: Formulas; vars: Formulas; result: CalcResult | null};
   info?: ObjectOf<any>;
 }

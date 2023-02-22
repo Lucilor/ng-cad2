@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit, ViewChild} from "@angular/core";
+import {Component, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
@@ -13,6 +13,7 @@ import {
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
+import {IFrameChild} from "@mixins/iframe-child.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList, TableDataBase, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
@@ -32,7 +33,7 @@ import {XhmrmsbjData, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from
   templateUrl: "./xhmrmsbj.component.html",
   styleUrls: ["./xhmrmsbj.component.scss"]
 })
-export class XhmrmsbjComponent implements OnInit {
+export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
   table = "";
   id = "";
   isFromOrder = false;
@@ -66,6 +67,11 @@ export class XhmrmsbjComponent implements OnInit {
   isMrbcjfzInfoEmpty = isMrbcjfzInfoEmpty;
   menshanKeys = ["锁扇正面", "锁扇背面", "铰扇正面", "铰扇背面", "小扇正面", "小扇背面"];
   messageType = "门扇模块";
+  actionMap = {
+    requestData: {fn: this.requestData},
+    submitData: {fn: this.submitData, action: "submitData"},
+    保存模块大小: {fn: this.保存模块大小}
+  };
   materialResult: Formulas = {};
   mokuaidaxiaoResult: Formulas = {};
   @ViewChild(MsbjRectsComponent) msbjRectsComponent?: MsbjRectsComponent;
@@ -78,6 +84,7 @@ export class XhmrmsbjComponent implements OnInit {
     private message: MessageService,
     private calc: CalcService
   ) {
+    super();
     setGlobal("xhmrmsbj", this);
   }
 
@@ -111,7 +118,7 @@ export class XhmrmsbjComponent implements OnInit {
       this.isFromOrder = true;
       this.token = token;
       this.dataService.token = token;
-      window.parent.postMessage({type: this.messageType, action: "requestData"}, "*");
+      this.postMessage("requestData");
       await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     }
     this.fenleis = await this.dataService.queryMySql<TableDataBase>({table: "p_gongnengfenlei", fields: ["vid", "mingzi"]});
@@ -124,50 +131,31 @@ export class XhmrmsbjComponent implements OnInit {
     this.selectMenshanKey(this.menshanKeys[0]);
   }
 
-  @HostListener("window:message", ["$event"])
-  async onMessage(event: MessageEvent) {
-    const data = event.data;
-    const messageType = this.messageType;
-    if (!data || typeof data !== "object" || data.type !== messageType) {
-      return;
+  requestData(data: any) {
+    const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys} = data;
+    this.data = new XhmrmsbjData(
+      {vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局)},
+      menshanKeys,
+      this.step1Data.typesInfo
+    );
+    this.materialResult = materialResult;
+    this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
+    if (this.activeMenshanKey) {
+      this.selectMenshanKey(this.activeMenshanKey);
     }
-    switch (data.action) {
-      case "requestData":
-        {
-          const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys} = data.data;
-          this.data = new XhmrmsbjData(
-            {vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局)},
-            menshanKeys,
-            this.step1Data.typesInfo
-          );
-          this.materialResult = materialResult;
-          this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
-          if (this.activeMenshanKey) {
-            this.selectMenshanKey(this.activeMenshanKey);
-          }
-        }
-        break;
-      case "submitData":
-        window.parent.postMessage(
-          {
-            type: messageType,
-            action: "submitData",
-            data: {
-              型号选中门扇布局: this.data?.menshanbujuInfos,
-              门扇布局: this.msbjs
-            }
-          },
-          "*"
-        );
-        break;
-      case "保存模块大小":
-        if (this.activeMsbjInfo) {
-          this.activeMsbjInfo.模块大小输入 = data.data.values;
-          this.updateMokuaidaxiaoResult();
-        }
-        break;
-      default:
-        break;
+  }
+
+  submitData() {
+    return {
+      型号选中门扇布局: this.data?.menshanbujuInfos,
+      门扇布局: this.msbjs
+    };
+  }
+
+  保存模块大小(data: any) {
+    if (this.activeMsbjInfo) {
+      this.activeMsbjInfo.模块大小输入 = data.values;
+      this.updateMokuaidaxiaoResult();
     }
   }
 
@@ -462,7 +450,7 @@ export class XhmrmsbjComponent implements OnInit {
     }
     if (this.isFromOrder) {
       const data = {config: msbj.peizhishuju.模块大小关系};
-      window.parent.postMessage({type: this.messageType, action: "编辑模块大小", data}, "*");
+      this.postMessage("编辑模块大小", data);
       return;
     } else {
       const data = await this.message.json(msbj.peizhishuju.模块大小关系);

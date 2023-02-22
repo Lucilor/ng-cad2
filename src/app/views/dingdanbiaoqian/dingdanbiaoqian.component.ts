@@ -485,7 +485,7 @@ export class DingdanbiaoqianComponent implements OnInit {
       }
     }
     this.mokuais = mokuais;
-    await calcZxpj(this.dialog, this.message, this.calc, {}, mokuais, []);
+    await calcZxpj(this.dialog, this.message, this.calc, {}, mokuais, [], {useCeshishuju: true});
     this.orders = mokuais.map((mokuai, i) => {
       const order: Order = {
         code: getMokuaiTitle(mokuai),
