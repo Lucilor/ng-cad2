@@ -134,7 +134,7 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
       mokuai.unique = false;
       mokuai.calcVars = {keys: Object.keys(mokuai.suanliaogongshi)};
       if (mokuai.info?.suanliaogongshi) {
-        mokuai.suanliaogongshi = mokuai.info.suanliaogongshi;
+        mokuai.suanliaogongshi = {...mokuai.suanliaogongshi, ...mokuai.info.suanliaogongshi};
         delete mokuai.info.suanliaogongshi;
       }
       if (配件模块CAD[type1] && 配件模块CAD[type1][type2]) {

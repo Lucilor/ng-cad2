@@ -685,10 +685,12 @@ export const calcZxpj = async (
         formulas3.展开宽 = zhankai.zhankaikuan;
         formulas3.展开高 = zhankai.zhankaigao;
         formulas3.数量 = `(${zhankai.shuliang})*(${zhankai.shuliangbeishu})`;
-        const result3Msg = `计算${data.name}的第${i + 1}个展开`;
+        const result3Msg = `计算（${mokuaiTitle}）${data.name}的第${i + 1}个展开`;
         const result3 = await calc.calcFormulas(formulas3, vars3, {title: result3Msg});
         if (!result3?.fulfilled) {
-          return {success: false, error: {message: result3Msg + "出错", calc: {formulas: formulas3, vars: vars3, result: result3}}};
+          const cads = [data];
+          await openDrawCadDialog(dialog, {data: {cads, collection: "cad"}});
+          return {success: false, error: {message: result3Msg + "出错", calc: {formulas: formulas3, vars: vars3, result: result3}, cads}};
         }
         Object.assign(varsGlobal, result3.succeedTrim);
         const width = toFixed(result3.succeedTrim.展开宽, fractionDigits);
