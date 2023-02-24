@@ -279,6 +279,17 @@ export class CadDataService extends HttpService {
   }
 
   async tableUpdate<T = any>(params: TableUpdateParams, options?: HttpOptions) {
+    const tableData = params.tableData;
+    if (Object.keys(tableData).length > 1) {
+      const fields = Object.keys(tableData).filter((v) => v !== "vid");
+      await Promise.all(
+        fields.map(async (field) => {
+          const tableData2: TableUpdateParams["tableData"] = {vid: tableData.vid, [field]: (tableData as any)[field]};
+          const params2 = {...params, tableData: tableData2};
+          return await this.post<T[]>("jichu/jichu/table_update", params2, options);
+        })
+      );
+    }
     await this.post<T[]>("jichu/jichu/table_update", params, options);
   }
 

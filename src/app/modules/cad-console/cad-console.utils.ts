@@ -1,4 +1,4 @@
-import {getList} from "@app/app.common";
+import {getListStr} from "@modules/message/components/message/message-types";
 import hljs from "highlight.js";
 import {v4} from "uuid";
 import {Desc} from "./cad-command-types";
@@ -13,7 +13,7 @@ export const getContent = (desc: Desc): string => {
   let content = desc.content;
   const sub = desc.sub?.map((v) => getContent(v));
   if (sub) {
-    content += "<br>" + getList(sub);
+    content += "<br>" + getListStr(sub);
   }
   return content;
 };

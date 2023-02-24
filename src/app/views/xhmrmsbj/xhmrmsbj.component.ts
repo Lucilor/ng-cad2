@@ -5,8 +5,10 @@ import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.
 import {openMrbcjfzDialog} from "@components/dialogs/mrbcjfz-dialog/mrbcjfz-dialog.component";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {
+  getFromulasFromString,
   getMokuaiTitle,
   getStep1Data,
+  isMokuaiItemEqual,
   Step1Data,
   ZixuanpeijianMokuaiItem,
   ZixuanpeijianTypesInfoItem
@@ -25,8 +27,8 @@ import {Formulas} from "@src/app/utils/calc";
 import {timeout} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
-import {cloneDeep, isEqual} from "lodash";
-import {XhmrmsbjData, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
+import {cloneDeep, intersection, isEqual} from "lodash";
+import {XhmrmsbjData, XhmrmsbjInfo, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
 
 @Component({
   selector: "app-xhmrmsbj",
@@ -336,21 +338,56 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
     if (!dataInfo || isFromOrder) {
       return;
     }
-    const errorMenshanKeys: string[] = [];
+    const errorMenshanKeys = new Set<string>();
+    const varKeysXinghao = Object.keys(getFromulasFromString(this.xinghao?.raw.gongshishuru));
+    const duplicates1: {mokuai: ZixuanpeijianMokuaiItem; keys: string[]}[] = [];
+    const duplicates2: {mokuais: ZixuanpeijianMokuaiItem[]; keys: string[]}[] = [];
+    const msbjInfos: {menshanKey: string; msbjInfo: XhmrmsbjInfo}[] = [];
     for (const menshanKey in dataInfo.menshanbujuInfos) {
-      const msbjInfo = dataInfo.menshanbujuInfos[menshanKey];
-      if (msbjInfo.模块节点?.some((v) => !v.选中模块)) {
-        errorMenshanKeys.push(menshanKey);
+      msbjInfos.push({menshanKey, msbjInfo: dataInfo.menshanbujuInfos[menshanKey]});
+    }
+    for (let i = 0; i < msbjInfos.length; i++) {
+      const {menshanKey, msbjInfo} = msbjInfos[i];
+      for (const node of msbjInfo.模块节点 || []) {
+        if (!node.选中模块) {
+          errorMenshanKeys.add(menshanKey);
+        }
+        for (const mokuai of node.可选模块) {
+          const varKeysMokuai = mokuai.shuchubianliang;
+          const keys1 = intersection(varKeysXinghao, varKeysMokuai);
+          if (keys1.length > 0) {
+            duplicates1.push({mokuai, keys: keys1});
+          }
+          for (let j = i + 1; j < msbjInfos.length; j++) {
+            for (const node2 of msbjInfos[i].msbjInfo.模块节点 || []) {
+              for (const mokuai2 of node2.可选模块) {
+                if (isMokuaiItemEqual(mokuai, mokuai2)) {
+                  continue;
+                }
+                const varKeysMokuai2 = mokuai2.shuchubianliang;
+                const keys2 = intersection(varKeysMokuai, varKeysMokuai2);
+                if (keys2.length > 0) {
+                  duplicates2.push({mokuais: [mokuai, mokuai2], keys: keys2});
+                }
+              }
+            }
+          }
+        }
       }
     }
-    if (errorMenshanKeys.length > 0) {
-      this.message.error("布局中存在未选中的模块：" + errorMenshanKeys.join("，"));
+    if (duplicates1.length > 0) {
+      const list = duplicates1.map(({mokuai, keys}) => `${getMokuaiTitle(mokuai)}: ${keys.join("，")}`);
+      await this.message.error("模块输出变量与型号公式输入重复", list);
       return;
     }
-    const tableData: TableUpdateParams<MsbjData>["tableData"] = {vid: dataInfo.vid};
-    tableData.peizhishuju = JSON.stringify(dataInfo.menshanbujuInfos);
+    if (errorMenshanKeys.size > 0) {
+      await this.message.error("布局中存在未选中的模块", Array.from(errorMenshanKeys).join("，"));
+      return;
+    }
+    const tableData: TableUpdateParams<MsbjData>["tableData"] = dataInfo.export();
+    delete tableData.mingzi;
     this.spinner.show(this.spinner.defaultLoaderId);
-    await this.dataService.tableUpdate({table, tableData});
+    await this.dataService.tableUpdate({table, tableData: dataInfo.export()});
     this.spinner.hide(this.spinner.defaultLoaderId);
   }
 

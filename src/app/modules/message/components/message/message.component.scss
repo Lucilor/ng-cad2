@@ -34,10 +34,35 @@ iframe {
   }
 }
 
-:host ::ng-deep json-editor,
-:host ::ng-deep json-editor .jsoneditor,
-:host ::ng-deep json-editor > div,
-:host ::ng-deep json-editor jsoneditor-outer {
-  --json-editor-height: 100%;
-  height: var(--json-editor-height);
+:host ::ng-deep {
+  json-editor {
+    .jsoneditor,
+    > div,
+    jsoneditor-outer {
+      --json-editor-height: 100%;
+      height: var(--json-editor-height);
+    }
+  }
+
+  .message-list {
+    --title-size: 1em;
+
+    .title {
+      padding: 0;
+    }
+
+    ul {
+      margin-block-start: 0;
+      margin-block-end: 0;
+      padding-inline-start: 20px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+  }
 }

@@ -49,8 +49,6 @@ export type CadCollection =
   | "luomatoucad"
   | "kailiaocanshu";
 
-export const getList = (content: string[]) => `<ul>${content.map((v) => `<li>${v}</li>`).join("")}</ul>`;
-
 export const splitOptions = (str: string) => {
   if (!str) {
     return [];

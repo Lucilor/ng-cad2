@@ -10,6 +10,7 @@ import {
   ConfirmMessageData,
   EditorMessageData,
   FormMessageData,
+  getListEl,
   IFrameMessageData,
   JsonMessageData,
   MessageData,
@@ -56,8 +57,22 @@ export class MessageService {
     await this.open({data: this._getData(data, "alert"), ...others});
   }
 
-  async error(message: string, others: MessageDataParams2<AlertMessageData> = {}) {
-    await this.alert({content: new Error(message)}, others);
+  async error(
+    message: string | MessageDataParams<AlertMessageData>,
+    details: string[] | string = [],
+    others: MessageDataParams2<AlertMessageData> = {}
+  ) {
+    const data = this._getData(message, "alert");
+    if (Array.isArray(details)) {
+      const el = getListEl(details, data.content);
+      data.content = el;
+    } else {
+      data.content = `${data.content}<br>${details}`;
+    }
+    if (!data.title) {
+      data.title = `<span style="color:red">错误</span>`;
+    }
+    await this.open({data, width: "80vw", ...others});
   }
 
   async confirm(data: string | MessageDataParams<ConfirmMessageData>, others: MessageDataParams2<ConfirmMessageData> = {}) {
@@ -74,10 +89,6 @@ export class MessageService {
     }
     return null;
   }
-
-  // async prompt(...args:any[]) {
-  //   return "";
-  // }
 
   async prompt(
     info: InputInfo,

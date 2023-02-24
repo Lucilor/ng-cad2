@@ -270,7 +270,7 @@ export class DingdanbiaoqianComponent implements OnInit {
           tmpCadViewer.setConfig(previewParams2.config || {});
         }
         await configCadDataForPrint(tmpCadViewer, data, {cads: []}, {isZxpj: true});
-        previewParams2.fixedMtextSize = 30;
+        previewParams2.fixedMtextSize = 28;
         delete previewParams2.maxZoom;
       }
       const imgUrl = await getCadPreview(collection, data, previewParams2);

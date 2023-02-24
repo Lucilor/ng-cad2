@@ -16,6 +16,7 @@ export interface MrbcjfzResponseData {
 
 export interface MrbcjfzXinghao extends TableDataBase {
   morenbancai?: string;
+  gongshishuru?: string;
 }
 
 export interface MrbcjfzHuajian extends TableDataBase {

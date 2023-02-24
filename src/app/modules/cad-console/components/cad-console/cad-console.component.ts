@@ -2,12 +2,12 @@ import {animate, style, transition, trigger} from "@angular/animations";
 import {Component, ElementRef, HostListener, ViewChild} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
-import {getList, CadCollection} from "@app/app.common";
+import {CadCollection} from "@app/app.common";
 import {CadArc, CadData, CadDimensionLinear} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {Arg, Command, ValuedCommand} from "@modules/cad-console/cad-command-types";
 import {getContent, getEmphasized, getBashStyle, spaceReplacer} from "@modules/cad-console/cad-console.utils";
-import {BookData} from "@modules/message/components/message/message-types";
+import {BookData, getListStr} from "@modules/message/components/message/message-types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppConfigService} from "@services/app-config.service";
@@ -295,11 +295,11 @@ export class CadConsoleComponent {
         for (const key in cmdList) {
           cmdListArr.push(`<span style="color:orchid">${key}</span><br>${cmdList[key].join(", ")}`);
         }
-        data = [{title: "命令列表", content: getList(cmdListArr)}];
+        data = [{title: "命令列表", content: getListStr(cmdListArr)}];
       } else if (name) {
         for (const cmd of commands) {
           if (name === cmd.name) {
-            const argContent = getList(
+            const argContent = getListStr(
               cmd.args.map((v) => {
                 let defaultValue = "";
                 if (v.defaultValue !== undefined) {
@@ -332,11 +332,11 @@ export class CadConsoleComponent {
         data = [
           {
             title: "基本操作",
-            content: getList([`处于非普通状态时，按下 ${getEmphasized("Esc")} 可退出至普通状态。`, "...等等"])
+            content: getListStr([`处于非普通状态时，按下 ${getEmphasized("Esc")} 可退出至普通状态。`, "...等等"])
           },
           {
             title: "控制台",
-            content: getList([
+            content: getListStr([
               `按下 ${getEmphasized("Ctrl + ~")} 以显示/隐藏控制台。`,
               "控制台显示时，按下任意字母可以聚焦至控制台。",
               `输入命令时，按 ${getEmphasized("Tab")} 可以自动补全命令。`
@@ -344,7 +344,7 @@ export class CadConsoleComponent {
           },
           {
             title: "输入命令",
-            content: getList([
+            content: getListStr([
               `命令示例：${getBashStyle(`eat --food apple --time "12:00 PM" --number 5 --alone`)}`,
               `当参数名字的首字母不重复时，可简写为：${getBashStyle(`eat -f apple -t "12:00 PM" -n 5 -a`)}`,
               `参数的值类型分为字符串或布尔值，若字符串中包含空格时双（单）引号不能省略，布尔值指定参数时为真，否则为假。`,
@@ -354,7 +354,7 @@ export class CadConsoleComponent {
           },
           {
             title: "查询命令",
-            content: getList([
+            content: getListStr([
               `若要查看所有可用命令，可执行命令：${getBashStyle(`man -l`)}`,
               `若要查看某个命令的用法，可执行命令：${getBashStyle(`man xxx`)}`
             ])

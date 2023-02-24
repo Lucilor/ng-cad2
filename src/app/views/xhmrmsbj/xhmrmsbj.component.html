@@ -29,19 +29,23 @@
 </div>
 <ng-container [ngSwitch]="activeTabName">
   <div class="flex-row flex-110" *ngSwitchCase="'门扇模块'">
-    <ng-scrollbar style="width: 180px">
-      <div class="flex-column menshan-options">
-        <div
-          class="flex-column menshan-option"
-          *ngFor="let item of data?.menshanbujuInfos | keyvalue : returnZero"
-          [ngClass]="{active: activeMenshanKey === item.key}"
-          (click)="selectMenshanKey(item.key)"
-        >
-          <div style="font-weight: bold">{{ item.key }}</div>
-          <div *ngIf="item.value['选中布局']">布局：{{ getMsbj(item.value["选中布局"])?.name }}</div>
+    <div class="flex-column" style="width: 180px">
+      <mat-slide-toggle *ngIf="data" [(ngModel)]="data['铰扇跟随锁扇']">铰扇布局和锁扇相同</mat-slide-toggle>
+      <mat-divider class="placeholder"></mat-divider>
+      <ng-scrollbar>
+        <div class="flex-column menshan-options">
+          <div
+            class="flex-column menshan-option"
+            *ngFor="let item of data?.menshanbujuInfos | keyvalue : returnZero"
+            [ngClass]="{active: activeMenshanKey === item.key}"
+            (click)="selectMenshanKey(item.key)"
+          >
+            <div style="font-weight: bold">{{ item.key }}</div>
+            <div *ngIf="item.value['选中布局']">布局：{{ getMsbj(item.value["选中布局"])?.name }}</div>
+          </div>
         </div>
-      </div>
-    </ng-scrollbar>
+      </ng-scrollbar>
+    </div>
     <mat-divider vertical></mat-divider>
     <div class="flex-110 flex-column">
       <div class="flex-row flex-110">

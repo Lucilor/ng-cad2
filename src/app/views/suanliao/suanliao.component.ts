@@ -99,7 +99,7 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
         for (const node of 模块节点) {
           const {选中模块, 层名字, 层id} = node;
           if (选中模块) {
-            const suanliaogongshi: Formulas = 选中模块.suanliaogongshi;
+            const suanliaogongshi: Formulas = {};
             if (模块大小输入) {
               for (const key in 模块大小输入) {
                 const value = 模块大小输入[key];

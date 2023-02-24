@@ -88,3 +88,25 @@ export interface MessageDataMap {
 }
 
 export type MessageOutput = boolean | string | ObjectOf<any> | null | undefined;
+
+export const getListEl = (content: string[], title = "") => {
+  const ulEl = document.createElement("ul");
+  content.forEach((v) => {
+    const liEl = document.createElement("li");
+    liEl.innerHTML = v;
+    ulEl.appendChild(liEl);
+  });
+  const titleEl = document.createElement("div");
+  titleEl.classList.add("title");
+  titleEl.innerHTML = title;
+  const divEl = document.createElement("div");
+  divEl.classList.add("message-list");
+  divEl.appendChild(titleEl);
+  divEl.appendChild(ulEl);
+  return divEl;
+};
+
+export const getListStr = (content: string[], title = "") => {
+  const el = getListEl(content, title);
+  return el.outerHTML;
+};

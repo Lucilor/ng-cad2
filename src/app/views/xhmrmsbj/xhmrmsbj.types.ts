@@ -6,17 +6,19 @@ import {ObjectOf} from "@utils";
 export interface XhmrmsbjTableData extends TableDataBase {
   peizhishuju?: string;
   xinghao?: string;
+  jiaoshanbujuhesuoshanxiangtong?: number;
 }
 
 export class XhmrmsbjData {
   vid: number;
   name: string;
   menshanbujuInfos: ObjectOf<XhmrmsbjInfo>;
-  // 板材材质信息:
+  铰扇跟随锁扇?: boolean;
 
   constructor(data: XhmrmsbjTableData, menshanKeys: string[], typesInfo: ZixuanpeijianTypesInfo) {
     this.vid = data.vid;
     this.name = data.mingzi;
+    this.铰扇跟随锁扇 = data.jiaoshanbujuhesuoshanxiangtong === 1;
     let info: any = null;
     this.menshanbujuInfos = {};
     try {
@@ -36,6 +38,16 @@ export class XhmrmsbjData {
         }
       }
     }
+  }
+
+  export() {
+    const data: XhmrmsbjTableData = {
+      vid: this.vid,
+      mingzi: this.name,
+      jiaoshanbujuhesuoshanxiangtong: this.铰扇跟随锁扇 ? 1 : 0,
+      peizhishuju: JSON.stringify(this.menshanbujuInfos),
+    };
+    return data;
   }
 }
 

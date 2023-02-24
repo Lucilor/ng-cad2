@@ -101,6 +101,8 @@ export class MessageComponent implements OnInit, AfterViewInit {
         data.content = "未知网络错误";
       }
       data.content = `<span>${status} (${statusText})</span><br>` + data.content;
+    } else if (data.content instanceof HTMLElement) {
+      data.content = data.content.outerHTML;
     } else if (typeof data.content !== "string") {
       try {
         data.content = JSON.stringify(data.content);
