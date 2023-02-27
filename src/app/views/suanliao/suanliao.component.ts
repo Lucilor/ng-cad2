@@ -58,7 +58,7 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
   }
 
   async suanliao(params: SuanliaoInput): Promise<SuanliaoOutput> {
-    const {materialResult, gongshi, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames, varNames} = params;
+    const {materialResult, gongshi, inputResult, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames, varNames} = params;
     const result: SuanliaoOutput = {
       materialResult,
       配件模块CAD: [],
@@ -99,25 +99,26 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
         for (const node of 模块节点) {
           const {选中模块, 层名字, 层id} = node;
           if (选中模块) {
-            const suanliaogongshi: Formulas = {};
             if (模块大小输入) {
               for (const key in 模块大小输入) {
-                const value = 模块大小输入[key];
-                suanliaogongshi[key] = value;
+                const value = inputResult[key] > 0 ? inputResult[key] : 模块大小输入[key];
+                模块大小输入[key] = value;
                 if (key in gongshi) {
                   gongshi[key] = value;
                 }
               }
+              选中模块.模块大小输入 = 模块大小输入;
+            } else {
+              选中模块.模块大小输入 = {};
             }
             const keys = [层名字 + "总高", 层名字 + "总宽"];
             for (const key of keys) {
               if (formulas[key]) {
-                suanliaogongshi[key.slice(层名字.length)] = formulas[key];
+                选中模块.模块大小输入[key.slice(层名字.length)] = formulas[key];
               }
             }
             const info: Partial<ZixuanpeijianInfo> = {门扇名字: 门扇, 布局id: 选中布局id, 模块名字: 层名字, 层id};
             选中模块.info = info;
-            选中模块.info.suanliaogongshi = suanliaogongshi;
             mokuais.push(选中模块);
           }
         }
@@ -133,10 +134,6 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
       mokuai.shuruzonggao = false;
       mokuai.unique = false;
       mokuai.calcVars = {keys: Object.keys(mokuai.suanliaogongshi)};
-      if (mokuai.info?.suanliaogongshi) {
-        mokuai.suanliaogongshi = {...mokuai.suanliaogongshi, ...mokuai.info.suanliaogongshi};
-        delete mokuai.info.suanliaogongshi;
-      }
       if (配件模块CAD[type1] && 配件模块CAD[type1][type2]) {
         mokuai.cads = 配件模块CAD[type1][type2].map((v) => getCadItem(v, mokuai.info));
       } else {
@@ -160,18 +157,14 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
       }
     }
 
-    const gongshiResult = await this.calc.calcFormulas(gongshi, materialResult);
-    if (!gongshiResult?.fulfilled) {
-      result.error = {message: "计算算料公式出错", calc: {formulas: gongshi, vars: materialResult, result: gongshiResult}};
-      return result;
-    }
-    Object.assign(materialResult, gongshiResult.succeedTrim);
     const calcVars: NonNullable<CalcZxpjOptions["calcVars"]> = {keys: varNames || []};
     const calcZxpjResult = await calcZxpj(this.dialog, this.message, this.calc, materialResult, mokuais, lingsans, {
       changeLinesLength: false,
-      calcVars
+      calcVars,
+      gongshi,
+      inputResult
     });
-    if (!calcZxpjResult.success) {
+    if (!calcZxpjResult.fulfilled) {
       result.error = calcZxpjResult.error;
       return result;
     }
@@ -181,11 +174,6 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
       }
       delete mokuai.calcVars;
     }
-    const gongshiResult2 = await this.calc.calcFormulas(gongshi, materialResult, {title: "计算算料公式"});
-    if (!gongshiResult2?.fulfilled) {
-      result.error = {message: "计算算料公式出错", calc: {formulas: gongshi, vars: materialResult, result: gongshiResult2}};
-      return result;
-    }
     const getCadItem2 = (data: ZixuanpeijianCadItem) => ({
       ...data,
       data: data.data.export()
@@ -193,9 +181,6 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
     result.配件模块CAD = mokuais.map((v) => ({...v, cads: v.cads.map(getCadItem2)}));
     result.门扇布局CAD = lingsans.map(getCadItem2);
     result.fulfilled = true;
-    if (calcVars.result) {
-      Object.assign(materialResult, calcVars.result);
-    }
     return result;
   }
 
@@ -207,6 +192,7 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
 export interface SuanliaoInput {
   materialResult: Formulas;
   gongshi: Formulas;
+  inputResult: Formulas;
   型号选中门扇布局: ObjectOf<XhmrmsbjInfo>;
   配件模块CAD: ObjectOf<ObjectOf<any[]>>;
   门扇布局CAD: any[];

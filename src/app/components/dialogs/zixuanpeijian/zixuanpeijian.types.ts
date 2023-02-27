@@ -110,6 +110,7 @@ export interface ZixuanpeijianMokuaiItem extends ZixuanpeijianTypesInfoItem {
   cads: ZixuanpeijianCadItem[];
   可替换模块?: ZixuanpeijianMokuaiItem[];
   vars?: Formulas;
+  模块大小输入?: Formulas;
   info?: ObjectOf<any>;
 }
 
@@ -378,6 +379,8 @@ export interface CalcZxpjOptions {
   changeLinesLength?: boolean;
   calcVars?: {keys: string[]; result?: Formulas};
   useCeshishuju?: boolean;
+  gongshi?: Formulas;
+  inputResult?: Formulas;
 }
 export const calcZxpj = async (
   dialog: MatDialog,
@@ -393,27 +396,61 @@ export const calcZxpj = async (
     changeLinesLength: true,
     calcVars: {keys: []},
     useCeshishuju: false,
+    gongshi: {},
+    inputResult: {},
     ...options
   };
-  const {fractionDigits, changeLinesLength, calcVars, useCeshishuju} = optionsAll;
+  const {fractionDigits, changeLinesLength, calcVars, useCeshishuju, gongshi, inputResult} = optionsAll;
   const shuchubianliang: Formulas = {};
   const duplicateScbl: ZixuanpeijianMokuaiItem[] = [];
-  const duplicateScbl1: {item: ZixuanpeijianMokuaiItem; keys: string[]}[] = [];
-  const duplicateScbl2: {item: ZixuanpeijianMokuaiItem; keys: string[]}[] = [];
   const duplicateXxsr: ObjectOf<Set<string>> = {};
   const dimensionNamesMap: ObjectOf<{item: ZixuanpeijianCadItem}[]> = {};
   const varsGlobal: Formulas = {};
-  const materialResultKeys: string[] = [];
-  for (const key in materialResult) {
-    if (materialResult[key] !== 0) {
-      materialResultKeys.push(key);
-    }
+  const gongshiCalcResult = await calc.calcFormulas(gongshi, materialResult, {title: "计算算料公式"});
+  if (!gongshiCalcResult?.fulfilled) {
+    return {
+      fulfilled: false,
+      error: {message: "计算算料公式出错", calc: {formulas: gongshi, vars: materialResult, result: gongshiCalcResult}}
+    };
   }
-  for (const [i, item1] of mokuais.entries()) {
-    const keys1 = intersection(item1.shuchubianliang, materialResultKeys);
-    if (keys1.length) {
-      duplicateScbl1.push({item: item1, keys: keys1});
+  Object.assign(materialResult, gongshiCalcResult.succeedTrim);
+  Object.assign(materialResult, inputResult);
+
+  const gongshiKeys = Object.keys(gongshi);
+  const inputResultKeys = Object.keys(inputResult);
+  const mokuaiGongshiKeys: string[] = [];
+  type DuplicateMokuaiVar = {info: {item: ZixuanpeijianMokuaiItem | null; keys: string[]}[]; type1: string; type2: string};
+  const duplicateMokuaiVars: DuplicateMokuaiVar[] = [];
+  const checkDuplicate = (
+    type1: string,
+    types2: ("公式" | "公式输入" | "模块公式")[],
+    item: ZixuanpeijianMokuaiItem | null,
+    varKeys1: string[]
+  ) => {
+    for (const type2 of types2) {
+      let varKeys2: string[];
+      if (type2 === "公式") {
+        varKeys2 = gongshiKeys;
+      } else if (type2 === "公式输入") {
+        varKeys2 = inputResultKeys;
+      } else if (type2 === "模块公式") {
+        varKeys2 = mokuaiGongshiKeys;
+      } else {
+        return;
+      }
+      let varItem: DuplicateMokuaiVar | undefined = duplicateMokuaiVars.find((v) => v.type1 === type1 && v.type2 === type2);
+      if (!varItem) {
+        varItem = {info: [], type1, type2};
+        duplicateMokuaiVars.push(varItem);
+      }
+      const keys = intersection(varKeys1, varKeys2);
+      if (keys.length) {
+        varItem.info.push({item, keys});
+      }
     }
+  };
+
+  for (const [i, item1] of mokuais.entries()) {
     for (const [j, item2] of mokuais.entries()) {
       if (i === j) {
         continue;
@@ -422,7 +459,7 @@ export const calcZxpj = async (
         if (item1.unique) {
           const msg = `${item1.type1}-${item1.type2}只能单选`;
           await message.error(msg);
-          return {success: false, error: {message: msg}};
+          return {fulfilled: false, error: {message: msg}};
         } else {
           continue;
         }
@@ -450,7 +487,7 @@ export const calcZxpj = async (
       const msg = "以下选项输入与订单数据冲突";
       const details = Object.entries(duplicateXxsr).map(([title, keys]) => `${title}: ${Array.from(keys).join(", ")}`);
       await message.error(msg, details);
-      return {success: false, error: {message: msg, details}};
+      return {fulfilled: false, error: {message: msg, details}};
     }
   }
   if (duplicateScbl.length > 0) {
@@ -461,7 +498,7 @@ export const calcZxpj = async (
     });
 
     await message.error(msg, details);
-    return {success: false, error: {message: msg, details}};
+    return {fulfilled: false, error: {message: msg, details}};
   }
   const getCadDimensionVars = (items: ZixuanpeijianCadItem[]) => {
     const vars: Formulas = {};
@@ -486,17 +523,23 @@ export const calcZxpj = async (
     return vars;
   };
   const toCalc1 = mokuais.map((item) => {
-    const formulas = {...item.suanliaogongshi};
+    const formulas = {...item.suanliaogongshi, ...item.模块大小输入};
     if (item.shuruzongkuan) {
       formulas.总宽 = item.totalWidth;
     }
     if (item.shuruzonggao) {
       formulas.总高 = item.totalHeight;
     }
-    const keys2 = intersection(Object.keys(formulas), materialResultKeys);
-    if (keys2.length) {
-      duplicateScbl2.push({item, keys: keys2});
+    const gongshishuruKeys = item.gongshishuru.map((v) => v[0]);
+    const formulasKeys = Object.keys(item.suanliaogongshi);
+    for (const key of formulasKeys) {
+      if (!mokuaiGongshiKeys.includes(key)) {
+        mokuaiGongshiKeys.push(key);
+      }
     }
+    checkDuplicate("模块公式输入", ["公式", "公式输入"], item, gongshishuruKeys);
+    checkDuplicate("模块算料公式", ["公式", "公式输入"], item, formulasKeys);
+    checkDuplicate("模块输出变量", ["公式", "公式输入"], item, item.shuchubianliang);
     if (useCeshishuju && item.ceshishuju) {
       Object.assign(formulas, item.ceshishuju);
     }
@@ -514,30 +557,36 @@ export const calcZxpj = async (
     return {formulas, vars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
   });
   const lingsanVars = getCadDimensionVars(lingsans);
-  if (duplicateScbl1.length > 0) {
-    const msg = "【模块输出变量】与【算料公式、公式输入】变量重复";
-    const details = duplicateScbl1.map((v) => `${getMokuaiTitle(v.item)}：${v.keys.join("，")}`);
-    await message.error(msg, details);
-    return {success: false, error: {message: msg, details}};
-  }
-  if (duplicateScbl2.length > 0) {
-    const msg = "【模块算料公式】与【算料公式、公式输入】重复";
-    const details = duplicateScbl2.map((v) => `${getMokuaiTitle(v.item)}：${v.keys.join("，")}`);
-    await message.error(msg, details);
-    return {success: false, error: {message: msg, details}};
-  }
-  const duplicateNamesDim = intersection(Object.keys(dimensionNamesMap), materialResultKeys);
-  if (duplicateNamesDim.length > 0) {
-    const msg = "【CAD标注】与【算料公式、公式输入】重复";
-    await message.error(msg, duplicateNamesDim.join("，"));
-    const cads: CadData[] = [];
-    for (const name of duplicateNamesDim) {
-      for (const v of dimensionNamesMap[name]) {
-        cads.push(v.item.data);
+  const dimensionNames = Object.keys(dimensionNamesMap);
+  checkDuplicate("CAD标注", ["公式", "公式输入", "模块公式"], null, dimensionNames);
+  for (const {info, type1, type2} of duplicateMokuaiVars) {
+    if (info.length > 0) {
+      const msg = `【${type1}】与【${type2}】重复`;
+      let details = info
+        .map((v) => {
+          if (!v.item) {
+            return "";
+          }
+          const title = getMokuaiTitle(v.item);
+          return `${title}: ${v.keys.join(", ")}`;
+        })
+        .filter(Boolean);
+      if (details.length) {
+        await message.error(msg, details);
+        return {fulfilled: false, error: {message: msg, details}};
+      } else {
+        const cads: CadData[] = [];
+        details = info.map((v) => v.keys).flat();
+        for (const name of details) {
+          for (const v of dimensionNamesMap[name]) {
+            cads.push(v.item.data);
+          }
+        }
+        await message.error(msg, details);
+        await openDrawCadDialog(dialog, {data: {cads, collection: "cad"}});
+        return {fulfilled: false, error: {message: msg, details, cads}};
       }
     }
-    await openDrawCadDialog(dialog, {data: {cads, collection: "cad"}});
-    return {success: false, error: {message: msg, details: duplicateNamesDim, cads}};
   }
   const duplicateDimensionNames: {msg: string; items: ZixuanpeijianCadItem[]}[] = [];
   for (const name in dimensionNamesMap) {
@@ -555,39 +604,19 @@ export const calcZxpj = async (
     const msg = `标注重复错误：<br>${msg0}`;
     await message.alert(msg);
     await openDrawCadDialog(dialog, {data: {collection: "cad", cads}});
-    return {success: false, error: {message: msg, cads}};
+    return {fulfilled: false, error: {message: msg, cads}};
   }
 
   let initial = true;
   let calc1Finished = false;
   let calcErrors1: Formulas = {};
   let calcErrors2: Formulas = {};
-  // const indexesMap: ObjectOf<ObjectOf<number[]>> = {};
   while (!calc1Finished) {
     calc1Finished = true;
-    // const shuchubianliangFlag: ObjectOf<ObjectOf<true>> = {};
     const alertError = !initial && isEqual(calcErrors1, calcErrors2);
     calcErrors1 = calcErrors2;
     calcErrors2 = {};
     for (const v of toCalc1) {
-      // const {type1, type2} = v.item;
-      // if (initial) {
-      //     if (!indexesMap[type1]) {
-      //         indexesMap[type1] = {};
-      //     }
-      //     if (!indexesMap[type1][type2]) {
-      //         indexesMap[type1][type2] = [];
-      //     }
-      //     if (!indexesMap[type1][type2].includes(i)) {
-      //         indexesMap[type1][type2].push(i);
-      //     }
-      // }
-      // if (shuchubianliangFlag[type1]?.[type2]) {
-      //     continue;
-      // } else {
-      //     shuchubianliangFlag[type1] = shuchubianliangFlag[type1] || {};
-      //     shuchubianliangFlag[type1][type2] = true;
-      // }
       if (!initial && isEmpty(v.error)) {
         continue;
       }
@@ -598,7 +627,7 @@ export const calcZxpj = async (
       // console.log({formulas1, vars1, result1});
       if (!result1?.fulfilled) {
         if (alertError) {
-          return {success: false, error: {message: result1Msg + "出错", calc: {formulas: formulas1, vars: vars1, result: result1}}};
+          return {fulfilled: false, error: {message: result1Msg + "出错", calc: {formulas: formulas1, vars: vars1, result: result1}}};
         } else if (!result1) {
           continue;
         }
@@ -615,7 +644,7 @@ export const calcZxpj = async (
       if (missingKeys.length > 0) {
         const msg = `${getMokuaiTitle(v.item)}缺少输出变量`;
         await message.error(msg, missingKeys.join(", "));
-        return {success: false, error: {message: msg, details: missingKeys}};
+        return {fulfilled: false, error: {message: msg, details: missingKeys}};
       }
       // Object.assign(materialResult, result1.succeedTrim);
       v.succeedTrim = result1.succeedTrim;
@@ -641,9 +670,13 @@ export const calcZxpj = async (
         if (!condition.trim()) {
           continue;
         }
-        const result = await calc.calcExpression(condition, vars2);
+        let title = `计算展开条件`;
+        if (mokuai) {
+          title += `（${getMokuaiTitle(mokuai)}）`;
+        }
+        const result = await calc.calcExpression(condition, vars2, {title});
         if (result === null) {
-          return {success: false, error: {message: `计算展开条件出错：${condition}`}};
+          return {fulfilled: false, error: {message: `${title}出错：${condition}`}};
         }
         if (!result) {
           enabled = false;
@@ -679,7 +712,7 @@ export const calcZxpj = async (
       const calcLinesResult: Formulas = {};
       // console.log({formulas2, vars2, result2});
       if (!result2?.fulfilled) {
-        return {success: false, error: {message: result2Msg + "出错", calc: {formulas: formulas2, vars: vars2, result: result2}}};
+        return {fulfilled: false, error: {message: result2Msg + "出错", calc: {formulas: formulas2, vars: vars2, result: result2}}};
       }
       Object.assign(varsGlobal, result2.succeedTrim);
       const shaungxiangCads = splitShuangxiangCad(data);
@@ -718,7 +751,7 @@ export const calcZxpj = async (
         if (!result3?.fulfilled) {
           const cads = [data];
           await openDrawCadDialog(dialog, {data: {cads, collection: "cad"}});
-          return {success: false, error: {message: result3Msg + "出错", calc: {formulas: formulas3, vars: vars3, result: result3}, cads}};
+          return {fulfilled: false, error: {message: result3Msg + "出错", calc: {formulas: formulas3, vars: vars3, result: result3}, cads}};
         }
         Object.assign(varsGlobal, result3.succeedTrim);
         const width = toFixed(result3.succeedTrim.展开宽, fractionDigits);
@@ -803,7 +836,7 @@ export const calcZxpj = async (
         return calcObj;
       });
     }
-    return {success: true};
+    return {fulfilled: true};
   };
 
   const calcVarsResult = async (keys: string[], vars: Formulas) => {
@@ -818,6 +851,7 @@ export const calcZxpj = async (
   };
 
   calcVars.result = await calcVarsResult(calcVars.keys, varsGlobal);
+  Object.assign(materialResult, calcVars.result);
   for (const [i, item] of mokuais.entries()) {
     const vars2: Formulas = {...materialResult, ...lingsanVars, ...toCalc1[i].succeedTrim, ...shuchubianliang};
     if (item.calcVars) {
@@ -825,22 +859,30 @@ export const calcZxpj = async (
     }
     for (const cadItem of item.cads) {
       const calcCadItemResult = await calcCadItem(cadItem, vars2, item);
-      if (!calcCadItemResult.success) {
+      if (!calcCadItemResult.fulfilled) {
         return calcCadItemResult;
       }
     }
   }
   for (const item of lingsans) {
     const calcCadItemResult = await calcCadItem(item, {...materialResult, ...lingsanVars});
-    if (!calcCadItemResult.success) {
+    if (!calcCadItemResult.fulfilled) {
       return calcCadItemResult;
     }
   }
-  return {success: true};
+  const gongshiCalcResult2 = await calc.calcFormulas(gongshi, materialResult, {title: "计算算料公式"});
+  if (!gongshiCalcResult2?.fulfilled) {
+    return {
+      fulfilled: false,
+      error: {message: "计算算料公式出错", calc: {formulas: gongshi, vars: materialResult, result: gongshiCalcResult2}}
+    };
+  }
+  Object.assign(materialResult, gongshiCalcResult2.succeedTrim);
+  return {fulfilled: true};
 };
 
 export interface CalcZxpjResult {
-  success: boolean;
+  fulfilled: boolean;
   error?: CalcZxpjError;
 }
 
