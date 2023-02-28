@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {CadData} from "@cad-viewer";
@@ -15,12 +15,11 @@ import {
   ZixuanpeijianInfo,
   ZixuanpeijianMokuaiItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
-import {IFrameChild} from "@mixins/iframe-child.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
 import {Formulas} from "@src/app/utils/calc";
-import {ObjectOf} from "@utils";
+import {ObjectOf, WindowMessageManager} from "@utils";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
 
@@ -29,14 +28,11 @@ import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
   templateUrl: "./suanliao.component.html",
   styleUrls: ["./suanliao.component.scss"]
 })
-export class SuanliaoComponent extends IFrameChild() implements OnInit {
+export class SuanliaoComponent implements OnInit, OnDestroy {
   messageType = "算料";
-  actionMap = {
-    suanliaoStart: {fn: this.suanliao, action: "suanliaoEnd"},
-    drawCads: {fn: this.drawCads, action: "closeCads"}
-  };
   msbjs: MsbjInfo[] = [];
   step1Data?: Step1Data;
+  wmm = new WindowMessageManager("算料", this, window.parent);
 
   constructor(
     private dialog: MatDialog,
@@ -44,9 +40,7 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
     private calc: CalcService,
     private dataService: CadDataService,
     private route: ActivatedRoute
-  ) {
-    super();
-  }
+  ) {}
 
   async ngOnInit() {
     const {token} = this.route.snapshot.queryParams;
@@ -57,13 +51,20 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
     window.parent.postMessage({type: this.messageType, action: "suanliaoReady"}, "*");
   }
 
-  async suanliao(params: SuanliaoInput): Promise<SuanliaoOutput> {
+  ngOnDestroy() {
+    this.wmm.destroy();
+  }
+
+  async suanliaoStart(params: SuanliaoInput): Promise<SuanliaoOutput> {
     const {materialResult, gongshi, inputResult, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames, varNames} = params;
     const result: SuanliaoOutput = {
-      materialResult,
-      配件模块CAD: [],
-      门扇布局CAD: [],
-      fulfilled: false
+      action: "suanliaoEnd",
+      data: {
+        materialResult,
+        配件模块CAD: [],
+        门扇布局CAD: [],
+        fulfilled: false
+      }
     };
     const getCadItem = (data: any, info2?: Partial<ZixuanpeijianInfo>) => {
       const item: ZixuanpeijianCadItem = {
@@ -165,7 +166,7 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
       inputResult
     });
     if (!calcZxpjResult.fulfilled) {
-      result.error = calcZxpjResult.error;
+      result.data.error = calcZxpjResult.error;
       return result;
     }
     for (const mokuai of mokuais) {
@@ -178,9 +179,9 @@ export class SuanliaoComponent extends IFrameChild() implements OnInit {
       ...data,
       data: data.data.export()
     });
-    result.配件模块CAD = mokuais.map((v) => ({...v, cads: v.cads.map(getCadItem2)}));
-    result.门扇布局CAD = lingsans.map(getCadItem2);
-    result.fulfilled = true;
+    result.data.配件模块CAD = mokuais.map((v) => ({...v, cads: v.cads.map(getCadItem2)}));
+    result.data.门扇布局CAD = lingsans.map(getCadItem2);
+    result.data.fulfilled = true;
     return result;
   }
 
@@ -201,9 +202,6 @@ export interface SuanliaoInput {
 }
 
 export interface SuanliaoOutput {
-  materialResult: Formulas;
-  配件模块CAD: any[];
-  门扇布局CAD: any[];
-  fulfilled: boolean;
-  error?: CalcZxpjError;
+  action: "suanliaoEnd";
+  data: {materialResult: Formulas; 配件模块CAD: any[]; 门扇布局CAD: any[]; fulfilled: boolean; error?: CalcZxpjError};
 }

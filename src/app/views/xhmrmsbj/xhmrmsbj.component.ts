@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from "@angular/core";
+import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
@@ -15,7 +15,6 @@ import {
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
-import {IFrameChild} from "@mixins/iframe-child.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList, TableDataBase, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
@@ -24,7 +23,7 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {CalcService} from "@services/calc.service";
 import {setGlobal} from "@src/app/app.common";
 import {Formulas} from "@src/app/utils/calc";
-import {timeout} from "@utils";
+import {ObjectOf, Point, Rectangle, timeout, WindowMessageManager} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {cloneDeep, intersection, isEqual} from "lodash";
@@ -35,7 +34,7 @@ import {XhmrmsbjData, XhmrmsbjInfo, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbj
   templateUrl: "./xhmrmsbj.component.html",
   styleUrls: ["./xhmrmsbj.component.scss"]
 })
-export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
+export class XhmrmsbjComponent implements OnInit {
   table = "";
   id = "";
   isFromOrder = false;
@@ -69,14 +68,12 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
   isMrbcjfzInfoEmpty = isMrbcjfzInfoEmpty;
   menshanKeys = ["锁扇正面", "锁扇背面", "铰扇正面", "铰扇背面", "小扇正面", "小扇背面"];
   messageType = "门扇模块";
-  actionMap = {
-    requestData: {fn: this.requestData},
-    submitData: {fn: this.submitData, action: "submitData"},
-    保存模块大小: {fn: this.保存模块大小}
-  };
   materialResult: Formulas = {};
   mokuaidaxiaoResult: Formulas = {};
+  xiaoguotu: ObjectOf<string[]> = {};
+  wmm = new WindowMessageManager("门扇模块", this, window.parent);
   @ViewChild(MsbjRectsComponent) msbjRectsComponent?: MsbjRectsComponent;
+  @ViewChild("xiaoguotuContainer", {read: ElementRef}) xiaoguotuContainer?: ElementRef<HTMLDivElement>;
 
   constructor(
     private route: ActivatedRoute,
@@ -86,7 +83,6 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
     private message: MessageService,
     private calc: CalcService
   ) {
-    super();
     setGlobal("xhmrmsbj", this);
   }
 
@@ -120,7 +116,7 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
       this.isFromOrder = true;
       this.token = token;
       this.dataService.token = token;
-      this.postMessage("requestData");
+      this.wmm.postMessage("requestData");
       await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     }
     this.fenleis = await this.dataService.queryMySql<TableDataBase>({table: "p_gongnengfenlei", fields: ["vid", "mingzi"]});
@@ -149,8 +145,11 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
 
   submitData() {
     return {
-      型号选中门扇布局: this.data?.menshanbujuInfos,
-      门扇布局: this.msbjs
+      action: "submitData",
+      data: {
+        型号选中门扇布局: this.data?.menshanbujuInfos,
+        门扇布局: this.msbjs
+      }
     };
   }
 
@@ -233,6 +232,7 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
       }
     }
     this.updateMokuaiInputInfo();
+    this.生成效果图();
   }
 
   async setMsbj() {
@@ -301,6 +301,7 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
     }
     mokuaiNode.选中模块 = mokuaiNode.可选模块.find((v) => v.id === mokuai.id);
     this.updateMokuaiInputInfo();
+    this.生成效果图();
   }
 
   updateMokuaiInputInfo() {
@@ -387,7 +388,7 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
     const tableData: TableUpdateParams<MsbjData>["tableData"] = dataInfo.export();
     delete tableData.mingzi;
     this.spinner.show(this.spinner.defaultLoaderId);
-    await this.dataService.tableUpdate({table, tableData: dataInfo.export()});
+    await this.dataService.tableUpdate({table, tableData});
     this.spinner.hide(this.spinner.defaultLoaderId);
   }
 
@@ -487,7 +488,7 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
     }
     if (this.isFromOrder) {
       const data = {config: msbj.peizhishuju.模块大小关系};
-      this.postMessage("编辑模块大小", data);
+      this.wmm.postMessage("编辑模块大小", data);
       return;
     } else {
       const data = await this.message.json(msbj.peizhishuju.模块大小关系);
@@ -501,5 +502,46 @@ export class XhmrmsbjComponent extends IFrameChild() implements OnInit {
         this.spinner.hide(this.spinner.defaultLoaderId);
       }
     }
+  }
+
+  生成效果图() {
+    this.wmm.postMessage("获取效果图", this.submitData().data);
+    this.wmm.once("返回效果图", async (data) => {
+      const items = data[this.activeMenshanKey || ""];
+      if (!items) {
+        return;
+      }
+      const container = this.xiaoguotuContainer?.nativeElement;
+      if (!container) {
+        return;
+      }
+      container.innerHTML = "";
+      container.style.transform = "";
+      container.style.opacity = "0";
+      await timeout(0);
+      const rectContainer = container.getBoundingClientRect();
+      const els: HTMLDivElement[] = [];
+      for (const item of items) {
+        let div = document.createElement("div");
+        div.innerHTML = item;
+        div = div.firstElementChild as HTMLDivElement;
+        container.appendChild(div);
+        els.push(div);
+      }
+      await timeout(0);
+      const rect = Rectangle.min;
+      for (const el of els) {
+        const {top, right, bottom, left} = el.getBoundingClientRect();
+        rect.expandByPoint(new Point(left, top));
+        rect.expandByPoint(new Point(right, bottom));
+      }
+      const scaleX = rectContainer.width / rect.width;
+      const scaleY = rectContainer.height / rect.height;
+      const scale = Math.min(scaleX, scaleY);
+      const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
+      const dy = (rectContainer.top - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
+      container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+      container.style.opacity = "1";
+    });
   }
 }

@@ -137,6 +137,18 @@ export class Calc {
     }
   }
 
+  public static mergeFormulas(target: Formulas, ...sources: Formulas[]) {
+    for (const source of sources) {
+      for (const key in source) {
+        const value = source[key];
+        if (value === null || value === undefined) {
+          continue;
+        }
+        target[key] = value;
+      }
+    }
+  }
+
   public static generateExpressDirect(expression: string, dic: Formulas = {}): string {
     // dic中可能有中文
     if (typeof dic !== "object") {
