@@ -34,15 +34,17 @@
       <mat-divider class="placeholder"></mat-divider>
       <ng-scrollbar class="flex-110">
         <div class="flex-column menshan-options">
-          <div
-            class="flex-column menshan-option"
-            *ngFor="let item of data?.menshanbujuInfos | keyvalue : returnZero"
-            [ngClass]="{active: activeMenshanKey === item.key}"
-            (click)="selectMenshanKey(item.key)"
-          >
-            <div style="font-weight: bold">{{ item.key }}</div>
-            <div *ngIf="item.value['选中布局']">布局：{{ getMsbj(item.value["选中布局"])?.name }}</div>
-          </div>
+          <ng-container *ngFor="let item of data?.menshanbujuInfos | keyvalue : returnZero">
+            <div
+              class="flex-column menshan-option"
+              *ngIf="!data?.['铰扇跟随锁扇'] || !item.key.includes('铰扇')"
+              [ngClass]="{active: activeMenshanKey === item.key}"
+              (click)="selectMenshanKey(item.key)"
+            >
+              <div style="font-weight: bold">{{ item.key }}</div>
+              <div *ngIf="item.value['选中布局']">布局：{{ getMsbj(item.value["选中布局"])?.name }}</div>
+            </div>
+          </ng-container>
         </div>
       </ng-scrollbar>
       <div class="xiaoguotu" #xiaoguotuContainer></div>

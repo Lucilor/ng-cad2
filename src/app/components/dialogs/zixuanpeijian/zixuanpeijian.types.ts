@@ -297,6 +297,8 @@ export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: Z
       const info = typesInfo[type1][type2];
       for (const item of items) {
         if (isMokuaiItemEqual(item, info)) {
+          item.type1 = type1;
+          item.type2 = type2;
           const {gongshishuru, xuanxiangshuru, suanliaogongshi, morenbancai} = item;
           Object.assign(item, info);
           if (useSlgs) {
@@ -728,6 +730,7 @@ export const calcZxpj = async (
           if (changeLinesLength) {
             setLinesLength(data, [e], length);
           }
+          e.info.线长 = length;
         }
       }
       setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);

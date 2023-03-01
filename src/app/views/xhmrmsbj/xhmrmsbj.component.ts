@@ -21,12 +21,13 @@ import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {CalcService} from "@services/calc.service";
-import {setGlobal} from "@src/app/app.common";
+import {setGlobal, timer} from "@src/app/app.common";
 import {Formulas} from "@src/app/utils/calc";
-import {ObjectOf, Point, Rectangle, timeout, WindowMessageManager} from "@utils";
+import {Point, Rectangle, timeout, WindowMessageManager} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {cloneDeep, intersection, isEqual} from "lodash";
+import {BehaviorSubject, filter, firstValueFrom} from "rxjs";
 import {XhmrmsbjData, XhmrmsbjInfo, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
 
 @Component({
@@ -67,11 +68,10 @@ export class XhmrmsbjComponent implements OnInit {
   mokuaiInputInfos: InputInfo[] = [];
   isMrbcjfzInfoEmpty = isMrbcjfzInfoEmpty;
   menshanKeys = ["锁扇正面", "锁扇背面", "铰扇正面", "铰扇背面", "小扇正面", "小扇背面"];
-  messageType = "门扇模块";
   materialResult: Formulas = {};
   mokuaidaxiaoResult: Formulas = {};
-  xiaoguotu: ObjectOf<string[]> = {};
   wmm = new WindowMessageManager("门扇模块", this, window.parent);
+  xiaoguotuLock$ = new BehaviorSubject(false);
   @ViewChild(MsbjRectsComponent) msbjRectsComponent?: MsbjRectsComponent;
   @ViewChild("xiaoguotuContainer", {read: ElementRef}) xiaoguotuContainer?: ElementRef<HTMLDivElement>;
 
@@ -116,7 +116,6 @@ export class XhmrmsbjComponent implements OnInit {
       this.isFromOrder = true;
       this.token = token;
       this.dataService.token = token;
-      this.wmm.postMessage("requestData");
       await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     }
     this.fenleis = await this.dataService.queryMySql<TableDataBase>({table: "p_gongnengfenlei", fields: ["vid", "mingzi"]});
@@ -124,33 +123,45 @@ export class XhmrmsbjComponent implements OnInit {
     this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, "peizhishuju"));
     const response = await this.dataService.post<BancaiList[]>("ngcad/getBancaiList");
     this.bancaiList = response?.data || [];
-
     await timeout(0);
-    this.selectMenshanKey(this.menshanKeys[0]);
+    if (this.isFromOrder) {
+      this.wmm.postMessage("requestData");
+    } else {
+      await this.selectMenshanKey(this.menshanKeys[0]);
+    }
   }
 
-  requestData(data: any) {
-    const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys} = data;
+  async requestData(data: any) {
+    const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys, 铰扇跟随锁扇} = data;
     this.data = new XhmrmsbjData(
-      {vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局)},
+      {vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局), jiaoshanbujuhesuoshanxiangtong: 铰扇跟随锁扇 ? 1 : 0},
       menshanKeys,
       this.step1Data.typesInfo
     );
     this.materialResult = materialResult;
+    this.menshanKeys = menshanKeys;
     this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
-    if (this.activeMenshanKey) {
-      this.selectMenshanKey(this.activeMenshanKey);
-    }
+    await this.selectMenshanKey(this.activeMenshanKey || this.menshanKeys[0]);
   }
 
   submitData() {
-    return {
-      action: "submitData",
-      data: {
-        型号选中门扇布局: this.data?.menshanbujuInfos,
-        门扇布局: this.msbjs
+    const result = {action: "submitData", data: {} as any};
+    const data = this.data;
+    if (data) {
+      if (data.铰扇跟随锁扇) {
+        for (const key in data.menshanbujuInfos) {
+          if (key.includes("铰扇")) {
+            data.menshanbujuInfos[key] = cloneDeep(data.menshanbujuInfos[key.replace("铰扇", "锁扇")]);
+          }
+        }
       }
-    };
+      result.data = {
+        型号选中门扇布局: data.menshanbujuInfos,
+        铰扇跟随锁扇: data.铰扇跟随锁扇,
+        门扇布局: this.msbjs
+      };
+    }
+    return result;
   }
 
   保存模块大小(data: any) {
@@ -164,7 +175,7 @@ export class XhmrmsbjComponent implements OnInit {
     return 0;
   }
 
-  selectMenshanKey(key: string) {
+  async selectMenshanKey(key: string) {
     const msbj = this.activeMsbj;
     const msbjInfo = this.activeMsbjInfo;
     if (msbj && msbjInfo) {
@@ -177,7 +188,7 @@ export class XhmrmsbjComponent implements OnInit {
       }
     }
     this.activeMenshanKey = key;
-    this.setActiveMsbj(this.activeMsbjInfo?.选中布局);
+    await this.setActiveMsbj(this.activeMsbjInfo?.选中布局);
   }
 
   async setActiveMsbj(vid?: number) {
@@ -200,7 +211,8 @@ export class XhmrmsbjComponent implements OnInit {
       }
     }
 
-    this.updateMokuaidaxiaoResult();
+    await this.updateMokuaidaxiaoResult();
+    await this.生成效果图();
   }
 
   async updateMokuaidaxiaoResult() {
@@ -232,34 +244,25 @@ export class XhmrmsbjComponent implements OnInit {
       }
     }
     this.updateMokuaiInputInfo();
-    this.生成效果图();
   }
 
   async setMsbj() {
     const infos = this.data?.menshanbujuInfos;
-    const key = this.activeMenshanKey;
-    if (!key || !infos) {
+    const menshanweizhi = this.activeMenshanKey;
+    if (!menshanweizhi || !infos) {
       return;
     }
-    const vid = infos[key].选中布局;
+    const vid = infos[menshanweizhi].选中布局;
     const checkedVids: number[] = [];
     if (vid) {
       checkedVids.push(vid);
     }
-    const menshanweizhiArr: string[] = [];
-    if (key.includes("正面")) {
-      menshanweizhiArr.push("门扇正面");
-    }
-    if (key.includes("反面")) {
-      menshanweizhiArr.push("门扇反面");
-    }
-    const menshanweizhi = menshanweizhiArr.join("*");
     const result = await openCadOptionsDialog(this.dialog, {
       data: {name: "p_menshanbuju", filter: {guanlianCN: {menshanweizhi}}, checkedVids, multi: false}
     });
     if (result?.[0]) {
-      infos[key].选中布局 = result[0].vid;
-      this.setActiveMsbj(infos[key].选中布局);
+      infos[menshanweizhi].选中布局 = result[0].vid;
+      this.setActiveMsbj(infos[menshanweizhi].选中布局);
     }
   }
 
@@ -323,7 +326,14 @@ export class XhmrmsbjComponent implements OnInit {
         }
       }
       for (const v of [...选中模块.gongshishuru, ...选中模块.xuanxiangshuru]) {
-        this.mokuaiInputInfos.push({type: "string", label: v[0], model: {key: "1", data: v}});
+        this.mokuaiInputInfos.push({
+          type: "string",
+          label: v[0],
+          model: {key: "1", data: v},
+          onChange: async () => {
+            await this.生成效果图();
+          }
+        });
       }
     }
   }
@@ -463,7 +473,7 @@ export class XhmrmsbjComponent implements OnInit {
     }
   }
 
-  setBancaixuanze(item: MrbcjfzInfo, value: string) {
+  async setBancaixuanze(item: MrbcjfzInfo, value: string) {
     if (this.isFromOrder) {
       item.选中板材分组 = value;
       item.选中板材 = "";
@@ -475,6 +485,7 @@ export class XhmrmsbjComponent implements OnInit {
       item.默认开料材料 = "";
       item.默认开料板材厚度 = "";
     }
+    await this.生成效果图();
   }
 
   getMsbj(id: number) {
@@ -504,44 +515,51 @@ export class XhmrmsbjComponent implements OnInit {
     }
   }
 
-  生成效果图() {
+  async 生成效果图() {
+    if (!this.isFromOrder) {
+      return;
+    }
+    const container = this.xiaoguotuContainer?.nativeElement;
+    if (!container) {
+      return;
+    }
+    if (this.xiaoguotuLock$.value) {
+      await firstValueFrom(this.xiaoguotuLock$.pipe(filter((v) => !v)));
+    }
+    this.xiaoguotuLock$.next(true);
+    const timerName = "生成效果图";
+    timer.start(timerName);
+    container.innerHTML = "";
+    container.style.transform = "";
+    container.style.opacity = "0";
+    await timeout(0);
     this.wmm.postMessage("获取效果图", this.submitData().data);
-    this.wmm.once("返回效果图", async (data) => {
-      const items = data[this.activeMenshanKey || ""];
-      if (!items) {
-        return;
-      }
-      const container = this.xiaoguotuContainer?.nativeElement;
-      if (!container) {
-        return;
-      }
-      container.innerHTML = "";
-      container.style.transform = "";
-      container.style.opacity = "0";
-      await timeout(0);
-      const rectContainer = container.getBoundingClientRect();
-      const els: HTMLDivElement[] = [];
-      for (const item of items) {
-        let div = document.createElement("div");
-        div.innerHTML = item;
-        div = div.firstElementChild as HTMLDivElement;
-        container.appendChild(div);
-        els.push(div);
-      }
-      await timeout(0);
-      const rect = Rectangle.min;
-      for (const el of els) {
-        const {top, right, bottom, left} = el.getBoundingClientRect();
-        rect.expandByPoint(new Point(left, top));
-        rect.expandByPoint(new Point(right, bottom));
-      }
-      const scaleX = rectContainer.width / rect.width;
-      const scaleY = rectContainer.height / rect.height;
-      const scale = Math.min(scaleX, scaleY);
-      const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
-      const dy = (rectContainer.top - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
-      container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-      container.style.opacity = "1";
-    });
+    const data = await this.wmm.waitForMessage("返回效果图");
+    const items = data[this.activeMenshanKey || ""] || [];
+    const rectContainer = container.getBoundingClientRect();
+    const els: HTMLDivElement[] = [];
+    for (const item of items) {
+      let div = document.createElement("div");
+      div.innerHTML = item;
+      div = div.firstElementChild as HTMLDivElement;
+      container.appendChild(div);
+      els.push(div);
+    }
+    await timeout(0);
+    const rect = Rectangle.min;
+    for (const el of els) {
+      const {top, right, bottom, left} = el.getBoundingClientRect();
+      rect.expandByPoint(new Point(left, top));
+      rect.expandByPoint(new Point(right, bottom));
+    }
+    const scaleX = rectContainer.width / rect.width;
+    const scaleY = rectContainer.height / rect.height;
+    const scale = Math.min(scaleX, scaleY);
+    const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
+    const dy = (rectContainer.top - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
+    container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    container.style.opacity = "1";
+    timer.end(timerName, timerName);
+    this.xiaoguotuLock$.next(false);
   }
 }

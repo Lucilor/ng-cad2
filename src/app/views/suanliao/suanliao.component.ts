@@ -18,6 +18,7 @@ import {
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
+import {timer} from "@src/app/app.common";
 import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf, WindowMessageManager} from "@utils";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
@@ -29,7 +30,6 @@ import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
   styleUrls: ["./suanliao.component.scss"]
 })
 export class SuanliaoComponent implements OnInit, OnDestroy {
-  messageType = "算料";
   msbjs: MsbjInfo[] = [];
   step1Data?: Step1Data;
   wmm = new WindowMessageManager("算料", this, window.parent);
@@ -48,7 +48,7 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     const menshanbujus = await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, "peizhishuju"));
     this.step1Data = await getStep1Data(this.dataService);
-    window.parent.postMessage({type: this.messageType, action: "suanliaoReady"}, "*");
+    this.wmm.postMessage("suanliaoReady");
   }
 
   ngOnDestroy() {
@@ -56,6 +56,8 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
   }
 
   async suanliaoStart(params: SuanliaoInput): Promise<SuanliaoOutput> {
+    const timerName = "算料";
+    timer.start(timerName);
     const {materialResult, gongshi, inputResult, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames, varNames} = params;
     const result: SuanliaoOutput = {
       action: "suanliaoEnd",
@@ -142,19 +144,14 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
       }
     }
 
-    const 选中布局infos: Partial<ZixuanpeijianInfo>[] = [];
+    const lingsans = [];
     for (const name of bujuNames) {
       const 选中布局 = 型号选中门扇布局[name]?.选中布局;
-      if (选中布局 && 选中布局 > 0) {
-        选中布局infos.push({门扇名字: name, 布局id: 选中布局});
-      }
-    }
-    const lingsans = [];
-    for (const data of 门扇布局CAD) {
-      const {布局id} = data.info;
-      const info = 选中布局infos.find((v) => v.布局id === 布局id);
-      if (info) {
-        lingsans.push(getCadItem(data, info));
+      for (const data of 门扇布局CAD) {
+        const {布局id} = data.info;
+        if (布局id === 选中布局) {
+          lingsans.push(getCadItem(data, {门扇名字: name, 布局id: 选中布局}));
+        }
       }
     }
 
@@ -167,6 +164,7 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     });
     if (!calcZxpjResult.fulfilled) {
       result.data.error = calcZxpjResult.error;
+      timer.end(timerName, timerName);
       return result;
     }
     for (const mokuai of mokuais) {
@@ -182,11 +180,20 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     result.data.配件模块CAD = mokuais.map((v) => ({...v, cads: v.cads.map(getCadItem2)}));
     result.data.门扇布局CAD = lingsans.map(getCadItem2);
     result.data.fulfilled = true;
+    timer.end(timerName, timerName);
     return result;
   }
 
   async drawCads(data: {cads: any[]}) {
     await openDrawCadDialog(this.dialog, {data: {cads: data.cads.map((v) => new CadData(v)), collection: "cad"}});
+  }
+
+  updateMokuaiItemsStart(data: any) {
+    const result = {action: "updateMokuaiItemsEnd", data: data.items};
+    if (this.step1Data) {
+      updateMokuaiItems(data.items, this.step1Data.typesInfo);
+    }
+    return result;
   }
 }
 

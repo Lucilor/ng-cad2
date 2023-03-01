@@ -392,7 +392,7 @@ export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post", d
 export const getCadTotalLength = (data: CadData) => {
   let length = 0;
   const entities = data.getAllEntities();
-  entities.line.forEach((e) => (length += e.length));
+  entities.line.forEach((e) => (length += e.info.线长 || e.length));
   entities.arc.forEach((e) => (length += e.length));
   entities.circle.forEach((e) => (length += e.curve.length));
   return length;
