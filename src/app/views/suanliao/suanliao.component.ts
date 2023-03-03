@@ -104,7 +104,7 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
           if (选中模块) {
             if (模块大小输入) {
               for (const key in 模块大小输入) {
-                const value = inputResult[key] > 0 ? inputResult[key] : 模块大小输入[key];
+                const value = Number(inputResult[key]) > 0 ? inputResult[key] : 模块大小输入[key];
                 模块大小输入[key] = value;
                 if (key in gongshi) {
                   gongshi[key] = value;
@@ -149,7 +149,8 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
       const 选中布局 = 型号选中门扇布局[name]?.选中布局;
       for (const data of 门扇布局CAD) {
         const {布局id} = data.info;
-        if (布局id === 选中布局) {
+        const type2 = data.type2;
+        if (布局id === 选中布局 && (!type2 || type2.split("*").includes(name))) {
           lingsans.push(getCadItem(data, {门扇名字: name, 布局id: 选中布局}));
         }
       }

@@ -589,7 +589,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     this.type1 = type1;
   }
 
-  private _updateInputInfos() {
+  private async _updateInputInfos() {
     this.dropDownOptions.length = 0;
     const vars = this.materialResult || {};
 
@@ -709,67 +709,71 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
         };
       });
 
-    this.mokuaiInputInfos = this.result.模块.map<MokuaiInputInfos>((item, i) => ({
-      总宽: {type: "string", label: "总宽", model: {key: "totalWidth", data: item}, showEmpty: item.shuruzongkuan, options},
-      总高: {type: "string", label: "总高", model: {key: "totalHeight", data: item}, showEmpty: item.shuruzonggao, options},
-      公式输入: (item.gongshishuru || []).map((group) => ({
-        type: "string",
-        label: group[0],
-        model: {key: "1", data: group},
-        showEmpty: true,
-        options,
-        onChange: () => {
-          const gongshishuru: ObjectOf<string> = {};
-          for (const [k, v] of item.gongshishuru) {
-            gongshishuru[k] = v;
-          }
-          if (!item.standalone) {
-            for (const [j, item2] of this.result.模块.entries()) {
-              if (i === j || item2.standalone) {
-                continue;
-              }
-              for (const group2 of item2.gongshishuru) {
-                if (group2[0] in gongshishuru) {
-                  group2[1] = gongshishuru[group2[0]];
+    this.mokuaiInputInfos = await Promise.all(
+      this.result.模块.map<Promise<MokuaiInputInfos>>(async (item, i) => ({
+        总宽: {type: "string", label: "总宽", model: {key: "totalWidth", data: item}, showEmpty: item.shuruzongkuan, options},
+        总高: {type: "string", label: "总高", model: {key: "totalHeight", data: item}, showEmpty: item.shuruzonggao, options},
+        公式输入: (item.gongshishuru || []).map((group) => ({
+          type: "string",
+          label: group[0],
+          model: {key: "1", data: group},
+          showEmpty: true,
+          options,
+          onChange: () => {
+            const gongshishuru: ObjectOf<string> = {};
+            for (const [k, v] of item.gongshishuru) {
+              gongshishuru[k] = v;
+            }
+            if (!item.standalone) {
+              for (const [j, item2] of this.result.模块.entries()) {
+                if (i === j || item2.standalone) {
+                  continue;
+                }
+                for (const group2 of item2.gongshishuru) {
+                  if (group2[0] in gongshishuru) {
+                    group2[1] = gongshishuru[group2[0]];
+                  }
                 }
               }
             }
           }
-        }
-      })),
-      选项输入: (item.xuanxiangshuru || []).map((group) => ({
-        type: "select",
-        label: group[0],
-        model: {key: "1", data: group},
-        options: this.options[group[0]] || [],
-        showEmpty: true,
-        onChange: () => {
-          const xuanxiangshuru: ObjectOf<string> = {};
-          for (const [k, v] of item.xuanxiangshuru) {
-            xuanxiangshuru[k] = v;
-          }
-          if (!item.standalone) {
-            for (const [j, item2] of this.result.模块.entries()) {
-              if (i === j || item2.standalone) {
-                continue;
-              }
-              for (const group2 of item2.xuanxiangshuru) {
-                if (group2[0] in xuanxiangshuru) {
-                  group2[1] = xuanxiangshuru[group2[0]];
+        })),
+        选项输入: (item.xuanxiangshuru || []).map((group) => ({
+          type: "select",
+          label: group[0],
+          model: {key: "1", data: group},
+          options: this.options[group[0]] || [],
+          showEmpty: true,
+          onChange: () => {
+            const xuanxiangshuru: ObjectOf<string> = {};
+            for (const [k, v] of item.xuanxiangshuru) {
+              xuanxiangshuru[k] = v;
+            }
+            if (!item.standalone) {
+              for (const [j, item2] of this.result.模块.entries()) {
+                if (i === j || item2.standalone) {
+                  continue;
+                }
+                for (const group2 of item2.xuanxiangshuru) {
+                  if (group2[0] in xuanxiangshuru) {
+                    group2[1] = xuanxiangshuru[group2[0]];
+                  }
                 }
               }
             }
           }
-        }
-      })),
-      输出文本: (item.shuchuwenben || []).map((group) => ({
-        type: "string",
-        label: group[0],
-        value: /#.*#/.test(group[1]) ? String(this.calc.calcExpression(group[1], this.materialResult)) : group[1],
-        readonly: true
-      })),
-      cads: getCadItemInputInfos(item.cads, "模块")
-    }));
+        })),
+        输出文本: await Promise.all(
+          (item.shuchuwenben || []).map(async (group) => ({
+            type: "string",
+            label: group[0],
+            value: /#.*#/.test(group[1]) ? String(await this.calc.calcExpression(group[1], this.materialResult)) : group[1],
+            readonly: true
+          }))
+        ),
+        cads: getCadItemInputInfos(item.cads, "模块")
+      }))
+    );
     this.lingsanInputInfos = getCadItemInputInfos(this.result.零散, "零散");
   }
 
@@ -824,7 +828,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
         item.totalHeight = toFixed(succeedTrim.总高, this.fractionDigits);
       }
     }
-    this._updateInputInfos();
+    await this._updateInputInfos();
   }
 
   removeMokuaiItem(i: number) {

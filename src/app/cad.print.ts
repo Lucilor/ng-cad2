@@ -291,7 +291,7 @@ const getWrapedText = (cad: CadViewer, source: string, mtext: CadMtext, options:
   while (end <= sourceLength) {
     tmpText.text = getIndentText(source.slice(start, end));
     cad.render(tmpText);
-    if (tmpText.el && tmpText.el.width() < maxLength) {
+    if (tmpText.el && Number(tmpText.el.width()) < maxLength) {
       end++;
     } else {
       if (start === end - 1) {
@@ -485,7 +485,7 @@ export const configCadDataForPrint = async (
       }
     });
     let rect = data.getBoundingRect();
-    data.transform({scale: data.suanliaodanZoom, origin: [rect.x, rect.y]}, true);
+    // data.transform({scale: data.suanliaodanZoom, origin: [rect.x, rect.y]}, true);
     await cad.render(data.getAllEntities());
     setShuangxiangLineRects(shaungxiangCads, shaungxiangRects);
     await cad.render(data.getAllEntities());
@@ -740,7 +740,7 @@ export const printCads = async (params: PrintCadsParams) => {
       const 拉手信息 = data.entities.mtext.filter((v) => v.text.startsWith("拉手:")).sort((v) => v.insert.x - v.insert.y);
       for (const mtext of 拉手信息) {
         const {el, text} = mtext;
-        if (el && el.width() >= 拉手信息宽度) {
+        if (el && Number(el.width()) >= 拉手信息宽度) {
           try {
             mtext.text = getWrapedText(cad, text, mtext, getWrapedTextOptions(text, 拉手信息宽度)).join("\n     ");
             cad.render(mtext);

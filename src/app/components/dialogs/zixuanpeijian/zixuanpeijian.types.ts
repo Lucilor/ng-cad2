@@ -312,10 +312,14 @@ export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: Z
             item.totalHeight = getValue("总高", item.totalHeight);
           }
           for (const v of item.gongshishuru) {
-            v[1] = gongshishuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
+            if (!v[1]) {
+              v[1] = gongshishuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
+            }
           }
           for (const v of item.xuanxiangshuru) {
-            v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
+            if (v[1]) {
+              v[1] = xuanxiangshuru.find((v2) => v2[0] === v[0])?.[1] || v[1];
+            }
           }
           if (morenbancai) {
             if (!item.morenbancai) {
@@ -586,7 +590,7 @@ export const calcZxpj = async (
         details = info.map((v) => v.keys).flat();
         for (const name of details) {
           for (const v of dimensionNamesMap[name]) {
-            cads.push(v.item.data);
+            v.item.data.id = v.item.info.houtaiId;
           }
         }
         await message.error(msg, details);
@@ -595,6 +599,21 @@ export const calcZxpj = async (
       }
     }
   }
+
+  const replaceMenshanName = (门扇名字: string | undefined | null, formulas: Formulas) => {
+    if (!门扇名字) {
+      return;
+    }
+    for (const key in formulas) {
+      if (key.includes("当前扇")) {
+        formulas[key] = key.replaceAll("当前扇", 门扇名字);
+      }
+      const value = formulas[key];
+      if (typeof value === "string" && value.includes("当前扇")) {
+        formulas[key] = value.replaceAll("当前扇", 门扇名字);
+      }
+    }
+  };
 
   let initial = true;
   let calc1Finished = false;
@@ -611,6 +630,7 @@ export const calcZxpj = async (
       }
       const formulas1 = v.formulas;
       const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.vars};
+      replaceMenshanName(v.item.info?.门扇名字, formulas1);
       const result1Msg = `计算模块（${getMokuaiTitle(v.item)}）`;
       const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);
       // console.log({formulas1, vars1, result1});
@@ -805,7 +825,7 @@ export const calcZxpj = async (
           ])
         };
         ["门扇上切", "门扇下切", "门扇上面上切", "门扇下面下切"].forEach((qiekey) => {
-          if (cadZhankai?.zhankaigao.includes(qiekey) && materialResult[qiekey] > 0) {
+          if (cadZhankai?.zhankaigao.includes(qiekey) && Number(materialResult[qiekey]) > 0) {
             if (qiekey.includes("上切")) {
               calcObj["上切"] = materialResult[qiekey];
             } else {

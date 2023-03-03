@@ -228,11 +228,13 @@
     <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
       <ng-container [ngSwitch]="type">
         <ng-container *ngSwitchCase="'模块'">
-          <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].width"></app-input>
-          <span>×</span>
-          <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].height"></app-input>
-          <span>=</span>
-          <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].num"></app-input>
+          <ng-container *ngIf="mokuaiInputInfos[i].cads[j]">
+            <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].width"></app-input>
+            <span>×</span>
+            <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].height"></app-input>
+            <span>=</span>
+            <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].num"></app-input>
+          </ng-container>
         </ng-container>
         <ng-container *ngSwitchCase="'零散'">
           <button mat-icon-button color="primary" (click)="addZhankai(type, i, j, k)">
@@ -241,32 +243,38 @@
           <button [disabled]="k === 0" mat-icon-button color="primary" (click)="removeZhankai(type, i, j, k)">
             <mat-icon>remove_circle</mat-icon>
           </button>
-          <app-input [info]="lingsanInputInfos[i].zhankai[k].width"></app-input>
-          <span>×</span>
-          <app-input [info]="lingsanInputInfos[i].zhankai[k].height"></app-input>
-          <span>=</span>
-          <app-input [info]="lingsanInputInfos[i].zhankai[k].num"></app-input>
+          <ng-container *ngIf="lingsanInputInfos[i]">
+            <app-input [info]="lingsanInputInfos[i].zhankai[k].width"></app-input>
+            <span>×</span>
+            <app-input [info]="lingsanInputInfos[i].zhankai[k].height"></app-input>
+            <span>=</span>
+            <app-input [info]="lingsanInputInfos[i].zhankai[k].num"></app-input>
+          </ng-container>
         </ng-container>
       </ng-container>
     </div>
     <ng-container [ngSwitch]="type">
-      <ng-container *ngSwitchCase="'模块'">
-        <div class="content inputs">
-          <app-input [info]="mokuaiInputInfos[i].cads[j]['板材']" (click)="openBancaiListDialog(cad.info)"></app-input>
-        </div>
-        <div class="content inputs" *ngIf="cad.info.bancai">
-          <app-input [info]="mokuaiInputInfos[i].cads[j]['材料']"></app-input>
-          <app-input [info]="mokuaiInputInfos[i].cads[j]['厚度']"></app-input>
-        </div>
+      <ng-container *ngIf="mokuaiInputInfos[i].cads[j]">
+        <ng-container *ngSwitchCase="'模块'">
+          <div class="content inputs">
+            <app-input [info]="mokuaiInputInfos[i].cads[j]['板材']" (click)="openBancaiListDialog(cad.info)"></app-input>
+          </div>
+          <div class="content inputs" *ngIf="cad.info.bancai">
+            <app-input [info]="mokuaiInputInfos[i].cads[j]['材料']"></app-input>
+            <app-input [info]="mokuaiInputInfos[i].cads[j]['厚度']"></app-input>
+          </div>
+        </ng-container>
       </ng-container>
-      <ng-container *ngSwitchCase="'零散'">
-        <div class="content inputs">
-          <app-input [info]="lingsanInputInfos[i]['板材']" (click)="openBancaiListDialog(cad.info)"></app-input>
-        </div>
-        <div class="content inputs" *ngIf="cad.info.bancai">
-          <app-input [info]="lingsanInputInfos[i]['材料']"></app-input>
-          <app-input [info]="lingsanInputInfos[i]['厚度']"></app-input>
-        </div>
+      <ng-container *ngIf="lingsanInputInfos[i]">
+        <ng-container *ngSwitchCase="'零散'">
+          <div class="content inputs">
+            <app-input [info]="lingsanInputInfos[i]['板材']" (click)="openBancaiListDialog(cad.info)"></app-input>
+          </div>
+          <div class="content inputs" *ngIf="cad.info.bancai">
+            <app-input [info]="lingsanInputInfos[i]['材料']"></app-input>
+            <app-input [info]="lingsanInputInfos[i]['厚度']"></app-input>
+          </div>
+        </ng-container>
       </ng-container>
     </ng-container>
     <div class="btn-group">

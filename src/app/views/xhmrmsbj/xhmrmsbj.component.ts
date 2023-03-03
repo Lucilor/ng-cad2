@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from "@angular/core";
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
@@ -35,7 +35,7 @@ import {XhmrmsbjData, XhmrmsbjInfo, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbj
   templateUrl: "./xhmrmsbj.component.html",
   styleUrls: ["./xhmrmsbj.component.scss"]
 })
-export class XhmrmsbjComponent implements OnInit {
+export class XhmrmsbjComponent implements OnInit, OnDestroy {
   table = "";
   id = "";
   isFromOrder = false;
@@ -131,6 +131,10 @@ export class XhmrmsbjComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.wmm.destroy();
+  }
+
   async requestData(data: any) {
     const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys, 铰扇跟随锁扇} = data;
     this.data = new XhmrmsbjData(
@@ -168,6 +172,7 @@ export class XhmrmsbjComponent implements OnInit {
     if (this.activeMsbjInfo) {
       this.activeMsbjInfo.模块大小输入 = data.values;
       this.updateMokuaidaxiaoResult();
+      this.生成效果图();
     }
   }
 
@@ -227,6 +232,9 @@ export class XhmrmsbjComponent implements OnInit {
     if (!config.门扇调整) {
       config.门扇调整 = Object.values(config)[0];
     }
+    if (!config.配置) {
+      config.配置 = {};
+    }
     if (config.门扇调整) {
       for (const k in config.门扇调整) {
         const item = config.门扇调整[k];
@@ -237,8 +245,20 @@ export class XhmrmsbjComponent implements OnInit {
           this.mokuaidaxiaoResult[arr[1]] = calcResult;
         }
         for (const k2 in item.初始值) {
-          if (k2 in vars) {
-            item.初始值[k2] = vars[k2];
+          if (this.activeMenshanKey && k2.includes("当前扇")) {
+            const k3 = k2.replaceAll("当前扇", this.activeMenshanKey);
+            if (!config.配置.修改变量) {
+              config.配置.修改变量 = {};
+            }
+            config.配置.修改变量[k2] = vars[k3];
+            if (!config.变量别名) {
+              item.变量别名 = {};
+            }
+            item.变量别名[k2] = k3;
+          } else {
+            if (k2 in vars) {
+              item.初始值[k2] = vars[k2];
+            }
           }
         }
       }
@@ -325,12 +345,37 @@ export class XhmrmsbjComponent implements OnInit {
           this.mokuaiInputInfos.push({type: "string", label: key, value: inputValue, readonly: true});
         }
       }
-      for (const v of [...选中模块.gongshishuru, ...选中模块.xuanxiangshuru]) {
+      const arr = 选中模块.gongshishuru.concat(选中模块.xuanxiangshuru);
+      for (const v of arr) {
+        if (!v[1] && v[0] in this.materialResult) {
+          const value = Number(this.materialResult[v[0]]);
+          if (!isNaN(value)) {
+            v[1] = value.toString();
+          }
+        }
         this.mokuaiInputInfos.push({
           type: "string",
           label: v[0],
           model: {key: "1", data: v},
           onChange: async () => {
+            const {data, activeMenshanKey} = this;
+            if (data && activeMenshanKey) {
+              for (const key in data.menshanbujuInfos) {
+                if (key !== activeMenshanKey) {
+                  for (const node2 of data.menshanbujuInfos[key].模块节点 || []) {
+                    const 选中模块2 = node2.选中模块;
+                    if (选中模块2) {
+                      const arr2 = 选中模块2.gongshishuru.concat(选中模块2.xuanxiangshuru);
+                      for (const v2 of arr2) {
+                        if (v2[0] === v[0]) {
+                          v2[1] = v[1];
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
             await this.生成效果图();
           }
         });

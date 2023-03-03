@@ -10,7 +10,7 @@ import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {setGlobal} from "@src/app/app.common";
+import {setGlobal, XiaodaohangStructure} from "@src/app/app.common";
 import {getCadPreview} from "@src/app/cad.utils";
 import {timeout} from "@utils";
 import {Properties} from "csstype";
@@ -53,6 +53,7 @@ export class MrbcjfzComponent implements OnInit {
   bancaiList: BancaiList[] = [];
   bancaiInputs: InputInfo<MrbcjfzInfo>[][] = [];
   activeBancaiKey: string | null = null;
+  xiaodaohangStructure: XiaodaohangStructure | null = null;
   get activeBancai() {
     if (!this.activeBancaiKey) {
       return null;
@@ -92,6 +93,7 @@ export class MrbcjfzComponent implements OnInit {
       this.bancaiKeys = response.data.bancaiKeys;
       this.bancaiKeysNonClear = union(response.data.bancaiKeysNonClear, response.data.bancaiKeysRequired);
       this.bancaiKeysRequired = response.data.bancaiKeysRequired;
+      this.xiaodaohangStructure = response.data.xiaodaohangStructure;
       this.cads = [];
       const cadsToRemove: MrbcjfzCadInfo[] = [];
       response.data.cads.forEach((v) => {

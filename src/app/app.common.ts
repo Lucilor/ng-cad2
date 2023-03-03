@@ -143,3 +143,7 @@ export const replaceRemoteHost = (url: string) => {
   }
   return url;
 };
+
+export interface XiaodaohangStructure {
+  mingzi: string;
+}

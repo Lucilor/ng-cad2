@@ -1,6 +1,7 @@
 import {CadData} from "@cad-viewer";
 import {BancaiList, TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
+import {XiaodaohangStructure} from "@src/app/app.common";
 import {ObjectOf} from "@utils";
 
 export interface MrbcjfzResponseData {
@@ -12,6 +13,7 @@ export interface MrbcjfzResponseData {
   bancaiKeysNonClear: string[];
   bancaiKeysRequired: string[];
   bancaiList: BancaiList[];
+  xiaodaohangStructure: XiaodaohangStructure;
 }
 
 export interface MrbcjfzXinghao extends TableDataBase {
