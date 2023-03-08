@@ -45,7 +45,7 @@ export class XhmrmsbjData {
       vid: this.vid,
       mingzi: this.name,
       jiaoshanbujuhesuoshanxiangtong: this.铰扇跟随锁扇 ? 1 : 0,
-      peizhishuju: JSON.stringify(this.menshanbujuInfos),
+      peizhishuju: JSON.stringify(this.menshanbujuInfos)
     };
     return data;
   }

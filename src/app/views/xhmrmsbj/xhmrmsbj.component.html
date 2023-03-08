@@ -47,7 +47,6 @@
           </ng-container>
         </div>
       </ng-scrollbar>
-      <div class="xiaoguotu" #xiaoguotuContainer></div>
     </div>
     <mat-divider vertical></mat-divider>
     <div class="flex-110 flex-column">
@@ -60,6 +59,7 @@
             (generateRectsEnd)="generateRectsEnd()"
           ></app-msbj-rects>
         </div>
+        <div class="xiaoguotu flex-110" #xiaoguotuContainer *ngIf="isFromOrder"></div>
         <div class="flex-110 flex-row">
           <div class="flex-column flex-110">
             <ng-scrollbar class="flex-110">

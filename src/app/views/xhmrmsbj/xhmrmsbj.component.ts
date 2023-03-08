@@ -209,7 +209,9 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       for (const info of msbj?.peizhishuju?.模块节点.filter((v) => v.isBuju) || []) {
         const node = msbjInfo.模块节点.find((v) => v.层id === info.vid);
         if (node) {
-          node.层名字 = info.mingzi;
+          if (info.mingzi) {
+            node.层名字 = info.mingzi;
+          }
         } else {
           msbjInfo.模块节点.push({层id: info.vid, 层名字: info.mingzi, 可选模块: []});
         }
@@ -406,7 +408,9 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       const {menshanKey, msbjInfo} = msbjInfos[i];
       for (const node of msbjInfo.模块节点 || []) {
         if (!node.选中模块) {
-          errorMenshanKeys.add(menshanKey);
+          if (!dataInfo.铰扇跟随锁扇 || !menshanKey.includes("锁扇")) {
+            errorMenshanKeys.add(menshanKey);
+          }
         }
         for (const mokuai of node.可选模块) {
           const varKeysMokuai = mokuai.shuchubianliang;
@@ -464,8 +468,8 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   isMokuaiKexuan(mokuai: ZixuanpeijianTypesInfoItem) {
-    const nodes = this.activeMsbjInfo?.模块节点 || [];
-    return !!nodes.find((v) => v.可选模块.find((v2) => v2.id === mokuai.id));
+    const node = this.activeMokuaiNode;
+    return !!node?.可选模块.find((v2) => v2.id === mokuai.id);
   }
 
   isMokuaiActive(mokuai: ZixuanpeijianTypesInfoItem) {
@@ -581,7 +585,11 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.wmm.postMessage("获取效果图", this.submitData().data);
     const data = await this.wmm.waitForMessage("返回效果图");
     const items = data[this.activeMenshanKey || ""] || [];
-    const rectContainer = container.getBoundingClientRect();
+    const rectContainer0 = container.getBoundingClientRect();
+    const rectContainer = new Rectangle([rectContainer0.left, rectContainer0.top], [rectContainer0.right, rectContainer0.bottom]);
+    const padding = this.msbjRectsComponent?.padding || [0, 0, 0, 0];
+    rectContainer.min.add(new Point(padding[3], padding[0]));
+    rectContainer.max.sub(new Point(padding[1], padding[2]));
     const els: HTMLDivElement[] = [];
     for (const item of items) {
       let div = document.createElement("div");
@@ -601,7 +609,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     const scaleY = rectContainer.height / rect.height;
     const scale = Math.min(scaleX, scaleY);
     const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
-    const dy = (rectContainer.top - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
+    const dy = (rectContainer.bottom - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
     container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
     container.style.opacity = "1";
     timer.end(timerName, timerName);

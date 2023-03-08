@@ -1,6 +1,7 @@
 import {MsbjPeizhishuju, MsbjRectInfoRaw} from "@components/msbj-rects/msbj-rects.types";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import mokuaidaixiaoData from "@src/assets/testData/mokuaidaxiao.json";
+import {cloneDeep} from "lodash";
 
 export class MsbjInfo {
   vid: number;
@@ -25,7 +26,7 @@ export class MsbjInfo {
       rectInfos1 = window.node2rect(JSON.parse(data.node || ""));
     } catch (error) {}
     if (rectInfos1) {
-      for (const info1 of rectInfos1) {
+      for (const info1 of cloneDeep(rectInfos1)) {
         if (fenleis) {
           info1.可选模块分类 = fenleis.map((v) => v.vid);
         }

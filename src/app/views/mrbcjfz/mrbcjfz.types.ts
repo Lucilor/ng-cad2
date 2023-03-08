@@ -131,8 +131,31 @@ export const filterHuajian = (info: MrbcjfzHuajianInfo) => {
   if (data.shihuajian) {
     return false;
   }
-  const mingziReg = /压条|压边|门徽|猫眼|LOGO|商标|花件|木板|阴影|门铰|拉手/;
-  if (mingziReg.test(data.mingzi)) {
+  if (/阴影/.test(data.mingzi)) {
+    return false;
+  }
+  const getProperHuajianName = (rawName: string) => {
+    if (!rawName) return "";
+
+    let newName = rawName;
+
+    const newNameParts = newName.split("-"); // 两段或以上的，第一段基本都是做法名字，直接去掉
+
+    if (newNameParts.length > 1) {
+      newNameParts.shift();
+
+      newName = newNameParts.join("-");
+    }
+    /**
+     * 门扇做法有叫以下名字的话，会影响到上下板花件的判断
+     * 无上下板、有上下板
+     * +压条、加压条、无压条
+     */
+    newName = newName.replace(/无上下板|有上下板|\+压条|加压条|无压条|拉手板/g, "");
+    return newName;
+  };
+  const mingziReg = /压条|压边|门徽|猫眼|LOGO|商标|花件|木板|门铰|拉手/;
+  if (mingziReg.test(getProperHuajianName(data.mingzi))) {
     return false;
   }
   return true;

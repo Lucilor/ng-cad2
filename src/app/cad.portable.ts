@@ -918,6 +918,7 @@ export class CadPortable {
       get("假门头"),
       get("门框加厚"),
       get("顶框分体"),
+      get("配件模块"),
       name
     ].join("");
   }

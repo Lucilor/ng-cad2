@@ -29,6 +29,7 @@ export class MsbjRectsComponent {
   rectInfosAbsolute: MsbjRectInfo[] = [];
   rectInfosRelative: MsbjRectInfo[] = [];
   currRectInfo: MsbjRectInfo | null = null;
+  padding = [10, 10, 10, 10] as const;
   @ViewChild("rectOuter") rectOuter?: ElementRef<HTMLDivElement>;
   private _rectColors: ObjectOf<string> = {};
 
@@ -138,7 +139,7 @@ export class MsbjRectsComponent {
     });
     const el = this.rectOuter?.nativeElement;
     if (el) {
-      const padding = [10, 10, 10, 10];
+      const padding = this.padding.slice();
       el.style.padding = "0";
       el.style.opacity = "0";
       await timeout(0);

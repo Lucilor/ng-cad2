@@ -17,7 +17,7 @@ import zxpjTestData from "@src/assets/testData/zixuanpeijian.json";
 import zixuanpeijianTypesInfo from "@src/assets/testData/zixuanpeijianTypesInfo.json";
 import {ObjectOf} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
-import {intersection, isEmpty, isEqual, union} from "lodash";
+import {cloneDeep, intersection, isEmpty, isEqual, union} from "lodash";
 import {openDrawCadDialog} from "../draw-cad/draw-cad.component";
 
 export interface ZixuanpeijianTypesInfoItem {
@@ -294,7 +294,7 @@ export const getZixuanpeijianCads = async (
 export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: ZixuanpeijianTypesInfo, useSlgs = false) => {
   for (const type1 in typesInfo) {
     for (const type2 in typesInfo[type1]) {
-      const info = typesInfo[type1][type2];
+      const info = cloneDeep(typesInfo[type1][type2]);
       for (const item of items) {
         if (isMokuaiItemEqual(item, info)) {
           item.type1 = type1;
@@ -619,6 +619,7 @@ export const calcZxpj = async (
   let calc1Finished = false;
   let calcErrors1: Formulas = {};
   let calcErrors2: Formulas = {};
+  const mokuaiVars: Formulas = {};
   while (!calc1Finished) {
     calc1Finished = true;
     const alertError = !initial && isEqual(calcErrors1, calcErrors2);
@@ -642,6 +643,12 @@ export const calcZxpj = async (
         }
       }
       calc.calc.mergeFormulas(varsGlobal, result1.succeedTrim);
+      const 层名字 = v.item.info?.模块名字;
+      if (层名字) {
+        const {总宽, 总高} = result1.succeedTrim;
+        mokuaiVars[层名字 + "总宽"] = 总宽;
+        mokuaiVars[层名字 + "总高"] = 总高;
+      }
       const missingKeys: string[] = [];
       for (const vv of v.item.shuchubianliang) {
         if (vv in result1.succeedTrim) {
@@ -678,6 +685,9 @@ export const calcZxpj = async (
     const formulas2: Formulas = {};
 
     const zhankais: [number, CadZhankai][] = [];
+    if (!mokuai) {
+      vars2 = {...vars2, ...mokuaiVars};
+    }
     for (const [i, zhankai] of data.zhankai.entries()) {
       let enabled = true;
       for (const condition of zhankai.conditions) {
@@ -761,7 +771,7 @@ export const calcZxpj = async (
         formulas3.展开宽 = zhankai.zhankaikuan;
         formulas3.展开高 = zhankai.zhankaigao;
         formulas3.数量 = `(${zhankai.shuliang})*(${zhankai.shuliangbeishu})`;
-        const result3Msg = `计算（${mokuaiTitle}）${data.name}的第${i + 1}个展开`;
+        const result3Msg = `计算${mokuaiTitle}${data.name}的第${i + 1}个展开`;
         const result3 = await calc.calcFormulas(formulas3, vars3, {title: result3Msg});
         if (!result3?.fulfilled) {
           const cads = [data];
