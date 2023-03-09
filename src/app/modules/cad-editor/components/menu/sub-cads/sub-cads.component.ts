@@ -13,7 +13,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
-import {downloadByString, Matrix, ObjectOf, Point} from "@utils";
+import {downloadByString, Matrix, Point} from "@utils";
 import {isEqual} from "lodash";
 
 interface CadNode {
@@ -285,15 +285,12 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
       const components = data.components.data;
       const timerName = "sub-cads-editChildren";
       timer.start(timerName);
-      const positions: ObjectOf<number[]> = {};
       const rect1 = data.entities.getBoundingRect();
       for (const cad of cads) {
         const length = components.length;
         let shouldPush = true;
         for (let i = 0; i < length; i++) {
           if (shouldReplace(components[i], cad)) {
-            const {x, y} = components[i].getBoundingRect();
-            positions[components[i].id] = [x, y];
             components[i] = cad;
             shouldPush = false;
             break;
@@ -314,15 +311,9 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
       }
       let timerContent = "";
       data.updateComponents();
-      components.forEach((v) => {
-        if (v.id in positions) {
-          const {x: x1, y: y1} = v.getBoundingRect();
-          const [x2, y2] = positions[v.id];
-          v.transform({translate: [x2 - x1, y2 - y1]}, true);
-        }
-      });
       timerContent = "编辑装配CAD";
-      await this.status.openCad();
+      const resData = this.status.closeCad();
+      await this.status.openCad({data: resData});
       timer.end(timerName, timerContent);
     }
   }

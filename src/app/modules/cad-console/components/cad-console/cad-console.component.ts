@@ -364,7 +364,7 @@ export class CadConsoleComponent {
       this.message.book({bookData: data, title: "帮助手册"});
     },
     newCad() {
-      this.status.openCad({data: new CadData({name: "新建CAD"})});
+      this.status.openCad({data: new CadData({name: "新建CAD"}), center: true});
     },
     async open(collectionArg: string) {
       if (this.openLock) {
@@ -400,7 +400,7 @@ export class CadConsoleComponent {
         data: {collection, selectMode: "single", checkedItems, checkedItemsLimit: 1}
       });
       if (result && result.length > 0) {
-        this.status.openCad({data: result[0], collection});
+        this.status.openCad({data: result[0], collection, center: true});
       }
       this.openLock = false;
     },

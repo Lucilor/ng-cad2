@@ -351,7 +351,7 @@ export class ToolbarComponent extends Subscribed() {
       if (yes) {
         this.spinner.show(loaderId);
         const cads2 = await this.dataService.getCad({ids: response.data, collection});
-        await this.status.openCad({data: cads2.cads[0]});
+        await this.status.openCad({data: cads2.cads[0], center: true});
         this.spinner.hide(loaderId);
       }
     }

@@ -177,7 +177,7 @@ export class AppStatusService {
     const timerName = "openCad";
     timer.start(timerName);
     const cad = this.cad;
-    opts = {center: true, isLocal: false, ...opts};
+    opts = {center: false, isLocal: false, ...opts};
     const {data, center, beforeOpen} = opts;
     let collection = opts.collection;
     if (data) {
@@ -296,7 +296,6 @@ export class AppStatusService {
       await this.openCad({
         data: resData,
         collection,
-        center: false,
         beforeOpen: async (data2) => {
           const url = await getCadPreview(collection, data2);
           await dataService.setCadImg(data2.id, url, {silent: true});

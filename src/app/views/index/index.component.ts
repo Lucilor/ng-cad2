@@ -40,7 +40,8 @@ export class IndexComponent implements OnInit {
       }
       this.params = {
         data: new CadData(cachedData),
-        collection: params.collection || "cad"
+        collection: params.collection || "cad",
+        center: true
       };
     } else {
       const {id, ids, collection, errorMessage} = this.route.snapshot.queryParams;
@@ -58,7 +59,7 @@ export class IndexComponent implements OnInit {
         getParams.collection = collection;
         const result = await this.dataService.getCad(getParams);
         if (result.cads.length > 0) {
-          this.params = {data: result.cads[0], collection};
+          this.params = {data: result.cads[0], collection, center: true};
         }
       }
     }

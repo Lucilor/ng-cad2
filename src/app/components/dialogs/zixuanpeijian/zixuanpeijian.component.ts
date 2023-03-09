@@ -807,7 +807,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     if (result) {
       const {succeedTrim} = result;
       for (const group of typesItem.gongshishuru) {
-        if (succeedTrim[group[0]] > 0 && !(group[0] in gongshishuru)) {
+        if (Number(succeedTrim[group[0]]) > 0 && !(group[0] in gongshishuru)) {
           group[1] = toFixed(succeedTrim[group[0]], this.fractionDigits);
         }
       }
@@ -821,10 +821,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
           }
         }
       }
-      if (succeedTrim.总宽 > 0) {
+      if (Number(succeedTrim.总宽) > 0) {
         item.totalWidth = toFixed(succeedTrim.总宽, this.fractionDigits);
       }
-      if (succeedTrim.总高 > 0) {
+      if (Number(succeedTrim.总高) > 0) {
         item.totalHeight = toFixed(succeedTrim.总高, this.fractionDigits);
       }
     }
@@ -926,7 +926,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
         }
       }
     }
-    const result = await openCadEditorDialog(this.dialog, {data: {data, collection, isLocal}});
+    const result = await openCadEditorDialog(this.dialog, {data: {data, collection, isLocal, center: true}});
     if (result?.isSaved) {
       await this.allFetch();
     }
