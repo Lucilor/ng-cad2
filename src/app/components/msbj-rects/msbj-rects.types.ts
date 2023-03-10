@@ -1,8 +1,8 @@
-import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {ObjectOf, Rectangle} from "@utils";
 import {uniqueId} from "lodash";
 
-export interface MsbjRectInfoRaw extends TableDataBase {
+export interface MsbjRectInfoRaw {
+  vid: number;
   isBuju: boolean;
   rect: {
     origin: {
@@ -26,11 +26,13 @@ export interface MsbjPeizhishuju {
 
 export class MsbjRectInfo {
   id: string;
+  name: string;
   rect: Rectangle;
   bgColor?: string;
 
   constructor(public raw: MsbjRectInfoRaw) {
     this.id = uniqueId();
+    this.name = "";
     const {x, y} = raw.rect.origin;
     const {w, h} = raw.rect.size;
     this.rect = new Rectangle([x, y], [x + w, y + h]);

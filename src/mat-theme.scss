@@ -122,3 +122,7 @@ mat-divider {
   height: var(--icon-size) !important;
   font-size: var(--icon-size) !important;
 }
+
+.cdk-overlay-container {
+  z-index: 99999;
+}

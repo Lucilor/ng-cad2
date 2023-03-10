@@ -17,6 +17,7 @@ import {
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
+import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {CalcService} from "@services/calc.service";
 import {timer} from "@src/app/app.common";
 import {Formulas} from "@src/app/utils/calc";
@@ -39,7 +40,8 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     private message: MessageService,
     private calc: CalcService,
     private dataService: CadDataService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private spinner: SpinnerService
   ) {}
 
   async ngOnInit() {
@@ -56,6 +58,7 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
   }
 
   async suanliaoStart(params: SuanliaoInput): Promise<SuanliaoOutput> {
+    this.spinner.show(this.spinner.defaultLoaderId);
     const timerName = "算料";
     timer.start(timerName);
     const {materialResult, gongshi, inputResult, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames, varNames} = params;
@@ -136,11 +139,19 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
       mokuai.shuruzongkuan = false;
       mokuai.shuruzonggao = false;
       mokuai.unique = false;
+      if (!mokuai.suanliaogongshi) {
+        mokuai.suanliaogongshi = {};
+      }
       mokuai.calcVars = {keys: Object.keys(mokuai.suanliaogongshi)};
+      mokuai.cads = [];
+      const {门扇名字} = mokuai.info || {};
       if (配件模块CAD[type1] && 配件模块CAD[type1][type2]) {
-        mokuai.cads = 配件模块CAD[type1][type2].map((v) => getCadItem(v, mokuai.info));
-      } else {
-        mokuai.cads = [];
+        for (const v of 配件模块CAD[type1][type2]) {
+          const types: string[] = v.type2 ? v.type2.split("*") : [];
+          if (types.length < 1 || !门扇名字 || types.includes(门扇名字)) {
+            mokuai.cads.push(getCadItem(v, mokuai.info));
+          }
+        }
       }
     }
 
@@ -182,6 +193,7 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     result.data.门扇布局CAD = lingsans.map(getCadItem2);
     result.data.fulfilled = true;
     timer.end(timerName, timerName);
+    this.spinner.hide(this.spinner.defaultLoaderId);
     return result;
   }
 

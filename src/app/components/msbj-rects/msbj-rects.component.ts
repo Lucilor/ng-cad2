@@ -90,8 +90,8 @@ export class MsbjRectsComponent {
       const infoAbsolute = new MsbjRectInfo(infoRaw);
       this.rectInfosAbsolute.push(infoAbsolute);
       totalRect.expandByRect(infoAbsolute.rect);
-      if (infoAbsolute.raw.mingzi) {
-        names.add(infoAbsolute.raw.mingzi);
+      if (infoAbsolute.name) {
+        names.add(infoAbsolute.name);
       }
     });
     const {width, height, left, bottom} = totalRect;
@@ -127,12 +127,13 @@ export class MsbjRectsComponent {
           infoRelative.bgColor = color;
           rectColors[raw.vid] = color;
         }
-        if (!raw.mingzi) {
-          let mingzi: string;
+        if (!infoAbsolute.name) {
+          let name: string;
           do {
-            mingzi = String.fromCharCode(charCode++);
-          } while (names.has(mingzi));
-          raw.mingzi = mingzi;
+            name = String.fromCharCode(charCode++);
+          } while (names.has(name));
+          infoAbsolute.name = name;
+          infoRelative.name = name;
         }
       }
       this.rectInfosRelative.push(infoRelative);

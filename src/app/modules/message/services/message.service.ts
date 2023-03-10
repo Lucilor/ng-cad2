@@ -18,6 +18,7 @@ import {
   MessageOutput
 } from "../components/message/message-types";
 import {MessageComponent} from "../components/message/message.component";
+import {HttpErrorResponse} from "@angular/common/http";
 
 export type MessageDataParams<T> = Omit<T, "type">;
 export type MessageDataParams2<T> = Omit<MatDialogConfig<T>, "data">;
@@ -54,6 +55,24 @@ export class MessageService {
   }
 
   async alert(data: string | MessageDataParams<AlertMessageData>, others: MessageDataParams2<AlertMessageData> = {}) {
+    const data2 = this._getData(data, "alert");
+    const content = data2.content;
+    if (content instanceof Error) {
+      return await this.error(content.message, [], others);
+    } else if (content instanceof HttpErrorResponse) {
+      data2.title = `<span style="color:red">网络错误</span>`;
+      const {error, status, statusText} = content;
+      let msg = "";
+      if (typeof error === "string") {
+        msg = content.error;
+      } else if (typeof content.error?.text === "string") {
+        msg = content.error.text;
+      } else {
+        msg = "未知网络错误";
+      }
+      msg = `<span>${status} (${statusText})</span><br>${msg}`;
+      return await this.error(msg, [], others);
+    }
     await this.open({data: this._getData(data, "alert"), ...others});
   }
 

@@ -31,6 +31,7 @@
   <div class="flex-row flex-110" *ngSwitchCase="'门扇模块'">
     <div class="flex-column" style="width: 180px">
       <mat-slide-toggle *ngIf="data" [(ngModel)]="data['铰扇跟随锁扇']">铰扇布局和锁扇相同</mat-slide-toggle>
+      <mat-slide-toggle *ngIf="!production" [(ngModel)]="xiaoguotuDisabled">xiaoguotuDisabled</mat-slide-toggle>
       <mat-divider class="placeholder"></mat-divider>
       <ng-scrollbar class="flex-110">
         <div class="flex-column menshan-options">

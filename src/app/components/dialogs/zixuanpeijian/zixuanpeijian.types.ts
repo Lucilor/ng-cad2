@@ -303,7 +303,7 @@ export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: Z
           Object.assign(item, info);
           if (useSlgs) {
             const getValue = (key: string, value: string) => {
-              if (!value && key in suanliaogongshi) {
+              if (!value && suanliaogongshi && key in suanliaogongshi) {
                 return String(suanliaogongshi[key]);
               }
               return value;
@@ -517,7 +517,7 @@ export const calcZxpj = async (
       const data = item.data;
       for (const e of data.entities.dimension) {
         const name = e.mingzi;
-        if (!name || e.info.显示公式) {
+        if (!name || e.info.显示公式 || /周期等于/.test(name)) {
           continue;
         }
         const points = data.getDimensionPoints(e);
@@ -619,7 +619,7 @@ export const calcZxpj = async (
   let calc1Finished = false;
   let calcErrors1: Formulas = {};
   let calcErrors2: Formulas = {};
-  const mokuaiVars: Formulas = {};
+  const mokuaiVars: ObjectOf<Formulas> = {};
   while (!calc1Finished) {
     calc1Finished = true;
     const alertError = !initial && isEqual(calcErrors1, calcErrors2);
@@ -643,11 +643,13 @@ export const calcZxpj = async (
         }
       }
       calc.calc.mergeFormulas(varsGlobal, result1.succeedTrim);
-      const 层名字 = v.item.info?.模块名字;
-      if (层名字) {
+      const {模块名字, 门扇名字} = v.item.info || {};
+      if (模块名字 && 门扇名字) {
         const {总宽, 总高} = result1.succeedTrim;
-        mokuaiVars[层名字 + "总宽"] = 总宽;
-        mokuaiVars[层名字 + "总高"] = 总高;
+        mokuaiVars[门扇名字] = {
+          [模块名字 + "总宽"]: 总宽,
+          [模块名字 + "总高"]: 总高
+        };
       }
       const missingKeys: string[] = [];
       for (const vv of v.item.shuchubianliang) {
@@ -686,7 +688,10 @@ export const calcZxpj = async (
 
     const zhankais: [number, CadZhankai][] = [];
     if (!mokuai) {
-      vars2 = {...vars2, ...mokuaiVars};
+      const {门扇名字} = item.info;
+      if (门扇名字 && mokuaiVars[门扇名字]) {
+        vars2 = {...vars2, ...mokuaiVars[门扇名字]};
+      }
     }
     for (const [i, zhankai] of data.zhankai.entries()) {
       let enabled = true;

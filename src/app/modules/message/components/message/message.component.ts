@@ -1,4 +1,3 @@
-import {HttpErrorResponse} from "@angular/common/http";
 import {Component, OnInit, Inject, ViewChild, ElementRef, AfterViewInit, ViewChildren, QueryList, HostListener} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml, SafeResourceUrl} from "@angular/platform-browser";
@@ -86,21 +85,6 @@ export class MessageComponent implements OnInit, AfterViewInit {
     this.titleHTML = this.sanitizer.bypassSecurityTrustHtml(this.data.title || "");
     if (data.content === null || data.content === undefined) {
       data.content = "";
-    } else if (data.content instanceof Error) {
-      data.title = "Oops!";
-      data.content = data.content.message;
-      // console.warn(data.content);
-    } else if (data.content instanceof HttpErrorResponse) {
-      data.title = "网络错误";
-      const {error, status, statusText} = data.content;
-      if (typeof error === "string") {
-        data.content = data.content.error;
-      } else if (typeof data.content.error?.text === "string") {
-        data.content = data.content.error.text;
-      } else {
-        data.content = "未知网络错误";
-      }
-      data.content = `<span>${status} (${statusText})</span><br>` + data.content;
     } else if (data.content instanceof HTMLElement) {
       data.content = data.content.outerHTML;
     } else if (typeof data.content !== "string") {
