@@ -517,7 +517,7 @@ export const calcZxpj = async (
       const data = item.data;
       for (const e of data.entities.dimension) {
         const name = e.mingzi;
-        if (!name || e.info.显示公式 || /周期等于/.test(name)) {
+        if (!name || e.info.显示公式 || /一个周期|周期等于/.test(name)) {
           continue;
         }
         const points = data.getDimensionPoints(e);
@@ -630,7 +630,8 @@ export const calcZxpj = async (
         continue;
       }
       const formulas1 = v.formulas;
-      const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.vars};
+      const {模块名字, 门扇名字} = v.item.info || {};
+      const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.vars, ...mokuaiVars[门扇名字]};
       replaceMenshanName(v.item.info?.门扇名字, formulas1);
       const result1Msg = `计算模块（${getMokuaiTitle(v.item)}）`;
       const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);
@@ -643,13 +644,13 @@ export const calcZxpj = async (
         }
       }
       calc.calc.mergeFormulas(varsGlobal, result1.succeedTrim);
-      const {模块名字, 门扇名字} = v.item.info || {};
       if (模块名字 && 门扇名字) {
         const {总宽, 总高} = result1.succeedTrim;
-        mokuaiVars[门扇名字] = {
-          [模块名字 + "总宽"]: 总宽,
-          [模块名字 + "总高"]: 总高
-        };
+        if (!mokuaiVars[门扇名字]) {
+          mokuaiVars[门扇名字] = {};
+        }
+        mokuaiVars[门扇名字][模块名字 + "总宽"] = 总宽;
+        mokuaiVars[门扇名字][模块名字 + "总高"] = 总高;
       }
       const missingKeys: string[] = [];
       for (const vv of v.item.shuchubianliang) {
