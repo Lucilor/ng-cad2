@@ -31,8 +31,9 @@ export class KailiaocanshuComponent implements OnInit {
     this.spinner.show(this.loaderId);
     const response = await this.dataService.post<KailiaocanshuData>("peijian/kailiaocanshu/get", {id});
     this.spinner.hide(this.loaderId);
-    if (response?.data) {
-      this.data = response.data;
+    const data = this.dataService.getResponseData(response);
+    if (data) {
+      this.data = data;
     }
     setGlobal("kailiaocanshu", this);
   }

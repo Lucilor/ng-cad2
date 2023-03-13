@@ -131,7 +131,7 @@
             [disabled]="info.disabled || false"
             [autocomplete]="info.autocomplete"
             [(ngModel)]="item.value"
-            [ngModelOptions]="{standalone: true}"
+            (change)="value[item.key] = item.value"
           />
           <button mat-icon-button matSuffix color="primary" (click)="selectOptions(info.model?.key, item.key)">
             <mat-icon>list</mat-icon>

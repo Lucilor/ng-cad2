@@ -144,12 +144,13 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
     this.spinner.show(this.spinner.defaultLoaderId);
     const response = await this.dataService.post<ToBeReplaced[]>("peijian/cad/replaceTextReady", postData);
     this.spinner.hide(this.spinner.defaultLoaderId);
-    if (response?.data) {
-      if (response.data.length < 1) {
+    const data = this.dataService.getResponseData(response);
+    if (data) {
+      if (data.length < 1) {
         this.message.alert("没有可替换的文本");
         return;
       }
-      this.toBeReplacedList = response.data.map((v) => {
+      this.toBeReplacedList = data.map((v) => {
         v.checked = true;
         return v;
       });

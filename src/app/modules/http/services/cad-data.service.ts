@@ -190,20 +190,12 @@ export class CadDataService extends HttpService {
 
   async getSuanliaodan(codes: string[]) {
     const response = await this.post<any[]>("order/order/suanliaodan", {codes});
-    if (response?.data) {
-      const data: CadData[] = response.data.map((v) => new CadData(v));
-      return data;
-    } else {
-      return [];
-    }
+    return (this.getResponseData(response) || []).map((v) => new CadData(v));
   }
 
   async removeCads(collection: CadCollection, ids: string[], options?: HttpOptions) {
     const response = await this.post<string[]>("peijian/cad/removeCad", {collection, ids}, options);
-    if (response?.data) {
-      return response.data;
-    }
-    return null;
+    return this.getResponseData(response);
   }
 
   async getBancais(table: string, codes: string[]) {
@@ -216,19 +208,12 @@ export class CadDataService extends HttpService {
       开料孔位配置: string;
       开料参数: string;
     }>("order/order/getBancais", {table, codes});
-    if (response?.data) {
-      return response.data;
-    }
-    return null;
+    return this.getResponseData(response);
   }
 
   async getChangelog(page?: number, pageSize?: number) {
     const response = await this.post<Changelog>("ngcad/getChangelog", {page, pageSize});
-    if (response?.data) {
-      return {changelog: response.data, count: response.count || 0};
-    } else {
-      return {changelog: [], count: 0};
-    }
+    return {changelog: this.getResponseData(response)||[], count: response?.count || 0};
   }
 
   async setChangelogItem(changelogItem: Changelog[0], index: number) {
@@ -248,12 +233,12 @@ export class CadDataService extends HttpService {
 
   async queryMongodb<T extends ObjectOf<any>>(params: QueryMongodbParams, options?: HttpOptions) {
     const response = await this.post<T[]>("ngcad/queryMongodb", params, options);
-    return response?.data ?? [];
+    return this.getResponseData(response) || [];
   }
 
   async queryMySql<T extends TableDataBase>(params: QueryMysqlParams, options?: HttpOptions) {
     const response = await this.post<T[]>("ngcad/queryMysql", params, {testData: params.table, ...options});
-    return response?.data ?? [];
+    return this.getResponseData(response) || [];
   }
 
   async getCadImg(id: string, useCache = true, options?: HttpOptions) {
@@ -264,7 +249,7 @@ export class CadDataService extends HttpService {
       }
     }
     const response = await this.post<{url: string | null}>("ngcad/getCadImg", {id}, options);
-    return response?.data?.url || null;
+    return this.getResponseData(response)?.url || null;
   }
 
   async setCadImg(id: string, dataURL: string, options?: HttpOptions) {
@@ -275,7 +260,7 @@ export class CadDataService extends HttpService {
 
   async getShortUrl(name: string, data: ObjectOf<any> = {}, options?: HttpOptions) {
     const response = await this.post<string>("ngcad/getShortUrl", {name, data}, options);
-    return response?.data || null;
+    return this.getResponseData(response);
   }
 
   async tableUpdate(params: TableUpdateParams, options?: HttpOptions) {
@@ -296,7 +281,7 @@ export class CadDataService extends HttpService {
 
   async getRedisData(key: string, isString = true, options?: HttpOptions) {
     const response = await this.post<{value: any}>("ngcad/getRedisData", {key, isString}, options);
-    return response?.data?.value;
+    return this.getResponseData(response)?.value;
   }
 
   async setRedisData(value: any, key?: string, expireTime?: number, options?: HttpOptions) {

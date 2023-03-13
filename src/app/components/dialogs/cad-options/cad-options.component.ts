@@ -47,7 +47,6 @@ export class CadOptionsComponent implements AfterViewInit {
     this.spinner.show(this.loaderIds.submitLoaderId);
     const data = await this.dataService.getOptions({
       name: this.data.name,
-      search: this.searchValue,
       data: this.data.data,
       xinghao: this.data.xinghao,
       includeTingyong: true,

@@ -255,7 +255,7 @@ export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem) => {
 
 export const getStep1Data = async (dataService: CadDataService, params?: {code: string; type: string} | {mokuaiIds: string[]}) => {
   const response = await dataService.post<Step1Data>("ngcad/getZixuanpeijianTypesInfo", params);
-  return response?.data;
+  return dataService.getResponseData(response);
 };
 
 export const getZixuanpeijianCads = async (
@@ -268,18 +268,19 @@ export const getZixuanpeijianCads = async (
     {typesInfo},
     {testData: "zixuanpeijianCads"}
   );
-  if (response?.data) {
+  const data = dataService.getResponseData(response);
+  if (data) {
     const cads: ObjectOf<ObjectOf<CadData[]>> = {};
-    const {cads: cadsRaw, bancais} = response.data;
+    const {cads: cadsRaw, bancais} = data;
     for (const type1 in cadsRaw) {
       cads[type1] = {};
       for (const type2 in cadsRaw[type1]) {
         cads[type1][type2] = [];
         for (const v of cadsRaw[type1][type2]) {
-          const data = new CadData(v);
-          delete data.options.功能分类;
-          delete data.options.配件模块;
-          cads[type1][type2].push(data);
+          const cadData = new CadData(v);
+          delete cadData.options.功能分类;
+          delete cadData.options.配件模块;
+          cads[type1][type2].push(cadData);
         }
         if (!isEmpty(materialResult)) {
           cads[type1][type2] = matchOrderData(cads[type1][type2], materialResult);
@@ -565,6 +566,7 @@ export const calcZxpj = async (
       }
     }
     const vars = getCadDimensionVars(item.cads);
+    vars.门扇布局 = item.info?.门扇名字;
     return {formulas, vars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
   });
   const lingsanVars = getCadDimensionVars(lingsans);

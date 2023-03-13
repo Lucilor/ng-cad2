@@ -59,9 +59,7 @@ export class PjmkComponent implements OnInit {
       } catch (error) {}
     }
     const structResponse = await this.dataService.post<any>("jichu/jichu/getXiaodaohangStructure", {id: table});
-    if (structResponse?.data) {
-      this.tableName = structResponse.data.mingzi || "";
-    }
+    this.tableName = this.dataService.getResponseData(structResponse)?.mingzi || "";
     document.title = `${this.tableName}配件模块 - ${this.name}`;
   }
 

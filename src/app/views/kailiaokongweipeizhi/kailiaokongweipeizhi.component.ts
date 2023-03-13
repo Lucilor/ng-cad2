@@ -35,8 +35,8 @@ export class KailiaokongweipeizhiComponent implements OnInit {
     if (id) {
       this.id = id;
       const response = await this.dataService.get<ObjectOf<KlkwpzItem[]>>("peijian/kailiaokongweipeizhi/get", {id}, {testData: "klkwpz"});
-      const data = response?.data;
-      if (typeof data === "object" && !Array.isArray(data)) {
+      const data = this.dataService.getResponseData(response);
+      if (data && typeof data === "object" && !Array.isArray(data)) {
         this.data = data;
       }
     } else {

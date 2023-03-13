@@ -154,7 +154,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   }
 
   async step1Fetch(updateInputInfos = true) {
-    let step1Data: Step1Data | undefined;
+    let step1Data: Step1Data | undefined | null;
     if (this.data?.step1Data) {
       step1Data = this.data.step1Data;
     } else {
@@ -170,6 +170,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
       this.typesInfo = step1Data.typesInfo;
       this.options = step1Data.options;
       updateMokuaiItems(this.result.模块, step1Data.typesInfo);
+    } else {
+      this.urlPrefix = "";
+      this.typesInfo = {};
+      this.options = {};
     }
     if (updateInputInfos) {
       this._updateInputInfos();
@@ -343,10 +347,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
 
   async step3Fetch(updateInputInfos = true) {
     const response = await this.dataService.post<{cads: CadData[]}>("ngcad/getLingsanCads");
-    if (response?.data) {
+    const responseData = this.dataService.getResponseData(response);
+    if (responseData) {
       this.lingsanCadImgs = {};
       this.lingsanCadTypes = [];
-      this.lingsanCads = response.data.cads.map((v) => {
+      this.lingsanCads = responseData.cads.map((v) => {
         const data = new CadData(v);
         const item: ZixuanpeijianlingsanCadItem = {data, img: imgCadEmpty, hidden: false};
         const type = item.data.type2;
@@ -861,10 +866,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     const collection = "cad";
     let id = data.id;
     const response = await this.dataService.post<{id: string}>("peijian/cad/copyCad", {collection, id, data: {名字: name}});
-    if (!response?.data) {
+    const responseData = this.dataService.getResponseData(response);
+    if (!responseData) {
       return;
     }
-    id = response.data.id;
+    id = responseData.id;
     const src = this.router.createUrlTree(["/index"], {queryParams: {project, collection, id}}).toString();
     await this.message.iframe({content: src, title: name});
     this.step3Fetch();

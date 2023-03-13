@@ -88,15 +88,16 @@ export class MrbcjfzComponent implements OnInit {
       {table, id},
       {testData: "bancaifenzuIndex"}
     );
-    if (response?.data) {
-      this.xinghao = new MrbcjfzXinghaoInfo(response.data.xinghao);
-      this.bancaiKeys = response.data.bancaiKeys;
-      this.bancaiKeysNonClear = union(response.data.bancaiKeysNonClear, response.data.bancaiKeysRequired);
-      this.bancaiKeysRequired = response.data.bancaiKeysRequired;
-      this.xiaodaohangStructure = response.data.xiaodaohangStructure;
+    const data = this.dataService.getResponseData(response);
+    if (data) {
+      this.xinghao = new MrbcjfzXinghaoInfo(data.xinghao);
+      this.bancaiKeys = data.bancaiKeys;
+      this.bancaiKeysNonClear = union(data.bancaiKeysNonClear, data.bancaiKeysRequired);
+      this.bancaiKeysRequired = data.bancaiKeysRequired;
+      this.xiaodaohangStructure = data.xiaodaohangStructure;
       this.cads = [];
       const cadsToRemove: MrbcjfzCadInfo[] = [];
-      response.data.cads.forEach((v) => {
+      data.cads.forEach((v) => {
         const cadData = new CadData(v);
         const item: MrbcjfzCadInfo = {data: cadData, img: "", id: cadData.id};
         (async () => {
@@ -110,7 +111,7 @@ export class MrbcjfzComponent implements OnInit {
       });
       this.huajians = [];
       const huajiansToRemove: MrbcjfzHuajianInfo[] = [];
-      response.data.huajians.map((v) => {
+      data.huajians.map((v) => {
         const item: MrbcjfzHuajianInfo = {data: v, id: String(v.vid)};
         if (filterHuajian(item)) {
           this.huajians.push(item);
@@ -119,7 +120,7 @@ export class MrbcjfzComponent implements OnInit {
         }
       });
       this.qiliaos = [];
-      response.data.qiliaos.forEach((v) => {
+      data.qiliaos.forEach((v) => {
         const item: MrbcjfzQiliaoInfo = {data: v, id: String(v.mingzi)};
         this.qiliaos.push(item);
       });
@@ -150,7 +151,7 @@ export class MrbcjfzComponent implements OnInit {
       if (huajiansToRemove2.length > 0) {
         errorMsgs.push(`删除了以下${huajiansToRemove2.length}个无效花件: <br>${huajiansToRemove2.map((v) => v.data.mingzi).join("，")}`);
       }
-      this.bancaiList = response.data.bancaiList;
+      this.bancaiList = data.bancaiList;
       this.updateXinghao();
       this.updateListItems();
 

@@ -32,7 +32,7 @@ import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
 })
 export class SuanliaoComponent implements OnInit, OnDestroy {
   msbjs: MsbjInfo[] = [];
-  step1Data?: Step1Data;
+  step1Data: Step1Data | null = null;
   wmm = new WindowMessageManager("算料", this, window.parent);
 
   constructor(

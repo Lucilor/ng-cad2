@@ -35,10 +35,11 @@ export class PrintA4A015PreviewComponent implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     const response = await this.dataService.post<PreviewData>("order/printCode/printA4A015Preview", this.route.snapshot.queryParams);
-    if (!response?.data) {
+    const data = this.dataService.getResponseData(response);
+    if (!data) {
       return;
     }
-    this.data = response.data;
+    this.data = data;
     const total = this.data.reduce((sum, v) => sum + v.length, 0);
     let done = 0;
     this.spinner.show(this.loaderId, {text: `0 / ${total}`});

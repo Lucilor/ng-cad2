@@ -133,7 +133,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     const menshanbujus = await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, "peizhishuju"));
     const response = await this.dataService.post<BancaiList[]>("ngcad/getBancaiList");
-    this.bancaiList = response?.data || [];
+    this.bancaiList = this.dataService.getResponseData(response) || [];
     await timeout(0);
     this._xiaoguotuDisabled = !!session.load(this._xiaoguotuDisabledKey);
     if (this.isFromOrder) {

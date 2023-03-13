@@ -161,7 +161,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
       let responseData = session.load<PrintCadsParams>(this._httpCacheKey);
       if (!responseData) {
         const response = await this.dataService.post<PrintCadsParams>(action, queryParams, {encrypt: "both"});
-        responseData = response?.data || null;
+        responseData = this.dataService.getResponseData(response);
         if (!this.production) {
           session.save(this._httpCacheKey, responseData);
         }
@@ -682,8 +682,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
       code: this.printParams.codes[0],
       type: this.printParams.type
     });
-    if (response?.data && response.data.data?.length > 0) {
-      const {prefix, data} = response.data;
+    const responseData = this.dataService.getResponseData(response);
+    if (responseData && responseData.data?.length > 0) {
+      const {prefix, data} = responseData;
       this.orderImageUrl = data[0].zhengmiantu ? prefix + data[0].zhengmiantu : "";
     }
   }
@@ -704,8 +705,9 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
       field: "zhengmiantu",
       file
     });
-    if (response?.data) {
-      const {prefix, save_path} = response.data;
+    const data = this.dataService.getResponseData(response);
+    if (data) {
+      const {prefix, save_path} = data;
       this.orderImageUrl = prefix + save_path;
       const cad = this.cad;
       if (cad) {

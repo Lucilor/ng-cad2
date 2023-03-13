@@ -76,10 +76,11 @@ export class PiliangjianbanComponent implements OnInit {
     const params = this.route.snapshot.queryParams;
     this.spinner.show(this.spinner.defaultLoaderId, {text: "获取数据..."});
     const response = await this.dataService.post<Bancai[]>(url, params);
-    if (response?.data) {
+    const responseData = this.dataService.getResponseData(response);
+    if (responseData) {
       this.spinner.show(this.spinner.defaultLoaderId, {text: "生成预览图..."});
       this.bancais.length = 0;
-      response.data.forEach((bancai) => {
+      responseData.forEach((bancai) => {
         const data: Bancai["data"] = [];
         bancai.data.forEach((v) => {
           v.cad = new CadData(v.cad);

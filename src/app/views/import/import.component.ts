@@ -254,7 +254,7 @@ export class ImportComponent extends Utils() implements OnInit {
     for (let i = 0; i < totalSlgs; i++) {
       const response = await this.dataService.post("ngcad/updateSuanliaogonshi", {data: this.slgses[i].data}, {silent: true});
       this.msg = `正在导入算料公式(${i + 1}/${totalSlgs})`;
-      if (!response?.data) {
+      if (!this.dataService.getResponseData(response)) {
         skipped++;
         this.slgses[i].errors.push(this.dataService.lastResponse?.msg || "保存失败");
       }
@@ -329,8 +329,9 @@ export class ImportComponent extends Utils() implements OnInit {
             const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
               uniqCode: CadPortable.getUniqCode(v.data, isXinghao)
             });
-            if (response?.data) {
-              v.data.info.唯一码 = response.data;
+            const 唯一码 = this.dataService.getResponseData(response);
+            if (唯一码) {
+              v.data.info.唯一码 = 唯一码;
             } else {
               v.errors.push("无法生成唯一码");
             }
@@ -659,32 +660,30 @@ export class ImportComponent extends Utils() implements OnInit {
     // const indice: number[] = [];
     // const cache = this._peiheCadCache;
     // const keys = infoArray.map((info, i) => {
-    //     const key = md5(JSON.stringify({info, options}));
-    //     if (cache[key] !== undefined) {
-    //         result[i] = cache[key];
-    //     } else {
-    //         result[i] = false;
-    //         indice.push(i);
-    //     }
-    //     return key;
+    //   const key = md5(JSON.stringify({info, options}));
+    //   if (cache[key] !== undefined) {
+    //     result[i] = cache[key];
+    //   } else {
+    //     result[i] = false;
+    //     indice.push(i);
+    //   }
+    //   return key;
     // });
     // infoArray.forEach((_, i) => {
-    //     if (cache[keys[i]] !== undefined) {
-    //         result[i] = cache[keys[i]];
-    //     } else {
-    //         indice.push(i);
-    //     }
+    //   if (cache[keys[i]] !== undefined) {
+    //     result[i] = cache[keys[i]];
+    //   } else {
+    //     indice.push(i);
+    //   }
     // });
     // if (indice.length > 0) {
-    //     infoArray = infoArray.filter((_, i) => indice.includes(i));
-    //     const response = await this.dataService.post<boolean[]>("peijian/cad/matchPeiheCad", {infoArray, options});
-    //     if (response?.data) {
-    //         response.data.forEach((matched, i) => {
-    //             const j = indice[i];
-    //             result[j] = matched;
-    //             cache[keys[j]] = matched;
-    //         });
-    //     }
+    //   infoArray = infoArray.filter((_, i) => indice.includes(i));
+    //   const response = await this.dataService.post<boolean[]>("peijian/cad/matchPeiheCad", {infoArray, options});
+    //   this.dataService.getResponseData(response)?.forEach((matched, i) => {
+    //     const j = indice[i];
+    //     result[j] = matched;
+    //     cache[keys[j]] = matched;
+    //   });
     // }
     // return result;
   }

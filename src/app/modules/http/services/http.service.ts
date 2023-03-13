@@ -7,6 +7,7 @@ import {LoginFormData, openLoginFormDialog} from "@components/dialogs/login-form
 import {environment} from "@env";
 import {MessageService} from "@modules/message/services/message.service";
 import {RSA, ObjectOf} from "@utils";
+import hljs from "highlight.js";
 import {lastValueFrom} from "rxjs";
 
 export interface CustomResponse<T> {
@@ -67,15 +68,21 @@ export class HttpService {
     this.snackBar = injector.get(MatSnackBar);
   }
 
-  protected alert(content: any, silent: boolean) {
+  protected alert(msg: string, silent: boolean) {
     if (!silent) {
-      this.message.alert({content});
+      this.message.alert(msg);
     }
   }
 
   protected snack(msg: string, silent: boolean) {
     if (!silent) {
       this.message.snack(msg);
+    }
+  }
+
+  protected error(msg: string, silent: boolean) {
+    if (!silent) {
+      this.message.error({content: msg, title: `<span style="color:red">网络请求错误</span>`});
     }
   }
 
@@ -209,7 +216,16 @@ export class HttpService {
           await this._waitForLogin((response.data as any)?.project);
           return this.request(url, method, rawData, options);
         } else {
-          throw new Error(response.msg);
+          const {msg, data: responseData} = response;
+          if (msg) {
+            throw new Error(msg);
+          } else if (responseData !== null && responseData !== undefined) {
+            let str = hljs.highlight("json", JSON.stringify(responseData, null, 2)).value.replace(/\n/g, "<br>");
+            str = `<pre class="hljs">${str}</pre>`;
+            throw new Error(str);
+          } else {
+            throw new Error("未知错误");
+          }
         }
       } else {
         return response;
@@ -218,15 +234,27 @@ export class HttpService {
       if (testData) {
         return await getTestData();
       }
+      let content = "未知错误";
       if (error instanceof HttpErrorResponse) {
-        const text = error.error?.text;
+        const {error: err, status, statusText} = error;
+        const text = err?.text;
         if (typeof text === "string" && text.includes("没有权限")) {
           await this._waitForLogin();
           return this.request(url, method, rawData, options);
         }
+        if (typeof err === "string") {
+          content = err;
+        } else if (typeof text === "string") {
+          content = text;
+        } else {
+          content = "未知网络错误";
+        }
+        content = `<span>${status} (${statusText})</span><br>${content}`;
+      } else if (error instanceof Error) {
+        content = error.message;
       }
       console.error(error);
-      this.alert(error, silent);
+      this.error(content, silent);
       return response;
     } finally {
       this.lastResponse = response;
@@ -247,5 +275,12 @@ export class HttpService {
 
   async post<T>(url: string, data?: ObjectOf<any>, options?: HttpOptions) {
     return await this.request<T>(url, "POST", data, options);
+  }
+
+  getResponseData<T>(response: CustomResponse<T> | null, ignoreCode?: boolean) {
+    if (response && (ignoreCode || response.code === 0)) {
+      return response.data || null;
+    }
+    return null;
   }
 }

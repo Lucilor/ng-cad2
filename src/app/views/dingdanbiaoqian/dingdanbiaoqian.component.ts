@@ -148,7 +148,7 @@ export class DingdanbiaoqianComponent implements OnInit {
     if (!ddbqData) {
       this.spinner.show(this.spinner.defaultLoaderId, {text: "获取数据..."});
       const response = await this.dataService.post<DdbqData>(url, params);
-      ddbqData = response?.data || null;
+      ddbqData = this.dataService.getResponseData(response);
       if (ddbqData) {
         session.save(this._httpCacheKey, ddbqData);
       }

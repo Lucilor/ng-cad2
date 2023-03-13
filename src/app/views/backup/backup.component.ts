@@ -102,9 +102,9 @@ export class BackupComponent implements AfterViewInit {
     this.spinner.show(this.loaderId, {text: "正在获取数据"});
     const response = await this.dataService.post<BackupCadsResult>("peijian/cad/getBackupCads", this.searchParams);
     this.spinner.hide(this.loaderId);
-    if (response?.data) {
-      const {data, count} = response;
-      this.cadsCount = count || 0;
+    const data = this.dataService.getResponseData(response);
+    if (data) {
+      this.cadsCount = response?.count || 0;
       this.data.length = 0;
       this.minTime.setTime(data.minTime);
       this.maxTime.setTime(data.maxTime);

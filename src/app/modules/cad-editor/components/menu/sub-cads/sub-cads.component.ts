@@ -263,8 +263,9 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     ];
     const sourceResponse = await this.dataService.post<any[]>("ngcad/getMenshanbujuCads", {xinghao: data.options.型号, flat: true});
     let source: CadData[] | undefined;
-    if (sourceResponse?.data && sourceResponse.data.length > 0) {
-      source = sourceResponse.data.map((v) => new CadData(v));
+    const sourceData = this.dataService.getResponseData(sourceResponse);
+    if (sourceData && sourceData.length > 0) {
+      source = sourceData.map((v) => new CadData(v));
     }
     const cads = await openCadListDialog(this.dialog, {
       data: {
@@ -350,7 +351,6 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     const append = input.hasAttribute("append");
     const mainCad = input.hasAttribute("main-cad");
     const data = this.contextMenuCad.data;
-    console.log(append, mainCad);
     if (append) {
       const resData = await this.dataService.uploadDxf(file);
       if (resData) {

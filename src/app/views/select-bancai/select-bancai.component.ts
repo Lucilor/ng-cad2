@@ -116,8 +116,8 @@ export class SelectBancaiComponent implements OnInit {
 
   async refreshDownloadHistory() {
     const response = await this.dataService.post<ObjectOf<any>[]>("order/order/getKailiaoDlHistory", {codes: this.codes});
-    if (response?.data) {
-      const dlHistory = response.data;
+    const dlHistory = this.dataService.getResponseData(response);
+    if (dlHistory) {
       this.downloadHistory = dlHistory.map<SelectBancaiDlHistory>((v) => ({
         name: v.name,
         date: DateTime.fromMillis(Number(v.创建时间)).toFormat("yyyy-MM-dd HH:mm:ss")
@@ -324,7 +324,7 @@ export class SelectBancaiComponent implements OnInit {
     const response = await this.dataService.post<string | string[]>(api, {codes, bancaiCads, table, autoGuige, type, skipCads});
     await this.refreshDownloadHistory();
     this.spinner.hide(this.submitLoaderId);
-    const url = response?.data;
+    const url = this.dataService.getResponseData(response);
     if (url) {
       if (Array.isArray(url)) {
         this.message.alert(url.map((v) => `<div>${v}</div>`).join(""));

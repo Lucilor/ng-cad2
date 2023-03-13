@@ -165,7 +165,7 @@ export class AppConfigService {
       return {};
     }
     const response = await this.dataService.post<Partial<AppConfig>>("ngcad/getUserConfig", {key});
-    const config = response?.data;
+    const config = this.dataService.getResponseData(response);
     if (config) {
       this._userConfig = this._purgeUserConfig(config);
       if (Object.keys(this._userConfig).length) {
