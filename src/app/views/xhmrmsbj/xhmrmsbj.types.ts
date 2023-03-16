@@ -1,7 +1,9 @@
 import {updateMokuaiItems, ZixuanpeijianMokuaiItem, ZixuanpeijianTypesInfo} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {MsbjPeizhishuju} from "@components/msbj-rects/msbj-rects.types";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf} from "@utils";
+import {MsbjInfo} from "@views/msbj/msbj.types";
 
 export interface XhmrmsbjTableData extends TableDataBase {
   peizhishuju?: string;
@@ -15,7 +17,7 @@ export class XhmrmsbjData {
   menshanbujuInfos: ObjectOf<XhmrmsbjInfo>;
   铰扇跟随锁扇?: boolean;
 
-  constructor(data: XhmrmsbjTableData, menshanKeys: string[], typesInfo: ZixuanpeijianTypesInfo) {
+  constructor(data: XhmrmsbjTableData, menshanKeys: string[], typesInfo: ZixuanpeijianTypesInfo, msbjs: MsbjInfo[]) {
     this.vid = data.vid;
     this.name = data.mingzi;
     this.铰扇跟随锁扇 = data.jiaoshanbujuhesuoshanxiangtong === 1;
@@ -29,7 +31,14 @@ export class XhmrmsbjData {
     }
     for (const key of menshanKeys) {
       this.menshanbujuInfos[key] = info[key] || {};
-      const 模块节点 = this.menshanbujuInfos[key].模块节点 || [];
+      const item = this.menshanbujuInfos[key];
+      if (!item.选中布局数据) {
+        const msbj = msbjs.find((v) => v.vid === item.选中布局);
+        if (msbj) {
+          item.选中布局数据 = {vid: msbj.vid, name: msbj.name, 模块大小关系: msbj.peizhishuju.模块大小关系};
+        }
+      }
+      const 模块节点 = item.模块节点 || [];
       for (const v of 模块节点) {
         updateMokuaiItems(v.可选模块, typesInfo, true);
         const 选中模块 = v.选中模块;
@@ -53,6 +62,7 @@ export class XhmrmsbjData {
 
 export interface XhmrmsbjInfo {
   选中布局?: number;
+  选中布局数据?: {vid: number; name: string; 模块大小关系: MsbjPeizhishuju["模块大小关系"]};
   模块大小输入?: Formulas;
   模块节点?: XhmrmsbjInfoMokuaiNode[];
 }

@@ -29,7 +29,7 @@
 </div>
 <ng-container [ngSwitch]="activeTabName">
   <div class="flex-row flex-110" *ngSwitchCase="'门扇模块'">
-    <div class="flex-column" style="width: 180px">
+    <div class="flex-column">
       <mat-slide-toggle *ngIf="data" [(ngModel)]="data['铰扇跟随锁扇']">铰扇布局和锁扇相同</mat-slide-toggle>
       <mat-slide-toggle *ngIf="!production" [(ngModel)]="xiaoguotuDisabled">xiaoguotuDisabled</mat-slide-toggle>
       <mat-divider class="placeholder"></mat-divider>
@@ -43,7 +43,7 @@
               (click)="selectMenshanKey(item.key)"
             >
               <div style="font-weight: bold">{{ item.key }}</div>
-              <div *ngIf="item.value['选中布局']">布局：{{ getMsbj(item.value["选中布局"])?.name }}</div>
+              <div *ngIf="item.value['选中布局数据']">布局：{{ item.value['选中布局数据'].name }}</div>
             </div>
           </ng-container>
         </div>

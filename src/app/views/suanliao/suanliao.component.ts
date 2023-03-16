@@ -6,8 +6,8 @@ import {openDrawCadDialog} from "@components/dialogs/draw-cad/draw-cad.component
 import {
   calcCadItemZhankai,
   calcZxpj,
-  CalcZxpjError,
   CalcZxpjOptions,
+  CalcZxpjResult,
   getStep1Data,
   Step1Data,
   updateMokuaiItems,
@@ -19,7 +19,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {CalcService} from "@services/calc.service";
-import {timer} from "@src/app/app.common";
+import {setGlobal, timer} from "@src/app/app.common";
 import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf, WindowMessageManager} from "@utils";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
@@ -42,7 +42,9 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     private dataService: CadDataService,
     private route: ActivatedRoute,
     private spinner: SpinnerService
-  ) {}
+  ) {
+    setGlobal("suanliao", this);
+  }
 
   async ngOnInit() {
     const {token} = this.route.snapshot.queryParams;
@@ -89,11 +91,11 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
       if (!型号选中门扇布局[门扇]) {
         continue;
       }
-      const {选中布局: 选中布局id, 模块节点, 模块大小输入} = 型号选中门扇布局[门扇];
-      const 选中布局 = this.msbjs.find((v) => v.vid === 选中布局id);
+      const {选中布局数据, 模块节点, 模块大小输入} = 型号选中门扇布局[门扇];
       const formulas: ObjectOf<string> = {};
-      if (选中布局 && 选中布局.peizhishuju.模块大小关系) {
-        for (const v of Object.values<any>(选中布局.peizhishuju.模块大小关系.门扇调整)) {
+      const 模块大小关系 = 选中布局数据?.模块大小关系;
+      if (模块大小关系) {
+        for (const v of Object.values<any>(模块大小关系.门扇调整 || {})) {
           const 公式: string = v.公式;
           const [value, key] = 公式.split("=").map((v2) => v2.trim());
           if (value && key) {
@@ -123,7 +125,7 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
                 选中模块.模块大小输入[key.slice(层名字.length)] = formulas[key];
               }
             }
-            const info: Partial<ZixuanpeijianInfo> = {门扇名字: 门扇, 布局id: 选中布局id, 模块名字: 层名字, 层id};
+            const info: Partial<ZixuanpeijianInfo> = {门扇名字: 门扇, 选中布局数据, 模块名字: 层名字, 层id};
             选中模块.info = info;
             mokuais.push(选中模块);
           }
@@ -157,12 +159,12 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
 
     const lingsans = [];
     for (const name of bujuNames) {
-      const 选中布局 = 型号选中门扇布局[name]?.选中布局;
+      const 选中布局数据 = 型号选中门扇布局[name]?.选中布局数据;
       for (const data of 门扇布局CAD) {
-        const {布局id} = data.info;
+        const {选中布局数据2} = data.info;
         const type2 = data.type2;
-        if (布局id === 选中布局 && (!type2 || type2.split("*").includes(name))) {
-          lingsans.push(getCadItem(data, {门扇名字: name, 布局id: 选中布局}));
+        if (选中布局数据?.vid === 选中布局数据2?.vid && (!type2 || type2.split("*").includes(name))) {
+          lingsans.push(getCadItem(data, {门扇名字: name, 选中布局数据}));
         }
       }
     }
@@ -179,6 +181,7 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
       timer.end(timerName, timerName);
       return result;
     }
+    Object.assign(result.data, calcZxpjResult);
     for (const mokuai of mokuais) {
       if (mokuai.calcVars?.result) {
         mokuai.suanliaogongshi = mokuai.calcVars?.result;
@@ -223,5 +226,11 @@ export interface SuanliaoInput {
 
 export interface SuanliaoOutput {
   action: "suanliaoEnd";
-  data: {materialResult: Formulas; 配件模块CAD: any[]; 门扇布局CAD: any[]; fulfilled: boolean; error?: CalcZxpjError};
+  data: SuanliaoOutputData;
+}
+
+export interface SuanliaoOutputData extends CalcZxpjResult {
+  materialResult: Formulas;
+  配件模块CAD: any[];
+  门扇布局CAD: any[];
 }

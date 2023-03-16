@@ -228,7 +228,7 @@
     <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
       <ng-container [ngSwitch]="type">
         <ng-container *ngSwitchCase="'模块'">
-          <ng-container *ngIf="mokuaiInputInfos[i].cads[j]">
+          <ng-container *ngIf="mokuaiInputInfos[i]?.cads?.[j]">
             <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].width"></app-input>
             <span>×</span>
             <app-input [info]="mokuaiInputInfos[i].cads[j].zhankai[k].height"></app-input>
@@ -254,7 +254,7 @@
       </ng-container>
     </div>
     <ng-container [ngSwitch]="type">
-      <ng-container *ngIf="mokuaiInputInfos[i].cads[j]">
+      <ng-container *ngIf="mokuaiInputInfos[i]?.cads?.[j]">
         <ng-container *ngSwitchCase="'模块'">
           <div class="content inputs">
             <app-input [info]="mokuaiInputInfos[i].cads[j]['板材']" (click)="openBancaiListDialog(cad.info)"></app-input>

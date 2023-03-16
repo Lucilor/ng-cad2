@@ -117,23 +117,24 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       this.isFromOrder = false;
       const records = await this.dataService.queryMySql<XhmrmsbjTableData>({table, filter: {where: {vid: id}}});
       this.tableData = records?.[0] || null;
-      this.data = this.tableData ? new XhmrmsbjData(this.tableData, this.menshanKeys, this.step1Data.typesInfo) : null;
-      const xinghaos = await this.dataService.queryMySql<MrbcjfzXinghao>({
-        table: "p_xinghao",
-        filter: {where: {vid: this.tableData?.xinghao}}
-      });
-      this.xinghao = xinghaos[0] ? new MrbcjfzXinghaoInfo(xinghaos[0]) : null;
     } else if (token) {
       this.isFromOrder = true;
       this.token = token;
       this.dataService.token = token;
-      await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     }
     this.fenleis = await this.dataService.queryMySql<TableDataBase>({table: "p_gongnengfenlei", fields: ["vid", "mingzi"]});
     const menshanbujus = await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
     this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, "peizhishuju"));
     const response = await this.dataService.post<BancaiList[]>("ngcad/getBancaiList");
     this.bancaiList = this.dataService.getResponseData(response) || [];
+    if (!this.isFromOrder) {
+      this.data = this.tableData ? new XhmrmsbjData(this.tableData, this.menshanKeys, this.step1Data.typesInfo, this.msbjs) : null;
+      const xinghaos = await this.dataService.queryMySql<MrbcjfzXinghao>({
+        table: "p_xinghao",
+        filter: {where: {vid: this.tableData?.xinghao}}
+      });
+      this.xinghao = xinghaos[0] ? new MrbcjfzXinghaoInfo(xinghaos[0]) : null;
+    }
     await timeout(0);
     this._xiaoguotuDisabled = !!session.load(this._xiaoguotuDisabledKey);
     if (this.isFromOrder) {
@@ -152,16 +153,16 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.data = new XhmrmsbjData(
       {vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局), jiaoshanbujuhesuoshanxiangtong: 铰扇跟随锁扇 ? 1 : 0},
       menshanKeys,
-      this.step1Data.typesInfo
+      this.step1Data.typesInfo,
+      this.msbjs
     );
     this.materialResult = materialResult;
     this.menshanKeys = menshanKeys;
     this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
     await this.selectMenshanKey(this.activeMenshanKey || this.menshanKeys[0]);
-    const msbj = this.activeMsbj;
-    console.log(msbj);
-    if (msbj) {
-      this.wmm.postMessage("calcGongshi2Start", {config: msbj.peizhishuju.模块大小关系});
+    const 模块大小关系 = this.activeMsbjInfo?.选中布局数据?.模块大小关系;
+    if (模块大小关系) {
+      this.wmm.postMessage("calcGongshi2Start", {config: 模块大小关系});
       const result = await this.wmm.waitForMessage("calcGongshi2End");
       this.mokuaidaxiaoResult = result.values;
     }
@@ -213,11 +214,12 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       }
     }
     this.activeMenshanKey = key;
-    await this.setActiveMsbj(this.activeMsbjInfo?.选中布局);
+    await this.setActiveMsbj(this.activeMsbjInfo);
   }
 
-  async setActiveMsbj(vid?: number) {
+  async setActiveMsbj(info?: XhmrmsbjInfo) {
     this.showMokuais = false;
+    const vid = info?.选中布局数据?.vid;
     const msbj = cloneDeep(this.msbjs.find((item) => item.vid === vid) || null);
     this.activeMsbj = msbj;
     this.activeRectInfo = null;
@@ -227,15 +229,15 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       if (!msbjInfo.模块节点) {
         msbjInfo.模块节点 = [];
       }
-      const infos = this.msbjRectsComponent?.rectInfosAbsolute || [];
-      msbjInfo.模块节点 = msbjInfo.模块节点.filter((v) => infos.find((info) => info.raw.isBuju && info.raw.vid === v.层id));
-      for (const info of infos) {
-        if (info.raw.isBuju) {
-          const node = msbjInfo.模块节点.find((v) => v.层id === info.raw.vid);
+      const rectInfos = this.msbjRectsComponent?.rectInfosAbsolute || [];
+      msbjInfo.模块节点 = msbjInfo.模块节点.filter((v) => rectInfos.find((rectInfo) => rectInfo.raw.isBuju && rectInfo.raw.vid === v.层id));
+      for (const rectInfo of rectInfos) {
+        if (rectInfo.raw.isBuju) {
+          const node = msbjInfo.模块节点.find((v) => v.层id === rectInfo.raw.vid);
           if (node) {
-            node.层名字 = info.name;
+            node.层名字 = rectInfo.name;
           } else {
-            msbjInfo.模块节点.push({层id: info.raw.vid, 层名字: info.name, 可选模块: []});
+            msbjInfo.模块节点.push({层id: rectInfo.raw.vid, 层名字: rectInfo.name, 可选模块: []});
           }
         }
       }
@@ -290,17 +292,25 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     if (!menshanweizhi || !infos) {
       return;
     }
-    const vid = infos[menshanweizhi].选中布局;
+    const {选中布局数据} = infos[menshanweizhi];
     const checkedVids: number[] = [];
-    if (vid) {
-      checkedVids.push(vid);
+    if (选中布局数据?.vid) {
+      checkedVids.push(选中布局数据.vid);
     }
     const result = await openCadOptionsDialog(this.dialog, {
       data: {name: "p_menshanbuju", filter: {guanlianCN: {menshanweizhi}}, checkedVids, multi: false}
     });
     if (result?.[0]) {
-      infos[menshanweizhi].选中布局 = result[0].vid;
-      this.setActiveMsbj(infos[menshanweizhi].选中布局);
+      const msbj = this.msbjs.find((v) => v.vid === result[0].vid);
+      if (msbj) {
+        infos[menshanweizhi].选中布局 = msbj.vid;
+        infos[menshanweizhi].选中布局数据 = {
+          vid: msbj.vid,
+          name: msbj.name,
+          模块大小关系: msbj.peizhishuju.模块大小关系
+        };
+        this.setActiveMsbj(infos[menshanweizhi]);
+      }
     }
   }
 
@@ -553,24 +563,22 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async editMokuaidaxiao() {
-    const msbj = this.activeMsbj;
-    if (!msbj) {
+    const msbjInfo = this.activeMsbjInfo;
+    if (!msbjInfo) {
+      return;
+    }
+    const 选中布局数据 = msbjInfo.选中布局数据;
+    if (!选中布局数据) {
       return;
     }
     if (this.isFromOrder) {
-      const data = {config: msbj.peizhishuju.模块大小关系};
+      const data = {config: 选中布局数据.模块大小关系};
       this.wmm.postMessage("编辑模块大小", data);
       return;
     } else {
-      const data = await this.message.json(msbj.peizhishuju.模块大小关系);
+      const data = await this.message.json(选中布局数据.模块大小关系);
       if (data) {
-        msbj.peizhishuju.模块大小关系 = data;
-        const table = "p_menshanbuju";
-        const tableData: TableUpdateParams<MsbjData>["tableData"] = {vid: msbj.vid};
-        tableData.peizhishuju = JSON.stringify(msbj.peizhishuju);
-        this.spinner.show(this.spinner.defaultLoaderId);
-        await this.dataService.tableUpdate({table, tableData});
-        this.spinner.hide(this.spinner.defaultLoaderId);
+        选中布局数据.模块大小关系 = data;
       }
     }
   }

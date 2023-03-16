@@ -17,7 +17,8 @@ import zxpjTestData from "@src/assets/testData/zixuanpeijian.json";
 import zixuanpeijianTypesInfo from "@src/assets/testData/zixuanpeijianTypesInfo.json";
 import {ObjectOf} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
-import {cloneDeep, intersection, isEmpty, isEqual, union} from "lodash";
+import { XhmrmsbjInfo } from "@views/xhmrmsbj/xhmrmsbj.types";
+import {cloneDeep, difference, intersection, isEmpty, isEqual, union} from "lodash";
 import {openDrawCadDialog} from "../draw-cad/draw-cad.component";
 
 export interface ZixuanpeijianTypesInfoItem {
@@ -86,7 +87,7 @@ export interface ZixuanpeijianInfo {
   开料孔位配置?: KlkwpzSource;
   开料参数?: KailiaocanshuData;
   门扇名字?: string;
-  布局id?: number;
+  选中布局数据?: XhmrmsbjInfo["选中布局数据"];
   层id?: number;
   模块名字?: string;
 }
@@ -450,7 +451,7 @@ export const calcZxpj = async (
         varItem = {info: [], type1, type2};
         duplicateMokuaiVars.push(varItem);
       }
-      const keys = intersection(varKeys1, varKeys2);
+      const keys = difference(intersection(varKeys1, varKeys2), calcVars.keys);
       if (keys.length) {
         varItem.info.push({item, keys});
       }
@@ -475,7 +476,7 @@ export const calcZxpj = async (
       const keys2 = intersection(calcVars.keys, Object.keys(item2.suanliaogongshi));
       const shuchubianliang1 = union(keys1, item1.shuchubianliang);
       const shuchubianliang2 = union(keys2, item2.shuchubianliang);
-      const duplicateKeys = intersection(shuchubianliang1, shuchubianliang2);
+      const duplicateKeys = difference(intersection(shuchubianliang1, shuchubianliang2), calcVars.keys);
       if (duplicateKeys.length > 0) {
         const add = (item3: ZixuanpeijianMokuaiItem) => {
           const item4 = duplicateScbl.find((v) => isMokuaiItemEqual(v.item, item3));
@@ -617,25 +618,26 @@ export const calcZxpj = async (
     }
   };
 
-  let initial = true;
+  let calc1Count = 0;
   let calc1Finished = false;
   let calcErrors1: Formulas = {};
   let calcErrors2: Formulas = {};
   const mokuaiVars: ObjectOf<Formulas> = {};
   while (!calc1Finished) {
     calc1Finished = true;
-    const alertError = !initial && isEqual(calcErrors1, calcErrors2);
+    calc1Count++;
+    const alertError = !isEmpty(calcErrors1) && isEqual(calcErrors1, calcErrors2);
     calcErrors1 = calcErrors2;
     calcErrors2 = {};
     for (const v of toCalc1) {
-      if (!initial && isEmpty(v.error)) {
+      if (calc1Count > 1 && isEmpty(v.error)) {
         continue;
       }
       const formulas1 = v.formulas;
       const {模块名字, 门扇名字} = v.item.info || {};
       const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.vars, ...mokuaiVars[门扇名字]};
       replaceMenshanName(v.item.info?.门扇名字, formulas1);
-      const result1Msg = `计算模块（${getMokuaiTitle(v.item)}）`;
+      const result1Msg = `计算${门扇名字 || ""}模块（${getMokuaiTitle(v.item)}）`;
       const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);
       // console.log({formulas1, vars1, result1});
       if (!result1?.fulfilled) {
@@ -656,8 +658,14 @@ export const calcZxpj = async (
       }
       const missingKeys: string[] = [];
       for (const vv of v.item.shuchubianliang) {
-        if (vv in result1.succeedTrim) {
-          shuchubianliang[vv] = result1.succeedTrim[vv];
+        if (vv in result1.succeedTrim && result1.succeedTrim[vv] !== 0) {
+          if (vv in shuchubianliang && shuchubianliang[vv] !== 0 && shuchubianliang[vv] !== result1.succeedTrim[vv]) {
+            const msg = `${getMokuaiTitle(v.item)}输出变量重复`;
+            await message.error(msg, vv);
+            return {fulfilled: false, error: {message: msg}};
+          } else {
+            shuchubianliang[vv] = result1.succeedTrim[vv];
+          }
         } else {
           missingKeys.push(vv);
         }
@@ -680,13 +688,16 @@ export const calcZxpj = async (
         calcErrors2 = {...calcErrors2, ...result1.error};
       }
     }
-    initial = false;
   }
   // console.log({toCalc1, shuchubianliang});
   calc.calc.mergeFormulas(materialResult, shuchubianliang);
 
   const calcCadItem = async (item: ZixuanpeijianCadItem, vars2: Formulas, mokuai?: ZixuanpeijianMokuaiItem): Promise<CalcZxpjResult> => {
     const {data, info} = item;
+    data.entities.forEach((e) => {
+      e.el?.remove();
+      delete e.el;
+    });
     const formulas2: Formulas = {};
 
     const zhankais: [number, CadZhankai][] = [];
@@ -911,11 +922,12 @@ export const calcZxpj = async (
     };
   }
   calc.calc.mergeFormulas(materialResult, gongshiCalcResult2.succeedTrim);
-  return {fulfilled: true};
+  return {fulfilled: true, 门扇布局大小: mokuaiVars};
 };
 
 export interface CalcZxpjResult {
   fulfilled: boolean;
+  门扇布局大小?: ObjectOf<Formulas>;
   error?: CalcZxpjError;
 }
 
