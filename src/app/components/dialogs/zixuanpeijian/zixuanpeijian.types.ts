@@ -247,11 +247,18 @@ export const exportZixuanpeijian = (source: ZixuanpeijianData) => {
 };
 
 export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem) => {
-  const {type1, type2} = item;
+  const {type1, type2, info} = item;
   if (!type1 && !type2) {
     return "";
   }
-  return `${type1}【${type2}】`;
+  const arr = [`${type1}【${type2}】`];
+  const 门扇名字 = info?.门扇名字;
+  if (门扇名字) {
+  }
+  if (typeof 门扇名字 === "string" && 门扇名字) {
+    arr.unshift(门扇名字);
+  }
+  return arr.join("-");
 };
 
 export const getStep1Data = async (dataService: CadDataService, params?: {code: string; type: string} | {mokuaiIds: string[]}) => {
@@ -626,7 +633,7 @@ export const calcZxpj = async (
   while (!calc1Finished) {
     calc1Finished = true;
     calc1Count++;
-    const alertError = !isEmpty(calcErrors1) && isEqual(calcErrors1, calcErrors2);
+    const alertError = calc1Count > 1 && isEqual(calcErrors1, calcErrors2);
     calcErrors1 = calcErrors2;
     calcErrors2 = {};
     for (const v of toCalc1) {
@@ -637,7 +644,7 @@ export const calcZxpj = async (
       const {模块名字, 门扇名字} = v.item.info || {};
       const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.vars, ...mokuaiVars[门扇名字]};
       replaceMenshanName(v.item.info?.门扇名字, formulas1);
-      const result1Msg = `计算${门扇名字 || ""}模块（${getMokuaiTitle(v.item)}）`;
+      const result1Msg = `计算模块（${getMokuaiTitle(v.item)}）`;
       const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);
       // console.log({formulas1, vars1, result1});
       if (!result1?.fulfilled) {
@@ -666,7 +673,7 @@ export const calcZxpj = async (
           } else {
             shuchubianliang[vv] = result1.succeedTrim[vv];
           }
-        } else {
+        } else if (isEmpty(result1.error)) {
           missingKeys.push(vv);
         }
       }

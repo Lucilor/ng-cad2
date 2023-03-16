@@ -211,6 +211,11 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     }
     return result;
   }
+
+  getMsbjsStart() {
+    const result = {action: "getMsbjsEnd", data: this.msbjs};
+    return result;
+  }
 }
 
 export interface SuanliaoInput {
