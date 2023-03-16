@@ -17,7 +17,7 @@ import zxpjTestData from "@src/assets/testData/zixuanpeijian.json";
 import zixuanpeijianTypesInfo from "@src/assets/testData/zixuanpeijianTypesInfo.json";
 import {ObjectOf} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
-import { XhmrmsbjInfo } from "@views/xhmrmsbj/xhmrmsbj.types";
+import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
 import {cloneDeep, difference, intersection, isEmpty, isEqual, union} from "lodash";
 import {openDrawCadDialog} from "../draw-cad/draw-cad.component";
 
