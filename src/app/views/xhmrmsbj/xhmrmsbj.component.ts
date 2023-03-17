@@ -248,13 +248,13 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async updateMokuaidaxiaoResult() {
-    const msbj = this.activeMsbj;
-    if (!this.isFromOrder || !msbj) {
+    const msbjInfo = this.activeMsbjInfo;
+    if (!this.isFromOrder || !msbjInfo) {
       this.updateMokuaiInputInfo();
       return;
     }
-    const vars = {...this.materialResult, ...this.activeMsbjInfo?.模块大小输入};
-    const config = msbj.peizhishuju.模块大小关系 || {};
+    const vars = {...this.materialResult, ...msbjInfo.模块大小输入};
+    const config = msbjInfo.选中布局数据?.模块大小关系 || {};
     if (!config.门扇调整) {
       config.门扇调整 = Object.values(config)[0];
     }
@@ -265,20 +265,18 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       for (const k in config.门扇调整) {
         const item = config.门扇调整[k];
         for (const k2 in item.初始值) {
+          let k3: string;
           if (this.activeMenshanKey && k2.includes("当前扇")) {
-            const k3 = k2.replaceAll("当前扇", this.activeMenshanKey);
-            if (!config.配置.修改变量) {
-              config.配置.修改变量 = {};
-            }
-            config.配置.修改变量[k2] = vars[k3];
+            k3 = k2.replaceAll("当前扇", this.activeMenshanKey);
             if (!config.变量别名) {
               item.变量别名 = {};
             }
             item.变量别名[k2] = k3;
           } else {
-            if (k2 in vars) {
-              item.初始值[k2] = vars[k2];
-            }
+            k3 = k2;
+          }
+          if (k3 in vars) {
+            item.初始值[k2] = vars[k3];
           }
         }
       }

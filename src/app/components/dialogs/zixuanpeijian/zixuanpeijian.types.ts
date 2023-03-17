@@ -17,7 +17,6 @@ import zxpjTestData from "@src/assets/testData/zixuanpeijian.json";
 import zixuanpeijianTypesInfo from "@src/assets/testData/zixuanpeijianTypesInfo.json";
 import {ObjectOf} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
-import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
 import {cloneDeep, difference, intersection, isEmpty, isEqual, union} from "lodash";
 import {openDrawCadDialog} from "../draw-cad/draw-cad.component";
 
@@ -87,7 +86,7 @@ export interface ZixuanpeijianInfo {
   开料孔位配置?: KlkwpzSource;
   开料参数?: KailiaocanshuData;
   门扇名字?: string;
-  选中布局数据?: XhmrmsbjInfo["选中布局数据"];
+  布局id?: number;
   层id?: number;
   模块名字?: string;
 }
@@ -111,7 +110,7 @@ export interface ZixuanpeijianMokuaiItem extends ZixuanpeijianTypesInfoItem {
   cads: ZixuanpeijianCadItem[];
   可替换模块?: ZixuanpeijianMokuaiItem[];
   vars?: Formulas;
-  模块大小输入?: Formulas;
+  模块大小输出?: Formulas;
   info?: ObjectOf<any>;
 }
 
@@ -543,7 +542,7 @@ export const calcZxpj = async (
     return vars;
   };
   const toCalc1 = mokuais.map((item) => {
-    const formulas = {...item.suanliaogongshi, ...item.模块大小输入};
+    const formulas = {...item.suanliaogongshi, ...item.模块大小输出};
     if (item.shuruzongkuan) {
       formulas.总宽 = item.totalWidth;
     }
@@ -708,11 +707,9 @@ export const calcZxpj = async (
     const formulas2: Formulas = {};
 
     const zhankais: [number, CadZhankai][] = [];
-    if (!mokuai) {
-      const {门扇名字} = item.info;
-      if (门扇名字 && mokuaiVars[门扇名字]) {
-        vars2 = {...vars2, ...mokuaiVars[门扇名字]};
-      }
+    const {门扇名字} = item.info;
+    if (门扇名字 && mokuaiVars[门扇名字]) {
+      vars2 = {...vars2, ...mokuaiVars[门扇名字]};
     }
     for (const [i, zhankai] of data.zhankai.entries()) {
       let enabled = true;

@@ -64,6 +64,7 @@ export interface XhmrmsbjInfo {
   选中布局?: number;
   选中布局数据?: {vid: number; name: string; 模块大小关系: MsbjPeizhishuju["模块大小关系"]};
   模块大小输入?: Formulas;
+  模块大小输出?: Formulas;
   模块节点?: XhmrmsbjInfoMokuaiNode[];
 }
 
