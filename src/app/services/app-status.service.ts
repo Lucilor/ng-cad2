@@ -17,7 +17,6 @@ import {
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {environment} from "@src/environments/environment";
 import {ObjectOf, timeout} from "@utils";
 import {differenceWith, clamp} from "lodash";
 import {BehaviorSubject, Subject} from "rxjs";
@@ -38,6 +37,7 @@ import {
 } from "../cad.utils";
 import {CadStatusNormal, CadStatus} from "./cad-status";
 import {AppConfigService, AppConfig} from "./app-config.service";
+import {environment} from "@env";
 
 const 合型板示意图 = new CadData();
 合型板示意图.entities.add(new CadLine({start: [0, 20], end: [0, -20]}));

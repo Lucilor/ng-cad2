@@ -4,6 +4,9 @@ import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {session, setGlobal, timer} from "@app/app.common";
+import {configCadDataForPrint, printCads, PrintCadsParams} from "@app/cad.print";
+import {getCadCalcZhankaiText} from "@app/cad.utils";
+import {toFixed} from "@app/utils/func";
 import {CadData, CadLine, CadMtext, CadViewer} from "@cad-viewer";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {
@@ -20,9 +23,6 @@ import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {PrintCadsParams, printCads, configCadDataForPrint} from "@src/app/cad.print";
-import {getCadCalcZhankaiText} from "@src/app/cad.utils";
-import {toFixed} from "@src/app/utils/calc";
 import {downloadByUrl, ObjectOf, timeout} from "@utils";
 import {
   slideInDownOnEnterAnimation,

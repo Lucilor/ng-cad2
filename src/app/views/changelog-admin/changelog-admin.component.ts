@@ -1,12 +1,12 @@
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
+import {remoteHost} from "@app/app.common";
 import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {Changelog} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {remoteHost} from "@src/app/app.common";
 import {downloadByString, downloadByUrl, ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
 import {DateTime} from "luxon";

@@ -1,6 +1,6 @@
 import {Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild} from "@angular/core";
+import {setGlobal} from "@app/app.common";
 import {Debounce} from "@decorators/debounce";
-import {setGlobal} from "@src/app/app.common";
 import {ObjectOf, Rectangle, timeout} from "@utils";
 import {Properties} from "csstype";
 import {cloneDeep, random} from "lodash";

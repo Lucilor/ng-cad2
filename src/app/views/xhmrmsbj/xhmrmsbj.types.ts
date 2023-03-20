@@ -1,7 +1,7 @@
+import {Formulas} from "@app/utils/calc";
 import {updateMokuaiItems, ZixuanpeijianMokuaiItem, ZixuanpeijianTypesInfo} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {MsbjPeizhishuju} from "@components/msbj-rects/msbj-rects.types";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
-import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf} from "@utils";
 import {MsbjInfo} from "@views/msbj/msbj.types";
 

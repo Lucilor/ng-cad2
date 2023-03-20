@@ -1,4 +1,5 @@
 import {Component, OnInit} from "@angular/core";
+import {setGlobal} from "@app/app.common";
 import {CadPortable, CadInfo, SlgsInfo, PeiheInfo, XinghaoInfo, SourceCadMap, Slgs} from "@app/cad.portable";
 import {isShiyitu, reservedDimNames, validateLines} from "@app/cad.utils";
 import {CadData, CadDimensionLinear, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
@@ -9,7 +10,6 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {setGlobal} from "@src/app/app.common";
 import {downloadByString, ObjectOf, ProgressBar} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";

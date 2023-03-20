@@ -1,6 +1,8 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
+import {setGlobal, timer} from "@app/app.common";
+import {Formulas} from "@app/utils/calc";
 import {CadData} from "@cad-viewer";
 import {openDrawCadDialog} from "@components/dialogs/draw-cad/draw-cad.component";
 import {
@@ -18,8 +20,6 @@ import {
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
-import {setGlobal, timer} from "@src/app/app.common";
-import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf, WindowMessageManager} from "@utils";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";

@@ -3,6 +3,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgCadEmpty, imgEmpty, imgLoading, session, setGlobal} from "@app/app.common";
+import {configCadDataForPrint} from "@app/cad.print";
 import {
   CadPreviewParams,
   getCadPreview,
@@ -12,6 +13,7 @@ import {
   shouldShowIntersection,
   splitShuangxiangCad
 } from "@app/cad.utils";
+import {Formulas} from "@app/utils/calc";
 import {CadData, CadLine, CadViewer, CadViewerConfig, Defaults, generateLineTexts, setLinesLength} from "@cad-viewer";
 import {openEditFormulasDialog} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";
 import {
@@ -28,8 +30,6 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CalcService} from "@services/calc.service";
-import {configCadDataForPrint} from "@src/app/cad.print";
-import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf, timeout} from "@utils";
 import JsBarcode from "jsbarcode";
 import {cloneDeep} from "lodash";

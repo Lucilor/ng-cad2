@@ -1,10 +1,10 @@
 import {Component, Inject, OnInit} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
+import {CadCollection} from "@app/app.common";
+import {getCadPreview} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {AppStatusService} from "@services/app-status.service";
-import {CadCollection} from "@src/app/app.common";
-import {getCadPreview} from "@src/app/cad.utils";
 import {getOpenDialogFunc} from "../dialog.common";
 
 @Component({

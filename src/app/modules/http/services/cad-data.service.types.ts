@@ -1,5 +1,5 @@
+import {CadCollection} from "@app/app.common";
 import {CadData} from "@cad-viewer";
-import {CadCollection} from "@src/app/app.common";
 import {ObjectOf} from "@utils";
 
 export interface GetCadParams {

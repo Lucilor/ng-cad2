@@ -64,13 +64,13 @@ export class LoginFormComponent implements AfterViewInit {
     if (!form.valid) {
       return;
     }
-    const token = await lastValueFrom(this.recaptcha.execute("submit"));
     const baseUrl = this.data.baseUrl;
     const data = new FormData();
     data.append("username", form.value.user || "");
     data.append("password", md5(form.value.password || ""));
     data.append("phonecode", "");
-    data.append("recaptcha_token", token);
+    // const token = await lastValueFrom(this.recaptcha.execute("submit"));
+    // data.append("recaptcha_token", token);
     this.spinner.show(this.spinner.defaultLoaderId);
     let response: ObjectOf<any> = await lastValueFrom(this.http.post(`${baseUrl}/login/in`, data));
     this.spinner.hide(this.spinner.defaultLoaderId);

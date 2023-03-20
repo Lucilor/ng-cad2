@@ -3,6 +3,7 @@ import {CdkDragEnd, CdkDragMove, CdkDragStart} from "@angular/cdk/drag-drop";
 import {AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, QueryList, ViewChild, ViewChildren} from "@angular/core";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
+import {setGlobal} from "@app/app.common";
 import {CadEventCallBack} from "@cad-viewer";
 import {Debounce} from "@decorators/debounce";
 import {ContextMenu} from "@mixins/context-menu.mixin";
@@ -12,7 +13,6 @@ import {CadConsoleService} from "@modules/cad-console/services/cad-console.servi
 import {AppConfig, AppConfigService} from "@services/app-config.service";
 import {AppStatusService, OpenCadOptions} from "@services/app-status.service";
 import {CadStatusAssemble, CadStatusSplit} from "@services/cad-status";
-import {setGlobal} from "@src/app/app.common";
 import {debounce} from "lodash";
 import {NgScrollbar} from "ngx-scrollbar";
 import {BehaviorSubject, map, startWith, take} from "rxjs";

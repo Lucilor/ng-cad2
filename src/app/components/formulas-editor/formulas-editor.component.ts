@@ -1,10 +1,10 @@
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Component, ElementRef, Input, ViewChild} from "@angular/core";
+import {setGlobal} from "@app/app.common";
+import {CalcResult, Formulas} from "@app/utils/calc";
 import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
-import {setGlobal} from "@src/app/app.common";
-import {CalcResult, Formulas} from "@src/app/utils/calc";
 import {timeout} from "@utils";
 
 @Component({

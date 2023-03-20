@@ -1,6 +1,6 @@
 import {SafeUrl} from "@angular/platform-browser";
+import {Formulas} from "@app/utils/calc";
 import {CadData} from "@cad-viewer";
-import {Formulas} from "@src/app/utils/calc";
 import {ObjectOf} from "@utils";
 import {Properties} from "csstype";
 

@@ -1,10 +1,10 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
+import {setGlobal} from "@app/app.common";
 import {KailiaocanshuData, KlcsComponent} from "@components/klcs/klcs.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {setGlobal} from "@src/app/app.common";
 
 @Component({
   selector: "app-kailiaocanshu",

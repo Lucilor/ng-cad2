@@ -1,9 +1,9 @@
 import {Component, OnInit, OnDestroy} from "@angular/core";
 import {CadMtext, CadStylizer, ColoredObject} from "@cad-viewer";
+import {environment} from "@env";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {InputInfo} from "@modules/input/components/types";
 import {AppStatusService} from "@services/app-status.service";
-import {environment} from "@src/environments/environment";
 import {Point} from "@utils";
 import {debounce} from "lodash";
 

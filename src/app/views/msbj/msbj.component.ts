@@ -3,18 +3,18 @@ import {AfterViewInit, ChangeDetectorRef, Component, QueryList, ViewChild, ViewC
 import {MatSelectionList} from "@angular/material/list";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
+import {imgEmpty, setGlobal} from "@app/app.common";
+import {getCadPreview} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
+import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {QueryMysqlParams, TableDataBase, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {imgEmpty, setGlobal} from "@src/app/app.common";
-import {getCadPreview} from "@src/app/cad.utils";
-import {environment} from "@src/environments/environment";
 import {MsbjInfo, MsbjFenlei, MsbjData} from "./msbj.types";
 
 @Component({

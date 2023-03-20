@@ -26,9 +26,9 @@
       "@modules/*": ["src/app/modules/*"],
       "@services/*": ["src/app/services/*"],
       "@views/*": ["src/app/views/*"],
-      "@src/*": ["src/*"],
+      "@env": ["src/environments/environment.ts"],
       "@app/*": ["src/app/*"],
-      "@env": ["src/environments/environment.ts"]
+      "@assets/*": ["src/assets/*"]
     },
     "allowJs": true,
     "allowSyntheticDefaultImports": true,

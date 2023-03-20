@@ -1,6 +1,6 @@
+import mokuaidaixiaoData from "@assets/testData/mokuaidaxiao.json";
 import {MsbjPeizhishuju, MsbjRectInfoRaw} from "@components/msbj-rects/msbj-rects.types";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
-import mokuaidaixiaoData from "@src/assets/testData/mokuaidaxiao.json";
 import {cloneDeep} from "lodash";
 
 export class MsbjInfo {
