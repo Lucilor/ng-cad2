@@ -57,11 +57,11 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     this.wmm.destroy();
   }
 
-  async suanliaoStart(params: SuanliaoInput): Promise<SuanliaoOutput> {
+  async suanliaoStart(params: SuanliaoInput): Promise<SuanliaoOutputData> {
     const timerName = "算料";
     timer.start(timerName);
     const {materialResult, gongshi, inputResult, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames, varNames} = params;
-    const result: SuanliaoOutput = {
+    const result: SuanliaoOutputData = {
       action: "suanliaoEnd",
       data: {
         materialResult,
@@ -189,8 +189,8 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
       ...data,
       data: data.data.export()
     });
-    result.data.配件模块CAD = mokuais.map((v) => ({...v, cads: v.cads.map(getCadItem2)}));
-    result.data.门扇布局CAD = lingsans.map(getCadItem2);
+    result.data.配件模块CAD = mokuais.map((v) => ({...v, cads: v.cads.map(getCadItem2)})) as any;
+    result.data.门扇布局CAD = lingsans.map(getCadItem2) as any;
     result.data.fulfilled = true;
     timer.end(timerName, timerName);
     return result;
@@ -225,13 +225,13 @@ export interface SuanliaoInput {
   varNames: string[];
 }
 
-export interface SuanliaoOutput {
+export interface SuanliaoOutputData {
   action: "suanliaoEnd";
-  data: SuanliaoOutputData;
+  data: SuanliaoOutput;
 }
 
-export interface SuanliaoOutputData extends CalcZxpjResult {
+export interface SuanliaoOutput extends CalcZxpjResult {
   materialResult: Formulas;
-  配件模块CAD: any[];
-  门扇布局CAD: any[];
+  配件模块CAD: ZixuanpeijianMokuaiItem[];
+  门扇布局CAD: ZixuanpeijianCadItem[];
 }

@@ -75,10 +75,6 @@ ng-scrollbar.ng-scrollbar {
   --scrollbar-hover-size: 5px;
   --scrollbar-thumb-transition: height ease-out 150ms, width ease-out 150ms;
   --scrollbar-track-transition: height ease-out 150ms, width ease-out 150ms;
-  .ng-scroll-content {
-    display: block;
-    min-width: unset;
-  }
 }
 
 .sub-form-field,

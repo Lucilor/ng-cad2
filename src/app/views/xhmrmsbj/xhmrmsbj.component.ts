@@ -27,6 +27,8 @@ import {CalcService} from "@services/calc.service";
 import {Point, Rectangle, timeout, WindowMessageManager} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
+import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
+import {openXhmrmsbjMokuaisDialog} from "@views/xhmrmsbj-mokuais/xhmrmsbj-mokuais.component";
 import {cloneDeep, intersection, isEqual} from "lodash";
 import {BehaviorSubject, filter, firstValueFrom} from "rxjs";
 import {XhmrmsbjData, XhmrmsbjInfo, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
@@ -631,5 +633,19 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     container.style.opacity = "1";
     timer.end(timerName, timerName);
     this.xiaoguotuLock$.next(false);
+  }
+
+  async getLastSuanliao() {
+    this.wmm.postMessage("getLastSuanliaoStart");
+    const data = await this.wmm.waitForMessage<{input: SuanliaoInput; output: SuanliaoOutput} | null>("getLastSuanliaoEnd");
+    return data;
+  }
+
+  async openMokuais() {
+    const data = await this.getLastSuanliao();
+    if (!data) {
+      return;
+    }
+    openXhmrmsbjMokuaisDialog(this.dialog, {data: {data}});
   }
 }

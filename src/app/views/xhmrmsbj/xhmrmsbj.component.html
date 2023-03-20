@@ -18,6 +18,7 @@
       </ng-container>
       <button mat-raised-button color="primary" (click)="editMokuaidaxiao()">模块大小</button>
       <div>型号：{{ xinghao?.raw?.mingzi }}</div>
+      <button mat-raised-button color="primary" (click)="openMokuais()">查看选中模块算料数据</button>
     </div>
   </div>
   <div class="btn-group" [ngSwitch]="activeTabName" *ngIf="!isFromOrder">

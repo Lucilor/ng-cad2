@@ -47,6 +47,7 @@ import {MrbcjfzDialogComponent} from "@components/dialogs/mrbcjfz-dialog/mrbcjfz
 import {SelectBancaiCadsComponent} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {ZixuanpeijianComponent} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {FormulasEditorComponent} from "@components/formulas-editor/formulas-editor.component";
+import {FormulasComponent} from "@components/formulas/formulas.component";
 import {KlcsComponent} from "@components/klcs/klcs.component";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
@@ -82,6 +83,7 @@ import {ReplaceTextComponent} from "@views/replace-text/replace-text.component";
 import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.component";
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
 import {SuanliaoComponent} from "@views/suanliao/suanliao.component";
+import {XhmrmsbjMokuaisComponent} from "@views/xhmrmsbj-mokuais/xhmrmsbj-mokuais.component";
 import {XhmrmsbjComponent} from "@views/xhmrmsbj/xhmrmsbj.component";
 import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_BASE_URL} from "ng-recaptcha";
 import {ColorChromeModule} from "ngx-color/chrome";
@@ -130,8 +132,10 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     ChangelogComponent,
     CleanComponent,
     DingdanbiaoqianComponent,
+    DrawCadComponent,
     EditFormulasDialogComponent,
     ExportComponent,
+    FormulasComponent,
     FormulasEditorComponent,
     ImportComponent,
     IndexComponent,
@@ -159,8 +163,8 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     SelectCadsComponent,
     SuanliaoComponent,
     XhmrmsbjComponent,
-    ZixuanpeijianComponent,
-    DrawCadComponent
+    XhmrmsbjMokuaisComponent,
+    ZixuanpeijianComponent
   ],
   imports: [
     AngJsoneditorModule,

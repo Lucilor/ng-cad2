@@ -1,0 +1,24 @@
+<div class="flex-row flex-110">
+  <div class="section">
+    <ng-scrollbar [autoWidthDisabled]="false">
+      <app-formulas [formulaInfos]="mkdxFormulaInfos"></app-formulas>
+    </ng-scrollbar>
+  </div>
+  <div class="section flex-110">
+    <ng-scrollbar track="all">
+      <div class="flex-column" *ngFor="let info of xuanzhongMokuaiInfos">
+        <div class="title">{{ info.name }}选中模块</div>
+        <div *ngFor="let node of info.nodes">
+          <div class="title">
+            <span style="margin-right: 50px">层名字：{{ node.layer }}</span>
+            <span>模块：{{ getMokuaiTitle(node.mokuai) }}</span>
+          </div>
+          <app-formulas [formulaInfos]="node.formulaInfos"></app-formulas>
+        </div>
+      </div>
+    </ng-scrollbar>
+  </div>
+</div>
+<div matDialogActions>
+  <button mat-raised-button color="primary" (click)="close()">关闭</button>
+</div>

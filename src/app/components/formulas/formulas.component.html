@@ -1,0 +1,9 @@
+<div class="formulas" [ngStyle]="formulasStyles">
+  <div class="formula" *ngFor="let info of formulaInfos">
+    <div #formulaKey class="key" [ngClass]="info.nameClass">{{ info.name }}</div>
+    <ng-container *ngFor="let value of info.values">
+      <div class="eq"></div>
+      <div class="value">{{ value }}</div>
+    </ng-container>
+  </div>
+</div>

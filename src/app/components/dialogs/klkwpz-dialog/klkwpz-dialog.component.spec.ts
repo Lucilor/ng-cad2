@@ -1,11 +1,11 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatCardModule} from "@angular/material/card";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import testData from "@assets/testData/klkwpz.json";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {HttpModule} from "@modules/http/http.module";
 import {InputModule} from "@modules/input/input.module";
 import {MessageModule} from "@modules/message/message.module";
-import testData from "@src/assets/testData/klkwpz.json";
 import {NgScrollbarModule} from "ngx-scrollbar";
 import {KlkwpzDialogData, KlkwpzDialogComponent} from "./klkwpz-dialog.component";
 

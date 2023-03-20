@@ -1,0 +1,25 @@
+.formulas {
+  --formula-key-width: auto;
+
+  .formula {
+    display: flex;
+    flex-direction: row;
+    white-space: nowrap;
+
+    .key {
+      width: var(--formula-key-width);
+      text-align: right;
+    }
+
+    .eq {
+      margin: 0 0.25em;
+      &::after {
+        content: "=";
+      }
+    }
+
+    // .value {
+    //   flex: 1 1 0;
+    // }
+  }
+}

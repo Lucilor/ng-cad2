@@ -54,6 +54,14 @@ export class Calc {
           b.length - a.length
       )
       .forEach((v) => {
+        const reg = /^#(.*)#$/;
+        if (reg.test(v)) {
+          const v2 = v.replace(reg, "$1");
+          if (pairs[v2] != null) {
+            expression = expression.replaceAll(v, String(pairs[v2]));
+          }
+          return;
+        }
         let value = pairs[v];
 
         if (value == null) {

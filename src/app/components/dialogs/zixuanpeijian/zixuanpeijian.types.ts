@@ -83,6 +83,7 @@ export interface ZixuanpeijianInfo {
   bancai?: BancaiList & {cailiao?: string; houdu?: string};
   translate?: [number, number];
   hidden?: boolean;
+  dimensionVars?: Formulas;
   开料孔位配置?: KlkwpzSource;
   开料参数?: KailiaocanshuData;
   门扇名字?: string;
@@ -523,6 +524,7 @@ export const calcZxpj = async (
     const vars: Formulas = {};
     for (const item of items) {
       const data = item.data;
+      const vars2: Formulas = {};
       for (const e of data.entities.dimension) {
         const name = e.mingzi;
         if (!name || e.info.显示公式 || /一个周期|周期等于/.test(name)) {
@@ -532,12 +534,14 @@ export const calcZxpj = async (
         if (points.length < 4) {
           continue;
         }
-        vars[name] = points[2].distanceTo(points[3]);
+        vars2[name] = points[2].distanceTo(points[3]);
         if (!dimensionNamesMap[name]) {
           dimensionNamesMap[name] = [];
         }
         dimensionNamesMap[name].push({item});
       }
+      item.info.dimensionVars = vars2;
+      Object.assign(vars, vars2);
     }
     return vars;
   };
@@ -573,7 +577,6 @@ export const calcZxpj = async (
       }
     }
     const vars = getCadDimensionVars(item.cads);
-    vars.门扇布局 = item.info?.门扇名字;
     return {formulas, vars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
   });
   const lingsanVars = getCadDimensionVars(lingsans);
@@ -641,8 +644,9 @@ export const calcZxpj = async (
       }
       const formulas1 = v.formulas;
       const {模块名字, 门扇名字} = v.item.info || {};
-      const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.vars, ...mokuaiVars[门扇名字]};
       replaceMenshanName(v.item.info?.门扇名字, formulas1);
+      const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.vars, ...mokuaiVars[门扇名字]};
+      vars1.门扇布局 = v.item.info?.门扇名字;
       const result1Msg = `计算模块（${getMokuaiTitle(v.item)}）`;
       const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);
       // console.log({formulas1, vars1, result1});
