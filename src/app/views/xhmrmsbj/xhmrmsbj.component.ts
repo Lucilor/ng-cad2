@@ -3,6 +3,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {session, setGlobal, timer} from "@app/app.common";
 import {Formulas} from "@app/utils/calc";
+import mokuaidaixiaoData from "@assets/testData/mokuaidaxiao.json";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {openMrbcjfzDialog} from "@components/dialogs/mrbcjfz-dialog/mrbcjfz-dialog.component";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
@@ -24,7 +25,7 @@ import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {CalcService} from "@services/calc.service";
-import {Point, Rectangle, timeout, WindowMessageManager} from "@utils";
+import {ObjectOf, Point, Rectangle, timeout, WindowMessageManager} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
@@ -203,6 +204,16 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     return 0;
   }
 
+  validateMorenbancai(morenbancai: ObjectOf<MrbcjfzInfo> | null) {
+    if (!morenbancai) {
+      return true;
+    }
+    if (this.isFromOrder) {
+      return true;
+    }
+    return Object.values(morenbancai).every((v) => isMrbcjfzInfoEmpty(v) || v.默认对应板材分组);
+  }
+
   async selectMenshanKey(key: string) {
     const msbj = this.activeMsbj;
     const msbjInfo = this.activeMsbjInfo;
@@ -210,9 +221,22 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       for (const rectInfo of msbj.peizhishuju.模块节点) {
         const 选中模块 = msbjInfo.模块节点?.find((v) => v.层id === rectInfo.vid)?.选中模块;
         if (rectInfo.isBuju && !选中模块) {
-          this.message.error("布局中存在未选中的模块");
+          await this.message.error("布局中存在未选中的模块");
           return;
         }
+      }
+      const mokuaisWithoutBancai: {mokuai: ZixuanpeijianMokuaiItem}[] = [];
+      for (const node of msbjInfo.模块节点 || []) {
+        for (const mokuai of node.可选模块) {
+          if (!this.validateMorenbancai(mokuai.morenbancai)) {
+            mokuaisWithoutBancai.push({mokuai});
+          }
+        }
+      }
+      if (mokuaisWithoutBancai.length > 0) {
+        const details = mokuaisWithoutBancai.map((v) => getMokuaiTitle(v.mokuai));
+        await this.message.error("以下模块未设置默认板材分组", details);
+        return;
       }
     }
     this.activeMenshanKey = key;
@@ -249,6 +273,11 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     await this.生成效果图();
   }
 
+  async justifyGongshiObj(gongshiObj: any, menshanKey: string, vars: Formulas) {
+    this.wmm.postMessage("justifyGongshiObjStart", {gongshiObj, menshanKey, vars});
+    return (await this.wmm.waitForMessage("justifyGongshiObjEnd")).gongshiObj;
+  }
+
   async updateMokuaidaxiaoResult() {
     const msbjInfo = this.activeMsbjInfo;
     if (!this.isFromOrder || !msbjInfo) {
@@ -256,32 +285,15 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       return;
     }
     const vars = {...this.materialResult, ...msbjInfo.模块大小输入};
-    const config = msbjInfo.选中布局数据?.模块大小关系 || {};
-    if (!config.门扇调整) {
-      config.门扇调整 = Object.values(config)[0];
-    }
-    if (!config.配置) {
-      config.配置 = {};
-    }
-    if (config.门扇调整) {
-      for (const k in config.门扇调整) {
-        const item = config.门扇调整[k];
-        for (const k2 in item.初始值) {
-          let k3: string;
-          if (this.activeMenshanKey && k2.includes("当前扇")) {
-            k3 = k2.replaceAll("当前扇", this.activeMenshanKey);
-            if (!config.变量别名) {
-              item.变量别名 = {};
-            }
-            item.变量别名[k2] = k3;
-          } else {
-            k3 = k2;
-          }
-          if (k3 in vars) {
-            item.初始值[k2] = vars[k3];
-          }
-        }
+    if (msbjInfo.选中布局数据) {
+      const gongshiObj = msbjInfo.选中布局数据.模块大小关系 || {};
+      if (!gongshiObj.门扇调整) {
+        gongshiObj.门扇调整 = Object.values(gongshiObj)[0];
       }
+      if (!gongshiObj.配置) {
+        gongshiObj.配置 = {};
+      }
+      msbjInfo.选中布局数据.模块大小关系 = await this.justifyGongshiObj(gongshiObj, this.activeMenshanKey || "", vars);
     }
     this.updateMokuaiInputInfo();
   }
@@ -333,6 +345,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       this.showMokuais = false;
       this.activeRectInfo = null;
     }
+    this.selectMokuai(this.activeMokuaiNode?.选中模块);
   }
 
   generateRectsEnd() {
@@ -344,15 +357,31 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.updateMokuaiInputInfo();
   }
 
-  selectMokuai(mokuai: ZixuanpeijianMokuaiItem | null) {
+  async selectMokuai(mokuai: ZixuanpeijianMokuaiItem | null | undefined) {
     const mokuaiNode = this.activeMokuaiNode;
     const rectInfo = this.activeRectInfo;
+    const mokuaiPrev = mokuaiNode?.选中模块;
+    if (mokuaiPrev) {
+      const morenbancai = mokuaiPrev.morenbancai;
+      if (!this.validateMorenbancai(morenbancai)) {
+        await this.message.error("请先选择默认板材");
+        return;
+      }
+    }
     if (!mokuai || !mokuaiNode || !rectInfo) {
       return;
     }
-    mokuaiNode.选中模块 = mokuaiNode.可选模块.find((v) => v.id === mokuai.id);
+    this.data?.setSelectedMokuai(mokuaiNode, mokuai.id, this.isFromOrder);
     this.updateMokuaiInputInfo();
     this.生成效果图();
+  }
+
+  setDefaultMokuai(mokuai: ZixuanpeijianMokuaiItem | null) {
+    const mokuaiNode = this.activeMokuaiNode;
+    if (!mokuaiNode) {
+      return;
+    }
+    this.data?.setDefaultMokuai(mokuaiNode, mokuai?.id);
   }
 
   updateMokuaiInputInfo() {
@@ -422,6 +451,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     const duplicates1: {mokuai: ZixuanpeijianMokuaiItem; keys: string[]}[] = [];
     const duplicates2: {mokuais: ZixuanpeijianMokuaiItem[]; keys: string[]}[] = [];
     const msbjInfos: {menshanKey: string; msbjInfo: XhmrmsbjInfo}[] = [];
+    const mokuaisWithoutBancai: {menshanKey: string; mokuai: ZixuanpeijianMokuaiItem}[] = [];
     for (const menshanKey in dataInfo.menshanbujuInfos) {
       msbjInfos.push({menshanKey, msbjInfo: dataInfo.menshanbujuInfos[menshanKey]});
     }
@@ -465,6 +495,11 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       await this.message.error("布局中存在未选中的模块", Array.from(errorMenshanKeys).join("，"));
       return;
     }
+    if (mokuaisWithoutBancai.length > 0) {
+      const details = mokuaisWithoutBancai.map((v) => getMokuaiTitle(v.mokuai, v.menshanKey));
+      await this.message.error("以下模块未设置默认板材分组", details);
+      return;
+    }
     const tableData: TableUpdateParams<MsbjData>["tableData"] = dataInfo.export();
     delete tableData.mingzi;
     this.spinner.show(this.spinner.defaultLoaderId);
@@ -486,11 +521,6 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.activeTabName = name;
     await timeout(0);
     this.msbjRectsComponent?.generateRects();
-  }
-
-  isMokuaiKexuan(mokuai: ZixuanpeijianTypesInfoItem) {
-    const node = this.activeMokuaiNode;
-    return !!node?.可选模块.find((v2) => v2.id === mokuai.id);
   }
 
   isMokuaiActive(mokuai: ZixuanpeijianTypesInfoItem) {
@@ -576,7 +606,10 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       this.wmm.postMessage("编辑模块大小", data);
       return;
     } else {
-      const data = await this.message.json(选中布局数据.模块大小关系);
+      const data = await this.message.json(选中布局数据.模块大小关系, {
+        defaultJson: mokuaidaixiaoData,
+        btnTexts: {reset: "重置为默认模块大小"}
+      });
       if (data) {
         选中布局数据.模块大小关系 = data;
       }

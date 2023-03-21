@@ -1,20 +1,26 @@
 <div class="flex-row flex-110">
   <div class="section">
     <ng-scrollbar [autoWidthDisabled]="false">
-      <app-formulas [formulaInfos]="mkdxFormulaInfos"></app-formulas>
+      <div class="flex-column" *ngFor="let info of mkdxFormulaInfos; let i = index">
+        <div class="title">{{ info.name }}</div>
+        <app-formulas [formulaInfos]="info.formulaInfos"></app-formulas>
+        <mat-divider *ngIf="i < mkdxFormulaInfos.length - 1"></mat-divider>
+      </div>
     </ng-scrollbar>
   </div>
   <div class="section flex-110">
     <ng-scrollbar track="all">
-      <div class="flex-column" *ngFor="let info of xuanzhongMokuaiInfos">
+      <div class="flex-column" *ngFor="let info of xuanzhongMokuaiInfos; let i = index">
         <div class="title">{{ info.name }}选中模块</div>
         <div *ngFor="let node of info.nodes">
-          <div class="title">
-            <span style="margin-right: 50px">层名字：{{ node.layer }}</span>
-            <span>模块：{{ getMokuaiTitle(node.mokuai) }}</span>
+          <div class="title flex-row">
+            <div>层名字：{{ node.layer }}</div>
+            <mat-divider class="placeholder" [vertical]="true"></mat-divider>
+            <div>模块：{{ getMokuaiTitle(node.mokuai) }}</div>
           </div>
           <app-formulas [formulaInfos]="node.formulaInfos"></app-formulas>
         </div>
+        <mat-divider *ngIf="i < xuanzhongMokuaiInfos.length - 1"></mat-divider>
       </div>
     </ng-scrollbar>
   </div>

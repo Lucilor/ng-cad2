@@ -18,6 +18,10 @@ export interface ConfirmBaseMessageData {
   btnTexts?: {submit?: string; cancel?: string};
 }
 
+export interface FormBaseMessageData {
+  btnTexts?: {submit?: string; cancel?: string; reset?: string};
+}
+
 export interface AlertMessageData extends BaseMessageData, AlertBaseMessageData {
   type: "alert";
 }
@@ -60,9 +64,10 @@ export interface IFrameMessageData extends BaseMessageData {
   content: string;
 }
 
-export interface JsonMessageData extends BaseMessageData, ConfirmBaseMessageData {
+export interface JsonMessageData extends BaseMessageData, FormBaseMessageData {
   type: "json";
   json: any;
+  defaultJson?: any;
   options?: Partial<JsonEditorOptions>;
 }
 

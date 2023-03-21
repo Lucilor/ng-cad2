@@ -9,7 +9,7 @@ import {getMokuaiTitle, ZixuanpeijianMokuaiItem} from "@components/dialogs/zixua
 import {FormulaInfo} from "@components/formulas/formulas.component";
 import {CalcService} from "@services/calc.service";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
-import {uniq} from "lodash";
+import {uniqWith} from "lodash";
 
 @Component({
   selector: "app-xhmrmsbj-mokuais",
@@ -18,7 +18,7 @@ import {uniq} from "lodash";
 })
 export class XhmrmsbjMokuaisComponent {
   @ViewChildren("mkdxFormula", {read: ElementRef}) mkdxFormulaRef?: ElementRef<HTMLDivElement>[];
-  mkdxFormulaInfos: FormulaInfo[] = [];
+  mkdxFormulaInfos: XhmrmsbjMkdxFormulaInfo[] = [];
   xuanzhongMokuaiInfos: XhmrmsbjXuanzhongMokuaiInfo[] = [];
   getMokuaiTitle = getMokuaiTitle;
 
@@ -34,8 +34,14 @@ export class XhmrmsbjMokuaisComponent {
     this.mkdxFormulaInfos = [];
     this.xuanzhongMokuaiInfos = [];
     const {input, output} = this.data.data;
-    for (const [key, value] of Object.entries(input.型号选中门扇布局)) {
-      this.mkdxFormulaInfos.push({name: key, nameClass: "title"}, ...this.getFormulaInfos(value.模块大小输出 || {}));
+    for (const key of input.bujuNames) {
+      const value = input.型号选中门扇布局[key];
+      if (!value) {
+        continue;
+      }
+      const mkdxFormulaInfos: XhmrmsbjMkdxFormulaInfo = {name: key, formulaInfos: []};
+      mkdxFormulaInfos.formulaInfos = this.getFormulaInfos(value.模块大小输出 || {});
+      this.mkdxFormulaInfos.push(mkdxFormulaInfos);
       const xuanzhongMokuaiInfo: XhmrmsbjXuanzhongMokuaiInfo = {name: key, nodes: []};
       for (const node of value.模块节点 || []) {
         const mokuai = node.选中模块;
@@ -73,20 +79,27 @@ export class XhmrmsbjMokuaisComponent {
 
   getFormulaInfos(formulas: Formulas, formulas2?: Formulas) {
     const infos: FormulaInfo[] = [];
-    const getValue = (val: string | number) => {
+    const getValue = (val: string | number): FormulaInfo["values"] => {
       if (typeof val === "number") {
-        return [toFixedTrim(val, 2)];
+        return [{eq: true, name: toFixedTrim(val, 2)}];
       } else {
-        return [val, this.calc.calc.replaceVars(val, formulas2)];
+        return [
+          {eq: true, name: val},
+          {eq: true, name: this.calc.calc.replaceVars(val, formulas2)}
+        ];
       }
     };
     for (const [key, value] of Object.entries(formulas)) {
-      const values: string[] = [...getValue(value)];
+      const keys: FormulaInfo["keys"] = [{eq: true, name: key}];
+      let values: FormulaInfo["values"] = [...getValue(value)];
       if (formulas2 && key in formulas2) {
         const value2 = getValue(formulas2[key]);
+        const calcResult = this.calc.calc.calcExpress(`${values.at(-1)?.name} == ${value2.at(0)?.name}`);
+        value2[0].eq = calcResult.value === true;
         values.push(...value2);
       }
-      infos.push({name: key, values: uniq(values.map(String))});
+      values = uniqWith(values, (a, b) => a.name === b.name);
+      infos.push({keys, values});
     }
     return infos;
   }
@@ -106,6 +119,11 @@ export const openXhmrmsbjMokuaisDialog = getOpenDialogFunc<XhmrmsbjMokuaisCompon
   XhmrmsbjMokuaisComponent,
   {width: "100%", height: "100%"}
 );
+
+export interface XhmrmsbjMkdxFormulaInfo {
+  name: string;
+  formulaInfos: FormulaInfo[];
+}
 
 export interface XhmrmsbjXuanzhongMokuaiInfo {
   name: string;

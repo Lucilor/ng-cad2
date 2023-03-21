@@ -84,6 +84,7 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
       return item;
     };
     const mokuais: ZixuanpeijianMokuaiItem[] = [];
+    const mokuaiVars: ObjectOf<Formulas> = {};
     for (const 门扇 of bujuNames) {
       if (!型号选中门扇布局[门扇]) {
         continue;
@@ -100,28 +101,20 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
           }
         }
       }
+      if (模块大小输出) {
+        for (const key in 模块大小输出) {
+          const value = Number(inputResult[key]) > 0 ? inputResult[key] : 模块大小输出[key];
+          模块大小输出[key] = value;
+          if (key in gongshi) {
+            gongshi[key] = value;
+          }
+        }
+        mokuaiVars[门扇] = 模块大小输出;
+      }
       if (Array.isArray(模块节点)) {
         for (const node of 模块节点) {
           const {选中模块, 层名字, 层id} = node;
           if (选中模块) {
-            if (模块大小输出) {
-              for (const key in 模块大小输出) {
-                const value = Number(inputResult[key]) > 0 ? inputResult[key] : 模块大小输出[key];
-                模块大小输出[key] = value;
-                if (key in gongshi) {
-                  gongshi[key] = value;
-                }
-              }
-              选中模块.模块大小输出 = {...模块大小输出};
-            } else {
-              选中模块.模块大小输出 = {};
-            }
-            const keys = [层名字 + "总高", 层名字 + "总宽"];
-            for (const key of keys) {
-              if (formulas[key]) {
-                选中模块.模块大小输出[key.slice(层名字.length)] = formulas[key];
-              }
-            }
             const info: Partial<ZixuanpeijianInfo> = {门扇名字: 门扇, 布局id: 选中布局数据?.vid, 模块名字: 层名字, 层id};
             选中模块.info = info;
             mokuais.push(选中模块);
@@ -171,7 +164,8 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
       changeLinesLength: false,
       calcVars,
       gongshi,
-      inputResult
+      inputResult,
+      mokuaiVars
     });
     if (!calcZxpjResult.fulfilled) {
       result.data.error = calcZxpjResult.error;

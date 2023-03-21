@@ -4,6 +4,7 @@ import {DomSanitizer, SafeHtml, SafeResourceUrl} from "@angular/platform-browser
 import {Debounce} from "@decorators/debounce";
 import {JsonEditorComponent, JsonEditorOptions} from "@maaxgr/ang-jsoneditor";
 import {InputComponent} from "@modules/input/components/input.component";
+import {InputInfo} from "@modules/input/components/types";
 import {ObjectOf, timeout} from "@utils";
 import {clamp, cloneDeep} from "lodash";
 import {QuillEditorComponent, QuillViewComponent} from "ngx-quill";
@@ -21,6 +22,7 @@ export class MessageComponent implements OnInit, AfterViewInit {
   iframeSrc: SafeResourceUrl = "";
   page = 0;
   jsonEditorOptions = new JsonEditorOptions();
+  inputsBackup: InputInfo[] = [];
   @ViewChild(QuillEditorComponent) editor?: QuillViewComponent;
   @ViewChild("contentInput") contentInput?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
   @ViewChild("iframe") iframe?: ElementRef<HTMLIFrameElement>;
@@ -117,6 +119,8 @@ export class MessageComponent implements OnInit, AfterViewInit {
         window.clearInterval(id);
       }
     }, 600);
+
+    this.inputsBackup = cloneDeep(this.inputs);
   }
 
   async ngAfterViewInit() {
@@ -181,6 +185,19 @@ export class MessageComponent implements OnInit, AfterViewInit {
 
   cancel() {
     this.dialogRef.close(false);
+  }
+
+  reset() {
+    switch (this.data.type) {
+      case "form":
+        this.data.inputs = cloneDeep(this.inputsBackup);
+        break;
+      case "json":
+        this.jsonEditor?.set(this.data.defaultJson || null);
+        break;
+      default:
+        break;
+    }
   }
 
   setPage(page: number) {

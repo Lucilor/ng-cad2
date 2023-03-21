@@ -35,7 +35,7 @@
     <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="'form'">
-    <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
+    <ng-container *ngTemplateOutlet="formBtns"></ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="'book'">
     <button mat-raised-button (click)="setPage(page - 1)" [disabled]="page <= minPage">
@@ -52,7 +52,7 @@
     <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="'json'">
-    <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
+    <ng-container *ngTemplateOutlet="formBtns"></ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="'button'">
     <button mat-raised-button color="primary" *ngFor="let button of cast(data, 'button').buttons" (click)="submit(button)">
@@ -61,11 +61,6 @@
     <ng-container *ngTemplateOutlet="cancelBtn"></ng-container>
   </ng-container>
 </div>
-
-<ng-template #confirmBtns>
-  <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
-  <ng-container *ngTemplateOutlet="cancelBtn"></ng-container>
-</ng-template>
 
 <ng-template #submitBtn>
   <button mat-raised-button color="primary" (click)="submit()" cdkFocusInitial>
@@ -77,4 +72,20 @@
   <button mat-raised-button (click)="cancel()" *ngIf="!data.disableCancel">
     {{ cast(data, "confirm").btnTexts?.cancel || "取消" }}
   </button>
+</ng-template>
+
+<ng-template #resetBtn>
+  <button mat-raised-button color="primary" (click)="reset()">
+    {{ cast(data, "json").btnTexts?.reset || "重置" }}
+  </button>
+</ng-template>
+
+<ng-template #confirmBtns>
+  <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
+  <ng-container *ngTemplateOutlet="cancelBtn"></ng-container>
+</ng-template>
+
+<ng-template #formBtns>
+  <ng-container *ngTemplateOutlet="resetBtn"></ng-container>
+  <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
 </ng-template>

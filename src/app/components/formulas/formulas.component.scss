@@ -5,21 +5,28 @@
     display: flex;
     flex-direction: row;
     white-space: nowrap;
+    color: black;
 
-    .key {
+    .formula-key {
       width: var(--formula-key-width);
       text-align: right;
+      color: #2186da;
     }
 
-    .eq {
+    .formula-value {
+      color: #ec7a4a;
+    }
+
+    .formula-eq,
+    .formula-neq {
       margin: 0 0.25em;
-      &::after {
-        content: "=";
-      }
     }
-
-    // .value {
-    //   flex: 1 1 0;
-    // }
+    .formula-eq::after {
+      content: "=";
+    }
+    .formula-neq::after {
+      content: "≠";
+      color: red;
+    }
   }
 }

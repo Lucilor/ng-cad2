@@ -217,12 +217,13 @@ input[type="number"] {
 
 :root {
   --title-size: 1.5rem;
+  --title-padding: 0.5em;
   --border: 1px solid black;
 }
 
 .title {
   font-size: var(--title-size);
-  padding: 0.5em;
+  padding: var(--title-padding);
   &.center {
     text-align: center;
   }

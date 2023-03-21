@@ -48,6 +48,17 @@
     --icon-size: 48px;
   }
 
+  .default-sign {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    color: black;
+    &.active {
+      color: rgb(224, 46, 42);
+    }
+    --icon-size: 48px;
+  }
+
   .xiaoguotu {
     height: 0;
   }

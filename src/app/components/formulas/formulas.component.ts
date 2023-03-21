@@ -4,9 +4,7 @@ import {ViewChildren} from "@angular/core";
 import {Input} from "@angular/core";
 import {Component} from "@angular/core";
 import {timeout} from "@utils";
-import {Properties} from "csstype";
-import {lastValueFrom} from "rxjs";
-import {Subject} from "rxjs";
+import {lastValueFrom, Subject} from "rxjs";
 
 @Component({
   selector: "app-formulas",
@@ -25,8 +23,7 @@ export class FormulasComponent implements AfterViewInit {
   }
 
   private _viewInited = new Subject<void>();
-  formulasStyles: Properties & {"--formula-key-width"?: string} = {};
-  @ViewChildren("formulaKey", {read: ElementRef}) formulaKeyRefs?: QueryList<ElementRef<HTMLDivElement>>;
+  @ViewChildren("formula", {read: ElementRef}) formulaRefs?: QueryList<ElementRef<HTMLDivElement>>;
 
   ngAfterViewInit() {
     this._viewInited.next();
@@ -34,27 +31,39 @@ export class FormulasComponent implements AfterViewInit {
   }
 
   async update() {
-    if (!this.formulaKeyRefs) {
+    if (!this.formulaRefs) {
       await lastValueFrom(this._viewInited);
     }
-    this.formulasStyles["--formula-key-width"] = "auto";
     await timeout(500);
-    if (!this.formulaKeyRefs) {
+    if (!this.formulaRefs) {
       return;
     }
-    let maxWidth = 0;
-    this.formulaKeyRefs.forEach((ref) => {
-      const {width} = ref.nativeElement.getBoundingClientRect();
-      if (width > maxWidth) {
-        maxWidth = width;
-      }
+    const keys: HTMLElement[][] = [];
+    this.formulaRefs.forEach((ref) => {
+      const keysGroup: HTMLElement[] = [];
+      ref.nativeElement.querySelectorAll(".formula-key").forEach((el) => {
+        if (el instanceof HTMLElement) {
+          keysGroup.push(el);
+        }
+      });
+      keys.push(keysGroup);
     });
-    this.formulasStyles["--formula-key-width"] = Math.ceil(maxWidth) + "px";
+    const keyWidthArr: number[] = [];
+    for (const keyGroup of keys) {
+      for (const [j, key] of keyGroup.entries()) {
+        const {width} = key.getBoundingClientRect();
+        keyWidthArr[j] = keyWidthArr[j] ? Math.max(keyWidthArr[j], width) : width;
+      }
+    }
+    for (const keyGroup of keys) {
+      for (const [j, key] of keyGroup.entries()) {
+        key.style.width = keyWidthArr[j] + "px";
+      }
+    }
   }
 }
 
 export interface FormulaInfo {
-  name: string;
-  values?: string[];
-  nameClass?: string;
+  keys: {eq: boolean; name: string}[];
+  values: {eq: boolean; name: string}[];
 }

@@ -102,14 +102,13 @@ $app-theme: mat.define-light-theme(
 
 mat-divider {
   &.mat-divider {
-    --divider-margin: 5px;
     border-color: rgb(0, 0, 0, 0.7);
   }
   &.mat-divider-horizontal {
-    margin: var(--divider-margin) 0;
+    margin: var(--mat-divider-margin) 0;
   }
   &.mat-divider-vertical {
-    margin: 0 var(--divider-margin);
+    margin: 0 var(--mat-divider-margin);
   }
   &.placeholder {
     border-color: transparent;
@@ -117,12 +116,16 @@ mat-divider {
 }
 
 .mat-icon {
-  --icon-size: 24px;
-  width: var(--icon-size) !important;
-  height: var(--icon-size) !important;
-  font-size: var(--icon-size) !important;
+  width: var(--mat-icon-size) !important;
+  height: var(--mat-icon-size) !important;
+  font-size: var(--mat-icon-size) !important;
 }
 
 .cdk-overlay-container {
   z-index: 99999;
+}
+
+:root {
+  --mat-divider-margin: 5px;
+  --mat-icon-size: 24px;
 }

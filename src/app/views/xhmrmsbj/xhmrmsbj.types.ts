@@ -42,14 +42,57 @@ export class XhmrmsbjData {
       for (const v of 模块节点) {
         updateMokuaiItems(v.可选模块, typesInfo, true);
         const 选中模块 = v.选中模块;
-        if (选中模块) {
-          v.选中模块 = v.可选模块.find((v2) => v2.id === 选中模块.id);
+        this.setSelectedMokuai(v, 选中模块?.id, true);
+      }
+    }
+  }
+
+  setSelectedMokuai(node: XhmrmsbjInfoMokuaiNode, id: number | undefined | null, setIsDefault: boolean) {
+    delete node.选中模块;
+    for (const mokuai2 of node.可选模块) {
+      if (mokuai2.id === id) {
+        node.选中模块 = mokuai2;
+      }
+      if (setIsDefault) {
+        if (mokuai2.id === id) {
+          if (!mokuai2.info) {
+            mokuai2.info = {};
+          }
+          mokuai2.info.isDefault = true;
+        } else {
+          if (mokuai2.info?.isDefault) {
+            delete mokuai2.info.isDefault;
+          }
+        }
+      }
+    }
+  }
+
+  setDefaultMokuai(node: XhmrmsbjInfoMokuaiNode, id: number | undefined | null) {
+    for (const mokuai2 of node.可选模块) {
+      if (mokuai2.id === id) {
+        if (!mokuai2.info) {
+          mokuai2.info = {};
+        }
+        mokuai2.info.isDefault = true;
+      } else {
+        if (mokuai2.info?.isDefault) {
+          delete mokuai2.info.isDefault;
         }
       }
     }
   }
 
   export() {
+    for (const key in this.menshanbujuInfos) {
+      for (const node of this.menshanbujuInfos[key].模块节点 || []) {
+        for (const mokuai of node.可选模块) {
+          if (mokuai.info?.isDefault) {
+            node.选中模块 = mokuai;
+          }
+        }
+      }
+    }
     const data: XhmrmsbjTableData = {
       vid: this.vid,
       mingzi: this.name,

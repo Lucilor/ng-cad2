@@ -111,7 +111,6 @@ export interface ZixuanpeijianMokuaiItem extends ZixuanpeijianTypesInfoItem {
   cads: ZixuanpeijianCadItem[];
   可替换模块?: ZixuanpeijianMokuaiItem[];
   vars?: Formulas;
-  模块大小输出?: Formulas;
   info?: ObjectOf<any>;
 }
 
@@ -246,14 +245,14 @@ export const exportZixuanpeijian = (source: ZixuanpeijianData) => {
   return result;
 };
 
-export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem) => {
+export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem, 门扇名字?: string) => {
   const {type1, type2, info} = item;
   if (!type1 && !type2) {
     return "";
   }
   const arr = [`${type1}【${type2}】`];
-  const 门扇名字 = info?.门扇名字;
-  if (门扇名字) {
+  if (!门扇名字) {
+    门扇名字 = info?.门扇名字;
   }
   if (typeof 门扇名字 === "string" && 门扇名字) {
     arr.unshift(门扇名字);
@@ -396,6 +395,7 @@ export interface CalcZxpjOptions {
   useCeshishuju?: boolean;
   gongshi?: Formulas;
   inputResult?: Formulas;
+  mokuaiVars?: ObjectOf<Formulas>;
 }
 export const calcZxpj = async (
   dialog: MatDialog,
@@ -413,9 +413,10 @@ export const calcZxpj = async (
     useCeshishuju: false,
     gongshi: {},
     inputResult: {},
+    mokuaiVars: {},
     ...options
   };
-  const {fractionDigits, changeLinesLength, calcVars, useCeshishuju, gongshi, inputResult} = optionsAll;
+  const {fractionDigits, changeLinesLength, calcVars, useCeshishuju, gongshi, inputResult, mokuaiVars} = optionsAll;
   const shuchubianliang: Formulas = {};
   const duplicateScbl: {item: ZixuanpeijianMokuaiItem; keys: string[]}[] = [];
   const duplicateXxsr: ObjectOf<Set<string>> = {};
@@ -546,7 +547,7 @@ export const calcZxpj = async (
     return vars;
   };
   const toCalc1 = mokuais.map((item) => {
-    const formulas = {...item.suanliaogongshi, ...item.模块大小输出};
+    const formulas = {...item.suanliaogongshi};
     if (item.shuruzongkuan) {
       formulas.总宽 = item.totalWidth;
     }
@@ -576,8 +577,8 @@ export const calcZxpj = async (
         formulas[group[0]] = `'${group[1]}'`;
       }
     }
-    const vars = getCadDimensionVars(item.cads);
-    return {formulas, vars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
+    const dimensionVars = getCadDimensionVars(item.cads);
+    return {formulas, dimensionVars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
   });
   const lingsanVars = getCadDimensionVars(lingsans);
   const dimensionNames = Object.keys(dimensionNamesMap);
@@ -627,11 +628,22 @@ export const calcZxpj = async (
     }
   };
 
+  const getMokuaiVarsCurr = (门扇名字: string, 模块名字: string) => {
+    const result = {...mokuaiVars[门扇名字]};
+    const keys = ["总宽", "总高"];
+    for (const key of keys) {
+      const key2 = 模块名字 + key;
+      if (result[key2] !== undefined) {
+        result[key] = result[key2];
+      }
+    }
+    return result;
+  };
+
   let calc1Count = 0;
   let calc1Finished = false;
   let calcErrors1: Formulas = {};
   let calcErrors2: Formulas = {};
-  const mokuaiVars: ObjectOf<Formulas> = {};
   while (!calc1Finished) {
     calc1Finished = true;
     calc1Count++;
@@ -643,9 +655,10 @@ export const calcZxpj = async (
         continue;
       }
       const formulas1 = v.formulas;
-      const {模块名字, 门扇名字} = v.item.info || {};
+      const {门扇名字, 模块名字} = v.item.info || {};
       replaceMenshanName(v.item.info?.门扇名字, formulas1);
-      const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.vars, ...mokuaiVars[门扇名字]};
+      const mokuaiVarsCurr = getMokuaiVarsCurr(门扇名字, 模块名字);
+      const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.dimensionVars, ...mokuaiVarsCurr};
       vars1.门扇布局 = v.item.info?.门扇名字;
       const result1Msg = `计算模块（${getMokuaiTitle(v.item)}）`;
       const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);
@@ -658,13 +671,8 @@ export const calcZxpj = async (
         }
       }
       calc.calc.mergeFormulas(varsGlobal, result1.succeedTrim);
-      if (模块名字 && 门扇名字) {
-        const {总宽, 总高} = result1.succeedTrim;
-        if (!mokuaiVars[门扇名字]) {
-          mokuaiVars[门扇名字] = {};
-        }
-        mokuaiVars[门扇名字][模块名字 + "总宽"] = 总宽;
-        mokuaiVars[门扇名字][模块名字 + "总高"] = 总高;
+      for (const key in mokuaiVars[门扇名字]) {
+        mokuaiVars[门扇名字][key] = result1.succeed[key];
       }
       const missingKeys: string[] = [];
       for (const vv of v.item.shuchubianliang) {
@@ -711,10 +719,8 @@ export const calcZxpj = async (
     const formulas2: Formulas = {};
 
     const zhankais: [number, CadZhankai][] = [];
-    const {门扇名字} = item.info;
-    if (门扇名字 && mokuaiVars[门扇名字]) {
-      vars2 = {...vars2, ...mokuaiVars[门扇名字]};
-    }
+    const {门扇名字, 模块名字} = item.info;
+    vars2 = {...vars2, ...getMokuaiVarsCurr(门扇名字 || "", 模块名字 || "")};
     for (const [i, zhankai] of data.zhankai.entries()) {
       let enabled = true;
       for (const condition of zhankai.conditions) {
