@@ -21,8 +21,10 @@ export interface MsbjRectInfoRaw {
 
 export interface MsbjPeizhishuju {
   模块节点: MsbjRectInfoRaw[];
-  模块大小关系?: ObjectOf<any>;
+  模块大小关系?: GongshiObj;
 }
+
+export type GongshiObj = ObjectOf<any>;
 
 export class MsbjRectInfo {
   id: string;

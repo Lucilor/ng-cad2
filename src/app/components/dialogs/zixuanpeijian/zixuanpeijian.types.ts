@@ -923,7 +923,7 @@ export const calcZxpj = async (
     }
   }
   for (const item of lingsans) {
-    const calcCadItemResult = await calcCadItem(item, {...materialResult, ...lingsanVars});
+    const calcCadItemResult = await calcCadItem(item, {...materialResult, ...lingsanVars, ...shuchubianliang});
     if (!calcCadItemResult.fulfilled) {
       return calcCadItemResult;
     }

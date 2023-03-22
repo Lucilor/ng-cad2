@@ -821,7 +821,7 @@ export const printCads = async (params: PrintCadsParams) => {
               cad.data = data;
             }
           }
-        } else {
+        } else if (result.rect.width > 0 && result.rect.height > 0) {
           const ids: string[] = [];
           for (const e of Object.values(result.lines)) {
             if (e) {

@@ -17,14 +17,13 @@ import {
   ZixuanpeijianTypesInfoItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
-import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
+import {GongshiObj, MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList, TableDataBase, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {CalcService} from "@services/calc.service";
 import {ObjectOf, Point, Rectangle, timeout, WindowMessageManager} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
@@ -94,8 +93,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     private dataService: CadDataService,
     private dialog: MatDialog,
     private spinner: SpinnerService,
-    private message: MessageService,
-    private calc: CalcService
+    private message: MessageService
   ) {
     setGlobal("xhmrmsbj", this);
   }
@@ -191,12 +189,11 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     return result;
   }
 
-  保存模块大小(data: any) {
+  async 保存模块大小(data: any) {
     if (this.activeMsbjInfo) {
       this.activeMsbjInfo.模块大小输入 = data.inputValues;
-      this.mokuaidaxiaoResult = data.values;
-      this.updateMokuaidaxiaoResult();
-      this.生成效果图();
+      await this.updateMokuaidaxiaoResult();
+      await this.生成效果图();
     }
   }
 
@@ -270,12 +267,11 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     }
 
     await this.updateMokuaidaxiaoResult();
-    await this.生成效果图();
   }
 
   async justifyGongshiObj(gongshiObj: any, menshanKey: string, vars: Formulas) {
     this.wmm.postMessage("justifyGongshiObjStart", {gongshiObj, menshanKey, vars});
-    return (await this.wmm.waitForMessage("justifyGongshiObjEnd")).gongshiObj;
+    return await this.wmm.waitForMessage<{gongshiObj: GongshiObj; values: Formulas}>("justifyGongshiObjEnd");
   }
 
   async updateMokuaidaxiaoResult() {
@@ -293,7 +289,9 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       if (!gongshiObj.配置) {
         gongshiObj.配置 = {};
       }
-      msbjInfo.选中布局数据.模块大小关系 = await this.justifyGongshiObj(gongshiObj, this.activeMenshanKey || "", vars);
+      const {gongshiObj: gongshiObj2, values} = await this.justifyGongshiObj(gongshiObj, this.activeMenshanKey || "", vars);
+      this.mokuaidaxiaoResult = values;
+      msbjInfo.选中布局数据.模块大小关系 = gongshiObj2;
     }
     this.updateMokuaiInputInfo();
   }
@@ -385,49 +383,69 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   updateMokuaiInputInfo() {
-    const 选中模块 = this.activeMokuaiNode?.选中模块;
+    const mokuai = this.activeMokuaiNode?.选中模块;
     this.mokuaiInputInfos = [];
-    if (选中模块) {
+    if (mokuai) {
       const node = this.activeMokuaiNode;
+      const keyMap = {总宽: "totalWidth", 总高: "totalHeight"} as const;
       if (node) {
         const name = node.层名字;
-        const keyMap = {总宽: "totalWidth", 总高: "totalHeight"} as const;
         for (const key in keyMap) {
           const key3 = name + key;
           this.mokuaiInputInfos.push({type: "string", label: key, model: {key: key3, data: () => this.mokuaidaxiaoResult}, readonly: true});
         }
       }
-      const arr = 选中模块.gongshishuru.concat(选中模块.xuanxiangshuru);
-      for (const v of arr) {
-        if (!v[1] && v[0] in this.materialResult) {
-          const value = Number(this.materialResult[v[0]]);
-          if (!isNaN(value)) {
-            v[1] = value.toString();
-          }
+      const arr = mokuai.gongshishuru.concat(mokuai.xuanxiangshuru);
+      const getValue = (vars: Formulas, k: string) => {
+        const v = Number(vars[k]);
+        if (!isNaN(v)) {
+          return String(v);
         }
+        return "";
+      };
+      for (const v of arr) {
+        if (!v[1]) {
+          v[1] = getValue(this.materialResult, v[0]);
+        }
+        v[1] = getValue(this.mokuaidaxiaoResult, v[0]) || v[1];
         this.mokuaiInputInfos.push({
           type: "string",
           label: v[0],
           model: {key: "1", data: v},
           onChange: async () => {
             const {data, activeMenshanKey} = this;
+            const varNames = (await this.getVarNames()).concat(mokuai.shuchubianliang);
+            const isShuchubianliang = varNames.includes(v[0]);
+            const updateMenshanKeys = new Set<string>();
             if (data && activeMenshanKey) {
               for (const key in data.menshanbujuInfos) {
-                if (key !== activeMenshanKey) {
-                  for (const node2 of data.menshanbujuInfos[key].模块节点 || []) {
-                    const 选中模块2 = node2.选中模块;
-                    if (选中模块2) {
-                      const arr2 = 选中模块2.gongshishuru.concat(选中模块2.xuanxiangshuru);
+                for (const node2 of data.menshanbujuInfos[key].模块节点 || []) {
+                  const mokuai2 = node2.选中模块;
+                  if (mokuai2) {
+                    const isCurrent = key === activeMenshanKey && node?.层名字 === node2.层名字;
+                    if (!isCurrent) {
+                      const arr2 = mokuai2.gongshishuru.concat(mokuai2.xuanxiangshuru);
                       for (const v2 of arr2) {
                         if (v2[0] === v[0]) {
                           v2[1] = v[1];
                         }
                       }
                     }
+                    const msbjInfo = data.menshanbujuInfos[key];
+                    if (msbjInfo && (isShuchubianliang || isCurrent)) {
+                      if (v[0] in (msbjInfo.模块大小输出 || {})) {
+                        if (!msbjInfo.模块大小输入) {
+                          msbjInfo.模块大小输入 = {};
+                        }
+                        msbjInfo.模块大小输入[v[0]] = v[1];
+                        updateMenshanKeys.add(key);
+                      }
+                    }
                   }
                 }
               }
             }
+            await this.updateMokuaidaxiaoResult();
             await this.生成效果图();
           }
         });
@@ -630,6 +648,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.xiaoguotuLock$.next(true);
     const timerName = "生成效果图";
     timer.start(timerName);
+    this.spinner.show(this.spinner.defaultLoaderId, {text: "生成效果图"});
     container.innerHTML = "";
     container.style.transform = "";
     container.style.opacity = "0";
@@ -637,40 +656,49 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.wmm.postMessage("获取效果图", {...this.submitData().data, xiaoguotuDisabled: this.xiaoguotuDisabled});
     const data = await this.wmm.waitForMessage("返回效果图");
     const items = data[this.activeMenshanKey || ""] || [];
-    const rectContainer0 = container.getBoundingClientRect();
-    const rectContainer = new Rectangle([rectContainer0.left, rectContainer0.top], [rectContainer0.right, rectContainer0.bottom]);
-    const padding = this.msbjRectsComponent?.padding || [0, 0, 0, 0];
-    rectContainer.min.add(new Point(padding[3], padding[0]));
-    rectContainer.max.sub(new Point(padding[1], padding[2]));
-    const els: HTMLDivElement[] = [];
-    for (const item of items) {
-      let div = document.createElement("div");
-      div.innerHTML = item;
-      div = div.firstElementChild as HTMLDivElement;
-      container.appendChild(div);
-      els.push(div);
+    if (items.length > 0) {
+      const rectContainer0 = container.getBoundingClientRect();
+      const rectContainer = new Rectangle([rectContainer0.left, rectContainer0.top], [rectContainer0.right, rectContainer0.bottom]);
+      const padding = this.msbjRectsComponent?.padding || [0, 0, 0, 0];
+      rectContainer.min.add(new Point(padding[3], padding[0]));
+      rectContainer.max.sub(new Point(padding[1], padding[2]));
+      const els: HTMLDivElement[] = [];
+      for (const item of items) {
+        let div = document.createElement("div");
+        div.innerHTML = item;
+        div = div.firstElementChild as HTMLDivElement;
+        container.appendChild(div);
+        els.push(div);
+      }
+      await timeout(0);
+      const rect = Rectangle.min;
+      for (const el of els) {
+        const {top, right, bottom, left} = el.getBoundingClientRect();
+        rect.expandByPoint(new Point(left, top));
+        rect.expandByPoint(new Point(right, bottom));
+      }
+      const scaleX = rectContainer.width / rect.width;
+      const scaleY = rectContainer.height / rect.height;
+      const scale = Math.min(scaleX, scaleY);
+      const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
+      const dy = (rectContainer.bottom - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
+      container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+      container.style.opacity = "1";
     }
-    await timeout(0);
-    const rect = Rectangle.min;
-    for (const el of els) {
-      const {top, right, bottom, left} = el.getBoundingClientRect();
-      rect.expandByPoint(new Point(left, top));
-      rect.expandByPoint(new Point(right, bottom));
-    }
-    const scaleX = rectContainer.width / rect.width;
-    const scaleY = rectContainer.height / rect.height;
-    const scale = Math.min(scaleX, scaleY);
-    const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
-    const dy = (rectContainer.bottom - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
-    container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-    container.style.opacity = "1";
     timer.end(timerName, timerName);
+    this.spinner.hide(this.spinner.defaultLoaderId);
     this.xiaoguotuLock$.next(false);
   }
 
   async getLastSuanliao() {
     this.wmm.postMessage("getLastSuanliaoStart");
     const data = await this.wmm.waitForMessage<{input: SuanliaoInput; output: SuanliaoOutput} | null>("getLastSuanliaoEnd");
+    return data;
+  }
+
+  async getVarNames() {
+    this.wmm.postMessage("getVarNamesStart");
+    const data = await this.wmm.waitForMessage<string[]>("getVarNamesEnd");
     return data;
   }
 
