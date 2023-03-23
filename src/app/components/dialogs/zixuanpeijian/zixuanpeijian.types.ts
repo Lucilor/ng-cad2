@@ -245,19 +245,26 @@ export const exportZixuanpeijian = (source: ZixuanpeijianData) => {
   return result;
 };
 
-export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem, 门扇名字?: string) => {
+export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem, 门扇名字?: string, 层名字?: string) => {
   const {type1, type2, info} = item;
   if (!type1 && !type2) {
     return "";
   }
-  const arr = [`${type1}【${type2}】`];
+  const arr: string[] = [];
   if (!门扇名字) {
     门扇名字 = info?.门扇名字;
   }
-  if (typeof 门扇名字 === "string" && 门扇名字) {
-    arr.unshift(门扇名字);
+  if (!层名字) {
+    层名字 = info?.模块名字;
   }
-  return arr.join("-");
+  if (typeof 门扇名字 === "string" && 门扇名字) {
+    arr.push(门扇名字);
+  }
+  if (typeof 层名字 === "string" && 层名字) {
+    arr.push(层名字);
+  }
+  arr.push(`${type1}【${type2}】`);
+  return arr.join(" - ");
 };
 
 export const getStep1Data = async (dataService: CadDataService, params?: {code: string; type: string} | {mokuaiIds: string[]}) => {
@@ -676,8 +683,8 @@ export const calcZxpj = async (
       }
       const missingKeys: string[] = [];
       for (const vv of v.item.shuchubianliang) {
-        if (vv in result1.succeedTrim && result1.succeedTrim[vv] !== 0) {
-          if (vv in shuchubianliang && shuchubianliang[vv] !== 0 && shuchubianliang[vv] !== result1.succeedTrim[vv]) {
+        if (vv in result1.succeedTrim) {
+          if (vv in shuchubianliang && shuchubianliang[vv] !== result1.succeedTrim[vv]) {
             const msg = `${getMokuaiTitle(v.item)}输出变量重复`;
             await message.error(msg, vv);
             return {fulfilled: false, error: {message: msg}};

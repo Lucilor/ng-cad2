@@ -16,7 +16,7 @@ import {
   ZixuanpeijianMokuaiItem,
   ZixuanpeijianTypesInfoItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
-import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
+import {GenerateRectsEndEvent, MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {GongshiObj, MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -33,6 +33,7 @@ import {cloneDeep, intersection, isEqual} from "lodash";
 import {BehaviorSubject, filter, firstValueFrom} from "rxjs";
 import {XhmrmsbjData, XhmrmsbjInfo, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
 
+const table = "p_xinghaomorenmenshanbuju";
 @Component({
   selector: "app-xhmrmsbj",
   templateUrl: "./xhmrmsbj.component.html",
@@ -72,6 +73,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   isMrbcjfzInfoEmpty = isMrbcjfzInfoEmpty;
   menshanKeys = ["锁扇正面", "锁扇背面", "铰扇正面", "铰扇背面", "小扇正面", "小扇背面"];
   materialResult: Formulas = {};
+  houtaiUrl = "";
   mokuaidaxiaoResult: Formulas = {};
   wmm = new WindowMessageManager("门扇模块", this, window.parent);
   xiaoguotuLock$ = new BehaviorSubject(false);
@@ -111,7 +113,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       }
     }
 
-    const {table, id, token} = this.route.snapshot.queryParams;
+    const {id, token} = this.route.snapshot.queryParams;
     if (table && id) {
       this.table = table;
       this.id = id;
@@ -150,7 +152,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async requestData(data: any) {
-    const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys, 铰扇跟随锁扇} = data;
+    const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys, 铰扇跟随锁扇, houtaiUrl} = data;
     this.data = new XhmrmsbjData(
       {vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局), jiaoshanbujuhesuoshanxiangtong: 铰扇跟随锁扇 ? 1 : 0},
       menshanKeys,
@@ -158,6 +160,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       this.msbjs
     );
     this.materialResult = materialResult;
+    this.houtaiUrl = houtaiUrl;
     this.menshanKeys = menshanKeys;
     this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
     await this.selectMenshanKey(this.activeMenshanKey || this.menshanKeys[0]);
@@ -346,11 +349,11 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.selectMokuai(this.activeMokuaiNode?.选中模块);
   }
 
-  generateRectsEnd() {
+  generateRectsEnd(event: GenerateRectsEndEvent) {
     const rect = this.activeMsbj?.peizhishuju?.模块节点?.filter((v) => v.isBuju)[0];
     const msbjRectsComponent = this.msbjRectsComponent;
     if (rect && msbjRectsComponent && msbjRectsComponent.rectInfos) {
-      msbjRectsComponent.setCurrRectInfo(msbjRectsComponent.rectInfosRelative.filter((v) => v.raw.isBuju)[0]);
+      msbjRectsComponent.setCurrRectInfo(msbjRectsComponent.rectInfosRelative.filter((v) => v.raw.isBuju)[0], event.isWindowResize);
     }
     this.updateMokuaiInputInfo();
   }
@@ -460,7 +463,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async submit() {
-    const {table, data: dataInfo, isFromOrder} = this;
+    const {data: dataInfo, isFromOrder} = this;
     if (!dataInfo || isFromOrder) {
       return;
     }
@@ -708,5 +711,9 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       return;
     }
     openXhmrmsbjMokuaisDialog(this.dialog, {data: {data}});
+  }
+
+  openHoutaiUrl() {
+    window.open(this.houtaiUrl);
   }
 }

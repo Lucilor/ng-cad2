@@ -40,12 +40,12 @@ export class MsbjRectsComponent {
   }
   set rectInfos(value) {
     this._rectInfos = value;
-    this.generateRects(true);
+    this.generateRects({resetColors: true});
   }
   @Input() selectRectBefore?: (info: MsbjRectInfo | null) => boolean;
   @Output() selectRect = new EventEmitter<MsbjRectInfo | null>();
   @Output() generateRectsStart = new EventEmitter<void>();
-  @Output() generateRectsEnd = new EventEmitter<void>();
+  @Output() generateRectsEnd = new EventEmitter<GenerateRectsEndEvent>();
 
   constructor() {
     setGlobal("msbjRects", this);
@@ -54,7 +54,7 @@ export class MsbjRectsComponent {
   @HostListener("window:resize")
   @Debounce(500)
   onWindowResize() {
-    this.generateRects();
+    this.generateRects({isWindowResize: true});
   }
 
   getRectStyle(info: MsbjRectInfo): Properties {
@@ -68,7 +68,7 @@ export class MsbjRectsComponent {
     };
   }
 
-  setCurrRectInfo(info: MsbjRectInfo | null) {
+  setCurrRectInfo(info: MsbjRectInfo | null, silent?: boolean) {
     if (this.selectRectBefore && !this.selectRectBefore(info)) {
       return;
     }
@@ -77,10 +77,12 @@ export class MsbjRectsComponent {
     } else {
       this.currRectInfo = null;
     }
-    this.selectRect.emit(info);
+    if (!silent) {
+      this.selectRect.emit(info);
+    }
   }
 
-  async generateRects(resetColors?: boolean) {
+  async generateRects(opts?: GenerateRectsOpts) {
     this.generateRectsStart.emit();
     this.rectInfosAbsolute = [];
     this.rectInfosRelative = [];
@@ -94,6 +96,7 @@ export class MsbjRectsComponent {
         names.add(infoAbsolute.name);
       }
     });
+    const {resetColors, isWindowResize} = opts || {};
     const {width, height, left, bottom} = totalRect;
     if (resetColors) {
       this._rectColors = {};
@@ -160,6 +163,14 @@ export class MsbjRectsComponent {
       await timeout(0);
       el.style.opacity = "1";
     }
-    this.generateRectsEnd.emit();
+    this.generateRectsEnd.emit({isWindowResize});
   }
+}
+
+export interface GenerateRectsEndEvent {
+  isWindowResize?: boolean;
+}
+
+export interface GenerateRectsOpts extends GenerateRectsEndEvent {
+  resetColors?: boolean;
 }

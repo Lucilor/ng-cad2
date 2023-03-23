@@ -5,7 +5,7 @@
       <div class="btn-group">
         <button mat-raised-button color="primary" (click)="submit()">提交</button>
         <ng-container *ngIf="!production">
-          <button mat-raised-button color="primary" (click)="generateRects(true)">重新生成矩形</button>
+          <button mat-raised-button color="primary" (click)="generateRects({resetColors: true})">重新生成矩形</button>
           <!-- <div>颜色范围</div>
           <div class="flex-row" style="height: 64px; align-items: flex-end">
             <mat-slider [min]="0" [max]="255" discrete style="width: 300px">

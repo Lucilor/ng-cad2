@@ -6,7 +6,7 @@ import {ActivatedRoute} from "@angular/router";
 import {imgEmpty, setGlobal} from "@app/app.common";
 import {getCadPreview} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
-import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
+import {GenerateRectsOpts, MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -89,8 +89,8 @@ export class MsbjComponent implements AfterViewInit {
     this.spinner.hide(this.spinner.defaultLoaderId);
   }
 
-  generateRects(resetColors?: boolean) {
-    this.msbjRects?.generateRects(resetColors);
+  generateRects(opts: GenerateRectsOpts) {
+    this.msbjRects?.generateRects(opts);
   }
 
   setCurrRectInfo(info: MsbjRectInfo | null) {
