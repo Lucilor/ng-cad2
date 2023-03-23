@@ -15,7 +15,7 @@
           </div> -->
         </ng-container>
       </div>
-      <app-msbj-rects [rectInfos]="this.msbjInfo?.peizhishuju?.['模块节点']" (selectRect)="setCurrRectInfo($event)"></app-msbj-rects>
+      <app-msbj-rects [rectInfos]="msbjInfo?.peizhishuju?.['模块节点']" (selectRect)="setCurrRectInfo($event)"></app-msbj-rects>
     </div>
     <div class="flex-110" (click)="setCurrRectInfo(null)">
       <div class="title center">{{ msbjInfo?.name }}</div>

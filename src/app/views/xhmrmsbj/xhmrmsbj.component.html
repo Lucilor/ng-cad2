@@ -123,7 +123,7 @@
       <div class="title" *ngIf="mokuai">{{ getMokuaiTitle(mokuai) || "无" }}</div>
       <mat-icon class="active-sign" *ngIf="isActive && isFromOrder" (click)="selectMokuai(mokuai)">check</mat-icon>
     </div>
-    <div class="default-sign" [ngClass]="{active: mokuai?.info?.isDefault}" *ngIf="!isFromOrder" (click)="this.setDefaultMokuai(mokuai)">
+    <div class="default-sign" [ngClass]="{active: mokuai?.info?.isDefault}" *ngIf="!isFromOrder" (click)="setDefaultMokuai(mokuai)">
       默认
     </div>
   </div>
