@@ -122,10 +122,12 @@ mat-divider {
 }
 
 .cdk-overlay-container {
-  z-index: 99999;
+  z-index: var(--top-z-index);
 }
 
 :root {
   --mat-divider-margin: 5px;
   --mat-icon-size: 24px;
+  --top-z-index: 99999;
+  --top-top-z-index: calc(var(--top-z-index) + 1);
 }

@@ -714,15 +714,16 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
         };
       });
 
+    const checkEmpty = this.data?.checkEmpty;
     this.mokuaiInputInfos = await Promise.all(
       this.result.模块.map<Promise<MokuaiInputInfos>>(async (item, i) => ({
-        总宽: {type: "string", label: "总宽", model: {key: "totalWidth", data: item}, showEmpty: item.shuruzongkuan, options},
-        总高: {type: "string", label: "总高", model: {key: "totalHeight", data: item}, showEmpty: item.shuruzonggao, options},
+        总宽: {type: "string", label: "总宽", model: {key: "totalWidth", data: item}, showEmpty: checkEmpty && item.shuruzongkuan, options},
+        总高: {type: "string", label: "总高", model: {key: "totalHeight", data: item}, showEmpty: checkEmpty && item.shuruzonggao, options},
         公式输入: (item.gongshishuru || []).map((group) => ({
           type: "string",
           label: group[0],
           model: {key: "1", data: group},
-          showEmpty: true,
+          showEmpty: checkEmpty,
           options,
           onChange: () => {
             const gongshishuru: ObjectOf<string> = {};
@@ -748,7 +749,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
           label: group[0],
           model: {key: "1", data: group},
           options: this.options[group[0]] || [],
-          showEmpty: true,
+          showEmpty: checkEmpty,
           onChange: () => {
             const xuanxiangshuru: ObjectOf<string> = {};
             for (const [k, v] of item.xuanxiangshuru) {

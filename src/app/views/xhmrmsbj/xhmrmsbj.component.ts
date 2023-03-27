@@ -74,6 +74,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   menshanKeys = ["锁扇正面", "锁扇背面", "铰扇正面", "铰扇背面", "小扇正面", "小扇背面"];
   materialResult: Formulas = {};
   houtaiUrl = "";
+  user: ObjectOf<any> | null = null;
   mokuaidaxiaoResult: Formulas = {};
   wmm = new WindowMessageManager("门扇模块", this, window.parent);
   xiaoguotuLock$ = new BehaviorSubject(false);
@@ -85,6 +86,9 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   set xiaoguotuDisabled(value) {
     this._xiaoguotuDisabled = value;
     session.save(this._xiaoguotuDisabledKey, value);
+  }
+  get isZhijian() {
+    return this.user?.经销商名字 === "至简软件";
   }
   production = environment.production;
   @ViewChild(MsbjRectsComponent) msbjRectsComponent?: MsbjRectsComponent;
@@ -152,7 +156,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async requestData(data: any) {
-    const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys, 铰扇跟随锁扇, houtaiUrl} = data;
+    const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys, 铰扇跟随锁扇, houtaiUrl, user} = data;
     this.data = new XhmrmsbjData(
       {vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局), jiaoshanbujuhesuoshanxiangtong: 铰扇跟随锁扇 ? 1 : 0},
       menshanKeys,
@@ -161,6 +165,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     );
     this.materialResult = materialResult;
     this.houtaiUrl = houtaiUrl;
+    this.user = user;
     this.menshanKeys = menshanKeys;
     this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
     await this.selectMenshanKey(this.activeMenshanKey || this.menshanKeys[0]);
