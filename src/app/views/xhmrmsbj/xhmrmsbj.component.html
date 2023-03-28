@@ -117,9 +117,12 @@
 
 <ng-template #mokuaiT [appTypedTemplate]="mokuaiTemplateType" let-mokuai let-isActive="isActive">
   <div class="flex-column mokuai" [ngClass]="{active: isActive}">
-    <div class="flex-column flex-110" (click)="selectMokuai(mokuai)">
-      <app-image class="mokuai-xiaoguotu flex-110" [src]="mokuai?.xiaoguotu" [prefix]="step1Data.prefix"></app-image>
-      <div class="title" *ngIf="mokuai">{{ getMokuaiTitle(mokuai) || "无" }}</div>
+    <div class="flex-column" (click)="selectMokuai(mokuai)">
+      <app-image class="mokuai-xiaoguotu" [src]="mokuai?.xiaoguotu" [prefix]="step1Data.prefix"></app-image>
+      <div class="title" *ngIf="mokuai">
+        <div>{{ getMokuaiTitle(mokuai) || "无" }}</div>
+        <button mat-icon-button color="accent" (click)="removeMokuai(mokuai)"><mat-icon>cancel</mat-icon></button>
+      </div>
       <mat-icon class="active-sign" *ngIf="isActive && isFromOrder" (click)="selectMokuai(mokuai)">check</mat-icon>
     </div>
     <div class="default-sign" [ngClass]="{active: mokuai?.info?.isDefault}" *ngIf="!isFromOrder" (click)="setDefaultMokuai(mokuai)">

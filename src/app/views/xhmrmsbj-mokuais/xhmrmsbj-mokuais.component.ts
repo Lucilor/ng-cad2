@@ -58,6 +58,7 @@ export class XhmrmsbjMokuaisComponent {
               cads.push(new CadData(cadItem.data));
               Object.assign(formulas2, cadItem.info.dimensionVars);
             }
+            formulas2.门扇布局 = mokuai2.info?.门扇布局?.name || "";
           }
           for (const key2 of ["总宽", "总高"]) {
             const key3 = node.层名字 + key2;
@@ -73,7 +74,6 @@ export class XhmrmsbjMokuaisComponent {
         }
       }
       this.xuanzhongMokuaiInfos.push(xuanzhongMokuaiInfo);
-      // this.mokuaiFormulaInfos[key] = await this.getFormulaInfos(value.);
     }
   }
 
@@ -94,7 +94,7 @@ export class XhmrmsbjMokuaisComponent {
       let values: FormulaInfo["values"] = [...getValue(value)];
       if (formulas2 && key in formulas2) {
         const value2 = getValue(formulas2[key]);
-        const calcResult = this.calc.calc.calcExpress(`${values.at(-1)?.name} == ${value2.at(0)?.name}`);
+        const calcResult = this.calc.calc.calcExpress(`(${values.at(-1)?.name}) == (${value2.at(0)?.name})`);
         value2[0].eq = calcResult.value === true;
         values.push(...value2);
       }

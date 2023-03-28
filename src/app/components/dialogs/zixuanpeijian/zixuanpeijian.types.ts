@@ -17,6 +17,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
 import {ObjectOf} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
+import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
 import {cloneDeep, difference, intersection, isEmpty, isEqual, union} from "lodash";
 import {openDrawCadDialog} from "../draw-cad/draw-cad.component";
 
@@ -87,7 +88,7 @@ export interface ZixuanpeijianInfo {
   开料孔位配置?: KlkwpzSource;
   开料参数?: KailiaocanshuData;
   门扇名字?: string;
-  布局id?: number;
+  门扇布局?: XhmrmsbjInfo["选中布局数据"];
   层id?: number;
   模块名字?: string;
 }
@@ -111,7 +112,7 @@ export interface ZixuanpeijianMokuaiItem extends ZixuanpeijianTypesInfoItem {
   cads: ZixuanpeijianCadItem[];
   可替换模块?: ZixuanpeijianMokuaiItem[];
   vars?: Formulas;
-  info?: ObjectOf<any>;
+  info?: {门扇名字?: string; 门扇布局?: XhmrmsbjInfo["选中布局数据"]; 模块名字?: string; 层id?: number; isDefault?: boolean};
 }
 
 export interface CadItemInputInfo {
@@ -662,11 +663,13 @@ export const calcZxpj = async (
         continue;
       }
       const formulas1 = v.formulas;
-      const {门扇名字, 模块名字} = v.item.info || {};
-      replaceMenshanName(v.item.info?.门扇名字, formulas1);
+      const info = v.item.info || {};
+      const 门扇名字 = info.门扇名字 || "";
+      const 模块名字 = info.模块名字 || "";
+      replaceMenshanName(门扇名字, formulas1);
       const mokuaiVarsCurr = getMokuaiVarsCurr(门扇名字, 模块名字);
       const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.dimensionVars, ...mokuaiVarsCurr};
-      vars1.门扇布局 = v.item.info?.门扇名字;
+      vars1.门扇布局 = v.item.info?.门扇布局?.name || "";
       const result1Msg = `计算模块（${getMokuaiTitle(v.item)}）`;
       const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);
       // console.log({formulas1, vars1, result1});

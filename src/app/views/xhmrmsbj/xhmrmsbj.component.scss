@@ -30,8 +30,6 @@
 
 .mokuai {
   width: 20%;
-  min-width: 100px;
-  height: 250px;
   padding: 5px;
   box-sizing: border-box;
   cursor: pointer;
@@ -60,13 +58,12 @@
   }
 
   .mokuai-xiaoguotu {
-    height: 0;
+    height: 150px;
   }
 
   .title {
     font-size: 1rem;
     text-align: center;
-    height: 80px;
   }
 }
 

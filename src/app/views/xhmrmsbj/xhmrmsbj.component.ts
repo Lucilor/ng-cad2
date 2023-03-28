@@ -224,22 +224,30 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     const msbjInfo = this.activeMsbjInfo;
     if (msbj && msbjInfo) {
       for (const rectInfo of msbj.peizhishuju.模块节点) {
-        const 选中模块 = msbjInfo.模块节点?.find((v) => v.层id === rectInfo.vid)?.选中模块;
+        const node = msbjInfo.模块节点?.find((v) => v.层id === rectInfo.vid);
+        const 选中模块 = node?.选中模块;
         if (rectInfo.isBuju && !选中模块) {
           await this.message.error("布局中存在未选中的模块");
           return;
         }
+        if (!this.isFromOrder) {
+          const 默认模块 = node?.可选模块.find((v) => v.info?.isDefault);
+          if (rectInfo.isBuju && !默认模块) {
+            await this.message.error("布局中存在未设置默认模块的模块");
+            return;
+          }
+        }
       }
-      const mokuaisWithoutBancai: {mokuai: ZixuanpeijianMokuaiItem}[] = [];
+      const mokuaisWithoutBancai: {mokuai: ZixuanpeijianMokuaiItem; layerName: string}[] = [];
       for (const node of msbjInfo.模块节点 || []) {
         for (const mokuai of node.可选模块) {
           if (!this.validateMorenbancai(mokuai.morenbancai)) {
-            mokuaisWithoutBancai.push({mokuai});
+            mokuaisWithoutBancai.push({mokuai, layerName: node.层名字});
           }
         }
       }
       if (mokuaisWithoutBancai.length > 0) {
-        const details = mokuaisWithoutBancai.map((v) => getMokuaiTitle(v.mokuai));
+        const details = mokuaisWithoutBancai.map((v) => getMokuaiTitle(v.mokuai, "", v.layerName));
         await this.message.error("以下模块未设置默认板材分组", details);
         return;
       }
@@ -333,9 +341,16 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   selectRectBefore() {
-    if (this.activeRectInfo && !this.getMokuaiTemplate(this.activeRectInfo).$implicit) {
-      this.message.error("请先选择模块");
-      return false;
+    const node = this.activeMokuaiNode;
+    if (node) {
+      if (!node.选中模块) {
+        this.message.error("请先选择模块");
+        return false;
+      }
+      if (!this.isFromOrder && !node.可选模块.find((v) => v.info?.isDefault)) {
+        this.message.error("请先选择默认模块");
+        return false;
+      }
     }
     return true;
   }
@@ -380,6 +395,17 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.data?.setSelectedMokuai(mokuaiNode, mokuai.id, this.isFromOrder);
     this.updateMokuaiInputInfo();
     this.生成效果图();
+  }
+
+  async removeMokuai(mokuai: ZixuanpeijianMokuaiItem | null | undefined) {
+    const node = this.activeMokuaiNode;
+    if (!node) {
+      return;
+    }
+    if (await this.message.confirm("是否删除该可选模块？")) {
+      const mokuais = node.可选模块.filter((v) => v.id !== mokuai?.id);
+      await this.setKexuanmokuai(mokuais);
+    }
   }
 
   setDefaultMokuai(mokuai: ZixuanpeijianMokuaiItem | null) {
@@ -461,32 +487,30 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     }
   }
 
-  getMokuaiTemplate(rectInfo: MsbjRectInfo | null): XhmrmsbjComponent["mokuaiTemplateType"] {
-    const mokuaiId = this.activeMsbjInfo?.模块节点?.find((v) => v.层id === rectInfo?.raw.vid)?.选中模块?.id;
-    const mokuai = this.mokuais.find((v) => v.id === mokuaiId);
-    return {$implicit: mokuai || null, isActive: true};
-  }
-
   async submit() {
     const {data: dataInfo, isFromOrder} = this;
     if (!dataInfo || isFromOrder) {
       return;
     }
-    const errorMenshanKeys = new Set<string>();
+    const errorXuaozhongMenshanKeys = new Set<string>();
+    const errorMorenMenshanKeys = new Set<string>();
     const varKeysXinghao = Object.keys(getFromulasFromString(this.xinghao?.raw.gongshishuru));
     const duplicates1: {mokuai: ZixuanpeijianMokuaiItem; keys: string[]}[] = [];
     const duplicates2: {mokuais: ZixuanpeijianMokuaiItem[]; keys: string[]}[] = [];
     const msbjInfos: {menshanKey: string; msbjInfo: XhmrmsbjInfo}[] = [];
-    const mokuaisWithoutBancai: {menshanKey: string; mokuai: ZixuanpeijianMokuaiItem}[] = [];
+    const mokuaisWithoutBancai: {menshanKey: string; layerName: string; mokuai: ZixuanpeijianMokuaiItem}[] = [];
     for (const menshanKey in dataInfo.menshanbujuInfos) {
       msbjInfos.push({menshanKey, msbjInfo: dataInfo.menshanbujuInfos[menshanKey]});
     }
     for (let i = 0; i < msbjInfos.length; i++) {
       const {menshanKey, msbjInfo} = msbjInfos[i];
       for (const node of msbjInfo.模块节点 || []) {
-        if (!node.选中模块) {
-          if (!dataInfo.铰扇跟随锁扇 || !menshanKey.includes("锁扇")) {
-            errorMenshanKeys.add(menshanKey);
+        if (!dataInfo.铰扇跟随锁扇 || !menshanKey.includes("铰扇")) {
+          if (!node.选中模块) {
+            errorXuaozhongMenshanKeys.add(menshanKey);
+          }
+          if (!this.isFromOrder && !node.可选模块.find((v) => v.info?.isDefault)) {
+            errorMorenMenshanKeys.add(menshanKey);
           }
         }
         for (const mokuai of node.可选模块) {
@@ -509,6 +533,9 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
               }
             }
           }
+          if (!this.validateMorenbancai(mokuai.morenbancai)) {
+            mokuaisWithoutBancai.push({mokuai, menshanKey, layerName: node.层名字});
+          }
         }
       }
     }
@@ -517,12 +544,16 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       await this.message.error("模块输出变量与型号公式输入重复", list);
       return;
     }
-    if (errorMenshanKeys.size > 0) {
-      await this.message.error("布局中存在未选中的模块", Array.from(errorMenshanKeys).join("，"));
+    if (errorXuaozhongMenshanKeys.size > 0) {
+      await this.message.error("布局中存在未选中的模块", Array.from(errorXuaozhongMenshanKeys).join("，"));
+      return;
+    }
+    if (errorMorenMenshanKeys.size > 0) {
+      await this.message.error("布局中存在未设置默认模块的模块", Array.from(errorMorenMenshanKeys).join("，"));
       return;
     }
     if (mokuaisWithoutBancai.length > 0) {
-      const details = mokuaisWithoutBancai.map((v) => getMokuaiTitle(v.mokuai, v.menshanKey));
+      const details = mokuaisWithoutBancai.map((v) => getMokuaiTitle(v.mokuai, v.menshanKey, v.layerName));
       await this.message.error("以下模块未设置默认板材分组", details);
       return;
     }
@@ -553,33 +584,37 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     return this.activeMokuaiNode?.选中模块?.id === mokuai.id;
   }
 
-  async setKexuanmokuai() {
+  async setKexuanmokuai(mokuais?: ZixuanpeijianMokuaiItem[]) {
     const rectInfo = this.activeRectInfo;
     const mokuaiNode = this.activeMokuaiNode;
     if (!rectInfo || !mokuaiNode) {
       return;
     }
-    const step1Data = cloneDeep(this.step1Data);
-    for (const type1 in step1Data.typesInfo) {
-      for (const type2 in step1Data.typesInfo[type1]) {
-        step1Data.typesInfo[type1][type2].unique = true;
-      }
-    }
-    const 模块: ZixuanpeijianMokuaiItem[] = [];
-    for (const type1 in this.step1Data.typesInfo) {
-      for (const type2 in this.step1Data.typesInfo[type1]) {
-        const info = this.step1Data.typesInfo[type1][type2];
-        if (mokuaiNode.可选模块.find((v) => v.id === info.id)) {
-          模块.push({...info, type1, type2, totalWidth: "", totalHeight: "", cads: []});
+    if (!mokuais) {
+      const step1Data = cloneDeep(this.step1Data);
+      for (const type1 in step1Data.typesInfo) {
+        for (const type2 in step1Data.typesInfo[type1]) {
+          step1Data.typesInfo[type1][type2].unique = true;
         }
       }
+      const 模块: ZixuanpeijianMokuaiItem[] = [];
+      for (const type1 in this.step1Data.typesInfo) {
+        for (const type2 in this.step1Data.typesInfo[type1]) {
+          const info = this.step1Data.typesInfo[type1][type2];
+          if (mokuaiNode.可选模块.find((v) => v.id === info.id)) {
+            模块.push({...info, type1, type2, totalWidth: "", totalHeight: "", cads: []});
+          }
+        }
+      }
+      const result = await openZixuanpeijianDialog(this.dialog, {
+        data: {step: 1, step1Data, data: {模块}, checkEmpty: false, stepFixed: true}
+      });
+      mokuais = result?.模块;
     }
-    const result = await openZixuanpeijianDialog(this.dialog, {
-      data: {step: 1, step1Data, data: {模块}, checkEmpty: false, stepFixed: true}
-    });
-    if (result) {
-      mokuaiNode.可选模块 = mokuaiNode.可选模块.filter((v) => result.模块.find((v2) => v.id === v2.id));
-      for (const item of result.模块) {
+    if (mokuais) {
+      const mokuais2 = mokuais;
+      mokuaiNode.可选模块 = mokuaiNode.可选模块.filter((v) => mokuais2.find((v2) => v.id === v2.id));
+      for (const item of mokuais2) {
         if (!mokuaiNode.可选模块.find((v) => v.id === item.id)) {
           mokuaiNode.可选模块.push(item);
         }

@@ -115,7 +115,7 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
         for (const node of 模块节点) {
           const {选中模块, 层名字, 层id} = node;
           if (选中模块) {
-            const info: Partial<ZixuanpeijianInfo> = {门扇名字: 门扇, 布局id: 选中布局数据?.vid, 模块名字: 层名字, 层id};
+            const info: Partial<ZixuanpeijianInfo> = {门扇名字: 门扇, 门扇布局: 选中布局数据, 模块名字: 层名字, 层id};
             选中模块.info = info;
             mokuais.push(选中模块);
           }
@@ -149,12 +149,12 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
 
     const lingsans = [];
     for (const name of bujuNames) {
-      const 布局id = 型号选中门扇布局[name]?.选中布局数据?.vid;
+      const 选中布局数据 = 型号选中门扇布局[name]?.选中布局数据;
       for (const data of 门扇布局CAD) {
         const {布局id: 布局id2} = data.info;
         const type2 = data.type2;
-        if (布局id === 布局id2 && (!type2 || type2.split("*").includes(name))) {
-          lingsans.push(getCadItem(data, {门扇名字: name, 布局id}));
+        if (选中布局数据?.vid === 布局id2 && (!type2 || type2.split("*").includes(name))) {
+          lingsans.push(getCadItem(data, {门扇名字: name, 门扇布局: 选中布局数据}));
         }
       }
     }
