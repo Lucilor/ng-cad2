@@ -94,7 +94,7 @@
         </ng-container>
       </div>
       <mat-divider></mat-divider>
-      <div class="flex-110 flex-column" *ngIf="xinghao">
+      <div class="xinghao-bancai flex-110 flex-column" *ngIf="xinghao">
         <!-- 板材选择 -->
         <ng-scrollbar>
           <ng-container *ngFor="let item of activeMorenbancai | keyvalue : returnZero">
@@ -102,7 +102,7 @@
               <mat-label>{{ item.key }}</mat-label>
               <mat-select class="value" [value]="getBancaixuanze(item.value)" (selectionChange)="setBancaixuanze(item.value, $event.value)">
                 <ng-container *ngFor="let item2 of xinghao['默认板材'] | keyvalue : returnZero">
-                  <mat-option *ngIf="xinghao.getBancaiTitle(item2.key)" [value]="item2.key">
+                  <mat-option class="xinghao-bancai-option" *ngIf="xinghao.getBancaiTitle(item2.key)" [value]="item2.key">
                     {{ item2.key }}: {{ xinghao.getBancaiTitle(item2.key) }}
                   </mat-option>
                 </ng-container>
@@ -119,9 +119,9 @@
   <div class="flex-column mokuai" [ngClass]="{active: isActive}">
     <div class="flex-column" (click)="selectMokuai(mokuai)">
       <app-image class="mokuai-xiaoguotu" [src]="mokuai?.xiaoguotu" [prefix]="step1Data.prefix"></app-image>
-      <div class="title" *ngIf="mokuai">
-        <div>{{ getMokuaiTitle(mokuai) || "无" }}</div>
-        <button mat-icon-button color="accent" (click)="removeMokuai(mokuai)"><mat-icon>cancel</mat-icon></button>
+      <div class="flex-row" style="align-items: center">
+        <div class="title center flex-110">{{ getMokuaiTitle(mokuai) || "无" }}</div>
+        <button mat-icon-button color="accent" *ngIf="!isFromOrder" (click)="removeMokuai(mokuai)"><mat-icon>cancel</mat-icon></button>
       </div>
       <mat-icon class="active-sign" *ngIf="isActive && isFromOrder" (click)="selectMokuai(mokuai)">check</mat-icon>
     </div>

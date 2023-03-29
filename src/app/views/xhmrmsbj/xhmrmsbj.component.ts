@@ -663,7 +663,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.isFromOrder) {
-      const data = {config: 选中布局数据.模块大小关系};
+      const data = {config: 选中布局数据.模块大小关系, menshanKey: this.activeMenshanKey};
       this.wmm.postMessage("编辑模块大小", data);
       return;
     } else {

@@ -246,7 +246,10 @@ export const exportZixuanpeijian = (source: ZixuanpeijianData) => {
   return result;
 };
 
-export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem, 门扇名字?: string, 层名字?: string) => {
+export const getMokuaiTitle = (item: ZixuanpeijianMokuaiItem | undefined | null, 门扇名字?: string, 层名字?: string) => {
+  if (!item) {
+    return "";
+  }
   const {type1, type2, info} = item;
   if (!type1 && !type2) {
     return "";
@@ -662,13 +665,13 @@ export const calcZxpj = async (
       if (calc1Count > 1 && isEmpty(v.error)) {
         continue;
       }
-      const formulas1 = v.formulas;
+      const formulas1 = {...v.formulas, ...v.dimensionVars};
       const info = v.item.info || {};
       const 门扇名字 = info.门扇名字 || "";
       const 模块名字 = info.模块名字 || "";
       replaceMenshanName(门扇名字, formulas1);
       const mokuaiVarsCurr = getMokuaiVarsCurr(门扇名字, 模块名字);
-      const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...v.dimensionVars, ...mokuaiVarsCurr};
+      const vars1 = {...materialResult, ...shuchubianliang, ...lingsanVars, ...mokuaiVarsCurr};
       vars1.门扇布局 = v.item.info?.门扇布局?.name || "";
       const result1Msg = `计算模块（${getMokuaiTitle(v.item)}）`;
       const result1 = await calc.calcFormulas(formulas1, vars1, alertError ? {title: result1Msg} : undefined);

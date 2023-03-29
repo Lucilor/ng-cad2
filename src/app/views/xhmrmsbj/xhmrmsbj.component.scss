@@ -62,12 +62,18 @@
   }
 
   .title {
-    font-size: 1rem;
-    text-align: center;
+    --title-size: 14px;
+    --title-padding: 0;
   }
 }
 
+.xinghao-info,
+.xinghao-bancai,
+.xinghao-bancai-option {
+  --mdc-typography-body1-font-size: 14px;
+}
 .xinghao-info {
+  font-size: var(--mdc-typography-body1-font-size);
   > div {
     padding: 5px 72px 5px 0;
   }
