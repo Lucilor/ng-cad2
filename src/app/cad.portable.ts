@@ -255,6 +255,12 @@ export class CadPortable {
         const suanliaoMatch = text.match(slgsReg);
         if (suanliaoMatch) {
           const obj = getObject(text.replace(slgsReg, ""), ":");
+          const 公式 = getObject(suanliaoMatch[1], "=");
+          for (const key in 公式) {
+            if (!公式[key].includes("#")) {
+              公式[key] = 公式[key].replaceAll("\n", "");
+            }
+          }
           const slgsData: ObjectOf<any> = {公式: getObject(suanliaoMatch[1], "=")};
           const errors: string[] = [];
           sourceCadMap.slgses[obj.名字] = {text: e};

@@ -20,6 +20,7 @@ $app-theme: mat.define-light-theme(
   )
 );
 @include mat.all-component-themes($app-theme);
+@include mat.typography-hierarchy($app-typography);
 
 .mat-mdc-form-field {
   width: 100%;
