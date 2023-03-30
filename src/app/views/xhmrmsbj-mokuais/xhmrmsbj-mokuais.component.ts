@@ -69,7 +69,7 @@ export class XhmrmsbjMokuaisComponent {
           xuanzhongMokuaiInfo.nodes.push({
             layer: node.层名字,
             mokuai,
-            formulaInfos: this.getFormulaInfos(mokuai.suanliaogongshi, formulas2)
+            formulaInfos: this.getFormulaInfos(mokuai.suanliaogongshi || {}, formulas2)
           });
         }
       }

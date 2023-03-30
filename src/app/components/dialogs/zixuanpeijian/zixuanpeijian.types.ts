@@ -429,7 +429,11 @@ export const calcZxpj = async (
   };
   const {fractionDigits, changeLinesLength, calcVars, useCeshishuju, gongshi, inputResult, mokuaiVars} = optionsAll;
   const shuchubianliang: Formulas = {};
-  const duplicateScbl: {item: ZixuanpeijianMokuaiItem; keys: string[]}[] = [];
+  const duplicateScbl: {
+    item: ZixuanpeijianMokuaiItem;
+    keys: string[];
+    values: ObjectOf<{x: number | string | null; xs: Set<number | string>}>;
+  }[] = [];
   const duplicateXxsr: ObjectOf<Set<string>> = {};
   const dimensionNamesMap: ObjectOf<{item: ZixuanpeijianCadItem}[]> = {};
   const varsGlobal: Formulas = {};
@@ -502,7 +506,7 @@ export const calcZxpj = async (
           if (item4) {
             item4.keys = union(item4.keys, duplicateKeys);
           } else {
-            duplicateScbl.push({item: item3, keys: duplicateKeys});
+            duplicateScbl.push({item: item3, keys: duplicateKeys, values: {}});
           }
         };
         add(item1);
@@ -525,13 +529,6 @@ export const calcZxpj = async (
       return {fulfilled: false, error: {message: msg, details}};
     }
   }
-  if (duplicateScbl.length > 0) {
-    const msg = "输出变量重复";
-    const details = duplicateScbl.map((v) => `${getMokuaiTitle(v.item)}: ${v.keys.join("，")}`);
-
-    await message.error(msg, details);
-    return {fulfilled: false, error: {message: msg, details}};
-  }
   const getCadDimensionVars = (items: ZixuanpeijianCadItem[]) => {
     const vars: Formulas = {};
     for (const item of items) {
@@ -546,7 +543,7 @@ export const calcZxpj = async (
         if (points.length < 4) {
           continue;
         }
-        vars2[name] = points[2].distanceTo(points[3]);
+        vars2[name] = toFixed(points[2].distanceTo(points[3]), fractionDigits);
         if (!dimensionNamesMap[name]) {
           dimensionNamesMap[name] = [];
         }
@@ -690,13 +687,19 @@ export const calcZxpj = async (
       const missingKeys: string[] = [];
       for (const vv of v.item.shuchubianliang) {
         if (vv in result1.succeedTrim) {
-          if (vv in shuchubianliang && shuchubianliang[vv] !== result1.succeedTrim[vv]) {
-            const msg = `${getMokuaiTitle(v.item)}输出变量重复`;
-            await message.error(msg, vv);
-            return {fulfilled: false, error: {message: msg}};
-          } else {
-            shuchubianliang[vv] = result1.succeedTrim[vv];
+          const value = result1.succeedTrim[vv];
+          for (const item of duplicateScbl) {
+            if (item.keys.includes(vv)) {
+              if (!item.values[vv]) {
+                item.values[vv] = {x: null, xs: new Set()};
+              }
+              item.values[vv].xs.add(value);
+              if (isMokuaiItemEqual(item.item, v.item)) {
+                item.values[vv].x = value;
+              }
+            }
           }
+          shuchubianliang[vv] = value;
         } else if (isEmpty(result1.error)) {
           missingKeys.push(vv);
         }
@@ -720,6 +723,26 @@ export const calcZxpj = async (
       }
     }
   }
+
+  const duplicateScblDetails: string[] = [];
+  for (const item of duplicateScbl) {
+    const arr: string[] = [];
+    for (const key in item.values) {
+      const {x, xs} = item.values[key];
+      if (x !== null && xs.size > 1) {
+        arr.push(`${key}=${x}`);
+      }
+    }
+    if (arr.length > 0) {
+      duplicateScblDetails.push(`${getMokuaiTitle(item.item)}：${arr.join(", ")}`);
+    }
+  }
+  if (duplicateScblDetails.length > 0) {
+    const msg = `输出变量重复`;
+    await message.error(msg, duplicateScblDetails);
+    return {fulfilled: false, error: {message: msg, details: duplicateScblDetails}};
+  }
+
   // console.log({toCalc1, shuchubianliang});
   calc.calc.mergeFormulas(materialResult, shuchubianliang);
 
