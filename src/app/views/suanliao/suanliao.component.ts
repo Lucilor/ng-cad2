@@ -85,9 +85,6 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     };
     const mokuais: ZixuanpeijianMokuaiItem[] = [];
     const mokuaiVars: ObjectOf<Formulas> = {};
-    this.message.open$.subscribe((msg) => {
-      console.log(msg);
-    });
     for (const 门扇 of bujuNames) {
       if (!型号选中门扇布局[门扇]) {
         continue;

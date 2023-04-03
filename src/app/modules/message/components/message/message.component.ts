@@ -5,6 +5,7 @@ import {Debounce} from "@decorators/debounce";
 import {JsonEditorComponent, JsonEditorOptions} from "@maaxgr/ang-jsoneditor";
 import {InputComponent} from "@modules/input/components/input.component";
 import {InputInfo} from "@modules/input/components/types";
+import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, timeout} from "@utils";
 import {clamp, cloneDeep} from "lodash";
 import {QuillEditorComponent, QuillViewComponent} from "ngx-quill";
@@ -74,6 +75,7 @@ export class MessageComponent implements OnInit, AfterViewInit {
   constructor(
     public dialogRef: MatDialogRef<MessageComponent, MessageOutput>,
     private sanitizer: DomSanitizer,
+    private message: MessageService,
     @Inject(MAT_DIALOG_DATA) public data: MessageData
   ) {
     this.data = cloneDeep(this.data);
@@ -172,11 +174,10 @@ export class MessageComponent implements OnInit, AfterViewInit {
       this.dialogRef.close(typeof button === "string" ? button : button.label);
     } else if (type === "json" && this.jsonEditor) {
       const editor = this.jsonEditor;
-      const valid = editor.isValidJson();
-      if (valid) {
+      try {
         this.dialogRef.close(editor.get());
-      } else {
-        this.dialogRef.close();
+      } catch (error) {
+        this.message.error("数据格式错误，请改正后再确定");
       }
     } else {
       this.cancel();

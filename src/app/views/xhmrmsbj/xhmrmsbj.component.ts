@@ -30,6 +30,7 @@ import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
 import {openXhmrmsbjMokuaisDialog} from "@views/xhmrmsbj-mokuais/xhmrmsbj-mokuais.component";
 import {cloneDeep, intersection, isEqual} from "lodash";
+import md5 from "md5";
 import {BehaviorSubject, filter, firstValueFrom} from "rxjs";
 import {XhmrmsbjData, XhmrmsbjInfo, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
 
@@ -126,6 +127,8 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       this.tableData = records?.[0] || null;
     } else if (token) {
       this.isFromOrder = true;
+    }
+    if (token) {
       this.token = token;
       this.dataService.token = token;
     }
@@ -199,9 +202,13 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
 
   async 保存模块大小(data: any) {
     if (this.activeMsbjInfo) {
+      const md5Prev = md5(JSON.stringify(this.activeMsbjInfo.模块大小输入 || {}));
       this.activeMsbjInfo.模块大小输入 = data.inputValues;
       await this.updateMokuaidaxiaoResult();
-      await this.生成效果图();
+      const md5Curr = md5(JSON.stringify(this.activeMsbjInfo.模块大小输入));
+      if (md5Prev !== md5Curr) {
+        await this.生成效果图();
+      }
     }
   }
 
@@ -381,7 +388,10 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   async selectMokuai(mokuai: ZixuanpeijianMokuaiItem | null | undefined) {
     const mokuaiNode = this.activeMokuaiNode;
     const rectInfo = this.activeRectInfo;
-    const mokuaiPrev = mokuaiNode?.选中模块;
+    if (!mokuai || !mokuaiNode || !rectInfo) {
+      return;
+    }
+    const mokuaiPrev = mokuaiNode.选中模块;
     if (mokuaiPrev) {
       const morenbancai = mokuaiPrev.morenbancai;
       if (!this.validateMorenbancai(morenbancai)) {
@@ -389,12 +399,12 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
         return;
       }
     }
-    if (!mokuai || !mokuaiNode || !rectInfo) {
-      return;
-    }
     this.data?.setSelectedMokuai(mokuaiNode, mokuai.id, this.isFromOrder);
     this.updateMokuaiInputInfo();
-    this.生成效果图();
+    const mokuaiCurr = mokuaiNode.选中模块;
+    if (!mokuaiPrev || !mokuaiCurr || !isMokuaiItemEqual(mokuaiPrev, mokuaiCurr)) {
+      this.生成效果图();
+    }
   }
 
   async removeMokuai(mokuai: ZixuanpeijianMokuaiItem | null | undefined) {
@@ -635,6 +645,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async setBancaixuanze(item: MrbcjfzInfo, value: string) {
+    const md5Prev = md5(JSON.stringify(item));
     if (this.isFromOrder) {
       item.选中板材分组 = value;
       item.选中板材 = "";
@@ -646,7 +657,10 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       item.默认开料材料 = "";
       item.默认开料板材厚度 = "";
     }
-    await this.生成效果图();
+    const md5Curr = md5(JSON.stringify(item));
+    if (md5Prev !== md5Curr) {
+      await this.生成效果图();
+    }
   }
 
   getMsbj(id: number) {
@@ -667,8 +681,15 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       this.wmm.postMessage("编辑模块大小", data);
       return;
     } else {
+      let msbj: MsbjInfo | null = null;
+      if (this.token) {
+        const msbjs = await this.dataService.queryMySql({table: "p_menshanbuju", filter: {where: {vid: 选中布局数据.vid}}});
+        if (msbjs[0]) {
+          msbj = new MsbjInfo(msbjs[0], "peizhishuju");
+        }
+      }
       const data = await this.message.json(选中布局数据.模块大小关系, {
-        defaultJson: mokuaidaixiaoData,
+        defaultJson: msbj?.peizhishuju.模块大小关系 ?? mokuaidaixiaoData,
         btnTexts: {reset: "重置为默认模块大小"}
       });
       if (data) {
