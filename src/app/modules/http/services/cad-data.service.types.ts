@@ -98,3 +98,10 @@ export interface TableDataBase {
   vid: number;
   mingzi: string;
 }
+
+export interface BancaiListData {
+  bancais: BancaiList[];
+  bancaiKeys: string[];
+  bancaiKeysNonClear: string[];
+  bancaiKeysRequired: string[];
+}

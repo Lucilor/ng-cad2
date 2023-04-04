@@ -1,46 +1,50 @@
+import {Formulas} from "@app/utils/calc";
 import mokuaidaixiaoData from "@assets/testData/mokuaidaxiao.json";
 import {MsbjPeizhishuju, MsbjRectInfoRaw} from "@components/msbj-rects/msbj-rects.types";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
-import {cloneDeep} from "lodash";
+import {ObjectOf} from "@utils";
 
 export class MsbjInfo {
   vid: number;
   name: string;
-  menshanbuju?: string;
   peizhishuju: MsbjPeizhishuju;
 
-  constructor(data: MsbjData, dataField: keyof MsbjData, fenleis?: TableDataBase[]) {
-    this.vid = data.vid;
-    this.name = data.mingzi;
-    this.menshanbuju = data.menshanbuju;
+  constructor(public rawData: MsbjData, node2rectData?: Node2rectData) {
+    this.vid = rawData.vid;
+    this.name = rawData.mingzi;
 
     let peizhishuju: MsbjPeizhishuju | null = null;
     try {
-      peizhishuju = JSON.parse(data[dataField] as any);
+      peizhishuju = JSON.parse(rawData.peizhishuju as any);
     } catch (error) {}
     if (!peizhishuju) {
       peizhishuju = {模块节点: []};
     }
-    let rectInfos1: MsbjRectInfoRaw[] | null = null;
-    try {
-      rectInfos1 = window.node2rect(JSON.parse(data.node || ""));
-    } catch (error) {}
-    if (rectInfos1) {
-      for (const info1 of cloneDeep(rectInfos1)) {
-        if (fenleis) {
-          info1.可选模块分类 = fenleis.map((v) => v.vid);
-        }
-        const info2 = peizhishuju.模块节点.find((v) => v.vid === info1.vid);
-        if (info2) {
-          Object.assign(info1, info2);
-        }
-      }
-      peizhishuju.模块节点 = rectInfos1.map((v) => ({...v, selected: false}));
+    this.peizhishuju = peizhishuju;
+    if (node2rectData) {
+      this.updateRectsInfo(node2rectData);
     }
     if (!peizhishuju.模块大小关系) {
       peizhishuju.模块大小关系 = mokuaidaixiaoData;
     }
-    this.peizhishuju = peizhishuju;
+  }
+
+  updateRectsInfo(data: Node2rectData) {
+    const peizhishuju = this.peizhishuju;
+    let rectInfos1: MsbjRectInfoRaw[] | null = null;
+    try {
+      rectInfos1 = window.node2rect(JSON.parse(this.rawData.node || ""), data);
+    } catch (error) {}
+    if (rectInfos1) {
+      peizhishuju.模块节点 = [];
+      for (const info1 of rectInfos1) {
+        const info2 = peizhishuju.模块节点.find((v) => v.vid === info1.vid);
+        if (info2) {
+          Object.assign(info1, info2);
+        }
+        peizhishuju.模块节点.push(info1);
+      }
+    }
   }
 }
 
@@ -50,7 +54,21 @@ export interface MsbjFenlei extends TableDataBase {
 
 export interface MsbjData extends TableDataBase {
   peizhishuju?: string;
-  menshanbuju?: string;
-  menshanbujumorenfenlei?: string;
   node?: string;
+  menshanweizhi?: string;
+}
+
+export interface Node2rectData {
+  模块层ID: ObjectOf<number>;
+  当前扇名字: string;
+  门扇大小: Formulas;
+  模块大小: Formulas;
+}
+
+export const node2rectDataMsdxKeys = ["锁扇正面总宽", "锁扇背面总宽", "铰扇正面总宽", "铰扇背面总宽", "包框高"];
+
+declare global {
+  interface Window {
+    node2rect(node: any, data: Node2rectData): MsbjRectInfoRaw[];
+  }
 }

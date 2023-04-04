@@ -529,8 +529,11 @@ export const calcZxpj = async (
       return {fulfilled: false, error: {message: msg, details}};
     }
   }
-  const getCadDimensionVars = (items: ZixuanpeijianCadItem[]) => {
+  const duplicateDimVars: ObjectOf<{vars: Set<string>; cads: ZixuanpeijianCadItem[]}> = {};
+  const getCadDimensionVars = (items: ZixuanpeijianCadItem[], mokuai?: ZixuanpeijianMokuaiItem) => {
     const vars: Formulas = {};
+    const duplicateVars = new Set<string>();
+    const duplicateCads: ZixuanpeijianCadItem[] = [];
     for (const item of items) {
       const data = item.data;
       const vars2: Formulas = {};
@@ -543,6 +546,10 @@ export const calcZxpj = async (
         if (points.length < 4) {
           continue;
         }
+        if (name in vars) {
+          duplicateVars.add(name);
+          duplicateCads.push(item);
+        }
         vars2[name] = toFixed(points[2].distanceTo(points[3]), fractionDigits);
         if (!dimensionNamesMap[name]) {
           dimensionNamesMap[name] = [];
@@ -550,6 +557,9 @@ export const calcZxpj = async (
         dimensionNamesMap[name].push({item});
       }
       item.info.dimensionVars = vars2;
+      if (mokuai && duplicateVars.size > 0) {
+        duplicateDimVars[getMokuaiTitle(mokuai)] = {vars: duplicateVars, cads: duplicateCads};
+      }
       Object.assign(vars, vars2);
     }
     return vars;
@@ -588,9 +598,24 @@ export const calcZxpj = async (
     const dimensionVars = getCadDimensionVars(item.cads);
     return {formulas, dimensionVars, succeedTrim: {} as Formulas, error: {} as Formulas, item};
   });
+  {
+    const details: string[] = [];
+    const cads: CadData[] = [];
+    for (const title in duplicateDimVars) {
+      const {vars, cads: items} = duplicateDimVars[title];
+      details.push(`${title}: ${Array.from(vars).join(", ")}`);
+      for (const item of items) {
+        cads.push(item.data);
+      }
+    }
+    if (details.length > 0) {
+      const msg = "CAD标注重复";
+      await message.error(msg, details);
+      await openDrawCadDialog(dialog, {data: {cads, collection: "cad"}});
+      return {fulfilled: false, error: {message: msg, details, cads}};
+    }
+  }
   const lingsanVars = getCadDimensionVars(lingsans);
-  const dimensionNames = Object.keys(dimensionNamesMap);
-  checkDuplicate("CAD标注", ["公式", "公式输入", "模块公式"], null, dimensionNames);
   for (const {info, type1, type2} of duplicateMokuaiVars) {
     if (info.length > 0) {
       const msg = `【${type1}】与【${type2}】重复`;

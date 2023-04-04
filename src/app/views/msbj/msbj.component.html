@@ -37,37 +37,5 @@
         </div>
       </div>
     </ng-scrollbar>
-    <!-- <div class="fenlei-lists flex-row flex-110">
-      <div class="flex-column flex-110">
-        <div class="title">可选模块分类</div>
-        <ng-template *ngTemplateOutlet="fenleiListT; context: {$implicit: fenleisNotSelected, class: 'not-selected'}"></ng-template>
-      </div>
-      <div class="flex-column flex-110">
-        <div class="title">已选模块分类</div>
-        <ng-template *ngTemplateOutlet="fenleiListT; context: {$implicit: fenleisSelected, class: 'selected'}"></ng-template>
-      </div>
-
-      <ng-template #fenleiListT [appTypedTemplate]="fenleiListDataType" let-fenleis let-class="class">
-        <mat-selection-list
-          #fenleiList
-          [class]="class"
-          class="list flex-110"
-          [multiple]="false"
-          cdkDropList
-          [cdkDropListData]="fenleis"
-          (cdkDropListDropped)="dropFenlei($event)"
-          cdkDropListSortingDisabled
-        >
-          <mat-list-option
-            class="list-item"
-            *ngFor="let item of fenleis; let i = index"
-            [value]="item.vid"
-            cdkDrag
-            (click)="class === 'selected' ? deselectFenlei(i) : selectFenlei(i)"
-            >{{ item.mingzi }}</mat-list-option
-          >
-        </mat-selection-list>
-      </ng-template>
-    </div> -->
   </div>
 </div>

@@ -26,7 +26,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf, Point, Rectangle, timeout, WindowMessageManager} from "@utils";
 import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
-import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
+import {MsbjData, MsbjInfo, Node2rectData, node2rectDataMsdxKeys} from "@views/msbj/msbj.types";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
 import {openXhmrmsbjMokuaisDialog} from "@views/xhmrmsbj-mokuais/xhmrmsbj-mokuais.component";
 import {cloneDeep, intersection, isEqual} from "lodash";
@@ -44,7 +44,6 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   table = "";
   id = "";
   isFromOrder = false;
-  token = "";
   tableData: XhmrmsbjTableData | null = null;
   data: XhmrmsbjData | null = null;
   fenleis: TableDataBase[] = [];
@@ -129,14 +128,12 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       this.isFromOrder = true;
     }
     if (token) {
-      this.token = token;
       this.dataService.token = token;
     }
     this.fenleis = await this.dataService.queryMySql<TableDataBase>({table: "p_gongnengfenlei", fields: ["vid", "mingzi"]});
     const menshanbujus = await this.dataService.queryMySql<MsbjData>({table: "p_menshanbuju"});
-    this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, "peizhishuju"));
-    const response = await this.dataService.post<BancaiList[]>("ngcad/getBancaiList");
-    this.bancaiList = this.dataService.getResponseData(response) || [];
+    this.msbjs = menshanbujus.map((item) => new MsbjInfo(item, this.getNode2rectData()));
+    this.bancaiList = (await this.dataService.getBancaiList())?.bancais || [];
     if (!this.isFromOrder) {
       this.data = this.tableData ? new XhmrmsbjData(this.tableData, this.menshanKeys, this.step1Data.typesInfo, this.msbjs) : null;
       const xinghaos = await this.dataService.queryMySql<MrbcjfzXinghao>({
@@ -208,6 +205,10 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       const md5Curr = md5(JSON.stringify(this.activeMsbjInfo.模块大小输入));
       if (md5Prev !== md5Curr) {
         await this.生成效果图();
+      }
+      this.activeMsbj?.updateRectsInfo(this.getNode2rectData());
+      if (this.msbjRectsComponent) {
+        this.msbjRectsComponent.rectInfos = this.activeMsbj?.peizhishuju.模块节点 || [];
       }
     }
   }
@@ -682,10 +683,10 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       return;
     } else {
       let msbj: MsbjInfo | null = null;
-      if (this.token) {
+      if (this.dataService.token) {
         const msbjs = await this.dataService.queryMySql({table: "p_menshanbuju", filter: {where: {vid: 选中布局数据.vid}}});
         if (msbjs[0]) {
-          msbj = new MsbjInfo(msbjs[0], "peizhishuju");
+          msbj = new MsbjInfo(msbjs[0], this.getNode2rectData());
         }
       }
       const data = await this.message.json(选中布局数据.模块大小关系, {
@@ -776,5 +777,24 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
 
   openHoutaiUrl() {
     window.open(this.houtaiUrl);
+  }
+
+  getNode2rectData() {
+    const m = this.materialResult;
+    const result: Node2rectData = {
+      模块层ID: {},
+      当前扇名字: this.activeMenshanKey || "",
+      门扇大小: {},
+      模块大小: this.mokuaidaxiaoResult
+    };
+    for (const key of node2rectDataMsdxKeys) {
+      result.门扇大小[key] = m[key];
+    }
+    for (const rect of this.msbjRectsComponent?.rectInfosAbsolute || []) {
+      if (rect.name) {
+        result.模块层ID[rect.name] = rect.raw.vid;
+      }
+    }
+    return result;
   }
 }

@@ -1,10 +1,12 @@
 <div class="btn-group">
-  <button mat-raised-button color="primary" (click)="submit()">提交</button>
-  <button mat-raised-button color="primary" *ngIf="closeable" (click)="close()">关闭</button>
+  <ng-container *ngIf="!isFromOrder">
+    <button mat-raised-button color="primary" (click)="submit()">提交</button>
+    <button mat-raised-button color="primary" *ngIf="closeable" (click)="close()">关闭</button>
+  </ng-container>
   <div *ngIf="xinghao.raw.mingzi" class="title">{{ xiaodaohangStructure?.mingzi }}：{{ xinghao.raw.mingzi }}</div>
 </div>
 <div class="flex-row flex-110">
-  <div class="flex-row" style="width: 50%">
+  <div class="flex-row" class="flex-110">
     <ng-scrollbar class="flex-110">
       <div
         class="bancai flex-column"
@@ -66,42 +68,44 @@
       </div>
     </ng-scrollbar>
   </div>
-  <mat-divider vertical></mat-divider>
-  <div class="flex-column flex-110">
-    <ng-scrollbar class="flex-110">
-      <div class="item-list flex-row">
-        <ng-container *ngFor="let item of cads">
-          <div class="item flex-column" *ngIf="!item.selected" (click)="selectListItem(item, 'CAD')">
-            <app-image class="cad-preview" [src]="item.img"></app-image>
-            <div class="title center">
-              {{ item.data.name }}
-              <button mat-icon-button color="primary" (click)="openCad(item)"><mat-icon>open_in_new</mat-icon></button>
+  <ng-container *ngIf="!isFromOrder">
+    <mat-divider vertical></mat-divider>
+    <div class="flex-column flex-110">
+      <ng-scrollbar class="flex-110">
+        <div class="item-list flex-row">
+          <ng-container *ngFor="let item of cads">
+            <div class="item flex-column" *ngIf="!item.selected" (click)="selectListItem(item, 'CAD')">
+              <app-image class="cad-preview" [src]="item.img"></app-image>
+              <div class="title center">
+                {{ item.data.name }}
+                <button mat-icon-button color="primary" (click)="openCad(item)"><mat-icon>open_in_new</mat-icon></button>
+              </div>
             </div>
-          </div>
-        </ng-container>
-      </div>
-    </ng-scrollbar>
-    <mat-divider></mat-divider>
-    <ng-scrollbar style="height: 105px">
-      <div class="item-list flex-row">
-        <ng-container *ngFor="let item of qiliaos">
-          <div class="item flex-column" *ngIf="!item.selected" (click)="selectListItem(item, '企料')">
-            <div class="title center">{{ item.data.mingzi }}</div>
-          </div>
-        </ng-container>
-      </div>
-    </ng-scrollbar>
-    <div class="tips">企料不分组则程序自动分组为：门扇板材</div>
-    <mat-divider></mat-divider>
-    <ng-scrollbar class="flex-110">
-      <div class="item-list flex-row">
-        <ng-container *ngFor="let item of huajians">
-          <div class="item flex-column" *ngIf="!item.selected" (click)="selectListItem(item, '花件')">
-            <app-image [src]="item.data.xiaotu"></app-image>
-            <div class="title center">{{ item.data.mingzi }}</div>
-          </div>
-        </ng-container>
-      </div>
-    </ng-scrollbar>
-  </div>
+          </ng-container>
+        </div>
+      </ng-scrollbar>
+      <mat-divider></mat-divider>
+      <ng-scrollbar style="height: 105px">
+        <div class="item-list flex-row">
+          <ng-container *ngFor="let item of qiliaos">
+            <div class="item flex-column" *ngIf="!item.selected" (click)="selectListItem(item, '企料')">
+              <div class="title center">{{ item.data.mingzi }}</div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-scrollbar>
+      <div class="tips">企料不分组则程序自动分组为：门扇板材</div>
+      <mat-divider></mat-divider>
+      <ng-scrollbar class="flex-110">
+        <div class="item-list flex-row">
+          <ng-container *ngFor="let item of huajians">
+            <div class="item flex-column" *ngIf="!item.selected" (click)="selectListItem(item, '花件')">
+              <app-image [src]="item.data.xiaotu"></app-image>
+              <div class="title center">{{ item.data.mingzi }}</div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-scrollbar>
+    </div>
+  </ng-container>
 </div>

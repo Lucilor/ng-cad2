@@ -6,7 +6,6 @@ declare global {
   interface Window {
     parseBaobianzhengmianRules(content: string, vars?: ObjectOf<any>): {errors: string[]};
     batchCheck(data: ObjectOf<any>[]): ObjectOf<string[]>;
-    node2rect(node: any): any;
   }
 }
 export const remoteHost = "https://www.let888.cn" as const;

@@ -14,9 +14,6 @@ export interface MsbjRectInfoRaw {
       h: number;
     };
   };
-  可选模块分类?: number[];
-  选中模块分类?: number[];
-  选中模块?: number;
 }
 
 export interface MsbjPeizhishuju {

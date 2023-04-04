@@ -2,7 +2,6 @@ import {DragDropModule} from "@angular/cdk/drag-drop";
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
-import {MatListModule} from "@angular/material/list";
 import {MatSliderModule} from "@angular/material/slider";
 import {RouterTestingModule} from "@angular/router/testing";
 import {MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
@@ -28,7 +27,6 @@ describe("MsbjComponent", () => {
         InputModule,
         MatButtonModule,
         MatIconModule,
-        MatListModule,
         MatSliderModule,
         MessageModule,
         NgScrollbarModule,

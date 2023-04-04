@@ -14,7 +14,8 @@ import {
   QueryMongodbParams,
   QueryMysqlParams,
   TableUpdateParams,
-  TableDataBase
+  TableDataBase,
+  BancaiListData
 } from "./cad-data.service.types";
 import {CadImgCache} from "./cad-img-cache";
 import {CustomResponse, HttpOptions, HttpService} from "./http.service";
@@ -267,15 +268,18 @@ export class CadDataService extends HttpService {
     const tableData = params.tableData;
     if (Object.keys(tableData).length > 1) {
       const fields = Object.keys(tableData).filter((v) => v !== "vid");
-      await Promise.all(
+      const results = await Promise.all(
         fields.map(async (field) => {
           const tableData2: TableUpdateParams["tableData"] = {vid: tableData.vid, [field]: (tableData as any)[field]};
           const params2 = {...params, tableData: tableData2};
-          return await this.post<void>("jichu/jichu/table_update", params2, options);
+          const response = await this.post<void>("jichu/jichu/table_update", params2, options);
+          return response?.code === 0;
         })
       );
+      return results.every(Boolean);
     } else {
-      await this.post<void>("jichu/jichu/table_update", params, options);
+      const response = await this.post<void>("jichu/jichu/table_update", params, options);
+      return response?.code === 0;
     }
   }
 
@@ -286,5 +290,10 @@ export class CadDataService extends HttpService {
 
   async setRedisData(value: any, key?: string, expireTime?: number, options?: HttpOptions) {
     await this.post<{key: string; expireTime: number}>("ngcad/setRedisData", {key, value, expireTime}, options);
+  }
+
+  async getBancaiList() {
+    const response = await this.post<BancaiListData>("ngcad/getBancaiList");
+    return this.getResponseData(response);
   }
 }

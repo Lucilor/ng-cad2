@@ -12,7 +12,7 @@ import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {timeout} from "@utils";
+import {timeout, WindowMessageManager} from "@utils";
 import {Properties} from "csstype";
 import {isEmpty, union} from "lodash";
 import {
@@ -54,6 +54,8 @@ export class MrbcjfzComponent implements OnInit {
   bancaiInputs: InputInfo<MrbcjfzInfo>[][] = [];
   activeBancaiKey: string | null = null;
   xiaodaohangStructure: XiaodaohangStructure | null = null;
+  isFromOrder = false;
+  wmm = new WindowMessageManager("默认板材及分组", this, window.parent);
   get activeBancai() {
     if (!this.activeBancaiKey) {
       return null;
@@ -74,92 +76,133 @@ export class MrbcjfzComponent implements OnInit {
 
   async ngOnInit() {
     let {id, table} = this;
+    const params = this.route.snapshot.queryParams;
+    const token = params.token;
     if (!id || !table) {
-      const params = this.route.snapshot.queryParams;
       id = params.id ? Number(params.id) : 0;
       table = params.table || "";
       this.id = id;
       this.table = table;
+      if (this.id && this.table) {
+        this.isFromOrder = false;
+      } else {
+        this.isFromOrder = true;
+      }
     } else {
       await timeout(0);
     }
-    const response = await this.dataService.post<MrbcjfzResponseData>(
-      "peijian/xinghao/bancaifenzuIndex",
-      {table, id},
-      {testData: "bancaifenzuIndex"}
-    );
-    const data = this.dataService.getResponseData(response);
-    if (data) {
-      this.xinghao = new MrbcjfzXinghaoInfo(data.xinghao);
-      this.bancaiKeys = data.bancaiKeys;
-      this.bancaiKeysNonClear = union(data.bancaiKeysNonClear, data.bancaiKeysRequired);
-      this.bancaiKeysRequired = data.bancaiKeysRequired;
-      this.xiaodaohangStructure = data.xiaodaohangStructure;
-      this.cads = [];
-      const cadsToRemove: MrbcjfzCadInfo[] = [];
-      data.cads.forEach((v) => {
-        const cadData = new CadData(v);
-        const item: MrbcjfzCadInfo = {data: cadData, img: "", id: cadData.id};
-        (async () => {
-          item.img = await getCadPreview("cad", item.data, {http: this.dataService});
-        })();
-        if (filterCad(item)) {
-          this.cads.push(item);
-        } else {
-          cadsToRemove.push(item);
+    if (token) {
+      this.dataService.token = token;
+    }
+    if (this.isFromOrder) {
+      const data = await this.getData();
+      const xinghaosRaw = await this.dataService.queryMySql({table: "p_xinghao", filter: {where: {mingzi: data.xinghao}}});
+      if (xinghaosRaw[0]) {
+        this.xinghao = new MrbcjfzXinghaoInfo(xinghaosRaw[0]);
+      } else {
+        this.xinghao = new MrbcjfzXinghaoInfo({vid: 0, mingzi: data.xinghao});
+      }
+      for (const key in data.morenbancai) {
+        if (key in this.xinghao.默认板材) {
+          for (const key2 in data.morenbancai[key]) {
+            if (data.morenbancai[key][key2]) {
+              (this.xinghao.默认板材 as any)[key][key2] = data.morenbancai[key][key2];
+            }
+          }
         }
-      });
-      this.huajians = [];
-      const huajiansToRemove: MrbcjfzHuajianInfo[] = [];
-      data.huajians.map((v) => {
-        const item: MrbcjfzHuajianInfo = {data: v, id: String(v.vid)};
-        if (filterHuajian(item)) {
-          this.huajians.push(item);
-        } else {
-          huajiansToRemove.push(item);
-        }
-      });
-      this.qiliaos = [];
-      data.qiliaos.forEach((v) => {
-        const item: MrbcjfzQiliaoInfo = {data: v, id: String(v.mingzi)};
-        this.qiliaos.push(item);
-      });
-      const cadsToRemove2: MrbcjfzCadInfo[] = [];
-      const huajiansToRemove2: MrbcjfzHuajianInfo[] = [];
-      for (const bancaiKey in this.xinghao.默认板材) {
-        const info = this.xinghao.默认板材[bancaiKey];
-        info.CAD.forEach((cadId) => {
-          const item = cadsToRemove.find((v) => v.id === cadId);
-          if (item && !cadsToRemove2.find((v) => v.id === cadId)) {
-            cadsToRemove2.push(item);
+      }
+      this.bancaiKeys = Object.keys(this.xinghao.默认板材);
+      this.xiaodaohangStructure = {mingzi: "型号"};
+      const bancaiListData = await this.dataService.getBancaiList();
+      if (bancaiListData) {
+        this.bancaiList = bancaiListData.bancais;
+        this.bancaiKeys = bancaiListData.bancaiKeys;
+        this.bancaiKeysNonClear = bancaiListData.bancaiKeysNonClear;
+        this.bancaiKeysRequired = bancaiListData.bancaiKeysRequired;
+      }
+    } else {
+      const response = await this.dataService.post<MrbcjfzResponseData>(
+        "peijian/xinghao/bancaifenzuIndex",
+        {table, id},
+        {testData: "bancaifenzuIndex"}
+      );
+      const data = this.dataService.getResponseData(response);
+      if (data) {
+        this.xinghao = new MrbcjfzXinghaoInfo(data.xinghao);
+        this.bancaiKeys = data.bancaiKeys;
+        this.bancaiKeysNonClear = union(data.bancaiKeysNonClear, data.bancaiKeysRequired);
+        this.bancaiKeysRequired = data.bancaiKeysRequired;
+        this.xiaodaohangStructure = data.xiaodaohangStructure;
+        this.cads = [];
+        const cadsToRemove: MrbcjfzCadInfo[] = [];
+        data.cads.forEach((v) => {
+          const cadData = new CadData(v);
+          const item: MrbcjfzCadInfo = {data: cadData, img: "", id: cadData.id};
+          (async () => {
+            item.img = await getCadPreview("cad", item.data, {http: this.dataService});
+          })();
+          if (filterCad(item)) {
+            this.cads.push(item);
+          } else {
+            cadsToRemove.push(item);
           }
         });
-        info.CAD = info.CAD.filter((v) => !cadsToRemove2.find((v2) => v2.id === v));
-        info.花件.forEach((huajianId) => {
-          const item = huajiansToRemove.find((v) => v.id === huajianId);
-          if (item && !huajiansToRemove2.find((v) => v.id === huajianId)) {
-            huajiansToRemove2.push(item);
+        this.huajians = [];
+        const huajiansToRemove: MrbcjfzHuajianInfo[] = [];
+        data.huajians.map((v) => {
+          const item: MrbcjfzHuajianInfo = {data: v, id: String(v.vid)};
+          if (filterHuajian(item)) {
+            this.huajians.push(item);
+          } else {
+            huajiansToRemove.push(item);
           }
         });
-        info.花件 = info.花件.filter((v) => !huajiansToRemove2.find((v2) => v2.id === v));
-        this.justifyBancai(bancaiKey, info);
-      }
-      const errorMsgs: string[] = [];
-      if (cadsToRemove2.length > 0) {
-        errorMsgs.push(`删除了以下${cadsToRemove2.length}个无效cad: <br>${cadsToRemove2.map((v) => v.data.name).join("，")}`);
-      }
-      if (huajiansToRemove2.length > 0) {
-        errorMsgs.push(`删除了以下${huajiansToRemove2.length}个无效花件: <br>${huajiansToRemove2.map((v) => v.data.mingzi).join("，")}`);
-      }
-      this.bancaiList = data.bancaiList;
-      this.updateXinghao();
-      this.updateListItems();
+        this.qiliaos = [];
+        data.qiliaos.forEach((v) => {
+          const item: MrbcjfzQiliaoInfo = {data: v, id: String(v.mingzi)};
+          this.qiliaos.push(item);
+        });
+        const cadsToRemove2: MrbcjfzCadInfo[] = [];
+        const huajiansToRemove2: MrbcjfzHuajianInfo[] = [];
+        for (const bancaiKey in this.xinghao.默认板材) {
+          const info = this.xinghao.默认板材[bancaiKey];
+          info.CAD.forEach((cadId) => {
+            const item = cadsToRemove.find((v) => v.id === cadId);
+            if (item && !cadsToRemove2.find((v) => v.id === cadId)) {
+              cadsToRemove2.push(item);
+            }
+          });
+          info.CAD = info.CAD.filter((v) => !cadsToRemove2.find((v2) => v2.id === v));
+          info.花件.forEach((huajianId) => {
+            const item = huajiansToRemove.find((v) => v.id === huajianId);
+            if (item && !huajiansToRemove2.find((v) => v.id === huajianId)) {
+              huajiansToRemove2.push(item);
+            }
+          });
+          info.花件 = info.花件.filter((v) => !huajiansToRemove2.find((v2) => v2.id === v));
+          this.justifyBancai(bancaiKey, info);
+        }
+        const errorMsgs: string[] = [];
+        if (cadsToRemove2.length > 0) {
+          errorMsgs.push(`删除了以下${cadsToRemove2.length}个无效cad: <br>${cadsToRemove2.map((v) => v.data.name).join("，")}`);
+        }
+        if (huajiansToRemove2.length > 0) {
+          errorMsgs.push(`删除了以下${huajiansToRemove2.length}个无效花件: <br>${huajiansToRemove2.map((v) => v.data.mingzi).join("，")}`);
+        }
+        this.bancaiList = data.bancaiList;
+        this.updateXinghao();
+        this.updateListItems();
 
-      if (errorMsgs.length > 0) {
-        errorMsgs.push("<br><b>需要提交保存后才生效</b>");
-        const result = await this.message.button({content: errorMsgs.join("<br>"), buttons: ["立刻提交"], btnTexts: {cancel: "稍后提交"}});
-        if (result === "立刻提交") {
-          this.submit();
+        if (errorMsgs.length > 0) {
+          errorMsgs.push("<br><b>需要提交保存后才生效</b>");
+          const result = await this.message.button({
+            content: errorMsgs.join("<br>"),
+            buttons: ["立刻提交"],
+            btnTexts: {cancel: "稍后提交"}
+          });
+          if (result === "立刻提交") {
+            this.submit();
+          }
         }
       }
     }
@@ -290,7 +333,7 @@ export class MrbcjfzComponent implements OnInit {
   }
 
   async submit() {
-    const {xinghao, table} = this;
+    const {xinghao, table, isFromOrder} = this;
     if (!xinghao) {
       return;
     }
@@ -307,15 +350,14 @@ export class MrbcjfzComponent implements OnInit {
     if (errorBancaiKeys.length) {
       errorMsg.push(`板材信息不完整：${errorBancaiKeys.join("，")}`);
     }
-    if (this.cads.some((v) => !v.selected)) {
-      errorMsg.push("有CAD未选择");
+    if (!isFromOrder) {
+      if (this.cads.some((v) => !v.selected)) {
+        errorMsg.push("有CAD未选择");
+      }
+      if (this.huajians.some((v) => !v.selected)) {
+        errorMsg.push("有花件未选择");
+      }
     }
-    if (this.huajians.some((v) => !v.selected)) {
-      errorMsg.push("有花件未选择");
-    }
-    // if (this.qiliaos.some((v) => !v.selected)) {
-    //   errorMsg.push("有企料未选择");
-    // }
     if (errorMsg.length) {
       this.message.error(errorMsg.join("<br>"));
       return;
@@ -323,9 +365,19 @@ export class MrbcjfzComponent implements OnInit {
     const tableData: TableUpdateParams<MrbcjfzXinghao>["tableData"] = {vid: xinghao.raw.vid};
     tableData.morenbancai = JSON.stringify(xinghao.默认板材);
     this.spinner.show(this.spinner.defaultLoaderId);
-    await this.dataService.tableUpdate({table, tableData});
+    let result = false;
+    if (isFromOrder) {
+      const response = await this.dataService.post("peijian/api/updateMorenbancaijifenzu", {
+        name: xinghao.raw.mingzi,
+        morenbancai: xinghao.默认板材
+      });
+      result = response?.code === 0;
+    } else {
+      result = await this.dataService.tableUpdate({table, tableData});
+    }
     this.spinner.hide(this.spinner.defaultLoaderId);
     this.dataSubmit.emit(this.xinghao);
+    return result;
   }
 
   close() {
@@ -334,6 +386,20 @@ export class MrbcjfzComponent implements OnInit {
 
   openCad(item: MrbcjfzListItem) {
     this.status.openCadInNewTab(item.id, "cad");
+  }
+
+  async getData() {
+    this.wmm.postMessage("getDataStart");
+    return await this.wmm.waitForMessage("getDataEnd");
+  }
+
+  postDataStart() {
+    return {action: "postDataEnd"};
+  }
+
+  async submitStart() {
+    const fulfilled = await this.submit();
+    return {action: "submitEnd", data: {fulfilled}};
   }
 }
 
