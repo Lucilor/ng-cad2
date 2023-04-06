@@ -24,6 +24,8 @@ export interface MrbcjfzXinghao extends TableDataBase {
 export interface MrbcjfzHuajian extends TableDataBase {
   xiaotu?: string;
   shihuajian?: number;
+  bangdingqianbankuanshicad?: string;
+  bangdinghoubankuanshicad?: string;
 }
 
 export class MrbcjfzXinghaoInfo {
@@ -128,7 +130,7 @@ export const filterCad = (info: MrbcjfzCadInfo) => {
 
 export const filterHuajian = (info: MrbcjfzHuajianInfo) => {
   const data = info.data;
-  if (data.shihuajian) {
+  if (data.shihuajian || data.bangdinghoubankuanshicad || data.bangdingqianbankuanshicad) {
     return false;
   }
   if (/阴影/.test(data.mingzi)) {

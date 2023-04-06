@@ -180,12 +180,19 @@ export class MessageComponent implements OnInit, AfterViewInit {
         this.message.error("数据格式错误，请改正后再确定");
       }
     } else {
-      this.cancel();
+      this.dialogRef.close(null);
     }
   }
 
   cancel() {
-    this.dialogRef.close(false);
+    const type = this.data.type;
+    if (type === "confirm") {
+      this.dialogRef.close(false);
+    } else if (type === "button") {
+      this.dialogRef.close(this.data.btnTexts?.cancel);
+    } else {
+      this.dialogRef.close();
+    }
   }
 
   reset() {

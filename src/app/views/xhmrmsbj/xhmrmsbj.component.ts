@@ -175,6 +175,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       const result = await this.wmm.waitForMessage("calcGongshi2End");
       this.mokuaidaxiaoResult = result.values;
     }
+    this.genXiaoguotu();
   }
 
   submitData() {
@@ -204,7 +205,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       await this.updateMokuaidaxiaoResult();
       const md5Curr = md5(JSON.stringify(this.activeMsbjInfo.模块大小输入));
       if (md5Prev !== md5Curr) {
-        await this.生成效果图();
+        await this.genXiaoguotu();
       }
       this.activeMsbj?.updateRectsInfo(this.getNode2rectData());
       if (this.msbjRectsComponent) {
@@ -404,7 +405,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.updateMokuaiInputInfo();
     const mokuaiCurr = mokuaiNode.选中模块;
     if (!mokuaiPrev || !mokuaiCurr || !isMokuaiItemEqual(mokuaiPrev, mokuaiCurr)) {
-      this.生成效果图();
+      this.genXiaoguotu();
     }
   }
 
@@ -491,7 +492,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
               }
             }
             await this.updateMokuaidaxiaoResult();
-            await this.生成效果图();
+            await this.genXiaoguotu();
           }
         });
       }
@@ -660,7 +661,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     }
     const md5Curr = md5(JSON.stringify(item));
     if (md5Prev !== md5Curr) {
-      await this.生成效果图();
+      await this.genXiaoguotu();
     }
   }
 
@@ -699,7 +700,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     }
   }
 
-  async 生成效果图() {
+  async genXiaoguotu() {
     if (!this.isFromOrder) {
       return;
     }
@@ -738,9 +739,11 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       await timeout(0);
       const rect = Rectangle.min;
       for (const el of els) {
-        const {top, right, bottom, left} = el.getBoundingClientRect();
-        rect.expandByPoint(new Point(left, top));
-        rect.expandByPoint(new Point(right, bottom));
+        const {top, right, bottom, left, width, height} = el.getBoundingClientRect();
+        if (width > 0 && height > 0) {
+          rect.expandByPoint(new Point(left, top));
+          rect.expandByPoint(new Point(right, bottom));
+        }
       }
       const scaleX = rectContainer.width / rect.width;
       const scaleY = rectContainer.height / rect.height;
