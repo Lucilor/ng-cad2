@@ -207,10 +207,6 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       if (md5Prev !== md5Curr) {
         await this.genXiaoguotu();
       }
-      this.activeMsbj?.updateRectsInfo(this.getNode2rectData());
-      if (this.msbjRectsComponent) {
-        this.msbjRectsComponent.rectInfos = this.activeMsbj?.peizhishuju.模块节点 || [];
-      }
     }
   }
 
@@ -263,6 +259,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     }
     this.activeMenshanKey = key;
     await this.setActiveMsbj(this.activeMsbjInfo);
+    await this.genXiaoguotu();
   }
 
   async setActiveMsbj(info?: XhmrmsbjInfo) {
@@ -752,6 +749,10 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       const dy = (rectContainer.bottom - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
       container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
       container.style.opacity = "1";
+    }
+    this.activeMsbj?.updateRectsInfo(this.getNode2rectData());
+    if (this.msbjRectsComponent) {
+      this.msbjRectsComponent.rectInfos = this.activeMsbj?.peizhishuju.模块节点 || [];
     }
     timer.end(timerName, timerName);
     this.spinner.hide(this.spinner.defaultLoaderId);

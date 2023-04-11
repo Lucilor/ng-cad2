@@ -22,8 +22,8 @@ export class Calc {
     "true",
     "false"
   ];
-  private static _opsReg = /[+\\\-x*/()|&!?:>< =,]+/g;
-  private static _opsArr = ["+", "\\", "-", "x", "*", "/", "(", ")", "|", "&", "!", "?", ":", ">", "<", " ", "=", ","];
+  private static _opsReg = /[+\\\-x*/()|&!?:>< =,%]+/g;
+  private static _opsArr = ["+", "\\", "-", "x", "*", "/", "(", ")", "|", "&", "!", "?", ":", ">", "<", " ", "=", ",", "%"];
 
   private static replaceString(str: string, search: string[], replace: string[]) {
     search.forEach((v, i) => (str = str.replaceAll(v, replace[i])));
