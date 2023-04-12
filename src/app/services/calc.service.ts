@@ -18,9 +18,14 @@ export class CalcService {
   async calcFormulas(formulas: Formulas, vars: Formulas = {}, errorMsg?: CalcCustomErrorMsg) {
     try {
       const result = Calc.calcFormulas(formulas, vars);
-      const {errorTrim} = result;
-      if (errorMsg && !isEmpty(errorTrim)) {
-        const errorStr = this.getErrorFormusStr(errorTrim, vars, errorMsg);
+      let error;
+      if (isEmpty(result.errorTrim)) {
+        error = result.error;
+      } else {
+        error = result.errorTrim;
+      }
+      if (errorMsg && !isEmpty(error)) {
+        const errorStr = this.getErrorFormusStr(error, vars, errorMsg);
         await this.message.error(errorStr);
         // console.warn({formulas, vars, result, errorMsg});
       }

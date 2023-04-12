@@ -175,7 +175,6 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       const result = await this.wmm.waitForMessage("calcGongshi2End");
       this.mokuaidaxiaoResult = result.values;
     }
-    this.genXiaoguotu();
   }
 
   submitData() {
