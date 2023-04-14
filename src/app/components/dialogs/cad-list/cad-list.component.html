@@ -118,18 +118,6 @@
 </div>
 
 <ng-template #details let-data [appTypedTemplate]="{$implicit: cadDataType}">
-  <!-- <mat-list class="details">
-    <mat-divider></mat-divider>
-    <div matSubheader>选项</div>
-    <mat-list-item *ngFor="let k of keysOf(data.options)" [matTooltip]="k + ': ' + data.options[k]">
-      <span class="text">{{ k }}: {{ data.options[k] }}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-    <div matSubheader>条件</div>
-    <mat-list-item *ngFor="let c of data.conditions" [matTooltip]="c">
-      <span class="text">{{ c }}</span>
-    </mat-list-item>
-  </mat-list> -->
   <div class="details flex-column">
     <mat-divider></mat-divider>
     <div class="title">选项</div>

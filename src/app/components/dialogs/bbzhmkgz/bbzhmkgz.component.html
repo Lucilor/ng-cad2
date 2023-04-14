@@ -1,17 +1,12 @@
-<ng-scrollbar>
-  <mat-form-field class="value">
-    <mat-label></mat-label>
-    <textarea matInput cdkTextareaAutosize [(ngModel)]="data.value"></textarea>
-  </mat-form-field>
-  <div class="vars">
-    <div class="var" *ngFor="let key of keysOf(data.vars || {})">
-      <span>{{ key }}</span>
-      :
-      <span>{{ (data.vars || {})[key] }}</span>
-    </div>
+<app-input [info]="inputInfo" class="flex-110"></app-input>
+<div class="flex-column">
+  <div class="var" *ngFor="let key of keysOf(data.vars || {})">
+    <span>{{ key }}</span>
+    :
+    <span>{{ (data.vars || {})[key] }}</span>
   </div>
-  <div class="btn-group actions">
-    <button mat-raised-button (click)="submit()">确定</button>
-    <button mat-raised-button (click)="cancel()">取消</button>
-  </div>
-</ng-scrollbar>
+</div>
+<div matDialogActions>
+  <button mat-raised-button (click)="submit()">确定</button>
+  <button mat-raised-button (click)="cancel()">取消</button>
+</div>

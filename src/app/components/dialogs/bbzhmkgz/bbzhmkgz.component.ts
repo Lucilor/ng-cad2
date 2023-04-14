@@ -2,6 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadData} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
+import {InputInfo} from "@modules/input/components/types";
 import {MessageService} from "@modules/message/services/message.service";
 import {getOpenDialogFunc} from "../dialog.common";
 
@@ -16,6 +17,8 @@ export interface BbzhmkgzComponentData {
   styleUrls: ["./bbzhmkgz.component.scss"]
 })
 export class BbzhmkgzComponent extends Utils() {
+  inputInfo: InputInfo = {type: "string", textarea: {}, label: ""};
+
   constructor(
     public dialogRef: MatDialogRef<BbzhmkgzComponent, BbzhmkgzComponentData>,
     @Inject(MAT_DIALOG_DATA) public data: BbzhmkgzComponentData,
@@ -28,6 +31,7 @@ export class BbzhmkgzComponent extends Utils() {
     if (!data.vars) {
       data.vars = {};
     }
+    this.inputInfo.model = {data, key: "value"};
   }
 
   submit() {

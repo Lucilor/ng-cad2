@@ -12,7 +12,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {GetCadParams} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {isBetween, isNumber, ObjectOf, timeout} from "@utils";
+import {isBetween, isNumber, ObjectOf} from "@utils";
 import {difference} from "lodash";
 import {BehaviorSubject, lastValueFrom} from "rxjs";
 import {openCadSearchFormDialog} from "../cad-search-form/cad-search-form.component";
@@ -90,8 +90,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
           const id = this.pageData[i].data.id;
           if (!this.checkedIndexForce && this.checkedItems[0] === id && this.checkLimit(0).valid) {
             this.checkedItems = [];
-            await timeout(0);
-            this.singleSelectNone?.nativeElement.click();
+            this.checkedIndex.next(-1)
           } else {
             this.checkedItems = [id];
           }
