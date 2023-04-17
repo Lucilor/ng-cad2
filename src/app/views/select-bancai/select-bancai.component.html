@@ -61,7 +61,7 @@
         />
         <mat-error>{{ getGuigeError(i) }}</mat-error>
       </mat-form-field>
-      <mat-form-field *ngIf="type === '激光喷码开料排版'">
+      <mat-form-field *ngIf="showGas">
         <mat-label>切割保护气体</mat-label>
         <mat-select formControlName="gas" (selectionChange)="formIdx = i; updateSortedCads(form)">
           <mat-option *ngFor="let o of gasOptions" [value]="o.value">{{ o.label }}</mat-option>

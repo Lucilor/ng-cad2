@@ -9,6 +9,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiCad, BancaiList} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import { AppStatusService } from "@services/app-status.service";
 import {downloadByUrl, ObjectOf} from "@utils";
 import {DateTime} from "luxon";
 
@@ -41,6 +42,7 @@ export class SelectBancaiComponent implements OnInit {
   submitLoaderId = "selectBancaiSubmit";
   downloadHistory: SelectBancaiDlHistory[] = [];
   downloadName = "";
+  showGas = false;
 
   get currList(): BancaiList {
     const form = this.bancaiForms[this.formIdx];
@@ -57,7 +59,8 @@ export class SelectBancaiComponent implements OnInit {
     private message: MessageService,
     private dialog: MatDialog,
     private cd: ChangeDetectorRef,
-    private spinner: SpinnerService
+    private spinner: SpinnerService,
+    private status:AppStatusService
   ) {}
 
   async ngOnInit() {
@@ -100,6 +103,10 @@ export class SelectBancaiComponent implements OnInit {
         this.kailiaokongweipeizhiUrl = result.开料孔位配置;
         this.kailiaocanshuzhiUrl = result.开料参数;
         this.downloadName = result.downloadName;
+        this.showGas = type === "激光喷码开料排版";
+        if (this.status.getProjectConfig("激光开料展开信息") === "大族激光") {
+          this.showGas = true;
+        }
 
         const errMsgs: string[] = [];
         result.errors.forEach((error) => {

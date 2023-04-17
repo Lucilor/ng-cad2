@@ -3,7 +3,7 @@
   <div class="flex-row cads">
     <div class="flex-row cad" *ngFor="let cad of data.cads">
       <mat-checkbox [(ngModel)]="cad.checked">
-        <span [class.disabled]="cad.disabled">{{ cad.name }}</span>
+        <span [class.disabled]="cad.disabled">{{ cad.name }}({{ cad.num }})</span>
         <!-- <span *ngIf="cad.peihe" [class.disabled]="cad.disabled">({{ cad.peihe }})</span> -->
         <span *ngIf="cad.oversized" style="color: red">(尺寸超出规格：{{ cad.width }} × {{ cad.height }})</span>
       </mat-checkbox>

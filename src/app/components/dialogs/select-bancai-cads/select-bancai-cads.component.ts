@@ -28,6 +28,7 @@ export class SelectBancaiCadsComponent {
     if (!Array.isArray(this.data.cads)) {
       this.data.cads = [];
     }
+    console.log(this.data);
   }
 
   submit() {

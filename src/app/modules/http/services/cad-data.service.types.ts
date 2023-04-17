@@ -63,6 +63,7 @@ export interface BancaiCad {
   peihe?: string;
   width: number;
   height: number;
+  num: number;
   bancai: {mingzi: string; cailiao: string | null; houdu: string | null; guige: number[] | null; gas?: string};
 }
 
