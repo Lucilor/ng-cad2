@@ -90,7 +90,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
           const id = this.pageData[i].data.id;
           if (!this.checkedIndexForce && this.checkedItems[0] === id && this.checkLimit(0).valid) {
             this.checkedItems = [];
-            this.checkedIndex.next(-1)
+            this.checkedIndex.next(-1);
           } else {
             this.checkedItems = [id];
           }
