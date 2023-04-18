@@ -17,6 +17,7 @@ export interface CustomResponse<T> {
   count?: number;
   importance?: number;
   duration?: number;
+  title?: string;
 }
 
 export type DataEncrpty = "yes" | "no" | "both";
@@ -80,9 +81,9 @@ export class HttpService {
     }
   }
 
-  protected error(msg: string, silent: boolean) {
+  protected error(msg: string, silent: boolean, title = "网络请求错误") {
     if (!silent) {
-      this.message.error({content: msg, title: `<span style="color:red">网络请求错误</span>`});
+      this.message.error({content: msg, title: `<span style="color:red">${title}</span>`});
     }
   }
 
@@ -254,7 +255,7 @@ export class HttpService {
         content = error.message;
       }
       console.error(error);
-      this.error(content, silent);
+      this.error(content, silent, response?.title);
       return response;
     } finally {
       this.lastResponse = response;

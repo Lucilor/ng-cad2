@@ -21,6 +21,7 @@
       <div>型号：{{ xinghao?.raw?.mingzi }}</div>
       <ng-container *ngIf="isFromOrder">
         <button mat-raised-button color="primary" (click)="openMokuais()">查看选中模块算料数据</button>
+        <button mat-raised-button color="primary" (click)="refreshMokuaidaxiao()">更新模块大小配置</button>
         <button mat-raised-button color="primary" (click)="openHoutaiUrl()" *ngIf="isZhijian">查看型号默认门扇布局</button>
       </ng-container>
     </div>

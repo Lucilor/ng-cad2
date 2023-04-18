@@ -156,7 +156,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async requestData(data: any) {
-    const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys, 铰扇跟随锁扇, houtaiUrl, user} = data;
+    const {型号选中门扇布局, 型号选中板材, materialResult, menshanKeys, 铰扇跟随锁扇, houtaiUrl, id, user} = data;
     this.data = new XhmrmsbjData(
       {vid: 1, mingzi: "1", peizhishuju: JSON.stringify(型号选中门扇布局), jiaoshanbujuhesuoshanxiangtong: 铰扇跟随锁扇 ? 1 : 0},
       menshanKeys,
@@ -165,6 +165,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     );
     this.materialResult = materialResult;
     this.houtaiUrl = houtaiUrl;
+    this.id = id;
     this.user = user;
     this.menshanKeys = menshanKeys;
     this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
@@ -694,6 +695,31 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
         选中布局数据.模块大小关系 = data;
       }
     }
+  }
+
+  async refreshMokuaidaxiao() {
+    const data = this.data;
+    if (!data) {
+      return;
+    }
+    this.spinner.show(this.spinner.defaultLoaderId, {text: "获取模块大小配置"});
+    const records = await this.dataService.queryMySql<XhmrmsbjTableData>({
+      table: "p_xinghaomorenmenshanbuju",
+      filter: {where: {vid: this.id}}
+    });
+    if (records[0]) {
+      const data2 = new XhmrmsbjData(records[0], this.menshanKeys, this.step1Data.typesInfo, this.msbjs);
+      for (const menshanKey in data2.menshanbujuInfos) {
+        const 选中布局数据1 = data.menshanbujuInfos[menshanKey]?.选中布局数据;
+        const 选中布局数据2 = data2.menshanbujuInfos[menshanKey].选中布局数据;
+        if (选中布局数据1 && 选中布局数据2) {
+          选中布局数据1.模块大小关系 = 选中布局数据2.模块大小关系;
+        }
+      }
+    }
+    this.spinner.hide(this.spinner.defaultLoaderId);
+    await this.genXiaoguotu();
+    this.message.snack("更新完成");
   }
 
   async genXiaoguotu() {
