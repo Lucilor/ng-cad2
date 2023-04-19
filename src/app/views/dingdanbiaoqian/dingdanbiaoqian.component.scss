@@ -36,6 +36,7 @@ $cads-border: solid 1px grey;
   display: flex;
   flex-wrap: wrap;
   flex: 1 1 0;
+  position: relative;
 
   .menu {
     align-items: flex-start;
