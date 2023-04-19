@@ -1,4 +1,4 @@
-import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 import {Injectable, Injector} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -7,44 +7,8 @@ import {LoginFormData, openLoginFormDialog} from "@components/dialogs/login-form
 import {environment} from "@env";
 import {MessageService} from "@modules/message/services/message.service";
 import {RSA, ObjectOf} from "@utils";
-import hljs from "highlight.js";
 import {lastValueFrom} from "rxjs";
-
-export interface CustomResponse<T> {
-  code: number;
-  msg?: string;
-  data?: T;
-  count?: number;
-  importance?: number;
-  duration?: number;
-  title?: string;
-}
-
-export type DataEncrpty = "yes" | "no" | "both";
-
-/* eslint-disable @typescript-eslint/indent */
-export interface HttpOptions {
-  headers?:
-    | HttpHeaders
-    | {
-        [header: string]: string | string[];
-      };
-  observe?: "body";
-  params?:
-    | HttpParams
-    | {
-        [param: string]: string | string[];
-      };
-  reportProgress?: boolean;
-  responseType?: "json";
-  withCredentials?: boolean;
-  bypassCodes?: number[];
-  silent?: boolean;
-  encrypt?: DataEncrpty;
-  testData?: string;
-  offlineMode?: boolean;
-}
-/* eslint-enable @typescript-eslint/indent */
+import {CustomResponse, HttpOptions, HttpServiceResponseError} from "./http.service.types";
 
 @Injectable({
   providedIn: "root"
@@ -217,16 +181,7 @@ export class HttpService {
           await this._waitForLogin((response.data as any)?.project);
           return this.request(url, method, rawData, options);
         } else {
-          const {msg, data: responseData} = response;
-          if (msg) {
-            throw new Error(msg);
-          } else if (responseData !== null && responseData !== undefined) {
-            let str = hljs.highlight("json", JSON.stringify(responseData, null, 2)).value.replace(/\n/g, "<br>");
-            str = `<pre class="hljs">${str}</pre>`;
-            throw new Error(str);
-          } else {
-            throw new Error("未知错误");
-          }
+          throw new HttpServiceResponseError(response);
         }
       } else {
         return response;
@@ -235,7 +190,7 @@ export class HttpService {
       if (testData) {
         return await getTestData();
       }
-      let content = "未知错误";
+      let content = "";
       if (error instanceof HttpErrorResponse) {
         const {error: err, status, statusText} = error;
         const text = err?.text;
@@ -251,6 +206,8 @@ export class HttpService {
           content = "未知网络错误";
         }
         content = `<span>${status} (${statusText})</span><br>${content}`;
+      } else if (error instanceof HttpServiceResponseError) {
+        content = error.details || error.message;
       } else if (error instanceof Error) {
         content = error.message;
       }

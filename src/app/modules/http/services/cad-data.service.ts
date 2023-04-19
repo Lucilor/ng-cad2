@@ -18,7 +18,8 @@ import {
   BancaiListData
 } from "./cad-data.service.types";
 import {CadImgCache} from "./cad-img-cache";
-import {CustomResponse, HttpOptions, HttpService} from "./http.service";
+import {HttpService} from "./http.service";
+import {CustomResponse, HttpOptions} from "./http.service.types";
 
 @Injectable({
   providedIn: "root"
