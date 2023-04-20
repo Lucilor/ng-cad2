@@ -1,11 +1,11 @@
 <div class="content" [ngSwitch]="step$.value.value">
   <div *ngSwitchCase="1" class="content step-1">
     <div class="content types-info">
-      <div class="content types-info-1" #typesButtonContainer>
+      <div class="content types-info-1" [ngStyle]="{flex: '0 0 ' + typesButtonsWidth}">
         <ng-scrollbar class="content">
           <div class="content">
             <ng-container *ngFor="let item of typesInfo | keyvalue : returnZero">
-              <div>
+              <div *ngIf="showItemType1(item.key)">
                 <button
                   #typesButton
                   mat-raised-button
@@ -19,11 +19,12 @@
           </div>
         </ng-scrollbar>
       </div>
-      <div class="content types-info-2">
+      <div class="content types-info-2 flex-column">
+        <app-input [info]="searchMokuaiInputInfo"></app-input>
         <ng-scrollbar class="content">
           <div class="content types-info-items" *ngIf="typesInfo[type1]">
             <ng-container *ngFor="let item of typesInfo[type1] | keyvalue : returnZero">
-              <div class="types-info-item" *ngIf="showItem(item.value)">
+              <div class="types-info-item" *ngIf="showItemType2(type1, item.key)">
                 <div class="content images">
                   <app-image
                     class="xiaoguotu"

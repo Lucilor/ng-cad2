@@ -9,7 +9,7 @@ import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, timeout} from "@utils";
 import Color2 from "color";
-import {isEmpty} from "lodash";
+import {isEmpty, isEqual} from "lodash";
 import {Color} from "ngx-color";
 import {ChromeComponent} from "ngx-color/chrome";
 import {InputInfo, InputInfoBase, InputInfoTypeMap} from "./types";
@@ -217,17 +217,51 @@ export class InputComponent extends Utils() implements AfterViewInit {
     }
   }
 
+  clear() {
+    const value = this.value;
+    if (value === undefined || value === null) {
+      return;
+    }
+    let toChange: any;
+    switch (typeof value) {
+      case "string":
+        toChange = "";
+        break;
+      case "number":
+        toChange = 0;
+        break;
+      case "object":
+        if (Array.isArray(value)) {
+          toChange = [];
+        } else {
+          toChange = {};
+        }
+        break;
+      default:
+        toChange = null;
+    }
+    if (!isEqual(value, toChange)) {
+      this.value = toChange;
+      this.onInput();
+      this.onChange();
+    }
+  }
+
   copy() {
     const copy = async (str: string) => {
       await navigator.clipboard.writeText(str);
       await this.message.snack(`${this.info.label}已复制`);
     };
-    switch (this.info.type) {
+    const value = this.value;
+    switch (typeof value) {
       case "string":
-        copy(this.value);
+        copy(value);
+        break;
+      case "number":
+        copy(String(value));
         break;
       default:
-        break;
+        copy(JSON.stringify(value));
     }
   }
 

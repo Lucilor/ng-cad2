@@ -11,6 +11,7 @@ export interface InputInfoBase<T = any> {
   model?: {data: T | (() => T); key: keyof T};
   value?: Value<any>;
   readonly?: boolean;
+  clearable?: boolean;
   copyable?: boolean;
   disabled?: boolean;
   suffixIcons?: {name: string; onClick: () => void}[];
@@ -72,7 +73,6 @@ export interface InputInfoBoolean<T = any> extends InputInfoBase<T> {
 export interface InputInfoSelect<T = any> extends InputInfoBase<T> {
   type: "select";
   value?: Value<string>;
-  clearable?: boolean;
   options: InputInfoOptions;
   optionText?: string | ((val: string) => string);
   onChange?: (val: string) => void;
@@ -81,7 +81,6 @@ export interface InputInfoSelect<T = any> extends InputInfoBase<T> {
 export interface InputInfoSelectMulti<T = any> extends InputInfoBase<T> {
   type: "selectMulti";
   value?: Value<string[]>;
-  clearable?: boolean;
   options: InputInfoOptions;
   optionText?: string | ((val: string[]) => string);
   onChange?: (val: string[]) => void;

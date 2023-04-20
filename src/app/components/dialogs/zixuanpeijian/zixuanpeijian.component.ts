@@ -5,7 +5,7 @@ import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog
 import {MatMenuTrigger} from "@angular/material/menu";
 import {SafeUrl, DomSanitizer} from "@angular/platform-browser";
 import {Router} from "@angular/router";
-import {CadCollection, imgCadEmpty, setGlobal} from "@app/app.common";
+import {CadCollection, imgCadEmpty, session, setGlobal} from "@app/app.common";
 import {getCadPreview, setDimensionText} from "@app/cad.utils";
 import {toFixed} from "@app/utils/func";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@cad-viewer";
@@ -44,8 +44,7 @@ import {
   ZixuanpeijianlingsanCadItem,
   ZixuanpeijianMokuaiItem,
   ZixuanpeijianOutput,
-  ZixuanpeijianTypesInfo2,
-  ZixuanpeijianTypesInfoItem
+  ZixuanpeijianTypesInfo2
 } from "./zixuanpeijian.types";
 
 @Component({
@@ -66,7 +65,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   cadViewers: {模块: ObjectOf<ObjectOf<CadViewer[]>>; 零散: CadViewer[]} = {模块: {}, 零散: []};
   getMokuaiTitle = getMokuaiTitle;
   @ViewChild(MatMenuTrigger) contextMenu!: MatMenuTrigger;
-  @ViewChild("typesButtonContainer", {read: ElementRef}) typesButtonContainer?: ElementRef<HTMLDivElement>;
   @ViewChildren("typesButton", {read: ElementRef}) typesButtons?: QueryList<ElementRef<HTMLButtonElement>>;
   contextMenuData = {i: -1, j: -1};
   fractionDigits = 1;
@@ -85,6 +83,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   lingsanCadsSearchInput: InputInfo = {
     type: "string",
     label: "搜索",
+    clearable: true,
     onInput: debounce(
       ((str: string) => {
         const type = this.lingsanCadType;
@@ -100,6 +99,17 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   lingsanCadViewers: CadViewer[] = [];
   imgCadEmpty = imgCadEmpty;
   selectAllForm = {baicai: "", cailiao: "", houdu: ""};
+  searchMokuaiValue = session.load("zixuanpeijian-searchMokuaiValue") || "";
+  searchMokuaiInputInfo: InputInfo = {
+    type: "string",
+    label: "搜索",
+    clearable: true,
+    model: {data: this, key: "searchMokuaiValue"},
+    onInput: (val) => {
+      session.save("zixuanpeijian-searchMokuaiValue", val);
+    }
+  };
+  typesButtonsWidth = "auto";
 
   get summitBtnText() {
     if (this.data?.stepFixed) {
@@ -478,17 +488,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
       if (!this.type1) {
         this.type1 = Object.keys(this.typesInfo)[0] || "";
       }
-      await timeout(100);
-      if (this.typesButtonContainer && this.typesButtons) {
-        let maxWidth = 120;
-        this.typesButtons.forEach((v) => {
-          maxWidth = Math.max(maxWidth, v.nativeElement.getBoundingClientRect().width);
-        });
-        this.typesButtonContainer.nativeElement.style.flex = `0 0 ${maxWidth}px`;
-        this.typesButtons?.forEach((v) => {
-          v.nativeElement.style.width = `${maxWidth}px`;
-        });
-      }
+      await this._updateTypesButtons();
     } else if (value === 2) {
       if (refresh || !this._step2Fetched) {
         await this.step2Fetch();
@@ -501,6 +501,22 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
         this.setlingsanCadType(this.lingsanCadTypes[0]);
       }
     }
+  }
+
+  private async _updateTypesButtons() {
+    const search = this.searchMokuaiValue;
+    this.searchMokuaiValue = "";
+    await timeout(0);
+    const {typesButtons} = this;
+    if (!typesButtons) {
+      return;
+    }
+    let maxWidth = 120;
+    typesButtons.forEach((v) => {
+      maxWidth = Math.max(maxWidth, v.nativeElement.getBoundingClientRect().width);
+    });
+    this.typesButtonsWidth = maxWidth + "px";
+    this.searchMokuaiValue = search;
   }
 
   async submit() {
@@ -939,8 +955,27 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     }
   }
 
-  showItem(item: ZixuanpeijianTypesInfoItem) {
+  showItemType1(type1: string) {
+    const search = this.searchMokuaiValue;
+    if (!search) {
+      return true;
+    }
+    let count = 0;
+    for (const type2 in this.typesInfo[type1]) {
+      if (this.showItemType2(type1, type2)) {
+        count++;
+      }
+    }
+    return count > 0;
+  }
+
+  showItemType2(type1: string, type2: string) {
+    const search = this.searchMokuaiValue;
+    if (search && !type1.includes(search) && !type2.includes(search)) {
+      return false;
+    }
     const xinghaoId = String(this.materialResult?.型号id || "");
+    const item = this.typesInfo[type1][type2];
     return !xinghaoId || !(item.xinghaozhuanyong?.length > 0) || item.xinghaozhuanyong.includes(xinghaoId);
   }
 

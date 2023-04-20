@@ -1,7 +1,8 @@
 @import "./app/modules/message/styles.scss";
 @import "./cad-viewer/src/cad-viewer.scss";
 
-.hljs {
+.hljs,
+pre {
   font-family: "Fira Code Retina", monospace;
 }
 

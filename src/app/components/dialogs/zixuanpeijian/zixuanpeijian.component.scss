@@ -27,6 +27,10 @@
     > :not(:last-child) {
       margin-bottom: 5px;
     }
+
+    .mdc-button {
+      width: 100%;
+    }
   }
 }
 
