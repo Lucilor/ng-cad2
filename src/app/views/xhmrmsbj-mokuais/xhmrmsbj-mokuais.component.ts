@@ -9,6 +9,7 @@ import {getMokuaiTitle, ZixuanpeijianMokuaiItem} from "@components/dialogs/zixua
 import {FormulaInfo} from "@components/formulas/formulas.component";
 import {CalcService} from "@services/calc.service";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
+import csstype from "csstype";
 import {uniqWith} from "lodash";
 
 @Component({
@@ -21,6 +22,7 @@ export class XhmrmsbjMokuaisComponent {
   mkdxFormulaInfos: XhmrmsbjMkdxFormulaInfo[] = [];
   xuanzhongMokuaiInfos: XhmrmsbjXuanzhongMokuaiInfo[] = [];
   getMokuaiTitle = getMokuaiTitle;
+  formulaStyles: csstype.Properties = {fontSize: "18px"};
 
   constructor(
     public dialogRef: MatDialogRef<XhmrmsbjMokuaisComponent, XhmrmsbjMokuaisOutput>,

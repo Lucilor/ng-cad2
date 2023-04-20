@@ -1,16 +1,12 @@
 .formulas {
-  --formula-key-width: auto;
-
   .formula {
     display: flex;
     flex-direction: row;
     white-space: nowrap;
     color: black;
-    font-size: 18px;
     padding: 3px 0;
 
     .formula-key {
-      width: var(--formula-key-width);
       text-align: right;
       color: #2186da;
     }

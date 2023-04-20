@@ -39,6 +39,7 @@ export interface ZixuanpeijianTypesInfoItem {
   standalone?: boolean;
   ceshishuju?: Formulas;
   calcVars?: {keys: string[]; result?: Formulas};
+  zhizuoren?: string;
 }
 export type ZixuanpeijianTypesInfo = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoItem>>;
 

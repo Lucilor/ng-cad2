@@ -210,7 +210,7 @@
           {{ option.label || option.value }}
         </mat-option>
       </mat-select>
-      <button *ngIf="info.clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clearOption()">
+      <button *ngIf="info.clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clear()">
         <mat-icon>close</mat-icon>
       </button>
       <button mat-icon-button matSuffix color="primary" appClickStop *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
@@ -228,7 +228,7 @@
           {{ option.label || option.value }}
         </mat-option>
       </mat-select>
-      <button *ngIf="info.clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clearOption()">
+      <button *ngIf="info.clearable" appClickStop mat-icon-button matSuffix color="primary" (click)="clear()">
         <mat-icon>close</mat-icon>
       </button>
       <button mat-icon-button matSuffix color="primary" appClickStop *ngFor="let icon of suffixIcons" (click)="icon.onClick()">
@@ -291,14 +291,14 @@
       <mat-hint>{{ hint }}</mat-hint>
       <input
         matInput
-        [value]="colorText"
-        [style]="{color: colorValue, backgroundColor: colorBg, transition: '0.3s'}"
+        [value]="colorStr"
+        [style]="{color: colorStr, backgroundColor: colorBg}"
         [matMenuTriggerFor]="editable ? colorPicker : null"
         readonly
         [disabled]="info.disabled || false"
       />
       <mat-menu #colorPicker="matMenu">
-        <color-chrome #colorChrome [color]="value" (onChangeComplete)="onChange($event.color)" appClickStop> </color-chrome>
+        <color-chrome #colorChrome [color]="colorStr" (onChangeComplete)="onColorChange($event.color)" appClickStop> </color-chrome>
       </mat-menu>
       <button mat-icon-button matSuffix *ngIf="info.clearable" color="primary" (click)="clear()">
         <mat-icon>close</mat-icon>

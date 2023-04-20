@@ -79,19 +79,17 @@
     </ng-container>
     <ng-template #cads>
       <div class="flex-row flex-110">
-        <div class="配件模块 out-of-page" *ngIf="type === '配件模块'">
-          <div class="ceshishuju no-print flex-column">
-            <div class="btn-group menu no-print flex-column">
-              <div class="">{{ getMokuaiTitle(order.mokuaiIndex) }}</div>
-              <button class="" mat-raised-button color="primary" (click)="editMokuaiFormulas(order.mokuaiIndex)">测试数据</button>
+        <div class="配件模块 flex-column out-of-page" *ngIf="type === '配件模块' && order.mokuaiInfo">
+          <div class="flex-column">
+            <div *ngFor="let info of order.mokuaiInfo.details">
+              <span *ngIf="info.title">{{ info.title }}：</span>
+              <span>{{ info.value }}</span>
             </div>
-            <div *ngFor="let item of getMokuaiFormulas(order.mokuaiIndex) | keyvalue : returnZero">
-              <div class="flex-row">
-                <div class="label">{{ item.key }}</div>
-                <div>=</div>
-                <div class="value">{{ item.value }}</div>
-              </div>
+            <app-image [src]="mokuais[order.mokuaiInfo.index].xiaoguotu"></app-image>
+            <div class="btn-group">
+              <button class="no-print" mat-raised-button color="primary" (click)="editMokuaiFormulas(order.mokuaiInfo.index)">测试数据</button>
             </div>
+            <app-formulas *ngIf="order.mokuaiInfo.formulaInfos" [formulaInfos]="order.mokuaiInfo.formulaInfos" [keyStyles]="{color: 'black'}"></app-formulas>
           </div>
         </div>
         <div #cadsEl class="cads flex-110 flex-row">
@@ -99,7 +97,13 @@
             <div class="cad-tags flex-column">
               <div *ngFor="let str of cad.data.info['标签信息']">{{ str }}</div>
             </div>
-            <app-image class="img flex-110" [src]="cad.img" [bigPicSrc]="cad.imgLarge" [ngStyle]="cad.imgStyle" (click)="openCad(cad)"></app-image>
+            <app-image
+              class="img flex-110"
+              [src]="cad.img"
+              [bigPicSrc]="cad.imgLarge"
+              [ngStyle]="cad.imgStyle"
+              (click)="openCad(cad)"
+            ></app-image>
             <div class="cad-info flex-column">
               <div class="cad-size" *ngFor="let zhankai of cad.zhankai">
                 <span>{{ zhankai.width }}</span>
@@ -108,7 +112,6 @@
                 <ng-container *ngIf="hasZhankaiNum(zhankai)">
                   <span style="font-size: 25px">=</span>
                   <span>{{ zhankai.num }}</span>
-
                 </ng-container>
               </div>
             </div>

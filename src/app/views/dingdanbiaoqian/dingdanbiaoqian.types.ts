@@ -1,6 +1,7 @@
 import {SafeUrl} from "@angular/platform-browser";
 import {Formulas} from "@app/utils/calc";
 import {CadData} from "@cad-viewer";
+import {FormulaInfo} from "@components/formulas/formulas.component";
 import {ObjectOf} from "@utils";
 import {Properties} from "csstype";
 
@@ -23,7 +24,11 @@ export interface Order {
   style: Properties;
   info: ObjectOf<string | number>[] | null;
   质检标签?: ZhijianForm;
-  mokuaiIndex?: number;
+  mokuaiInfo?: {
+    index: number;
+    details: {title?: string; value: string}[];
+    formulaInfos: FormulaInfo[];
+  };
 }
 
 export interface SectionCell {

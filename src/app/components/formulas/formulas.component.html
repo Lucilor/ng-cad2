@@ -1,14 +1,14 @@
 <div class="formulas">
-  <div #formula class="formula" *ngFor="let info of formulaInfos">
+  <div #formula class="formula" [ngStyle]="formulaStyles" *ngFor="let info of formulaInfos">
     <ng-container *ngFor="let key of info.keys; let i = index">
       <div *ngIf="key.eq && i > 0" class="formula-eq"></div>
       <div *ngIf="!key.eq && i > 0" class="formula-neq"></div>
-      <div class="formula-key">{{ key.name }}</div>
+      <div class="formula-key" [ngStyle]="keyStyles">{{ key.name }}</div>
     </ng-container>
     <ng-container *ngFor="let value of info.values">
       <div *ngIf="value.eq" class="formula-eq"></div>
       <div *ngIf="!value.eq" class="formula-neq"></div>
-      <div class="formula-value">{{ value.name }}</div>
+      <div class="formula-value" [ngStyle]="valueStyles">{{ value.name }}</div>
     </ng-container>
   </div>
 </div>

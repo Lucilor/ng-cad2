@@ -24,6 +24,7 @@ import {
   ZixuanpeijianCadItem,
   ZixuanpeijianMokuaiItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {FormulaInfo} from "@components/formulas/formulas.component";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -443,7 +444,6 @@ export class DingdanbiaoqianComponent implements OnInit {
     await timeout(0);
     const cadsElRect = this.cadsEl?.nativeElement.getBoundingClientRect();
     if (cadsElRect) {
-      console.log(cadsElRect);
       this.cadsSize = [cadsElRect.width, cadsElRect.height];
     }
     cadsToSet.forEach((v) => this.setCad(...v));
@@ -511,9 +511,17 @@ export class DingdanbiaoqianComponent implements OnInit {
         }),
         positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
         style: {},
-        info: null,
-        mokuaiIndex: i
+        info: null
       };
+      const mokuaiInfo: Order["mokuaiInfo"] = {
+        index: i,
+        details: [{value: getMokuaiTitle(mokuai)}],
+        formulaInfos: this.getMokuaiFormulaInfos(i)
+      };
+      if (mokuai.zhizuoren) {
+        mokuaiInfo.details.push({value: `制作人：${mokuai.zhizuoren}`});
+      }
+      order.mokuaiInfo = mokuaiInfo;
       return order;
     });
     await this.splitOrders();
@@ -565,23 +573,18 @@ export class DingdanbiaoqianComponent implements OnInit {
     session.remove(this._httpCacheKey);
   }
 
-  getMokuaiTitle(mokuaiIndex = -1) {
-    const mokuai = this.mokuais[mokuaiIndex];
-    if (!mokuai) {
-      return "";
+  getMokuaiFormulaInfos(mokuaiIndex: number) {
+    const ceshishuju = this.mokuais[mokuaiIndex]?.ceshishuju;
+    if (!ceshishuju) {
+      return [];
     }
-    return getMokuaiTitle(mokuai);
+    return Object.entries(ceshishuju).map<FormulaInfo>(([k, v]) => ({
+      keys: [{eq: false, name: k}],
+      values: [{eq: true, name: String(v)}]
+    }));
   }
 
-  getMokuaiFormulas(mokuaiIndex = -1) {
-    const mokuai = this.mokuais[mokuaiIndex];
-    if (!mokuai) {
-      return;
-    }
-    return mokuai.ceshishuju;
-  }
-
-  async editMokuaiFormulas(mokuaiIndex = -1) {
+  async editMokuaiFormulas(mokuaiIndex: number) {
     const mokuai = this.mokuais[mokuaiIndex];
     if (!mokuai) {
       return;

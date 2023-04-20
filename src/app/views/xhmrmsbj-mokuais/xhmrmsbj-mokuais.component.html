@@ -3,7 +3,7 @@
     <ng-scrollbar [autoWidthDisabled]="false">
       <div class="flex-column" *ngFor="let info of mkdxFormulaInfos; let i = index">
         <div class="title">{{ info.name }}</div>
-        <app-formulas [formulaInfos]="info.formulaInfos"></app-formulas>
+        <app-formulas [formulaInfos]="info.formulaInfos" [formulaStyles]="formulaStyles"></app-formulas>
         <mat-divider *ngIf="i < mkdxFormulaInfos.length - 1"></mat-divider>
       </div>
     </ng-scrollbar>
@@ -18,7 +18,7 @@
             <mat-divider class="placeholder" [vertical]="true"></mat-divider>
             <div>模块：{{ getMokuaiTitle(node.mokuai) }}</div>
           </div>
-          <app-formulas [formulaInfos]="node.formulaInfos"></app-formulas>
+          <app-formulas [formulaInfos]="node.formulaInfos" [formulaStyles]="formulaStyles"></app-formulas>
         </div>
         <mat-divider *ngIf="i < xuanzhongMokuaiInfos.length - 1"></mat-divider>
       </div>

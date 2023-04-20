@@ -4,6 +4,7 @@ import {ViewChildren} from "@angular/core";
 import {Input} from "@angular/core";
 import {Component} from "@angular/core";
 import {timeout} from "@utils";
+import csstype from "csstype";
 import {lastValueFrom, Subject} from "rxjs";
 
 @Component({
@@ -21,6 +22,13 @@ export class FormulasComponent implements AfterViewInit {
     this._formulaInfos = value;
     this.update();
   }
+
+  @Input()
+  formulaStyles: csstype.Properties = {};
+  @Input()
+  keyStyles: csstype.Properties = {};
+  @Input()
+  valueStyles: csstype.Properties = {};
 
   private _viewInited = new Subject<void>();
   @ViewChildren("formula", {read: ElementRef}) formulaRefs?: QueryList<ElementRef<HTMLDivElement>>;

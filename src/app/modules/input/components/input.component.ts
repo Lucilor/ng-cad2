@@ -49,7 +49,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
         return {label: v.label || String(v.value), value: String(v.value)};
       });
     }
-    this.class = [];
+    this.class = [type];
     if (typeof value.label === "string" && value.label && !value.label.includes(" ")) {
       this.class.push(value.label);
     }
@@ -95,6 +95,10 @@ export class InputComponent extends Utils() implements AfterViewInit {
     const {data, key} = this.model;
     if (data && typeof data === "object" && key) {
       data[key] = val;
+    }
+    const type = this.info.type;
+    if (type === "color") {
+      this.setColor(val);
     }
   }
 
@@ -166,9 +170,11 @@ export class InputComponent extends Utils() implements AfterViewInit {
     return "";
   }
 
-  colorValue = "";
   colorBg = "";
   colorText = "";
+  get colorStr() {
+    return this.value?.hex || "";
+  }
 
   @HostBinding("class")
   class: string[] = [];
@@ -234,16 +240,17 @@ export class InputComponent extends Utils() implements AfterViewInit {
         if (Array.isArray(value)) {
           toChange = [];
         } else {
-          toChange = {};
+          toChange = null;
         }
         break;
       default:
         toChange = null;
     }
+    console.log({value, toChange});
     if (!isEqual(value, toChange)) {
       this.value = toChange;
-      this.onInput();
-      this.onChange();
+      this.onInput(toChange);
+      this.onChange(toChange);
     }
   }
 
@@ -298,11 +305,15 @@ export class InputComponent extends Utils() implements AfterViewInit {
         break;
       case "color":
         info.onChange?.(value);
-        this.setColor(value);
         break;
       default:
         break;
     }
+  }
+
+  onColorChange(color: Color) {
+    this.value = color;
+    this.onChange(color);
   }
 
   validateValue(value = this.value) {
@@ -325,13 +336,13 @@ export class InputComponent extends Utils() implements AfterViewInit {
     this.onChange(event.option.value, true);
   }
 
-  onInput() {
+  onInput(value = this.value) {
     switch (this.info.type) {
       case "string":
-        this.info.onInput?.(this.value);
+        this.info.onInput?.(value);
         break;
       case "number":
-        this.info.onInput?.(this.value);
+        this.info.onInput?.(value);
         break;
       default:
         break;
@@ -406,9 +417,8 @@ export class InputComponent extends Utils() implements AfterViewInit {
     return [null, undefined, ""].includes(value);
   }
 
-  setColor(color: Color) {
-    const value = color.hex;
-    this.colorText = value.toUpperCase();
+  setColor(color: Color | string | undefined | null) {
+    const value = typeof color === "string" ? color : color?.hex;
     try {
       const c = new Color2(value);
       if (c.isLight()) {
@@ -416,18 +426,8 @@ export class InputComponent extends Utils() implements AfterViewInit {
       } else {
         this.colorBg = "white";
       }
-      this.colorValue = value;
     } catch (error) {
-      this.colorValue = "black";
       this.colorBg = "white";
-    }
-  }
-
-  clearOption() {
-    if (this.info.type === "select") {
-      this.value = null;
-    } else if (this.info.type === "selectMulti") {
-      this.value = [];
     }
   }
 
