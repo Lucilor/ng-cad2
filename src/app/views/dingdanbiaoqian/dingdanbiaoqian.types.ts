@@ -27,7 +27,7 @@ export interface Order {
   mokuaiInfo?: {
     index: number;
     details: {title?: string; value: string}[];
-    formulaInfos: FormulaInfo[];
+    formulaInfos: {title: string; infos: FormulaInfo[]}[];
   };
 }
 

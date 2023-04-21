@@ -248,8 +248,18 @@ $info-border: solid 1px black;
   }
 }
 
-.mat-expansion-panel {
-  overflow: visible;
+.配件模块 {
+  --title-size: 1.2em;
+  --title-padding: 3px 0;
+  .title {
+    align-items: center;
+  }
+
+  app-image {
+    width: 0;
+    height: 0;
+    flex: 1 1 0;
+  }
 }
 
 @media print {
@@ -265,21 +275,9 @@ $info-border: solid 1px black;
 }
 :host ::ng-deep {
   @media print {
-    .page .mat-expansion-indicator,
     .no-print {
       display: none;
     }
-  }
-
-  .mat-expansion-panel-content {
-    height: 100%;
-  }
-
-  .mat-expansion-panel-body {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 0;
   }
 }
 

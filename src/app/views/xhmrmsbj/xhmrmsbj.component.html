@@ -22,6 +22,7 @@
       <ng-container *ngIf="isFromOrder">
         <button mat-raised-button color="primary" (click)="openMokuais()">查看选中模块算料数据</button>
         <button mat-raised-button color="primary" (click)="refreshMokuaidaxiao()">更新模块大小配置</button>
+        <button mat-raised-button color="primary" (click)="suanliao(true)">刷新效果图</button>
         <button mat-raised-button color="primary" (click)="openHoutaiUrl()" *ngIf="isZhijian">查看型号默认门扇布局</button>
       </ng-container>
     </div>
@@ -37,7 +38,6 @@
   <div class="flex-row flex-110" *ngSwitchCase="'门扇模块'">
     <div class="flex-column">
       <mat-slide-toggle *ngIf="data" [(ngModel)]="data['铰扇跟随锁扇']">铰扇布局和锁扇相同</mat-slide-toggle>
-      <mat-slide-toggle *ngIf="!production" [(ngModel)]="xiaoguotuDisabled">xiaoguotuDisabled</mat-slide-toggle>
       <mat-divider class="placeholder"></mat-divider>
       <ng-scrollbar class="flex-110">
         <div class="flex-column menshan-options">

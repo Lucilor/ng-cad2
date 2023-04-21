@@ -24,7 +24,6 @@ import {
   ZixuanpeijianCadItem,
   ZixuanpeijianMokuaiItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
-import {FormulaInfo} from "@components/formulas/formulas.component";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -33,7 +32,7 @@ import {AppStatusService} from "@services/app-status.service";
 import {CalcService} from "@services/calc.service";
 import {ObjectOf, timeout} from "@utils";
 import JsBarcode from "jsbarcode";
-import {cloneDeep} from "lodash";
+import {cloneDeep, isEmpty} from "lodash";
 import {DateTime} from "luxon";
 import {DdbqData, Order, SectionCell, SectionConfig, ZhijianForm} from "./dingdanbiaoqian.types";
 
@@ -95,8 +94,10 @@ export class DingdanbiaoqianComponent implements OnInit {
   zhijianForms: ZhijianForm[] = [];
   mokuais: ZixuanpeijianMokuaiItem[] = [];
   fractionDigits = 1;
+  urlPrefix = "";
   @ViewChildren("barcode") barcodeEls?: QueryList<ElementRef<HTMLDivElement>>;
   @ViewChild("cadsEl") cadsEl?: ElementRef<HTMLDivElement>;
+  @ViewChild("pjmkEl") pjmkEl?: ElementRef<HTMLDivElement>;
 
   private _configKey = "订单标签配置";
   private _httpCacheKey = "订单标签请求数据";
@@ -493,6 +494,7 @@ export class DingdanbiaoqianComponent implements OnInit {
       }
     }
     this.mokuais = mokuais;
+    this.urlPrefix = step1Data.prefix;
     await calcZxpj(this.dialog, this.message, this.calc, {}, mokuais, [], {useCeshishuju: true});
     this.orders = mokuais.map((mokuai, i) => {
       const order: Order = {
@@ -525,6 +527,17 @@ export class DingdanbiaoqianComponent implements OnInit {
       return order;
     });
     await this.splitOrders();
+    const pjmkEl = this.pjmkEl?.nativeElement;
+    if (pjmkEl) {
+      const pjmkRect = pjmkEl.getBoundingClientRect();
+      pjmkEl.style.flex = `0 0 ${pjmkRect.width}px`;
+      pjmkEl.querySelectorAll("app-image").forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.width = "100%";
+        }
+      });
+    }
+    console.log(pjmkEl?.getBoundingClientRect());
     await this.updateImgs(true);
   }
 
@@ -574,14 +587,37 @@ export class DingdanbiaoqianComponent implements OnInit {
   }
 
   getMokuaiFormulaInfos(mokuaiIndex: number) {
-    const ceshishuju = this.mokuais[mokuaiIndex]?.ceshishuju;
-    if (!ceshishuju) {
-      return [];
+    const formulaInfos: NonNullable<Order["mokuaiInfo"]>["formulaInfos"] = [];
+    const mokuai = this.mokuais[mokuaiIndex];
+    if (!mokuai) {
+      return formulaInfos;
     }
-    return Object.entries(ceshishuju).map<FormulaInfo>(([k, v]) => ({
-      keys: [{eq: false, name: k}],
-      values: [{eq: true, name: String(v)}]
-    }));
+    const addInfos = (title: string, obj: Formulas | undefined) => {
+      if (isEmpty(obj)) {
+        return;
+      }
+      const item: (typeof formulaInfos)[number] = {title, infos: []};
+      for (const [k, v] of Object.entries(obj)) {
+        item.infos.push({
+          keys: [{eq: false, name: k}],
+          values: [{eq: true, name: String(v)}]
+        });
+      }
+      formulaInfos.push(item);
+    };
+    const gongshishuru: Formulas = {};
+    const vars = {...mokuai.suanliaogongshi, ...mokuai.ceshishuju};
+    for (const [k, v] of mokuai.gongshishuru) {
+      gongshishuru[k] = k in vars ? vars[k] : v;
+    }
+    addInfos("公式输入", gongshishuru);
+    const xuanxiangshuru: Formulas = {};
+    for (const [k, v] of mokuai.xuanxiangshuru) {
+      xuanxiangshuru[k] = k in vars ? vars[k] : v;
+    }
+    addInfos("选项输入", xuanxiangshuru);
+    addInfos("测试数据", mokuai.ceshishuju);
+    return formulaInfos;
   }
 
   async editMokuaiFormulas(mokuaiIndex: number) {

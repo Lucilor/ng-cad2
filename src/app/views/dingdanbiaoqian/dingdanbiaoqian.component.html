@@ -79,17 +79,27 @@
     </ng-container>
     <ng-template #cads>
       <div class="flex-row flex-110">
-        <div class="配件模块 flex-column out-of-page" *ngIf="type === '配件模块' && order.mokuaiInfo">
-          <div class="flex-column">
-            <div *ngFor="let info of order.mokuaiInfo.details">
-              <span *ngIf="info.title">{{ info.title }}：</span>
-              <span>{{ info.value }}</span>
+        <div #pjmkEl class="配件模块 flex-column out-of-page" *ngIf="type === '配件模块' && order.mokuaiInfo">
+          <div *ngFor="let info of order.mokuaiInfo.details">
+            <span *ngIf="info.title">{{ info.title }}：</span>
+            <span>{{ info.value }}</span>
+          </div>
+          <app-image [src]="mokuais[order.mokuaiInfo.index].xiaoguotu" [prefix]="urlPrefix"></app-image>
+          <div class="formula-infos" *ngFor="let info of order.mokuaiInfo.formulaInfos; let j = index">
+            <mat-divider *ngIf="j > 0"></mat-divider>
+            <div class="title flex-row">
+              <span>{{ info.title }}</span>
+              <button
+                *ngIf="info.title === '测试数据'"
+                class="no-print"
+                mat-raised-button
+                color="primary"
+                (click)="editMokuaiFormulas(order.mokuaiInfo.index)"
+              >
+                测试数据
+              </button>
             </div>
-            <app-image [src]="mokuais[order.mokuaiInfo.index].xiaoguotu"></app-image>
-            <div class="btn-group">
-              <button class="no-print" mat-raised-button color="primary" (click)="editMokuaiFormulas(order.mokuaiInfo.index)">测试数据</button>
-            </div>
-            <app-formulas *ngIf="order.mokuaiInfo.formulaInfos" [formulaInfos]="order.mokuaiInfo.formulaInfos" [keyStyles]="{color: 'black'}"></app-formulas>
+            <app-formulas [formulaInfos]="info.infos" [keyStyles]="{color: 'black'}"></app-formulas>
           </div>
         </div>
         <div #cadsEl class="cads flex-110 flex-row">

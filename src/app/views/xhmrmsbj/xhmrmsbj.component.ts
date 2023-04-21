@@ -1,7 +1,7 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {session, setGlobal, timer} from "@app/app.common";
+import {setGlobal, timer} from "@app/app.common";
 import {Formulas} from "@app/utils/calc";
 import mokuaidaixiaoData from "@assets/testData/mokuaidaxiao.json";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
@@ -77,16 +77,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   user: ObjectOf<any> | null = null;
   mokuaidaxiaoResult: Formulas = {};
   wmm = new WindowMessageManager("门扇模块", this, window.parent);
-  xiaoguotuLock$ = new BehaviorSubject(false);
-  private _xiaoguotuDisabledKey = "xhmrmsbjXiaoguotuDisabled";
-  private _xiaoguotuDisabled = false;
-  get xiaoguotuDisabled() {
-    return this._xiaoguotuDisabled;
-  }
-  set xiaoguotuDisabled(value) {
-    this._xiaoguotuDisabled = value;
-    session.save(this._xiaoguotuDisabledKey, value);
-  }
+  suanliaoLock$ = new BehaviorSubject(false);
   get isZhijian() {
     return this.user?.经销商名字 === "至简软件";
   }
@@ -143,7 +134,6 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       this.xinghao = xinghaos[0] ? new MrbcjfzXinghaoInfo(xinghaos[0]) : null;
     }
     await timeout(0);
-    this._xiaoguotuDisabled = !!session.load(this._xiaoguotuDisabledKey);
     if (this.isFromOrder) {
       this.wmm.postMessage("requestData");
     } else {
@@ -205,7 +195,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       await this.updateMokuaidaxiaoResult();
       const md5Curr = md5(JSON.stringify(this.activeMsbjInfo.模块大小输入));
       if (md5Prev !== md5Curr) {
-        await this.genXiaoguotu();
+        await this.suanliao();
       }
     }
   }
@@ -259,7 +249,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     }
     this.activeMenshanKey = key;
     await this.setActiveMsbj(this.activeMsbjInfo);
-    await this.genXiaoguotu();
+    await this.suanliao();
   }
 
   async setActiveMsbj(info?: XhmrmsbjInfo) {
@@ -402,7 +392,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.updateMokuaiInputInfo();
     const mokuaiCurr = mokuaiNode.选中模块;
     if (!mokuaiPrev || !mokuaiCurr || !isMokuaiItemEqual(mokuaiPrev, mokuaiCurr)) {
-      this.genXiaoguotu();
+      this.suanliao();
     }
   }
 
@@ -489,7 +479,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
               }
             }
             await this.updateMokuaidaxiaoResult();
-            await this.genXiaoguotu();
+            await this.suanliao();
           }
         });
       }
@@ -658,7 +648,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     }
     const md5Curr = md5(JSON.stringify(item));
     if (md5Prev !== md5Curr) {
-      await this.genXiaoguotu();
+      await this.suanliao();
     }
   }
 
@@ -718,11 +708,11 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       }
     }
     this.spinner.hide(this.spinner.defaultLoaderId);
-    await this.genXiaoguotu();
+    await this.suanliao();
     this.message.snack("更新完成");
   }
 
-  async genXiaoguotu() {
+  async suanliao(genXiaoguotu = false) {
     if (!this.isFromOrder) {
       return;
     }
@@ -730,58 +720,70 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     if (!container) {
       return;
     }
-    if (this.xiaoguotuLock$.value) {
-      await firstValueFrom(this.xiaoguotuLock$.pipe(filter((v) => !v)));
+    if (this.suanliaoLock$.value) {
+      await firstValueFrom(this.suanliaoLock$.pipe(filter((v) => !v)));
     }
-    this.xiaoguotuLock$.next(true);
-    const timerName = "生成效果图";
-    timer.start(timerName);
-    this.spinner.show(this.spinner.defaultLoaderId, {text: "生成效果图"});
-    container.innerHTML = "";
-    container.style.transform = "";
-    container.style.opacity = "0";
-    await timeout(0);
-    this.wmm.postMessage("获取效果图", {...this.submitData().data, xiaoguotuDisabled: this.xiaoguotuDisabled});
-    const data = await this.wmm.waitForMessage("返回效果图");
-    const items = data[this.activeMenshanKey || ""] || [];
-    if (items.length > 0) {
-      const rectContainer0 = container.getBoundingClientRect();
-      const rectContainer = new Rectangle([rectContainer0.left, rectContainer0.top], [rectContainer0.right, rectContainer0.bottom]);
-      const padding = this.msbjRectsComponent?.padding || [0, 0, 0, 0];
-      rectContainer.min.add(new Point(padding[3], padding[0]));
-      rectContainer.max.sub(new Point(padding[1], padding[2]));
-      const els: HTMLDivElement[] = [];
-      for (const item of items) {
-        let div = document.createElement("div");
-        div.innerHTML = item;
-        div = div.firstElementChild as HTMLDivElement;
-        container.appendChild(div);
-        els.push(div);
+    this.suanliaoLock$.next(true);
+    const finish = (timerName?: string) => {
+      this.activeMsbj?.updateRectsInfo(this.getNode2rectData());
+      if (this.msbjRectsComponent) {
+        this.msbjRectsComponent.rectInfos = this.activeMsbj?.peizhishuju.模块节点 || [];
       }
+      if (timerName) {
+        timer.end(timerName, timerName);
+        this.spinner.hide(this.spinner.defaultLoaderId);
+      }
+      this.suanliaoLock$.next(false);
+    };
+
+    if (genXiaoguotu) {
+      const timerName = "生成效果图";
+      timer.start(timerName);
+      this.spinner.show(this.spinner.defaultLoaderId, {text: timerName});
+      container.innerHTML = "";
+      container.style.transform = "";
+      container.style.opacity = "0";
       await timeout(0);
-      const rect = Rectangle.min;
-      for (const el of els) {
-        const {top, right, bottom, left, width, height} = el.getBoundingClientRect();
-        if (width > 0 && height > 0) {
-          rect.expandByPoint(new Point(left, top));
-          rect.expandByPoint(new Point(right, bottom));
+      this.wmm.postMessage("genXiaoguotuStart", {...this.submitData().data, genXiaoguotu});
+      const data = await this.wmm.waitForMessage("genXiaoguotuEnd");
+      const items = data[this.activeMenshanKey || ""] || [];
+      if (items.length > 0) {
+        const rectContainer0 = container.getBoundingClientRect();
+        const rectContainer = new Rectangle([rectContainer0.left, rectContainer0.top], [rectContainer0.right, rectContainer0.bottom]);
+        const padding = this.msbjRectsComponent?.padding || [0, 0, 0, 0];
+        rectContainer.min.add(new Point(padding[3], padding[0]));
+        rectContainer.max.sub(new Point(padding[1], padding[2]));
+        const els: HTMLDivElement[] = [];
+        for (const item of items) {
+          let div = document.createElement("div");
+          div.innerHTML = item;
+          div = div.firstElementChild as HTMLDivElement;
+          container.appendChild(div);
+          els.push(div);
         }
+        await timeout(0);
+        const rect = Rectangle.min;
+        for (const el of els) {
+          const {top, right, bottom, left, width, height} = el.getBoundingClientRect();
+          if (width > 0 && height > 0) {
+            rect.expandByPoint(new Point(left, top));
+            rect.expandByPoint(new Point(right, bottom));
+          }
+        }
+        const scaleX = rectContainer.width / rect.width;
+        const scaleY = rectContainer.height / rect.height;
+        const scale = Math.min(scaleX, scaleY);
+        const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
+        const dy = (rectContainer.bottom - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
+        container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+        container.style.opacity = "1";
       }
-      const scaleX = rectContainer.width / rect.width;
-      const scaleY = rectContainer.height / rect.height;
-      const scale = Math.min(scaleX, scaleY);
-      const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
-      const dy = (rectContainer.bottom - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
-      container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-      container.style.opacity = "1";
+      return finish(timerName);
+    } else {
+      this.wmm.postMessage("suanliaoStart");
+      await this.wmm.waitForMessage("suanliaoEnd");
+      return finish();
     }
-    this.activeMsbj?.updateRectsInfo(this.getNode2rectData());
-    if (this.msbjRectsComponent) {
-      this.msbjRectsComponent.rectInfos = this.activeMsbj?.peizhishuju.模块节点 || [];
-    }
-    timer.end(timerName, timerName);
-    this.spinner.hide(this.spinner.defaultLoaderId);
-    this.xiaoguotuLock$.next(false);
   }
 
   async getLastSuanliao() {

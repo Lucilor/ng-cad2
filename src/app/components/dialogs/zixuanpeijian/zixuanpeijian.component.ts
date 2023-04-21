@@ -101,16 +101,13 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   selectAllForm = {baicai: "", cailiao: "", houdu: ""};
   searchMokuaiValue = session.load("zixuanpeijian-searchMokuaiValue") || "";
   searchMokuaiInputInfo: InputInfo = {
-    type: "color",
+    type: "string",
     label: "搜索",
     clearable: true,
     model: {data: this, key: "searchMokuaiValue"},
-    onChange: (val) => {
-      console.log(val);
+    onInput: (val) => {
+      session.save("zixuanpeijian-searchMokuaiValue", val);
     }
-    // onInput: (val) => {
-    //   session.save("zixuanpeijian-searchMokuaiValue", val);
-    // }
   };
   typesButtonsWidth = "auto";
 
