@@ -5,10 +5,10 @@
       <mat-icon>close</mat-icon>
     </button>
   </div>
-  <div class="title-container" *ngSwitchDefault>
-    <h2 mat-dialog-title class="title hidden-if-empty" [innerHTML]="titleHTML" [ngClass]="titleClass"></h2>
-    <h3 mat-dialog-title class="sub-title hidden-if-empty" [innerHTML]="subTitleHTML"></h3>
-  </div>
+  <ng-container *ngSwitchDefault>
+    <div mat-dialog-title *ngIf="titleHTML" [ngClass]="titleClass" [innerHTML]="titleHTML"></div>
+    <div mat-dialog-title *ngIf="subTitleHTML" class="sub-title" [innerHTML]="subTitleHTML"></div>
+  </ng-container>
 </ng-container>
 <div mat-dialog-content [ngSwitch]="data.type" [ngClass]="data.type">
   <ng-container *ngSwitchCase="'editor'">

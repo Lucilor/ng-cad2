@@ -50,10 +50,7 @@ iframe {
 
   .message-list {
     --title-size: 1em;
-
-    .title {
-      padding: 0;
-    }
+    --title-padding: 0;
 
     ul {
       margin-block-start: 0;

@@ -9,14 +9,14 @@ import {MessageData, MessageDataMap} from "../message/message-types";
 })
 export class MessageTestComponent {
   btns: Record<keyof MessageDataMap, MessageData> = {
-    alert: {type: "alert", content: "alert"},
-    confirm: {type: "confirm", content: "confirm"},
-    form: {type: "form", inputs: [{type: "string", label: "label", value: "value"}]},
-    book: {type: "book", bookData: [{content: "content"}]},
-    editor: {type: "editor", content: "editor"},
-    button: {type: "button", buttons: ["button1", "button2"]},
-    iframe: {type: "iframe", content: location.href},
-    json: {type: "json", json: {a: 1, b: 2}}
+    alert: {type: "alert", content: "alert", title: "title"},
+    confirm: {type: "confirm", content: "confirm", title: "title"},
+    form: {type: "form", inputs: [{type: "string", label: "label", value: "value"}], title: "title"},
+    book: {type: "book", bookData: [{content: "content", title: "title2"}], title: "title1"},
+    editor: {type: "editor", content: "editor", title: "title"},
+    button: {type: "button", buttons: ["button1", "button2"], title: "title"},
+    iframe: {type: "iframe", content: location.href, title: "title"},
+    json: {type: "json", json: {a: 1, b: 2}, title: "title"}
   };
 
   constructor(private message: MessageService) {}
