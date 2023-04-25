@@ -973,7 +973,7 @@ export const calcZxpj = async (
   calcVars.result = await calcVarsResult(calcVars.keys, varsGlobal);
   calc.calc.mergeFormulas(materialResult, calcVars.result);
   for (const [i, item] of mokuais.entries()) {
-    const vars2: Formulas = {...materialResult, ...lingsanVars, ...toCalc1[i].succeedTrim, ...shuchubianliang};
+    const vars2: Formulas = {...materialResult, ...lingsanVars, ...shuchubianliang, ...toCalc1[i].succeedTrim};
     if (item.calcVars) {
       item.calcVars.result = await calcVarsResult(item.calcVars.keys, vars2);
     }

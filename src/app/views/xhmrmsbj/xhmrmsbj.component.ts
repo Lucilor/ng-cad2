@@ -188,12 +188,13 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     return result;
   }
 
-  async 保存模块大小(data: any) {
-    if (this.activeMsbjInfo) {
-      const md5Prev = md5(JSON.stringify(this.activeMsbjInfo.模块大小输入 || {}));
-      this.activeMsbjInfo.模块大小输入 = data.inputValues;
+  async 保存模块大小(data: {inputValues: Formulas}) {
+    const {activeMsbjInfo} = this;
+    if (activeMsbjInfo) {
+      const md5Prev = md5(JSON.stringify(activeMsbjInfo.模块大小输入 || {}));
+      activeMsbjInfo.模块大小输入 = data.inputValues;
       await this.updateMokuaidaxiaoResult();
-      const md5Curr = md5(JSON.stringify(this.activeMsbjInfo.模块大小输入));
+      const md5Curr = md5(JSON.stringify(activeMsbjInfo.模块大小输入));
       if (md5Prev !== md5Curr) {
         await this.suanliao();
       }
@@ -281,29 +282,47 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     await this.updateMokuaidaxiaoResult();
   }
 
-  async justifyGongshiObj(gongshiObj: any, menshanKey: string, vars: Formulas) {
+  async justifyGongshiObj(gongshiObj: any, menshanKey: string) {
+    const msbjInfo = this.data?.menshanbujuInfos[menshanKey];
+    if (!msbjInfo) {
+      throw new Error("没有门扇布局");
+    }
+    const vars = {...this.materialResult, ...msbjInfo.模块大小输入};
     this.wmm.postMessage("justifyGongshiObjStart", {gongshiObj, menshanKey, vars});
     return await this.wmm.waitForMessage<{gongshiObj: GongshiObj; values: Formulas}>("justifyGongshiObjEnd");
   }
 
-  async updateMokuaidaxiaoResult() {
-    const msbjInfo = this.activeMsbjInfo;
-    if (!this.isFromOrder || !msbjInfo) {
-      this.updateMokuaiInputInfo();
-      return;
+  async updateMokuaidaxiaoResult(menshanKeys?: string | string[]) {
+    if (!menshanKeys) {
+      if (this.activeMenshanKey) {
+        menshanKeys = [this.activeMenshanKey];
+      } else {
+        return;
+      }
     }
-    const vars = {...this.materialResult, ...msbjInfo.模块大小输入};
-    if (msbjInfo.选中布局数据) {
-      const gongshiObj = msbjInfo.选中布局数据.模块大小关系 || {};
-      if (!gongshiObj.门扇调整) {
-        gongshiObj.门扇调整 = Object.values(gongshiObj)[0];
+    if (typeof menshanKeys === "string") {
+      menshanKeys = [menshanKeys];
+    }
+    for (const menshanKey of menshanKeys) {
+      const msbjInfo = this.data?.menshanbujuInfos[menshanKey];
+      if (!this.isFromOrder || !msbjInfo) {
+        this.updateMokuaiInputInfo();
+        return;
       }
-      if (!gongshiObj.配置) {
-        gongshiObj.配置 = {};
+      if (msbjInfo.选中布局数据) {
+        const gongshiObj = msbjInfo.选中布局数据.模块大小关系 || {};
+        if (!gongshiObj.门扇调整) {
+          gongshiObj.门扇调整 = Object.values(gongshiObj)[0];
+        }
+        if (!gongshiObj.配置) {
+          gongshiObj.配置 = {};
+        }
+        const {gongshiObj: gongshiObj2, values} = await this.justifyGongshiObj(gongshiObj, menshanKey);
+        if (this.activeMenshanKey === menshanKey) {
+          this.mokuaidaxiaoResult = values;
+        }
+        msbjInfo.选中布局数据.模块大小关系 = gongshiObj2;
       }
-      const {gongshiObj: gongshiObj2, values} = await this.justifyGongshiObj(gongshiObj, this.activeMenshanKey || "", vars);
-      this.mokuaidaxiaoResult = values;
-      msbjInfo.选中布局数据.模块大小关系 = gongshiObj2;
     }
     this.updateMokuaiInputInfo();
   }
@@ -699,16 +718,28 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     });
     if (records[0]) {
       const data2 = new XhmrmsbjData(records[0], this.menshanKeys, this.step1Data.typesInfo, this.msbjs);
-      for (const menshanKey in data2.menshanbujuInfos) {
-        const 选中布局数据1 = data.menshanbujuInfos[menshanKey]?.选中布局数据;
-        const 选中布局数据2 = data2.menshanbujuInfos[menshanKey].选中布局数据;
+      const menshanKeys = Object.keys(data2.menshanbujuInfos);
+      for (const menshanKey of menshanKeys) {
+        const msbjInfo1 = data.menshanbujuInfos[menshanKey];
+        const msbjInfo2 = data2.menshanbujuInfos[menshanKey];
+        if (!msbjInfo1 || !msbjInfo2) {
+          continue;
+        }
+        const 选中布局数据1 = msbjInfo1.选中布局数据;
+        const 选中布局数据2 = msbjInfo2.选中布局数据;
         if (选中布局数据1 && 选中布局数据2) {
           选中布局数据1.模块大小关系 = 选中布局数据2.模块大小关系;
         }
+        const 模块大小关系 = 选中布局数据1?.模块大小关系;
+        if (模块大小关系) {
+          const {values} = await this.justifyGongshiObj(模块大小关系, menshanKey);
+          msbjInfo1.模块大小输入 = values;
+        }
       }
+      await this.updateMokuaidaxiaoResult(menshanKeys);
     }
-    this.spinner.hide(this.spinner.defaultLoaderId);
     await this.suanliao();
+    this.spinner.hide(this.spinner.defaultLoaderId);
     this.message.snack("更新完成");
   }
 
