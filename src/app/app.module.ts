@@ -85,6 +85,7 @@ import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
 import {SuanliaoComponent} from "@views/suanliao/suanliao.component";
 import {XhmrmsbjMokuaisComponent} from "@views/xhmrmsbj-mokuais/xhmrmsbj-mokuais.component";
 import {XhmrmsbjComponent} from "@views/xhmrmsbj/xhmrmsbj.component";
+import {XinghaoOverviewComponent} from "@views/xinghao-overview/xinghao-overview.component";
 import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_BASE_URL} from "ng-recaptcha";
 import {ColorChromeModule} from "ngx-color/chrome";
 import {ColorCircleModule} from "ngx-color/circle";
@@ -164,6 +165,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     SuanliaoComponent,
     XhmrmsbjComponent,
     XhmrmsbjMokuaisComponent,
+    XinghaoOverviewComponent,
     ZixuanpeijianComponent
   ],
   imports: [

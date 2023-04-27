@@ -83,10 +83,11 @@ export class MessageComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     const data = this.data;
-    if (data.title === null || data.title === undefined) {
-      data.title = "";
+    if (data.title) {
+      this.titleHTML = this.sanitizer.bypassSecurityTrustHtml(data.title);
+    } else {
+      this.titleHTML = "";
     }
-    this.titleHTML = this.sanitizer.bypassSecurityTrustHtml(this.data.title || "");
     if (data.content === null || data.content === undefined) {
       data.content = "";
     } else if (data.content instanceof HTMLElement) {
@@ -98,7 +99,6 @@ export class MessageComponent implements OnInit, AfterViewInit {
         console.warn(error);
       }
     }
-    this.titleHTML = this.sanitizer.bypassSecurityTrustHtml(data.title);
     this.contentHTML = this.sanitizer.bypassSecurityTrustHtml(data.content);
 
     if (data.type === "form") {
@@ -218,6 +218,8 @@ export class MessageComponent implements OnInit, AfterViewInit {
       this.contentHTML = this.sanitizer.bypassSecurityTrustHtml(data.content);
       if (data.title) {
         this.subTitleHTML = this.sanitizer.bypassSecurityTrustHtml(data.title);
+      } else {
+        this.subTitleHTML = "";
       }
     } else {
       this.page = 0;

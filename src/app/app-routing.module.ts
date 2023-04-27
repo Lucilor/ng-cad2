@@ -24,6 +24,7 @@ import {SelectBancaiComponent} from "@views/select-bancai/select-bancai.componen
 import {SelectCadsComponent} from "@views/select-cads/select-cads.component";
 import {SuanliaoComponent} from "@views/suanliao/suanliao.component";
 import {XhmrmsbjComponent} from "@views/xhmrmsbj/xhmrmsbj.component";
+import {XinghaoOverviewComponent} from "@views/xinghao-overview/xinghao-overview.component";
 
 export const routesInfo: (Route & {path: string})[] = [
   {path: "index", component: IndexComponent},
@@ -46,7 +47,8 @@ export const routesInfo: (Route & {path: string})[] = [
   {path: "门扇布局", component: MsbjComponent, title: "门扇布局"},
   {path: "型号默认门扇布局", component: XhmrmsbjComponent, title: "型号默认门扇布局"},
   {path: "默认板材及分组", component: MrbcjfzComponent, title: "默认板材及分组"},
-  {path: "suanliao", component: SuanliaoComponent, title: "算料"}
+  {path: "suanliao", component: SuanliaoComponent, title: "算料"},
+  {path: "xinghao-overview", component: XinghaoOverviewComponent, title: "型号数据"}
 ];
 
 const routes: Routes = [
