@@ -25,6 +25,7 @@ export class FormulasEditorComponent {
   @Input() vars?: Formulas;
   formulaList: string[][] = [];
   formulaListInputInfos: InputInfo[][] = [];
+  @Input()
   formulasText = "";
   formulasInputInfo: InputInfo = {
     type: "string",

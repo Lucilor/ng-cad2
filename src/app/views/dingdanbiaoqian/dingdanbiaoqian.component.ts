@@ -18,6 +18,7 @@ import {CadData, CadLine, CadViewer, CadViewerConfig, Defaults, generateLineText
 import {openEditFormulasDialog} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";
 import {
   calcZxpj,
+  CalcZxpjResult,
   getMokuaiTitle,
   getStep1Data,
   getZixuanpeijianCads,
@@ -95,9 +96,9 @@ export class DingdanbiaoqianComponent implements OnInit {
   mokuais: ZixuanpeijianMokuaiItem[] = [];
   fractionDigits = 1;
   urlPrefix = "";
+  calcResults: CalcZxpjResult[] = [];
   @ViewChildren("barcode") barcodeEls?: QueryList<ElementRef<HTMLDivElement>>;
   @ViewChild("cadsEl") cadsEl?: ElementRef<HTMLDivElement>;
-  @ViewChild("pjmkEl") pjmkEl?: ElementRef<HTMLDivElement>;
 
   private _configKey = "订单标签配置";
   private _httpCacheKey = "订单标签请求数据";
@@ -495,8 +496,15 @@ export class DingdanbiaoqianComponent implements OnInit {
     }
     this.mokuais = mokuais;
     this.urlPrefix = step1Data.prefix;
-    await calcZxpj(this.dialog, this.message, this.calc, {}, mokuais, [], {useCeshishuju: true});
-    this.orders = mokuais.map((mokuai, i) => {
+    this.orders = [];
+    this.calcResults = [];
+    for (const [i, mokuai] of mokuais.entries()) {
+      const calcResult = await calcZxpj(this.dialog, this.message, this.calc, {}, [mokuai], [], {useCeshishuju: true});
+      this.calcResults.push(calcResult);
+      // if (!calcResult.fulfilled) {
+      //   this.editMokuaiFormulas(i);
+      // }
+
       const order: Order = {
         code: getMokuaiTitle(mokuai),
         cads: mokuai.cads.map((v) => {
@@ -524,20 +532,9 @@ export class DingdanbiaoqianComponent implements OnInit {
         mokuaiInfo.details.push({value: `制作人：${mokuai.zhizuoren}`});
       }
       order.mokuaiInfo = mokuaiInfo;
-      return order;
-    });
-    await this.splitOrders();
-    const pjmkEl = this.pjmkEl?.nativeElement;
-    if (pjmkEl) {
-      const pjmkRect = pjmkEl.getBoundingClientRect();
-      pjmkEl.style.flex = `0 0 ${pjmkRect.width}px`;
-      pjmkEl.querySelectorAll("app-image").forEach((el) => {
-        if (el instanceof HTMLElement) {
-          el.style.width = "100%";
-        }
-      });
+      this.orders.push(order);
     }
-    console.log(pjmkEl?.getBoundingClientRect());
+    await this.splitOrders();
     await this.updateImgs(true);
   }
 
@@ -592,12 +589,12 @@ export class DingdanbiaoqianComponent implements OnInit {
     if (!mokuai) {
       return formulaInfos;
     }
-    const addInfos = (title: string, obj: Formulas | undefined) => {
-      if (isEmpty(obj)) {
+    const addInfos = (title: string, obj: Formulas | undefined, forced = false) => {
+      if (isEmpty(obj) && !forced) {
         return;
       }
       const item: (typeof formulaInfos)[number] = {title, infos: []};
-      for (const [k, v] of Object.entries(obj)) {
+      for (const [k, v] of Object.entries(obj || {})) {
         item.infos.push({
           keys: [{eq: false, name: k}],
           values: [{eq: true, name: String(v)}]
@@ -616,7 +613,7 @@ export class DingdanbiaoqianComponent implements OnInit {
       xuanxiangshuru[k] = k in vars ? vars[k] : v;
     }
     addInfos("选项输入", xuanxiangshuru);
-    addInfos("测试数据", mokuai.ceshishuju);
+    addInfos("测试数据", mokuai.ceshishuju, true);
     return formulaInfos;
   }
 
@@ -625,7 +622,16 @@ export class DingdanbiaoqianComponent implements OnInit {
     if (!mokuai) {
       return;
     }
-    const result = await openEditFormulasDialog(this.dialog, {data: {formulas: mokuai.ceshishuju}});
+    const calcResult = this.calcResults[mokuaiIndex];
+    let formulasText = "";
+    if (calcResult && !calcResult.fulfilled) {
+      const errorTrim = calcResult.error?.calc?.result?.errorTrim;
+      for (const key in errorTrim) {
+        formulasText += `${key} = \n`;
+      }
+    }
+    formulasText = formulasText.replace(/\n$/, "");
+    const result = await openEditFormulasDialog(this.dialog, {data: {formulas: mokuai.ceshishuju, formulasText}});
     if (result) {
       this.spinner.show(this.spinner.defaultLoaderId);
       const gongshiData = Object.entries(result).map(([k, v]) => [k, v]);
