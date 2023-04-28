@@ -1,11 +1,13 @@
 import {Component, OnInit} from "@angular/core";
-import {Validators} from "@angular/forms";
-import {ActivatedRoute, Router} from "@angular/router";
+import {MatDialog} from "@angular/material/dialog";
 import {setGlobal} from "@app/app.common";
+import {openNavsDialog} from "@components/dialogs/navs-dialog/navs-dialog.component";
+import {NavsData} from "@components/dialogs/navs-dialog/navs-dialog.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {WindowMessageManager} from "@utils";
+import {XinghaoOverviewData, XinghaoOverviewItem, XinghaoOverviewTableData} from "./xinghao-overview.types";
 
 @Component({
   selector: "app-xinghao-overview",
@@ -13,57 +15,54 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
   styleUrls: ["./xinghao-overview.component.scss"]
 })
 export class XinghaoOverviewComponent implements OnInit {
-  xinghao: TableDataBase | null = null;
+  table = "p_xinghaoshujukuaisupeizhi";
+  data = new XinghaoOverviewData();
+  navs: NavsData = [];
+  wmm = new WindowMessageManager("xinghaoOverview", this, window.parent);
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
     private spinner: SpinnerService,
     private dataService: CadDataService,
+    private dialog: MatDialog,
     private message: MessageService
   ) {
     setGlobal("xinghaoOverview", this);
   }
 
   async ngOnInit() {
-    let {id} = this.route.snapshot.queryParams;
-    if (!id) {
-      const value = await this.message.prompt({
-        type: "string",
-        label: "型号",
-        placeholder: "请输入型号id或名字",
-        value: "",
-        validators: Validators.required
-      });
-      if (value) {
-        id = value;
-        this.router.navigate(this.route.snapshot.url, {queryParams: {id: value}, queryParamsHandling: "merge"});
-      }
-    }
-    const table = "p_xinghao";
     this.spinner.show(this.spinner.defaultLoaderId);
-    let records = await this.dataService.queryMySql({table, filter: {where: {vid: id}}});
-    if (records.length < 1) {
-      records = await this.dataService.queryMySql({table, filter: {where: {mingzi: id}}});
+    let records = await this.dataService.queryMySql<XinghaoOverviewTableData>({table: this.table, limit: 1});
+    if (!records[0]) {
+      await this.dataService.tableInsert<XinghaoOverviewTableData>({table: this.table, data: {data: "{}"}});
+      records = await this.dataService.queryMySql<XinghaoOverviewTableData>({table: this.table, limit: 1});
     }
-    this.spinner.hide(this.spinner.defaultLoaderId);
     if (records[0]) {
-      this.xinghao = records[0];
+      this.data.import(records[0]);
+    } else {
+      this.message.error("数据错误");
+    }
+    const navsResponse = await this.dataService.post<NavsData>("ngcad/getNavs");
+    this.navs = this.dataService.getResponseData(navsResponse) || [];
+    this.spinner.hide(this.spinner.defaultLoaderId);
+  }
+
+  async addNavItem(i: number, j?: number) {
+    const result = await openNavsDialog(this.dialog, {data: {navs: this.navs}});
+    const item = result?.[0];
+    if (item) {
+      this.data.addItem(this.data.sections[i], j, item);
     }
   }
 
-  async getXinghao(id: string) {
-    const table = "p_xinghao";
+  async openNavItem(item: XinghaoOverviewItem) {
+    this.wmm.postMessage("openNavItemStart", item);
+    await this.wmm.waitForMessage("openNavItemEnd");
+  }
+
+  async submit() {
+    const data = this.data.export();
     this.spinner.show(this.spinner.defaultLoaderId);
-    let records = await this.dataService.queryMySql({table, filter: {where: {vid: id}}});
-    if (records.length < 1) {
-      records = await this.dataService.queryMySql({table, filter: {where: {mingzi: id}}});
-    }
+    this.dataService.tableUpdate<XinghaoOverviewTableData>({table: this.table, tableData: {vid: this.data.id, data}});
     this.spinner.hide(this.spinner.defaultLoaderId);
-    if (records[0]) {
-      return records[0];
-    } else {
-      return null;
-    }
   }
 }

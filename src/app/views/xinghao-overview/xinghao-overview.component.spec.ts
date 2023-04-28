@@ -1,5 +1,4 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
-import {RouterModule} from "@angular/router";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {XinghaoOverviewComponent} from "./xinghao-overview.component";
@@ -11,7 +10,7 @@ describe("XinghaoOverviewComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [XinghaoOverviewComponent],
-      imports: [HttpModule, MessageModule, RouterModule]
+      imports: [HttpModule, MessageModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(XinghaoOverviewComponent);

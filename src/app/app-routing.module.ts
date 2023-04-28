@@ -48,7 +48,7 @@ export const routesInfo: (Route & {path: string})[] = [
   {path: "型号默认门扇布局", component: XhmrmsbjComponent, title: "型号默认门扇布局"},
   {path: "默认板材及分组", component: MrbcjfzComponent, title: "默认板材及分组"},
   {path: "suanliao", component: SuanliaoComponent, title: "算料"},
-  {path: "xinghao-overview", component: XinghaoOverviewComponent, title: "型号数据"}
+  {path: "xinghao-overview", component: XinghaoOverviewComponent, title: "型号数据快速配置"}
 ];
 
 const routes: Routes = [

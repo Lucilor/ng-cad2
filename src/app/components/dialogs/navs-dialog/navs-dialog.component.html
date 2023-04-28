@@ -1,0 +1,26 @@
+<app-input [info]="searchInputInfo"></app-input>
+<ng-scrollbar class="flex-110">
+  <mat-tree class="tree" [dataSource]="dataSource" [treeControl]="treeControl">
+    <mat-tree-node [class.hidden]="!filterNode(node)" *matTreeNodeDef="let node" matTreeNodeToggle>
+      <mat-checkbox [checked]="node.selected" (change)="onNodeChange(node, $event)"></mat-checkbox>
+      {{ node.mingzi }}
+    </mat-tree-node>
+    <mat-nested-tree-node [class.hidden]="!filterNode(node)" *matTreeNodeDef="let node; when: hasChild">
+      <div class="mat-tree-node" matTreeNodeToggle>
+        <button mat-icon-button>
+          <mat-icon class="mat-icon-rtl-mirror">
+            {{ treeControl.isExpanded(node) ? "expand_more" : "chevron_right" }}
+          </mat-icon>
+        </button>
+        {{ node.mingzi }}
+      </div>
+      <div [class.hidden]="!treeControl.isExpanded(node)" role="group">
+        <ng-container matTreeNodeOutlet></ng-container>
+      </div>
+    </mat-nested-tree-node>
+  </mat-tree>
+</ng-scrollbar>
+<div matDialogActions>
+  <button mat-raised-button color="primary" (click)="submit()">确定</button>
+  <button mat-raised-button color="primary" (click)="cancel()">取消</button>
+</div>

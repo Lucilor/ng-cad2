@@ -90,6 +90,11 @@ export interface QueryMysqlParams {
   token?: string;
 }
 
+export interface TableInsertParams<T extends TableDataBase = TableDataBase> {
+  table: string;
+  data: Omit<Partial<T>, "vid">;
+}
+
 export interface TableUpdateParams<T extends TableDataBase = TableDataBase> {
   table: string;
   tableData: {vid: number} & Omit<Partial<T>, "vid">;

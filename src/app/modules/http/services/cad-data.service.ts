@@ -15,7 +15,8 @@ import {
   QueryMysqlParams,
   TableUpdateParams,
   TableDataBase,
-  BancaiListData
+  BancaiListData,
+  TableInsertParams
 } from "./cad-data.service.types";
 import {CadImgCache} from "./cad-img-cache";
 import {HttpService} from "./http.service";
@@ -265,13 +266,18 @@ export class CadDataService extends HttpService {
     return this.getResponseData(response);
   }
 
-  async tableUpdate(params: TableUpdateParams, options?: HttpOptions) {
+  async tableInsert<T extends TableDataBase = TableDataBase>(params: TableInsertParams<T>, options?: HttpOptions) {
+    const response = await this.post<void>("jichu/jichu/table_insert", params, options);
+    return response?.code === 0;
+  }
+
+  async tableUpdate<T extends TableDataBase = TableDataBase>(params: TableUpdateParams<T>, options?: HttpOptions) {
     const tableData = params.tableData;
     if (Object.keys(tableData).length > 1) {
       const fields = Object.keys(tableData).filter((v) => v !== "vid");
       const results = await Promise.all(
         fields.map(async (field) => {
-          const tableData2: TableUpdateParams["tableData"] = {vid: tableData.vid, [field]: (tableData as any)[field]};
+          const tableData2 = {vid: tableData.vid, [field]: (tableData as any)[field]};
           const params2 = {...params, tableData: tableData2};
           const response = await this.post<void>("jichu/jichu/table_update", params2, options);
           return response?.code === 0;

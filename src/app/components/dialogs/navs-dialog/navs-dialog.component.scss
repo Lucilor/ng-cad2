@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.tree {
+  --node-padding: 0 0 0 20px;
+
+  ul,
+  li {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+  }
+
+  .mat-nested-tree-node div[role="group"] {
+    padding: var(--node-padding);
+  }
+
+  div[role="group"] > .mat-tree-node {
+    padding: var(--node-padding);
+  }
+}

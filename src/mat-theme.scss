@@ -121,6 +121,15 @@ mat-divider {
   height: var(--mat-icon-size) !important;
   font-size: var(--mat-icon-size) !important;
 }
+.mat-mdc-icon-button.mat-mdc-button-base {
+  width: var(--mat-icon-size) !important;
+  height: var(--mat-icon-size) !important;
+  padding: var(--mat-icon-padding) !important;
+}
+.mat-mdc-icon-button .mat-mdc-button-touch-target {
+  width: var(--mat-icon-size) !important;
+  height: var(--mat-icon-size) !important;
+}
 
 .cdk-overlay-container {
   z-index: var(--top-z-index);
