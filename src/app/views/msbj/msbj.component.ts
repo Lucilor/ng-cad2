@@ -77,7 +77,7 @@ export class MsbjComponent implements AfterViewInit {
     const {nameInputInfo} = this;
     if (info?.raw.isBuju) {
       nameInputInfo.readonly = false;
-      nameInputInfo.model = {data: info.raw, key: "mingzi"};
+      nameInputInfo.model = {data: info, key: "name"};
     } else {
       nameInputInfo.readonly = true;
       delete nameInputInfo.model;

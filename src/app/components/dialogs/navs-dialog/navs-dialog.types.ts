@@ -3,13 +3,13 @@ export interface NavsDialogInput {
   multiSelect?: boolean;
 }
 
-export type NavsDialogOutput = {
-  tou: string;
-  da: string;
-  xiao: string;
-  table: string;
-  url: string;
-}[];
+export type NavsDialogOutput = NavsResultItem[];
+
+export interface NavsResultItem {
+  tou: {id: number; name: string};
+  da: {id: number; name: string};
+  xiao: {id: number; name: string; table: string};
+}
 
 export type NavsData = NavsDataNodeTou[];
 

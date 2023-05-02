@@ -2,23 +2,40 @@
   <button mat-raised-button color="primary" (click)="data.addSection()">添加分组</button>
   <button mat-raised-button color="primary" (click)="submit()">保存</button>
 </div>
-<div class="sections flex-row">
-  <div class="section flex-column" *ngFor="let section of data.sections; let i = index">
-    <div class="flex-row">
-      <app-input *ngIf="section.nameInputInfo" [info]="section.nameInputInfo"></app-input>
-      <button mat-icon-button color="accent" (click)="data.removeSection(i)"><mat-icon>close</mat-icon></button>
-    </div>
-    <ng-scrollbar class="flex-110">
-      <div class="items flex-column">
-        <div class="item flex-row" *ngFor="let item of section.items; let j = index">
-          <button mat-icon-button color="primary" (click)="addNavItem(i, j)"><mat-icon>add</mat-icon></button>
-          <button mat-icon-button color="accent" (click)="data.removeItem(section, j)"><mat-icon>close</mat-icon></button>
-          <div class="name flex-row flex-110">{{ item.xiao }}</div>
-        </div>
+<div
+  class="sections flex-row flex-110"
+  cdkDropListGroup
+  cdkDropList
+  cdkDropListOrientation="horizontal"
+  [cdkDropListData]="data.sections"
+  (cdkDropListDropped)="onItemDrop($event)"
+>
+  <ng-container *ngFor="let section of data.sections; let i = index">
+    <mat-divider vertical *ngIf="i > 0"></mat-divider>
+    <div class="section flex-column" cdkDrag>
+      <div class="section-title flex-row">
+        <div class="drag-placeholder" cdkDragHandle></div>
+        <button mat-icon-button color="accent" (click)="data.removeSection(i)"><mat-icon>close</mat-icon></button>
+        <app-input *ngIf="section.nameInputInfo" [info]="section.nameInputInfo"></app-input>
+      </div>
+      <div class="items">
         <div class="item">
-          <button mat-icon-button color="primary" (click)="addNavItem(i)"><mat-icon>add</mat-icon></button>
+          <button mat-raised-button color="primary" (click)="addNavItem(i)">添加</button>
         </div>
       </div>
-    </ng-scrollbar>
-  </div>
+      <ng-scrollbar class="flex-110">
+        <div class="items flex-column" cdkDropList [cdkDropListData]="section.items" (cdkDropListDropped)="onItemDrop($event)">
+          <ng-container *ngFor="let item of section.items; let j = index">
+            <mat-divider *ngIf="j > 0"></mat-divider>
+            <div class="item flex-row" cdkDrag>
+              <div class="drag-placeholder" cdkDragHandle></div>
+              <button mat-icon-button color="primary" (click)="addNavItem(i, j)"><mat-icon>add</mat-icon></button>
+              <button mat-icon-button color="accent" (click)="data.removeItem(section, j)"><mat-icon>remove</mat-icon></button>
+              <div class="name flex-row flex-110" (click)="onItemClick(item)">{{ item.xiao.name }}</div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-scrollbar>
+    </div>
+  </ng-container>
 </div>

@@ -1,3 +1,4 @@
+import {NavsResultItem} from "@components/dialogs/navs-dialog/navs-dialog.types";
 import {Utils} from "@mixins/utils.mixin";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
@@ -47,8 +48,8 @@ export class XinghaoOverviewData extends Utils() {
     this.arrayRemove(this.sections, index);
   }
 
-  addItem(section: XinghaoOverviewSection, index?: number, data?: XinghaoOverviewItem) {
-    const item: XinghaoOverviewItem = {tou: "", da: "", xiao: "", table: "", url: ""};
+  addItem(section: XinghaoOverviewSection, index?: number, data?: NavsResultItem) {
+    const item: NavsResultItem = {tou: {id: -1, name: ""}, da: {id: -1, name: ""}, xiao: {id: -1, name: "", table: ""}};
     if (data) {
       Object.assign(item, data);
     }
@@ -63,13 +64,5 @@ export class XinghaoOverviewData extends Utils() {
 export interface XinghaoOverviewSection {
   name: string;
   nameInputInfo?: InputInfo;
-  items: XinghaoOverviewItem[];
-}
-
-export interface XinghaoOverviewItem {
-  tou: string;
-  da: string;
-  xiao: string;
-  table: string;
-  url: string;
+  items: NavsResultItem[];
 }

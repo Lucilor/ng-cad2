@@ -7,12 +7,13 @@ import {joinOptions, splitOptions} from "@app/app.common";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
-import {ObjectOf, timeout} from "@utils";
+import {levenshtein, ObjectOf, timeout} from "@utils";
 import Color2 from "color";
 import {isEmpty, isEqual} from "lodash";
 import {Color} from "ngx-color";
 import {ChromeComponent} from "ngx-color/chrome";
-import {InputInfo, InputInfoBase, InputInfoTypeMap} from "./types";
+import {BehaviorSubject} from "rxjs";
+import {InputInfo, InputInfoBase, InputInfoTypeMap, InputInfoWithOptions} from "./types";
 
 @Component({
   selector: "app-input",
@@ -69,8 +70,10 @@ export class InputComponent extends Utils() implements AfterViewInit {
     if (value.initialValidate) {
       this.validateValue();
     }
+    this.valueChange$.next(this.value);
   }
-  private _onChangeTimeout = -1;
+  onChangeDelayTime = 200;
+  onChangeDelay: {timeoutId: number} | null = null;
 
   private _model: NonNullable<Required<InputInfo["model"]>> = {data: {key: ""}, key: "key"};
   get model() {
@@ -134,22 +137,6 @@ export class InputComponent extends Utils() implements AfterViewInit {
   //     }
   //     return value;
   // }
-  get filteredOptions() {
-    const val = this.value;
-    const type = this.info.type;
-    let fixedOptions: string[] = [];
-    let noFilterOptions = false;
-    if (type === "string" || type === "number") {
-      fixedOptions = this.info.fixedOptions ?? [];
-      noFilterOptions = this.info.noFilterOptions ?? false;
-    }
-    return this.options.filter(({value, label}) => {
-      if (noFilterOptions || fixedOptions.includes(value) || fixedOptions.includes(label)) {
-        return true;
-      }
-      return value.includes(val) || label.includes(val);
-    });
-  }
 
   get optionText() {
     const info = this.info;
@@ -205,8 +192,50 @@ export class InputComponent extends Utils() implements AfterViewInit {
     isErrorState: () => !this.isValid()
   };
 
+  valueChange$ = new BehaviorSubject<any>(null);
+  filteredOptions$ = new BehaviorSubject<InputComponent["options"]>([]);
+
   constructor(private message: MessageService, private dialog: MatDialog) {
     super();
+    this.valueChange$.subscribe((val) => {
+      if (!val) {
+        this.filteredOptions$.next(this.options);
+        return;
+      }
+      const info = this.info;
+      const type = info.type;
+      let fixedOptions: string[] = [];
+      let filterFn: InputInfoWithOptions["filter"];
+      if (type === "string" || type === "number") {
+        fixedOptions = info.fixedOptions ?? [];
+        filterFn = info.filter;
+      }
+      const options = this.options.filter((option) => {
+        const {value, label} = option;
+        if (fixedOptions.includes(value) || fixedOptions.includes(label)) {
+          return true;
+        }
+        if (typeof filterFn === "function") {
+          return filterFn(option, val);
+        }
+        return value.includes(val) || label.includes(val);
+      });
+      const cache: ObjectOf<number> = {};
+      const getLevenshtein = (s: string) => {
+        if (cache[s]) {
+          return cache[s];
+        }
+        const d = levenshtein(s, this.value);
+        cache[s] = d;
+        return d;
+      };
+      options.sort((a, b) => {
+        const d1 = getLevenshtein(a.value);
+        const d2 = getLevenshtein(b.value);
+        return d1 - d2;
+      });
+      this.filteredOptions$.next(options);
+    });
   }
 
   async ngAfterViewInit() {
@@ -246,7 +275,6 @@ export class InputComponent extends Utils() implements AfterViewInit {
       default:
         toChange = null;
     }
-    console.log({value, toChange});
     if (!isEqual(value, toChange)) {
       this.value = toChange;
       this.onInput(toChange);
@@ -277,13 +305,14 @@ export class InputComponent extends Utils() implements AfterViewInit {
     this.validateValue(value);
     switch (info.type) {
       case "string":
-        if (info.options && !isAutocomplete) {
-          this._onChangeTimeout = window.setTimeout(() => {
+        if (value && info.options && !isAutocomplete) {
+          const timeoutId = window.setTimeout(() => {
             if (info.optionInputOnly && !this.options.find((v) => v.value === value)) {
-              value = this.value = "";
+              this.value = "";
             }
-            info.onChange?.(value);
-          }, 200);
+            this.onChange();
+          }, this.onChangeDelayTime);
+          this.onChangeDelay = {timeoutId};
         } else {
           info.onChange?.(value);
         }
@@ -332,7 +361,10 @@ export class InputComponent extends Utils() implements AfterViewInit {
   }
 
   onAutocompleteChange(event: MatAutocompleteSelectedEvent) {
-    window.clearTimeout(this._onChangeTimeout);
+    if (this.onChangeDelay) {
+      window.clearTimeout(this.onChangeDelay.timeoutId);
+      this.onChangeDelay = null;
+    }
     this.onChange(event.option.value, true);
   }
 
@@ -347,6 +379,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
       default:
         break;
     }
+    this.valueChange$.next(value);
   }
 
   onBlur() {

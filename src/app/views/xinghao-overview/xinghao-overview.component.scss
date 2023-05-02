@@ -7,20 +7,36 @@
 }
 
 .sections {
-  height: 100%;
+  overflow-x: auto;
   --mat-icon-size: 24px;
   --mat-icon-padding: 0;
 
   .section {
     display: flex;
     justify-content: center;
-    width: 300px;
-    height: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+
+    .section-title {
+      align-items: center;
+    }
 
     .items {
+      min-height: 20px;
+      padding: 5px;
+      box-sizing: border-box;
+
       .item {
+        align-items: center;
+
         .name {
+          cursor: pointer;
           align-items: center;
+        }
+
+        &.placeholder {
+          opacity: 0;
+          height: 5px;
         }
       }
     }

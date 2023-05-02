@@ -152,7 +152,7 @@ export class MessageComponent implements OnInit, AfterViewInit {
     return false;
   }
 
-  submit(button?: ButtonMessageData["buttons"][number]) {
+  async submit(button?: ButtonMessageData["buttons"][number]) {
     const type = this.data.type;
     if (type === "confirm") {
       this.dialogRef.close(true);
@@ -160,6 +160,9 @@ export class MessageComponent implements OnInit, AfterViewInit {
       const values: ObjectOf<string> = {};
       const inputs = this.formInputs?.toArray() || [];
       for (const input of inputs) {
+        if (input.onChangeDelay) {
+          await timeout(input.onChangeDelayTime);
+        }
         const errorMsg = input.errorMsg;
         if (errorMsg) {
           return;

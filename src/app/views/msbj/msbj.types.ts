@@ -21,15 +21,13 @@ export class MsbjInfo {
       peizhishuju = {模块节点: []};
     }
     this.peizhishuju = peizhishuju;
-    if (node2rectData) {
-      this.updateRectsInfo(node2rectData);
-    }
+    this.updateRectsInfo(node2rectData);
     if (!peizhishuju.模块大小关系) {
       peizhishuju.模块大小关系 = mokuaidaixiaoData;
     }
   }
 
-  updateRectsInfo(data: Node2rectData) {
+  updateRectsInfo(data?: Node2rectData) {
     const peizhishuju = this.peizhishuju;
     let rectInfos1: MsbjRectInfoRaw[] | null = null;
     try {
@@ -69,6 +67,6 @@ export const node2rectDataMsdxKeys = ["锁扇正面总宽", "锁扇背面总宽"
 
 declare global {
   interface Window {
-    node2rect(node: any, data: Node2rectData): MsbjRectInfoRaw[];
+    node2rect(node: any, data?: Node2rectData): MsbjRectInfoRaw[];
   }
 }

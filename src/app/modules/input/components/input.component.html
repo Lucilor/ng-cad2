@@ -50,7 +50,7 @@
       </button>
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onAutocompleteChange($event)">
         <mat-option
-          *ngFor="let option of filteredOptions"
+          *ngFor="let option of filteredOptions$ | async"
           [value]="option.value"
           [matTooltip]="option.label === option.value ? option.label : option.label + '=' + option.value"
           [matTooltipShowDelay]="500"
@@ -91,7 +91,7 @@
       </button>
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onAutocompleteChange($event)">
         <mat-option
-          *ngFor="let option of filteredOptions"
+          *ngFor="let option of filteredOptions$ | async"
           [value]="option.value"
           [matTooltip]="option.label === option.value ? option.label : option.label + '=' + option.value"
           [matTooltipShowDelay]="500"

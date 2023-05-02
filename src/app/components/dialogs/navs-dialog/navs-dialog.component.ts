@@ -10,7 +10,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {debounce} from "lodash";
 import {getOpenDialogFunc} from "../dialog.common";
-import {NavsDialogOutput, NavsDialogInput, NavsData, NavsDataNode} from "./navs-dialog.types";
+import {NavsDialogOutput, NavsDialogInput, NavsData, NavsDataNode, NavsResultItem} from "./navs-dialog.types";
 
 @Component({
   selector: "app-navs-dialog",
@@ -96,25 +96,23 @@ export class NavsDialogComponent {
 
   submit() {
     const result: NavsDialogOutput = [];
-    const getSelectedNodes = (nodes: NavsDataNode[], tou?: string, da?: string) => {
+    const getSelectedNodes = (nodes: NavsDataNode[], tou?: NavsResultItem["tou"], da?: NavsResultItem["da"]) => {
       for (const node of nodes) {
         if (!this.filterNode(node)) {
           continue;
         }
-        if (node.selected) {
+        if (node.selected && tou && da) {
           result.push({
-            tou: tou || "",
-            da: da || "",
-            xiao: node.mingzi || "",
-            table: node.table || "",
-            url: node.url || ""
+            tou,
+            da,
+            xiao: {id: node.vid, name: node.mingzi, table: node.table || ""}
           });
         }
         if (node.dadaohang) {
-          getSelectedNodes(node.dadaohang, node.mingzi);
+          getSelectedNodes(node.dadaohang, {id: node.vid, name: node.mingzi});
         }
         if (node.xiaodaohang) {
-          getSelectedNodes(node.xiaodaohang, tou, node.mingzi);
+          getSelectedNodes(node.xiaodaohang, tou, {id: node.vid, name: node.mingzi});
         }
       }
     };

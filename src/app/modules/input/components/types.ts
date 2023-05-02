@@ -26,20 +26,16 @@ export interface InputInfoBase<T = any> {
   name?: string;
 }
 
-export interface InputInfoString<T = any> extends InputInfoBase<T> {
+export interface InputInfoString<T = any> extends InputInfoWithOptions<T, string> {
   type: "string";
   value?: Value<string>;
   optionKey?: string;
   textarea?: {autosize?: {minRows?: number; maxRows?: number}};
   onInput?: (val: string) => void;
   onChange?: (val: string) => void;
-  options?: InputInfoOptions;
-  fixedOptions?: string[];
-  noFilterOptions?: boolean;
-  optionInputOnly?: boolean;
 }
 
-export interface InputInfoNumber<T = any> extends InputInfoBase<T> {
+export interface InputInfoNumber<T = any> extends InputInfoWithOptions<T, number> {
   type: "number";
   value?: Value<number>;
   step?: number;
@@ -47,10 +43,6 @@ export interface InputInfoNumber<T = any> extends InputInfoBase<T> {
   max?: number;
   onInput?: (val: number) => void;
   onChange?: (val: number) => void;
-  options?: InputInfoOptions<number>;
-  fixedOptions?: string[];
-  noFilterOptions?: boolean;
-  optionInputOnly?: boolean;
 }
 
 export interface InputInfoObject<T = any> extends InputInfoBase<T> {
@@ -134,4 +126,13 @@ export interface InputInfoTypeMap {
   group: InputInfoGroup;
 }
 
-export type InputInfoOptions<T = string> = ({value: T; label?: string} | T)[];
+export interface InputInfoWithOptions<T = any, K = any> extends InputInfoBase<T> {
+  options?: InputInfoOptions<K>;
+  filter?: (option: InputInfoOption<K>, val: K) => boolean;
+  fixedOptions?: string[];
+  optionInputOnly?: boolean;
+}
+
+export type InputInfoOption<T = string> = ({value: T; label?: string} | T);
+
+export type InputInfoOptions<T = string> = InputInfoOption<T>[];
