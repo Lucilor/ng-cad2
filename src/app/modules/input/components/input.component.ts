@@ -198,42 +198,61 @@ export class InputComponent extends Utils() implements AfterViewInit {
   constructor(private message: MessageService, private dialog: MatDialog) {
     super();
     this.valueChange$.subscribe((val) => {
-      if (!val) {
-        this.filteredOptions$.next(this.options);
-        return;
-      }
       const info = this.info;
-      const type = info.type;
-      let fixedOptions: string[] = [];
-      let filterFn: InputInfoWithOptions["filter"];
-      if (type === "string" || type === "number") {
-        fixedOptions = info.fixedOptions ?? [];
-        filterFn = info.filter;
-      }
-      const options = this.options.filter((option) => {
-        const {value, label} = option;
-        if (fixedOptions.includes(value) || fixedOptions.includes(label)) {
-          return true;
+      const {fixedOptions, filterValuesGetter, optionsDisplayLimit} = info as InputInfoWithOptions;
+      let sortOptions: boolean;
+      const getFilterValues = (option: (typeof this.options)[number]) => {
+        let values: string[] = [];
+        if (typeof filterValuesGetter === "function") {
+          values = filterValuesGetter(option);
+        } else {
+          values = [option.value, option.label];
         }
-        if (typeof filterFn === "function") {
-          return filterFn(option, val);
-        }
-        return value.includes(val) || label.includes(val);
-      });
-      const cache: ObjectOf<number> = {};
-      const getLevenshtein = (s: string) => {
-        if (cache[s]) {
-          return cache[s];
-        }
-        const d = levenshtein(s, this.value);
-        cache[s] = d;
-        return d;
+        return values;
       };
-      options.sort((a, b) => {
-        const d1 = getLevenshtein(a.value);
-        const d2 = getLevenshtein(b.value);
-        return d1 - d2;
-      });
+      let options: typeof this.options;
+      if (val) {
+        options = this.options.filter((option) => {
+          const values = getFilterValues(option);
+          for (const v of values) {
+            if (v.includes(val) || (fixedOptions && fixedOptions.includes(v))) {
+              return true;
+            }
+          }
+          return false;
+        });
+        sortOptions = true;
+      } else {
+        options = this.options;
+        sortOptions = false;
+      }
+      if (typeof optionsDisplayLimit === "number") {
+        options = options.slice(0, optionsDisplayLimit);
+      }
+      if (sortOptions) {
+        const cache: ObjectOf<number> = {};
+        const valueTarget = this.value;
+        const getLevenshtein = (option: (typeof options)[number]) => {
+          const values = getFilterValues(option);
+          let dMin = Infinity;
+          for (const v of values) {
+            let d: number;
+            if (v in cache) {
+              d = cache[v];
+            } else {
+              d = levenshtein(v, valueTarget);
+              cache[v] = d;
+            }
+            dMin = Math.min(dMin, d);
+          }
+          return dMin;
+        };
+        options.sort((a, b) => {
+          const d1 = getLevenshtein(a);
+          const d2 = getLevenshtein(b);
+          return d1 - d2;
+        });
+      }
       this.filteredOptions$.next(options);
     });
   }

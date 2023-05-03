@@ -2,11 +2,11 @@ import {CdkDragDrop, moveItemInArray, transferArrayItem} from "@angular/cdk/drag
 import {Component, OnInit} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {setGlobal} from "@app/app.common";
-import {NavsData, NavsDataNode, NavsDialogOutput, NavsResultItem} from "@components/dialogs/navs-dialog/navs-dialog.types";
+import {NavsData, NavsDataNode, NavsResultItem} from "@components/dialogs/navs-dialog/navs-dialog.types";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf, WindowMessageManager} from "@utils";
+import {downloadByString, ObjectOf, WindowMessageManager} from "@utils";
 import {XinghaoOverviewData, XinghaoOverviewTableData} from "./xinghao-overview.types";
 
 @Component({
@@ -16,9 +16,9 @@ import {XinghaoOverviewData, XinghaoOverviewTableData} from "./xinghao-overview.
 })
 export class XinghaoOverviewComponent implements OnInit {
   table = "p_xinghaoshujukuaisupeizhi";
-  data = new XinghaoOverviewData();
+  data = new XinghaoOverviewData(-1);
   navs: NavsData = [];
-  xiaodaohangs: ObjectOf<NavsDialogOutput[number]> = {};
+  xiaodaohangs: ObjectOf<NavsResultItem> = {};
   wmm = new WindowMessageManager("xinghaoOverview", this, window.parent);
 
   constructor(private spinner: SpinnerService, private dataService: CadDataService, private message: MessageService) {
@@ -33,7 +33,8 @@ export class XinghaoOverviewComponent implements OnInit {
       records = await this.dataService.queryMySql<XinghaoOverviewTableData>({table: this.table, limit: 1});
     }
     if (records[0]) {
-      this.data.import(records[0]);
+      this.data.id = records[0].vid;
+      this.data.import(records[0].data || "");
     } else {
       this.message.error("数据错误");
     }
@@ -72,6 +73,7 @@ export class XinghaoOverviewComponent implements OnInit {
     for (const tou of this.navs) {
       addXiaodaohang(tou);
     }
+    this.data.justify(this.xiaodaohangs);
     this.spinner.hide(this.spinner.defaultLoaderId);
   }
 
@@ -88,14 +90,15 @@ export class XinghaoOverviewComponent implements OnInit {
       label: "小导航",
       options,
       optionInputOnly: true,
-      filter: (option, value: string) => {
+      optionsDisplayLimit: 10,
+      filterValuesGetter: (option) => {
         const key = typeof option === "string" ? option : option.value;
         const item = this.xiaodaohangs[key];
         if (item) {
           const {name, table} = item.xiao;
-          return name.includes(value) || table.includes(value);
+          return [name, table];
         }
-        return false;
+        return [];
       },
       validators: Validators.required
     });
@@ -129,5 +132,25 @@ export class XinghaoOverviewComponent implements OnInit {
     this.spinner.show(this.spinner.defaultLoaderId);
     this.dataService.tableUpdate<XinghaoOverviewTableData>({table: this.table, tableData: {vid: this.data.id, data}});
     this.spinner.hide(this.spinner.defaultLoaderId);
+  }
+
+  import() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (file) {
+        const data = await file.text();
+        this.data.import(data);
+        this.data.justify(this.xiaodaohangs);
+      }
+    };
+    input.click();
+  }
+
+  export() {
+    const data = this.data.export();
+    downloadByString(data, {filename: document.title + ".json"});
   }
 }

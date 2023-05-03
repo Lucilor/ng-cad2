@@ -2,6 +2,7 @@ import {NavsResultItem} from "@components/dialogs/navs-dialog/navs-dialog.types"
 import {Utils} from "@mixins/utils.mixin";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/types";
+import {ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
 
 export interface XinghaoOverviewTableData extends TableDataBase {
@@ -9,13 +10,16 @@ export interface XinghaoOverviewTableData extends TableDataBase {
 }
 
 export class XinghaoOverviewData extends Utils() {
-  id = -1;
   sections: XinghaoOverviewSection[] = [];
 
-  import(data: XinghaoOverviewTableData) {
-    this.id = data.vid;
+  constructor(public id: number) {
+    super();
+  }
+
+  import(data: string) {
+    this.sections = [];
     try {
-      const data2 = JSON.parse(data.data || "");
+      const data2 = JSON.parse(data);
       for (const section of data2?.sections || []) {
         this.addSection(undefined, section);
       }
@@ -58,6 +62,19 @@ export class XinghaoOverviewData extends Utils() {
 
   removeItem(section: XinghaoOverviewSection, index: number) {
     this.arrayRemove(section.items, index);
+  }
+
+  justify(xiaodaohangs: ObjectOf<NavsResultItem>) {
+    for (const section of this.sections) {
+      const items = section.items;
+      section.items = [];
+      for (const item of items) {
+        const item2 = xiaodaohangs[item.xiao.name];
+        if (item2) {
+          section.items.push(item2);
+        }
+      }
+    }
   }
 }
 

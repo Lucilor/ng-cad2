@@ -128,9 +128,10 @@ export interface InputInfoTypeMap {
 
 export interface InputInfoWithOptions<T = any, K = any> extends InputInfoBase<T> {
   options?: InputInfoOptions<K>;
-  filter?: (option: InputInfoOption<K>, val: K) => boolean;
+  filterValuesGetter?: (option: InputInfoOption<K>) => string[];
   fixedOptions?: string[];
   optionInputOnly?: boolean;
+  optionsDisplayLimit?: number;
 }
 
 export type InputInfoOption<T = string> = {value: T; label?: string} | T;
