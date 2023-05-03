@@ -1,5 +1,5 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import bancaifenzuIndexData from "@assets/testData/bancaifenzuIndex.json";
 import {BancaiFormComponent} from "@components/bancai-form/bancai-form.component";
 import {HttpModule} from "@modules/http/http.module";

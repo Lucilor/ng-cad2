@@ -1,4 +1,4 @@
-import {Constructor, keysOf, ObjectOf} from "@utils";
+import {Constructor, ObjectOf, keysOf} from "@utils";
 
 export const Utils = <T extends Constructor>(base: T = class {} as T) =>
   class extends base {

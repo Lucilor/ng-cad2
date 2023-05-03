@@ -1,14 +1,14 @@
 import {HttpClientModule} from "@angular/common/http";
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {ReactiveFormsModule} from "@angular/forms";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
-import {RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY} from "ng-recaptcha";
+import {RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module} from "ng-recaptcha";
 import {LoginFormComponent, LoginFormData} from "./login-form.component";
 
 const data: LoginFormData = {project: {id: "test", name: "测试"}, baseUrl: ""};

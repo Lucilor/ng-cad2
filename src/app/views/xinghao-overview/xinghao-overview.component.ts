@@ -6,7 +6,7 @@ import {NavsData, NavsDataNode, NavsResultItem} from "@components/dialogs/navs-d
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {downloadByString, ObjectOf, WindowMessageManager} from "@utils";
+import {ObjectOf, WindowMessageManager, downloadByString} from "@utils";
 import {XinghaoOverviewData, XinghaoOverviewTableData} from "./xinghao-overview.types";
 
 @Component({

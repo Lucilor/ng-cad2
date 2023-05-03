@@ -6,8 +6,8 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {importObject, exportObject, timeout} from "@utils";
-import {isObject, cloneDeep, uniq} from "lodash";
+import {exportObject, importObject, timeout} from "@utils";
+import {cloneDeep, isObject, uniq} from "lodash";
 
 @Component({
   selector: "app-klcs",

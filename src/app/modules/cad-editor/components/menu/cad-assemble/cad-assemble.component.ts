@@ -1,10 +1,10 @@
-import {Component, OnInit, OnDestroy} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {setGlobal} from "@app/app.common";
-import {CadData, CadEventCallBack, CadEntity, CadConnection, CadLine, PointsMap, generatePointsMap} from "@cad-viewer";
+import {CadConnection, CadData, CadEntity, CadEventCallBack, CadLine, PointsMap, generatePointsMap} from "@cad-viewer";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
-import {AppConfigService, AppConfig} from "@services/app-config.service";
+import {AppConfig, AppConfigService} from "@services/app-config.service";
 import {AppStatusService, CadPoints} from "@services/app-status.service";
 import {CadStatus, CadStatusAssemble} from "@services/cad-status";
 import {debounce, difference, differenceBy} from "lodash";

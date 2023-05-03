@@ -1,6 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {defaultQiezhongkongItem, KlcsComponent, QiezhongkongItem} from "@components/klcs/klcs.component";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {KlcsComponent, QiezhongkongItem, defaultQiezhongkongItem} from "@components/klcs/klcs.component";
 import {HttpModule} from "@modules/http/http.module";
 import {InputModule} from "@modules/input/input.module";
 import {importObject} from "@utils";

@@ -17,13 +17,13 @@ import {Formulas} from "@app/utils/calc";
 import {CadData, CadLine, CadViewer, CadViewerConfig, Defaults, generateLineTexts, setLinesLength} from "@cad-viewer";
 import {openEditFormulasDialog} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";
 import {
-  calcZxpj,
   CalcZxpjResult,
+  ZixuanpeijianCadItem,
+  ZixuanpeijianMokuaiItem,
+  calcZxpj,
   getMokuaiTitle,
   getStep1Data,
-  getZixuanpeijianCads,
-  ZixuanpeijianCadItem,
-  ZixuanpeijianMokuaiItem
+  getZixuanpeijianCads
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";

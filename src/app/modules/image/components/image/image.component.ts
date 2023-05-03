@@ -1,4 +1,4 @@
-import {trigger, transition, style, animate} from "@angular/animations";
+import {animate, style, transition, trigger} from "@angular/animations";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {SafeUrl} from "@angular/platform-browser";

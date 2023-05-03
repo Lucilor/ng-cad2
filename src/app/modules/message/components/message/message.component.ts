@@ -1,5 +1,5 @@
-import {Component, OnInit, Inject, ViewChild, ElementRef, AfterViewInit, ViewChildren, QueryList, HostListener} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {AfterViewInit, Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren} from "@angular/core";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml, SafeResourceUrl} from "@angular/platform-browser";
 import {Debounce} from "@decorators/debounce";
 import {JsonEditorComponent, JsonEditorOptions} from "@maaxgr/ang-jsoneditor";

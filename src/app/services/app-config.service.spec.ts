@@ -1,6 +1,5 @@
 import {TestBed} from "@angular/core/testing";
 import {HttpModule} from "@modules/http/http.module";
-
 import {AppConfigService} from "./app-config.service";
 
 describe("AppConfigService", () => {

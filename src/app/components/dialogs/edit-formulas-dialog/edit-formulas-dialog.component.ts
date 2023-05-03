@@ -1,5 +1,5 @@
 import {Component, Inject, ViewChild} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {Formulas} from "@app/utils/calc";
 import {FormulasEditorComponent} from "@components/formulas-editor/formulas-editor.component";
 import {getOpenDialogFunc} from "../dialog.common";

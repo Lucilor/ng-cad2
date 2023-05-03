@@ -1,21 +1,21 @@
-import {Component, OnInit, OnDestroy} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {reservedDimNames} from "@app/cad.utils";
 import {
-  CadDimension,
   CadData,
-  CadLine,
-  CadEventCallBack,
-  CadLineLike,
-  CadEntity,
-  Defaults,
+  CadDimension,
+  CadDimensionLinear,
   CadDimensionType,
-  CadDimensionLinear
+  CadEntity,
+  CadEventCallBack,
+  CadLine,
+  CadLineLike,
+  Defaults
 } from "@cad-viewer";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
-import {AppConfigService, AppConfig} from "@services/app-config.service";
+import {AppConfig, AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CadStatusEditDimension, CadStatusNormal} from "@services/cad-status";
 import {debounce} from "lodash";

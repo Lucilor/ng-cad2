@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
-import {KlkwpzSource, KlkwpzItem} from "@components/klkwpz/klkwpz";
+import {KlkwpzItem, KlkwpzSource} from "@components/klkwpz/klkwpz";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";

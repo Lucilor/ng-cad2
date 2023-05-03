@@ -1,6 +1,6 @@
 import {Component, Inject} from "@angular/core";
 import {Validators} from "@angular/forms";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {session, setGlobal} from "@app/app.common";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/input.types";

@@ -1,6 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MatButtonModule} from "@angular/material/button";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatMenuModule} from "@angular/material/menu";
 import {DirectivesModule} from "@modules/directives/directives.module";
 import {HttpModule} from "@modules/http/http.module";

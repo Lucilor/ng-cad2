@@ -16,7 +16,7 @@ import {
   FontStyle,
   setLinesLength
 } from "@cad-viewer";
-import {isNearZero, isBetween, Point, ObjectOf, getDPI, getImageDataUrl, loadImage, Rectangle, Matrix} from "@utils";
+import {Matrix, ObjectOf, Point, Rectangle, getDPI, getImageDataUrl, isBetween, isNearZero, loadImage} from "@utils";
 import {Properties} from "csstype";
 import {cloneDeep, intersection} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";

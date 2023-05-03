@@ -1,5 +1,5 @@
 import {Component, Inject} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {BancaiFormData} from "@components/bancai-form/bancai-form.component";
 import {environment} from "@env";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";

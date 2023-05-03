@@ -1,8 +1,8 @@
 import {Component, Inject} from "@angular/core";
-import {ValidatorFn, AbstractControl} from "@angular/forms";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {AbstractControl, ValidatorFn} from "@angular/forms";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
-import {getFormControl, getFormGroup, TypedFormGroup} from "@app/app.common";
+import {TypedFormGroup, getFormControl, getFormGroup} from "@app/app.common";
 import {CadDimensionLinear} from "@cad-viewer";
 import {getOpenDialogFunc} from "@components/dialogs/dialog.common";
 import {FontStyle} from "src/cad-viewer/src/cad-data/cad-styles";

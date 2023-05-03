@@ -7,7 +7,7 @@ import {printCads} from "@app/cad.print";
 import {CadArc, CadData, CadDimensionLinear} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {Arg, Command, ValuedCommand} from "@modules/cad-console/cad-command-types";
-import {getContent, getEmphasized, getBashStyle, spaceReplacer} from "@modules/cad-console/cad-console.utils";
+import {getBashStyle, getContent, getEmphasized, spaceReplacer} from "@modules/cad-console/cad-console.utils";
 import {BookData, getListStr} from "@modules/message/components/message/message-types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";

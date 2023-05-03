@@ -1,7 +1,7 @@
 import {NestedTreeControl} from "@angular/cdk/tree";
 import {Component, Inject} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatTreeNestedDataSource} from "@angular/material/tree";
 import {session, setGlobal} from "@app/app.common";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -10,7 +10,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {debounce} from "lodash";
 import {getOpenDialogFunc} from "../dialog.common";
-import {NavsDialogOutput, NavsDialogInput, NavsData, NavsDataNode, NavsResultItem} from "./navs-dialog.types";
+import {NavsData, NavsDataNode, NavsDialogInput, NavsDialogOutput, NavsResultItem} from "./navs-dialog.types";
 
 @Component({
   selector: "app-navs-dialog",

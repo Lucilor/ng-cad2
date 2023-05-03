@@ -6,9 +6,8 @@
  *
  * Copyright (c) 2022 Your Company
  */
-
 import {ObjectOf} from "@utils";
-import {Cast2String, toFixed, Cast2Number} from "./calc";
+import {Cast2Number, Cast2String, toFixed} from "./calc";
 
 /* eslint-disable */
 export interface Dictionary<T> {

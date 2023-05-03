@@ -1,5 +1,5 @@
-import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
+import {NgModule} from "@angular/core";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ImageComponent} from "./components/image/image.component";
 

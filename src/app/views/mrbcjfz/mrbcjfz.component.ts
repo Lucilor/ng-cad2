@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {ValidationErrors} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {setGlobal, XiaodaohangStructure} from "@app/app.common";
+import {XiaodaohangStructure, setGlobal} from "@app/app.common";
 import {getCadPreview} from "@app/cad.utils";
 import {CadData} from "@cad-viewer";
 import {openBancaiFormDialog} from "@components/dialogs/bancai-form-dialog/bancai-form-dialog.component";
@@ -12,16 +12,11 @@ import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {timeout, WindowMessageManager} from "@utils";
+import {WindowMessageManager, timeout} from "@utils";
 import {Properties} from "csstype";
 import {isEmpty, union} from "lodash";
 import {
-  filterCad,
-  filterHuajian,
-  getMrbcjfzInfo,
-  isMrbcjfzInfoEmpty,
   ListItemKey,
-  listItemKeys,
   MrbcjfzCadInfo,
   MrbcjfzHuajianInfo,
   MrbcjfzInfo,
@@ -29,7 +24,12 @@ import {
   MrbcjfzQiliaoInfo,
   MrbcjfzResponseData,
   MrbcjfzXinghao,
-  MrbcjfzXinghaoInfo
+  MrbcjfzXinghaoInfo,
+  filterCad,
+  filterHuajian,
+  getMrbcjfzInfo,
+  isMrbcjfzInfoEmpty,
+  listItemKeys
 } from "./mrbcjfz.types";
 
 @Component({

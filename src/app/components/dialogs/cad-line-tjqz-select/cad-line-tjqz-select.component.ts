@@ -1,5 +1,5 @@
 import {Component, Inject} from "@angular/core";
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
 import {CadData} from "@cad-viewer";
 import {MessageService} from "@modules/message/services/message.service";

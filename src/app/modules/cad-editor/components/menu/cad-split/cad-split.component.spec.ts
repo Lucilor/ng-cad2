@@ -3,7 +3,6 @@ import {RouterTestingModule} from "@angular/router/testing";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
-
 import {CadSplitComponent} from "./cad-split.component";
 
 describe("CadSplitComponent", () => {

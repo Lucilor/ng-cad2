@@ -1,4 +1,4 @@
-import {Component, Inject, ViewChild, AfterViewInit} from "@angular/core";
+import {AfterViewInit, Component, Inject, ViewChild} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";

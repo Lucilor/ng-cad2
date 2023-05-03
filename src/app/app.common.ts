@@ -1,6 +1,6 @@
 import {AbstractControlOptions, FormControl, FormControlOptions, FormControlState, FormGroup} from "@angular/forms";
 import {environment} from "@env";
-import {LocalStorage, log, ObjectOf, SessionStorage, Timer} from "@utils";
+import {LocalStorage, ObjectOf, SessionStorage, Timer, log} from "@utils";
 
 declare global {
   interface Window {

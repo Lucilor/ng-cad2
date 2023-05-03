@@ -1,5 +1,5 @@
 import {Component, Inject} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {getOpenDialogFunc} from "@components/dialogs/dialog.common";
 import {InputInfo} from "@modules/input/components/input.types";
 

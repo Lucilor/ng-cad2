@@ -1,10 +1,10 @@
-import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {NgxUiLoaderHttpModule} from "ngx-ui-loader";
 import {HttpClientModule} from "@angular/common/http";
-import {RouterModule} from "@angular/router";
+import {NgModule} from "@angular/core";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {RouterModule} from "@angular/router";
 import {MessageModule} from "@modules/message/message.module";
+import {NgxUiLoaderHttpModule} from "ngx-ui-loader";
 
 @NgModule({
   declarations: [],

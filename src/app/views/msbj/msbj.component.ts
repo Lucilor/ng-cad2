@@ -14,7 +14,7 @@ import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {MsbjInfo, MsbjFenlei, MsbjData} from "./msbj.types";
+import {MsbjData, MsbjFenlei, MsbjInfo} from "./msbj.types";
 
 @Component({
   selector: "app-msjgbj",

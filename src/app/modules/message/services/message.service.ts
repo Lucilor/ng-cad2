@@ -10,12 +10,12 @@ import {
   ConfirmMessageData,
   EditorMessageData,
   FormMessageData,
-  getListEl,
   IFrameMessageData,
   JsonMessageData,
   MessageData,
   MessageDataMap,
-  MessageOutput
+  MessageOutput,
+  getListEl
 } from "../components/message/message-types";
 import {MessageComponent} from "../components/message/message.component";
 

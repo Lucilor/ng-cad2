@@ -1,5 +1,5 @@
 import {NgModule} from "@angular/core";
-import {Route, Routes, RouterModule} from "@angular/router";
+import {Route, RouterModule, Routes} from "@angular/router";
 import {ProjectGuard} from "@guards/project.guard";
 import {PathResolveService} from "@services/path-resolve.service";
 import {BackupComponent} from "@views/backup/backup.component";

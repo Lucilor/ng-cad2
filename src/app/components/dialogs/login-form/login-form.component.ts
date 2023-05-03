@@ -1,7 +1,7 @@
 import {HttpClient} from "@angular/common/http";
 import {AfterViewInit, Component, Inject} from "@angular/core";
 import {Validators} from "@angular/forms";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {getFormControl, getFormGroup} from "@app/app.common";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";

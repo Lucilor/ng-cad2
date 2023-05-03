@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {CadMtext, CadStylizer, ColoredObject} from "@cad-viewer";
 import {environment} from "@env";
 import {Subscribed} from "@mixins/subscribed.mixin";

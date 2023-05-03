@@ -1,8 +1,8 @@
 import {ObjectOf} from "@utils";
 import {isEmpty, trim, uniq} from "lodash";
-import {CalcCircularReferenceError, CalcSelfReferenceError} from "./errors";
 import {toFixed} from "../func";
-import {Formulas, ExpressionInfo, FormulaInfo, ExpressionDeps} from "./types";
+import {CalcCircularReferenceError, CalcSelfReferenceError} from "./errors";
+import {ExpressionDeps, ExpressionInfo, FormulaInfo, Formulas} from "./types";
 
 export class Calc {
   private static _builtins: string[] = [

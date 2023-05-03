@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import {ActivatedRoute, Router, Params} from "@angular/router";
+import {ActivatedRoute, Params, Router} from "@angular/router";
 
 @Component({
   selector: "app-page-not-found",

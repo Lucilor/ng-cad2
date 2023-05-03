@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit, ViewChild} from "@angular/core";
-import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadEditorComponent} from "@modules/cad-editor/components/cad-editor/cad-editor.component";
 import {AppStatusService, OpenCadOptions} from "@services/app-status.service";

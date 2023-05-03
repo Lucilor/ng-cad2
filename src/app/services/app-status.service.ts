@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {ActivatedRoute, Router, Params} from "@angular/router";
+import {ActivatedRoute, Params, Router} from "@angular/router";
 import {
   CadData,
   CadEntities,
@@ -9,18 +9,19 @@ import {
   CadLineLike,
   CadMtext,
   CadViewer,
+  PointsMap,
   generateLineTexts,
   generatePointsMap,
-  PointsMap,
   setLinesLength
 } from "@cad-viewer";
+import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf, timeout} from "@utils";
-import {differenceWith, clamp} from "lodash";
+import {clamp, differenceWith} from "lodash";
 import {BehaviorSubject, Subject} from "rxjs";
-import {CadCollection, local, ProjectConfig, timer} from "../app.common";
+import {CadCollection, ProjectConfig, local, timer} from "../app.common";
 import {
   getCadPreview,
   getCadTotalLength,
@@ -35,9 +36,8 @@ import {
   validateCad,
   validateLines
 } from "../cad.utils";
-import {CadStatusNormal, CadStatus} from "./cad-status";
-import {AppConfigService, AppConfig} from "./app-config.service";
-import {environment} from "@env";
+import {AppConfig, AppConfigService} from "./app-config.service";
+import {CadStatus, CadStatusNormal} from "./cad-status";
 
 const 合型板示意图 = new CadData();
 合型板示意图.entities.add(new CadLine({start: [0, 20], end: [0, -20]}));

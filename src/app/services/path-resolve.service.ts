@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Params} from "@angular/router";
+import {ActivatedRouteSnapshot, Params, Resolve, RouterStateSnapshot} from "@angular/router";
 import {levenshtein} from "@utils";
 import {routesInfo} from "../app-routing.module";
 

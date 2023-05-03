@@ -1,10 +1,10 @@
-import {Component, OnDestroy, AfterViewInit} from "@angular/core";
+import {AfterViewInit, Component, OnDestroy} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {CadViewer, CadData} from "@cad-viewer";
+import {CadData, CadViewer} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {timeout} from "@utils";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {timeout} from "@utils";
 
 export type PreviewData = {
   CAD?: any;

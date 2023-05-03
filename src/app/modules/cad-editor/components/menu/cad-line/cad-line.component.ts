@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, AfterViewInit, HostListener} from "@angular/core";
+import {AfterViewInit, Component, HostListener, OnDestroy, OnInit} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
@@ -13,10 +13,10 @@ import {
   CadViewerConfig,
   ColoredObject,
   Defaults,
+  PointsMap,
   generateLineTexts,
   lineweight2linewidth,
   linewidth2lineweight,
-  PointsMap,
   企料位置识别,
   变化方式
 } from "@cad-viewer";

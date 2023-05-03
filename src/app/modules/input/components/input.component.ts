@@ -7,7 +7,7 @@ import {joinOptions, splitOptions} from "@app/app.common";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
-import {levenshtein, ObjectOf, timeout} from "@utils";
+import {ObjectOf, levenshtein, timeout} from "@utils";
 import Color2 from "color";
 import {isEmpty, isEqual} from "lodash";
 import {Color} from "ngx-color";
