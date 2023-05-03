@@ -25,7 +25,6 @@ export class MessageComponent implements OnInit, AfterViewInit {
   jsonEditorOptions = new JsonEditorOptions();
   inputsBackup: InputInfo[] = [];
   @ViewChild(QuillEditorComponent) editor?: QuillViewComponent;
-  @ViewChild("contentInput") contentInput?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
   @ViewChild("iframe") iframe?: ElementRef<HTMLIFrameElement>;
   @ViewChildren("formInput") formInputs?: QueryList<InputComponent>;
   @ViewChild(JsonEditorComponent, {static: false}) jsonEditor?: JsonEditorComponent;
@@ -76,6 +75,7 @@ export class MessageComponent implements OnInit, AfterViewInit {
     public dialogRef: MatDialogRef<MessageComponent, MessageOutput>,
     private sanitizer: DomSanitizer,
     private message: MessageService,
+    private elRef: ElementRef<HTMLElement>,
     @Inject(MAT_DIALOG_DATA) public data: MessageData
   ) {
     this.data = cloneDeep(this.data);
@@ -126,10 +126,9 @@ export class MessageComponent implements OnInit, AfterViewInit {
   }
 
   async ngAfterViewInit() {
-    if (this.contentInput) {
-      await timeout(500);
-      this.contentInput.nativeElement.focus();
-    }
+    await timeout(500);
+    console.log(this.elRef.nativeElement);
+    // this.elRef.nativeElement.focus();
     // if (this.iframe) {
     //     const iframeEl = this.iframe.nativeElement;
     //     iframeEl.addEventListener("load", () => {

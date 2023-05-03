@@ -77,6 +77,17 @@ export class XinghaoOverviewComponent implements OnInit {
     this.spinner.hide(this.spinner.defaultLoaderId);
   }
 
+  addNavSection() {
+    this.data.addSection();
+  }
+
+  async removeNavSection(i: number) {
+    if (!(await this.message.confirm("确定删除？"))) {
+      return;
+    }
+    this.data.removeSection(i);
+  }
+
   async addNavItem(i: number, j?: number) {
     const currNames: string[] = [];
     for (const section of this.data.sections) {
@@ -108,6 +119,13 @@ export class XinghaoOverviewComponent implements OnInit {
         this.data.addItem(this.data.sections[i], j, item);
       }
     }
+  }
+
+  async removeNavItem(i: number, j: number) {
+    if (!(await this.message.confirm("确定删除？"))) {
+      return;
+    }
+    this.data.removeItem(this.data.sections[i], j);
   }
 
   async openNavItem(item: NavsResultItem) {

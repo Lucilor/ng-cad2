@@ -27,7 +27,14 @@
     </div>
   </ng-container>
 </div>
-<div matDialogActions class="hidden-if-empty" style="justify-content: center" [ngSwitch]="data.type">
+<div
+  class="hidden-if-empty"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+  mat-dialog-actions
+  style="justify-content: center"
+  [ngSwitch]="data.type"
+>
   <ng-container *ngSwitchCase="'alert'">
     <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
   </ng-container>
@@ -63,7 +70,7 @@
 </div>
 
 <ng-template #submitBtn>
-  <button mat-raised-button color="primary" (click)="submit()" cdkFocusInitial>
+  <button mat-raised-button color="primary" (click)="submit()">
     {{ cast(data, "confirm").btnTexts?.submit || "确定" }}
   </button>
 </ng-template>
@@ -75,7 +82,7 @@
 </ng-template>
 
 <ng-template #resetBtn>
-  <button mat-raised-button color="primary" (click)="reset()">
+  <button mat-raised-button color="accent" (click)="reset()">
     {{ cast(data, "json").btnTexts?.reset || "重置" }}
   </button>
 </ng-template>
@@ -86,6 +93,6 @@
 </ng-template>
 
 <ng-template #formBtns>
-  <ng-container *ngTemplateOutlet="resetBtn"></ng-container>
   <ng-container *ngTemplateOutlet="confirmBtns"></ng-container>
+  <ng-container *ngTemplateOutlet="resetBtn"></ng-container>
 </ng-template>

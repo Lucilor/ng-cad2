@@ -1,5 +1,5 @@
 <div class="btn-group">
-  <button mat-raised-button color="primary" (click)="data.addSection()">添加分组</button>
+  <button mat-raised-button color="primary" (click)="addNavSection()">添加分组</button>
   <button mat-raised-button color="primary" (click)="submit()">保存</button>
   <button mat-raised-button color="primary" (click)="import()">导入</button>
   <button mat-raised-button color="primary" (click)="export()">导出</button>
@@ -17,7 +17,7 @@
     <div class="section flex-column" cdkDrag>
       <div class="section-title flex-row">
         <div class="drag-placeholder" cdkDragHandle></div>
-        <button mat-icon-button color="accent" (click)="data.removeSection(i)"><mat-icon>close</mat-icon></button>
+        <button mat-icon-button color="accent" (click)="removeNavSection(i)"><mat-icon>close</mat-icon></button>
         <app-input *ngIf="section.nameInputInfo" [info]="section.nameInputInfo"></app-input>
       </div>
       <div class="items">
@@ -32,7 +32,7 @@
             <div class="item flex-row" cdkDrag>
               <div class="drag-placeholder" cdkDragHandle></div>
               <button mat-icon-button color="primary" (click)="addNavItem(i, j)"><mat-icon>add</mat-icon></button>
-              <button mat-icon-button color="accent" (click)="data.removeItem(section, j)"><mat-icon>remove</mat-icon></button>
+              <button mat-icon-button color="accent" (click)="removeNavItem(i, j)"><mat-icon>remove</mat-icon></button>
               <div class="name flex-row flex-110" (click)="onItemClick(item)">{{ item.xiao.name }}</div>
             </div>
           </ng-container>
