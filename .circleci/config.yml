@@ -22,10 +22,6 @@ executors:
     resource_class: large
 
 jobs:
-  build:
-    executor: default
-    steps:
-      - build
   lint:
     executor: default
     steps:
@@ -46,10 +42,5 @@ jobs:
 workflows:
   test:
     jobs:
-      - build
-      - lint:
-          requires:
-            - build
-      - unit-test:
-          requires:
-            - build
+      - lint
+      - unit-test
