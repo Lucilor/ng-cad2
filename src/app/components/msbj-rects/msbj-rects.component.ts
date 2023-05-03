@@ -62,8 +62,8 @@ export class MsbjRectsComponent {
     return {
       left: `${rect.min.x * 100}%`,
       top: `${rect.min.y * 100}%`,
-      width: `${rect.width * 100}%`,
-      height: `${rect.height * 100}%`,
+      width: `${Math.max(0, rect.width) * 100}%`,
+      height: `${Math.max(0, rect.height) * 100}%`,
       backgroundColor: bgColor
     };
   }

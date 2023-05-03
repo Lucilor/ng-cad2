@@ -3,6 +3,7 @@ import {uniqueId} from "lodash";
 
 export interface MsbjRectInfoRaw {
   vid: number;
+  name?: string;
   isBuju: boolean;
   rect: {
     origin: {
@@ -25,13 +26,18 @@ export type GongshiObj = ObjectOf<any>;
 
 export class MsbjRectInfo {
   id: string;
-  name: string;
   rect: Rectangle;
   bgColor?: string;
 
+  get name() {
+    return this.raw.name || "";
+  }
+  set name(value) {
+    this.raw.name = value;
+  }
+
   constructor(public raw: MsbjRectInfoRaw) {
     this.id = uniqueId();
-    this.name = "";
     const {x, y} = raw.rect.origin;
     const {w, h} = raw.rect.size;
     this.rect = new Rectangle([x, y], [x + w, y + h]);

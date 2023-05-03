@@ -76,10 +76,8 @@ export class MsbjComponent implements AfterViewInit {
   setCurrRectInfo(info: MsbjRectInfo | null) {
     const {nameInputInfo} = this;
     if (info?.raw.isBuju) {
-      nameInputInfo.readonly = false;
       nameInputInfo.model = {data: info, key: "name"};
     } else {
-      nameInputInfo.readonly = true;
       delete nameInputInfo.model;
     }
   }

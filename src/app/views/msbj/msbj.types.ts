@@ -33,16 +33,7 @@ export class MsbjInfo {
     try {
       rectInfos1 = window.node2rect(JSON.parse(this.rawData.node || ""), data);
     } catch (error) {}
-    if (rectInfos1) {
-      peizhishuju.模块节点 = [];
-      for (const info1 of rectInfos1) {
-        const info2 = peizhishuju.模块节点.find((v) => v.vid === info1.vid);
-        if (info2) {
-          Object.assign(info1, info2);
-        }
-        peizhishuju.模块节点.push(info1);
-      }
-    }
+    peizhishuju.模块节点 = rectInfos1 || [];
   }
 }
 
