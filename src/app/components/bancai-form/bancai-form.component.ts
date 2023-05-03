@@ -2,7 +2,7 @@ import {Component, Input} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {openBancaiListDialog} from "@components/dialogs/bancai-list/bancai-list.component";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 
 @Component({
   selector: "app-bancai-form",

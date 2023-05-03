@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material/dialog";
 import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {BehaviorSubject, lastValueFrom} from "rxjs";
 import {
   AlertMessageData,

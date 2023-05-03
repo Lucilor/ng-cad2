@@ -1,5 +1,5 @@
 import {JsonEditorOptions} from "@maaxgr/ang-jsoneditor";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {ObjectOf} from "@utils";
 
 export interface BaseMessageData {

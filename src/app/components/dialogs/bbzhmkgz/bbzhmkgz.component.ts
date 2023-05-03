@@ -2,7 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {CadData} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {getOpenDialogFunc} from "../dialog.common";
 

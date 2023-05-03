@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from "@angular/core";
 import {setGlobal} from "@app/app.common";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {CustomResponse} from "@modules/http/services/http.service.types";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {ObjectOf, Timer} from "@utils";
 import {NgScrollbar} from "ngx-scrollbar";
 

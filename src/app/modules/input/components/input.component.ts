@@ -13,7 +13,7 @@ import {isEmpty, isEqual} from "lodash";
 import {Color} from "ngx-color";
 import {ChromeComponent} from "ngx-color/chrome";
 import {BehaviorSubject} from "rxjs";
-import {InputInfo, InputInfoBase, InputInfoTypeMap, InputInfoWithOptions} from "./types";
+import {InputInfo, InputInfoBase, InputInfoTypeMap, InputInfoWithOptions} from "./input.types";
 
 @Component({
   selector: "app-input",

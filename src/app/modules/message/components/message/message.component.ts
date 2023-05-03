@@ -4,7 +4,7 @@ import {DomSanitizer, SafeHtml, SafeResourceUrl} from "@angular/platform-browser
 import {Debounce} from "@decorators/debounce";
 import {JsonEditorComponent, JsonEditorOptions} from "@maaxgr/ang-jsoneditor";
 import {InputComponent} from "@modules/input/components/input.component";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {ObjectOf, timeout} from "@utils";
 import {clamp, cloneDeep} from "lodash";

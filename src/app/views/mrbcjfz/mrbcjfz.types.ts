@@ -1,7 +1,7 @@
 import {XiaodaohangStructure} from "@app/app.common";
 import {CadData} from "@cad-viewer";
 import {BancaiList, TableDataBase} from "@modules/http/services/cad-data.service.types";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {ObjectOf} from "@utils";
 
 export interface MrbcjfzResponseData {

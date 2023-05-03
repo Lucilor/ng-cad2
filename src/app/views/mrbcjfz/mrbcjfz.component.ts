@@ -8,7 +8,7 @@ import {CadData} from "@cad-viewer";
 import {openBancaiFormDialog} from "@components/dialogs/bancai-form-dialog/bancai-form-dialog.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";

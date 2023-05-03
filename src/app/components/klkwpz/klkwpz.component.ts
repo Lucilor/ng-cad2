@@ -4,7 +4,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {CadData, CadLine} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {timeout} from "@utils";

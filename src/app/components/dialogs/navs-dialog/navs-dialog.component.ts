@@ -5,7 +5,7 @@ import {MatDialogRef, MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {MatTreeNestedDataSource} from "@angular/material/tree";
 import {session, setGlobal} from "@app/app.common";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {debounce} from "lodash";

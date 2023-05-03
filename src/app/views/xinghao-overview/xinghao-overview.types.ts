@@ -1,7 +1,7 @@
 import {NavsResultItem} from "@components/dialogs/navs-dialog/navs-dialog.types";
 import {Utils} from "@mixins/utils.mixin";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
 

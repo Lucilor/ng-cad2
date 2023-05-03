@@ -20,7 +20,7 @@ import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.compon
 import {openKlkwpzDialog} from "@components/dialogs/klkwpz-dialog/klkwpz-dialog.component";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {Utils} from "@mixins/utils.mixin";
-import {InputInfo} from "@modules/input/components/types";
+import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService, CadPoints} from "@services/app-status.service";
 import {CadStatusSelectBaseline, CadStatusSelectJointpoint, CadStatusIntersection} from "@services/cad-status";
