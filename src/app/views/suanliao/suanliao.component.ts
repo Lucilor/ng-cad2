@@ -58,9 +58,12 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
   }
 
   async suanliaoStart(params: SuanliaoInput): Promise<SuanliaoOutputData> {
-    const timerName = "算料";
-    timer.start(timerName);
-    const {materialResult, gongshi, inputResult, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames, varNames} = params;
+    const {materialResult, gongshi, inputResult, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames, varNames, silent} = params;
+    let timerName: string | null = null;
+    if (!silent) {
+      timerName = "算料";
+      timer.start(timerName);
+    }
     const result: SuanliaoOutputData = {
       action: "suanliaoEnd",
       data: {
@@ -169,7 +172,9 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     });
     if (!calcZxpjResult.fulfilled) {
       result.data.error = calcZxpjResult.error;
-      timer.end(timerName, timerName);
+      if (timerName) {
+        timer.end(timerName, timerName);
+      }
       return result;
     }
     Object.assign(result.data, calcZxpjResult);
@@ -186,7 +191,9 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     result.data.配件模块CAD = mokuais.map((v) => ({...v, cads: v.cads.map(getCadItem2)})) as any;
     result.data.门扇布局CAD = lingsans.map(getCadItem2) as any;
     result.data.fulfilled = true;
-    timer.end(timerName, timerName);
+    if (timerName) {
+      timer.end(timerName, timerName);
+    }
     return result;
   }
 
@@ -217,6 +224,7 @@ export interface SuanliaoInput {
   门扇布局CAD: any[];
   bujuNames: string[];
   varNames: string[];
+  silent?: boolean;
 }
 
 export interface SuanliaoOutputData {

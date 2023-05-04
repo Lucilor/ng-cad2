@@ -78,6 +78,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   mokuaidaxiaoResult: Formulas = {};
   wmm = new WindowMessageManager("门扇模块", this, window.parent);
   suanliaoLock$ = new BehaviorSubject(false);
+  genXiaoguotuLock$ = new BehaviorSubject(false);
   get isZhijian() {
     return this.user?.经销商名字 === "至简软件";
   }
@@ -248,9 +249,11 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
         return;
       }
     }
-    this.activeMenshanKey = key;
-    await this.setActiveMsbj(this.activeMsbjInfo);
-    await this.suanliao();
+    if (this.activeMenshanKey !== key) {
+      this.activeMenshanKey = key;
+      await this.setActiveMsbj(this.activeMsbjInfo);
+      await this.suanliao();
+    }
   }
 
   async setActiveMsbj(info?: XhmrmsbjInfo) {
@@ -385,12 +388,19 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   generateRectsEnd(event: GenerateRectsEndEvent) {
-    const rect = this.activeMsbj?.peizhishuju?.模块节点?.filter((v) => v.isBuju)[0];
     const msbjRectsComponent = this.msbjRectsComponent;
-    if (rect && msbjRectsComponent && msbjRectsComponent.rectInfos) {
-      msbjRectsComponent.setCurrRectInfo(msbjRectsComponent.rectInfosRelative.filter((v) => v.raw.isBuju)[0], event.isWindowResize);
+    if (msbjRectsComponent?.rectInfos) {
+      const rectInfos = msbjRectsComponent.rectInfosRelative.filter((v) => v.raw.isBuju);
+      const activeRectInfo = this.activeRectInfo;
+      let rectInfo = activeRectInfo ? rectInfos.find((v) => v.raw.vid === activeRectInfo?.raw.vid) : null;
+      if (!rectInfo) {
+        rectInfo = msbjRectsComponent.rectInfosRelative.filter((v) => v.raw.isBuju)[0];
+      }
+      if (rectInfo) {
+        msbjRectsComponent.setCurrRectInfo(rectInfo, event.isWindowResize);
+      }
+      this.updateMokuaiInputInfo();
     }
-    this.updateMokuaiInputInfo();
   }
 
   async selectMokuai(mokuai: ZixuanpeijianMokuaiItem | null | undefined) {
@@ -743,78 +753,78 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.message.snack("更新完成");
   }
 
-  async suanliao(genXiaoguotu = false) {
-    if (!this.isFromOrder) {
-      return;
-    }
-    const container = this.xiaoguotuContainer?.nativeElement;
-    if (!container) {
-      return;
-    }
+  async suanliao() {
     if (this.suanliaoLock$.value) {
       await firstValueFrom(this.suanliaoLock$.pipe(filter((v) => !v)));
     }
     this.suanliaoLock$.next(true);
-    const finish = (timerName?: string) => {
-      this.activeMsbj?.updateRectsInfo(this.getNode2rectData());
-      if (this.msbjRectsComponent) {
-        this.msbjRectsComponent.rectInfos = this.activeMsbj?.peizhishuju.模块节点 || [];
-      }
-      if (timerName) {
-        timer.end(timerName, timerName);
-        this.spinner.hide(this.spinner.defaultLoaderId);
-      }
-      this.suanliaoLock$.next(false);
-    };
+    const timerName = "模块算料";
+    timer.start(timerName);
+    this.spinner.show(this.spinner.defaultLoaderId, {text: timerName});
+    this.wmm.postMessage("suanliaoStart", this.submitData().data);
+    const data = await this.wmm.waitForMessage("suanliaoEnd");
+    await this.requestData(data);
+    this.activeMsbj?.updateRectsInfo(this.getNode2rectData());
+    if (this.msbjRectsComponent) {
+      this.msbjRectsComponent.rectInfos = this.activeMsbj?.peizhishuju.模块节点 || [];
+    }
+    timer.end(timerName, timerName);
+    this.spinner.hide(this.spinner.defaultLoaderId);
+    this.suanliaoLock$.next(false);
+    this.genXiaoguotu();
+  }
 
-    if (genXiaoguotu) {
-      const timerName = "生成效果图";
-      timer.start(timerName);
-      this.spinner.show(this.spinner.defaultLoaderId, {text: timerName});
+  async genXiaoguotu() {
+    if (this.genXiaoguotuLock$.value) {
+      await firstValueFrom(this.genXiaoguotuLock$.pipe(filter((v) => !v)));
+    }
+    this.genXiaoguotuLock$.next(true);
+    const timerName = "生成效果图";
+    timer.start(timerName);
+    this.wmm.postMessage("genXiaoguotuStart");
+    const data = await this.wmm.waitForMessage("genXiaoguotuEnd");
+    const items = data[this.activeMenshanKey || ""] || [];
+    if (items.length > 0) {
+      const container = this.xiaoguotuContainer?.nativeElement;
+      if (!container) {
+        return;
+      }
       container.innerHTML = "";
       container.style.transform = "";
       container.style.opacity = "0";
       await timeout(0);
-      this.wmm.postMessage("genXiaoguotuStart", {...this.submitData().data, genXiaoguotu});
-      const data = await this.wmm.waitForMessage("genXiaoguotuEnd");
-      const items = data[this.activeMenshanKey || ""] || [];
-      if (items.length > 0) {
-        const rectContainer0 = container.getBoundingClientRect();
-        const rectContainer = new Rectangle([rectContainer0.left, rectContainer0.top], [rectContainer0.right, rectContainer0.bottom]);
-        const padding = this.msbjRectsComponent?.padding || [0, 0, 0, 0];
-        rectContainer.min.add(new Point(padding[3], padding[0]));
-        rectContainer.max.sub(new Point(padding[1], padding[2]));
-        const els: HTMLDivElement[] = [];
-        for (const item of items) {
-          let div = document.createElement("div");
-          div.innerHTML = item;
-          div = div.firstElementChild as HTMLDivElement;
-          container.appendChild(div);
-          els.push(div);
-        }
-        await timeout(0);
-        const rect = Rectangle.min;
-        for (const el of els) {
-          const {top, right, bottom, left, width, height} = el.getBoundingClientRect();
-          if (width > 0 && height > 0) {
-            rect.expandByPoint(new Point(left, top));
-            rect.expandByPoint(new Point(right, bottom));
-          }
-        }
-        const scaleX = rectContainer.width / rect.width;
-        const scaleY = rectContainer.height / rect.height;
-        const scale = Math.min(scaleX, scaleY);
-        const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
-        const dy = (rectContainer.bottom - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
-        container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-        container.style.opacity = "1";
+      const rectContainer0 = container.getBoundingClientRect();
+      const rectContainer = new Rectangle([rectContainer0.left, rectContainer0.top], [rectContainer0.right, rectContainer0.bottom]);
+      const padding = this.msbjRectsComponent?.padding || [0, 0, 0, 0];
+      rectContainer.min.add(new Point(padding[3], padding[0]));
+      rectContainer.max.sub(new Point(padding[1], padding[2]));
+      const els: HTMLDivElement[] = [];
+      for (const item of items) {
+        let div = document.createElement("div");
+        div.innerHTML = item;
+        div = div.firstElementChild as HTMLDivElement;
+        container.appendChild(div);
+        els.push(div);
       }
-      return finish(timerName);
-    } else {
-      this.wmm.postMessage("suanliaoStart");
-      await this.wmm.waitForMessage("suanliaoEnd");
-      return finish();
+      await timeout(0);
+      const rect = Rectangle.min;
+      for (const el of els) {
+        const {top, right, bottom, left, width, height} = el.getBoundingClientRect();
+        if (width > 0 && height > 0) {
+          rect.expandByPoint(new Point(left, top));
+          rect.expandByPoint(new Point(right, bottom));
+        }
+      }
+      const scaleX = rectContainer.width / rect.width;
+      const scaleY = rectContainer.height / rect.height;
+      const scale = Math.min(scaleX, scaleY);
+      const dx = (rectContainer.left - rect.left) * scale + (rectContainer.width - rect.width * scale) / 2;
+      const dy = (rectContainer.bottom - rect.bottom) * scale + (rectContainer.height - rect.height * scale) / 2;
+      container.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+      container.style.opacity = "1";
     }
+    timer.end(timerName, timerName);
+    this.genXiaoguotuLock$.next(false);
   }
 
   async getLastSuanliao() {

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren} from "@angular/core";
+import {Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChild, ViewChildren} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml, SafeResourceUrl} from "@angular/platform-browser";
 import {Debounce} from "@decorators/debounce";
@@ -16,7 +16,7 @@ import {ButtonMessageData, MessageData, MessageDataMap, MessageOutput} from "./m
   templateUrl: "./message.component.html",
   styleUrls: ["./message.component.scss"]
 })
-export class MessageComponent implements OnInit, AfterViewInit {
+export class MessageComponent implements OnInit {
   titleHTML: SafeHtml = "";
   subTitleHTML: SafeHtml = "";
   contentHTML: SafeHtml = "";
@@ -75,7 +75,6 @@ export class MessageComponent implements OnInit, AfterViewInit {
     public dialogRef: MatDialogRef<MessageComponent, MessageOutput>,
     private sanitizer: DomSanitizer,
     private message: MessageService,
-    private elRef: ElementRef<HTMLElement>,
     @Inject(MAT_DIALOG_DATA) public data: MessageData
   ) {
     this.data = cloneDeep(this.data);
@@ -123,18 +122,6 @@ export class MessageComponent implements OnInit, AfterViewInit {
     }, 600);
 
     this.inputsBackup = cloneDeep(this.inputs);
-  }
-
-  async ngAfterViewInit() {
-    await timeout(500);
-    console.log(this.elRef.nativeElement);
-    // this.elRef.nativeElement.focus();
-    // if (this.iframe) {
-    //     const iframeEl = this.iframe.nativeElement;
-    //     iframeEl.addEventListener("load", () => {
-    //         console.log(iframeEl.contentWindow?.document.title);
-    //     });
-    // }
   }
 
   @HostListener("window:resize")

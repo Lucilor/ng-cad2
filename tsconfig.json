@@ -35,7 +35,7 @@
     "resolveJsonModule": true,
     "useDefineForClassFields": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "./gulpfile.ts"],
   "exclude": ["node_modules", "dist"],
   "angularCompilerOptions": {
     "strictInjectionParameters": true,
