@@ -16,7 +16,7 @@ import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
 import {ObjectOf} from "@utils";
-import {MrbcjfzInfo, isMrbcjfzInfoEmpty} from "@views/mrbcjfz/mrbcjfz.types";
+import {isMrbcjfzInfoEmpty, MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
 import {cloneDeep, difference, intersection, isEmpty, isEqual, union} from "lodash";
 import {openDrawCadDialog} from "../draw-cad/draw-cad.component";

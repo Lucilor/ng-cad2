@@ -7,7 +7,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {Changelog} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf, downloadByString, downloadByUrl} from "@utils";
+import {downloadByString, downloadByUrl, ObjectOf} from "@utils";
 import {cloneDeep} from "lodash";
 import {DateTime} from "luxon";
 import {lastValueFrom} from "rxjs";

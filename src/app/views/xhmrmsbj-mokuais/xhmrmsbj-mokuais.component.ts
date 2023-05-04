@@ -5,7 +5,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {Formulas} from "@app/utils/calc";
 import {CadData, toFixedTrim} from "@cad-viewer";
 import {getOpenDialogFunc} from "@components/dialogs/dialog.common";
-import {ZixuanpeijianMokuaiItem, getMokuaiTitle} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {getMokuaiTitle, ZixuanpeijianMokuaiItem} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {FormulaInfo} from "@components/formulas/formulas.component";
 import {CalcService} from "@services/calc.service";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";

@@ -20,7 +20,7 @@ import {
 } from "@cad-viewer";
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {DEFAULT_TOLERANCE, Line, ObjectOf, Point, isBetween} from "@utils";
+import {DEFAULT_TOLERANCE, isBetween, Line, ObjectOf, Point} from "@utils";
 import {intersection} from "lodash";
 import {CadCollection, remoteHost} from "./app.common";
 import {Formulas} from "./utils/calc";

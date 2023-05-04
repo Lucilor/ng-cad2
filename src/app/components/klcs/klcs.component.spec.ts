@@ -3,7 +3,7 @@ import {HttpModule} from "@modules/http/http.module";
 import {InputModule} from "@modules/input/input.module";
 import {importObject} from "@utils";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {KailiaocanshuData, KlcsComponent, QiezhongkongItem, defaultQiezhongkongItem} from "./klcs.component";
+import {defaultQiezhongkongItem, KailiaocanshuData, KlcsComponent, QiezhongkongItem} from "./klcs.component";
 
 const 参数: QiezhongkongItem[] = [importObject({}, defaultQiezhongkongItem)];
 const data: KailiaocanshuData = {_id: "1", 名字: "test", 分类: "切中空", 参数};

@@ -13,7 +13,7 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
-import {Matrix, Point, downloadByString} from "@utils";
+import {downloadByString, Matrix, Point} from "@utils";
 import {isEqual} from "lodash";
 
 interface CadNode {

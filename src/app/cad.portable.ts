@@ -16,7 +16,7 @@ import {
   setLinesLength,
   sortLines
 } from "@cad-viewer";
-import {Line, ObjectOf, Point, Rectangle, keysOf} from "@utils";
+import {keysOf, Line, ObjectOf, Point, Rectangle} from "@utils";
 import {difference, intersection, isEqual} from "lodash";
 import {ProjectConfig, replaceChars} from "./app.common";
 import {isShiyitu, showIntersections} from "./cad.utils";

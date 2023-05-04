@@ -5,7 +5,7 @@ import {Input} from "@angular/core";
 import {Component} from "@angular/core";
 import {timeout} from "@utils";
 import csstype from "csstype";
-import {Subject, lastValueFrom} from "rxjs";
+import {lastValueFrom, Subject} from "rxjs";
 
 @Component({
   selector: "app-formulas",

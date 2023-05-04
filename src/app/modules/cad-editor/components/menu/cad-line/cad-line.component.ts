@@ -13,10 +13,10 @@ import {
   CadViewerConfig,
   ColoredObject,
   Defaults,
-  PointsMap,
   generateLineTexts,
   lineweight2linewidth,
   linewidth2lineweight,
+  PointsMap,
   企料位置识别,
   变化方式
 } from "@cad-viewer";

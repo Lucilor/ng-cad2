@@ -4,7 +4,7 @@ import {setGlobal} from "@app/app.common";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
-import {Jiaowei, JiaoweiTableData, jiaoweiAnchorOptions} from "./jiaowei";
+import {Jiaowei, jiaoweiAnchorOptions, JiaoweiTableData} from "./jiaowei";
 
 const table = "p_menjiao" as const;
 

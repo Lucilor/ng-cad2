@@ -8,13 +8,13 @@ import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.
 import {openMrbcjfzDialog} from "@components/dialogs/mrbcjfz-dialog/mrbcjfz-dialog.component";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {
-  Step1Data,
-  ZixuanpeijianMokuaiItem,
-  ZixuanpeijianTypesInfoItem,
   getFromulasFromString,
   getMokuaiTitle,
   getStep1Data,
-  isMokuaiItemEqual
+  isMokuaiItemEqual,
+  Step1Data,
+  ZixuanpeijianMokuaiItem,
+  ZixuanpeijianTypesInfoItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {GenerateRectsEndEvent, MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {GongshiObj, MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
@@ -24,15 +24,15 @@ import {BancaiList, TableDataBase, TableUpdateParams} from "@modules/http/servic
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf, Point, Rectangle, WindowMessageManager, timeout} from "@utils";
-import {MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo, isMrbcjfzInfoEmpty} from "@views/mrbcjfz/mrbcjfz.types";
+import {ObjectOf, Point, Rectangle, timeout, WindowMessageManager} from "@utils";
+import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo, Node2rectData, node2rectDataMsdxKeys} from "@views/msbj/msbj.types";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
 import {openXhmrmsbjMokuaisDialog} from "@views/xhmrmsbj-mokuais/xhmrmsbj-mokuais.component";
 import {cloneDeep, intersection, isEqual} from "lodash";
 import md5 from "md5";
 import {BehaviorSubject, filter, firstValueFrom} from "rxjs";
-import {XhmrmsbjData, XhmrmsbjInfo, XhmrmsbjTabName, XhmrmsbjTableData, xhmrmsbjTabNames} from "./xhmrmsbj.types";
+import {XhmrmsbjData, XhmrmsbjInfo, XhmrmsbjTableData, XhmrmsbjTabName, xhmrmsbjTabNames} from "./xhmrmsbj.types";
 
 const table = "p_xinghaomorenmenshanbuju";
 @Component({

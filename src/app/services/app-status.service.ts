@@ -9,9 +9,9 @@ import {
   CadLineLike,
   CadMtext,
   CadViewer,
-  PointsMap,
   generateLineTexts,
   generatePointsMap,
+  PointsMap,
   setLinesLength
 } from "@cad-viewer";
 import {environment} from "@env";
@@ -21,7 +21,7 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf, timeout} from "@utils";
 import {clamp, differenceWith} from "lodash";
 import {BehaviorSubject, Subject} from "rxjs";
-import {CadCollection, ProjectConfig, local, timer} from "../app.common";
+import {CadCollection, local, ProjectConfig, timer} from "../app.common";
 import {
   getCadPreview,
   getCadTotalLength,
