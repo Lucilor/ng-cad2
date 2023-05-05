@@ -1,7 +1,7 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {setGlobal, timer} from "@app/app.common";
+import {session, setGlobal, timer} from "@app/app.common";
 import {Formulas} from "@app/utils/calc";
 import mokuaidaixiaoData from "@assets/testData/mokuaidaxiao.json";
 import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
@@ -86,6 +86,16 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   @ViewChild(MsbjRectsComponent) msbjRectsComponent?: MsbjRectsComponent;
   @ViewChild("xiaoguotuContainer", {read: ElementRef}) xiaoguotuContainer?: ElementRef<HTMLDivElement>;
 
+  private _ignoreXiaoguotuKey = "xhmrmsbjIgnoreXiaoguotu";
+  private _ignoreXiaoguotu = session.load(this._ignoreXiaoguotuKey) ?? false;
+  get ignoreXiaoguotu() {
+    return this._ignoreXiaoguotu;
+  }
+  set ignoreXiaoguotu(value) {
+    this._ignoreXiaoguotu = value;
+    session.save(this._ignoreXiaoguotuKey, value);
+  }
+
   constructor(
     private route: ActivatedRoute,
     private dataService: CadDataService,
@@ -161,9 +171,9 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.menshanKeys = menshanKeys;
     this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
     await this.selectMenshanKey(this.activeMenshanKey || this.menshanKeys[0]);
-    const 模块大小关系 = this.activeMsbjInfo?.选中布局数据?.模块大小关系;
-    if (模块大小关系) {
-      this.wmm.postMessage("calcGongshi2Start", {config: 模块大小关系});
+    const msbjInfo = this.activeMsbjInfo;
+    if (msbjInfo?.选中布局数据) {
+      this.wmm.postMessage("calcGongshi2Start", msbjInfo);
       const result = await this.wmm.waitForMessage("calcGongshi2End");
       this.mokuaidaxiaoResult = result.values;
     }
@@ -695,9 +705,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.isFromOrder) {
-      const data = {config: 选中布局数据.模块大小关系, menshanKey: this.activeMenshanKey};
-      this.wmm.postMessage("编辑模块大小", data);
-      return;
+      this.wmm.postMessage("编辑模块大小", msbjInfo);
     } else {
       let msbj: MsbjInfo | null = null;
       if (this.dataService.token) {
@@ -726,9 +734,10 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       table: "p_xinghaomorenmenshanbuju",
       filter: {where: {vid: this.id}}
     });
+    let menshanKeys: string[] = [];
     if (records[0]) {
       const data2 = new XhmrmsbjData(records[0], this.menshanKeys, this.step1Data.typesInfo, this.msbjs);
-      const menshanKeys = Object.keys(data2.menshanbujuInfos);
+      menshanKeys = Object.keys(data2.menshanbujuInfos);
       for (const menshanKey of menshanKeys) {
         const msbjInfo1 = data.menshanbujuInfos[menshanKey];
         const msbjInfo2 = data2.menshanbujuInfos[menshanKey];
@@ -746,9 +755,10 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
           msbjInfo1.模块大小输入 = values;
         }
       }
-      await this.updateMokuaidaxiaoResult(menshanKeys);
+      // await this.updateMokuaidaxiaoResult(menshanKeys);
     }
     await this.suanliao();
+    await this.updateMokuaidaxiaoResult(menshanKeys);
     this.spinner.hide(this.spinner.defaultLoaderId);
     this.message.snack("更新完成");
   }
@@ -775,6 +785,9 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async genXiaoguotu() {
+    if (!this.isFromOrder || this.ignoreXiaoguotu) {
+      return;
+    }
     if (this.genXiaoguotuLock$.value) {
       await firstValueFrom(this.genXiaoguotuLock$.pipe(filter((v) => !v)));
     }

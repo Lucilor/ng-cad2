@@ -1,7 +1,7 @@
 {
   "trailingComma": "none",
   "bracketSpacing": false,
-  "importOrder": ["<THIRD_PARTY_MODULES>", "^[./]"],
+  "importOrder": ["zone.js/testing", "<THIRD_PARTY_MODULES>", "^[./]"],
   "importOrderSortSpecifiers": true,
   "importOrderGroupNamespaceSpecifiers": true,
   "importOrderCaseInsensitive": true,
