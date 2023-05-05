@@ -755,7 +755,6 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
           msbjInfo1.模块大小输入 = values;
         }
       }
-      // await this.updateMokuaidaxiaoResult(menshanKeys);
     }
     await this.suanliao();
     await this.updateMokuaidaxiaoResult(menshanKeys);
@@ -764,6 +763,9 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async suanliao() {
+    if (!this.isFromOrder) {
+      return;
+    }
     if (this.suanliaoLock$.value) {
       await firstValueFrom(this.suanliaoLock$.pipe(filter((v) => !v)));
     }
