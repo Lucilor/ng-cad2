@@ -1,13 +1,14 @@
 <div class="flex-row flex-110">
-  <div class="section">
-    <ng-scrollbar [autoWidthDisabled]="false">
+  <div #section1 class="section">
+    <ng-scrollbar>
       <div class="flex-column" *ngFor="let info of mkdxFormulaInfos; let i = index">
         <div class="title">{{ info.name }}</div>
-        <app-formulas [formulaInfos]="info.formulaInfos" [formulaStyles]="formulaStyles"></app-formulas>
+        <app-formulas [formulaInfos]="info.formulaInfos" [formulaStyles]="formulaStyles" (updated)="updateSection1()"></app-formulas>
         <mat-divider *ngIf="i < mkdxFormulaInfos.length - 1"></mat-divider>
       </div>
     </ng-scrollbar>
   </div>
+  <mat-divider vertical></mat-divider>
   <div class="section flex-110">
     <ng-scrollbar track="all">
       <div class="flex-column" *ngFor="let info of xuanzhongMokuaiInfos; let i = index">

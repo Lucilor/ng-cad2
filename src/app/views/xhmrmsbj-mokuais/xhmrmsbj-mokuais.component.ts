@@ -1,5 +1,5 @@
 import {ElementRef} from "@angular/core";
-import {ViewChildren} from "@angular/core";
+import {ViewChild, ViewChildren} from "@angular/core";
 import {Component, Inject} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {Formulas} from "@app/utils/calc";
@@ -8,6 +8,7 @@ import {getOpenDialogFunc} from "@components/dialogs/dialog.common";
 import {getMokuaiTitle, ZixuanpeijianMokuaiItem} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {FormulaInfo} from "@components/formulas/formulas.component";
 import {CalcService} from "@services/calc.service";
+import {timeout} from "@utils";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
 import csstype from "csstype";
 import {uniqWith} from "lodash";
@@ -23,6 +24,7 @@ export class XhmrmsbjMokuaisComponent {
   xuanzhongMokuaiInfos: XhmrmsbjXuanzhongMokuaiInfo[] = [];
   getMokuaiTitle = getMokuaiTitle;
   formulaStyles: csstype.Properties = {fontSize: "18px"};
+  @ViewChild("section1") section1?: ElementRef<HTMLDivElement>;
 
   constructor(
     public dialogRef: MatDialogRef<XhmrmsbjMokuaisComponent, XhmrmsbjMokuaisOutput>,
@@ -77,11 +79,23 @@ export class XhmrmsbjMokuaisComponent {
           xuanzhongMokuaiInfo.nodes.push({
             layer: node.层名字,
             mokuai,
-            formulaInfos: this.getFormulaInfos(mokuai.suanliaogongshi || {}, formulas2)
+            formulaInfos: this.getFormulaInfos(suanliaogongshi, formulas2)
           });
         }
       }
       this.xuanzhongMokuaiInfos.push(xuanzhongMokuaiInfo);
+    }
+  }
+
+  async updateSection1() {
+    await timeout(0);
+    const section1El = this.section1?.nativeElement;
+    if (section1El) {
+      const containerEl = section1El.querySelector(".flex-column");
+      if (containerEl) {
+        const {width} = containerEl.getBoundingClientRect();
+        section1El.style.width = width + "px";
+      }
     }
   }
 

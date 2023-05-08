@@ -1,4 +1,4 @@
-import {AfterViewInit, ElementRef} from "@angular/core";
+import {AfterViewInit, ElementRef, EventEmitter, Output} from "@angular/core";
 import {QueryList} from "@angular/core";
 import {ViewChildren} from "@angular/core";
 import {Input} from "@angular/core";
@@ -23,12 +23,11 @@ export class FormulasComponent implements AfterViewInit {
     this.update();
   }
 
-  @Input()
-  formulaStyles: csstype.Properties = {};
-  @Input()
-  keyStyles: csstype.Properties = {};
-  @Input()
-  valueStyles: csstype.Properties = {};
+  @Input() formulaStyles: csstype.Properties = {};
+  @Input() keyStyles: csstype.Properties = {};
+  @Input() valueStyles: csstype.Properties = {};
+
+  @Output() updated = new EventEmitter<void>();
 
   private _viewInited = new Subject<void>();
   @ViewChildren("formula", {read: ElementRef}) formulaRefs?: QueryList<ElementRef<HTMLDivElement>>;
@@ -68,6 +67,7 @@ export class FormulasComponent implements AfterViewInit {
         key.style.width = keyWidthArr[j] + "px";
       }
     }
+    this.updated.emit();
   }
 }
 
