@@ -9,8 +9,6 @@ import {ValuedCommand} from "../cad-command-types";
 export class CadConsoleService {
   command$ = new BehaviorSubject<ValuedCommand>({name: "", args: []});
 
-  constructor() {}
-
   execute(name: string, argsObj: ObjectOf<string> = {}) {
     const args: ValuedCommand["args"] = [];
     for (const key in argsObj) {

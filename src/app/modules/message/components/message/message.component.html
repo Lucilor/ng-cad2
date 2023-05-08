@@ -18,7 +18,7 @@
     <iframe #iframe [src]="iframeSrc" frameborder="0"></iframe>
   </ng-container>
   <ng-container *ngSwitchCase="'json'">
-    <json-editor [options]="jsonEditorOptions" [data]="cast(data, 'json').json"></json-editor>
+    <json-editor [options]="jsonEditorOptions" [data]="cast('json', data).json"></json-editor>
   </ng-container>
   <ng-container *ngSwitchDefault="">
     <div [innerHTML]="contentHTML"></div>
@@ -46,13 +46,13 @@
   </ng-container>
   <ng-container *ngSwitchCase="'book'">
     <button mat-raised-button (click)="setPage(page - 1)" [disabled]="page <= minPage">
-      {{ cast(data, "book").btnTexts?.prev || "上一页" }}
+      {{ cast("book", data).btnTexts?.prev || "上一页" }}
     </button>
     <button mat-raised-button (click)="setPage(page + 1)" [disabled]="page >= maxPage">
-      {{ cast(data, "book").btnTexts?.prev || "下一页" }}
+      {{ cast("book", data).btnTexts?.prev || "下一页" }}
     </button>
     <button mat-raised-button (click)="cancel()">
-      {{ cast(data, "book").btnTexts?.exit || "退出" }}
+      {{ cast("book", data).btnTexts?.exit || "退出" }}
     </button>
   </ng-container>
   <ng-container *ngSwitchCase="'editor'">
@@ -62,7 +62,7 @@
     <ng-container *ngTemplateOutlet="formBtns"></ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="'button'">
-    <button mat-raised-button color="primary" *ngFor="let button of cast(data, 'button').buttons" (click)="submit(button)">
+    <button mat-raised-button color="primary" *ngFor="let button of cast('button', data).buttons" (click)="submit(button)">
       {{ getButtonLabel(button) }}
     </button>
     <ng-container *ngTemplateOutlet="cancelBtn"></ng-container>
@@ -71,19 +71,19 @@
 
 <ng-template #submitBtn>
   <button mat-raised-button color="primary" (click)="submit()">
-    {{ cast(data, "confirm").btnTexts?.submit || "确定" }}
+    {{ cast("confirm", data).btnTexts?.submit || "确定" }}
   </button>
 </ng-template>
 
 <ng-template #cancelBtn>
   <button mat-raised-button (click)="cancel()" *ngIf="!data.disableCancel">
-    {{ cast(data, "confirm").btnTexts?.cancel || "取消" }}
+    {{ cast("confirm", data).btnTexts?.cancel || "取消" }}
   </button>
 </ng-template>
 
 <ng-template #resetBtn>
   <button mat-raised-button color="accent" (click)="reset()">
-    {{ cast(data, "json").btnTexts?.reset || "重置" }}
+    {{ cast("json", data).btnTexts?.reset || "重置" }}
   </button>
 </ng-template>
 

@@ -11,8 +11,6 @@ export class ReplaceFullCharsDirective {
   @Input() arr?: string[];
   @Input() index?: number;
 
-  constructor() {}
-
   @HostListener("input", ["$event"]) onInPut(event: Event) {
     timeout(0).then(() => {
       const str = (event.target as HTMLInputElement).value;

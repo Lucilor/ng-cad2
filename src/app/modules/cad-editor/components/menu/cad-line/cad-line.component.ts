@@ -294,7 +294,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, AfterViewI
     cad.off("zoom", this._updateCadPoints);
   }
 
-  private _onPointerMove: CadEventCallBack<"pointermove"> = async ({clientX, clientY, shiftKey, ctrlKey}) => {
+  private _onPointerMove: CadEventCallBack<"pointermove"> = async ({clientX, clientY, shiftKey}) => {
     const lineDrawing = this.lineDrawing;
     const cad = this.status.cad;
     if (!lineDrawing) {
@@ -579,7 +579,7 @@ export class CadLineComponent extends Subscribed() implements OnInit, AfterViewI
       cad.render(toRender);
       return;
     }
-    if (field === "zhewanValue" && value < 0) {
+    if (field === "zhewanValue" && Number(value) < 0) {
       this.message.alert("指定折弯标记位置不能小于0");
       value = 0;
     }

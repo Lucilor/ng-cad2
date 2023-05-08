@@ -429,7 +429,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
     return {};
   }
 
-  cast<T extends InputInfo["type"]>(data: InputInfo, _: T) {
+  cast<T extends InputInfo["type"]>(_: T, data: InputInfo) {
     return data as InputInfoTypeMap[T];
   }
 

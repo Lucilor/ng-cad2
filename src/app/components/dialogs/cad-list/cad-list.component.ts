@@ -170,7 +170,7 @@ export class CadListComponent extends Utils() implements AfterViewInit {
     }
     this.length = result.total;
     this.pageData.length = 0;
-    result.cads.forEach(async (d, i) => {
+    result.cads.forEach(async (d) => {
       const checked = this.checkedItems.find((v) => v === d.id) ? true : false;
       const pageData = {data: d, img: imgCadEmpty, checked};
       this.pageData.push(pageData);

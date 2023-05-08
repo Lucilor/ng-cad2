@@ -1,7 +1,4 @@
-import {NgModule} from "@angular/core";
-import {Route, RouterModule, Routes} from "@angular/router";
-import {ProjectGuard} from "@guards/project.guard";
-import {PathResolveService} from "@services/path-resolve.service";
+import {Route} from "@angular/router";
 import {BackupComponent} from "@views/backup/backup.component";
 import {ChangelogAdminComponent} from "@views/changelog-admin/changelog-admin.component";
 import {CleanComponent} from "@views/clean/clean.component";
@@ -14,7 +11,6 @@ import {KailiaocanshuComponent} from "@views/kailiaocanshu/kailiaocanshu.compone
 import {KailiaokongweipeizhiComponent} from "@views/kailiaokongweipeizhi/kailiaokongweipeizhi.component";
 import {MrbcjfzComponent} from "@views/mrbcjfz/mrbcjfz.component";
 import {MsbjComponent} from "@views/msbj/msbj.component";
-import {PageNotFoundComponent} from "@views/page-not-found/page-not-found.component";
 import {PiliangjianbanComponent} from "@views/piliangjianban/piliangjianban.component";
 import {PjmkComponent} from "@views/pjmk/pjmk.component";
 import {PrintA4A015PreviewComponent} from "@views/print-a4-a015-preview/print-a4-a015-preview.component";
@@ -50,14 +46,3 @@ export const routesInfo: (Route & {path: string})[] = [
   {path: "suanliao", component: SuanliaoComponent, title: "算料"},
   {path: "xinghao-overview", component: XinghaoOverviewComponent, title: "型号数据快速配置"}
 ];
-
-const routes: Routes = [
-  {path: "", children: [{path: "", pathMatch: "full", redirectTo: routesInfo[0].path}, ...routesInfo], canActivate: [ProjectGuard]},
-  {path: "**", component: PageNotFoundComponent, resolve: {redirect: PathResolveService}}
-];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule {}

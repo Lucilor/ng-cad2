@@ -106,8 +106,6 @@ export class BancaiFormComponent {
       };
     }
   }
-
-  set() {}
 }
 
 export interface BancaiFormData {

@@ -86,7 +86,7 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     }
   }
 
-  trackByIdx(index: number, _obj: any): any {
+  trackByIdx(index: number) {
     return index;
   }
 

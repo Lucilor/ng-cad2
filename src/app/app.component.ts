@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
 import {environment} from "@env";
-import {routesInfo} from "./app-routing.module";
+import {routesInfo} from "./routing/routes-info";
 
 @Component({
   selector: "app-root",
@@ -12,6 +12,4 @@ export class AppComponent {
   loaderText = "";
   isProd = environment.production;
   routesInfo = routesInfo;
-
-  constructor() {}
 }
