@@ -32,8 +32,6 @@ export class AnchorSelectorComponent implements AfterViewInit {
     return this.y * this.backgroundSize + "px";
   }
 
-  constructor() {}
-
   ngAfterViewInit() {
     this.x = clamp(this.x, 0, 1);
     this.y = clamp(this.y, 0, 1);

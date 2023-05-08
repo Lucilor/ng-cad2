@@ -4,7 +4,7 @@
       <mat-label>{{ info.label }}</mat-label>
       <mat-hint>{{ hint }}</mat-hint>
       <input
-        *ngIf="!cast(info, 'string').textarea"
+        *ngIf="!cast('string', info).textarea"
         matInput
         [errorStateMatcher]="errorStateMatcher"
         [readonly]="info.readonly"
@@ -19,12 +19,12 @@
         [placeholder]="info.placeholder || ''"
       />
       <textarea
-        *ngIf="cast(info, 'string').textarea"
+        *ngIf="cast('string', info).textarea"
         matInput
         [errorStateMatcher]="errorStateMatcher"
-        [cdkTextareaAutosize]="!!cast(info, 'string').textarea?.autosize"
-        [cdkAutosizeMinRows]="cast(info, 'string').textarea?.autosize?.minRows"
-        [cdkAutosizeMaxRows]="cast(info, 'string').textarea?.autosize?.maxRows"
+        [cdkTextareaAutosize]="!!cast('string', info).textarea?.autosize"
+        [cdkAutosizeMinRows]="cast('string', info).textarea?.autosize?.minRows"
+        [cdkAutosizeMaxRows]="cast('string', info).textarea?.autosize?.maxRows"
         [readonly]="info.readonly"
         [disabled]="info.disabled || false"
         [autocomplete]="info.autocomplete || ''"
@@ -74,9 +74,9 @@
         [autocomplete]="info.autocomplete || ''"
         [(ngModel)]="value"
         type="number"
-        [step]="cast(info, 'number').step"
-        [min]="cast(info, 'number').max ?? null"
-        [max]="cast(info, 'number').max ?? null"
+        [step]="cast('number', info).step"
+        [min]="cast('number', info).max ?? null"
+        [max]="cast('number', info).max ?? null"
         (change)="onChange()"
         (input)="onInput()"
         (blur)="onBlur()"
@@ -237,14 +237,14 @@
     </mat-form-field>
   </ng-container>
   <ng-container *ngSwitchCase="'coordinate'">
-    <div class="sub-form-field" *ngIf="cast(info, 'coordinate').compact; else coordinate">
+    <div class="sub-form-field" *ngIf="cast('coordinate', info).compact; else coordinate">
       <div class="label">
         <span>{{ info.label }}</span>
         <span *ngIf="info.hint">({{ hint }})</span>
       </div>
       <div>
         <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[0])}">
-          <mat-label>{{ cast(info, "coordinate").labelX || "x" }}</mat-label>
+          <mat-label>{{ cast("coordinate", info).labelX || "x" }}</mat-label>
           <ng-container>
             <mat-select [(ngModel)]="value[0]" (change)="onChange()">
               <mat-option [value]="0">左</mat-option>
@@ -257,7 +257,7 @@
           </ng-template>
         </mat-form-field>
         <mat-form-field style="width: 50%" [ngClass]="{empty: isEmpty(value[1])}">
-          <mat-label>{{ cast(info, "coordinate").labelY || "y" }}</mat-label>
+          <mat-label>{{ cast("coordinate", info).labelY || "y" }}</mat-label>
           <ng-container>
             <mat-select [(ngModel)]="value[1]" (change)="onChange()">
               <mat-option [value]="1">上</mat-option>
@@ -316,13 +316,13 @@
           <span *ngIf="hint">({{ hint }})</span>
         </div>
         <div class="group">
-          <app-input *ngFor="let info2 of cast(info, 'group').infos" [info]="info2"></app-input>
+          <app-input *ngFor="let info2 of cast('group', info).infos" [info]="info2"></app-input>
         </div>
       </div>
     </ng-container>
     <ng-container *ngIf="!info.label">
       <div class="group">
-        <app-input *ngFor="let info2 of cast(info, 'group').infos" [info]="info2"></app-input>
+        <app-input *ngFor="let info2 of cast('group', info).infos" [info]="info2"></app-input>
       </div>
     </ng-container>
   </ng-container>

@@ -37,7 +37,7 @@
         <mat-checkbox
           class="example-margin"
           [checked]="item.checked"
-          (change)="selectComponent(i, $event)"
+          (change)="selectComponent(i)"
           [disabled]="!componentsSelectable"
         >
           {{ item.data.name }}

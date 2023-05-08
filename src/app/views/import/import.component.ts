@@ -324,10 +324,10 @@ export class ImportComponent extends Utils() implements OnInit {
       if (!uniqCode) {
         if (addUniqCode) {
           if (isXinghao) {
-            v.data.info.唯一码 = CadPortable.getUniqCode(v.data, isXinghao);
+            v.data.info.唯一码 = CadPortable.getUniqCode(v.data);
           } else {
             const response = await this.dataService.post<string>("ngcad/generateUniqCode", {
-              uniqCode: CadPortable.getUniqCode(v.data, isXinghao)
+              uniqCode: CadPortable.getUniqCode(v.data)
             });
             const 唯一码 = this.dataService.getResponseData(response);
             if (唯一码) {
@@ -372,7 +372,7 @@ export class ImportComponent extends Utils() implements OnInit {
       }
     }
     const slgsMd5Map: ObjectOf<SlgsInfo[]> = {};
-    slgses.forEach((slgs, i) => {
+    slgses.forEach((slgs) => {
       const md5Str = this._getSlgsMd5(slgs.data);
       if (slgsMd5Map[md5Str]) {
         slgsMd5Map[md5Str].push(slgs);
@@ -394,7 +394,7 @@ export class ImportComponent extends Utils() implements OnInit {
     for (let i = 0; i < totalCad; i++) {
       this.msg = `正在检查dxf数据(${i + 1}/${totalCad})`;
       this.progressBar.forward();
-      await this._validateCad(cads[i], uniqCodesCount, requireLineId, isXinghao);
+      await this._validateCad(cads[i], uniqCodesCount, requireLineId);
     }
     for (let i = 0; i < totalSlgs; i++) {
       this.msg = `正在检查算料公式数据(${i + 1}/${totalSlgs})`;
@@ -472,7 +472,7 @@ export class ImportComponent extends Utils() implements OnInit {
     return errors;
   }
 
-  private async _validateCad(cad: CadInfo, uniqCodesCount: ObjectOf<number>, requireLineId: boolean, isXinghao: boolean) {
+  private async _validateCad(cad: CadInfo, uniqCodesCount: ObjectOf<number>, requireLineId: boolean) {
     if (cad.data.info.isEmpty) {
       cad.errors = cad.data.info.errors;
       return;
@@ -654,6 +654,7 @@ export class ImportComponent extends Utils() implements OnInit {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async _matchPeiheCad(infoArray: PeiheInfo[], options: ObjectOf<string>) {
     return infoArray.map(() => true);
     // const result: boolean[] = [];

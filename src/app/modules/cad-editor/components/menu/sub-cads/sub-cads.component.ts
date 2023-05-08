@@ -1,5 +1,4 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
-import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
@@ -180,7 +179,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     this.status.components.selected$.next([]);
   }
 
-  selectComponent(index: number, event?: MatCheckboxChange | boolean | null) {
+  selectComponent(index: number) {
     if (!this.componentsSelectable) {
       return;
     }

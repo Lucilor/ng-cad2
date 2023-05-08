@@ -94,8 +94,8 @@ import {ColorCircleModule} from "ngx-color/circle";
 import {InfiniteScrollModule} from "ngx-infinite-scroll";
 import {QuillModule} from "ngx-quill";
 import {NgScrollbarModule} from "ngx-scrollbar";
-import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
+import {AppRoutingModule} from "./routing/app-routing.module";
 
 @Injectable()
 class MyMatPaginatorIntl extends MatPaginatorIntl {

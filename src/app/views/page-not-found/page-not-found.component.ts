@@ -1,5 +1,6 @@
 import {Component} from "@angular/core";
-import {ActivatedRoute, Params, Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
+import {PathResolveData} from "@app/routing/path-resolver";
 
 @Component({
   selector: "app-page-not-found",
@@ -7,7 +8,7 @@ import {ActivatedRoute, Params, Router} from "@angular/router";
   styleUrls: ["./page-not-found.component.scss"]
 })
 export class PageNotFoundComponent {
-  data: {path: string; queryParams: Params};
+  data: PathResolveData;
 
   constructor(private route: ActivatedRoute, private router: Router) {
     this.data = this.route.snapshot.data.redirect;

@@ -637,7 +637,7 @@ export class CadPortable {
           const uniqCode = cad.info.唯一码;
           let found = false;
           for (const cad2 of importResult.cads) {
-            const uniqCode2 = this.getUniqCode(cad2.data, isXinghao);
+            const uniqCode2 = this.getUniqCode(cad2.data);
             if (uniqCode === uniqCode2) {
               found = true;
               toRemove.delete(cad2.data.id);
@@ -901,7 +901,7 @@ export class CadPortable {
     return result;
   }
 
-  static getUniqCode(cad: CadData, isXinghao: boolean) {
+  static getUniqCode(cad: CadData) {
     const {name, type} = cad;
     const get = (key: string) => cad.options[key] || "";
     return [

@@ -720,7 +720,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
       }
       const 设计图 = this.printParams.designPics.设计图;
       if (设计图) {
-        设计图.urls = 设计图.urls.map((v) => v.map((_) => this.orderImageUrl));
+        设计图.urls = 设计图.urls.map((v) => v.map(() => this.orderImageUrl));
       }
     }
   }

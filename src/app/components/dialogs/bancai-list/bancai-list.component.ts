@@ -21,7 +21,7 @@ export class BancaiListComponent {
     label: "搜索",
     model: {key: "filterText", data: this},
     autoFocus: true,
-    onInput: debounce((v) => {
+    onInput: debounce(() => {
       this.filterList();
       this.saveFilterText();
     }, 500)
@@ -38,8 +38,7 @@ export class BancaiListComponent {
     const {checkedItems} = this.data || {};
     let list = this.data.list;
     if (checkedItems) {
-      if (this.data.multi) {
-      } else {
+      if (!this.data.multi) {
         const checkedItem = checkedItems[0];
         if (checkedItem) {
           this.zidingyi = checkedItem.zidingyi || "";

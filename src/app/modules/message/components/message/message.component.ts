@@ -215,7 +215,7 @@ export class MessageComponent implements OnInit {
     }
   }
 
-  cast<T extends MessageData["type"]>(data: MessageData, _type: T) {
+  cast<T extends MessageData["type"]>(type: T, data: MessageData) {
     return data as MessageDataMap[T];
   }
 
