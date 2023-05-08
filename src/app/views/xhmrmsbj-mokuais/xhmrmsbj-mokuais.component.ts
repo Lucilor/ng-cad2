@@ -54,6 +54,12 @@ export class XhmrmsbjMokuaisComponent {
           });
           const formulas2 = {...output.materialResult, ...value.模块大小输出};
           const cads: CadData[] = [];
+          const suanliaogongshi = {...mokuai.suanliaogongshi};
+          for (const [k, v] of [...mokuai.gongshishuru, ...mokuai.xuanxiangshuru]) {
+            if (k in suanliaogongshi) {
+              suanliaogongshi[k] = v;
+            }
+          }
           if (mokuai2) {
             Object.assign(formulas2, mokuai2.suanliaogongshi);
             for (const cadItem of mokuai2.cads) {
