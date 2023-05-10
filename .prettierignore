@@ -1,9 +1,0 @@
-**/.git
-**/.svn
-**/.hg
-**/node_modules
-**/.yarn
-**/.angular
-**/lib
-**/dist
-src/assets/testData

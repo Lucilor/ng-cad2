@@ -8,7 +8,7 @@
     "test": "ng test",
     "test:ci": "ng test --watch=false --progress=false --browsers=ChromeHeadless",
     "lint": "ng lint --fix",
-    "format": "prettier --write .",
+    "format": "prettier --write . --ignore-path .eslintignore",
     "e2e": "ng e2e",
     "prepare": "husky install"
   },
@@ -87,6 +87,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-deprecation": "^1.4.1",
     "eslint-plugin-jsdoc": "44.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "form-data": "^4.0.0",
     "gulp": "^4.0.2",
     "gulp-zip": "^5.1.0",

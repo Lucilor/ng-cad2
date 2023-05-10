@@ -1,5 +1,10 @@
 import {Formulas} from "@app/utils/calc";
-import {updateMokuaiItems, ZixuanpeijianMokuaiItem, ZixuanpeijianTypesInfo} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
+import {
+  isMokuaiItemEqual,
+  updateMokuaiItems,
+  ZixuanpeijianMokuaiItem,
+  ZixuanpeijianTypesInfo
+} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {MsbjPeizhishuju} from "@components/msbj-rects/msbj-rects.types";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {ObjectOf} from "@utils";
@@ -42,19 +47,20 @@ export class XhmrmsbjData {
       for (const v of 模块节点) {
         updateMokuaiItems(v.可选模块, typesInfo, true);
         const 选中模块 = v.选中模块;
-        this.setSelectedMokuai(v, 选中模块?.id, true);
+        this.setSelectedMokuai(v, 选中模块, true);
       }
     }
   }
 
-  setSelectedMokuai(node: XhmrmsbjInfoMokuaiNode, id: number | undefined | null, setIsDefault: boolean) {
+  setSelectedMokuai(node: XhmrmsbjInfoMokuaiNode, mokuai: ZixuanpeijianMokuaiItem | undefined | null, setIsDefault: boolean) {
     delete node.选中模块;
     for (const mokuai2 of node.可选模块) {
-      if (mokuai2.id === id) {
+      const isEqual = mokuai && isMokuaiItemEqual(mokuai2, mokuai);
+      if (isEqual) {
         node.选中模块 = mokuai2;
       }
       if (setIsDefault) {
-        if (mokuai2.id === id) {
+        if (isEqual) {
           if (!mokuai2.info) {
             mokuai2.info = {};
           }

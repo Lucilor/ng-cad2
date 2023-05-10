@@ -7,19 +7,18 @@
   "overrides": [
     {
       "files": ["*.ts"],
-      "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "project": "tsconfig.json",
         "createDefaultProgram": true
       },
-      "plugins": ["deprecation"],
+      "plugins": ["deprecation", "prettier"],
       "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
         "plugin:@angular-eslint/template/process-inline-templates",
-        "prettier"
+        "plugin:prettier/recommended"
       ],
       "rules": {
         "@angular-eslint/component-selector": ["error", {"type": "element", "prefix": "app", "style": "kebab-case"}],
