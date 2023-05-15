@@ -195,8 +195,8 @@
         (selectionChange)="onChange()"
         [placeholder]="info.placeholder || ''"
       >
-        <mat-option [value]="true">是</mat-option>
-        <mat-option [value]="false">否</mat-option>
+        <mat-option [value]="true" [disabled]="info.readonly">是</mat-option>
+        <mat-option [value]="false" [disabled]="info.readonly">否</mat-option>
       </mat-select>
     </mat-form-field>
   </ng-container>
@@ -206,7 +206,7 @@
       <mat-hint>{{ hint }}</mat-hint>
       <mat-select [disabled]="info.disabled || false" [(ngModel)]="value" (selectionChange)="onChange()">
         <mat-select-trigger *ngIf="optionText" [innerHtml]="optionText"></mat-select-trigger>
-        <mat-option *ngFor="let option of options" [value]="option.value">
+        <mat-option *ngFor="let option of options" [value]="option.value" [disabled]="info.readonly">
           {{ option.label || option.value }}
         </mat-option>
       </mat-select>

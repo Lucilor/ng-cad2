@@ -552,6 +552,10 @@ const getUnfoldCadViewers = async (
     return result;
   }
 
+  if (unfold.length < 1) {
+    return [];
+  }
+
   const [width, height] = size;
   const unfoldCad = new CadData();
   const unfoldCadViewer = new CadViewer(unfoldCad, {...config, hideLineLength: false}).appendTo(document.body);

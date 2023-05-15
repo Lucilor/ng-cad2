@@ -1,6 +1,7 @@
 import {AbstractControlOptions} from "@angular/forms";
 import {FloatLabelType} from "@angular/material/form-field";
 import {ObjectOf} from "@utils";
+import csstype from "csstype";
 import {Color, ColorWrap} from "ngx-color";
 
 type Value<T> = T | ((...args: any[]) => T);
@@ -24,6 +25,7 @@ export interface InputInfoBase<T = any> {
   validators?: AbstractControlOptions["validators"];
   initialValidate?: boolean;
   name?: string;
+  styles?: csstype.Properties;
 }
 
 export interface InputInfoString<T = any> extends InputInfoWithOptions<T, string> {

@@ -6,8 +6,8 @@
   <div *ngIf="xinghao.raw.mingzi" class="title">{{ xiaodaohangStructure?.mingzi }}：{{ xinghao.raw.mingzi }}</div>
 </div>
 <div class="flex-row flex-110">
-  <div class="flex-row" class="flex-110">
-    <ng-scrollbar class="flex-110">
+  <div class="bancais flex-110">
+    <ng-scrollbar class="flex-110" [viewClass]="'aaa'">
       <div
         class="bancai flex-column"
         [ngClass]="{active: key === activeBancaiKey}"
@@ -19,6 +19,9 @@
           <div class="bancai-text" [ngStyle]="getBancaiStyle(key)">{{ xinghao.getBancaiTitle(key, "请选择") }}</div>
           <button mat-raised-button color="primary" (click)="editBancaiForm(key)">编辑</button>
           <button mat-raised-button color="primary" (click)="emptyBancaiForm(key)">清空</button>
+        </div>
+        <div class="bancai-attrs flex-row">
+          <app-input *ngFor="let info of xinghao.inputInfos[key]" [info]="info" appClickStop></app-input>
         </div>
         <div class="item-list flex-row">
           <ng-container *ngFor="let item of cads">

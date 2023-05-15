@@ -26,11 +26,17 @@ export const getCalcZhankaiText = (
   cadProps: ObjectOf<any>,
   overrideDic?: ObjectOf<any>
 ) => {
-  const getDicValue = (dic: ObjectOf<any>, key: string, fallback?: any) => dic?.[key] ?? fallback;
+  const getDicValue = (dic: ObjectOf<any>, key: string, fallback?: any) => {
+    return dic?.[key] ?? fallback;
+  };
 
-  const getXiangmupeizhi = (key: string, fallback?: string) => getDicValue(项目配置, key, fallback) as string;
+  const getXiangmupeizhi = (key: string, fallback?: string) => {
+    return getDicValue(项目配置, key, fallback) as string;
+  };
 
-  const unresolver = (key: string, rawKey?: string | null) => materialResult?.[key] ?? "";
+  const unresolver = (key: string, rawKey?: string | null) => {
+    return materialResult?.[key] ?? "";
+  };
 
   const trimUnnecessaryZero = (text: string, lianjiefu: string) => {
     text = text.replace("0" + lianjiefu + "0", "");
@@ -41,12 +47,8 @@ export const getCalcZhankaiText = (
   };
 
   const lstrip = (str: string, char?: string) => {
-    if (!str) {
-      return str;
-    }
-    if (!char) {
-      return str.trimStart();
-    }
+    if (!str) return str;
+    if (!char) return str.trimStart();
 
     while (str.length && str[0] == char) {
       str = str.substring(1);
@@ -56,12 +58,8 @@ export const getCalcZhankaiText = (
   };
 
   const rstrip = (str: string, char?: string) => {
-    if (!str) {
-      return str;
-    }
-    if (!char) {
-      return str.trimEnd();
-    }
+    if (!str) return str;
+    if (!char) return str.trimEnd();
 
     while (str.length && str[str.length - 1] == char) {
       str = str.substring(0, str.length - 1);
@@ -70,15 +68,11 @@ export const getCalcZhankaiText = (
     return str;
   };
 
-  const strip = (str: string, char?: string) => lstrip(rstrip(str, char), char);
+  const strip = (str: string, char?: string) => {
+    return lstrip(rstrip(str, char), char);
+  };
 
-  const renderText = (
-    text: string,
-    replacement: ObjectOf<any>,
-    alias = null,
-    unresolver: ((...args: any[]) => any) | null = null,
-    deps: any[] | null = null
-  ) => {
+  const renderText = (text: string, replacement: ObjectOf<any>, alias = null, unresolver: any = null, deps: any[] | null = null) => {
     const matches = [...text.matchAll(/#.*?#/g)].map((v) => v[0]);
     const keyDeps = deps ?? [];
     // 将字符串模板替换成具体值
@@ -182,9 +176,7 @@ export const getCalcZhankaiText = (
     return shangxiaqieCombineInfo;
   };
 
-  if (!overrideDic) {
-    overrideDic = {};
-  }
+  if (!overrideDic) overrideDic = {};
 
   const name = getDicValue(cadProps, "name", "");
 
@@ -256,7 +248,7 @@ export const getCalcZhankaiText = (
   if (seka == "同扇色" && materialResult?.["门扇板材"]) {
     seka = materialResult["门扇板材"];
   }
-  if (项目名 == "sd") {
+  if (nameEquals(项目名, ["sd", "sd2"])) {
     if (
       name == "骨架" ||
       nameIncludes("杂板", name) ||
@@ -434,33 +426,43 @@ export const getCalcZhankaiText = (
   }
 
   // 展开数合并，若名字、宽、高一致则数量叠加
-  const uniqueZhankai: any[] = [];
+  const uniqueZhankai: any = [];
   for (const zhankai of additionZhankai) {
-    const name = zhankai.name;
+    const name = zhankai["name"];
     const isDefaultZhankaikuan = !!zhankai["默认展开宽"];
     let width = "";
-    if (zhankai?.idealW) {
-      width = zhankai.idealW;
+    if (zhankai?.["idealW"]) {
+      width = zhankai["idealW"];
     } else {
-      width = toFixed(zhankai.calcW, 2);
+      width = toFixed(zhankai["calcW"], 2);
     }
-    const height = toFixed(zhankai.calcH, 2);
-    if (!zhankai?.num) {
+    const height = toFixed(zhankai["calcH"], 2);
+    if (!zhankai?.["num"]) {
       throw new Error("CAD：" + name + "，展开结构有问题，缺少num字段");
     }
-    if (zhankai.num == null) {
+    if (zhankai["num"] == null) {
       throw new Error("CAD：" + name + "，展开有问题，数量算出来为NULL");
     }
-    const num = toFixed(zhankai.num, 0);
+    const num = toFixed(zhankai["num"], 0);
     const shangqie = toFixed(zhankai["上切"] ?? 0, 0);
     const xiaqie = toFixed(zhankai["下切"] ?? 0, 0);
+    const shangzhe = toFixed(zhankai["上折附加值"] ?? 0, 0);
+    const xiazhe = toFixed(zhankai["下折附加值"] ?? 0, 0);
 
     // 看下有没有一样的展开数
     let hasSame = false;
     for (const uZhankai of uniqueZhankai) {
+      const 展开合并规则考虑名字 = getXiangmupeizhi("展开合并规则考虑名字", "否") == "是";
       // if (uZhankai[0] == name && uZhankai[1] == width && uZhankai[2] == height) {
+      let isTheSame = false;
+      if (展开合并规则考虑名字) {
+        isTheSame =
+          uZhankai[0] == name && uZhankai[1] == width && uZhankai[2] == height && uZhankai[4] == shangqie && uZhankai[5] == xiaqie;
+      } else {
+        isTheSame = uZhankai[1] == width && uZhankai[2] == height && uZhankai[4] == shangqie && uZhankai[5] == xiaqie;
+      }
       // 上下切一样的才能合并，不然会出错
-      if (uZhankai[1] == width && uZhankai[2] == height && uZhankai[4] == shangqie && uZhankai[5] == xiaqie) {
+      if (isTheSame) {
         hasSame = true;
         // 有相同的展开则合并数量
         uZhankai[3] = toFixed(Cast2Number(num) + Cast2Number(uZhankai[3]), 0);
@@ -470,7 +472,7 @@ export const getCalcZhankaiText = (
 
     // 没有一样的就添加
     if (!hasSame) {
-      uniqueZhankai.push([name, width, height, num, shangqie, xiaqie, isDefaultZhankaikuan]);
+      uniqueZhankai.push([name, width, height, num, shangqie, xiaqie, isDefaultZhankaikuan, shangzhe, xiazhe]);
     }
   }
 
@@ -481,7 +483,7 @@ export const getCalcZhankaiText = (
     for (const uZhankai of uniqueZhankai) {
       uZhankai[0] = zhongbanyahuaban;
     }
-    cadProps.xianshimingzi = zhongbanyahuaban;
+    cadProps["xianshimingzi"] = zhongbanyahuaban;
   }
 
   const 算料处理 = getDicValue(cadProps, "suanliaochuli", "");
@@ -574,12 +576,13 @@ export const getCalcZhankaiText = (
   // 当只有一个展开时，刨坑信息接到展开后面
   let paokengInfoAfterZhankai = false;
 
-  let paokengInfoOnullLine = getXiangmupeizhi("算料单刨坑信息换行显示", "否") == "是";
-  if (isQiliaoCAD) {
+  const 刨坑换行配置 = getXiangmupeizhi("算料单刨坑信息换行显示", "否");
+  let paokengInfoOnullLine = 刨坑换行配置 == "是";
+  if (isQiliaoCAD || 刨坑换行配置 == "强制") {
     paokengInfoOnullLine = true;
   } else {
     // 当只有一个展开时，强制不单独一行显示刨坑信息，直接跟在展开后面
-    if (!nameEquals(项目名, ["sd", "gym", "kgs"]) && !multiZhankai && paokengInfo != "") {
+    if (!nameEquals(项目名, ["sd", "sd2", "gym", "kgs"]) && !multiZhankai && paokengInfo != "") {
       paokengInfoOnullLine = false;
       paokengInfoAfterZhankai = true;
     }
@@ -619,7 +622,7 @@ export const getCalcZhankaiText = (
   const suanliaoCADBancaiInNewLine = getXiangmupeizhi("算料单算料CAD板材厚度换行显示", "") == "是";
 
   if (
-    (项目名 == "sd" || 项目名 == "yhmy" || suanliaoCADBancaiInNewLine) &&
+    (项目名 == "sd" || 项目名 == "sd2" || 项目名 == "yhmy" || suanliaoCADBancaiInNewLine) &&
     (nameIncludes(getDicValue(cadProps, "houtaiFenlei", ""), "算料") || isQiliaoCAD)
   ) {
     if (paokengInfoAfterZhankai) {
@@ -679,26 +682,26 @@ export const getCalcZhankaiText = (
   const hasShangqie = menshanshangqie && menshanshangqie != "0";
   let hasXiaqie = menshanxiaqie && menshanxiaqie != "0";
   let shangqieInfo = getXiangmupeizhi("算料单上切信息", "上缩短#门扇上切#");
-  if (项目名 != "sd" && xuyaoshangqie) {
+  if (项目名 != "sd" && 项目名 != "sd2" && xuyaoshangqie) {
     shangqieInfo = "上切#门扇上切#";
   }
-  if (项目名 != "sd" && xuyaoshangsuoduan) {
+  if (项目名 != "sd" && 项目名 != "sd2" && xuyaoshangsuoduan) {
     shangqieInfo = "上缩短#门扇上切#";
   }
   let xiaqieInfo = getXiangmupeizhi("算料单下切信息", "下缩短#门扇下切#");
-  if (项目名 != "sd" && xuyaoxiaqie) {
+  if (项目名 != "sd" && 项目名 != "sd2" && xuyaoxiaqie) {
     xiaqieInfo = "下切#门扇下切#";
   }
-  if (项目名 != "sd" && xuyaoxiasuoduan) {
+  if (项目名 != "sd" && 项目名 != "sd2" && xuyaoxiasuoduan) {
     xiaqieInfo = "下缩短#门扇下切#";
   }
   if (needXiaqieInfo && !hasXiaqie) {
     hasXiaqie = true;
     xiaqieInfo = "下不缩短";
-    if (项目名 != "sd" && xuyaoxiaqie) {
+    if (项目名 != "sd" && 项目名 != "sd2" && xuyaoxiaqie) {
       xiaqieInfo = "下不切";
     }
-    if (项目名 != "sd" && xuyaoxiasuoduan) {
+    if (项目名 != "sd" && 项目名 != "sd2" && xuyaoxiasuoduan) {
       xiaqieInfo = "下不缩短";
     }
   }
@@ -765,9 +768,11 @@ export const getCalcZhankaiText = (
     val = "";
     if (nameIncludes("双包边", name) && getDicValue(cadProps, "zhankaiArr", "")) {
     } else {
-      let firstZhankai = null;
+      let firstZhankai: any = null;
       let calcW = "";
       let calcH = "";
+      let shangzhe = "";
+      let xiazhe = "";
       let shuliang = "";
       let isDefaultZhankaikuan = false;
       if (uniqueZhankai.length > 0) {
@@ -777,9 +782,15 @@ export const getCalcZhankaiText = (
         calcH = Cast2String(firstZhankai[2]);
         shuliang = Cast2String(firstZhankai[3]);
         isDefaultZhankaikuan = firstZhankai[6];
+        shangzhe = firstZhankai[7];
+        xiazhe = firstZhankai[8];
       }
       if (calcW == "0") {
         calcW = "";
+      }
+      let shuangxiangzhewanfujiazhiInfo = "";
+      if (shangzhe || xiazhe) {
+        shuangxiangzhewanfujiazhiInfo = "+" + toFixed(Cast2Number(shangzhe || 0) + Cast2Number(xiazhe || 0), 2);
       }
 
       if (!suanliaodanNeedZhankaikuan) {
@@ -817,9 +828,23 @@ export const getCalcZhankaiText = (
         val = zhankaiName;
       } else {
         if (suanliaodanDisplayZhankaigaoFirst) {
-          val = (showCADNameBeforeZhankai ? zhankaiName : "") + calcH + zhankailianjiefu + calcW + "=" + Cast2String(shuliang);
+          val =
+            (showCADNameBeforeZhankai ? zhankaiName : "") +
+            calcH +
+            shuangxiangzhewanfujiazhiInfo +
+            zhankailianjiefu +
+            calcW +
+            "=" +
+            Cast2String(shuliang);
         } else {
-          val = (showCADNameBeforeZhankai ? zhankaiName : "") + calcW + zhankailianjiefu + calcH + "=" + Cast2String(shuliang);
+          val =
+            (showCADNameBeforeZhankai ? zhankaiName : "") +
+            calcW +
+            zhankailianjiefu +
+            calcH +
+            shuangxiangzhewanfujiazhiInfo +
+            "=" +
+            Cast2String(shuliang);
         }
 
         if (bancaiwenlifangxiangInfo) {
@@ -830,7 +855,7 @@ export const getCalcZhankaiText = (
         if (forceNotDisplayShangxiaqieInfo) {
           info = "";
         }
-        if (multiZhankai && info != "") {
+        if (info != "" && !sekaText.includes(info)) {
           val += "\n" + info;
         }
       }
@@ -839,6 +864,13 @@ export const getCalcZhankaiText = (
         for (const aZhankai of uniqueZhankai) {
           let w = Cast2String(aZhankai[1]);
           let h = Cast2String(aZhankai[2]);
+          const shangzhe = aZhankai[7];
+          const xiazhe = aZhankai[8];
+          let shuangxiangzhewanfujiazhiInfo = "";
+          if (shangzhe || xiazhe) {
+            shuangxiangzhewanfujiazhiInfo = "+" + toFixed(Cast2Number(shangzhe || 0) + Cast2Number(xiazhe || 0), 2);
+          }
+
           if (!suanliaodanNeedZhankaikuan) {
             w = "";
           }
@@ -872,9 +904,23 @@ export const getCalcZhankaiText = (
             addText = zhankaiName;
           } else {
             if (suanliaodanDisplayZhankaigaoFirst) {
-              addText = (showCADNameBeforeZhankai ? zhankaiName : "") + h + zhankailianjiefu + w + "=" + Cast2String(aZhankai[3]);
+              addText =
+                (showCADNameBeforeZhankai ? zhankaiName : "") +
+                h +
+                shuangxiangzhewanfujiazhiInfo +
+                zhankailianjiefu +
+                w +
+                "=" +
+                Cast2String(aZhankai[3]);
             } else {
-              addText = (showCADNameBeforeZhankai ? zhankaiName : "") + w + zhankailianjiefu + h + "=" + Cast2String(aZhankai[3]);
+              addText =
+                (showCADNameBeforeZhankai ? zhankaiName : "") +
+                w +
+                zhankailianjiefu +
+                h +
+                shuangxiangzhewanfujiazhiInfo +
+                "=" +
+                Cast2String(aZhankai[3]);
             }
             let info = getZhankaiShangxiaqieInfo(aZhankai);
             if (forceNotDisplayShangxiaqieInfo) {
@@ -962,7 +1008,7 @@ export const getCalcZhankaiText = (
       if (combineText) {
         combineText += "\n";
       }
-      combineText += 算料特殊要求;
+      combineText += renderText(算料特殊要求, {}, null, unresolver);
     }
   }
 

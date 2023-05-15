@@ -9,6 +9,7 @@ import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {levenshtein, ObjectOf, timeout} from "@utils";
 import Color2 from "color";
+import csstype from "csstype";
 import {isEmpty, isEqual} from "lodash";
 import {Color} from "ngx-color";
 import {ChromeComponent} from "ngx-color/chrome";
@@ -67,6 +68,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
         this.class.push(value.class);
       }
     }
+    this.style = value.styles || {};
     if (value.initialValidate) {
       this.validateValue();
     }
@@ -163,8 +165,8 @@ export class InputComponent extends Utils() implements AfterViewInit {
     return this.value?.hex || "";
   }
 
-  @HostBinding("class")
-  class: string[] = [];
+  @HostBinding("class") class: string[] = [];
+  @HostBinding("style") style: csstype.Properties = {};
 
   @ViewChild("formField", {read: ElementRef}) formField?: ElementRef<HTMLElement>;
   @ViewChild("colorChrome") colorChrome?: ChromeComponent;

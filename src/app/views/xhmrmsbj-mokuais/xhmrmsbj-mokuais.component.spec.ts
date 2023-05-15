@@ -22,6 +22,7 @@ const data: XhmrmsbjMokuaisInput = {
     output: {
       fulfilled: true,
       materialResult: {},
+      materialResultDiff: {},
       配件模块CAD: [],
       门扇布局CAD: []
     }

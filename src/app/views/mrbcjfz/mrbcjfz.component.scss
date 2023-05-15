@@ -10,6 +10,12 @@
   --item-padding: 5px;
 }
 
+.bancais ::ng-deep {
+  .ng-scroll-content {
+    width: 100%;
+  }
+}
+
 .bancai {
   margin: var(--item-margin);
   padding: var(--item-padding);
@@ -31,6 +37,17 @@
     .title {
       white-space: nowrap;
       justify-content: flex-end;
+    }
+  }
+
+  .bancai-attrs {
+    > * {
+      width: 0;
+      box-sizing: border-box;
+
+      &:not(:last-child) {
+        padding-right: 5px;
+      }
     }
   }
 }

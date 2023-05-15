@@ -216,6 +216,7 @@ export class MrbcjfzComponent implements OnInit {
       const data = getMrbcjfzInfo(默认板材[key]);
       this.xinghao.默认板材[key] = data;
     }
+    this.xinghao.update();
   }
 
   async editBancaiForm(key: string) {
@@ -285,8 +286,10 @@ export class MrbcjfzComponent implements OnInit {
   }
 
   selectBancaiKey(key: string) {
-    this.activeBancaiKey = key;
-    this.updateListItems();
+    if (this.activeBancaiKey !== key) {
+      this.activeBancaiKey = key;
+      this.updateListItems();
+    }
   }
 
   getList(key: ListItemKey) {

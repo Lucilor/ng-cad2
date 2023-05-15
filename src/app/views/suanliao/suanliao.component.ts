@@ -23,6 +23,7 @@ import {CalcService} from "@services/calc.service";
 import {ObjectOf, WindowMessageManager} from "@utils";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
 import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
+import {cloneDeep, isEqual} from "lodash";
 
 @Component({
   selector: "app-suanliao",
@@ -59,15 +60,18 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
 
   async suanliaoStart(params: SuanliaoInput): Promise<SuanliaoOutputData> {
     const {materialResult, gongshi, inputResult, 型号选中门扇布局, 配件模块CAD, 门扇布局CAD, bujuNames, varNames, silent} = params;
+    const materialResultOld = cloneDeep(materialResult);
     let timerName: string | null = null;
     if (!silent) {
       timerName = "算料";
       timer.start(timerName);
     }
+    const materialResultDiff: SuanliaoOutput["materialResultDiff"] = {};
     const result: SuanliaoOutputData = {
       action: "suanliaoEnd",
       data: {
         materialResult,
+        materialResultDiff,
         配件模块CAD: [],
         门扇布局CAD: [],
         fulfilled: false
@@ -191,6 +195,13 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     result.data.配件模块CAD = mokuais.map((v) => ({...v, cads: v.cads.map(getCadItem2)})) as any;
     result.data.门扇布局CAD = lingsans.map(getCadItem2) as any;
     result.data.fulfilled = true;
+    for (const key in materialResult) {
+      const value1 = materialResult[key];
+      const value2 = materialResultOld[key];
+      if (!isEqual(value1, value2)) {
+        materialResultDiff[key] = value1;
+      }
+    }
     if (timerName) {
       timer.end(timerName, timerName);
     }
@@ -234,6 +245,7 @@ export interface SuanliaoOutputData {
 
 export interface SuanliaoOutput extends CalcZxpjResult {
   materialResult: Formulas;
+  materialResultDiff: Formulas;
   配件模块CAD: ZixuanpeijianMokuaiItem[];
   门扇布局CAD: ZixuanpeijianCadItem[];
 }

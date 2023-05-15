@@ -30,11 +30,42 @@ export interface MrbcjfzHuajian extends TableDataBase {
 
 export class MrbcjfzXinghaoInfo {
   默认板材: ObjectOf<MrbcjfzInfo> = {};
+  inputInfos: ObjectOf<InputInfo[]> = {};
 
   constructor(public raw: MrbcjfzXinghao) {
     try {
       this.默认板材 = JSON.parse(raw.morenbancai || "");
     } catch (error) {}
+    this.update();
+  }
+
+  update() {
+    this.inputInfos = {};
+    for (const [key, value] of Object.entries(this.默认板材)) {
+      value.板材分组别名 = value.板材分组别名 ?? "";
+      value.允许修改 = value.允许修改 ?? true;
+      value.不显示 = value.不显示 ?? false;
+      let 独立变化不可改: boolean;
+      if (key === "底框板材") {
+        value.独立变化 = value.独立变化 ?? true;
+        独立变化不可改 = true;
+      } else {
+        value.独立变化 = value.独立变化 ?? false;
+        独立变化不可改 = false;
+      }
+      this.inputInfos[key] = [
+        {type: "string", label: "板材分组别名", model: {data: value, key: "板材分组别名"}, styles: {flex: "1 1 20px"}},
+        {type: "boolean", label: "允许修改", model: {data: value, key: "允许修改"}, styles: {flex: "1 1 9px"}},
+        {
+          type: "boolean",
+          label: "独立变化",
+          model: {data: value, key: "独立变化"},
+          styles: {flex: "1 1 9px"},
+          readonly: 独立变化不可改
+        },
+        {type: "boolean", label: "不显示", model: {data: value, key: "不显示"}, styles: {flex: "1 1 8px"}}
+      ];
+    }
   }
 
   getBancaiTitle(key: string, placeholder = "") {
@@ -67,6 +98,10 @@ export interface MrbcjfzInfo {
   花件: string[];
   CAD: string[];
   企料: string[];
+  板材分组别名?: string;
+  允许修改?: boolean;
+  独立变化?: boolean;
+  不显示?: boolean;
 }
 
 export const getMrbcjfzInfo = (source: Partial<MrbcjfzInfo> = {}): MrbcjfzInfo => ({
