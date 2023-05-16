@@ -149,7 +149,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     delete queryParams.action;
     if (!action) {
       this.showDxfInput = true;
-      this.enableZixuanpeijian = true;
       this._loadPrintParams();
       if (this.printParams.cads.length > 0) {
         await this.generateSuanliaodan();
@@ -199,9 +198,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
           } else {
             this.zixuanpeijian = {模块: [], 零散: []};
           }
-          this.enableZixuanpeijian = true;
-        } else {
-          this.enableZixuanpeijian = false;
         }
         await this.setZixuanpeijian();
         await this.generateSuanliaodan();
@@ -263,6 +259,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     // cads.forEach((v) => {
     //     v.entities.forEach((e) => (e.selectable = false));
     // });
+    this.enableZixuanpeijian = cads.length === 1;
     if (this.enableZixuanpeijian) {
       params.keepCad = true;
     } else {
@@ -319,13 +316,19 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     this.toolbarVisible = !this.toolbarVisible;
   }
 
-  downloadDxf() {
-    if (this.cad) {
-      this.dataService.downloadDxf(this.cad.data);
-    } else if (this.downloadUrl !== null) {
-      downloadByUrl(this.downloadUrl);
+  downloadDxf(original: boolean) {
+    if (original) {
+      if (this.downloadUrl !== null) {
+        downloadByUrl(this.downloadUrl);
+      } else {
+        this.message.alert("没有提供下载地址");
+      }
     } else {
-      this.message.alert("没有提供下载地址");
+      if (this.cad && this.enableZixuanpeijian) {
+        this.dataService.downloadDxf(this.cad.data);
+      } else {
+        this.message.alert("没有提供下载数据");
+      }
     }
   }
 

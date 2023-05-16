@@ -25,7 +25,7 @@ import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf, Point, Rectangle, timeout, WindowMessageManager} from "@utils";
-import {isMrbcjfzInfoEmpty, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
+import {isMrbcjfzInfoEmpty1, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo, Node2rectData, node2rectDataMsdxKeys} from "@views/msbj/msbj.types";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
 import {openXhmrmsbjMokuaisDialog} from "@views/xhmrmsbj-mokuais/xhmrmsbj-mokuais.component";
@@ -70,7 +70,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   tabNames = xhmrmsbjTabNames;
   activeTabName: XhmrmsbjTabName = "门扇模块";
   mokuaiInputInfos: InputInfo[] = [];
-  isMrbcjfzInfoEmpty = isMrbcjfzInfoEmpty;
+  isMrbcjfzInfoEmpty1 = isMrbcjfzInfoEmpty1;
   menshanKeys = ["锁扇正面", "锁扇背面", "铰扇正面", "铰扇背面", "小扇正面", "小扇背面"];
   materialResult: Formulas = {};
   houtaiUrl = "";
@@ -223,7 +223,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     if (this.isFromOrder) {
       return true;
     }
-    return Object.values(morenbancai).every((v) => isMrbcjfzInfoEmpty(v) || v.默认对应板材分组);
+    return Object.entries(morenbancai).every(([k, v]) => this.isMrbcjfzInfoEmpty1(k, v) || v.默认对应板材分组);
   }
 
   async selectMenshanKey(key: string) {

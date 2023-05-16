@@ -16,10 +16,12 @@ import {timeout, WindowMessageManager} from "@utils";
 import {Properties} from "csstype";
 import {isEmpty, union} from "lodash";
 import {
+  emptyMrbcjfzInfoValues,
   filterCad,
   filterHuajian,
   getMrbcjfzInfo,
-  isMrbcjfzInfoEmpty,
+  isMrbcjfzInfoEmpty1,
+  isMrbcjfzInfoEmpty2,
   ListItemKey,
   listItemKeys,
   MrbcjfzCadInfo,
@@ -245,31 +247,38 @@ export class MrbcjfzComponent implements OnInit {
       return;
     }
     const info = this.xinghao.默认板材[key];
-    info.默认开料板材 = "";
-    info.默认开料材料 = "";
-    info.默认开料板材厚度 = "";
-    info.CAD = [];
-    info.企料 = [];
-    info.花件 = [];
-    info.可选板材 = [];
+    emptyMrbcjfzInfoValues(key, info, [
+      "默认开料材料",
+      "默认开料板材",
+      "默认开料板材厚度",
+      "CAD",
+      "企料",
+      "花件",
+      "可选板材",
+      "板材分组别名",
+      "允许修改",
+      "独立变化",
+      "不显示"
+    ]);
     if (this.activeBancaiKey) {
       this.selectBancaiKey(this.activeBancaiKey);
     }
+    this.updateListItems();
   }
 
   justifyBancai(key: string, info: MrbcjfzInfo) {
-    if (isMrbcjfzInfoEmpty(info) && !this.bancaiKeysNonClear.includes(key)) {
-      info.默认开料材料 = "";
-      info.默认开料板材 = "";
-      info.默认开料板材厚度 = "";
+    if (isMrbcjfzInfoEmpty1(key, info) && !this.bancaiKeysNonClear.includes(key)) {
+      emptyMrbcjfzInfoValues(key, info, ["默认开料材料", "默认开料板材", "默认开料板材厚度"]);
+    }
+    if (isMrbcjfzInfoEmpty2(key, info)) {
+      emptyMrbcjfzInfoValues(key, info, ["板材分组别名", "允许修改", "独立变化", "不显示"]);
     }
   }
 
   validateBancai(key: string, info: MrbcjfzInfo) {
-    const {默认开料板材, 默认开料材料, 默认开料板材厚度} = info;
     const errors: ValidationErrors = {};
-    if (!isMrbcjfzInfoEmpty(info) || this.bancaiKeysRequired.includes(key)) {
-      if (![默认开料板材, 默认开料材料, 默认开料板材厚度].every(Boolean)) {
+    if (!isMrbcjfzInfoEmpty1(key, info) || this.bancaiKeysRequired.includes(key)) {
+      if (isMrbcjfzInfoEmpty2(key, info)) {
         errors.required = true;
       }
     }

@@ -16,7 +16,7 @@ import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
 import {ObjectOf} from "@utils";
-import {isMrbcjfzInfoEmpty, MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
+import {isMrbcjfzInfoEmpty1, MrbcjfzInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
 import {cloneDeep, difference, intersection, isEmpty, isEqual, union} from "lodash";
 import {openDrawCadDialog} from "../draw-cad/draw-cad.component";
@@ -346,12 +346,12 @@ export const updateMokuaiItems = (items: ZixuanpeijianMokuaiItem[], typesInfo: Z
               item.morenbancai = {};
             }
             for (const key in morenbancai) {
-              if (isMrbcjfzInfoEmpty(morenbancai[key])) {
+              if (isMrbcjfzInfoEmpty1(key, morenbancai[key])) {
                 morenbancai[key].默认对应板材分组 = "";
               }
             }
             for (const key in item.morenbancai) {
-              if (isMrbcjfzInfoEmpty(item.morenbancai[key])) {
+              if (isMrbcjfzInfoEmpty1(key, item.morenbancai[key])) {
                 item.morenbancai[key].默认对应板材分组 = "";
                 item.morenbancai[key].选中板材分组 = "";
               } else if (morenbancai[key]) {

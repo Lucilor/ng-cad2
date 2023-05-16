@@ -3,6 +3,7 @@ import {CadData} from "@cad-viewer";
 import {BancaiList, TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/input.types";
 import {ObjectOf} from "@utils";
+import {isEqual} from "lodash";
 
 export interface MrbcjfzResponseData {
   xinghao: MrbcjfzXinghao;
@@ -41,18 +42,9 @@ export class MrbcjfzXinghaoInfo {
 
   update() {
     this.inputInfos = {};
-    for (const [key, value] of Object.entries(this.默认板材)) {
-      value.板材分组别名 = value.板材分组别名 ?? "";
-      value.允许修改 = value.允许修改 ?? true;
-      value.不显示 = value.不显示 ?? false;
-      let 独立变化不可改: boolean;
-      if (key === "底框板材") {
-        value.独立变化 = value.独立变化 ?? true;
-        独立变化不可改 = true;
-      } else {
-        value.独立变化 = value.独立变化 ?? false;
-        独立变化不可改 = false;
-      }
+    for (const key in this.默认板材) {
+      this.默认板材[key] = {...getEmptyMrbcjfzInfo(key), ...this.默认板材[key]};
+      const value = this.默认板材[key];
       this.inputInfos[key] = [
         {type: "string", label: "板材分组别名", model: {data: value, key: "板材分组别名"}, styles: {flex: "1 1 20px"}},
         {type: "boolean", label: "允许修改", model: {data: value, key: "允许修改"}, styles: {flex: "1 1 9px"}},
@@ -61,7 +53,7 @@ export class MrbcjfzXinghaoInfo {
           label: "独立变化",
           model: {data: value, key: "独立变化"},
           styles: {flex: "1 1 9px"},
-          readonly: 独立变化不可改
+          readonly: key === "底框板材"
         },
         {type: "boolean", label: "不显示", model: {data: value, key: "不显示"}, styles: {flex: "1 1 8px"}}
       ];
@@ -198,7 +190,49 @@ export const filterHuajian = (info: MrbcjfzHuajianInfo) => {
   return true;
 };
 
-export const isMrbcjfzInfoEmpty = (info: MrbcjfzInfo) => {
-  const {CAD, 花件, 企料} = info;
-  return [CAD, 花件, 企料].every((v) => !v || v.length < 1);
+export const getEmptyMrbcjfzInfo = (name: string) => {
+  const result: MrbcjfzInfo = {
+    默认开料板材: "",
+    默认开料材料: "",
+    默认开料板材厚度: "",
+    默认对应板材分组: "",
+    选中板材: "",
+    选中材料: "",
+    选中板材厚度: "",
+    选中板材分组: "",
+    可选板材: [],
+    花件: [],
+    CAD: [],
+    企料: [],
+    板材分组别名: "",
+    允许修改: true,
+    独立变化: false,
+    不显示: false
+  };
+  if (name === "底框板材") {
+    result.独立变化 = true;
+  }
+  return result;
 };
+
+export const emptyMrbcjfzInfoValues = (name: string, info: MrbcjfzInfo, keys: (keyof MrbcjfzInfo)[]) => {
+  const emptyInfo = getEmptyMrbcjfzInfo(name);
+  for (const key of keys) {
+    info[key] = emptyInfo[key] as never;
+  }
+};
+
+export const isMrbcjfzInfoEmpty = (name: string, info: MrbcjfzInfo, keys: (keyof MrbcjfzInfo)[]) => {
+  const emptyInfo = getEmptyMrbcjfzInfo(name);
+  return keys.every((key) => {
+    const value = info[key];
+    if (value === undefined || isEqual(value, emptyInfo[key])) {
+      return true;
+    }
+    return false;
+  });
+};
+
+export const isMrbcjfzInfoEmpty1 = (name: string, info: MrbcjfzInfo) => isMrbcjfzInfoEmpty(name, info, ["CAD", "企料", "花件"]);
+export const isMrbcjfzInfoEmpty2 = (name: string, info: MrbcjfzInfo) =>
+  isMrbcjfzInfoEmpty(name, info, ["默认开料材料", "默认开料板材", "默认开料板材厚度"]);
