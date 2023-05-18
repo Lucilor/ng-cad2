@@ -11,7 +11,6 @@ import {CalcService} from "@services/calc.service";
 import {timeout} from "@utils";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
 import csstype from "csstype";
-import {uniqWith} from "lodash";
 
 @Component({
   selector: "app-xhmrmsbj-mokuais",
@@ -101,26 +100,39 @@ export class XhmrmsbjMokuaisComponent {
 
   getFormulaInfos(formulas: Formulas, formulas2?: Formulas) {
     const infos: FormulaInfo[] = [];
-    const getValue = (val: string | number): FormulaInfo["values"] => {
+    const getValues = (val: string | number) => {
+      const values: FormulaInfo["values"] = [];
       if (typeof val === "number") {
-        return [{eq: true, name: toFixedTrim(val, 2)}];
+        values.push({eq: true, name: toFixedTrim(val, 2)});
       } else {
-        return [
-          {eq: true, name: val},
-          {eq: true, name: this.calc.calc.replaceVars(val, formulas2)}
-        ];
+        val = val.trim();
+        values.push({eq: true, name: val});
+        const val2 = this.calc.calc.replaceVars(val, formulas2);
+        if (val !== val2) {
+          values.push({eq: true, name: val2});
+        }
       }
+      return values;
     };
     for (const [key, value] of Object.entries(formulas)) {
       const keys: FormulaInfo["keys"] = [{eq: true, name: key}];
-      let values: FormulaInfo["values"] = [...getValue(value)];
+      const values: FormulaInfo["values"] = getValues(value);
       if (formulas2 && key in formulas2) {
-        const value2 = getValue(formulas2[key]);
-        const calcResult = this.calc.calc.calcExpress(`(${values.at(-1)?.name}) == (${value2.at(0)?.name})`);
-        value2[0].eq = calcResult.value === true;
-        values.push(...value2);
+        const valuePrev = values.at(-1)?.name;
+        const value2 = getValues(formulas2[key]).filter((v) => v.name !== valuePrev);
+        if (value2.length > 0) {
+          const valueNext = value2[0].name;
+          let calcResult = this.calc.calc.calcExpress(`(${valuePrev}) === (${valueNext})`);
+          if (calcResult.value !== true) {
+            calcResult = this.calc.calc.calcExpress(`(\`${valuePrev}\`) === (\`${valueNext}\`)`);
+          }
+          if (calcResult.value !== true) {
+            calcResult = this.calc.calc.calcExpress(`(eval(\`${valuePrev}\`)) === (\`${valueNext}\`)`);
+          }
+          value2[0].eq = calcResult.value === true;
+          values.push(...value2);
+        }
       }
-      values = uniqWith(values, (a, b) => a.name === b.name);
       infos.push({keys, values});
     }
     return infos;
