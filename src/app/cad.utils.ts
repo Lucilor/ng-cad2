@@ -131,7 +131,7 @@ export const prepareCadViewer = async (cad: CadViewer) => {
   await cad.loadFont({name: "喜鸿至简特殊字体", url});
 };
 
-export const setCadData = (data: CadData, project: string) => {
+export const setCadData = (data: CadData, project: string, collection: CadCollection) => {
   if (data.baseLines.length < 1) {
     data.baseLines.push(new CadBaseLine());
   }
@@ -141,7 +141,7 @@ export const setCadData = (data: CadData, project: string) => {
   if (data.算料单线长显示的最小长度 === null) {
     data.算料单线长显示的最小长度 = project === "yhmy" ? 5 : 6;
   }
-  if (isShiyitu(data)) {
+  if (isShiyitu(data) || collection === "luomatoucad") {
     data.info.skipSuanliaodanZoom = true;
   } else {
     delete data.info.skipSuanliaodanZoom;
@@ -299,51 +299,43 @@ export const autoFixLine = (cad: CadViewer, line: CadLine, tolerance = DEFAULT_T
   line.end.add(translate);
 };
 
-export const suanliaodanZoomIn = (collection: CadCollection, data: CadData) => {
-  if (collection === "luomatoucad") {
-    return;
+export const suanliaodanZoomIn = (data: CadData) => {
+  if (!data.info.skipSuanliaodanZoom) {
+    for (const v of data.components.data) {
+      v.entities.forEach((e) => {
+        e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
+      });
+      const lastSuanliaodanZoom = v.info.lastSuanliaodanZoom ?? 1;
+      const rect = v.getBoundingRect();
+      if (!rect.isFinite) {
+        continue;
+      }
+      if (lastSuanliaodanZoom !== v.suanliaodanZoom) {
+        v.info.lastSuanliaodanZoom = v.suanliaodanZoom;
+        v.transform({scale: v.suanliaodanZoom / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
+      }
+    }
   }
-  data.components.data.forEach((v) => {
-    v.entities.forEach((e) => {
-      e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
-    });
-    if (v.info.skipSuanliaodanZoom) {
-      return;
-    }
-    const lastSuanliaodanZoom = v.info.lastSuanliaodanZoom ?? 1;
-    const rect = v.getBoundingRect();
-    if (!rect.isFinite) {
-      return;
-    }
-    if (lastSuanliaodanZoom !== v.suanliaodanZoom) {
-      v.info.lastSuanliaodanZoom = v.suanliaodanZoom;
-      v.transform({scale: v.suanliaodanZoom / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
-    }
-  });
   data.updateComponents();
 };
 
-export const suanliaodanZoomOut = (collection: CadCollection, data: CadData) => {
-  if (collection === "luomatoucad") {
-    return;
+export const suanliaodanZoomOut = (data: CadData) => {
+  if (!data.info.skipSuanliaodanZoom) {
+    for (const v of data.components.data) {
+      v.entities.forEach((e) => {
+        e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
+      });
+      const lastSuanliaodanZoom = v.info.lastSuanliaodanZoom ?? 1;
+      const rect = v.getBoundingRect();
+      if (!rect.isFinite) {
+        continue;
+      }
+      if (lastSuanliaodanZoom !== 1) {
+        delete v.info.lastSuanliaodanZoom;
+        v.transform({scale: 1 / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
+      }
+    }
   }
-  data.components.data.forEach((v) => {
-    if (v.info.skipSuanliaodanZoom) {
-      return;
-    }
-    v.entities.forEach((e) => {
-      e.calcBoundingRect = e.calcBoundingRect && e instanceof CadLineLike;
-    });
-    const lastSuanliaodanZoom = v.info.lastSuanliaodanZoom ?? 1;
-    const rect = v.getBoundingRect();
-    if (!rect.isFinite) {
-      return;
-    }
-    if (lastSuanliaodanZoom !== 1) {
-      delete v.info.lastSuanliaodanZoom;
-      v.transform({scale: 1 / lastSuanliaodanZoom, origin: [rect.left, rect.top]}, true);
-    }
-  });
   data.updateComponents();
 };
 

@@ -59,7 +59,7 @@ export class AppStatusService {
   cadStatus = new CadStatusNormal();
   cadStatusEnter$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
   cadStatusExit$ = new BehaviorSubject<CadStatus>(new CadStatusNormal());
-  cad = new CadViewer(setCadData(new CadData({name: "新建CAD", info: {isLocal: true}}), this.project));
+  cad = new CadViewer(setCadData(new CadData({name: "新建CAD", info: {isLocal: true}}), this.project, "cad"));
   components = {
     selected$: new BehaviorSubject<CadData[]>([]),
     mode$: new BehaviorSubject<"single" | "multiple">("single"),
@@ -203,6 +203,7 @@ export class AppStatusService {
     }
     this.config.setUserConfig(newConfig);
     await prepareCadViewer(cad);
+    await cad.reset().render();
 
     const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) => {
       const result = await Promise.all(data2.components.data.map(async (v) => await updateCadPreviewImg(v, mode, !shouldUpdatePreview)));
@@ -211,7 +212,7 @@ export class AppStatusService {
     const 算料单CAD模板使用图片装配 = this.getProjectConfigBoolean("算料单CAD模板使用图片装配");
     const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配;
     if (data) {
-      setCadData(data, this.project);
+      setCadData(data, this.project, collection);
       if (!environment.production) {
         showIntersections(data, this._projectConfig);
       }
@@ -221,7 +222,7 @@ export class AppStatusService {
       if (Object.keys(data.对应计算条数的配件).length < 1) {
         data.对应计算条数的配件[""] = "";
       }
-      suanliaodanZoomIn(collection, data);
+      suanliaodanZoomIn(data);
       if (collection === "cad") {
         validateLines(data);
       }
@@ -229,7 +230,6 @@ export class AppStatusService {
       await updatePreview(data, "pre");
     }
 
-    await cad.reset().render();
     if (center) {
       cad.center();
     }
@@ -263,7 +263,7 @@ export class AppStatusService {
       removeIntersections(data2);
     }
     data2.getAllEntities().forEach((e) => (e.visible = true));
-    suanliaodanZoomOut(this.collection$.value, data2);
+    suanliaodanZoomOut(data2);
     return data2;
   }
 

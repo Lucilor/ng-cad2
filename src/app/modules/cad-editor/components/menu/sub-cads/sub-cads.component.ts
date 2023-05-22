@@ -302,7 +302,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
           }
         }
         if (shouldPush) {
-          setCadData(cad, this.status.project);
+          setCadData(cad, this.status.project, this.status.collection$.value);
           const rect2 = cad.getBoundingRect();
           const translate = new Point(rect1.x - rect2.x, rect1.y - rect2.y);
           const matrix = new Matrix();
