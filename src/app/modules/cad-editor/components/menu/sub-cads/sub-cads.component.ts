@@ -428,7 +428,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
       this.message.alert("内容不是有效的JSON");
     }
     obj.id = data.id;
-    data.init(obj);
+    data.import(obj);
     this.status.openCad();
   }
 
@@ -448,7 +448,7 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
     const result = await this.message.json(this.dialog, data.export());
     if (result) {
       result.id = this.contextMenuCad.data.id;
-      this.contextMenuCad.data.init(result);
+      this.contextMenuCad.data.import(result);
       this.status.openCad();
     }
   }
