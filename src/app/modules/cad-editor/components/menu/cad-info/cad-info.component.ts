@@ -1,5 +1,6 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
+import {cadOptions} from "@app/cad.options";
 import {激光开料标记线类型} from "@app/cad.utils";
 import {
   CadBaseLine,
@@ -11,9 +12,7 @@ import {
   IntersectionKey,
   intersectionKeys,
   intersectionKeysTranslate,
-  sortLines,
-  suanliaochuliValues,
-  suanliaodanxianshiValues
+  sortLines
 } from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
@@ -62,13 +61,13 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       label: "变形方式",
       model: this._getcadDataModel("bianxingfangshi"),
       type: "select",
-      options: ["自由", "高比例变形", "宽比例变形", "宽高比例变形"]
+      options: cadOptions.bianxingfangshi.values.slice()
     },
     {
       label: "板材纹理方向",
       model: this._getcadDataModel("bancaiwenlifangxiang"),
       type: "select",
-      options: ["垂直", "水平", "不限", "指定垂直", "指定水平", "指定不限"]
+      options: cadOptions.bancaiwenlifangxiang.values.slice()
     },
     {
       label: "激光开料是否翻转",
@@ -79,7 +78,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       label: "开料排版方式",
       model: this._getcadDataModel("kailiaopaibanfangshi"),
       type: "select",
-      options: ["自动排版", "不排版", "必须排版"]
+      options: cadOptions.kailiaopaibanfangshi.values.slice()
     },
     {label: "默认开料板材", model: this._getcadDataModel("morenkailiaobancai"), type: "string", optionKey: "板材"},
     {label: "默认开料材料", model: this._getcadDataModel("默认开料材料"), type: "string", optionKey: "材料"},
@@ -89,18 +88,14 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       label: "算料处理",
       model: this._getcadDataModel("suanliaochuli"),
       type: "select",
-      options: suanliaochuliValues.slice()
+      options: cadOptions.suanliaochuli.values.slice()
     },
     {label: "显示宽度标注", model: this._getcadDataModel("showKuandubiaozhu"), type: "boolean"},
     {
       label: "板材厚度方向",
       model: this._getcadDataModel("bancaihoudufangxiang"),
       type: "select",
-      options: [
-        {value: "gt0", label: "方向1"},
-        {value: "lt0", label: "方向2"},
-        {value: "none", label: "不指定"}
-      ],
+      options: cadOptions.bancaihoudufangxiang.values.slice(),
       onChange: this.offset.bind(this)
     },
     {label: "自定义属性", type: "string", disabled: true, suffixIcons: [{name: "list", onClick: () => this.editAttributes(this.data)}]},
@@ -114,7 +109,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       label: "算料单显示",
       model: this._getcadDataModel("suanliaodanxianshi"),
       type: "select",
-      options: suanliaodanxianshiValues.slice()
+      options: cadOptions.suanliaodanxianshi.values.slice()
     }
   ];
   infoGroup3: InputInfo[] = [
@@ -125,9 +120,9 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       label: "算料单展开显示位置",
       model: this._getcadDataModel("算料单展开显示位置"),
       type: "select",
-      options: ["CAD上面", "CAD下面", "CAD中间", "CAD左边", "CAD右边"]
+      options: cadOptions.算料单展开显示位置.values.slice()
     },
-    {label: "属于门框门扇", model: this._getcadDataModel("属于门框门扇"), type: "select", options: ["未区分", "门框", "门扇"]},
+    {label: "属于门框门扇", model: this._getcadDataModel("属于门框门扇"), type: "select", options: cadOptions.属于门框门扇.values.slice()},
     {label: "内开做分体", model: this._getcadDataModel("内开做分体"), type: "boolean"},
     {label: "板材绑定选项", model: this._getcadDataModel("板材绑定选项"), type: "string"},
     {label: "算料单线长显示的最小长度", model: this._getcadDataModel("算料单线长显示的最小长度"), type: "number"},
@@ -144,7 +139,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       label: "企料包边类型",
       model: this._getcadDataModel("企料包边类型"),
       type: "select",
-      options: ["自动判断", "胶条位包", "外面包", "胶条位包+外面包", "无"]
+      options: cadOptions.企料包边类型.values.slice()
     },
     {label: "指定封口厚度", model: this._getcadDataModel("指定封口厚度"), type: "string"},
     {label: "拼接料拼接时垂直翻转", model: this._getcadDataModel("拼接料拼接时垂直翻转"), type: "boolean"},
@@ -163,7 +158,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
       model: this._getcadDataModel("指定板材分组"),
       type: "select",
       clearable: true,
-      options: ["门框板材", "底框板材", "门扇板材", "辅板1", "辅板2", "辅板3", "辅板4", "辅板5", "辅板6", "辅板7", "辅板8", "辅板9"]
+      options: cadOptions.指定板材分组.values.slice()
     },
     {label: "拉码碰撞判断", model: this._getcadDataModel("拉码碰撞判断"), type: "boolean"}
   ];
