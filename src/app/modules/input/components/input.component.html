@@ -298,8 +298,18 @@
         [disabled]="info.disabled || false"
       />
       <mat-menu #colorPicker="matMenu">
-        <color-chrome #colorChrome [color]="colorStr" (onChangeComplete)="onColorChange($event.color)" appClickStop> </color-chrome>
+        <color-circle
+          *ngIf="cast('color', info).options"
+          [width]="202"
+          [circleSpacing]="10"
+          [color]="colorStr"
+          [colors]="colorOptions"
+          (onChangeComplete)="onColorChange($event.color)"
+          appClickStop
+        ></color-circle>
+        <color-chrome *ngIf="!cast('color', info).optionsOnly" #colorChrome [color]="colorStr" (onChangeComplete)="onColorChange($event.color)" appClickStop> </color-chrome>
       </mat-menu>
+      <ng-template></ng-template>
       <button mat-icon-button matSuffix *ngIf="info.clearable" color="primary" (click)="clear()">
         <mat-icon>close</mat-icon>
       </button>

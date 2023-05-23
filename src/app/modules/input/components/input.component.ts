@@ -34,10 +34,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
       value.autocomplete = "off";
     }
     if ("value" in value) {
-      const {data, key} = this.model;
-      if (data && typeof data === "object" && key) {
-        data[key] = value.value;
-      }
+      this.value = value.value;
     }
     const type = value.type;
     if (type === "select" || type === "selectMulti" || type === "string" || type === "number") {
@@ -162,7 +159,18 @@ export class InputComponent extends Utils() implements AfterViewInit {
   colorBg = "";
   colorText = "";
   get colorStr() {
-    return this.value?.hex || "";
+    const value = this.value;
+    if (typeof value === "string") {
+      return value;
+    }
+    return value?.hex || "";
+  }
+  get colorOptions() {
+    const {info} = this;
+    if (info.type !== "color" || !info.options) {
+      return [];
+    }
+    return info.options.map((v) => (typeof v === "string" ? v : new Color2(v).hex()));
   }
 
   @HostBinding("class") class: string[] = [];

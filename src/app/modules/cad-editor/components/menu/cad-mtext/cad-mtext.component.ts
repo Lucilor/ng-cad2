@@ -1,4 +1,5 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
+import {validColors} from "@app/cad.utils";
 import {CadMtext, CadStylizer, ColoredObject} from "@cad-viewer";
 import {environment} from "@env";
 import {Subscribed} from "@mixins/subscribed.mixin";
@@ -87,6 +88,8 @@ export class CadMtextComponent extends Subscribed() implements OnInit, OnDestroy
         label: "颜色",
         disabled,
         value: this.getColor(),
+        options: validColors.slice(),
+        optionsOnly: true,
         onChange: (val) => {
           this.setColor(val.hex);
         }

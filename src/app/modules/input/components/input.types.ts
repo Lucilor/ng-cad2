@@ -92,6 +92,8 @@ export interface InputInfoCoordinate<T = any> extends InputInfoBase<T> {
 export interface InputInfoColor<T = any> extends InputInfoBase<T> {
   type: "color";
   value?: Value<ColorWrap["color"]>;
+  options?: ColorWrap["color"][];
+  optionsOnly?: boolean;
   onChange?: (val: Color) => void;
 }
 
