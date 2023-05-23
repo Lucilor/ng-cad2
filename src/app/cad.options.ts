@@ -56,7 +56,7 @@ export const cadOptions = {
       "辅板9",
       "套门门扇板材"
     ],
-    defaultValue: "门框板材"
+    defaultValue: ""
   },
   算料单展开显示位置: {values: ["CAD上面", "CAD下面", "CAD中间", "CAD左边", "CAD右边"], defaultValue: "CAD下面"}
 } as const;

@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, OnInit} from "@angular/core";
 import {FormControl, FormGroupDirective, NgForm, ValidatorFn, Validators} from "@angular/forms";
 import {ErrorStateMatcher} from "@angular/material/core";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute} from "@angular/router";
 import {getFormControl, getFormGroup} from "@app/app.common";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -50,12 +50,11 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
   get replacerDesc() {
     const {replacer, replaceFrom, replaceTo} = this.form.value;
     if (!replacer || !replaceFrom || !replaceTo || replaceFrom === replaceTo) {
-      return [];
+      return "";
     }
-    const result = [...replacer.description];
-    result[0] = result[0].replace("%s", `"${replaceFrom}"`);
-    result[1] = result[1].replace("%s", `"${replaceTo}"`);
-    return result;
+    const replaceFrom2 = replacer.description[0].replace("%s", JSON.stringify(replaceFrom));
+    const replaceTo2 = replacer.description[1].replace("%s", JSON.stringify(replaceTo));
+    return `将替换所有${replaceFrom2}的文本为${replaceTo2}`;
   }
   toBeReplacedList: ToBeReplaced[] = [];
   step = new BehaviorSubject<number>(1);
@@ -65,7 +64,6 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
     private message: MessageService,
     private dataService: CadDataService,
     private spinner: SpinnerService,
-    private router: Router,
     private route: ActivatedRoute,
     private status: AppStatusService
   ) {

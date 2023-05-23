@@ -8,8 +8,10 @@
 }
 
 .form {
-  display: flex;
   padding: 10px;
+  box-sizing: border-box;
+  max-height: 100%;
+  overflow: auto;
 
   > *:not(:last-child) {
     margin-right: 10px;
