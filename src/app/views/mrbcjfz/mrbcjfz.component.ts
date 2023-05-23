@@ -3,7 +3,7 @@ import {ValidationErrors} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {setGlobal, XiaodaohangStructure} from "@app/app.common";
-import {getCadPreview} from "@app/cad.utils";
+import {getCadPreview} from "@app/cad/utils";
 import {CadData} from "@cad-viewer";
 import {openBancaiFormDialog} from "@components/dialogs/bancai-form-dialog/bancai-form-dialog.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";

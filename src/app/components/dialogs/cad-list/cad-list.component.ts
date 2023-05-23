@@ -5,7 +5,7 @@ import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from "@angular/material/tooltip";
 import {DomSanitizer} from "@angular/platform-browser";
 import {CadCollection, imgCadEmpty, timer} from "@app/app.common";
-import {getCadPreview} from "@app/cad.utils";
+import {getCadPreview} from "@app/cad/utils";
 import {CadData} from "@cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";

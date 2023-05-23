@@ -3,7 +3,7 @@ import {MatCheckboxChange} from "@angular/material/checkbox";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
-import {autoFixLine, validColors} from "@app/cad.utils";
+import {autoFixLine, validColors} from "@app/cad/utils";
 import {
   CadArc,
   CadEntities,

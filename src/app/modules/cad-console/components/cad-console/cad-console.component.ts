@@ -3,7 +3,7 @@ import {Component, ElementRef, HostListener, ViewChild} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {CadCollection} from "@app/app.common";
-import {printCads} from "@app/cad.print";
+import {printCads} from "@app/cad/print";
 import {CadArc, CadData, CadDimensionLinear} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {Arg, Command, ValuedCommand} from "@modules/cad-console/cad-command-types";

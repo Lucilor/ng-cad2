@@ -1,3 +1,4 @@
+import {ProjectConfig, replaceChars} from "@app/app.common";
 import {
   CadArc,
   CadCircle,
@@ -18,8 +19,7 @@ import {
 } from "@cad-viewer";
 import {keysOf, Line, ObjectOf, Point, Rectangle} from "@utils";
 import {difference, intersection, isEqual} from "lodash";
-import {ProjectConfig, replaceChars} from "./app.common";
-import {isShiyitu, showIntersections} from "./cad.utils";
+import {isShiyitu, showIntersections} from "./utils";
 
 export interface Slgs {
   名字: string;

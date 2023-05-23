@@ -2,7 +2,7 @@ import {Component, OnInit} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {session, setGlobal} from "@app/app.common";
-import {CadExportParams, CadPortable, CadSourceParams, ExportType} from "@app/cad.portable";
+import {CadExportParams, CadPortable, CadSourceParams, ExportType} from "@app/cad/portable";
 import {CadData} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";

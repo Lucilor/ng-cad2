@@ -1,6 +1,20 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Params, Router} from "@angular/router";
 import {
+  getCadPreview,
+  getCadTotalLength,
+  prepareCadViewer,
+  removeIntersections,
+  setCadData,
+  showIntersections,
+  suanliaodanZoomIn,
+  suanliaodanZoomOut,
+  unsetCadData,
+  updateCadPreviewImg,
+  validateCad,
+  validateLines
+} from "@app/cad/utils";
+import {
   CadData,
   CadEntities,
   CadEntity,
@@ -22,20 +36,6 @@ import {ObjectOf, timeout} from "@utils";
 import {clamp, differenceWith} from "lodash";
 import {BehaviorSubject, Subject} from "rxjs";
 import {CadCollection, local, ProjectConfig, timer} from "../app.common";
-import {
-  getCadPreview,
-  getCadTotalLength,
-  prepareCadViewer,
-  removeIntersections,
-  setCadData,
-  showIntersections,
-  suanliaodanZoomIn,
-  suanliaodanZoomOut,
-  unsetCadData,
-  updateCadPreviewImg,
-  validateCad,
-  validateLines
-} from "../cad.utils";
 import {AppConfig, AppConfigService} from "./app-config.service";
 import {CadStatus, CadStatusNormal} from "./cad-status";
 

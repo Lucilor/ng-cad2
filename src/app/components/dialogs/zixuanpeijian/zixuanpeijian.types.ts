@@ -1,6 +1,6 @@
 import {MatDialog} from "@angular/material/dialog";
 import {SafeUrl} from "@angular/platform-browser";
-import {getCadTotalLength, getShuangxiangLineRects, setShuangxiangLineRects, splitShuangxiangCad} from "@app/cad.utils";
+import {getCadTotalLength, getShuangxiangLineRects, setShuangxiangLineRects, splitShuangxiangCad} from "@app/cad/utils";
 import {getCADBeishu} from "@app/utils/beishu";
 import {CalcResult, Formulas, toFixed} from "@app/utils/calc";
 import {matchOrderData} from "@app/utils/mongo";

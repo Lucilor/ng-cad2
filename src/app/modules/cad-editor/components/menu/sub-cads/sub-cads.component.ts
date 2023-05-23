@@ -3,7 +3,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, timer} from "@app/app.common";
-import {getCadPreview, setCadData} from "@app/cad.utils";
+import {getCadPreview, setCadData} from "@app/cad/utils";
 import {CadData, CadEntities, CadEventCallBack} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
 import {ContextMenu} from "@mixins/context-menu.mixin";

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
-import {reservedDimNames} from "@app/cad.utils";
+import {reservedDimNames} from "@app/cad/utils";
 import {
   CadData,
   CadDimension,

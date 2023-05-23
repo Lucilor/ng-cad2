@@ -3,7 +3,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgCadEmpty, imgEmpty, imgLoading, session, setGlobal} from "@app/app.common";
-import {configCadDataForPrint} from "@app/cad.print";
+import {configCadDataForPrint} from "@app/cad/print";
 import {
   CadPreviewParams,
   getCadPreview,
@@ -12,7 +12,7 @@ import {
   setShuangxiangLineRects,
   shouldShowIntersection,
   splitShuangxiangCad
-} from "@app/cad.utils";
+} from "@app/cad/utils";
 import {Formulas} from "@app/utils/calc";
 import {CadData, CadLine, CadViewer, CadViewerConfig, Defaults, generateLineTexts, setLinesLength} from "@cad-viewer";
 import {openEditFormulasDialog} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";

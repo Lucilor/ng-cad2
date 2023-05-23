@@ -2,7 +2,7 @@ import {Component, HostListener, OnInit} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgLoading} from "@app/app.common";
-import {getCadPreview} from "@app/cad.utils";
+import {getCadPreview} from "@app/cad/utils";
 import {CadData, CadViewerConfig} from "@cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";

@@ -6,7 +6,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Router} from "@angular/router";
 import {CadCollection, imgCadEmpty, session, setGlobal} from "@app/app.common";
-import {getCadPreview, setDimensionText} from "@app/cad.utils";
+import {getCadPreview, setDimensionText} from "@app/cad/utils";
 import {toFixed} from "@app/utils/func";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@cad-viewer";
 import {Debounce} from "@decorators/debounce";

@@ -1,3 +1,5 @@
+import {replaceRemoteHost} from "@app/app.common";
+import {Formulas} from "@app/utils/calc";
 import {
   CadCircle,
   CadData,
@@ -20,7 +22,6 @@ import {getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, Matrix, Objec
 import {Properties} from "csstype";
 import {cloneDeep, intersection} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
-import {replaceRemoteHost} from "./app.common";
 import {
   getCadCalcZhankaiText,
   getShuangxiangLineRects,
@@ -29,8 +30,7 @@ import {
   setShuangxiangLineRects,
   showIntersections,
   splitShuangxiangCad
-} from "./cad.utils";
-import {Formulas} from "./utils/calc";
+} from "./utils";
 
 type PdfDocument = Parameters<typeof createPdf>[0];
 

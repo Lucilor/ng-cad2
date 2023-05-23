@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {cadOptions} from "@app/cad.options";
-import {激光开料标记线类型} from "@app/cad.utils";
+import {cadOptions} from "@app/cad/options";
+import {激光开料标记线类型} from "@app/cad/utils";
 import {
   CadBaseLine,
   CadData,
