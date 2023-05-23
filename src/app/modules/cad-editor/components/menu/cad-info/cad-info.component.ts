@@ -105,6 +105,7 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
     {label: "可独立板材", model: this._getcadDataModel("kedulibancai"), type: "boolean"},
     {label: "必须选择板材", model: this._getcadDataModel("必须选择板材"), type: "boolean"},
     {label: "双向折弯", model: this._getcadDataModel("shuangxiangzhewan"), type: "boolean"},
+    {label: "自动生成双折宽双折高公式", model: this._getcadDataModel("自动生成双折宽双折高公式"), type: "boolean"},
     {
       label: "算料单显示",
       model: this._getcadDataModel("suanliaodanxianshi"),
