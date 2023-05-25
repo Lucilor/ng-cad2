@@ -25,7 +25,7 @@ export class CadLayerInputComponent extends Subscribed() {
     super();
     this.subscribe(status.openCad$, () => {
       const data = this.status.cad.data;
-      const layerNames = new Set(["不显示", "微连"]);
+      const layerNames = new Set(["不显示", "跳过判断封闭图形", "微连"]);
       const layerNamesExclude = new Set(["Defpoints", "走线", "开料额外信息", "打孔", "展开长标注", "line-info", "导入错误信息"]);
       data.layers.forEach((layer) => {
         const name = layer.name;
@@ -33,6 +33,11 @@ export class CadLayerInputComponent extends Subscribed() {
           layerNames.add(name);
         }
       });
+      data.entities.forEach((e) => {
+        if (e.layer) {
+          layerNames.add(e.layer);
+        }
+      }, true);
       this.layerOptions$.next([...layerNames]);
     });
   }
