@@ -203,7 +203,6 @@ export class AppStatusService {
     }
     this.config.setUserConfig(newConfig);
     await prepareCadViewer(cad);
-    await cad.reset().render();
 
     const updatePreview = async (data2: CadData, mode: Parameters<typeof updateCadPreviewImg>[1]) => {
       const result = await Promise.all(data2.components.data.map(async (v) => await updateCadPreviewImg(v, mode, !shouldUpdatePreview)));
@@ -230,6 +229,7 @@ export class AppStatusService {
       await updatePreview(data, "pre");
     }
 
+    await cad.reset().render();
     if (center) {
       cad.center();
     }

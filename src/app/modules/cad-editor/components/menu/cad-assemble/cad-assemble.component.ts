@@ -208,7 +208,10 @@ export class CadAssembleComponent extends Subscribed() implements OnInit, OnDest
   private _onCadStatusEnter = (cadStatus: CadStatus) => {
     if (cadStatus instanceof CadStatusAssemble) {
       const cad = this.status.cad;
-      this._prevConfig = this.config.setConfig({selectMode: "multiple", entityDraggable: [], hideLineLength: true}, {sync: false});
+      this._prevConfig = this.config.setConfig(
+        {selectMode: "multiple", entityDraggable: [], hideLineLength: true, hideLineGongshi: true},
+        {sync: false}
+      );
       this._prevSelectedComponents = this.status.components.selected$.value;
       this.status.components.selected$.next([]);
       this._prevComponentsSelectable = this.status.components.selectable$.value;
