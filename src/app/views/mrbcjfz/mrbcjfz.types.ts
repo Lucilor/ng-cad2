@@ -20,6 +20,7 @@ export interface MrbcjfzResponseData {
 export interface MrbcjfzXinghao extends TableDataBase {
   morenbancai?: string;
   gongshishuru?: string;
+  编辑默认对应板材分组?: boolean;
 }
 
 export interface MrbcjfzHuajian extends TableDataBase {
@@ -57,6 +58,16 @@ export class MrbcjfzXinghaoInfo {
         },
         {type: "boolean", label: "不显示", model: {data: value, key: "不显示"}, styles: {flex: "1 1 8px"}}
       ];
+      if (this.raw.编辑默认对应板材分组) {
+        this.inputInfos[key].push({
+          type: "select",
+          label: "默认对应板材分组",
+          model: {data: value, key: "默认对应板材分组"},
+          styles: {flex: "1 1 40px"},
+          options: ["门框板材", "门扇板材"],
+          clearable: true
+        });
+      }
     }
   }
 
