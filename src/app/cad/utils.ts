@@ -24,7 +24,7 @@ import {
 import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {DEFAULT_TOLERANCE, isBetween, Line, ObjectOf, Point} from "@utils";
-import {intersection} from "lodash";
+import {difference, intersection} from "lodash";
 import {cadOptions} from "./options";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
@@ -286,7 +286,7 @@ export const validateCad = (data: CadData, noInfo?: boolean, tolerance = DEFAULT
   const idsAll = entities.toArray().map((e) => e.id);
   for (const key of intersectionKeys) {
     const idsToFind: string[] = data[key].flat();
-    if (intersection(idsToFind, idsAll).length !== idsToFind.length) {
+    if (difference(idsToFind, idsAll).length > 0) {
       result.errors.push(`${intersectionKeysTranslate[key]}存在无效数据`);
     }
   }
