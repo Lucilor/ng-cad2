@@ -1,4 +1,4 @@
 [submodule "src/cad-viewer"]
 path = src/cad-viewer
 url = https://github.com/Lucilor/cad-viewer.git
-branch = dev
+branch = master
