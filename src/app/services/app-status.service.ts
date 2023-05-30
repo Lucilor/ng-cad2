@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Params, Router} from "@angular/router";
+import {CadCollection} from "@app/cad/collections";
 import {
   getCadPreview,
   getCadTotalLength,
@@ -35,7 +36,7 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {ObjectOf, timeout} from "@utils";
 import {clamp, differenceWith} from "lodash";
 import {BehaviorSubject, Subject} from "rxjs";
-import {CadCollection, local, ProjectConfig, timer} from "../app.common";
+import {local, ProjectConfig, timer} from "../app.common";
 import {AppConfig, AppConfigService} from "./app-config.service";
 import {CadStatus, CadStatusNormal} from "./cad-status";
 

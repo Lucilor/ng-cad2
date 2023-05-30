@@ -36,18 +36,6 @@ VwIDAQAB
 -----END PUBLIC KEY-----
 `;
 
-export type CadCollection =
-  | "cad"
-  | "CADmuban"
-  | "qiliaozuhe"
-  | "qieliaocad"
-  | "order"
-  | "kailiaocadmuban"
-  | "material"
-  | "zixuanpeijian"
-  | "luomatoucad"
-  | "kailiaocanshu";
-
 export const splitOptions = (str: string) => {
   if (!str) {
     return [];

@@ -1,4 +1,4 @@
-import {CadCollection, remoteHost} from "@app/app.common";
+import {remoteHost} from "@app/app.common";
 import {Formulas} from "@app/utils/calc";
 import {getCalcZhankaiText} from "@app/utils/zhankai";
 import {
@@ -25,6 +25,7 @@ import {environment} from "@env";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {DEFAULT_TOLERANCE, isBetween, Line, ObjectOf, Point} from "@utils";
 import {difference, intersection} from "lodash";
+import {CadCollection} from "./collections";
 import {cadOptions} from "./options";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];

@@ -1,5 +1,5 @@
 import {Injectable, Injector} from "@angular/core";
-import {CadCollection} from "@app/app.common";
+import {CadCollection} from "@app/cad/collections";
 import {CadData} from "@cad-viewer";
 import {dataURLtoBlob, downloadByUrl, DownloadOptions, ObjectOf} from "@utils";
 import {

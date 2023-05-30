@@ -2,7 +2,7 @@ import {animate, style, transition, trigger} from "@angular/animations";
 import {Component, ElementRef, HostListener, ViewChild} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
-import {CadCollection} from "@app/app.common";
+import {CadCollection} from "@app/cad/collections";
 import {printCads} from "@app/cad/print";
 import {CadArc, CadData, CadDimensionLinear} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";

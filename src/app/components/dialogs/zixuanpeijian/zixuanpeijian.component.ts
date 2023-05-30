@@ -5,7 +5,8 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Router} from "@angular/router";
-import {CadCollection, imgCadEmpty, session, setGlobal} from "@app/app.common";
+import {imgCadEmpty, session, setGlobal} from "@app/app.common";
+import {CadCollection} from "@app/cad/collections";
 import {getCadPreview, setDimensionText} from "@app/cad/utils";
 import {toFixed} from "@app/utils/func";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@cad-viewer";
