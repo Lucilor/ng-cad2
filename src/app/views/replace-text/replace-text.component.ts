@@ -1,8 +1,9 @@
 import {AfterViewInit, Component, OnInit} from "@angular/core";
 import {FormControl, FormGroupDirective, NgForm, ValidatorFn, Validators} from "@angular/forms";
 import {ErrorStateMatcher} from "@angular/material/core";
-import {ActivatedRoute} from "@angular/router";
-import {getFormControl, getFormGroup} from "@app/app.common";
+import {ActivatedRoute, Router} from "@angular/router";
+import {getFormControl, getFormGroup, setGlobal} from "@app/app.common";
+import {cadCollections} from "@app/cad/collections";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
@@ -65,9 +66,11 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
     private dataService: CadDataService,
     private spinner: SpinnerService,
     private route: ActivatedRoute,
-    private status: AppStatusService
+    private status: AppStatusService,
+    private router: Router
   ) {
     super();
+    setGlobal("replaceText", this);
   }
 
   ngOnInit() {
@@ -82,13 +85,19 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
     });
   }
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
     const {collection} = this.route.snapshot.queryParams;
-    if (!collection) {
-      this.message.alert("缺少参数: collection");
-      return;
+    if (collection) {
+      this.collection = collection;
+    } else {
+      this.collection = await this.message.prompt({
+        type: "select",
+        options: cadCollections.slice(),
+        label: "collection",
+        validators: Validators.required
+      });
+      this.router.navigate([], {queryParams: {collection: this.collection}, queryParamsHandling: "merge"});
     }
-    this.collection = collection;
   }
 
   replaceStrValidator(): ValidatorFn {
@@ -174,7 +183,6 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
     }
     const postData = {
       collection: this.collection,
-      replaceFrom,
       replaceTo,
       regex: replacer.regex(replaceFrom || "").toString(),
       ids: this.toBeReplacedList.filter((v) => v.checked).map((v) => v.id)
@@ -190,5 +198,13 @@ export class ReplaceTextComponent extends Subscribed() implements OnInit, AfterV
 
   openCad(id: string) {
     this.status.openCadInNewTab(id, "CADmuban");
+  }
+
+  selectAll() {
+    this.toBeReplacedList.forEach((v) => (v.checked = true));
+  }
+
+  selectNone() {
+    this.toBeReplacedList.forEach((v) => (v.checked = false));
   }
 }

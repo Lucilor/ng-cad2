@@ -48,6 +48,10 @@
   </div>
   <div>{{ replacerDesc }}</div>
   <div>匹配到的模板：</div>
+  <div class="btn-group">
+    <button mat-raised-button color="primary" (click)="selectAll()">全选</button>
+    <button mat-raised-button color="primary" (click)="selectNone()">全不选</button>
+  </div>
   <ng-scrollbar>
     <div class="to-be-replaced-list">
       <mat-card *ngFor="let item of toBeReplacedList">
