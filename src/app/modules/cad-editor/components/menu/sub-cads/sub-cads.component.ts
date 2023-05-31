@@ -12,8 +12,8 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
-import {downloadByString, Matrix, Point} from "@utils";
-import {isEqual} from "lodash";
+import {downloadByString, Matrix, ObjectOf, Point} from "@utils";
+import {difference, isEqual} from "lodash";
 
 interface CadNode {
   data: CadData;
@@ -260,9 +260,39 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
       "装配示意图",
       "包边正面"
     ];
-    const sourceResponse = await this.dataService.post<any[]>("ngcad/getMenshanbujuCads", {xinghao: data.options.型号, flat: true});
     let cads: Awaited<ReturnType<typeof openCadListDialog>>;
-    const sourceData = this.dataService.getResponseData(sourceResponse);
+    let sourceData: CadData[] | undefined;
+    const specials: {type: string; options: string[]}[] = [
+      {type: "罗马头模板", options: ["罗马头", "罗马柱"]},
+      {type: "套门模板", options: ["套门"]}
+    ];
+    for (const {type, options} of specials) {
+      if (data.type !== type) {
+        continue;
+      }
+      const optionValues: ObjectOf<string> = {};
+      for (const option of options) {
+        const value = data.options[option];
+        if (value) {
+          optionValues[option] = value;
+        }
+      }
+      const optionsDiff = difference(options, Object.keys(data.options));
+      if (optionsDiff.length > 0) {
+        this.message.error(`${type}缺少选项：${optionsDiff.join("，")}`);
+        return;
+      }
+      const result = await this.dataService.getCad({collection: "cad", options: optionValues, optionsMatchType: "or"});
+      sourceData = result.cads;
+      break;
+    }
+    if (!sourceData) {
+      const sourceResponse = await this.dataService.post<any[]>("ngcad/getMenshanbujuCads", {xinghao: data.options.型号, flat: true});
+      const result = this.dataService.getResponseData(sourceResponse);
+      if (result) {
+        sourceData = result.map((v) => new CadData(v));
+      }
+    }
     if (Array.isArray(sourceData)) {
       let source: CadData[] | undefined;
       if (sourceData.length > 0) {
