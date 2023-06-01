@@ -211,6 +211,8 @@ export class AppStatusService {
     };
     const 算料单CAD模板使用图片装配 = this.getProjectConfigBoolean("算料单CAD模板使用图片装配");
     const shouldUpdatePreview = collection === "CADmuban" && 算料单CAD模板使用图片装配;
+    const prevConfig = this.config.setConfig({hideLineLength: true, hideLineGongshi: true}, {sync: false});
+    await cad.reset().render();
     if (data) {
       setCadData(data, this.project, collection);
       if (!environment.production) {
@@ -230,10 +232,10 @@ export class AppStatusService {
       await updatePreview(data, "pre");
     }
 
-    await cad.reset().render();
     if (center) {
       cad.center();
     }
+    this.config.setConfig(prevConfig);
     this.updateCadTotalLength();
     this.updateTitle();
 
