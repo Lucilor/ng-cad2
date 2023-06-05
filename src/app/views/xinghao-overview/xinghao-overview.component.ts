@@ -6,7 +6,7 @@ import {NavsData, NavsDataNode, NavsResultItem} from "@components/dialogs/navs-d
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {downloadByString, ObjectOf, WindowMessageManager} from "@utils";
+import {downloadByString, ObjectOf, selectFiles, WindowMessageManager} from "@utils";
 import {XinghaoOverviewData, XinghaoOverviewTableData} from "./xinghao-overview.types";
 
 @Component({
@@ -148,23 +148,17 @@ export class XinghaoOverviewComponent implements OnInit {
   async submit() {
     const data = this.data.export();
     this.spinner.show(this.spinner.defaultLoaderId);
-    this.dataService.tableUpdate<XinghaoOverviewTableData>({table: this.table, tableData: {vid: this.data.id, data}});
+    this.dataService.tableUpdate<XinghaoOverviewTableData>({table: this.table, data: {vid: this.data.id, data}});
     this.spinner.hide(this.spinner.defaultLoaderId);
   }
 
-  import() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (file) {
-        const data = await file.text();
-        this.data.import(data);
-        this.data.justify(this.xiaodaohangs);
-      }
-    };
-    input.click();
+  async import() {
+    const file = (await selectFiles({accept: ".json"}))?.[0];
+    if (file) {
+      const data = await file.text();
+      this.data.import(data);
+      this.data.justify(this.xiaodaohangs);
+    }
   }
 
   export() {

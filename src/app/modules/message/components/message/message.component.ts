@@ -145,18 +145,21 @@ export class MessageComponent implements OnInit {
     } else if (type === "form") {
       const values: ObjectOf<string> = {};
       const inputs = this.formInputs?.toArray() || [];
+      let hasError = false;
       for (const input of inputs) {
         if (input.onChangeDelay) {
           await timeout(input.onChangeDelayTime);
         }
-        const errorMsg = input.errorMsg;
-        if (errorMsg) {
-          return;
+        const error = input.validateValue();
+        if (error) {
+          hasError = true;
         }
         const key = input.info.name || input.info.label;
         values[key] = input.value;
       }
-      this.dialogRef.close(values);
+      if (!hasError) {
+        this.dialogRef.close(values);
+      }
     } else if (type === "editor") {
       this.dialogRef.close(this.data.content);
     } else if (type === "button" && button) {

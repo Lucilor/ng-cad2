@@ -4,7 +4,7 @@ import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
-import {openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
+import {CadOptionsInput, openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {levenshtein, ObjectOf, timeout} from "@utils";
@@ -47,6 +47,17 @@ export class InputComponent extends Utils() implements AfterViewInit {
         }
         return {label: v.label || String(v.value), value: String(v.value)};
       });
+    }
+    this.displayValue = null;
+    if (type === "string") {
+      if (value.optionInputOnly) {
+        value.readonly = true;
+        if (typeof value.displayValue === "function") {
+          this.displayValue = value.displayValue();
+        } else if (value.displayValue) {
+          this.displayValue = value.displayValue;
+        }
+      }
     }
     this.class = [type];
     if (typeof value.label === "string" && value.label && !value.label.includes(" ")) {
@@ -172,6 +183,8 @@ export class InputComponent extends Utils() implements AfterViewInit {
     }
     return info.options.map((v) => (typeof v === "string" ? v : new Color2(v).hex()));
   }
+
+  displayValue: string | null = null;
 
   @HostBinding("class") class: string[] = [];
   @HostBinding("style") style: csstype.Properties = {};
@@ -417,18 +430,44 @@ export class InputComponent extends Utils() implements AfterViewInit {
 
   async selectOptions(key?: keyof any, optionKey?: string) {
     const data = this.model.data;
-    if (key && optionKey) {
-      const value = (data as any)[key];
-      const isObject = value && typeof value === "object";
-      const checkedItems = splitOptions(isObject ? value[optionKey] : value);
-      const result = await openCadOptionsDialog(this.dialog, {data: {data, name: optionKey, checkedItems}});
-      if (result) {
-        if (isObject) {
-          data[key][optionKey] = joinOptions(result);
-        } else {
-          data[key] = joinOptions(result);
+    if (!key || !optionKey) {
+      return;
+    }
+    let optionsUseId = false;
+    let isSingleOption = false;
+    let optionInputOnly = false;
+    const info = this.info;
+    if (info.type === "string") {
+      optionsUseId = !!info.optionsUseId;
+      isSingleOption = !!info.isSingleOption;
+      optionInputOnly = !!info.optionInputOnly;
+    }
+    const value = (data as any)[key];
+    const isObject = value && typeof value === "object";
+    const checked = splitOptions(isObject ? value[optionKey] : value);
+    const dialogData: CadOptionsInput = {data, name: optionKey, multi: !isSingleOption};
+    if (optionsUseId) {
+      dialogData.checkedVids = checked.map((v) => Number(v));
+    } else {
+      dialogData.checkedItems = checked;
+    }
+    const result = await openCadOptionsDialog(this.dialog, {data: dialogData});
+    if (result) {
+      let options: string[];
+      if (optionsUseId) {
+        options = result.map((v) => String(v.vid));
+        if (optionInputOnly) {
+          this.displayValue = joinOptions(result.map((v) => v.mingzi));
         }
+      } else {
+        options = result.map((v) => v.mingzi);
       }
+      if (isObject) {
+        data[key][optionKey] = joinOptions(options);
+      } else {
+        data[key] = joinOptions(options);
+      }
+      this.validateValue();
     }
   }
 

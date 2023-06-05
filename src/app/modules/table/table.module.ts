@@ -9,6 +9,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatSortModule} from "@angular/material/sort";
 import {MatTableModule} from "@angular/material/table";
+import {ImageModule} from "@modules/image/image.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
 import {TableComponent} from "./components/table/table.component";
 
@@ -16,6 +17,7 @@ import {TableComponent} from "./components/table/table.component";
   declarations: [TableComponent],
   imports: [
     CommonModule,
+    ImageModule,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,

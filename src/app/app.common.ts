@@ -134,3 +134,19 @@ export const replaceRemoteHost = (url: string) => {
 export interface XiaodaohangStructure {
   mingzi: string;
 }
+
+export const getFilepathUrl = (url: string, opts?: {prefix?: string; suffix?: string}) => {
+  if (!url) {
+    return "";
+  }
+  const {prefix, suffix} = opts || {};
+  let result = `${origin}/filepath/${url}`;
+  if (prefix || suffix) {
+    const strs = url.split("/");
+    if (strs.length > 0) {
+      strs[strs.length - 1] = `${prefix || ""}${strs[strs.length - 1]}${suffix || ""}`;
+    }
+    result = `${origin}/filepath/${strs.join("/")}`;
+  }
+  return result;
+};

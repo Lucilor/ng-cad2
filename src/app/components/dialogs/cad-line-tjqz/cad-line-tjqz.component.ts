@@ -1,19 +1,10 @@
 import {Component, Inject, ViewChild} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
-import {MatTableDataSource} from "@angular/material/table";
 import {CadLine} from "@cad-viewer";
 import {CadConsoleService} from "@modules/cad-console/services/cad-console.service";
 import {MessageService} from "@modules/message/services/message.service";
-import {
-  CellEvent,
-  ColumnInfo,
-  ItemGetter,
-  RowEvent,
-  TableComponent,
-  TableErrorState,
-  TableValidator
-} from "@modules/table/components/table/table.component";
-import {AppStatusService} from "@services/app-status.service";
+import {TableComponent} from "@modules/table/components/table/table.component";
+import {CellEvent, ItemGetter, TableErrorState, TableRenderInfo} from "@modules/table/components/table/table.types";
 import {cloneDeep} from "lodash";
 import {CadLineTjqzSelectData, openCadLineTjqzSelectDialog} from "../cad-line-tjqz-select/cad-line-tjqz-select.component";
 import {getOpenDialogFunc} from "../dialog.common";
@@ -28,21 +19,8 @@ type RawDataRight = RawDataLeft["data"][0];
   styleUrls: ["./cad-line-tjqz.component.scss"]
 })
 export class CadLineTjqzComponent {
-  dataLeft: MatTableDataSource<RawDataLeft>;
-  columnsLeft: ColumnInfo<RawDataLeft>[] = [
-    {field: "key", name: "名字", type: "string", editable: true},
-    {field: "level", name: "优先级", type: "number", editable: true},
-    {field: "type", name: "类型", type: "select", options: ["选择", "数值", "数值+选择"], editable: true}
-  ];
-  activeRowsLeft: number[] = [];
-
-  dataRight: MatTableDataSource<RawDataRight>;
-  columnsRight: ColumnInfo<RawDataRight>[] = [
-    {field: "name", name: "选项/范围", type: "string", editable: true},
-    {field: "value", name: "取值", type: "string", editable: true},
-    {field: "input", name: "可以输入修改", type: "boolean", editable: true}
-  ];
-  newItemRight: RawDataRight = {name: "", value: 0, input: true};
+  infoLeft: TableRenderInfo<RawDataLeft>;
+  infoRight: TableRenderInfo<RawDataRight>;
 
   @ViewChild("tableLeft") tableLeft?: TableComponent<RawDataLeft>;
   loaderId = "cadLineTiaojianquzhiSavingCad";
@@ -50,66 +28,85 @@ export class CadLineTjqzComponent {
 
   newItemLeft: ItemGetter<RawDataLeft> = (rowIdx: number) => ({key: "", level: rowIdx + 1, type: "数值", data: []});
 
-  // dataTransformerLeft: DataTransformer<RawDataLeft> = (type, data) => {
-  //     if (type === "import") {
-  //         let maxLevel = -Infinity;
-  //         this.dataLeft.data.forEach((v) => (maxLevel = Math.max(maxLevel, v.level)));
-  //         if (isFinite(maxLevel)) {
-  //             data.forEach((v) => {
-  //                 v.level = ++maxLevel;
-  //             });
-  //         }
-  //     }
-  //     return data;
-  // };
-
-  validatorLeft: TableValidator<RawDataLeft> = (data) => {
-    const result: TableErrorState = [];
-    const duplicateLevels: number[] = [];
-    const levels: number[] = [];
-    const rows: number[] = [];
-    data.data.forEach((v) => {
-      if (levels.includes(v.level)) {
-        duplicateLevels.push(v.level);
-      } else {
-        levels.push(v.level);
-      }
-    });
-    data.data.forEach((v, row) => {
-      if (duplicateLevels.includes(v.level)) {
-        rows.push(row);
-      }
-    });
-    if (rows.length) {
-      result.push({rows, msg: "优先级重复"});
-    }
-    return result;
-  };
-
   constructor(
     public dialogRef: MatDialogRef<CadLineTjqzComponent, RawData>,
     @Inject(MAT_DIALOG_DATA) public data: RawData,
     private dialog: MatDialog,
     private message: MessageService,
-    private console: CadConsoleService,
-    private status: AppStatusService
+    private console: CadConsoleService
   ) {
-    this.dataLeft = new MatTableDataSource(cloneDeep(data.tiaojianquzhi));
-    this.dataRight = new MatTableDataSource<RawDataRight>([]);
+    this.infoLeft = {
+      data: cloneDeep(data.tiaojianquzhi),
+      columns: [
+        {field: "key", name: "名字", type: "string", editable: true},
+        {field: "level", name: "优先级", type: "number", editable: true},
+        {field: "type", name: "类型", type: "select", options: ["选择", "数值", "数值+选择"], editable: true}
+      ],
+      title: "条件取值",
+      editMode: true,
+      newItem: (rowIdx: number) => ({key: "", level: rowIdx + 1, type: "数值", data: []}),
+      toolbarButtons: {add: true, remove: true, import: true, export: true},
+      validator: (data2) => {
+        const result: TableErrorState = [];
+        const duplicateLevels: number[] = [];
+        const levels: number[] = [];
+        const rows: number[] = [];
+        data2.data.forEach((v) => {
+          if (levels.includes(v.level)) {
+            duplicateLevels.push(v.level);
+          } else {
+            levels.push(v.level);
+          }
+        });
+        data2.data.forEach((v, row) => {
+          if (duplicateLevels.includes(v.level)) {
+            rows.push(row);
+          }
+        });
+        if (rows.length) {
+          result.push({rows, msg: "优先级重复"});
+        }
+        return result;
+      }
+      // dataTransformer: (type, data) => {
+      //   if (type === "import") {
+      //     let maxLevel = -Infinity;
+      //     this.infoLeft.data.data.forEach((v) => (maxLevel = Math.max(maxLevel, v.level)));
+      //     if (isFinite(maxLevel)) {
+      //       data.forEach((v) => {
+      //         v.level = ++maxLevel;
+      //       });
+      //     }
+      //   }
+      //   return data;
+      // }
+    };
+    this.infoRight = {
+      data: [] as RawDataRight[],
+      columns: [
+        {field: "name", name: "选项/范围", type: "string", editable: true},
+        {field: "value", name: "取值", type: "string", editable: true},
+        {field: "input", name: "可以输入修改", type: "boolean", editable: true}
+      ],
+      title: "条件取值数据",
+      editMode: true,
+      newItem: {name: "", value: 0, input: true},
+      toolbarButtons: {add: true, remove: true, import: true, export: true}
+    };
   }
 
   submit() {
     if (this.tableLeft?.errorState.length) {
       this.message.alert("当前数据存在错误");
     } else {
-      this.data.tiaojianquzhi = this.dataLeft.data;
+      this.data.tiaojianquzhi = this.infoLeft.data;
       this.console.execute("save", {loaderId: this.loaderId});
     }
   }
 
   async close() {
     const str1 = JSON.stringify(this.data.tiaojianquzhi);
-    const str2 = JSON.stringify(this.dataLeft.data);
+    const str2 = JSON.stringify(this.infoLeft.data);
     if (str1 !== str2) {
       const yes = await this.message.confirm("是否放弃所作修改?");
       if (!yes) {
@@ -124,11 +121,11 @@ export class CadLineTjqzComponent {
     this.openSelection = {type, index: type.includes("选择") ? rowIdx : -1};
   }
 
-  onRowClick(event: RowEvent<RawDataLeft>) {
+  onCellClick(event: CellEvent<RawDataLeft>) {
     const {item, rowIdx} = event;
-    this.dataRight.data = item.data;
+    this.infoRight.data = item.data;
     this.setOpenSelection(item, rowIdx);
-    this.activeRowsLeft = [rowIdx];
+    this.infoLeft.activeRows = [rowIdx];
   }
 
   onCellChange(event: CellEvent<RawDataLeft>) {
@@ -137,8 +134,8 @@ export class CadLineTjqzComponent {
 
   async onCellFocusRight(event: CellEvent<RawDataRight>) {
     const {type, index} = this.openSelection;
-    if (event.field === "name" && index > -1) {
-      const keys = this.dataLeft.data[index].key.split(/;|；|,|，/).filter((v) => v);
+    if (event.column.field === "name" && index > -1) {
+      const keys = this.infoLeft.data[index].key.split(/;|；|,|，/).filter((v) => v);
       let values: string[];
       if (event.item.name.match(/;|；/)) {
         values = event.item.name.split(/;|；/);
@@ -165,7 +162,7 @@ export class CadLineTjqzComponent {
           if (result.value) {
             arr.unshift(result.value);
           }
-          this.dataRight.data[event.rowIdx].name = arr.map((v) => v.value).join(";");
+          this.infoRight.data[event.rowIdx].name = arr.map((v) => v.value).join(";");
         }
       }
     }

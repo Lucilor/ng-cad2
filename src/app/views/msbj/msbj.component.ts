@@ -103,12 +103,12 @@ export class MsbjComponent implements AfterViewInit {
     if (!msbjInfo) {
       return;
     }
-    const tableData: TableUpdateParams<MsbjData>["tableData"] = {vid: msbjInfo.vid};
+    const data: TableUpdateParams<MsbjData>["data"] = {vid: msbjInfo.vid};
     const rectInfos = this.msbjRects?.rectInfosRelative.map((v) => v.raw);
     msbjInfo.peizhishuju.模块节点 = rectInfos || [];
-    tableData[this.dataField] = JSON.stringify(msbjInfo.peizhishuju);
+    data[this.dataField] = JSON.stringify(msbjInfo.peizhishuju);
     this.spinner.show(this.spinner.defaultLoaderId);
-    await this.dataService.tableUpdate({table, tableData});
+    await this.dataService.tableUpdate({table, data});
     this.spinner.hide(this.spinner.defaultLoaderId);
   }
 

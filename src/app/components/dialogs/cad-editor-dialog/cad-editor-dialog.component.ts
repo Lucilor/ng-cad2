@@ -14,6 +14,7 @@ export class CadEditorDialogComponent extends Subscribed() implements OnInit {
   @ViewChild(CadEditorComponent) cadEditor?: CadEditorComponent;
   isSaved = false;
   canClose = true;
+  cadEditorParams: OpenCadOptions = {};
 
   constructor(
     public dialogRef: MatDialogRef<CadEditorDialogComponent, CadEditorOutput>,
@@ -24,6 +25,7 @@ export class CadEditorDialogComponent extends Subscribed() implements OnInit {
     if (!this.data) {
       this.data = {};
     }
+    this.cadEditorParams = {...this.data, isDialog: true};
   }
 
   ngOnInit() {
@@ -44,7 +46,11 @@ export class CadEditorDialogComponent extends Subscribed() implements OnInit {
 
   async close(save: boolean) {
     if (save) {
-      await this.save();
+      if (this.data.isLocal) {
+        this.isSaved = true;
+      } else {
+        await this.save();
+      }
     }
     if (this.cadEditor) {
       this.dialogRef.close({isSaved: this.isSaved});
@@ -60,7 +66,7 @@ export const openCadEditorDialog = getOpenDialogFunc<CadEditorDialogComponent, C
   disableClose: true
 });
 
-export type CadEditorInput = OpenCadOptions;
+export type CadEditorInput = Omit<OpenCadOptions, "isDialog">;
 
 export interface CadEditorOutput {
   isSaved: boolean;

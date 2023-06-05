@@ -31,6 +31,7 @@ export interface InputInfoBase<T = any> {
 export interface InputInfoString<T = any> extends InputInfoWithOptions<T, string> {
   type: "string";
   value?: Value<string>;
+  displayValue?: Value<string>;
   optionKey?: string;
   textarea?: {autosize?: {minRows?: number; maxRows?: number}};
   onInput?: (val: string) => void;
@@ -50,8 +51,6 @@ export interface InputInfoNumber<T = any> extends InputInfoWithOptions<T, number
 export interface InputInfoObject<T = any> extends InputInfoBase<T> {
   type: "object";
   value?: Value<ObjectOf<any>>;
-  isCadOptions?: boolean;
-  isOneItem?: boolean;
 }
 
 export interface InputInfoArray<T = any> extends InputInfoBase<T> {
@@ -136,6 +135,8 @@ export interface InputInfoWithOptions<T = any, K = any> extends InputInfoBase<T>
   fixedOptions?: string[];
   optionInputOnly?: boolean;
   optionsDisplayLimit?: number;
+  isSingleOption?: boolean;
+  optionsUseId?: boolean;
 }
 
 export type InputInfoOption<T = string> = {value: T; label?: string} | T;

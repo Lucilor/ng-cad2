@@ -4,7 +4,7 @@
       <mat-label>{{ info.label }}</mat-label>
       <mat-hint>{{ hint }}</mat-hint>
       <input
-        *ngIf="!cast('string', info).textarea"
+        *ngIf="!cast('string', info).textarea && displayValue === null"
         matInput
         [errorStateMatcher]="errorStateMatcher"
         [readonly]="info.readonly"
@@ -19,7 +19,7 @@
         [placeholder]="info.placeholder || ''"
       />
       <textarea
-        *ngIf="cast('string', info).textarea"
+        *ngIf="cast('string', info).textarea && displayValue === null"
         matInput
         [errorStateMatcher]="errorStateMatcher"
         [cdkTextareaAutosize]="!!cast('string', info).textarea?.autosize"
@@ -36,7 +36,15 @@
         [matAutocomplete]="auto"
         [placeholder]="info.placeholder || ''"
       ></textarea>
-      <button mat-icon-button matSuffix *ngIf="optionKey" color="primary" (click)="selectOptions(info.model?.key, optionKey)">
+      <textarea
+        matInput
+        readonly
+        *ngIf="displayValue !== null"
+        [value]="displayValue"
+        cdkTextareaAutosize
+        [cdkAutosizeMinRows]="1"
+      ></textarea>
+      <button mat-icon-button matSuffix *ngIf="optionKey" color="primary" (click)="selectOptions(model.key, optionKey)">
         <mat-icon>list</mat-icon>
       </button>
       <button mat-icon-button matSuffix *ngIf="info.clearable" color="primary" (click)="clear()">
@@ -136,7 +144,7 @@
             [(ngModel)]="item.value"
             (change)="value[item.key] = item.value"
           />
-          <button mat-icon-button matSuffix color="primary" (click)="selectOptions(info.model?.key, item.key)">
+          <button mat-icon-button matSuffix color="primary" (click)="selectOptions(model.key, item.key)">
             <mat-icon>list</mat-icon>
           </button>
           <button mat-icon-button matSuffix color="primary" (click)="objectAdd(value, '', '')">
@@ -307,7 +315,14 @@
           (onChangeComplete)="onColorChange($event.color)"
           appClickStop
         ></color-circle>
-        <color-chrome *ngIf="!cast('color', info).optionsOnly" #colorChrome [color]="colorStr" (onChangeComplete)="onColorChange($event.color)" appClickStop> </color-chrome>
+        <color-chrome
+          *ngIf="!cast('color', info).optionsOnly"
+          #colorChrome
+          [color]="colorStr"
+          (onChangeComplete)="onColorChange($event.color)"
+          appClickStop
+        >
+        </color-chrome>
       </mat-menu>
       <ng-template></ng-template>
       <button mat-icon-button matSuffix *ngIf="info.clearable" color="primary" (click)="clear()">

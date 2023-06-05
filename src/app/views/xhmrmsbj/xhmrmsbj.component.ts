@@ -595,10 +595,10 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
       await this.message.error("以下模块未设置默认板材分组", details);
       return;
     }
-    const tableData: TableUpdateParams<MsbjData>["tableData"] = dataInfo.export();
-    delete tableData.mingzi;
+    const data: TableUpdateParams<MsbjData>["data"] = dataInfo.export();
+    delete data.mingzi;
     this.spinner.show(this.spinner.defaultLoaderId);
-    await this.dataService.tableUpdate({table, tableData});
+    await this.dataService.tableUpdate({table, data});
     this.spinner.hide(this.spinner.defaultLoaderId);
   }
 

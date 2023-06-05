@@ -65,6 +65,7 @@ import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {TableModule} from "@modules/table/table.module";
 import {BackupComponent} from "@views/backup/backup.component";
+import {BomGongyiluxianComponent} from "@views/bom-gongyiluxian/bom-gongyiluxian.component";
 import {ChangelogAdminComponent} from "@views/changelog-admin/changelog-admin.component";
 import {CleanComponent} from "@views/clean/clean.component";
 import {DingdanbiaoqianComponent} from "@views/dingdanbiaoqian/dingdanbiaoqian.component";
@@ -124,6 +125,7 @@ const matFormFieldOptions: MatFormFieldDefaultOptions = {
     BancaiFormDialogComponent,
     BancaiListComponent,
     BbzhmkgzComponent,
+    BomGongyiluxianComponent,
     CadEditorDialogComponent,
     CadLineTjqzComponent,
     CadLineTjqzSelectComponent,

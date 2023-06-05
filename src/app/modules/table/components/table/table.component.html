@@ -1,95 +1,232 @@
 <div class="table-container">
-  <div class="table-title" *ngIf="title">{{ title }}</div>
+  <div class="table-title" *ngIf="info.title">{{ info.title }}</div>
   <div class="btn-group table-toolbar">
-    <button mat-raised-button color="primary" (click)="addItem()" [disabled]="newItem === undefined">添加</button>
-    <button mat-raised-button color="primary" (click)="removeItem()" [disabled]="selection.selected.length < 1">删除</button>
-    <button mat-raised-button color="primary" (click)="export()">导出</button>
-    <button mat-raised-button color="primary" (click)="import()">导入</button>
+    <button mat-raised-button *ngIf="toolbarButtons.add" color="primary" (click)="addItem()">添加</button>
+    <button
+      mat-raised-button
+      *ngIf="toolbarButtons.remove"
+      color="primary"
+      (click)="removeItem()"
+      [disabled]="selection.selected.length < 1"
+    >
+      删除
+    </button>
+    <button mat-raised-button *ngIf="toolbarButtons.export" color="primary" (click)="export()">导出</button>
+    <button mat-raised-button *ngIf="toolbarButtons.import" color="primary" (click)="import()">导入</button>
+    <button
+      mat-raised-button
+      *ngIf="toolbarButtons.editModeToggle"
+      [color]="info.editMode ? 'accent' : 'primary'"
+      (click)="toggleEditMode()"
+    >
+      编辑
+    </button>
+    <button
+      mat-raised-button
+      *ngFor="let button of toolbarButtons.extra"
+      [color]="button.color"
+      [ngClass]="button.class"
+      [ngStyle]="button.style"
+      (click)="onToolbarBtnClick(button)"
+    >
+      {{ button.title || button.event }}
+    </button>
   </div>
   <div class="error-msg" *ngFor="let item of errorState">
     <mat-icon>error</mat-icon>
     <div>{{ item.msg }}</div>
   </div>
-  <ng-scrollbar class="table-body">
-    <mat-table [dataSource]="data" matSort>
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef [style.width.px]="checkBoxSize">
+  <ng-scrollbar class="table-body flex-110" track="all">
+    <mat-table [dataSource]="dataSource" matSort>
+      <ng-container matColumnDef="select" sticky>
+        <mat-header-cell *matHeaderCellDef [ngStyle]="getCheckBoxStyle()">
           <mat-checkbox
             (change)="$event ? masterToggle() : null"
             [checked]="selection.hasValue() && isAllSelected()"
             [indeterminate]="selection.hasValue() && !isAllSelected()"
           >
           </mat-checkbox>
-        </th>
-        <td mat-cell *matCellDef="let item; let rowIdx = index" [style.width.px]="checkBoxSize" (click)="onRowClick(item, rowIdx)">
+        </mat-header-cell>
+        <mat-cell *matCellDef="let item; let rowIdx = index" [ngStyle]="getCheckBoxStyle()">
           <mat-checkbox appClickStop (change)="$event ? selection.toggle(item) : null" [checked]="selection.isSelected(item)">
           </mat-checkbox>
-        </td>
+        </mat-cell>
       </ng-container>
 
-      <ng-container [matColumnDef]="toTypeString(column.field)" *ngFor="let column of columns; let colIdx = index">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header [style.width]="columns[colIdx].width">{{ column.name }}</th>
-        <td
-          mat-cell
+      <ng-container
+        [matColumnDef]="toTypeString(column.field)"
+        *ngFor="let column of info.columns; let colIdx = index"
+        [sticky]="column.sticky"
+      >
+        <ng-container *ngIf="info.sortable; else headerNoSort">
+          <mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="getCellClass(column)" [ngStyle]="getCellStyle(column)">
+            {{ column.name }}
+          </mat-header-cell>
+        </ng-container>
+        <ng-template #headerNoSort>
+          <mat-header-cell *matHeaderCellDef [ngClass]="getCellClass(column)" [ngStyle]="getCellStyle(column)">
+            {{ column.name }}
+          </mat-header-cell>
+        </ng-template>
+        <mat-cell
           *matCellDef="let item; let rowIdx = index"
-          [style.width]="columns[colIdx].width"
+          [ngClass]="getCellClass(column)"
+          [ngStyle]="getCellStyle(column)"
           [class.error]="!isVaild(rowIdx)"
-          (click)="onRowClick(item, rowIdx)"
+          (click)="onCellClick({column, item, colIdx, rowIdx})"
         >
-          <ng-container *ngIf="isColumnEditable(column); else notEditable" [ngSwitch]="column.type">
-            <mat-form-field *ngSwitchCase="'string'">
-              <input
-                type="text"
-                matInput
-                [value]="item[column.field]"
-                (input)="setCellValue($event, colIdx, rowIdx, item)"
-                (focus)="onCellFocus($event, colIdx, rowIdx, item)"
-                (blur)="onCellBlur($event, colIdx, rowIdx, item)"
-              />
-            </mat-form-field>
-            <mat-form-field *ngSwitchCase="'number'">
-              <input
-                matInput
-                type="number"
-                [value]="item[column.field]"
-                (input)="setCellValue($event, colIdx, rowIdx, item)"
-                (focus)="onCellFocus($event, colIdx, rowIdx, item)"
-                (blur)="onCellBlur($event, colIdx, rowIdx, item)"
-              />
-            </mat-form-field>
-            <mat-slide-toggle
-              *ngSwitchCase="'boolean'"
-              [checked]="item[column.field] === true"
-              (change)="setCellValue($event, colIdx, rowIdx, item)"
-            ></mat-slide-toggle>
-            <mat-select
-              *ngSwitchCase="'select'"
-              [value]="item[column.field]"
-              (selectionChange)="setCellValue($event, colIdx, rowIdx, item)"
-            >
-              <mat-option *ngFor="let item of getColumnOptions(column)" [value]="item">
-                {{ item }}
-              </mat-option>
-            </mat-select>
-            <div class="row-btn-group" *ngSwitchCase="'button'">
-              <button
-                mat-stroked-button
-                color="primary"
-                *ngFor="let btn of getColumnButtons(column)"
-                (click)="onRowButtonClick(btn.event, column.field, item, colIdx, rowIdx)"
-              >
-                {{ btn.name }}
-              </button>
-            </div>
+          <button
+            mat-icon-button
+            *ngIf="info.isTree && colIdx === 0"
+            [style.opacity]="item.children?.length > 0 ? '1' : '0'"
+            [style.marginLeft.px]="item.level * 10"
+            (click)="treeControl.toggle(item)"
+          >
+            <mat-icon class="mat-icon-rtl-mirror">
+              {{ treeControl.isExpanded(item) ? "expand_more" : "chevron_right" }}
+            </mat-icon>
+          </button>
+          <ng-container [ngSwitch]="column.type">
+            <ng-container *ngSwitchCase="'string'">
+              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+                <input
+                  type="text"
+                  matInput
+                  [value]="item[column.field]"
+                  (change)="setCellValue($event, colIdx, rowIdx, item)"
+                  (focus)="onCellFocus($event, colIdx, rowIdx, item)"
+                  (blur)="onCellBlur($event, colIdx, rowIdx, item)"
+                />
+              </mat-form-field>
+              <ng-template #normal>
+                {{ item[column.field] }}
+              </ng-template>
+            </ng-container>
+            <ng-container *ngSwitchCase="'number'">
+              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+                <input
+                  matInput
+                  type="number"
+                  [value]="item[column.field]"
+                  (change)="setCellValue($event, colIdx, rowIdx, item)"
+                  (focus)="onCellFocus($event, colIdx, rowIdx, item)"
+                  (blur)="onCellBlur($event, colIdx, rowIdx, item)"
+                />
+              </mat-form-field>
+              <ng-template #normal>
+                {{ item[column.field] }}
+              </ng-template>
+            </ng-container>
+            <ng-container *ngSwitchCase="'boolean'">
+              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+                <input type="text" matInput hidden />
+                <mat-slide-toggle [checked]="!!item[column.field]" (change)="setCellValue($event, colIdx, rowIdx, item)"></mat-slide-toggle>
+              </mat-form-field>
+              <ng-template #normal>
+                {{ item[column.field] ? "是" : "否" }}
+              </ng-template>
+            </ng-container>
+            <ng-container *ngSwitchCase="'time'">
+              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+                <!-- todo: datetime picker -->
+                <input
+                  type="text"
+                  matInput
+                  [value]="item[column.field]"
+                  (change)="setCellValue($event, colIdx, rowIdx, item)"
+                  (focus)="onCellFocus($event, colIdx, rowIdx, item)"
+                  (blur)="onCellBlur($event, colIdx, rowIdx, item)"
+                />
+              </mat-form-field>
+              <ng-template #normal>
+                {{ item[column.field] }}
+              </ng-template>
+            </ng-container>
+            <ng-container *ngSwitchCase="'select'">
+              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+                <mat-select [value]="item[column.field]" (selectionChange)="setCellValue($event, colIdx, rowIdx, item)">
+                  <mat-option *ngFor="let item of getColumnOptions(column)" [value]="item">
+                    {{ item }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <ng-template #normal>
+                {{ item[column.field] }}
+              </ng-template>
+            </ng-container>
+            <ng-container *ngSwitchCase="'button'">
+              <div class="btn-group" *ngIf="isColumnEditable(column); else normal">
+                <button
+                  mat-raised-button
+                  *ngFor="let button of getColumnButtons(column)"
+                  [color]="button.color"
+                  [ngClass]="button.class"
+                  [ngStyle]="button.style"
+                  (click)="onRowButtonClick({button, column, item, colIdx, rowIdx})"
+                >
+                  {{ button.title }}
+                </button>
+              </div>
+              <ng-template #normal>
+                {{ item[column.field] }}
+              </ng-template>
+            </ng-container>
+            <ng-container *ngSwitchCase="'link'">
+              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+                <input
+                  type="text"
+                  matInput
+                  readonly
+                  [value]="getColumnLinkedValue(column, item)"
+                  (focus)="onCellFocus($event, colIdx, rowIdx, item)"
+                  (blur)="onCellBlur($event, colIdx, rowIdx, item)"
+                />
+                <button mat-icon-button matSuffix color="primary" (click)="selectOptions(colIdx, rowIdx, item)">
+                  <mat-icon>list</mat-icon>
+                </button>
+              </mat-form-field>
+              <ng-template #normal>
+                {{ getColumnLinkedValue(column, item) }}
+              </ng-template>
+            </ng-container>
+            <ng-container *ngSwitchCase="'image'">
+              <div class="flex-column">
+                <app-image
+                *ngIf="getItemImgSmall(item, column)"
+                [src]="getItemImgSmall(item, column)"
+                [bigPicSrc]="getItemImgLarge(item, column)"
+              ></app-image>
+              <div class="btn-group" *ngIf="isColumnEditable(column)">
+                <button mat-raised-button color="primary" (click)="uploadFile(colIdx, rowIdx, item)">上传</button>
+                <ng-container *ngIf="getItemImgSmall(item, column)">
+                  <button mat-raised-button color="accent" (click)="deleteFile(colIdx, rowIdx, item)">删除</button>
+                </ng-container>
+              </div>
+              </div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'cad'">
+              <div class="flex-column">
+                <app-image
+                  class="cad-preview"
+                  *ngIf="cadImgs[getItemCadImgId(item, column)]"
+                  [src]="cadImgs[getItemCadImgId(item, column)]"
+                  [bigPicSrc]="cadImgs[getItemCadImgId(item, column)]"
+                ></app-image>
+                <div class="btn-group" *ngIf="isColumnEditable(column, true)">
+                  <button mat-raised-button color="primary" (click)="uploadCad(colIdx, rowIdx, item)">上传</button>
+                  <ng-container *ngIf="cadImgs[getItemCadImgId(item, column)]">
+                    <button mat-raised-button color="primary" (click)="openCad(colIdx, rowIdx, item)">编辑</button>
+                    <button mat-raised-button color="accent" (click)="deleteCad(colIdx, rowIdx, item)">删除</button>
+                  </ng-container>
+                </div>
+              </div>
+            </ng-container>
           </ng-container>
-          <ng-template #notEditable>
-            {{ item[column.field] }}
-          </ng-template>
-        </td>
+        </mat-cell>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="columnFields; sticky: true"></tr>
-      <tr [class.active]="activeRows?.includes(i)" mat-row *matRowDef="let row; columns: columnFields; let i = index"></tr>
+      <mat-header-row *matHeaderRowDef="columnFields; sticky: true"></mat-header-row>
+      <mat-row [class.active]="info.activeRows?.includes(i)" *matRowDef="let row; columns: columnFields; let i = index"></mat-row>
     </mat-table>
   </ng-scrollbar>
 </div>

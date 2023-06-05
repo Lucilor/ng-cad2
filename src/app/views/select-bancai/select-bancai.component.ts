@@ -3,7 +3,7 @@ import {Validators} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {getFormControl, getFormGroup, replaceRemoteHost, TypedFormGroup} from "@app/app.common";
+import {getFilepathUrl, getFormControl, getFormGroup, replaceRemoteHost, TypedFormGroup} from "@app/app.common";
 import {openSelectBancaiCadsDialog} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiCad, BancaiList} from "@modules/http/services/cad-data.service.types";
@@ -348,7 +348,7 @@ export class SelectBancaiComponent implements OnInit {
   downloadDxf(url: string, isName = false) {
     const downloadName = this.downloadName || this.codes.join(",");
     if (isName) {
-      url = `${window.origin}/filepath/tmp/${url}.dxf`;
+      url = getFilepathUrl(`tmp/${url}.dxf`);
     }
     downloadByUrl(url, {filename: downloadName + ".dxf"});
   }

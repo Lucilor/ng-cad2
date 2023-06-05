@@ -38,8 +38,8 @@ export class JiaoweiComponent implements OnInit {
 
   submit() {
     const {id} = this.router.snapshot.queryParams;
-    const tableData: TableUpdateParams<JiaoweiTableData>["tableData"] = {vid: id};
-    tableData.jiaowei = JSON.stringify(this.jiaowei.export());
-    this.dataService.tableUpdate({table, tableData});
+    const data: TableUpdateParams<JiaoweiTableData>["data"] = {vid: id};
+    data.jiaowei = JSON.stringify(this.jiaowei.export());
+    this.dataService.tableUpdate({table, data});
   }
 }

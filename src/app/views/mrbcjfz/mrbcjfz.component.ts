@@ -374,8 +374,8 @@ export class MrbcjfzComponent implements OnInit {
       this.message.error(errorMsg.join("<br>"));
       return;
     }
-    const tableData: TableUpdateParams<MrbcjfzXinghao>["tableData"] = {vid: xinghao.raw.vid};
-    tableData.morenbancai = JSON.stringify(xinghao.默认板材);
+    const data: TableUpdateParams<MrbcjfzXinghao>["data"] = {vid: xinghao.raw.vid};
+    data.morenbancai = JSON.stringify(xinghao.默认板材);
     this.spinner.show(this.spinner.defaultLoaderId);
     let result = false;
     if (isFromOrder) {
@@ -385,7 +385,7 @@ export class MrbcjfzComponent implements OnInit {
       });
       result = response?.code === 0;
     } else {
-      result = await this.dataService.tableUpdate({table, tableData});
+      result = await this.dataService.tableUpdate({table, data});
     }
     this.spinner.hide(this.spinner.defaultLoaderId);
     this.dataSubmit.emit(this.xinghao);

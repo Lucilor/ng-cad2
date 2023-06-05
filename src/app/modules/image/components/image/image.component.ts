@@ -78,9 +78,10 @@ export class ImageComponent {
   loadingSrc = imgLoading;
   emptySrc = imgEmpty;
   bigPicVisible = false;
+  bigPicClass = ["big-pic"];
   @ViewChild("bigPicDiv", {read: ElementRef}) bigPicDiv?: ElementRef<HTMLDivElement>;
 
-  constructor(private elRef: ElementRef) {}
+  constructor(private elRef: ElementRef<HTMLElement>) {}
 
   getSrc() {
     const {prefix, _src, _src2} = this;
@@ -111,11 +112,12 @@ export class ImageComponent {
 
   async showBigPic() {
     if (this.bigPicSrc && this.bigPicDiv) {
-      this.bigPicVisible = true;
-      await timeout();
       const el = this.bigPicDiv.nativeElement;
       el.style.display = "flex";
       document.body.append(el);
+      this.bigPicClass = Array.from(this.elRef.nativeElement.classList);
+      await timeout();
+      this.bigPicVisible = true;
     }
   }
 

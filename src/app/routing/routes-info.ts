@@ -1,5 +1,6 @@
 import {Route} from "@angular/router";
 import {BackupComponent} from "@views/backup/backup.component";
+import {BomGongyiluxianComponent} from "@views/bom-gongyiluxian/bom-gongyiluxian.component";
 import {ChangelogAdminComponent} from "@views/changelog-admin/changelog-admin.component";
 import {CleanComponent} from "@views/clean/clean.component";
 import {DingdanbiaoqianComponent} from "@views/dingdanbiaoqian/dingdanbiaoqian.component";
@@ -44,5 +45,6 @@ export const routesInfo: (Route & {path: string})[] = [
   {path: "型号默认门扇布局", component: XhmrmsbjComponent, title: "型号默认门扇布局"},
   {path: "默认板材及分组", component: MrbcjfzComponent, title: "默认板材及分组"},
   {path: "suanliao", component: SuanliaoComponent, title: "算料"},
-  {path: "xinghao-overview", component: XinghaoOverviewComponent, title: "型号数据快速配置"}
+  {path: "xinghao-overview", component: XinghaoOverviewComponent, title: "型号数据快速配置"},
+  {path: "bom-gongyiluxian", component: BomGongyiluxianComponent, title: "BOM工艺路线"}
 ];

@@ -175,7 +175,7 @@ export class AppStatusService {
     timer.start(timerName);
     const cad = this.cad;
     opts = {center: false, isLocal: false, ...opts};
-    const {data, center, beforeOpen} = opts;
+    const {data, center, beforeOpen, isDialog} = opts;
     let collection = opts.collection;
     if (data) {
       cad.data = data;
@@ -237,7 +237,9 @@ export class AppStatusService {
     }
     this.config.setConfig(prevConfig);
     this.updateCadTotalLength();
-    this.updateTitle();
+    if (!isDialog) {
+      this.updateTitle();
+    }
 
     if (data) {
       await cad.render(await updatePreview(data, "post"));
@@ -469,4 +471,5 @@ export interface OpenCadOptions {
   center?: boolean;
   beforeOpen?: (data: CadData) => any;
   isLocal?: boolean;
+  isDialog?: boolean;
 }

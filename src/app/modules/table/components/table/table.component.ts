@@ -1,85 +1,55 @@
 import {SelectionModel} from "@angular/cdk/collections";
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
+import {FlatTreeControl} from "@angular/cdk/tree";
+import {
+  AfterViewInit,
+  Component,
+  DoCheck,
+  ElementRef,
+  EventEmitter,
+  Input,
+  KeyValueChanges,
+  KeyValueDiffer,
+  KeyValueDiffers,
+  Output,
+  ViewChild
+} from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {MatSort} from "@angular/material/sort";
 import {MatTable, MatTableDataSource} from "@angular/material/table";
+import {MatTreeFlatDataSource, MatTreeFlattener} from "@angular/material/tree";
+import {getFilepathUrl, joinOptions, splitOptions} from "@app/app.common";
+import {getCadPreview} from "@app/cad/utils";
+import {CadData} from "@cad-viewer";
+import {openCadEditorDialog} from "@components/dialogs/cad-editor-dialog/cad-editor-dialog.component";
+import {CadOptionsInput, openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
+import {CadDataService} from "@modules/http/services/cad-data.service";
+import {TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
-import {downloadByString} from "@utils";
-import {cloneDeep, debounce} from "lodash";
-
-export interface ColumnInfoBase<T> {
-  field: keyof T;
-  name: string;
-  width?: string;
-  editable?: boolean;
-}
-
-export interface ColumnInfoNormal<T> extends ColumnInfoBase<T> {
-  type: "string" | "number" | "boolean" | "checkbox";
-}
-
-export interface ColumnInfoSelect<T> extends ColumnInfoBase<T> {
-  type: "select";
-  options: string[];
-}
-
-export interface ColumnInfoButton<T> extends ColumnInfoBase<T> {
-  type: "button";
-  buttons: {name: string; event: string}[];
-}
-
-export type ColumnInfo<T> = ColumnInfoNormal<T> | ColumnInfoSelect<T> | ColumnInfoButton<T>;
-
-export type TableErrorState = {rows: number[]; msg: string}[];
-
-export type TableValidator<T> = (data: MatTableDataSource<T>) => TableErrorState;
-
-export interface RowButtonEvent<T> {
-  name: string;
-  field: keyof T;
-  item: T;
-  colIdx: number;
-  rowIdx: number;
-}
-
-export interface CellEvent<T> {
-  field: keyof T;
-  item: T;
-  colIdx: number;
-  rowIdx: number;
-}
-
-export interface RowEvent<T> {
-  item: T;
-  rowIdx: number;
-}
-
-export type ItemGetter<T> = (rowIdx: number) => T;
-
-export type DataTransformer<T> = (type: "import" | "export", data: T[]) => any;
+import {AppStatusService, OpenCadOptions} from "@services/app-status.service";
+import {dataURLtoBlob, downloadByString, ObjectOf, selectFiles} from "@utils";
+import csstype from "csstype";
+import {cloneDeep, intersection, isEqual} from "lodash";
+import md5 from "md5";
+import {BehaviorSubject, filter, lastValueFrom, take} from "rxjs";
+import {CellEvent, ColumnInfo, ItemGetter, RowButtonEvent, TableButton, TableErrorState, TableRenderInfo} from "./table.types";
+import {getInputInfosFromTableColumns} from "./table.utils";
 
 @Component({
   selector: "app-table",
   templateUrl: "./table.component.html",
   styleUrls: ["./table.component.scss"]
 })
-export class TableComponent<T> implements OnInit, AfterViewInit {
-  @Input() data = new MatTableDataSource<T>();
-  @Input() columns: ColumnInfo<T>[] = [];
-  @Input() newItem?: T | ItemGetter<T>;
-  @Input() title = "";
-  @Input() checkBoxSize = 40;
-  @Input() editable: string | boolean = true;
-  @Input() validator?: TableValidator<T>;
-  @Input() activeRows?: number[];
-  @Input() dataTransformer?: DataTransformer<T>;
+export class TableComponent<T> implements AfterViewInit, DoCheck {
+  @Input() info: TableRenderInfo<T> = {data: [], columns: []};
 
   @Output() rowButtonClick = new EventEmitter<RowButtonEvent<T>>();
   @Output() cellFocus = new EventEmitter<CellEvent<T>>();
   @Output() cellBlur = new EventEmitter<CellEvent<T>>();
   @Output() cellChange = new EventEmitter<CellEvent<T>>();
-  @Output() rowClick = new EventEmitter<RowEvent<T>>();
+  @Output() cellClick = new EventEmitter<CellEvent<T>>();
+  @Output() toolbarButtonClick = new EventEmitter<TableButton>();
 
   selection = new SelectionModel<T>(true, []);
   columnFields: (keyof T | "select")[] = [];
@@ -87,127 +57,246 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort?: MatSort;
   @ViewChild("input", {read: ElementRef}) input?: ElementRef<HTMLInputElement>;
   errorState: TableErrorState = [];
+  private infoDiffer: KeyValueDiffer<string, any>;
+  treeControl = new FlatTreeControl<any>(
+    (node) => node.level,
+    (node) => node.expandable
+  );
+  treeFlattener = new MatTreeFlattener(
+    (node: any, level: number) => {
+      node.expandable = !!node.children && node.children.length > 0;
+      node.level = level;
+      return node;
+    },
+    (node) => node.level,
+    (node) => node.expandable,
+    (node) => node.children
+  );
+  cadImgs: ObjectOf<string> = {};
+  private _isGeneratingCadImg$ = new BehaviorSubject(false);
+
+  dataSource: MatTreeFlatDataSource<any, any> | MatTableDataSource<T> = new MatTableDataSource();
 
   editing: {colIdx: number; rowIdx: number; value: string};
 
-  constructor(private message: MessageService) {
-    this.editing = {colIdx: -1, rowIdx: -1, value: ""};
+  get toolbarButtons() {
+    return this.info.toolbarButtons || {};
   }
 
-  ngOnInit() {
-    this.columnFields = ["select", ...this.columns.map((v) => v.field)];
-    this.validate();
+  constructor(
+    private message: MessageService,
+    private differs: KeyValueDiffers,
+    private dialog: MatDialog,
+    private dataService: CadDataService,
+    private status: AppStatusService
+  ) {
+    this.editing = {colIdx: -1, rowIdx: -1, value: ""};
+    this.infoDiffer = this.differs.find(this.info).create();
   }
 
   ngAfterViewInit() {
     if (this.input) {
       this.input.nativeElement.onchange = this.onInputChange.bind(this);
     }
-    this.data.sort = this.sort || null;
+    if (this.dataSource instanceof MatTableDataSource) {
+      this.dataSource.sort = this.sort || null;
+    }
+  }
+
+  ngDoCheck() {
+    const changes = this.infoDiffer.diff(this.info);
+    if (changes) {
+      this.infoChanged(changes);
+    }
+  }
+
+  infoChanged(changes: KeyValueChanges<string, any>) {
+    const changedKeys: string[] = [];
+    changes.forEachChangedItem((v) => {
+      changedKeys.push(v.key);
+    });
+    changes.forEachAddedItem((v) => {
+      changedKeys.push(v.key);
+    });
+    changes.forEachRemovedItem((v) => {
+      changedKeys.push(v.key);
+    });
+    {
+      const keys: (keyof TableRenderInfo<T>)[] = ["columns", "noCheckBox"];
+      if (intersection(changedKeys, keys).length > 0) {
+        this.columnFields = [...this.info.columns.map((v) => v.field)];
+        if (!this.info.noCheckBox) {
+          this.columnFields.unshift("select");
+        }
+      }
+    }
+    {
+      const keys: (keyof TableRenderInfo<T>)[] = ["data", "validator", "isTree"];
+      if (intersection(changedKeys, keys).length > 0) {
+        this.cadImgs = {};
+        const data = this.info.data;
+        if (this.info.isTree) {
+          this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener, data);
+        } else {
+          this.dataSource = new MatTableDataSource(data);
+        }
+        this.validate();
+      }
+    }
   }
 
   isAllSelected() {
-    const {data: dataSource, selection} = this;
+    const {selection} = this;
     const numSelected = selection.selected.length;
-    const numRows = dataSource.data.length;
+    const numRows = this.dataSource.data.length;
     return numSelected === numRows;
   }
 
   masterToggle() {
-    const {data: dataSource, selection} = this;
+    const {info, selection} = this;
     if (this.isAllSelected()) {
       selection.clear();
     } else {
-      dataSource.data.forEach((row) => selection.select(row));
+      info.data.forEach((row) => selection.select(row));
     }
   }
 
-  addItem(rowIdx?: number) {
-    const {newItem, data} = this;
-    if (!newItem) {
-      console.warn("no newItem to add");
-      return;
-    }
-    if (typeof rowIdx !== "number") {
-      rowIdx = data.data.length;
-    }
-    if (typeof newItem === "function") {
-      const result = (newItem as ItemGetter<T>)(rowIdx);
-      if (result) {
-        data.data.splice(rowIdx, 0, cloneDeep(result));
+  async addItem(rowIdx?: number) {
+    const {onlineMode, isTree, newItem, data} = this.info;
+    if (onlineMode) {
+      const infos = getInputInfosFromTableColumns(this.info.columns.filter((v) => v.required));
+      const values = await this.message.form(infos);
+      if (values) {
+        const {tableName, refresh} = onlineMode;
+        const insertResult = await this.dataService.tableInsert({table: tableName, data: values});
+        if (insertResult) {
+          await refresh();
+        }
       }
     } else {
-      data.data.splice(rowIdx, 0, cloneDeep(newItem));
-    }
-    data._updateChangeSubscription();
-    this.validate();
-  }
-
-  removeItem(index?: number) {
-    const {data: dataSource, selection} = this;
-    if (typeof index === "number") {
-      this.data.data.splice(index, 1);
-      this.data._updateChangeSubscription();
-    } else {
-      const toRemove: number[] = [];
-      dataSource.data.forEach((v, i) => {
-        if (selection.isSelected(v)) {
-          toRemove.unshift(i);
+      if (isTree) {
+        this.message.error("树形表格不支持添加");
+      }
+      if (!newItem) {
+        console.warn("no newItem to add");
+        return;
+      }
+      if (typeof rowIdx !== "number") {
+        rowIdx = data.length;
+      }
+      if (typeof newItem === "function") {
+        let result = (newItem as ItemGetter<T>)(rowIdx);
+        if (result instanceof Promise) {
+          result = await result;
         }
-      });
-      toRemove.forEach((v) => dataSource.data.splice(v, 1));
-      this.data._updateChangeSubscription();
-      selection.clear();
+        if (result) {
+          data.splice(rowIdx, 0, cloneDeep(result));
+        }
+      } else {
+        data.splice(rowIdx, 0, cloneDeep(newItem));
+      }
+      this.dataSource.data = data;
     }
-    this.validate();
   }
 
-  // eslint-disable-next-line @typescript-eslint/member-ordering
-  setCellValue = debounce((event: Event | MatSelectChange | MatSlideToggleChange, colIdx: number, rowIdx: number, item: T) => {
-    const {field, type} = this.columns[colIdx];
+  async removeItem(index?: number) {
+    const {info, selection} = this;
+    const {onlineMode, isTree, data} = info;
+    if (onlineMode) {
+      const vids = selection.selected.map((v) => Number((v as any).vid));
+      if (vids.length < 1) {
+        this.message.error("未选中任何数据");
+        return;
+      } else if (await this.message.confirm(`确定删除选中的${vids.length}条数据？`)) {
+        const {tableName, refresh} = onlineMode;
+        const deleteResult = await this.dataService.tableDelete({table: tableName, vids});
+        if (deleteResult) {
+          await refresh();
+        }
+      }
+    } else {
+      if (isTree) {
+        this.message.error("树形表格不支持删除");
+      }
+      if (typeof index === "number") {
+        data.splice(index, 1);
+      } else {
+        const toRemove: number[] = [];
+        data.forEach((v, i) => {
+          if (selection.isSelected(v)) {
+            toRemove.unshift(i);
+          }
+        });
+        toRemove.forEach((v) => data.splice(v, 1));
+        selection.clear();
+      }
+      this.dataSource.data = data;
+    }
+  }
+
+  setCellValue(event: any, colIdx: number, rowIdx: number, item: T) {
+    const column = this.info.columns[colIdx];
+    const {field, type} = column;
+    const {onlineMode} = this.info;
+    const valueBefore = item[field];
     if (event instanceof MatSelectChange) {
       item[field] = event.value;
     } else if (event instanceof MatSlideToggleChange) {
       item[field] = event.checked as any;
-    } else {
+      if (onlineMode) {
+        item[field] = (event.checked ? 1 : 0) as any;
+      } else {
+        item[field] = event.checked as any;
+      }
+    } else if (event instanceof Event) {
       const value = (event.target as HTMLInputElement).value;
       if (type === "number") {
         item[field] = Number(value) as any;
       } else {
         item[field] = value as any;
       }
+    } else {
+      item[field] = event;
     }
-    this.validate();
-    this.cellChange.emit({field, item, colIdx, rowIdx});
-  });
+    const valueAfter = item[field];
+    if (!isEqual(valueBefore, valueAfter)) {
+      this.validate();
+      const item2 = item as TableDataBase;
+      if (onlineMode && this.errorState.length < 1) {
+        this.dataService.tableUpdate({table: onlineMode.tableName, data: {vid: item2.vid, [field]: valueAfter}});
+      }
+      this.cellChange.emit({column, item, colIdx, rowIdx});
+    }
+    this.cellChange.emit({column, item, colIdx, rowIdx});
+  }
 
   onCellFocus(_event: FocusEvent, colIdx: number, rowIdx: number, item: T) {
-    const {field} = this.columns[colIdx];
-    this.cellFocus.emit({field, item, colIdx, rowIdx});
+    const column = this.info.columns[colIdx];
+    this.cellFocus.emit({column, item, colIdx, rowIdx});
   }
 
   onCellBlur(_event: FocusEvent, colIdx: number, rowIdx: number, item: T) {
-    const {field} = this.columns[colIdx];
-    this.cellBlur.emit({field, item, colIdx, rowIdx});
+    const column = this.info.columns[colIdx];
+    this.cellBlur.emit({column, item, colIdx, rowIdx});
   }
 
-  onRowButtonClick(name: string, field: keyof T, item: T, colIdx: number, rowIdx: number) {
-    this.rowButtonClick.emit({name, field, item, colIdx, rowIdx});
+  async onCellClick(event: CellEvent<T>) {
+    this.cellClick.emit(event);
   }
 
-  onRowClick(item: T, rowIdx: number) {
-    this.rowClick.emit({item, rowIdx});
+  onRowButtonClick(event: RowButtonEvent<T>) {
+    this.rowButtonClick.emit(event);
   }
 
   export() {
     let selected = this.selection.selected;
     if (selected.length < 1) {
-      selected = this.data.data;
+      selected = this.info.data;
     }
-    if (typeof this.dataTransformer === "function") {
-      selected = this.dataTransformer("export", selected);
+    if (typeof this.info.dataTransformer === "function") {
+      selected = this.info.dataTransformer("export", selected);
     }
-    downloadByString(JSON.stringify(selected), {filename: (this.title ?? "table") + ".json"});
+    downloadByString(JSON.stringify(selected), {filename: (this.info.title ?? "table") + ".json"});
   }
 
   import() {
@@ -233,12 +322,11 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
       this.input.nativeElement.value = "";
     }
     if (Array.isArray(data)) {
-      if (typeof this.dataTransformer === "function") {
-        data = this.dataTransformer("import", data);
+      if (typeof this.info.dataTransformer === "function") {
+        data = this.info.dataTransformer("import", data);
       }
       if (Array.isArray(data)) {
-        data.forEach((v) => this.data.data.push(v));
-        this.data._updateChangeSubscription();
+        data.forEach((v) => this.info.data.push(v));
         this.validate();
       } else {
         this.message.alert("数据格式错误");
@@ -248,12 +336,12 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
     }
   }
 
-  isColumnEditable(column: ColumnInfo<T>) {
+  isColumnEditable(column: ColumnInfo<T>, forgetEditMode = false) {
     const {type, editable} = column;
     if (type === "button") {
       return true;
     }
-    return (typeof this.editable === "string" || this.editable) && editable;
+    return !!((forgetEditMode || this.info.editMode) && editable);
   }
 
   getColumnOptions(column: ColumnInfo<T>) {
@@ -270,9 +358,18 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
     return [];
   }
 
+  getColumnLinkedValue(column: ColumnInfo<T>, item: T) {
+    const {type, field} = column;
+    if (type === "link") {
+      const vals = splitOptions(item[field] as string);
+      return joinOptions(vals.map((v) => column.links[v]));
+    }
+    return item[field] as string;
+  }
+
   validate() {
-    if (this.validator) {
-      this.errorState = this.validator(this.data);
+    if (this.info.validator && this.dataSource instanceof MatTableDataSource) {
+      this.errorState = this.info.validator(this.dataSource);
     } else {
       this.errorState = [];
     }
@@ -289,5 +386,179 @@ export class TableComponent<T> implements OnInit, AfterViewInit {
 
   toTypeString(str: any) {
     return str as string;
+  }
+
+  getCheckBoxStyle() {
+    const style: csstype.Properties = {};
+    const checkBoxSize = this.info.checkBoxSize ?? 50;
+    style.flex = `0 0 ${checkBoxSize}px`;
+    return style;
+  }
+
+  getCellClass(column: ColumnInfo<T>) {
+    const classes: string[] = ["column-type-" + column.type];
+    return classes;
+  }
+
+  getCellStyle(column: ColumnInfo<T>) {
+    const style: csstype.Properties = {};
+    if (column.width) {
+      style.flex = `0 0 ${column.width}`;
+    }
+    return style;
+  }
+
+  getItemImgSmall(item: T, column: ColumnInfo<T>) {
+    const {type} = column;
+    if (type === "image") {
+      const {hasSmallImage} = column;
+      const value = item[column.field] as string;
+      if (hasSmallImage) {
+        return getFilepathUrl(value, {prefix: "s_"});
+      } else {
+        return getFilepathUrl(value);
+      }
+    } else {
+      return "";
+    }
+  }
+
+  getItemImgLarge(item: T, column: ColumnInfo<T>) {
+    const {type} = column;
+    if (type === "image") {
+      const value = item[column.field] as string;
+      return getFilepathUrl(value);
+    } else {
+      return "";
+    }
+  }
+
+  getItemCadImgId(item: T, column: ColumnInfo<T>) {
+    const value = item[column.field];
+    let id: string;
+    if (typeof value === "string") {
+      id = md5(value);
+    } else if (value instanceof CadData) {
+      id = value.id;
+    } else {
+      return "";
+    }
+    this.generateItemCadImg(id, item, column);
+    return id;
+  }
+
+  async uploadFile(colIdx: number, rowIdx: number, item: T) {
+    const {onlineMode} = this.info;
+    if (!onlineMode) {
+      return;
+    }
+    const column = this.info.columns[colIdx];
+    const vid = Number((item as any).vid);
+    const field = column.field as any;
+    let accept: string | undefined;
+    switch (column.type) {
+      case "image":
+        accept = "image/*";
+        break;
+      case "file":
+        accept = column.mime;
+        break;
+      default:
+        return;
+    }
+    const file = (await selectFiles({accept}))?.[0];
+    if (!file) {
+      return;
+    }
+    await this.dataService.tableUploadFile({table: onlineMode.tableName, vid, field, file});
+  }
+
+  async deleteFile(colIdx: number, rowIdx: number, item: T) {
+    // TODO
+    console.log("deleteFile", colIdx, rowIdx, item);
+  }
+
+  async generateItemCadImg(id: string, item: T, column: ColumnInfo<T>) {
+    if (id in this.cadImgs) {
+      return;
+    }
+    this.cadImgs[id] = "";
+    if (this._isGeneratingCadImg$) {
+      await lastValueFrom(
+        this._isGeneratingCadImg$.pipe(
+          filter((v) => !v),
+          take(1)
+        )
+      );
+    }
+    let value = item[column.field];
+    try {
+      value = JSON.parse(value as any);
+    } catch (error) {}
+    if (value) {
+      this._isGeneratingCadImg$.next(true);
+      const data = new CadData(value);
+      const dataURL = await getCadPreview("cad", data);
+      const src = URL.createObjectURL(dataURLtoBlob(dataURL));
+      this.cadImgs[id] = src;
+      this._isGeneratingCadImg$.next(false);
+    }
+  }
+
+  onToolbarBtnClick(button: TableButton) {
+    this.toolbarButtonClick.emit(button);
+  }
+
+  toggleEditMode() {
+    this.info.editMode = !this.info.editMode;
+  }
+
+  async selectOptions(colIdx: number, rowIdx: number, item: T) {
+    const column = this.info.columns[colIdx];
+    const {type, field} = column;
+    if (type !== "link") {
+      return;
+    }
+    const {linkedTable, multiSelect} = column;
+    const checkedVids = splitOptions(item[field] as string).map((v) => Number(v));
+    const data: CadOptionsInput = {name: linkedTable, checkedVids, multi: multiSelect};
+    const result = await openCadOptionsDialog(this.dialog, {data});
+    if (result) {
+      const value = joinOptions(result.map((v) => String(v.vid)));
+      this.setCellValue(value, colIdx, rowIdx, item);
+    }
+  }
+
+  async openCad(colIdx: number, rowIdx: number, item: T) {
+    const column = this.info.columns[colIdx];
+    if (column.type === "cad" && this.isColumnEditable(column, true)) {
+      let cadData: CadData | undefined;
+      try {
+        cadData = new CadData(JSON.parse(item[column.field] as string));
+      } catch (error) {}
+      if (cadData) {
+        const data: OpenCadOptions = {data: cadData, isLocal: true, center: true};
+        const result = await openCadEditorDialog(this.dialog, {data});
+        if (result?.isSaved) {
+          const cadData2 = this.status.closeCad();
+          this.setCellValue(JSON.stringify(cadData2.export()), colIdx, rowIdx, item);
+        }
+      }
+    }
+  }
+
+  async uploadCad(colIdx: number, rowIdx: number, item: T) {
+    const file = (await selectFiles({accept: ".dxf"}))?.[0];
+    if (!file) {
+      return;
+    }
+    const data = await this.dataService.uploadDxf(file);
+    if (data) {
+      this.setCellValue(JSON.stringify(data.export()), colIdx, rowIdx, item);
+    }
+  }
+
+  async deleteCad(colIdx: number, rowIdx: number, item: T) {
+    this.setCellValue("", colIdx, rowIdx, item);
   }
 }

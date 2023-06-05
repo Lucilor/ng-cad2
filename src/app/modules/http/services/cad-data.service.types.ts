@@ -97,7 +97,19 @@ export interface TableInsertParams<T extends TableDataBase = TableDataBase> {
 
 export interface TableUpdateParams<T extends TableDataBase = TableDataBase> {
   table: string;
-  tableData: {vid: number} & Omit<Partial<T>, "vid">;
+  data: {vid: number} & Omit<Partial<T>, "vid">;
+}
+
+export interface TableDeleteParams {
+  table: string;
+  vids: number[];
+}
+
+export interface TableUploadFile<T extends TableDataBase = TableDataBase> {
+  table: string;
+  vid: number;
+  field: keyof T;
+  file: File;
 }
 
 export interface TableDataBase {
@@ -110,4 +122,24 @@ export interface BancaiListData {
   bancaiKeys: string[];
   bancaiKeysNonClear: string[];
   bancaiKeysRequired: string[];
+}
+
+export interface TableRenderData {
+  table: {
+    id: string;
+    cols: TableRenderDataColumn[][];
+  };
+}
+
+export interface TableRenderDataColumn {
+  field: string;
+  title: string;
+  editable: boolean;
+  hide: boolean;
+  width: number;
+  dbType: string;
+  type2: string;
+  link?: ObjectOf<string>;
+  guanLian?: string;
+  inputOnAdd?: number;
 }

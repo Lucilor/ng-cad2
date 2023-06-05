@@ -1,4 +1,5 @@
 import {Injectable, Injector} from "@angular/core";
+import {getFilepathUrl} from "@app/app.common";
 import {CadCollection} from "@app/cad/collections";
 import {CadData} from "@cad-viewer";
 import {dataURLtoBlob, downloadByUrl, DownloadOptions, ObjectOf} from "@utils";
@@ -15,8 +16,11 @@ import {
   QueryMysqlParams,
   SetCadParams,
   TableDataBase,
+  TableDeleteParams,
   TableInsertParams,
-  TableUpdateParams
+  TableRenderData,
+  TableUpdateParams,
+  TableUploadFile
 } from "./cad-data.service.types";
 import {CadImgCache} from "./cad-img-cache";
 import {HttpService} from "./http.service";
@@ -165,7 +169,7 @@ export class CadDataService extends HttpService {
 
   async getOptions(params: GetOptionsParams): Promise<OptionsData> {
     const postData: ObjectOf<any> = {...params};
-    if (params.data) {
+    if (params.data instanceof CadData) {
       delete postData.data;
       const exportData = params.data.export();
       postData.mingzi = exportData.name;
@@ -177,7 +181,7 @@ export class CadDataService extends HttpService {
     if (response && response.data) {
       return {
         data: (response.data as any[]).map((v: any) => {
-          const img = v.xiaotu ? `${origin}/filepath/${v.xiaotu}` : null;
+          const img = getFilepathUrl(v.xiaotu) || null;
           return {vid: v.vid, name: v.mingzi, img, disabled: !!v.tingyong};
         }),
         count: response.count || 0
@@ -272,22 +276,39 @@ export class CadDataService extends HttpService {
   }
 
   async tableUpdate<T extends TableDataBase = TableDataBase>(params: TableUpdateParams<T>, options?: HttpOptions) {
-    const tableData = params.tableData;
-    if (Object.keys(tableData).length > 1) {
-      const fields = Object.keys(tableData).filter((v) => v !== "vid");
+    const data = params.data;
+    const getParams2 = (params1: TableUpdateParams<T>) => {
+      const params2: ObjectOf<any> = {...params1};
+      params2.tableData = params2.data;
+      delete params2.data;
+      return params2;
+    };
+    if (Object.keys(data).length > 1) {
+      const fields = Object.keys(data).filter((v) => v !== "vid");
       const results = await Promise.all(
         fields.map(async (field) => {
-          const tableData2 = {vid: tableData.vid, [field]: (tableData as any)[field]};
-          const params2 = {...params, tableData: tableData2};
+          const data2 = {vid: data.vid, [field]: (data as any)[field]} as any;
+          const params2 = getParams2({...params, data: data2});
           const response = await this.post<void>("jichu/jichu/table_update", params2, options);
           return response?.code === 0;
         })
       );
       return results.every(Boolean);
     } else {
-      const response = await this.post<void>("jichu/jichu/table_update", params, options);
+      const params2 = getParams2(params);
+      const response = await this.post<void>("jichu/jichu/table_update", params2, options);
       return response?.code === 0;
     }
+  }
+
+  async tableDelete(params: TableDeleteParams, options?: HttpOptions) {
+    const response = await this.post<void>("jichu/jichu/table_delete", params, options);
+    return response?.code === 0;
+  }
+
+  async tableUploadFile<T extends TableDataBase = TableDataBase>(params: TableUploadFile<T>, options?: HttpOptions) {
+    const response = await this.post<void>("jichu/jichu/upload_file", params, options);
+    return response?.code === 0;
   }
 
   async getRedisData(key: string, isString = true, options?: HttpOptions) {
@@ -301,6 +322,11 @@ export class CadDataService extends HttpService {
 
   async getBancaiList() {
     const response = await this.post<BancaiListData>("ngcad/getBancaiList");
+    return this.getResponseData(response);
+  }
+
+  async getTableRenderData(table: string) {
+    const response = await this.post<TableRenderData>("ngcad/getTableData", {table});
     return this.getResponseData(response);
   }
 }
