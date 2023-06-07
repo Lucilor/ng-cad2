@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChildren} from "@angular/core";
 import {ValidationErrors} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
@@ -8,7 +8,7 @@ import {CadData} from "@cad-viewer";
 import {openBancaiFormDialog} from "@components/dialogs/bancai-form-dialog/bancai-form-dialog.component";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
-import {InputInfo} from "@modules/input/components/input.types";
+import {InputComponent} from "@modules/input/components/input.component";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
@@ -45,7 +45,7 @@ export class MrbcjfzComponent implements OnInit {
   @Input() closeable = false;
   @Output() dataSubmit = new EventEmitter<MrbcjfzXinghaoInfo>();
   @Output() dataClose = new EventEmitter<void>();
-  xinghao: MrbcjfzXinghaoInfo = new MrbcjfzXinghaoInfo({vid: 0, mingzi: ""});
+  xinghao: MrbcjfzXinghaoInfo = new MrbcjfzXinghaoInfo(this.table, {vid: 0, mingzi: ""});
   cads: MrbcjfzCadInfo[] = [];
   huajians: MrbcjfzHuajianInfo[] = [];
   qiliaos: MrbcjfzQiliaoInfo[] = [];
@@ -53,7 +53,6 @@ export class MrbcjfzComponent implements OnInit {
   bancaiKeysNonClear: string[] = [];
   bancaiKeysRequired: string[] = [];
   bancaiList: BancaiList[] = [];
-  bancaiInputs: InputInfo<MrbcjfzInfo>[][] = [];
   activeBancaiKey: string | null = null;
   xiaodaohangStructure: XiaodaohangStructure | null = null;
   isFromOrder = false;
@@ -64,6 +63,8 @@ export class MrbcjfzComponent implements OnInit {
     }
     return this.xinghao.默认板材[this.activeBancaiKey];
   }
+
+  @ViewChildren("bancaiInput") bancaiInputComponents?: QueryList<InputComponent>;
 
   constructor(
     private route: ActivatedRoute,
@@ -100,9 +101,9 @@ export class MrbcjfzComponent implements OnInit {
       const data = await this.getData();
       const xinghaosRaw = await this.dataService.queryMySql({table: "p_xinghao", filter: {where: {mingzi: data.xinghao}}});
       if (xinghaosRaw[0]) {
-        this.xinghao = new MrbcjfzXinghaoInfo(xinghaosRaw[0]);
+        this.xinghao = new MrbcjfzXinghaoInfo(this.table, xinghaosRaw[0]);
       } else {
-        this.xinghao = new MrbcjfzXinghaoInfo({vid: 0, mingzi: data.xinghao});
+        this.xinghao = new MrbcjfzXinghaoInfo(this.table, {vid: 0, mingzi: data.xinghao});
       }
       for (const key in data.morenbancai) {
         if (key in this.xinghao.默认板材) {
@@ -130,7 +131,7 @@ export class MrbcjfzComponent implements OnInit {
       );
       const data = this.dataService.getResponseData(response);
       if (data) {
-        this.xinghao = new MrbcjfzXinghaoInfo(data.xinghao);
+        this.xinghao = new MrbcjfzXinghaoInfo(this.table, data.xinghao);
         this.bancaiKeys = data.bancaiKeys;
         this.bancaiKeysNonClear = union(data.bancaiKeysNonClear, data.bancaiKeysRequired);
         this.bancaiKeysRequired = data.bancaiKeysRequired;
@@ -213,7 +214,6 @@ export class MrbcjfzComponent implements OnInit {
   updateXinghao() {
     const 默认板材 = this.xinghao.默认板材;
     this.xinghao.默认板材 = {};
-    this.bancaiInputs = [];
     for (const key of this.bancaiKeys) {
       const data = getMrbcjfzInfo(默认板材[key]);
       this.xinghao.默认板材[key] = data;
@@ -368,6 +368,19 @@ export class MrbcjfzComponent implements OnInit {
       }
       if (this.huajians.some((v) => !v.selected)) {
         errorMsg.push("有花件未选择");
+      }
+    }
+    if (this.bancaiInputComponents) {
+      const errorMsg2: string[] = [];
+      this.bancaiInputComponents.forEach((v) => {
+        v.validateValue();
+        const errorMag3 = v.errorMsg;
+        if (errorMag3 && !errorMsg2.includes(errorMag3)) {
+          errorMsg2.push(errorMag3);
+        }
+      });
+      if (errorMsg2.length > 0) {
+        errorMsg.push(`板材输入有误：${errorMsg2.join("，")}`);
       }
     }
     if (errorMsg.length) {

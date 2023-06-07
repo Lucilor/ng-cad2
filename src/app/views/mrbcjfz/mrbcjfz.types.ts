@@ -34,7 +34,7 @@ export class MrbcjfzXinghaoInfo {
   默认板材: ObjectOf<MrbcjfzInfo> = {};
   inputInfos: ObjectOf<InputInfo[]> = {};
 
-  constructor(public raw: MrbcjfzXinghao) {
+  constructor(public table: string, public raw: MrbcjfzXinghao) {
     try {
       this.默认板材 = JSON.parse(raw.morenbancai || "");
     } catch (error) {}
@@ -47,7 +47,24 @@ export class MrbcjfzXinghaoInfo {
       this.默认板材[key] = {...getEmptyMrbcjfzInfo(key), ...this.默认板材[key]};
       const value = this.默认板材[key];
       this.inputInfos[key] = [
-        {type: "string", label: "板材分组别名", model: {data: value, key: "板材分组别名"}, styles: {flex: "1 1 20px"}},
+        {
+          type: "string",
+          label: "板材分组别名",
+          model: {data: value, key: "板材分组别名"},
+          styles: {flex: "1 1 20px"},
+          validators: (control) => {
+            const val = String(control.value);
+            if (["p_luomatou", "p_luomazhu", "p_qianhoubankuanshi"].includes(this.table)) {
+              if (!val) {
+                return {required: true};
+              }
+            }
+            if (!val.endsWith("板材")) {
+              return {pattern: "板材分组别名必须以“板材”结尾"};
+            }
+            return null;
+          }
+        },
         {type: "boolean", label: "允许修改", model: {data: value, key: "允许修改"}, styles: {flex: "1 1 9px"}},
         {
           type: "boolean",

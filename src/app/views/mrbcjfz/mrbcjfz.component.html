@@ -21,7 +21,7 @@
           <button mat-raised-button color="primary" (click)="emptyBancaiForm(key)">清空</button>
         </div>
         <div class="bancai-attrs flex-row">
-          <app-input *ngFor="let info of xinghao.inputInfos[key]" [info]="info" appClickStop></app-input>
+          <app-input #bancaiInput *ngFor="let info of xinghao.inputInfos[key]" [info]="info" appClickStop></app-input>
         </div>
         <div class="item-list flex-row">
           <ng-container *ngFor="let item of cads">

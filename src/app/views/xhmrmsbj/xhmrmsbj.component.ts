@@ -142,7 +142,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
         table: "p_xinghao",
         filter: {where: {vid: this.tableData?.xinghao}}
       });
-      this.xinghao = xinghaos[0] ? new MrbcjfzXinghaoInfo(xinghaos[0]) : null;
+      this.xinghao = xinghaos[0] ? new MrbcjfzXinghaoInfo(table, xinghaos[0]) : null;
     }
     await timeout(0);
     if (this.isFromOrder) {
@@ -169,7 +169,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.id = id;
     this.user = user;
     this.menshanKeys = menshanKeys;
-    this.xinghao = new MrbcjfzXinghaoInfo({vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
+    this.xinghao = new MrbcjfzXinghaoInfo(this.table, {vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
     await this.selectMenshanKey(this.activeMenshanKey || this.menshanKeys[0]);
     const msbjInfo = this.activeMsbjInfo;
     if (msbjInfo?.选中布局数据) {
