@@ -818,7 +818,9 @@ export const printCads = async (params: PrintCadsParams) => {
             if (cadImages) {
               await setImageUrl(cadImages);
               data2.entities.image = cadImages;
-              img2 = await getCadPreview("cad", data2, {config: {width: localWidth * scaleX, height: localHeight * scaleY, padding: [50]}});
+              img2 = await getCadPreview("cad", data2, {
+                config: {width: localWidth * scaleX, height: localHeight * scaleY, padding: [50 * scaleY, 50 * scaleX]}
+              });
             }
           }
         } else if (result && result.rect.width > 0 && result.rect.height > 0) {

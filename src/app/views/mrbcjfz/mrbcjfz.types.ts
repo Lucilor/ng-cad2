@@ -55,11 +55,12 @@ export class MrbcjfzXinghaoInfo {
           validators: (control) => {
             const val = String(control.value);
             if (["p_luomatou", "p_luomazhu", "p_qianhoubankuanshi"].includes(this.table)) {
-              if (!val) {
+              const data = this.默认板材[key];
+              if (!isMrbcjfzInfoEmpty1(key, data) && !val) {
                 return {required: true};
               }
             }
-            if (!val.endsWith("板材")) {
+            if (val && !val.endsWith("板材")) {
               return {pattern: "板材分组别名必须以“板材”结尾"};
             }
             return null;

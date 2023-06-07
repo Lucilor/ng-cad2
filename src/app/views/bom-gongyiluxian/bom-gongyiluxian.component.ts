@@ -1,5 +1,5 @@
 import {animate, state, style, transition, trigger} from "@angular/animations";
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, ViewChild} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {session, setGlobal} from "@app/app.common";
@@ -8,8 +8,10 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {TableInsertParams, TableRenderData} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {TableComponent} from "@modules/table/components/table/table.component";
 import {RowButtonEvent, TableRenderInfo} from "@modules/table/components/table/table.types";
 import {convertTableRenderData, getInputInfosFromTableColumns} from "@modules/table/components/table/table.utils";
+import {timeout} from "@utils";
 import {mapKeys} from "lodash";
 import {DingdanBomCacheData, DingdanBomData} from "./bom-gongyiluxian.types";
 
@@ -39,6 +41,8 @@ export class BomGongyiluxianComponent implements OnInit {
   };
   private _cacheKey = "bomGongyiluxianCache";
   environment = environment;
+
+  @ViewChild("table") tableComponent?: TableComponent<DingdanBomData>;
 
   constructor(
     private route: ActivatedRoute,
@@ -119,6 +123,11 @@ export class BomGongyiluxianComponent implements OnInit {
         buttons: [{event: "add", title: "添加", color: "primary"}],
         width: "80px"
       });
+    }
+    await timeout(0);
+    const treeControl = this.tableComponent?.treeControl;
+    if (treeControl) {
+      treeControl.expand(treeControl.dataNodes[0]);
     }
   }
 

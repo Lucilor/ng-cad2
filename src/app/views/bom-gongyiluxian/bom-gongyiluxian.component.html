@@ -1,4 +1,4 @@
 <div class="btn-group" *ngIf="!environment.production">
   <button mat-raised-button color="primary" (click)="clearCache()">clear cache</button>
 </div>
-<app-table class="flex-110" [info]="info" (rowButtonClick)="onRowButtonClick($event)"></app-table>
+<app-table #table class="flex-110" [info]="info" (rowButtonClick)="onRowButtonClick($event)"></app-table>
