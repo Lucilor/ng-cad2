@@ -24,6 +24,7 @@ import {cloneDeep, intersection} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {
   getCadCalcZhankaiText,
+  getCadPreview,
   getShuangxiangLineRects,
   maxLineLength,
   prepareCadViewer,
@@ -736,8 +737,7 @@ export const printCads = async (params: PrintCadsParams) => {
     cad.resize(localWidth * scaleX, localHeight * scaleY);
     await configCadDataForPrint(cad, data, params);
     data.updatePartners().updateComponents();
-    cad.data = data;
-    await cad.reset().render();
+    await cad.reset(data).render();
     cad.center();
     const {拉手信息宽度} = extra;
     if (typeof 拉手信息宽度 === "number" && 拉手信息宽度 > 0) {
@@ -763,7 +763,7 @@ export const printCads = async (params: PrintCadsParams) => {
       for (const keyword in designPics) {
         const {urls, showSmall, showLarge, styles} = designPics[keyword];
         const currUrls = urls[i] || urls[0];
-        let result: ReturnType<typeof findDesignPicsRectLines>;
+        let result: ReturnType<typeof findDesignPicsRectLines> | undefined;
         try {
           result = findDesignPicsRectLines(data, keyword, showSmall);
         } catch (error) {
@@ -772,20 +772,18 @@ export const printCads = async (params: PrintCadsParams) => {
           } else {
             console.warn(error);
           }
-          continue;
         }
-        if (result.locator) {
+        if (result?.locator) {
           result.locator.visible = false;
           cad.render(result.locator);
         }
         if (Array.isArray(currUrls) && currUrls.length > 0) {
-          for (const e of Object.values(result.lines)) {
+          for (const e of Object.values(result?.lines || {})) {
             if (e) {
               e.visible = true;
               cad.render(e);
             }
           }
-          const data2 = data.clone();
           const setImageUrl = async (cadImages: CadImage[]) => {
             await Promise.all(
               cadImages.map(async (e, j) => {
@@ -803,7 +801,7 @@ export const printCads = async (params: PrintCadsParams) => {
               })
             );
           };
-          if (showSmall) {
+          if (result && showSmall) {
             const cadImages = await drawDesignPics(data, keyword, currUrls.length, true, result.rect, styles);
             if (cadImages) {
               await setImageUrl(cadImages);
@@ -815,17 +813,15 @@ export const printCads = async (params: PrintCadsParams) => {
             img = await cad.toDataURL();
           }
           if (showLarge) {
-            const cadImages = await drawDesignPics(data2, keyword, currUrls.length, false, result.rect, styles);
+            const data2 = new CadData();
+            const cadImages = await drawDesignPics(data2, keyword, currUrls.length, false, rect, styles);
             if (cadImages) {
               await setImageUrl(cadImages);
-              cad.data = data2;
-              await cad.render(cadImages);
-              cad.center();
-              img2 = await cad.toDataURL();
-              cad.data = data;
+              data2.entities.image = cadImages;
+              img2 = await getCadPreview("cad", data2, {config: {width: localWidth * scaleX, height: localHeight * scaleY, padding: [50]}});
             }
           }
-        } else if (result.rect.width > 0 && result.rect.height > 0) {
+        } else if (result && result.rect.width > 0 && result.rect.height > 0) {
           const ids: string[] = [];
           for (const e of Object.values(result.lines)) {
             if (e) {
