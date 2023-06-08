@@ -16,6 +16,7 @@ import {
   QueryMysqlParams,
   SetCadParams,
   TableDataBase,
+  TableDeleteFile,
   TableDeleteParams,
   TableInsertParams,
   TableRenderData,
@@ -308,6 +309,11 @@ export class CadDataService extends HttpService {
 
   async tableUploadFile<T extends TableDataBase = TableDataBase>(params: TableUploadFile<T>, options?: HttpOptions) {
     const response = await this.post<void>("jichu/jichu/upload_file", params, options);
+    return response?.code === 0;
+  }
+
+  async tableDeleteFile<T extends TableDataBase = TableDataBase>(params: TableDeleteFile<T>, options?: HttpOptions) {
+    const response = await this.post<void>("jichu/jichu/delete_file", params, options);
     return response?.code === 0;
   }
 

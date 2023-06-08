@@ -10,7 +10,8 @@ export const convertTableRenderData = <T>(data: TableRenderData, info: TableRend
       name: column.title,
       editable: column.editable,
       required: !!column.inputOnAdd,
-      width: column.width > 0 ? column.width + "px" : undefined
+      width: column.width > 0 ? column.width + "px" : undefined,
+      hidden: !!column.hide
     };
     if (!column.type2) {
       return null;
@@ -48,9 +49,6 @@ export const convertTableRenderData = <T>(data: TableRenderData, info: TableRend
     return null;
   };
   for (const column of data.table.cols[0] || []) {
-    if (column.hide) {
-      continue;
-    }
     const item = getItem(column);
     if (item) {
       columns.push(item);

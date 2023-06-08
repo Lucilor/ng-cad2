@@ -42,6 +42,7 @@ export interface ColumnInfoBase<T> {
   editable?: boolean;
   required?: boolean;
   sticky?: boolean;
+  hidden?: boolean;
 }
 
 export interface ColumnInfoNormal<T> extends ColumnInfoBase<T> {
@@ -81,6 +82,7 @@ export interface ColumnInfoFile<T> extends ColumnInfoBase<T> {
 
 export interface ColumnInfoCad<T> extends ColumnInfoBase<T> {
   type: "cad";
+  filterFn?: (event: CellEvent<T>) => boolean;
 }
 
 export type ColumnInfo<T> =

@@ -336,10 +336,13 @@ export class TableComponent<T> implements AfterViewInit, DoCheck {
     }
   }
 
-  isColumnEditable(column: ColumnInfo<T>, forgetEditMode = false) {
-    const {type, editable} = column;
+  isColumnEditable(event: CellEvent<T>, forgetEditMode = false) {
+    const {type, editable} = event.column;
     if (type === "button") {
       return true;
+    }
+    if (type === "cad" && !this.getIsTypeCadEnabled(event)) {
+      return false;
     }
     return !!((forgetEditMode || this.info.editMode) && editable);
   }
@@ -474,8 +477,14 @@ export class TableComponent<T> implements AfterViewInit, DoCheck {
   }
 
   async deleteFile(colIdx: number, rowIdx: number, item: T) {
-    // TODO
-    console.log("deleteFile", colIdx, rowIdx, item);
+    const {onlineMode} = this.info;
+    if (!onlineMode) {
+      return;
+    }
+    const column = this.info.columns[colIdx];
+    const vid = Number((item as any).vid);
+    const field = column.field as any;
+    await this.dataService.tableDeleteFile({table: onlineMode.tableName, vid, field});
   }
 
   async generateItemCadImg(id: string, item: T, column: ColumnInfo<T>) {
@@ -531,7 +540,7 @@ export class TableComponent<T> implements AfterViewInit, DoCheck {
 
   async openCad(colIdx: number, rowIdx: number, item: T) {
     const column = this.info.columns[colIdx];
-    if (column.type === "cad" && this.isColumnEditable(column, true)) {
+    if (column.type === "cad" && this.isColumnEditable({column, item, colIdx, rowIdx}, true)) {
       let cadData: CadData | undefined;
       try {
         cadData = new CadData(JSON.parse(item[column.field] as string));
@@ -560,5 +569,17 @@ export class TableComponent<T> implements AfterViewInit, DoCheck {
 
   async deleteCad(colIdx: number, rowIdx: number, item: T) {
     this.setCellValue("", colIdx, rowIdx, item);
+  }
+
+  getIsTypeCadEnabled(event: CellEvent<T>) {
+    const {type} = event.column;
+    if (type !== "cad") {
+      return false;
+    }
+    const {filterFn} = event.column;
+    if (filterFn) {
+      return filterFn(event);
+    }
+    return true;
   }
 }

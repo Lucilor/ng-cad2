@@ -107,14 +107,17 @@ export class BomGongyiluxianComponent implements OnInit {
       }
     }
     this.info.data = data2;
-    for (const column of tableRenderData?.table.cols[0] || []) {
-      if (["suanliaocad", "kailiaocad"].includes(column.field)) {
-        column.type2 = "cad";
-        column.hide = false;
-      }
-    }
     if (tableRenderData) {
       convertTableRenderData(tableRenderData, this.info);
+      for (const column of this.info.columns) {
+        if (["suanliaocad", "kailiaocad"].includes(column.field)) {
+          column.type = "cad";
+          column.hidden = false;
+          if (column.type === "cad") {
+            column.filterFn = (event) => !!event.item.shicadjiegouliao;
+          }
+        }
+      }
       this.info.columns[0].sticky = true;
       this.info.columns.splice(1, 0, {
         type: "button",

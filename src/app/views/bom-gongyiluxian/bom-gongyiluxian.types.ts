@@ -8,6 +8,7 @@ export interface DingdanBomData extends TableDataBase {
   children?: DingdanBomData[];
   suanliaocad?: string | null;
   kailiaocad?: string | null;
+  shicadjiegouliao?: number;
 }
 
 export interface DingdanBomCacheData {

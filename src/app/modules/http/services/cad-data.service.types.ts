@@ -112,6 +112,12 @@ export interface TableUploadFile<T extends TableDataBase = TableDataBase> {
   file: File;
 }
 
+export interface TableDeleteFile<T extends TableDataBase = TableDataBase> {
+  table: string;
+  vid: number;
+  field: keyof T;
+}
+
 export interface TableDataBase {
   vid: number;
   mingzi: string;

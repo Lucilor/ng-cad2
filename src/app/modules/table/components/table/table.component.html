@@ -88,7 +88,7 @@
           </button>
           <ng-container [ngSwitch]="column.type">
             <ng-container *ngSwitchCase="'string'">
-              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+              <mat-form-field *ngIf="isColumnEditable({column, item, colIdx, rowIdx}); else normal">
                 <input
                   type="text"
                   matInput
@@ -103,7 +103,7 @@
               </ng-template>
             </ng-container>
             <ng-container *ngSwitchCase="'number'">
-              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+              <mat-form-field *ngIf="isColumnEditable({column, item, colIdx, rowIdx}); else normal">
                 <input
                   matInput
                   type="number"
@@ -118,7 +118,7 @@
               </ng-template>
             </ng-container>
             <ng-container *ngSwitchCase="'boolean'">
-              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+              <mat-form-field *ngIf="isColumnEditable({column, item, colIdx, rowIdx}); else normal">
                 <input type="text" matInput hidden />
                 <mat-slide-toggle [checked]="!!item[column.field]" (change)="setCellValue($event, colIdx, rowIdx, item)"></mat-slide-toggle>
               </mat-form-field>
@@ -127,7 +127,7 @@
               </ng-template>
             </ng-container>
             <ng-container *ngSwitchCase="'time'">
-              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+              <mat-form-field *ngIf="isColumnEditable({column, item, colIdx, rowIdx}); else normal">
                 <!-- todo: datetime picker -->
                 <input
                   type="text"
@@ -143,7 +143,7 @@
               </ng-template>
             </ng-container>
             <ng-container *ngSwitchCase="'select'">
-              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+              <mat-form-field *ngIf="isColumnEditable({column, item, colIdx, rowIdx}); else normal">
                 <mat-select [value]="item[column.field]" (selectionChange)="setCellValue($event, colIdx, rowIdx, item)">
                   <mat-option *ngFor="let item of getColumnOptions(column)" [value]="item">
                     {{ item }}
@@ -155,7 +155,7 @@
               </ng-template>
             </ng-container>
             <ng-container *ngSwitchCase="'button'">
-              <div class="btn-group" *ngIf="isColumnEditable(column); else normal">
+              <div class="btn-group" *ngIf="isColumnEditable({column, item, colIdx, rowIdx}); else normal">
                 <button
                   mat-raised-button
                   *ngFor="let button of getColumnButtons(column)"
@@ -172,7 +172,7 @@
               </ng-template>
             </ng-container>
             <ng-container *ngSwitchCase="'link'">
-              <mat-form-field *ngIf="isColumnEditable(column); else normal">
+              <mat-form-field *ngIf="isColumnEditable({column, item, colIdx, rowIdx}); else normal">
                 <input
                   type="text"
                   matInput
@@ -196,7 +196,7 @@
                 [src]="getItemImgSmall(item, column)"
                 [bigPicSrc]="getItemImgLarge(item, column)"
               ></app-image>
-              <div class="btn-group" *ngIf="isColumnEditable(column)">
+              <div class="btn-group" *ngIf="isColumnEditable({column, item, colIdx, rowIdx})">
                 <button mat-raised-button color="primary" (click)="uploadFile(colIdx, rowIdx, item)">上传</button>
                 <ng-container *ngIf="getItemImgSmall(item, column)">
                   <button mat-raised-button color="accent" (click)="deleteFile(colIdx, rowIdx, item)">删除</button>
@@ -212,7 +212,7 @@
                   [src]="cadImgs[getItemCadImgId(item, column)]"
                   [bigPicSrc]="cadImgs[getItemCadImgId(item, column)]"
                 ></app-image>
-                <div class="btn-group" *ngIf="isColumnEditable(column, true)">
+                <div class="btn-group" *ngIf="isColumnEditable({column, item, colIdx, rowIdx}, true)">
                   <button mat-raised-button color="primary" (click)="uploadCad(colIdx, rowIdx, item)">上传</button>
                   <ng-container *ngIf="cadImgs[getItemCadImgId(item, column)]">
                     <button mat-raised-button color="primary" (click)="openCad(colIdx, rowIdx, item)">编辑</button>
