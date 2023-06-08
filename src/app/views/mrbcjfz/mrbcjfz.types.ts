@@ -212,7 +212,7 @@ export const filterHuajian = (info: MrbcjfzHuajianInfo) => {
     newName = newName.replace(/无上下板|有上下板|\+压条|加压条|无压条|拉手板/g, "");
     return newName;
   };
-  const mingziReg = /压条|压边|门徽|猫眼|LOGO|商标|花件|木板|门铰|拉手/;
+  const mingziReg = /压条|压边|门徽|猫眼|LOGO|商标|花件|木板|门铰|拉手|企料开槽饰条/;
   if (mingziReg.test(getProperHuajianName(data.mingzi))) {
     return false;
   }
