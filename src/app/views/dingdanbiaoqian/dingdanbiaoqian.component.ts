@@ -102,6 +102,7 @@ export class DingdanbiaoqianComponent implements OnInit {
 
   private _configKey = "订单标签配置";
   private _httpCacheKey = "订单标签请求数据";
+  enableCache = !environment.production;
   config = {
     showCadSmallImg: true,
     showCadLargeImg: false
@@ -142,18 +143,25 @@ export class DingdanbiaoqianComponent implements OnInit {
   async getOrders() {
     const url = "order/order/dingdanbiaoqian";
     const params = this.route.snapshot.queryParams;
-    const type = this.type;
+    const {type, enableCache} = this;
     if (type === "配件模块") {
       await this.updateMokuais();
       return;
     }
-    let ddbqData = session.load<DdbqData>(this._httpCacheKey);
+    let ddbqData: DdbqData | null = null;
+    if (enableCache) {
+      ddbqData = session.load<DdbqData>(this._httpCacheKey);
+    }
     if (!ddbqData) {
       this.spinner.show(this.spinner.defaultLoaderId, {text: "获取数据..."});
       const response = await this.dataService.post<DdbqData>(url, params);
       ddbqData = this.dataService.getResponseData(response);
-      if (ddbqData) {
-        session.save(this._httpCacheKey, ddbqData);
+      if (enableCache && ddbqData) {
+        try {
+          session.save(this._httpCacheKey, ddbqData);
+        } catch (error) {
+          console.warn(error);
+        }
       }
     }
     if (ddbqData) {

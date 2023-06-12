@@ -50,7 +50,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
     }
     this.displayValue = null;
     if (type === "string") {
-      if (value.optionInputOnly) {
+      if (value.optionInputOnly && !value.options) {
         value.readonly = true;
         if (typeof value.displayValue === "function") {
           this.displayValue = value.displayValue();

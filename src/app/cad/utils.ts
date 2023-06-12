@@ -473,7 +473,7 @@ export const showIntersections = (data: CadData, config: ObjectOf<string>) => {
   const drawing = {
     leader: {length: 32, gap: 4, size: 15},
     circle: {radius: 8, linetype: "DASHEDX2", linewidth: 2},
-    text: {size: 20, text: "", offset: 0}
+    text: {size: 24, text: "", offset: 0}
   };
   for (const key of intersectionKeys) {
     const arr = data[key];
