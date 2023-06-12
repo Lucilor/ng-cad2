@@ -180,10 +180,11 @@ export class CadDataService extends HttpService {
     }
     const response = await this.post<any>("ngcad/getOptions", postData);
     if (response && response.data) {
+      const field = params.field || "mingzi";
       return {
         data: (response.data as any[]).map((v: any) => {
           const img = getFilepathUrl(v.xiaotu) || null;
-          return {vid: v.vid, name: v.mingzi, img, disabled: !!v.tingyong};
+          return {vid: v.vid, name: v[field], img, disabled: !!v.tingyong};
         }),
         count: response.count || 0
       };

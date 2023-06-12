@@ -436,16 +436,18 @@ export class InputComponent extends Utils() implements AfterViewInit {
     let optionsUseId = false;
     let isSingleOption = false;
     let optionInputOnly = false;
+    let optionField: string | undefined;
     const info = this.info;
     if (info.type === "string") {
       optionsUseId = !!info.optionsUseId;
       isSingleOption = !!info.isSingleOption;
       optionInputOnly = !!info.optionInputOnly;
+      optionField = info.optionField;
     }
     const value = (data as any)[key];
     const isObject = value && typeof value === "object";
     const checked = splitOptions(isObject ? value[optionKey] : value);
-    const dialogData: CadOptionsInput = {data, name: optionKey, multi: !isSingleOption};
+    const dialogData: CadOptionsInput = {data, name: optionKey, multi: !isSingleOption, field: optionField};
     if (optionsUseId) {
       dialogData.checkedVids = checked.map((v) => Number(v));
     } else {

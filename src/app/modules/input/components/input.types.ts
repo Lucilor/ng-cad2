@@ -137,6 +137,7 @@ export interface InputInfoWithOptions<T = any, K = any> extends InputInfoBase<T>
   optionsDisplayLimit?: number;
   isSingleOption?: boolean;
   optionsUseId?: boolean;
+  optionField?: string;
 }
 
 export type InputInfoOption<T = string> = {value: T; label?: string} | T;

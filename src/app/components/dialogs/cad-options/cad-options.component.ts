@@ -50,7 +50,8 @@ export class CadOptionsComponent implements AfterViewInit {
       data: this.data.data,
       xinghao: this.data.xinghao,
       includeTingyong: true,
-      values: this.checkedItems
+      values: this.checkedItems,
+      field: this.data.field
     });
     this.spinner.hide(this.loaderIds.submitLoaderId);
     this.dialogRef.close(data.data.map((v) => ({vid: v.vid, mingzi: v.name})));
@@ -93,7 +94,8 @@ export class CadOptionsComponent implements AfterViewInit {
       limit: this.paginator?.pageSize,
       data: this.data.data,
       xinghao: this.data.xinghao,
-      filter: this.data.filter
+      filter: this.data.filter,
+      field: this.data.field
     });
     this.spinner.hide(this.loaderIds.optionsLoader);
     this.length = data.count;
@@ -143,6 +145,7 @@ export interface CadOptionsInput {
   multi?: boolean;
   xinghao?: string;
   filter?: ObjectOf<any>;
+  field?: string;
 }
 
 export type CadOptionsOutput = TableDataBase[];

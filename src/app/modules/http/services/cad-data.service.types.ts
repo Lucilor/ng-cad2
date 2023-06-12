@@ -43,6 +43,7 @@ export interface GetOptionsParams {
   includeTingyong?: boolean;
   values?: string[];
   filter?: ObjectOf<any>;
+  field?: string;
 }
 
 export interface OptionsData {
