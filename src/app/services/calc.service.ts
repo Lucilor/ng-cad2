@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
+import {ObjectOf} from "@lucilor/utils";
 import {MessageService} from "@modules/message/services/message.service";
-import {ObjectOf} from "@utils";
 import {isEmpty} from "lodash";
 import {setGlobal} from "../app.common";
 import {Calc, CalcCircularReferenceError, CalcSelfReferenceError, Formulas} from "../utils/calc";

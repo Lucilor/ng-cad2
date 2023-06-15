@@ -1,5 +1,5 @@
-import {CadData} from "@cad-viewer";
-import {ObjectOf} from "@utils";
+import {CadData} from "@lucilor/cad-viewer";
+import {ObjectOf} from "@lucilor/utils";
 import {difference, isEmpty} from "lodash";
 import {splitOptions} from "../app.common";
 import {Calc} from "./calc";

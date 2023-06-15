@@ -1,6 +1,6 @@
 import {CadCollection} from "@app/cad/collections";
-import {CadData} from "@cad-viewer";
-import {ObjectOf} from "@utils";
+import {CadData} from "@lucilor/cad-viewer";
+import {ObjectOf} from "@lucilor/utils";
 
 export interface GetCadParams {
   collection: CadCollection;

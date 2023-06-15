@@ -3,11 +3,11 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgLoading} from "@app/app.common";
 import {getCadPreview} from "@app/cad/utils";
-import {CadData, CadViewerConfig} from "@cad-viewer";
+import {CadData, CadViewerConfig} from "@lucilor/cad-viewer";
+import {timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {timeout} from "@utils";
 import {Properties} from "csstype";
 import {cloneDeep} from "lodash";
 

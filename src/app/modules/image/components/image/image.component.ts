@@ -2,7 +2,7 @@ import {animate, style, transition, trigger} from "@angular/animations";
 import {coerceBooleanProperty} from "@angular/cdk/coercion";
 import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {SafeUrl} from "@angular/platform-browser";
-import {timeout} from "@utils";
+import {timeout} from "@lucilor/utils";
 
 const imgEmpty = "assets/images/empty.jpg";
 const imgLoading = "assets/images/loading.gif";

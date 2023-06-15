@@ -1,11 +1,11 @@
 import {Component, EventEmitter, OnInit} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialogRef} from "@angular/material/dialog";
-import {CadData} from "@cad-viewer";
+import {CadData} from "@lucilor/cad-viewer";
+import {ObjectOf, timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {CadSearchData} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
-import {ObjectOf, timeout} from "@utils";
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {getOpenDialogFunc} from "../dialog.common";

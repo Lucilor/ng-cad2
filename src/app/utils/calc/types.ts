@@ -1,4 +1,4 @@
-import {ObjectOf} from "@utils";
+import {ObjectOf} from "@lucilor/utils";
 
 export type Formulas = ObjectOf<string | number>;
 

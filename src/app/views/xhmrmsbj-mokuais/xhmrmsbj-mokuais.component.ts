@@ -3,12 +3,12 @@ import {ViewChild, ViewChildren} from "@angular/core";
 import {Component, Inject} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {Formulas} from "@app/utils/calc";
-import {CadData, toFixedTrim} from "@cad-viewer";
 import {getOpenDialogFunc} from "@components/dialogs/dialog.common";
 import {getMokuaiTitle, ZixuanpeijianMokuaiItem} from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {FormulaInfo} from "@components/formulas/formulas.component";
+import {CadData, toFixedTrim} from "@lucilor/cad-viewer";
+import {timeout} from "@lucilor/utils";
 import {CalcService} from "@services/calc.service";
-import {timeout} from "@utils";
 import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
 import csstype from "csstype";
 

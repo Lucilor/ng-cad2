@@ -1,8 +1,8 @@
 import {XiaodaohangStructure} from "@app/app.common";
-import {CadData} from "@cad-viewer";
+import {CadData} from "@lucilor/cad-viewer";
+import {ObjectOf} from "@lucilor/utils";
 import {BancaiList, TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/input.types";
-import {ObjectOf} from "@utils";
 import {isEqual} from "lodash";
 
 export interface MrbcjfzResponseData {

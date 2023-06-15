@@ -1,6 +1,6 @@
 import {AbstractControlOptions} from "@angular/forms";
 import {FloatLabelType} from "@angular/material/form-field";
-import {ObjectOf} from "@utils";
+import {ObjectOf} from "@lucilor/utils";
 import csstype from "csstype";
 import {Color, ColorWrap} from "ngx-color";
 

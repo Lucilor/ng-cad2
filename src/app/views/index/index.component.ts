@@ -1,13 +1,13 @@
 import {Component, OnInit} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
-import {CadData} from "@cad-viewer";
 import {environment} from "@env";
+import {CadData} from "@lucilor/cad-viewer";
+import {log} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {GetCadParams} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService, OpenCadOptions} from "@services/app-status.service";
-import {log} from "@utils";
 
 @Component({
   selector: "app-index",

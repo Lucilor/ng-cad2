@@ -15,6 +15,7 @@ import {
   validateCad,
   validateLines
 } from "@app/cad/utils";
+import {environment} from "@env";
 import {
   CadData,
   CadEntities,
@@ -28,12 +29,11 @@ import {
   generatePointsMap,
   PointsMap,
   setLinesLength
-} from "@cad-viewer";
-import {environment} from "@env";
+} from "@lucilor/cad-viewer";
+import {ObjectOf, timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf, timeout} from "@utils";
 import {clamp, differenceWith} from "lodash";
 import {BehaviorSubject, Subject} from "rxjs";
 import {local, ProjectConfig, timer} from "../app.common";

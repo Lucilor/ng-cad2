@@ -3,7 +3,7 @@ import {QueryList} from "@angular/core";
 import {ViewChildren} from "@angular/core";
 import {Input} from "@angular/core";
 import {Component} from "@angular/core";
-import {timeout} from "@utils";
+import {timeout} from "@lucilor/utils";
 import csstype from "csstype";
 import {lastValueFrom, Subject} from "rxjs";
 

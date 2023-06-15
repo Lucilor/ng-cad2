@@ -1,8 +1,8 @@
 import {SafeUrl} from "@angular/platform-browser";
 import {Formulas} from "@app/utils/calc";
-import {CadData} from "@cad-viewer";
 import {FormulaInfo} from "@components/formulas/formulas.component";
-import {ObjectOf} from "@utils";
+import {CadData} from "@lucilor/cad-viewer";
+import {ObjectOf} from "@lucilor/utils";
 import {Properties} from "csstype";
 
 export interface Order {

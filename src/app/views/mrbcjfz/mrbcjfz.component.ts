@@ -4,15 +4,15 @@ import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {setGlobal, XiaodaohangStructure} from "@app/app.common";
 import {getCadPreview} from "@app/cad/utils";
-import {CadData} from "@cad-viewer";
 import {openBancaiFormDialog} from "@components/dialogs/bancai-form-dialog/bancai-form-dialog.component";
+import {CadData} from "@lucilor/cad-viewer";
+import {timeout, WindowMessageManager} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList, TableUpdateParams} from "@modules/http/services/cad-data.service.types";
 import {InputComponent} from "@modules/input/components/input.component";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {timeout, WindowMessageManager} from "@utils";
 import {Properties} from "csstype";
 import {isEmpty, union} from "lodash";
 import {

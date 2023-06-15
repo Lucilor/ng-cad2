@@ -2,11 +2,12 @@ import {Component, HostListener} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {Router} from "@angular/router";
 import {local} from "@app/app.common";
-import {CadLine, CadLineLike, CadMtext, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@cad-viewer";
 import {openBbzhmkgzDialog} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
 import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
 import {openChangelogDialog} from "@components/dialogs/changelog/changelog.component";
+import {CadLine, CadLineLike, CadMtext, DEFAULT_LENGTH_TEXT_SIZE, sortLines} from "@lucilor/cad-viewer";
+import {ObjectOf, timeout} from "@lucilor/utils";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadConsoleService} from "@modules/cad-console/services/cad-console.service";
 import {CadDataService} from "@modules/http/services/cad-data.service";
@@ -15,7 +16,6 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppConfig, AppConfigService} from "@services/app-config.service";
 import {AppStatusService, OpenCadOptions} from "@services/app-status.service";
 import {CadStatusNormal} from "@services/cad-status";
-import {ObjectOf, timeout} from "@utils";
 import {map, startWith} from "rxjs";
 
 @Component({

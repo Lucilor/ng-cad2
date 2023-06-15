@@ -1,5 +1,5 @@
 import {Component, HostListener, OnInit} from "@angular/core";
-import {CadData} from "@cad-viewer";
+import {CadData} from "@lucilor/cad-viewer";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@services/app-config.service";

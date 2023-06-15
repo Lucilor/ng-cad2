@@ -2,15 +2,15 @@ import {Component, OnInit} from "@angular/core";
 import {setGlobal} from "@app/app.common";
 import {CadInfo, CadPortable, PeiheInfo, Slgs, SlgsInfo, SourceCadMap, XinghaoInfo} from "@app/cad/portable";
 import {isShiyitu, reservedDimNames, validateLines} from "@app/cad/utils";
-import {CadData, CadDimensionLinear, CadLayer, CadLineLike, CadMtext} from "@cad-viewer";
 import {ProgressBarStatus} from "@components/progress-bar/progress-bar.component";
 import {environment} from "@env";
+import {CadData, CadDimensionLinear, CadLayer, CadLineLike, CadMtext} from "@lucilor/cad-viewer";
+import {downloadByString, ObjectOf, ProgressBar} from "@lucilor/utils";
 import {Utils} from "@mixins/utils.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {downloadByString, ObjectOf, ProgressBar} from "@utils";
 import {difference} from "lodash";
 import md5 from "md5";
 

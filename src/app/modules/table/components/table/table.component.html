@@ -192,16 +192,16 @@
             <ng-container *ngSwitchCase="'image'">
               <div class="flex-column">
                 <app-image
-                *ngIf="getItemImgSmall(item, column)"
-                [src]="getItemImgSmall(item, column)"
-                [bigPicSrc]="getItemImgLarge(item, column)"
-              ></app-image>
-              <div class="btn-group" *ngIf="isColumnEditable({column, item, colIdx, rowIdx})">
-                <button mat-raised-button color="primary" (click)="uploadFile(colIdx, rowIdx, item)">上传</button>
-                <ng-container *ngIf="getItemImgSmall(item, column)">
-                  <button mat-raised-button color="accent" (click)="deleteFile(colIdx, rowIdx, item)">删除</button>
-                </ng-container>
-              </div>
+                  *ngIf="getItemImgSmall(item, column)"
+                  [src]="getItemImgSmall(item, column)"
+                  [bigPicSrc]="getItemImgLarge(item, column)"
+                ></app-image>
+                <div class="btn-group" *ngIf="isColumnEditable({column, item, colIdx, rowIdx})">
+                  <button mat-raised-button color="primary" (click)="uploadFile(colIdx, rowIdx, item)">上传</button>
+                  <ng-container *ngIf="getItemImgSmall(item, column)">
+                    <button mat-raised-button color="accent" (click)="deleteFile(colIdx, rowIdx, item)">删除</button>
+                  </ng-container>
+                </div>
               </div>
             </ng-container>
             <ng-container *ngSwitchCase="'cad'">

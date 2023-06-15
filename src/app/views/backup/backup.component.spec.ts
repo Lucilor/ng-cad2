@@ -8,7 +8,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatPaginatorModule} from "@angular/material/paginator";
-import {CadData} from "@cad-viewer";
+import {CadData} from "@lucilor/cad-viewer";
 import {HttpModule} from "@modules/http/http.module";
 import {ImageModule} from "@modules/image/image.module";
 import {MessageModule} from "@modules/message/message.module";

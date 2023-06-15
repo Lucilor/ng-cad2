@@ -3,9 +3,9 @@ import {FormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
+import {timeout} from "@lucilor/utils";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";
-import {timeout} from "@utils";
 import {InputComponent} from "./input.component";
 
 describe("InputComponent", () => {

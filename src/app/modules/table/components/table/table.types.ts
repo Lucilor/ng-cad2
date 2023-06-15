@@ -1,6 +1,6 @@
 import {MatTableDataSource} from "@angular/material/table";
+import {ObjectOf} from "@lucilor/utils";
 import {InputInfoOptions} from "@modules/input/components/input.types";
-import {ObjectOf} from "@utils";
 import csstype from "csstype";
 
 export interface TableRenderInfo<T> {

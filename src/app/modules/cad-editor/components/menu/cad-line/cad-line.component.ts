@@ -4,6 +4,7 @@ import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
 import {autoFixLine, validColors} from "@app/cad/utils";
+import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
 import {
   CadArc,
   CadEntities,
@@ -19,13 +20,12 @@ import {
   PointsMap,
   企料位置识别,
   变化方式
-} from "@cad-viewer";
-import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
+} from "@lucilor/cad-viewer";
+import {Point} from "@lucilor/utils";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService, CadPoints} from "@services/app-status.service";
 import {CadStatusCutLine, CadStatusDrawLine, CadStatusIntersection, CadStatusMoveLines} from "@services/cad-status";
-import {Point} from "@utils";
 import {debounce, uniq} from "lodash";
 import {ColorEvent} from "ngx-color";
 

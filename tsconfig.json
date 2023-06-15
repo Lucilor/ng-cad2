@@ -17,8 +17,8 @@
     "module": "ESNext",
     "lib": ["DOM", "ESNext"],
     "paths": {
-      "@utils": ["src/cad-viewer/src/utils/src"],
-      "@cad-viewer": ["src/cad-viewer/src"],
+      "@lucilor/utils": ["src/cad-viewer/src/utils/src"],
+      "@lucilor/cad-viewer": ["src/cad-viewer/src"],
       "@components/*": ["src/app/components/*"],
       "@decorators/*": ["src/app/decorators/*"],
       "@guards/*": ["src/app/guards/*"],
@@ -35,8 +35,8 @@
     "resolveJsonModule": true,
     "useDefineForClassFields": false
   },
-  "include": ["src/**/*", "./gulpfile.ts"],
-  "exclude": ["node_modules", "dist"],
+  "include": ["src", "./gulpfile.ts"],
+  "exclude": ["node_modules", "src/cad-viewer/dist", "src/cad-viewer/lib", "src/cad-viewer/src/utils/dist", "src/cad-viewer/src/utils/lib"],
   "angularCompilerOptions": {
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,

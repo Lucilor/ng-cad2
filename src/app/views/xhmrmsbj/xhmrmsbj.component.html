@@ -91,7 +91,9 @@
     <div class="flex-column">
       <div class="xinghao-info flex-column" *ngIf="xinghao">
         <ng-container *ngFor="let item of xinghao['默认板材'] | keyvalue : returnZero">
-          <div *ngIf="xinghao.getBancaiTitle(item.key)">{{ item.value["板材分组别名"] || item.key }}: {{ xinghao.getBancaiTitle(item.key) }}</div>
+          <div *ngIf="xinghao.getBancaiTitle(item.key)">
+            {{ item.value["板材分组别名"] || item.key }}: {{ xinghao.getBancaiTitle(item.key) }}
+          </div>
         </ng-container>
       </div>
       <mat-divider></mat-divider>

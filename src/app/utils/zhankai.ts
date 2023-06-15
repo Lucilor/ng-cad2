@@ -6,7 +6,7 @@
  *
  * Copyright (c) 2022 Your Company
  */
-import {ObjectOf} from "@utils";
+import {ObjectOf} from "@lucilor/utils";
 import {Cast2Number, Cast2String, toFixed} from "./calc";
 
 /* eslint-disable */

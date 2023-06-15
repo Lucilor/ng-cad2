@@ -4,8 +4,8 @@ import {AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, Qu
 import {MatMenuTrigger} from "@angular/material/menu";
 import {MatTabChangeEvent, MatTabGroup} from "@angular/material/tabs";
 import {setGlobal} from "@app/app.common";
-import {CadEventCallBack} from "@cad-viewer";
 import {Debounce} from "@decorators/debounce";
+import {CadEventCallBack} from "@lucilor/cad-viewer";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadConsoleComponent} from "@modules/cad-console/components/cad-console/cad-console.component";

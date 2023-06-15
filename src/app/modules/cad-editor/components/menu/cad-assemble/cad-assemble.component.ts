@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {setGlobal} from "@app/app.common";
-import {CadConnection, CadData, CadEntity, CadEventCallBack, CadLine, generatePointsMap, PointsMap} from "@cad-viewer";
+import {CadConnection, CadData, CadEntity, CadEventCallBack, CadLine, generatePointsMap, PointsMap} from "@lucilor/cad-viewer";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfig, AppConfigService} from "@services/app-config.service";

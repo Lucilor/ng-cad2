@@ -17,8 +17,8 @@ import {
   Defaults,
   FontStyle,
   setLinesLength
-} from "@cad-viewer";
-import {getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, Matrix, ObjectOf, Point, Rectangle} from "@utils";
+} from "@lucilor/cad-viewer";
+import {getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, Matrix, ObjectOf, Point, Rectangle} from "@lucilor/utils";
 import {Properties} from "csstype";
 import {cloneDeep, intersection} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";

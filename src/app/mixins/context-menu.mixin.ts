@@ -1,5 +1,5 @@
 import {MatMenuTrigger} from "@angular/material/menu";
-import {Constructor} from "@utils";
+import {Constructor} from "@lucilor/utils";
 
 // TODO: make it a module
 export const ContextMenu = <T extends Constructor>(base: T = class {} as T) =>

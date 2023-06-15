@@ -1,6 +1,6 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {CadData} from "@cad-viewer";
+import {CadData} from "@lucilor/cad-viewer";
 import {CadEditorModule} from "@modules/cad-editor/cad-editor.module";
 import {HttpModule} from "@modules/http/http.module";
 import {CadEditorDialogComponent, CadEditorInput} from "./cad-editor-dialog.component";

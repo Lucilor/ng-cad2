@@ -1,6 +1,6 @@
 import {Component, Inject} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {CadData} from "@cad-viewer";
+import {CadData} from "@lucilor/cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";

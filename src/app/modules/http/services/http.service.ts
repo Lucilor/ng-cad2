@@ -5,8 +5,8 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {publicKey, timer} from "@app/app.common";
 import {LoginFormData, openLoginFormDialog} from "@components/dialogs/login-form/login-form.component";
 import {environment} from "@env";
+import {ObjectOf, RSA} from "@lucilor/utils";
 import {MessageService} from "@modules/message/services/message.service";
-import {ObjectOf, RSA} from "@utils";
 import {lastValueFrom} from "rxjs";
 import {CustomResponse, HttpOptions, HttpServiceResponseError} from "./http.service.types";
 

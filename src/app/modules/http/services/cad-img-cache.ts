@@ -1,5 +1,5 @@
 import {local} from "@app/app.common";
-import {ObjectOf} from "@utils";
+import {ObjectOf} from "@lucilor/utils";
 
 export interface CadImgCacheItem {
   url: string;

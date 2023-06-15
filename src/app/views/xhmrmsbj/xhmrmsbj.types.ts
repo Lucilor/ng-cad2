@@ -6,8 +6,8 @@ import {
   ZixuanpeijianTypesInfo
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {MsbjPeizhishuju} from "@components/msbj-rects/msbj-rects.types";
+import {ObjectOf} from "@lucilor/utils";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
-import {ObjectOf} from "@utils";
 import {MsbjInfo} from "@views/msbj/msbj.types";
 
 export interface XhmrmsbjTableData extends TableDataBase {

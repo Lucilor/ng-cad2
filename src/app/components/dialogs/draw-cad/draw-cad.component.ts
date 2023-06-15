@@ -3,7 +3,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {CadCollection} from "@app/cad/collections";
 import {getCadPreview} from "@app/cad/utils";
-import {CadData} from "@cad-viewer";
+import {CadData} from "@lucilor/cad-viewer";
 import {AppStatusService} from "@services/app-status.service";
 import {getOpenDialogFunc} from "../dialog.common";
 

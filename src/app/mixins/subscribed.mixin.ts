@@ -1,5 +1,5 @@
 import {OnDestroy} from "@angular/core";
-import {Constructor} from "@utils";
+import {Constructor} from "@lucilor/utils";
 import {Observable, Observer, Subject, Subscription} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 

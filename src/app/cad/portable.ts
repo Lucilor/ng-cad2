@@ -16,8 +16,8 @@ import {
   generatePointsMap,
   setLinesLength,
   sortLines
-} from "@cad-viewer";
-import {keysOf, Line, ObjectOf, Point, Rectangle} from "@utils";
+} from "@lucilor/cad-viewer";
+import {keysOf, Line, ObjectOf, Point, Rectangle} from "@lucilor/utils";
 import {difference, intersection, isEqual} from "lodash";
 import {isShiyitu, showIntersections} from "./utils";
 

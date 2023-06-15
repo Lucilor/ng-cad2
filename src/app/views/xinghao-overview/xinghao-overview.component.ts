@@ -3,10 +3,10 @@ import {Component, OnInit} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {setGlobal} from "@app/app.common";
 import {NavsData, NavsDataNode, NavsResultItem} from "@components/dialogs/navs-dialog/navs-dialog.types";
+import {downloadByString, ObjectOf, selectFiles, WindowMessageManager} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {downloadByString, ObjectOf, selectFiles, WindowMessageManager} from "@utils";
 import {XinghaoOverviewData, XinghaoOverviewTableData} from "./xinghao-overview.types";
 
 @Component({

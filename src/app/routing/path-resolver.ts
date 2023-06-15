@@ -1,5 +1,5 @@
 import {ActivatedRouteSnapshot, Params, ResolveFn, RouterStateSnapshot} from "@angular/router";
-import {levenshtein} from "@utils";
+import {levenshtein} from "@lucilor/utils";
 import {routesInfo} from "./routes-info";
 
 export const pathResolver: ResolveFn<PathResolveData> = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {

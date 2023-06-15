@@ -10,7 +10,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {RouterTestingModule} from "@angular/router/testing";
-import {CadData, CadZhankai} from "@cad-viewer";
+import {CadData, CadZhankai} from "@lucilor/cad-viewer";
 import {DirectivesModule} from "@modules/directives/directives.module";
 import {HttpModule} from "@modules/http/http.module";
 import {MessageModule} from "@modules/message/message.module";

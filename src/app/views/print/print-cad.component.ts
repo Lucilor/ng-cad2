@@ -7,7 +7,6 @@ import {session, setGlobal, timer} from "@app/app.common";
 import {configCadDataForPrint, printCads, PrintCadsParams} from "@app/cad/print";
 import {getCadCalcZhankaiText} from "@app/cad/utils";
 import {toFixed} from "@app/utils/func";
-import {CadData, CadLine, CadMtext, CadViewer} from "@cad-viewer";
 import {openZixuanpeijianDialog} from "@components/dialogs/zixuanpeijian/zixuanpeijian.component";
 import {
   exportZixuanpeijian,
@@ -18,12 +17,13 @@ import {
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {Debounce} from "@decorators/debounce";
 import {environment} from "@env";
+import {CadData, CadLine, CadMtext, CadViewer} from "@lucilor/cad-viewer";
+import {downloadByUrl, ObjectOf, timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {downloadByUrl, ObjectOf, timeout} from "@utils";
 import {
   slideInDownOnEnterAnimation,
   slideInRightOnEnterAnimation,

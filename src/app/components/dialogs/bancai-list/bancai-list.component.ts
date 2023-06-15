@@ -2,10 +2,10 @@ import {Component, Inject} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {session, setGlobal} from "@app/app.common";
+import {timeout} from "@lucilor/utils";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
-import {timeout} from "@utils";
 import {debounce} from "lodash";
 import {getOpenDialogFunc} from "../dialog.common";
 

@@ -1,13 +1,13 @@
 import {AfterViewInit, Component, Input} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
-import {CadData, CadLine} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
+import {CadData, CadLine} from "@lucilor/cad-viewer";
+import {timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {timeout} from "@utils";
 import {cloneDeep, uniq} from "lodash";
 import {Klkwpz, KlkwpzItem, KlkwpzSource} from "./klkwpz";
 

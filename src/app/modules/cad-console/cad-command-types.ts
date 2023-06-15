@@ -1,4 +1,4 @@
-import {XOR} from "@utils";
+import {XOR} from "@lucilor/utils";
 
 /* eslint-disable @typescript-eslint/indent */
 export type Desc =

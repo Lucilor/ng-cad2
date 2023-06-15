@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
+import {importObject} from "@lucilor/utils";
 import {HttpModule} from "@modules/http/http.module";
 import {InputModule} from "@modules/input/input.module";
-import {importObject} from "@utils";
 import {NgScrollbarModule} from "ngx-scrollbar";
 import {defaultQiezhongkongItem, KailiaocanshuData, KlcsComponent, QiezhongkongItem} from "./klcs.component";
 

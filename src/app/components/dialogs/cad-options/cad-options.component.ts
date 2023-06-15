@@ -2,11 +2,11 @@ import {AfterViewInit, Component, Inject, ViewChild} from "@angular/core";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
-import {CadData} from "@cad-viewer";
+import {CadData} from "@lucilor/cad-viewer";
+import {ObjectOf} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {OptionsData, TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf} from "@utils";
 import {lastValueFrom} from "rxjs";
 import {getOpenDialogFunc} from "../dialog.common";
 

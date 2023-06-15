@@ -1,6 +1,6 @@
+import {ObjectOf} from "@lucilor/utils";
 import {TableRenderDataColumn} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
-import {ObjectOf} from "@utils";
 import {InputComponent} from "./input.component";
 import {InputInfo} from "./input.types";
 

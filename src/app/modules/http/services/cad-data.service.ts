@@ -1,8 +1,8 @@
 import {Injectable, Injector} from "@angular/core";
 import {getFilepathUrl} from "@app/app.common";
 import {CadCollection} from "@app/cad/collections";
-import {CadData} from "@cad-viewer";
-import {dataURLtoBlob, downloadByUrl, DownloadOptions, ObjectOf} from "@utils";
+import {CadData} from "@lucilor/cad-viewer";
+import {dataURLtoBlob, downloadByUrl, DownloadOptions, ObjectOf} from "@lucilor/utils";
 import {
   BancaiCad,
   BancaiList,

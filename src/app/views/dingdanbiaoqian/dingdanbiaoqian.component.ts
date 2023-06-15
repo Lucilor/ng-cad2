@@ -14,7 +14,6 @@ import {
   splitShuangxiangCad
 } from "@app/cad/utils";
 import {Formulas} from "@app/utils/calc";
-import {CadData, CadLine, CadViewer, CadViewerConfig, Defaults, generateLineTexts, setLinesLength} from "@cad-viewer";
 import {openEditFormulasDialog} from "@components/dialogs/edit-formulas-dialog/edit-formulas-dialog.component";
 import {
   calcZxpj,
@@ -26,12 +25,13 @@ import {
   ZixuanpeijianMokuaiItem
 } from "@components/dialogs/zixuanpeijian/zixuanpeijian.types";
 import {environment} from "@env";
+import {CadData, CadLine, CadViewer, CadViewerConfig, Defaults, generateLineTexts, setLinesLength} from "@lucilor/cad-viewer";
+import {ObjectOf, timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {CalcService} from "@services/calc.service";
-import {ObjectOf, timeout} from "@utils";
 import JsBarcode from "jsbarcode";
 import {cloneDeep, isEmpty} from "lodash";
 import {DateTime} from "luxon";

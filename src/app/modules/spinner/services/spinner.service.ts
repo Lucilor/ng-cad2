@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {ObjectOf} from "@utils";
+import {ObjectOf} from "@lucilor/utils";
 import {NgxUiLoaderService} from "ngx-ui-loader";
 import {BehaviorSubject} from "rxjs";
 

@@ -4,15 +4,15 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer} from "@angular/platform-browser";
 import {imgLoading, timer} from "@app/app.common";
 import {getCadPreview, setCadData} from "@app/cad/utils";
-import {CadData, CadEntities, CadEventCallBack} from "@cad-viewer";
 import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
+import {CadData, CadEntities, CadEventCallBack} from "@lucilor/cad-viewer";
+import {downloadByString, Matrix, ObjectOf, Point} from "@lucilor/utils";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
-import {downloadByString, Matrix, ObjectOf, Point} from "@utils";
 import {difference, isEqual} from "lodash";
 
 interface CadNode {

@@ -2,10 +2,10 @@ import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Component, ElementRef, Input, ViewChild} from "@angular/core";
 import {setGlobal} from "@app/app.common";
 import {CalcResult, Formulas} from "@app/utils/calc";
+import {timeout} from "@lucilor/utils";
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
-import {timeout} from "@utils";
 
 @Component({
   selector: "app-formulas-editor",

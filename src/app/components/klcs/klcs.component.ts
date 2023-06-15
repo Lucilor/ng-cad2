@@ -1,12 +1,12 @@
 import {AfterViewInit, Component, Input, OnInit, ViewChild} from "@angular/core";
 import {setGlobal} from "@app/app.common";
-import {CadData, CadLine} from "@cad-viewer";
+import {CadData, CadLine} from "@lucilor/cad-viewer";
+import {exportObject, importObject, timeout} from "@lucilor/utils";
 import {JsonEditorComponent, JsonEditorOptions} from "@maaxgr/ang-jsoneditor";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {exportObject, importObject, timeout} from "@utils";
 import {cloneDeep, isObject, uniq} from "lodash";
 
 @Component({

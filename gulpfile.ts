@@ -1,4 +1,4 @@
-import {ObjectOf} from "@utils";
+import {ObjectOf} from "@lucilor/utils";
 import axios from "axios";
 import child_process from "child_process";
 import FormData from "form-data";

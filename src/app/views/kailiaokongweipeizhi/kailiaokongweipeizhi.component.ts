@@ -3,10 +3,10 @@ import {ActivatedRoute} from "@angular/router";
 import {KlkwpzItem, KlkwpzSource} from "@components/klkwpz/klkwpz";
 import {KlkwpzComponent} from "@components/klkwpz/klkwpz.component";
 import {environment} from "@env";
+import {ObjectOf} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
-import {ObjectOf} from "@utils";
 
 @Component({
   selector: "app-kailiaokongweipeizhi",

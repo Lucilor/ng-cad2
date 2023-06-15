@@ -1,4 +1,4 @@
-import {ObjectOf, Rectangle} from "@utils";
+import {ObjectOf, Rectangle} from "@lucilor/utils";
 import {uniqueId} from "lodash";
 
 export interface MsbjRectInfoRaw {

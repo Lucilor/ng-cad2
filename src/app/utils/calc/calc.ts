@@ -1,4 +1,4 @@
-import {ObjectOf} from "@utils";
+import {ObjectOf} from "@lucilor/utils";
 import {isEmpty, trim, uniq} from "lodash";
 import {toFixed} from "../func";
 import {CalcCircularReferenceError, CalcSelfReferenceError} from "./errors";

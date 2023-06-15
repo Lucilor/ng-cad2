@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {ListRandom, ProgressBar} from "@utils";
+import {ListRandom, ProgressBar} from "@lucilor/utils";
 
 export type ProgressBarStatus = "hidden" | "progress" | "success" | "error";
 

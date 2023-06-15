@@ -2,11 +2,11 @@ import {Component, ElementRef, HostListener, Inject, OnInit, QueryList, ViewChil
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {DomSanitizer, SafeHtml, SafeResourceUrl} from "@angular/platform-browser";
 import {Debounce} from "@decorators/debounce";
+import {ObjectOf, timeout} from "@lucilor/utils";
 import {JsonEditorComponent, JsonEditorOptions} from "@maaxgr/ang-jsoneditor";
 import {InputComponent} from "@modules/input/components/input.component";
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
-import {ObjectOf, timeout} from "@utils";
 import {clamp, cloneDeep} from "lodash";
 import {QuillEditorComponent, QuillViewComponent} from "ngx-quill";
 import {ButtonMessageData, MessageData, MessageDataMap, MessageOutput} from "./message-types";

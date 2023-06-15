@@ -1,8 +1,8 @@
 import {Injectable} from "@angular/core";
 import {local} from "@app/app.common";
-import {CadViewerConfig} from "@cad-viewer";
+import {CadViewerConfig} from "@lucilor/cad-viewer";
+import {keysOf, ObjectOf} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
-import {keysOf, ObjectOf} from "@utils";
 import {cloneDeep, isEqual} from "lodash";
 import {BehaviorSubject} from "rxjs";
 

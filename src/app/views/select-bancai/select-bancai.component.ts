@@ -5,12 +5,12 @@ import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {getFilepathUrl, getFormControl, getFormGroup, replaceRemoteHost, TypedFormGroup} from "@app/app.common";
 import {openSelectBancaiCadsDialog} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
+import {downloadByUrl, ObjectOf} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiCad, BancaiList} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
-import {downloadByUrl, ObjectOf} from "@utils";
 import {DateTime} from "luxon";
 
 @Component({

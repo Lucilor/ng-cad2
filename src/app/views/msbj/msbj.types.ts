@@ -1,8 +1,8 @@
 import {Formulas} from "@app/utils/calc";
 import mokuaidaixiaoData from "@assets/testData/mokuaidaxiao.json";
 import {MsbjPeizhishuju, MsbjRectInfoRaw} from "@components/msbj-rects/msbj-rects.types";
+import {ObjectOf} from "@lucilor/utils";
 import {TableDataBase} from "@modules/http/services/cad-data.service.types";
-import {ObjectOf} from "@utils";
 
 export class MsbjInfo {
   vid: number;

@@ -4,6 +4,7 @@ import {Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {session, setGlobal} from "@app/app.common";
 import {environment} from "@env";
+import {timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {TableInsertParams, TableRenderData} from "@modules/http/services/cad-data.service.types";
 import {MessageService} from "@modules/message/services/message.service";
@@ -11,7 +12,6 @@ import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {TableComponent} from "@modules/table/components/table/table.component";
 import {RowButtonEvent, TableRenderInfo} from "@modules/table/components/table/table.types";
 import {convertTableRenderData, getInputInfosFromTableColumns} from "@modules/table/components/table/table.utils";
-import {timeout} from "@utils";
 import {mapKeys} from "lodash";
 import {DingdanBomCacheData, DingdanBomData} from "./bom-gongyiluxian.types";
 
@@ -118,7 +118,7 @@ export class BomGongyiluxianComponent implements OnInit {
           }
         }
       }
-      this.info.columns[0].sticky = true;
+      // this.info.columns[0].sticky = true;
       this.info.columns.splice(1, 0, {
         type: "button",
         field: "children",

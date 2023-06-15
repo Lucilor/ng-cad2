@@ -1,6 +1,6 @@
 import {Directive, HostListener, Input} from "@angular/core";
 import {replaceChars} from "@app/app.common";
-import {ObjectOf, timeout} from "@utils";
+import {ObjectOf, timeout} from "@lucilor/utils";
 
 @Directive({
   selector: "[appReplaceFullChars]"

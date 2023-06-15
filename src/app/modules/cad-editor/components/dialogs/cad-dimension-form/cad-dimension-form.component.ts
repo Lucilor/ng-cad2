@@ -3,8 +3,8 @@ import {AbstractControl, ValidatorFn} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {getFormControl, getFormGroup, TypedFormGroup} from "@app/app.common";
-import {CadDimensionLinear} from "@cad-viewer";
 import {getOpenDialogFunc} from "@components/dialogs/dialog.common";
+import {CadDimensionLinear} from "@lucilor/cad-viewer";
 import {FontStyle} from "src/cad-viewer/src/cad-data/cad-styles";
 
 export interface CadDimensionData {

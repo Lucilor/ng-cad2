@@ -1,6 +1,6 @@
 import {Component, Inject, ViewChild} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
-import {CadLine} from "@cad-viewer";
+import {CadLine} from "@lucilor/cad-viewer";
 import {CadConsoleService} from "@modules/cad-console/services/cad-console.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {TableComponent} from "@modules/table/components/table/table.component";

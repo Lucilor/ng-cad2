@@ -1,7 +1,7 @@
 import {Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild} from "@angular/core";
 import {setGlobal} from "@app/app.common";
 import {Debounce} from "@decorators/debounce";
-import {ObjectOf, Rectangle, timeout} from "@utils";
+import {ObjectOf, Rectangle, timeout} from "@lucilor/utils";
 import {Properties} from "csstype";
 import {cloneDeep, random} from "lodash";
 import {MsbjRectInfo, MsbjRectInfoRaw} from "./msbj-rects.types";

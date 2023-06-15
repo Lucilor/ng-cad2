@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild} from "@angular/core";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
-import {Point} from "@utils";
+import {Point} from "@lucilor/utils";
 import {clamp} from "lodash";
 
 export interface AnchorEvent {

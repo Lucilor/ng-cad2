@@ -1,6 +1,6 @@
 import {CommonModule} from "@angular/common";
 import {NgModule} from "@angular/core";
-import {ListRandom} from "@utils";
+import {ListRandom} from "@lucilor/utils";
 import {NgxUiLoaderModule, SPINNER} from "ngx-ui-loader";
 import {SpinnerComponent} from "./components/spinner/spinner.component";
 

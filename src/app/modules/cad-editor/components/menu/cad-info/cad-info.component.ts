@@ -2,6 +2,9 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {cadOptions} from "@app/cad/options";
 import {激光开料标记线类型} from "@app/cad/utils";
+import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
+import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
+import {openKlkwpzDialog} from "@components/dialogs/klkwpz-dialog/klkwpz-dialog.component";
 import {
   CadBaseLine,
   CadData,
@@ -13,10 +16,7 @@ import {
   intersectionKeys,
   intersectionKeysTranslate,
   sortLines
-} from "@cad-viewer";
-import {openCadListDialog} from "@components/dialogs/cad-list/cad-list.component";
-import {editCadZhankai} from "@components/dialogs/cad-zhankai/cad-zhankai.component";
-import {openKlkwpzDialog} from "@components/dialogs/klkwpz-dialog/klkwpz-dialog.component";
+} from "@lucilor/cad-viewer";
 import {Subscribed} from "@mixins/subscribed.mixin";
 import {Utils} from "@mixins/utils.mixin";
 import {InputInfo} from "@modules/input/components/input.types";

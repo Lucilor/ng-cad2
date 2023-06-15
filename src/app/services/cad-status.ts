@@ -1,4 +1,4 @@
-import {CadDimensionType} from "@cad-viewer";
+import {CadDimensionType} from "@lucilor/cad-viewer";
 
 export abstract class CadStatus {
   name = "None";

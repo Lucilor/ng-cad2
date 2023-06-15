@@ -5,7 +5,7 @@ import {ErrorStateMatcher} from "@angular/material/core";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
 import {joinOptions, splitOptions} from "@app/app.common";
-import {CadData, CadZhankai, FlipType} from "@cad-viewer";
+import {CadData, CadZhankai, FlipType} from "@lucilor/cad-viewer";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import {AppStatusService} from "@services/app-status.service";
