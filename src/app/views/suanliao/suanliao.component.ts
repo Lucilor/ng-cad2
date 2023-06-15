@@ -8,7 +8,6 @@ import {
   calcCadItemZhankai,
   calcZxpj,
   CalcZxpjOptions,
-  CalcZxpjResult,
   getStep1Data,
   Step1Data,
   updateMokuaiItems,
@@ -22,8 +21,14 @@ import {CadDataService} from "@modules/http/services/cad-data.service";
 import {MessageService} from "@modules/message/services/message.service";
 import {CalcService} from "@services/calc.service";
 import {MsbjData, MsbjInfo} from "@views/msbj/msbj.types";
-import {XhmrmsbjInfo} from "@views/xhmrmsbj/xhmrmsbj.types";
 import {cloneDeep, isEqual} from "lodash";
+import {
+  SuanliaoInput,
+  SuanliaoOutput,
+  SuanliaoOutputData,
+  根据输入值计算选中配件模块无依赖的公式结果输入,
+  根据输入值计算选中配件模块无依赖的公式结果输出
+} from "./suanliao.types";
 
 @Component({
   selector: "app-suanliao",
@@ -224,28 +229,29 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
     const result = {action: "getMsbjsEnd", data: this.msbjs};
     return result;
   }
-}
 
-export interface SuanliaoInput {
-  materialResult: Formulas;
-  gongshi: Formulas;
-  inputResult: Formulas;
-  型号选中门扇布局: ObjectOf<XhmrmsbjInfo>;
-  配件模块CAD: ObjectOf<ObjectOf<any[]>>;
-  门扇布局CAD: any[];
-  bujuNames: string[];
-  varNames: string[];
-  silent?: boolean;
-}
-
-export interface SuanliaoOutputData {
-  action: "suanliaoEnd";
-  data: SuanliaoOutput;
-}
-
-export interface SuanliaoOutput extends CalcZxpjResult {
-  materialResult: Formulas;
-  materialResultDiff: Formulas;
-  配件模块CAD: ZixuanpeijianMokuaiItem[];
-  门扇布局CAD: ZixuanpeijianCadItem[];
+  async 根据输入值计算选中配件模块无依赖的公式结果开始(data: 根据输入值计算选中配件模块无依赖的公式结果输入) {
+    const {vars, 型号选中门扇布局} = data;
+    const result: 根据输入值计算选中配件模块无依赖的公式结果输出 = {成功: {}, 失败: {}};
+    for (const menshanKey in 型号选中门扇布局) {
+      const {模块节点} = 型号选中门扇布局[menshanKey];
+      for (const {选中模块} of 模块节点 || []) {
+        if (!选中模块) {
+          continue;
+        }
+        const {type2, suanliaogongshi} = 选中模块;
+        const calcResult = await this.calc.calcFormulas(suanliaogongshi, vars);
+        const title = [menshanKey, type2].join("-");
+        if (calcResult) {
+          const {succeedTrim, error} = calcResult;
+          result.成功[title] = succeedTrim;
+          result.失败[title] = error;
+        } else {
+          result.成功[title] = {};
+          result.失败[title] = {...suanliaogongshi};
+        }
+      }
+    }
+    return {action: "根据输入值计算选中配件模块无依赖的公式结果结束", data: result};
+  }
 }

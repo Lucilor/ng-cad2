@@ -9,7 +9,7 @@ import {FormulaInfo} from "@components/formulas/formulas.component";
 import {CadData, toFixedTrim} from "@lucilor/cad-viewer";
 import {timeout} from "@lucilor/utils";
 import {CalcService} from "@services/calc.service";
-import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
+import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.types";
 import csstype from "csstype";
 
 @Component({

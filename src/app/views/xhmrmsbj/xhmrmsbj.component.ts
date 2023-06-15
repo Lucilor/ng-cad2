@@ -27,7 +27,7 @@ import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {isMrbcjfzInfoEmpty1, MrbcjfzInfo, MrbcjfzXinghao, MrbcjfzXinghaoInfo} from "@views/mrbcjfz/mrbcjfz.types";
 import {MsbjData, MsbjInfo, Node2rectData, node2rectDataMsdxKeys} from "@views/msbj/msbj.types";
-import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.component";
+import {SuanliaoInput, SuanliaoOutput} from "@views/suanliao/suanliao.types";
 import {openXhmrmsbjMokuaisDialog} from "@views/xhmrmsbj-mokuais/xhmrmsbj-mokuais.component";
 import {cloneDeep, intersection, isEqual} from "lodash";
 import md5 from "md5";
