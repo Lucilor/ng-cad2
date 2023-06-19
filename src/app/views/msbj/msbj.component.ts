@@ -3,7 +3,7 @@ import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgEmpty, setGlobal} from "@app/app.common";
-import {getCadPreview} from "@app/cad/utils";
+import {getCadPreview} from "@app/cad/cad-preview";
 import {GenerateRectsOpts, MsbjRectsComponent} from "@components/msbj-rects/msbj-rects.component";
 import {MsbjRectInfo} from "@components/msbj-rects/msbj-rects.types";
 import {environment} from "@env";

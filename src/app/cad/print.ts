@@ -22,9 +22,9 @@ import {getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, Matrix, Objec
 import {Properties} from "csstype";
 import {cloneDeep, intersection} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
+import {getCadPreview} from "./cad-preview";
 import {
   getCadCalcZhankaiText,
-  getCadPreview,
   getShuangxiangLineRects,
   maxLineLength,
   prepareCadViewer,

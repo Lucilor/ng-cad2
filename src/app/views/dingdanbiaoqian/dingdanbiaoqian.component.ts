@@ -3,10 +3,9 @@ import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgCadEmpty, imgEmpty, imgLoading, session, setGlobal} from "@app/app.common";
+import {CadPreviewParams, getCadPreview} from "@app/cad/cad-preview";
 import {configCadDataForPrint} from "@app/cad/print";
 import {
-  CadPreviewParams,
-  getCadPreview,
   getShuangxiangLineRects,
   setDimensionText,
   setShuangxiangLineRects,

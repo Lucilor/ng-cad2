@@ -20,7 +20,7 @@ import {MatSort} from "@angular/material/sort";
 import {MatTable, MatTableDataSource} from "@angular/material/table";
 import {MatTreeFlatDataSource, MatTreeFlattener} from "@angular/material/tree";
 import {getFilepathUrl, joinOptions, splitOptions} from "@app/app.common";
-import {getCadPreview} from "@app/cad/utils";
+import {getCadPreview} from "@app/cad/cad-preview";
 import {openCadEditorDialog} from "@components/dialogs/cad-editor-dialog/cad-editor-dialog.component";
 import {CadOptionsInput, openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
 import {CadData} from "@lucilor/cad-viewer";

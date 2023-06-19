@@ -3,18 +3,14 @@ import {Formulas} from "@app/utils/calc";
 import {getCalcZhankaiText} from "@app/utils/zhankai";
 import {environment} from "@env";
 import {
-  CadBaseLine,
   CadCircle,
   CadData,
   CadDimension,
-  CadImage,
-  CadJointPoint,
   CadLeader,
   CadLine,
   CadLineLike,
   CadMtext,
   CadViewer,
-  CadViewerConfig,
   findAllAdjacentLines,
   generatePointsMap,
   getLinesDistance,
@@ -23,10 +19,7 @@ import {
   sortLines
 } from "@lucilor/cad-viewer";
 import {DEFAULT_TOLERANCE, isBetween, Line, ObjectOf, Point} from "@lucilor/utils";
-import {CadDataService} from "@modules/http/services/cad-data.service";
 import {difference, intersection} from "lodash";
-import {CadCollection} from "./collections";
-import {cadOptions} from "./options";
 
 export const reservedDimNames = ["前板宽", "后板宽", "小前板宽", "小后板宽", "骨架宽", "小骨架宽", "骨架中空宽", "小骨架中空宽"];
 
@@ -34,155 +27,12 @@ export const maxLineLength = 130 as const;
 
 export const 激光开料标记线类型 = ["短直线", "直角三角形", "等腰三角形"] as const;
 
-export interface CadPreviewRawParams {
-  fixedLengthTextSize?: number;
-  fixedDimTextSize?: number;
-  fixedMtextSize?: number;
-  config?: Partial<CadViewerConfig>;
-  autoSize?: boolean;
-  maxZoom?: number;
-}
-export const getCadPreviewRaw = async (collection: CadCollection, data: CadData, params: CadPreviewRawParams = {}) => {
-  const shiyitu = isShiyitu(data);
-  const cad = new CadViewer(new CadData(), {
-    width: 300,
-    height: 150,
-    padding: [5],
-    backgroundColor: "rgba(0,0,0,0)",
-    hideLineLength: collection === "CADmuban" || shiyitu,
-    hideLineGongshi: true,
-    ...params.config
-  });
-  cad.appendTo(document.body);
-  await prepareCadViewer(cad);
-  cad.data = data.clone();
-  if (shiyitu) {
-    cad.data.entities.dimension = [];
-  }
-  if (collection !== "cad") {
-    cad.data.entities.mtext = [];
-  }
-  await cad.render();
-  if (params.autoSize) {
-    const {width, height} = cad.data.getBoundingRect();
-    cad.resize(width, height);
-  }
-  cad.center();
-
-  const {fixedLengthTextSize, fixedDimTextSize, fixedMtextSize} = params;
-  if ([fixedLengthTextSize, fixedDimTextSize, fixedMtextSize].some((size) => size !== undefined)) {
-    const resize = () => {
-      const zoom = cad.zoom();
-      const lengthTextSize = typeof fixedLengthTextSize === "number" ? fixedLengthTextSize / zoom : null;
-      const dimTextSize = typeof fixedDimTextSize === "number" ? fixedDimTextSize / zoom : null;
-      const mtextSize = typeof fixedMtextSize === "number" ? fixedMtextSize / zoom : null;
-      cad.data.entities.forEach((e) => {
-        if (e instanceof CadLineLike && lengthTextSize !== null) {
-          e.lengthTextSize = lengthTextSize;
-          e.children.mtext.forEach((mtext) => {
-            mtext.info.offset = [0, 0];
-          });
-          cad.render(e);
-        } else if (e instanceof CadDimension && dimTextSize !== null) {
-          e.setStyle({text: {size: dimTextSize}});
-          cad.render(e);
-        } else if (e instanceof CadMtext && mtextSize !== null) {
-          e.fontStyle.size = mtextSize;
-          cad.render(e);
-        }
-      });
-      cad.center();
-    };
-    resize();
-    resize();
-  }
-  const maxZoom = params.maxZoom;
-  if (typeof maxZoom === "number" && !isNaN(maxZoom) && cad.zoom() > maxZoom) {
-    cad.zoom(maxZoom);
-  }
-  return cad;
-};
-
-export interface CadPreviewParams extends CadPreviewRawParams {
-  http?: CadDataService;
-  useCache?: boolean;
-}
-export const getCadPreview = async (collection: CadCollection, data: CadData, params: CadPreviewParams = {}) => {
-  const {http, useCache} = params;
-  let url: string | null;
-  if (http) {
-    url = await http.getCadImg(data.id, useCache, {silent: true});
-    if (url) {
-      return url;
-    }
-  }
-  const cad = await getCadPreviewRaw(collection, data, params);
-  url = await cad.toDataURL();
-  if (http) {
-    http.setCadImg(data.id, url, {silent: true});
-  }
-  cad.destroy();
-  return url;
-};
-
 export const prepareCadViewer = async (cad: CadViewer) => {
   let url = "n/static/fonts/xhzj_sp.ttf";
   if (environment.production) {
     url = `${remoteHost}/${url}`;
   }
   await cad.loadFont({name: "喜鸿至简特殊字体", url});
-};
-
-export const setCadData = (data: CadData, project: string, collection: CadCollection) => {
-  if (data.baseLines.length < 1) {
-    data.baseLines.push(new CadBaseLine());
-  }
-  if (data.jointPoints.length < 1) {
-    data.jointPoints.push(new CadJointPoint());
-  }
-  if (data.算料单线长显示的最小长度 === null) {
-    data.算料单线长显示的最小长度 = project === "yhmy" ? 5 : 6;
-  }
-  if (isShiyitu(data) || collection === "luomatoucad") {
-    data.info.skipSuanliaodanZoom = true;
-  } else {
-    delete data.info.skipSuanliaodanZoom;
-  }
-  data.entities.forEach((e) => {
-    if (e.layer === "分页线") {
-      e.calcBoundingRect = false;
-    }
-  });
-
-  data.info.激光开料是否翻转 = !!data.info.激光开料是否翻转;
-  if (!Array.isArray(data.info.激光开料标记线)) {
-    data.info.激光开料标记线 = [];
-  }
-
-  const dataAny = data as ObjectOf<any>;
-  for (const key in cadOptions) {
-    if (!(key in dataAny)) {
-      console.warn("Key error: " + key);
-    }
-    if (typeof dataAny[key] !== "string") {
-      dataAny[key] = "";
-    }
-    const key2 = key as keyof typeof cadOptions;
-    const values = cadOptions[key2].values.map((v) => (typeof v === "string" ? v : v.value));
-    if (!values.includes(dataAny[key])) {
-      dataAny[key] = cadOptions[key2].defaultValue;
-    }
-  }
-  return data;
-};
-
-export const unsetCadData = (data: CadData) => {
-  if (!data.info.激光开料是否翻转) {
-    delete data.info.激光开料是否翻转;
-  }
-  if (data.info.激光开料标记线 && data.info.激光开料标记线.length < 1) {
-    delete data.info.激光开料标记线;
-  }
 };
 
 export interface ValidateResult {
@@ -354,48 +204,7 @@ export const suanliaodanZoomOut = (data: CadData) => {
     }
   }
   data.updateComponents();
-};
-
-export const updateCadPreviewImg = async (data: CadData, mode: "pre" | "post", disabled: boolean) => {
-  let cadImage = data.entities.image.find((e) => e.info.isPreviewImg);
-  if (disabled) {
-    if (cadImage) {
-      cadImage.remove();
-    }
-    return [];
-  }
-  if (!cadImage && mode === "pre") {
-    return [];
-  }
-
-  const finish = () => {
-    data.entities.forEach((e) => {
-      e.visible = false;
-      e.calcBoundingRectForce = e.calcBoundingRect;
-    });
-    if (cadImage) {
-      cadImage.calcBoundingRect = false;
-      cadImage.calcBoundingRectForce = false;
-      cadImage.visible = true;
-    }
-  };
-  if (cadImage) {
-    finish();
-    return [];
-  }
-  cadImage = new CadImage();
-  cadImage.layer = "预览图";
-  cadImage.info.isPreviewImg = true;
-  cadImage.anchor.set(0.5, 0.5);
-  const cad = await getCadPreviewRaw("cad", data, {autoSize: true, config: {padding: [0]}});
-  cadImage.url = await cad.toDataURL();
-  const {x, y} = cad.data.getBoundingRect();
-  cad.destroy();
-  cadImage.position.set(x, y);
-  data.entities.add(cadImage);
-
-  finish();
-  return [cadImage];
+  ``;
 };
 
 export const getCadTotalLength = (data: CadData) => {

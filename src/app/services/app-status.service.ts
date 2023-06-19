@@ -1,17 +1,15 @@
 import {Injectable} from "@angular/core";
 import {ActivatedRoute, Params, Router} from "@angular/router";
+import {setCadData, unsetCadData} from "@app/cad/cad-data-transform";
+import {getCadPreview, updateCadPreviewImg} from "@app/cad/cad-preview";
 import {CadCollection} from "@app/cad/collections";
 import {
-  getCadPreview,
   getCadTotalLength,
   prepareCadViewer,
   removeIntersections,
-  setCadData,
   showIntersections,
   suanliaodanZoomIn,
   suanliaodanZoomOut,
-  unsetCadData,
-  updateCadPreviewImg,
   validateCad,
   validateLines
 } from "@app/cad/utils";

@@ -3,7 +3,7 @@ import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
 import {imgLoading} from "@app/app.common";
-import {getCadPreview} from "@app/cad/utils";
+import {getCadPreview} from "@app/cad/cad-preview";
 import {CadData} from "@lucilor/cad-viewer";
 import {timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
