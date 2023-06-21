@@ -5,7 +5,7 @@ import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
 import {CadOptionsInput, openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
-import {levenshtein, ObjectOf, timeout} from "@lucilor/utils";
+import {ObjectOf, sortArrayByLevenshtein, timeout} from "@lucilor/utils";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import Color2 from "color";
@@ -253,28 +253,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
         options = options.slice(0, optionsDisplayLimit);
       }
       if (sortOptions) {
-        const cache: ObjectOf<number> = {};
-        const valueTarget = this.value;
-        const getLevenshtein = (option: (typeof options)[number]) => {
-          const values = getFilterValues(option);
-          let dMin = Infinity;
-          for (const v of values) {
-            let d: number;
-            if (v in cache) {
-              d = cache[v];
-            } else {
-              d = levenshtein(v, valueTarget);
-              cache[v] = d;
-            }
-            dMin = Math.min(dMin, d);
-          }
-          return dMin;
-        };
-        options.sort((a, b) => {
-          const d1 = getLevenshtein(a);
-          const d2 = getLevenshtein(b);
-          return d1 - d2;
-        });
+        sortArrayByLevenshtein(options, getFilterValues, this.value);
       }
       this.filteredOptions$.next(options);
     });
