@@ -14,7 +14,7 @@ export interface Dictionary<T> {
   [index: string]: T;
 }
 
-export const getCalcZhankaiText = (
+export function getCalcZhankaiText(
   CAD来源 = "算料",
   calcZhankai: any[],
   materialResult: ObjectOf<any>,
@@ -25,7 +25,7 @@ export const getCalcZhankaiText = (
   项目名: string,
   cadProps: ObjectOf<any>,
   overrideDic?: ObjectOf<any>
-) => {
+) {
   const getDicValue = (dic: ObjectOf<any>, key: string, fallback?: any) => {
     return dic?.[key] ?? fallback;
   };
@@ -37,6 +37,7 @@ export const getCalcZhankaiText = (
   const unresolver = (key: string, rawKey?: string | null) => {
     return materialResult?.[key] ?? "";
   };
+  type unresolverType = typeof unresolver;
 
   const trimUnnecessaryZero = (text: string, lianjiefu: string) => {
     text = text.replace("0" + lianjiefu + "0", "");
@@ -72,20 +73,26 @@ export const getCalcZhankaiText = (
     return lstrip(rstrip(str, char), char);
   };
 
-  const renderText = (text: string, replacement: ObjectOf<any>, alias = null, unresolver: any = null, deps: any[] | null = null) => {
-    const matches = [...text.matchAll(/#.*?#/g)].map((v) => v[0]);
-    const keyDeps = deps ?? [];
+  const renderText = (
+    text: string,
+    replacement: ObjectOf<any>,
+    alias = null,
+    unresolver: unresolverType | null = null,
+    deps: any[] | null = null
+  ) => {
+    let matches = [...text.matchAll(/#.*?#/g)].map((v) => v[0]);
+    let keyDeps = deps ?? [];
     // 将字符串模板替换成具体值
     for (const match of matches) {
-      const key = strip(match, "#");
+      let key = strip(match, "#");
       if (keyDeps.includes(key)) {
         // 循环引用
         return text;
       }
 
-      const newKeyDeps = [...keyDeps];
+      let newKeyDeps = [...keyDeps];
       newKeyDeps.push(key);
-      const rawKey = null;
+      let rawKey = null;
       let val = replacement[key] ?? null;
       if (val == null && unresolver) {
         val = unresolver(key, rawKey);
@@ -121,20 +128,20 @@ export const getCalcZhankaiText = (
       return "";
     }
 
-    const needShangxiaqieInfo = materialResult["开启"] == "内开";
+    let needShangxiaqieInfo = materialResult["开启"] == "内开";
 
-    const menshanshangqie = uniqueZhankai[4];
-    const menshanxiaqie = uniqueZhankai[5];
+    let menshanshangqie = uniqueZhankai[4];
+    let menshanxiaqie = uniqueZhankai[5];
 
-    const shangxiaqieReplacement = {
+    let shangxiaqieReplacement = {
       门扇上切: menshanshangqie,
       门扇下切: menshanxiaqie
     };
 
-    const hasShangqie = menshanshangqie != "-1" && menshanshangqie != "0";
-    const hasXiaqie = menshanxiaqie != "-1" && menshanxiaqie != "0";
+    let hasShangqie = menshanshangqie != "-1" && menshanshangqie != "0";
+    let hasXiaqie = menshanxiaqie != "-1" && menshanxiaqie != "0";
 
-    const needShangqieInfo = needShangxiaqieInfo && hasShangqie;
+    let needShangqieInfo = needShangxiaqieInfo && hasShangqie;
     let needXiaqieInfo = needShangxiaqieInfo && hasXiaqie;
 
     let shangqieInfo = getXiangmupeizhi("算料单上切信息", "门扇上切#门扇上切#");
@@ -145,14 +152,14 @@ export const getCalcZhankaiText = (
       xiaqieInfo = "下不缩短";
     }
 
-    const shangxiaqieOnOneLine = getXiangmupeizhi("算料单上下切信息显示为一行", "否") == "是";
+    let shangxiaqieOnOneLine = getXiangmupeizhi("算料单上下切信息显示为一行", "否") == "是";
     shangqieInfo = renderText(shangqieInfo, shangxiaqieReplacement);
     xiaqieInfo = renderText(xiaqieInfo, shangxiaqieReplacement);
 
     let shangxiaqieCombineInfo = "";
 
     if (shangxiaqieOnOneLine) {
-      const combineInfo = [];
+      let combineInfo = [];
       if (needShangqieInfo) {
         combineInfo.push(shangqieInfo);
       }
@@ -178,15 +185,16 @@ export const getCalcZhankaiText = (
 
   if (!overrideDic) overrideDic = {};
 
-  const name = getDicValue(cadProps, "name", "");
+  let name = getDicValue(cadProps, "name", "");
 
   // 算料单是否显示CAD名字
   let showCADName = getXiangmupeizhi("算料单显示CAD名字", "否") == "是";
   // showCADName = false
   showCADName = showCADName && !getDicValue(overrideDic, "forceNoCADName", false);
+  showCADName = true;
   let isQiliaoCAD = getDicValue(overrideDic, "isQiliao", false);
 
-  const menkuangchicunyaoqiu = unresolver("门框尺寸要求", null);
+  let menkuangchicunyaoqiu = unresolver("门框尺寸要求", null);
   let needKuanZhunque = menkuangchicunyaoqiu && nameIncludes(menkuangchicunyaoqiu, "宽准确");
   let needGaoZhunque = menkuangchicunyaoqiu && nameIncludes(menkuangchicunyaoqiu, "高准确");
 
@@ -197,23 +205,25 @@ export const getCalcZhankaiText = (
     needBaobianyanchang = false;
   }
 
-  const hasDikuang2 = getDicValue(overrideDic, "hasDikuang2", false);
-  const isDikuang2 = getDicValue(overrideDic, "dikuang2", false);
-  const dikuang2X = getDicValue(overrideDic, "dikuang2X", false);
-  const forceHideLength = getDicValue(overrideDic, "hideLength", false);
-  const 强制显示板材 = getDicValue(overrideDic, "强制显示板材", false);
+  let hasDikuang2 = getDicValue(overrideDic, "hasDikuang2", false);
+  let isDikuang2 = getDicValue(overrideDic, "dikuang2", false);
+  let dikuang2X = getDicValue(overrideDic, "dikuang2X", false);
+  let forceHideLength = getDicValue(overrideDic, "hideLength", false);
+  let 强制显示板材 = getDicValue(overrideDic, "强制显示板材", false);
 
   // 算料单CAD名字显示位置
-  const showCADNamePosition = getXiangmupeizhi("算料单CAD名字显示位置", "展开前面");
-  const showCADNameBeforeZhankai = showCADNamePosition == "展开前面";
-  const showCADNameAtLastLine = showCADNamePosition == "最后一行";
+  let showCADNamePosition = getXiangmupeizhi("算料单CAD名字显示位置", "展开前面");
+  showCADNamePosition = "第一行";
+  let showCADNameAtFirstLine = showCADNamePosition == "第一行";
+  let showCADNameBeforeZhankai = showCADNamePosition == "展开前面";
+  let showCADNameAtLastLine = showCADNamePosition == "最后一行";
   // showCADNameBeforeZhankai = false
   // showCADNameAtLastLine = true
   let zhankaiName = "";
 
   // 算料单是否显示展开宽
   // 如果CAD有自定义属性，算料单显示展开宽：是，就要显示
-  const showZhankaikuan = getXiangmupeizhi("算料单不显示展开宽", "否") == "否";
+  let showZhankaikuan = getXiangmupeizhi("算料单不显示展开宽", "否") == "否";
 
   needGaoZhunque = needGaoZhunque && CAD来源 == "横截面" && nameEquals(name, ["左包边", "右包边"]);
   needKuanZhunque = needKuanZhunque && CAD来源 == "纵截面" && nameEquals(name, ["顶包边"]);
@@ -226,10 +236,10 @@ export const getCalcZhankaiText = (
   let cadShowZhankaikuan = showZhankaikuan;
 
   const 自定义属性 = getDicValue(cadProps, "attributes", {});
-  const isXuniqiliao = getDicValue(自定义属性, "虚拟企料", "否") == "是";
+  let isXuniqiliao = getDicValue(自定义属性, "虚拟企料", "否") == "是";
 
   // 当为是时，只显示展开等信息，CAD、线长文字、标注、指定刨坑箭头等都不显示
-  const forceShowZhankaikuan = getDicValue(自定义属性, "算料单显示展开宽", "否") == "是";
+  let forceShowZhankaikuan = getDicValue(自定义属性, "算料单显示展开宽", "否") == "是";
   if (forceShowZhankaikuan) {
     cadShowZhankaikuan = true;
   }
@@ -267,10 +277,10 @@ export const getCalcZhankaiText = (
   }
 
   // 写入色卡、算料
-  const isAssembly = getDicValue(overrideDic, "assembly", false);
+  let isAssembly = getDicValue(overrideDic, "assembly", false);
 
   // 中板压花板，展开的名字和CAD显示名字都改成二级的名字
-  const isZhongban = nameIncludes(getDicValue(自定义属性, "是横板", ""), "中板");
+  let isZhongban = nameIncludes(getDicValue(自定义属性, "是横板", ""), "中板");
   let isZhongbanyahuaban = false;
   let zhongbanyahuaban = "";
   if (isZhongban) {
@@ -295,7 +305,7 @@ export const getCalcZhankaiText = (
   // "展开高+板材",
   // "都不显示"
   const 算料单显示 = getDicValue(cadProps, "suanliaodanxianshi", "尺寸+板材");
-  const suanliaodanxianshi = 算料单显示.split("+");
+  let suanliaodanxianshi = 算料单显示.split("+");
 
   let isNewXianshiConfig = true;
   if (nameEquals("尺寸", suanliaodanxianshi) || (suanliaodanxianshi.length == 1 && "板材" == suanliaodanxianshi[0])) {
@@ -337,7 +347,7 @@ export const getCalcZhankaiText = (
   }
 
   for (const exp of suanliaodanxianshi) {
-    const match = exp.match("^(?:不显示|不需要|不要)(.*)");
+    let match = exp.match("^(?:不显示|不需要|不要)(.*)");
     if (match) {
       if (exp == "名字") {
         suanliaodanNeedName = false;
@@ -377,7 +387,7 @@ export const getCalcZhankaiText = (
     suanliaodanNeedName = true;
   }
 
-  const isSuanliaoCAD = CAD来源 == "算料";
+  let isSuanliaoCAD = CAD来源 == "算料";
   isQiliaoCAD = CAD来源 == "横截面" && nameIncludes("企料", name);
 
   let hideBancaiIfSameWithMenshanbancai = false;
@@ -390,16 +400,16 @@ export const getCalcZhankaiText = (
   ) {
     hideBancaiIfSameWithMenshanbancai = true;
 
-    const menshanbancai = materialResult?.["门扇板材"];
-    const menshanbancaihoudu = materialResult?.["门扇板材厚度"];
-    const menshanbancaicailiao = materialResult?.["门扇板材材料"];
+    let menshanbancai = materialResult?.["门扇板材"];
+    let menshanbancaihoudu = materialResult?.["门扇板材厚度"];
+    let menshanbancaicailiao = materialResult?.["门扇板材材料"];
 
-    const cadbancai = seka;
-    const cadbancaihoudu = 板材厚度;
-    const cadbancaicailiao = 材料;
+    let cadbancai = seka;
+    let cadbancaihoudu = 板材厚度;
+    let cadbancaicailiao = 材料;
 
-    const menshanbancaiText = menshanbancai + menshanbancaihoudu + menshanbancaicailiao;
-    const cadbancaiText = cadbancai + cadbancaihoudu + cadbancaicailiao;
+    let menshanbancaiText = menshanbancai + menshanbancaihoudu + menshanbancaicailiao;
+    let cadbancaiText = cadbancai + cadbancaihoudu + cadbancaicailiao;
 
     // CAD的板材和门扇板材完全一样则不显示
     if (cadbancaiText == menshanbancaiText) {
@@ -417,42 +427,42 @@ export const getCalcZhankaiText = (
   }
 
   // 算料
-  const hideDefaultZhankaikuan = getXiangmupeizhi("算料单不显示默认展开宽ceil(总长)+0", "") == "是";
+  let hideDefaultZhankaikuan = getXiangmupeizhi("算料单不显示默认展开宽ceil(总长)+0", "") == "是";
 
-  const additionZhankai = [];
+  let additionZhankai = [];
 
   for (const zhankai of calcZhankai) {
     additionZhankai.push(zhankai);
   }
 
   // 展开数合并，若名字、宽、高一致则数量叠加
-  const uniqueZhankai: any = [];
+  let uniqueZhankai: any[] = [];
   for (const zhankai of additionZhankai) {
-    const name = zhankai["name"];
-    const isDefaultZhankaikuan = !!zhankai["默认展开宽"];
+    let name = zhankai["name"];
+    let isDefaultZhankaikuan = !!zhankai["默认展开宽"];
     let width = "";
     if (zhankai?.["idealW"]) {
       width = zhankai["idealW"];
     } else {
       width = toFixed(zhankai["calcW"], 2);
     }
-    const height = toFixed(zhankai["calcH"], 2);
+    let height = toFixed(zhankai["calcH"], 2);
     if (!zhankai?.["num"]) {
       throw new Error("CAD：" + name + "，展开结构有问题，缺少num字段");
     }
     if (zhankai["num"] == null) {
       throw new Error("CAD：" + name + "，展开有问题，数量算出来为NULL");
     }
-    const num = toFixed(zhankai["num"], 0);
-    const shangqie = toFixed(zhankai["上切"] ?? 0, 0);
-    const xiaqie = toFixed(zhankai["下切"] ?? 0, 0);
-    const shangzhe = toFixed(zhankai["上折附加值"] ?? 0, 0);
-    const xiazhe = toFixed(zhankai["下折附加值"] ?? 0, 0);
+    let num = toFixed(zhankai["num"], 0);
+    let shangqie = toFixed(zhankai["上切"] ?? 0, 0);
+    let xiaqie = toFixed(zhankai["下切"] ?? 0, 0);
+    let shangzhe = toFixed(zhankai["上折附加值"] ?? 0, 0);
+    let xiazhe = toFixed(zhankai["下折附加值"] ?? 0, 0);
 
     // 看下有没有一样的展开数
     let hasSame = false;
     for (const uZhankai of uniqueZhankai) {
-      const 展开合并规则考虑名字 = getXiangmupeizhi("展开合并规则考虑名字", "否") == "是";
+      let 展开合并规则考虑名字 = getXiangmupeizhi("展开合并规则考虑名字", "否") == "是";
       // if (uZhankai[0] == name && uZhankai[1] == width && uZhankai[2] == height) {
       let isTheSame = false;
       if (展开合并规则考虑名字) {
@@ -477,7 +487,7 @@ export const getCalcZhankaiText = (
   }
 
   // 是否有多个不一样的展开
-  const multiZhankai = uniqueZhankai.length > 1;
+  let multiZhankai = uniqueZhankai.length > 1;
 
   if (isZhongbanyahuaban) {
     for (const uZhankai of uniqueZhankai) {
@@ -487,7 +497,7 @@ export const getCalcZhankaiText = (
   }
 
   const 算料处理 = getDicValue(cadProps, "suanliaochuli", "");
-  const 显示展开 = !!nameIncludes(算料处理, "显示展开");
+  let 显示展开 = !!nameIncludes(算料处理, "显示展开");
 
   let needSuanliao = true;
   if (!suanliaodanNeedZhankaikuan && !suanliaodanNeedZhankaigao) {
@@ -549,17 +559,17 @@ export const getCalcZhankaiText = (
     needBancaihouduInfo = false;
   }
 
-  const needPaokeng = getDicValue(cadProps, "kailiaoshipaokeng", false);
+  let needPaokeng = getDicValue(cadProps, "kailiaoshipaokeng", false);
 
-  const zhidingweizhipaokeng = getDicValue(cadProps, "zhidingweizhipaokeng", null);
+  let zhidingweizhipaokeng = getDicValue(cadProps, "zhidingweizhipaokeng", null);
 
   // 箭头、箭头+箭头旁文字、虚线圆、虚线圆+旁边文字
-  const 指定位置刨坑表示方法 = getXiangmupeizhi("指定位置刨坑表示方法", "箭头");
+  let 指定位置刨坑表示方法 = getXiangmupeizhi("指定位置刨坑表示方法", "箭头");
   // 只有当表示方式为箭头时（全刨坑也要），才额外显示文字
-  const paokengIsJiantouStyle = 指定位置刨坑表示方法 == "箭头";
+  let paokengIsJiantouStyle = 指定位置刨坑表示方法 == "箭头";
 
   let paokengInfo = "";
-  const paokengInfoPrefix = ",";
+  let paokengInfoPrefix = ",";
 
   if (paokengIsJiantouStyle && zhidingweizhipaokeng && zhidingweizhipaokeng.length != 0) {
     paokengInfo = paokengInfoPrefix + "刨坑(箭头)";
@@ -576,7 +586,7 @@ export const getCalcZhankaiText = (
   // 当只有一个展开时，刨坑信息接到展开后面
   let paokengInfoAfterZhankai = false;
 
-  const 刨坑换行配置 = getXiangmupeizhi("算料单刨坑信息换行显示", "否");
+  let 刨坑换行配置 = getXiangmupeizhi("算料单刨坑信息换行显示", "否");
   let paokengInfoOnullLine = 刨坑换行配置 == "是";
   if (isQiliaoCAD || 刨坑换行配置 == "强制") {
     paokengInfoOnullLine = true;
@@ -592,9 +602,9 @@ export const getCalcZhankaiText = (
     paokengInfo = "\n" + paokengInfo.trim();
   }
 
-  const hasPaokeng = paokengInfo != "";
+  let hasPaokeng = paokengInfo != "";
 
-  const 板材厚度前缀 = getXiangmupeizhi("算料单CAD板材厚度前缀", "");
+  let 板材厚度前缀 = getXiangmupeizhi("算料单CAD板材厚度前缀", "");
 
   let bancaihouduInfo = "";
 
@@ -619,7 +629,7 @@ export const getCalcZhankaiText = (
     sekaText = bancaihouduInfo + seka + paokengInfo;
   }
 
-  const suanliaoCADBancaiInNewLine = getXiangmupeizhi("算料单算料CAD板材厚度换行显示", "") == "是";
+  let suanliaoCADBancaiInNewLine = getXiangmupeizhi("算料单算料CAD板材厚度换行显示", "") == "是";
 
   if (
     (项目名 == "sd" || 项目名 == "sd2" || 项目名 == "yhmy" || suanliaoCADBancaiInNewLine) &&
@@ -632,16 +642,16 @@ export const getCalcZhankaiText = (
     }
   }
 
-  const showCADBancaiwenlifangxiangInfo = getXiangmupeizhi("算料单显示CAD板材纹理方向信息", "否") == "是";
+  let showCADBancaiwenlifangxiangInfo = getXiangmupeizhi("算料单显示CAD板材纹理方向信息", "否") == "是";
   let bancaiwenlifangxiangInfo = "";
   if (showCADBancaiwenlifangxiangInfo) {
-    const CADBancaiwenlifangxiang = getDicValue(cadProps, "bancaiwenlifangxiang", "垂直");
+    let CADBancaiwenlifangxiang = getDicValue(cadProps, "bancaiwenlifangxiang", "垂直");
     if (CADBancaiwenlifangxiang == "水平") {
       bancaiwenlifangxiangInfo = "横纹";
     }
   }
 
-  const 算料特殊要求 = getDicValue(cadProps, "算料特殊要求", "");
+  let 算料特殊要求 = getDicValue(cadProps, "算料特殊要求", "");
 
   // 只有一个展开uniqueZhankai的CAD才能这样取，不然只能每个展开单独分开处理
   let needShangxiaqieInfo = materialResult["开启"] == "内开" && !multiZhankai;
@@ -668,18 +678,18 @@ export const getCalcZhankaiText = (
     }
   }
 
-  const xuyaoshangqie = getDicValue(自定义属性, "需要上切", "否") == "是";
-  const xuyaoxiaqie = getDicValue(自定义属性, "需要下切", "否") == "是";
-  const xuyaoshangsuoduan = getDicValue(自定义属性, "需要上缩短", "否") == "是";
-  const xuyaoxiasuoduan = getDicValue(自定义属性, "需要下缩短", "否") == "是";
+  let xuyaoshangqie = getDicValue(自定义属性, "需要上切", "否") == "是";
+  let xuyaoxiaqie = getDicValue(自定义属性, "需要下切", "否") == "是";
+  let xuyaoshangsuoduan = getDicValue(自定义属性, "需要上缩短", "否") == "是";
+  let xuyaoxiasuoduan = getDicValue(自定义属性, "需要下缩短", "否") == "是";
 
-  const needShangqieInfo = needShangxiaqieInfo && (xuyaoshangqie || xuyaoshangsuoduan || menshanshangqieInZhankai);
-  const needXiaqieInfo = needShangxiaqieInfo && (xuyaoxiaqie || xuyaoxiasuoduan || menshansxiaqieInZhankai);
+  let needShangqieInfo = needShangxiaqieInfo && (xuyaoshangqie || xuyaoshangsuoduan || menshanshangqieInZhankai);
+  let needXiaqieInfo = needShangxiaqieInfo && (xuyaoxiaqie || xuyaoxiasuoduan || menshansxiaqieInZhankai);
   // needShangqieInfo = true
   // needXiaqieInfo = true
-  const menshanshangqie = materialResult["门扇上切"];
-  const menshanxiaqie = materialResult["门扇下切"];
-  const hasShangqie = menshanshangqie && menshanshangqie != "0";
+  let menshanshangqie = materialResult["门扇上切"];
+  let menshanxiaqie = materialResult["门扇下切"];
+  let hasShangqie = menshanshangqie && menshanshangqie != "0";
   let hasXiaqie = menshanxiaqie && menshanxiaqie != "0";
   let shangqieInfo = getXiangmupeizhi("算料单上切信息", "上缩短#门扇上切#");
   if (项目名 != "sd" && 项目名 != "sd2" && xuyaoshangqie) {
@@ -705,7 +715,7 @@ export const getCalcZhankaiText = (
       xiaqieInfo = "下不缩短";
     }
   }
-  const shangxiaqieOnullLine = getXiangmupeizhi("算料单上下切信息显示为一行", "否") == "是";
+  let shangxiaqieOnullLine = getXiangmupeizhi("算料单上下切信息显示为一行", "否") == "是";
   shangqieInfo = renderText(shangqieInfo, {}, null, unresolver);
   xiaqieInfo = renderText(xiaqieInfo, {}, null, unresolver);
   if (nameIncludes("分体企料", name)) {
@@ -718,7 +728,7 @@ export const getCalcZhankaiText = (
   }
   let shangxiaqieCombineInfo = "";
   if (shangxiaqieOnullLine) {
-    const combineInfo = [];
+    let combineInfo = [];
     if (needShangqieInfo && hasShangqie) {
       combineInfo.push(shangqieInfo);
     }
@@ -768,11 +778,11 @@ export const getCalcZhankaiText = (
     val = "";
     if (nameIncludes("双包边", name) && getDicValue(cadProps, "zhankaiArr", "")) {
     } else {
-      let firstZhankai: any = null;
+      let firstZhankai = null;
       let calcW = "";
       let calcH = "";
-      let shangzhe = "";
-      let xiazhe = "";
+      let shangzhe = 0;
+      let xiazhe = 0;
       let shuliang = "";
       let isDefaultZhankaikuan = false;
       if (uniqueZhankai.length > 0) {
@@ -782,15 +792,15 @@ export const getCalcZhankaiText = (
         calcH = Cast2String(firstZhankai[2]);
         shuliang = Cast2String(firstZhankai[3]);
         isDefaultZhankaikuan = firstZhankai[6];
-        shangzhe = firstZhankai[7];
-        xiazhe = firstZhankai[8];
+        shangzhe = Cast2Number(firstZhankai[7] || 0);
+        xiazhe = Cast2Number(firstZhankai[8] || 0);
       }
       if (calcW == "0") {
         calcW = "";
       }
       let shuangxiangzhewanfujiazhiInfo = "";
       if (shangzhe || xiazhe) {
-        shuangxiangzhewanfujiazhiInfo = "+" + toFixed(Cast2Number(shangzhe || 0) + Cast2Number(xiazhe || 0), 2);
+        shuangxiangzhewanfujiazhiInfo = "+" + toFixed(shangzhe + xiazhe, 2);
       }
 
       if (!suanliaodanNeedZhankaikuan) {
@@ -864,8 +874,8 @@ export const getCalcZhankaiText = (
         for (const aZhankai of uniqueZhankai) {
           let w = Cast2String(aZhankai[1]);
           let h = Cast2String(aZhankai[2]);
-          const shangzhe = aZhankai[7];
-          const xiazhe = aZhankai[8];
+          let shangzhe = aZhankai[7];
+          let xiazhe = aZhankai[8];
           let shuangxiangzhewanfujiazhiInfo = "";
           if (shangzhe || xiazhe) {
             shuangxiangzhewanfujiazhiInfo = "+" + toFixed(Cast2Number(shangzhe || 0) + Cast2Number(xiazhe || 0), 2);
@@ -951,7 +961,7 @@ export const getCalcZhankaiText = (
 
     if (nameIncludes("底框", name) && !isAssembly) {
       if (!hasDikuang2 || !nameIncludes(name, "内")) {
-        const dikuangxiamenkuangjiachang = renderText("#地框下门框加长#", {}, null, unresolver);
+        let dikuangxiamenkuangjiachang = renderText("#地框下门框加长#", {}, null, unresolver);
         if (dikuangxiamenkuangjiachang && dikuangxiamenkuangjiachang != "0") {
           val += "\n" + "地框下门框加长" + dikuangxiamenkuangjiachang + "mm";
         }
@@ -991,6 +1001,13 @@ export const getCalcZhankaiText = (
     combineText += "\n包边延长：" + baobianyanchang;
   }
 
+  if (showCADNameAtFirstLine) {
+    zhankaiName = zhankaiName.replace(/\:$/, "");
+    if (zhankaiName != "") {
+      combineText = zhankaiName + "\n" + combineText;
+    }
+  }
+
   combineText = trimUnnecessaryZero(combineText, zhankailianjiefu);
   combineText = combineText.replaceAll(/\\n+/g, "\n");
   combineText = combineText.replaceAll("\n" + paokengInfoPrefix, "\n");
@@ -1013,7 +1030,7 @@ export const getCalcZhankaiText = (
   }
 
   return combineText;
-};
+}
 
 export const nameEquals = <T = string>(name: T, equals: T | T[] | Dictionary<T[]>, caseInensitive?: boolean): T | null => {
   if (!name || !equals) {

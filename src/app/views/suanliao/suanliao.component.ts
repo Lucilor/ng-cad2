@@ -244,8 +244,15 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
         const title = [menshanKey, type2].join("-");
         if (calcResult) {
           const {succeedTrim, error} = calcResult;
-          result.成功[title] = succeedTrim;
-          result.失败[title] = error;
+          result.成功[title] = {...succeedTrim};
+          result.失败[title] = {...error};
+          for (const key of Object.keys(result.成功[title])) {
+            const value = result.成功[title][key];
+            if (typeof value === "string" && value.includes("#")) {
+              delete result.成功[title][key];
+              result.失败[title][key] = value;
+            }
+          }
         } else {
           result.成功[title] = {};
           result.失败[title] = {...suanliaogongshi};
