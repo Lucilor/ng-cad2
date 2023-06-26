@@ -376,7 +376,7 @@ export class MrbcjfzComponent implements OnInit {
         v.validateValue();
         const errorMag3 = v.errorMsg;
         if (errorMag3 && !errorMsg2.includes(errorMag3)) {
-          errorMsg2.push(errorMag3);
+          errorMsg2.push(v.info.label + errorMag3);
         }
       });
       if (errorMsg2.length > 0) {

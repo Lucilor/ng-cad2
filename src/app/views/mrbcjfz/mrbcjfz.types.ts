@@ -60,8 +60,8 @@ export class MrbcjfzXinghaoInfo {
                 return {required: true};
               }
             }
-            if (val && !val.endsWith("板材")) {
-              return {pattern: "板材分组别名必须以“板材”结尾"};
+            if (val && !/板材|颜色$/.test(val)) {
+              return {pattern: "必须以“板材”或“颜色”结尾"};
             }
             return null;
           }
