@@ -11,6 +11,7 @@ import {BancaiCad, BancaiList} from "@modules/http/services/cad-data.service.typ
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
+import {cloneDeep} from "lodash";
 import {DateTime} from "luxon";
 
 @Component({
@@ -75,8 +76,13 @@ export class SelectBancaiComponent implements OnInit {
       const result = await this.dataService.getBancais(this.table, this.codes);
       this.spinner.hide(this.loaderId);
       if (result) {
+        const bancaiZidingyi = result.bancaiList.find((v) => v.mingzi === "自定义");
         result.bancaiCads.forEach((cad) => {
-          const list = result.bancaiList.find((v) => v.mingzi === cad.bancai.mingzi);
+          let list = result.bancaiList.find((v) => v.mingzi === cad.bancai.mingzi);
+          if (!list && bancaiZidingyi) {
+            list = cloneDeep(bancaiZidingyi);
+            list.mingzi = cad.bancai.mingzi;
+          }
           if (list) {
             this.bancaiList[list.mingzi] = list;
             if (!cad.bancai.cailiao) {
