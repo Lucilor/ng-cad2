@@ -29,6 +29,7 @@
               <app-image class="cad-preview" [src]="item.img"></app-image>
               <div class="title center">
                 {{ item.data.name }}
+                <button mat-icon-button color="primary" appClickStop (click)="openCad(item)"><mat-icon>open_in_new</mat-icon></button>
               </div>
             </div>
           </ng-container>
@@ -81,7 +82,7 @@
               <app-image class="cad-preview" [src]="item.img"></app-image>
               <div class="title center">
                 {{ item.data.name }}
-                <button mat-icon-button color="primary" (click)="openCad(item)"><mat-icon>open_in_new</mat-icon></button>
+                <button mat-icon-button color="primary" appClickStop (click)="openCad(item)"><mat-icon>open_in_new</mat-icon></button>
               </div>
             </div>
           </ng-container>
