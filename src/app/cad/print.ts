@@ -18,8 +18,9 @@ import {
   FontStyle,
   setLinesLength
 } from "@lucilor/cad-viewer";
-import {getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, Matrix, ObjectOf, Point, Rectangle} from "@lucilor/utils";
+import {getDPI, getImageDataUrl, isBetween, isNearZero, loadImage, Matrix, ObjectOf, Point, Rectangle, timeout} from "@lucilor/utils";
 import {Properties} from "csstype";
+import JsBarcode from "jsbarcode";
 import {cloneDeep, intersection} from "lodash";
 import {createPdf} from "pdfmake/build/pdfmake";
 import {getCadPreview} from "./cad-preview";
@@ -541,8 +542,8 @@ const getUnfoldCadViewers = async (
   i: number,
   unfold: NonNullable<PrintCadsParamsOrder["unfold"]>
 ) => {
-  const rowNumMax = 6;
-  const rowNumMin = 4;
+  const rowNumMax = 5;
+  const rowNumMin = 3;
   const colNum = 3;
   const maxSize = rowNumMax * colNum;
   if (unfold.length > maxSize) {
@@ -559,7 +560,7 @@ const getUnfoldCadViewers = async (
 
   const [width, height] = size;
   const unfoldCad = new CadData();
-  const unfoldCadViewer = new CadViewer(unfoldCad, {...config, hideLineLength: false}).appendTo(document.body);
+  const unfoldCadViewer = new CadViewer(unfoldCad, {...config, hideLineLength: false, hideDimensions: true}).appendTo(document.body);
   const topLine = new CadLine({start: [0, height], end: [width, height]});
   const rightLine = new CadLine({start: [width, height], end: [width, 0]});
   const bottomLine = new CadLine({start: [width, 0], end: [0, 0]});
@@ -603,17 +604,70 @@ const getUnfoldCadViewers = async (
   const materialResult = params.orders?.[i]?.materialResult || {};
   const projectConfig = params.projectConfig || {};
   const projectName = params.projectName || "";
+  const barcodeEl = new Image();
+  barcodeEl.id = "tmp-bar-code";
+  document.body.appendChild(barcodeEl);
+  let isBarcodeFailed = false;
+  const barcodeSize = [2, 40];
+  await timeout(0);
+
+  const addText = async (text: string, insert: [number, number], opts?: {anchor?: [number, number]; fontStyle?: FontStyle}) => {
+    const {anchor, fontStyle} = opts || {};
+    const mtext = new CadMtext({text, insert, anchor, fontStyle});
+    unfoldCad.entities.add(mtext);
+    await unfoldCadViewer.render(mtext);
+    return mtext;
+  };
+
   for (const [j, {cad, offsetStrs}] of unfold.entries()) {
-    const rowIndex = colNum - Math.floor(j / colNum);
+    const rowIndex = rowNum - Math.floor(j / colNum);
     const colIndex = j % colNum;
     const boxRect = new Rectangle();
-    boxRect.min.set(colIndex * boxWidth + boxPadding[3], rowIndex * boxHeight + boxPadding[2]);
-    boxRect.max.set((colIndex + 1) * boxWidth - boxPadding[1], (rowIndex + 1) * boxHeight - boxPadding[0]);
+    boxRect.min.set(colIndex * boxWidth + boxPadding[3], (rowIndex - 1) * boxHeight + boxPadding[2]);
+    boxRect.max.set((colIndex + 1) * boxWidth - boxPadding[1], rowIndex * boxHeight - boxPadding[0]);
     await configCadDataForPrint(unfoldCadViewer, cad, params, {isZxpj: true, lineLengthFontStyle: {size: 10}, 使用显示线长: true});
     const calcZhankai = cad.info.calcZhankai || [];
     const bancai = cad.info.bancai || {};
 
     let y = boxRect.bottom + textMargin;
+    const barcodeText = `${code}-${cad.numId}`;
+    if (!isBarcodeFailed) {
+      try {
+        JsBarcode("#" + barcodeEl.id, barcodeText, {
+          displayValue: false,
+          margin: 0,
+          width: barcodeSize[0],
+          height: barcodeSize[1]
+        });
+      } catch (error) {
+        let msg = "未知错误";
+        if (typeof error === "string") {
+          if (error.includes("is not a valid input")) {
+            msg = "订单编号不能包含\n中文或特殊字符，请修改订单编号";
+          } else {
+            msg = error;
+          }
+        }
+        console.warn(error);
+        isBarcodeFailed = true;
+        const mtext = await addText("生成条形码出错：" + msg, [boxRect.left, y], {anchor: [0, 1], fontStyle: infoTextFontStyle});
+        y += mtext.boundingRect.height + textMargin;
+      }
+      if (!isBarcodeFailed) {
+        const mtext = await addText(barcodeText, [boxRect.x, y], {anchor: [0.5, 1], fontStyle: infoTextFontStyle});
+        y += mtext.boundingRect.height + textMargin;
+        const img = new CadImage();
+        img.objectFit = "contain";
+        img.anchor.set(0.5, 1);
+        img.targetSize = new Point(boxRect.width - imgPadding[1] - imgPadding[3], barcodeSize[1]);
+        img.url = barcodeEl.src;
+        img.position.set(boxRect.x, y);
+        unfoldCad.entities.add(img);
+        await unfoldCadViewer.render(img);
+        y += img.targetSize.y + textMargin;
+      }
+    }
+
     const zhankaiText = getCadCalcZhankaiText(cad, calcZhankai, materialResult, bancai, projectConfig, projectName);
     const texts = [zhankaiText].concat(offsetStrs);
     texts.reverse();
@@ -643,6 +697,7 @@ const getUnfoldCadViewers = async (
     const scale = Math.min(1, imgRect.width / cadRect.width, imgRect.height / cadRect.height);
     cad.transform({translate: [dx, dy], scale, origin: [cadRect.x, cadRect.y]}, true);
   }
+  document.body.removeChild(barcodeEl);
 
   await unfoldCadViewer.render();
   unfoldCadViewer.center();
