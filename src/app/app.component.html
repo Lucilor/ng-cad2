@@ -4,7 +4,7 @@
   <mat-icon color="primary" [matMenuTriggerFor]="links">apps</mat-icon>
   <mat-menu #links="matMenu">
     <button mat-menu-item *ngFor="let routeInfo of routesInfo" [routerLink]="routeInfo.path" [queryParamsHandling]="'merge'">
-      {{ routeInfo.title || routeInfo.path }}
+      {{ getRouteTitle(routeInfo) }}
     </button>
     <app-message-test></app-message-test>
   </mat-menu>

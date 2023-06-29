@@ -542,10 +542,10 @@ const getUnfoldCadViewers = async (
   i: number,
   unfold: NonNullable<PrintCadsParamsOrder["unfold"]>
 ) => {
-  const rowNumMax = 5;
-  const rowNumMin = 3;
+  const ratio = size[0] / size[1];
+  const rowNum = ratio > 1 ? 2 : 3;
   const colNum = 3;
-  const maxSize = rowNumMax * colNum;
+  const maxSize = rowNum * colNum;
   if (unfold.length > maxSize) {
     let result: string[] = [];
     for (let j = 0; j < unfold.length; j += maxSize) {
@@ -588,7 +588,6 @@ const getUnfoldCadViewers = async (
 
   const contentWidth = width;
   const contentHeight = height - titleHeight - 5;
-  const rowNum = unfold.length > rowNumMin * colNum ? rowNumMax : rowNumMin;
   const boxWidth = contentWidth / colNum;
   const boxHeight = contentHeight / rowNum;
   for (let j = 0; j < rowNum; j++) {
@@ -671,13 +670,13 @@ const getUnfoldCadViewers = async (
     const zhankaiText = getCadCalcZhankaiText(cad, calcZhankai, materialResult, bancai, projectConfig, projectName);
     const texts = [zhankaiText].concat(offsetStrs);
     texts.reverse();
+    const textWidth = boxRect.width - textMargin * 2;
     for (const text of texts) {
       if (!text) {
         continue;
       }
-      const mtext = new CadMtext({text, anchor: [0, 1], fontStyle: infoTextFontStyle});
-      mtext.insert.set(boxRect.left, y);
-      unfoldCad.entities.add(mtext);
+      const mtext = await addText(text, [boxRect.left, y], {anchor: [0, 1], fontStyle: infoTextFontStyle});
+      mtext.text = getWrapedText(unfoldCadViewer, text, mtext, {maxLength: textWidth, separator: /\+-/}).join("\n");
       await unfoldCadViewer.render(mtext);
       y += mtext.boundingRect.height + textMargin;
       mtext.calcBoundingRect = false;
