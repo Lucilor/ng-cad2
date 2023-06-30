@@ -80,7 +80,7 @@ export type ZixuanpeijianOutput = Required<ZixuanpeijianData>;
 
 export interface ZixuanpeijianInfo {
   houtaiId: string;
-  zhankai: {width: string; height: string; num: string; originalWidth: string; cadZhankaiIndex?: number; custom?: boolean}[];
+  zhankai: {width: string; height: string; num: string; originalWidth: string; cadZhankaiIndex?: number}[];
   calcZhankai: any[];
   bancai?: BancaiList & {cailiao?: string; houdu?: string};
   translate?: [number, number];
@@ -387,7 +387,7 @@ export const getDefaultZhankai = (): ZixuanpeijianInfo["zhankai"][0] => ({width:
 export const calcCadItemZhankai = async (calc: CalcService, materialResult: Formulas, item: ZixuanpeijianCadItem, fractionDigits = 1) => {
   const {data, info} = item;
   const {zhankai} = info;
-  if (zhankai.length < 1 || !zhankai[0].originalWidth || zhankai[0].custom) {
+  if (zhankai.length < 1 || !zhankai[0].originalWidth) {
     return;
   }
   const vars = {...materialResult, ...getCadLengthVars(data)};
@@ -781,7 +781,7 @@ export const calcZxpj = async (
     const formulas2: Formulas = {};
 
     const zhankais: [number, CadZhankai][] = [];
-    const {门扇名字, 模块名字} = item.info;
+    const {门扇名字, 模块名字} = info;
     vars2 = {...vars2, ...getMokuaiVarsCurr(门扇名字 || "", 模块名字 || "")};
     for (const [i, zhankai] of data.zhankai.entries()) {
       let enabled = true;
@@ -803,7 +803,19 @@ export const calcZxpj = async (
         }
       }
       if (enabled) {
-        zhankais.push([i, zhankai]);
+        if (mokuai) {
+          zhankais.push([i, zhankai]);
+        } else {
+          const zhankai2 = new CadZhankai(zhankai.export());
+          const zhankai3 = info.zhankai.find((v) => v.cadZhankaiIndex === i);
+          if (zhankai3) {
+            zhankai2.zhankaikuan = zhankai3.width;
+            zhankai2.zhankaigao = zhankai3.height;
+            zhankai2.shuliang = zhankai3.num;
+            zhankai2.shuliangbeishu = "1";
+          }
+          zhankais.push([i, zhankai2]);
+        }
       }
     }
     if (zhankais.length < 1) {
@@ -871,6 +883,9 @@ export const calcZxpj = async (
         if (!result3?.fulfilled) {
           const cads = [data];
           await openDrawCadDialog(dialog, {data: {cads, collection: "cad"}});
+          if (info.zhankai.length < 1) {
+            info.zhankai.push(getDefaultZhankai());
+          }
           return {fulfilled: false, error: {message: result3Msg + "出错", calc: {formulas: formulas3, vars: vars3, result: result3}, cads}};
         }
         calc.calc.mergeFormulas(varsGlobal, result3.succeedTrim);

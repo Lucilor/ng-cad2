@@ -682,10 +682,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
               options,
               model: {key: "width", data: v},
               readonly: zhankaiReadOnly,
-              showEmpty: true,
-              onChange: () => {
-                v.custom = true;
-              }
+              showEmpty: true
             },
             height: {
               type: "string",
@@ -693,20 +690,14 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
               options,
               model: {key: "height", data: v},
               readonly: zhankaiReadOnly,
-              showEmpty: true,
-              onChange: () => {
-                v.custom = true;
-              }
+              showEmpty: true
             },
             num: {
               type: "string",
               label: "数量",
               model: {key: "num", data: v},
               readonly: zhankaiReadOnly,
-              showEmpty: true,
-              onChange: () => {
-                v.custom = true;
-              }
+              showEmpty: true
             }
           })),
           板材: {

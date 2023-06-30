@@ -673,21 +673,22 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
   }
 
   async setBancaixuanze(item: MrbcjfzInfo, value: string) {
-    const md5Prev = md5(JSON.stringify(item));
+    const morenbancai = this.xinghao?.默认板材[value];
     if (this.isFromOrder) {
+      const md5Prev = md5(JSON.stringify(item));
       item.选中板材分组 = value;
       item.选中板材 = "";
       item.选中材料 = "";
       item.选中板材厚度 = "";
+      const md5Curr = md5(JSON.stringify(item));
+      if (md5Prev !== md5Curr) {
+        await this.suanliao();
+      }
     } else {
       item.默认对应板材分组 = value;
-      item.默认开料板材 = "";
-      item.默认开料材料 = "";
-      item.默认开料板材厚度 = "";
-    }
-    const md5Curr = md5(JSON.stringify(item));
-    if (md5Prev !== md5Curr) {
-      await this.suanliao();
+      item.默认开料板材 = morenbancai?.默认开料板材 || "";
+      item.默认开料材料 = morenbancai?.默认开料材料 || "";
+      item.默认开料板材厚度 = morenbancai?.默认开料板材厚度 || "";
     }
   }
 
