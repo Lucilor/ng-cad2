@@ -768,6 +768,7 @@ export const printCads = async (params: PrintCadsParams) => {
   await prepareCadViewer(cad);
 
   const content: PdfDocument["content"] = [];
+  const content2: PdfDocument["content"] = [];
   let pageOrientation: PdfDocument["pageOrientation"] = "portrait";
   const imgMap: ObjectOf<string> = {};
   for (let i = 0; i < cads.length; i++) {
@@ -816,7 +817,12 @@ export const printCads = async (params: PrintCadsParams) => {
     if (designPics) {
       for (const keyword in designPics) {
         const {urls, showSmall, showLarge, styles} = designPics[keyword];
-        const currUrls = urls[i] || urls[0];
+        let isOwn = true;
+        let currUrls = urls[i];
+        if (!Array.isArray(currUrls) || currUrls.length === 0) {
+          currUrls = urls[0];
+          isOwn = false;
+        }
         let result: ReturnType<typeof findDesignPicsRectLines> | undefined;
         try {
           result = findDesignPicsRectLines(data, keyword, showSmall);
@@ -866,7 +872,7 @@ export const printCads = async (params: PrintCadsParams) => {
           } else {
             img = await cad.toDataURL();
           }
-          if (showLarge) {
+          if (showLarge && isOwn) {
             const data2 = new CadData();
             const cadImages = await drawDesignPics(data2, keyword, currUrls.length, false, rect, styles);
             if (cadImages) {
@@ -898,14 +904,14 @@ export const printCads = async (params: PrintCadsParams) => {
     img = await cad.toDataURL();
     content.push({image: img, width: localWidth, height: localHeight});
     if (img2) {
-      content.push({image: img2, width: localWidth, height: localHeight});
+      content2.push({image: img2, width: localWidth, height: localHeight});
     }
 
     const unfold = params.orders?.[i]?.unfold;
     if (unfold) {
       const unfoldImgs = await getUnfoldCadViewers(params, cad.getConfig(), [localWidth, localHeight], i, unfold);
       for (const unfoldImg of unfoldImgs) {
-        content.push({image: unfoldImg, width: localWidth, height: localHeight});
+        content2.push({image: unfoldImg, width: localWidth, height: localHeight});
       }
     }
   }
@@ -930,7 +936,7 @@ export const printCads = async (params: PrintCadsParams) => {
         keywords: "cad print",
         ...params.info
       },
-      content,
+      content: content.concat(content2),
       pageSize: "A4",
       pageOrientation,
       pageMargins: 0
