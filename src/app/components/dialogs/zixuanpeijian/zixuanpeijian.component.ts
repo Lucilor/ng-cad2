@@ -259,10 +259,9 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
                 }
                 setLinesLength(data2, [parent], lineLength);
                 parent.gongshi = "";
+                await this._calc();
                 await viewer.render();
                 viewer.center();
-                // this.calcZhankai(cadItem);
-                await this._calc();
               } else if (entity instanceof CadLineLike) {
                 const name = await this.message.prompt({value: entity.mingzi, type: "string", label: "线名字"}, {title: "修改线名字"});
                 if (name) {
