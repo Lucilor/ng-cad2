@@ -501,21 +501,32 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
       if (!this.lingsanCadType) {
         this.setlingsanCadType(this.lingsanCadTypes[0]);
       }
+      await this._updateTypesButtons();
     }
   }
 
   private async _updateTypesButtons() {
     const search = this.searchMokuaiValue;
     this.searchMokuaiValue = "";
+    this.typesButtonsWidth = "200px";
     await timeout(0);
     const {typesButtons} = this;
     if (!typesButtons) {
       return;
     }
-    let maxWidth = 120;
-    typesButtons.forEach((v) => {
-      maxWidth = Math.max(maxWidth, v.nativeElement.getBoundingClientRect().width);
-    });
+    const els = typesButtons.map((v) => v.nativeElement);
+    for (const el of els) {
+      el.style.width = "auto";
+    }
+    await timeout(0);
+    let maxWidth = 0;
+    for (const el of els) {
+      console.log(el.getBoundingClientRect().width);
+      maxWidth = Math.max(maxWidth, el.getBoundingClientRect().width);
+    }
+    for (const el of els) {
+      el.style.width = "";
+    }
     this.typesButtonsWidth = maxWidth + "px";
     this.searchMokuaiValue = search;
   }

@@ -1,67 +1,58 @@
-<div class="content" [ngSwitch]="step$.value.value">
-  <div *ngSwitchCase="1" class="content step-1">
-    <div class="content types-info">
-      <div class="content types-info-1" [ngStyle]="{flex: '0 0 ' + typesButtonsWidth}">
-        <ng-scrollbar class="content">
-          <div class="content">
-            <ng-container *ngFor="let item of typesInfo | keyvalue : returnZero">
-              <div *ngIf="showItemType1(item.key)">
-                <button
-                  #typesButton
-                  mat-raised-button
-                  [color]="type1 === item.key ? 'accent' : 'primary'"
-                  (click)="setTypesInfo1(item.key)"
-                >
-                  {{ item.key }}
+<div class="flex-row flex-110" [ngSwitch]="step$.value.value">
+  <div *ngSwitchCase="1" class="step-1 flex-row flex-110">
+    <ng-scrollbar class="flex-110" [ngStyle]="{flex: '0 0 ' + typesButtonsWidth}">
+      <div class="types-buttons">
+        <ng-container *ngFor="let item of typesInfo | keyvalue : returnZero">
+          <div *ngIf="showItemType1(item.key)">
+            <button #typesButton mat-raised-button [color]="type1 === item.key ? 'accent' : 'primary'" (click)="setTypesInfo1(item.key)">
+              {{ item.key }}
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </ng-scrollbar>
+    <div class="flex-column flex-110">
+      <app-input [info]="searchMokuaiInputInfo"></app-input>
+      <ng-scrollbar class="flex-110">
+        <div class="types-info-items flex-row flex-110" *ngIf="typesInfo[type1]">
+          <ng-container *ngFor="let item of typesInfo[type1] | keyvalue : returnZero">
+            <div class="types-info-item" *ngIf="showItemType2(type1, item.key)">
+              <div class="images flex-row flex-110">
+                <app-image
+                  class="xiaoguotu"
+                  [src]="item.value.xiaoguotu"
+                  [bigPicSrc]="item.value.xiaoguotu"
+                  [prefix]="urlPrefix"
+                ></app-image>
+              </div>
+              <div class="title flex-row flex-110">
+                <button mat-icon-button color="primary" [disabled]="item.value.disableAdd" (click)="addMokuaiItem(type1, item.key)">
+                  <mat-icon>add_circle</mat-icon>
                 </button>
+                <div class="name">{{ item.key }}</div>
               </div>
-            </ng-container>
-          </div>
-        </ng-scrollbar>
-      </div>
-      <div class="content types-info-2 flex-column">
-        <app-input [info]="searchMokuaiInputInfo"></app-input>
-        <ng-scrollbar class="content">
-          <div class="content types-info-items" *ngIf="typesInfo[type1]">
-            <ng-container *ngFor="let item of typesInfo[type1] | keyvalue : returnZero">
-              <div class="types-info-item" *ngIf="showItemType2(type1, item.key)">
-                <div class="content images">
-                  <app-image
-                    class="xiaoguotu"
-                    [src]="item.value.xiaoguotu"
-                    [bigPicSrc]="item.value.xiaoguotu"
-                    [prefix]="urlPrefix"
-                  ></app-image>
-                </div>
-                <div class="content title">
-                  <button mat-icon-button color="primary" [disabled]="item.value.disableAdd" (click)="addMokuaiItem(type1, item.key)">
-                    <mat-icon>add_circle</mat-icon>
-                  </button>
-                  <div class="name">{{ item.key }}</div>
-                </div>
-                <div class="desc">{{ item.value.mokuaishuoming }}</div>
-              </div>
-            </ng-container>
-          </div>
-        </ng-scrollbar>
-      </div>
+              <div class="desc">{{ item.value.mokuaishuoming }}</div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-scrollbar>
     </div>
     <mat-divider vertical></mat-divider>
-    <div class="content" style="flex-direction: column">
+    <div class="flex-column flex-110">
       <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
-      <ng-scrollbar class="content">
+      <ng-scrollbar class="flex-110">
         <div
-          class="content types-info-items"
+          class="types-info-items flex-row flex-110"
           cdkDropListOrientation="horizontal"
           cdkDropList
           [cdkDropListData]="result['模块']"
           (cdkDropListDropped)="dropMokuaiItem($event)"
         >
           <div class="types-info-item" *ngFor="let item of result['模块']; let i = index" cdkDrag>
-            <div class="content images" cdkDragHandle>
+            <div class="images flex-row flex-110" cdkDragHandle>
               <app-image class="xiaoguotu" [src]="item.xiaoguotu" [bigPicSrc]="item.xiaoguotu" [prefix]="urlPrefix"></app-image>
             </div>
-            <div class="content title" cdkDragHandle>
+            <div class="title flex-row flex-110" cdkDragHandle>
               <button mat-icon-button color="primary" (click)="removeMokuaiItem(i)">
                 <mat-icon>remove_circle</mat-icon>
               </button>
@@ -73,20 +64,20 @@
               </button>
             </div>
             <div class="desc" cdkDragHandle>{{ item.mokuaishuoming }}</div>
-            <div class="content inputs">
+            <div class="inputs">
               <app-input *ngIf="item.shuruzongkuan" [info]="mokuaiInputInfos[i]['总宽']"></app-input>
               <app-input *ngIf="item.shuruzonggao" [info]="mokuaiInputInfos[i]['总高']"></app-input>
             </div>
-            <div class="content inputs gongshishuru">
+            <div class="inputs gongshishuru">
               <app-input *ngFor="let group of item.gongshishuru; let j = index" [info]="mokuaiInputInfos[i]['公式输入'][j]"></app-input>
             </div>
-            <div class="content inputs gongshishuru">
+            <div class="inputs gongshishuru">
               <app-input *ngFor="let group of item.xuanxiangshuru; let j = index" [info]="mokuaiInputInfos[i]['选项输入'][j]"></app-input>
             </div>
-            <div class="content inputs shuchuwenben">
+            <div class="inputs shuchuwenben">
               <app-input *ngFor="let group of item.shuchuwenben; let j = index" [info]="mokuaiInputInfos[i]['输出文本'][j]"></app-input>
             </div>
-            <div class="content inputs">
+            <div class="inputs">
               <mat-slide-toggle [checked]="!item.standalone" (change)="item.standalone = !$event.checked">
                 {{ item.standalone ? "不" : "" }}跟随变化
               </mat-slide-toggle>
@@ -96,7 +87,7 @@
       </ng-scrollbar>
     </div>
   </div>
-  <div *ngSwitchCase="2" class="content step-2" style="flex-direction: column">
+  <div *ngSwitchCase="2" class="step-2 flex-column flex-110">
     <div class="btn-group">
       <button mat-raised-button color="primary" (click)="setStep(1)">选择模块配件</button>
       <button mat-raised-button color="primary" (click)="setStep(3)">选择零散配件</button>
@@ -109,10 +100,10 @@
       <button mat-raised-button color="primary" (click)="openMokuaiUrl()">查看配件模块数据</button>
     </div>
     <ng-template [ngTemplateOutlet]="dropdownList"></ng-template>
-    <ng-scrollbar class="content">
+    <ng-scrollbar class="flex-row flex-110">
       <div *ngFor="let item of result['模块']; let i = index">
         <div>{{ getMokuaiTitle(item) }}</div>
-        <div class="content cads">
+        <div class="cads flex-row flex-110">
           <ng-container *ngFor="let cad of item.cads; let j = index">
             <template *ngTemplateOutlet="cadItem; context: {$implicit: cad, i, j, type: '模块'}"></template>
           </ng-container>
@@ -120,7 +111,7 @@
       </div>
       <div *ngIf="result['零散'].length > 0">
         <div>零散配件</div>
-        <div class="content cads">
+        <div class="cads flex-row flex-110">
           <ng-container *ngFor="let cad of result['零散']; let i = index">
             <template *ngTemplateOutlet="cadItem; context: {$implicit: cad, i, j: 0, type: '零散'}"></template>
           </ng-container>
@@ -128,58 +119,51 @@
       </div>
     </ng-scrollbar>
   </div>
-  <div *ngSwitchCase="3" class="content step-3">
-    <div class="content">
-      <div class="content types-info-1">
-        <ng-scrollbar class="content">
-          <div class="content">
-            <button
-              *ngFor="let type of lingsanCadTypes"
-              mat-raised-button
-              [color]="type === lingsanCadType ? 'accent' : 'primary'"
-              (click)="setlingsanCadType(type)"
-            >
-              {{ type }}
-            </button>
-          </div>
-        </ng-scrollbar>
-      </div>
-      <div class="content" style="flex-direction: column">
-        <div class="btn-group">
-          <app-input [info]="lingsanCadsSearchInput" style="padding: 0 10px; flex: 1 1 0"></app-input>
-          <button mat-raised-button color="primary" (click)="step3Fetch()">刷新cad</button>
+  <div *ngSwitchCase="3" class="step-3 flex-row flex-110">
+    <ng-scrollbar class="flex-110" [ngStyle]="{flex: '0 0 ' + typesButtonsWidth}">
+      <div class="types-buttons">
+        <div *ngFor="let type of lingsanCadTypes">
+          <button #typesButton mat-raised-button [color]="type === lingsanCadType ? 'accent' : 'primary'" (click)="setlingsanCadType(type)">
+            {{ type }}
+          </button>
         </div>
-        <ng-scrollbar class="content">
-          <div class="lingsan-cads">
-            <ng-container *ngFor="let item of lingsanCads; let i = index">
-              <div class="lingsan-cad" *ngIf="!item.hidden">
-                <img class="cad-preview" [src]="item.img" />
-                <div class="content title">
-                  <button mat-icon-button color="primary" (click)="addLingsanItem(i)">
-                    <mat-icon>add_circle</mat-icon>
-                  </button>
-                  <button mat-icon-button color="primary" (click)="copyLingsanCad(i)">
-                    <mat-icon>content_copy</mat-icon>
-                  </button>
-                  <button mat-icon-button color="primary" (click)="openLingsanCad(i)">
-                    <mat-icon>open_in_new</mat-icon>
-                  </button>
-                  <div class="name text-ellipsis" [matTooltip]="item.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
-                    {{ item.data.name }}
-                  </div>
+      </div>
+    </ng-scrollbar>
+    <div class="flex-column flex-110">
+      <div class="btn-group">
+        <app-input [info]="lingsanCadsSearchInput" style="padding: 0 10px; flex: 1 1 0"></app-input>
+        <button mat-raised-button color="primary" (click)="step3Fetch()">刷新cad</button>
+      </div>
+      <ng-scrollbar class="flex-110">
+        <div class="lingsan-cads">
+          <ng-container *ngFor="let item of lingsanCads; let i = index">
+            <div class="lingsan-cad" *ngIf="!item.hidden">
+              <img class="cad-preview" [src]="item.img" />
+              <div class="title flex-row flex-110">
+                <button mat-icon-button color="primary" (click)="addLingsanItem(i)">
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="copyLingsanCad(i)">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="openLingsanCad(i)">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+                <div class="name text-ellipsis" [matTooltip]="item.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">
+                  {{ item.data.name }}
                 </div>
               </div>
-            </ng-container>
-          </div>
-        </ng-scrollbar>
-      </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-scrollbar>
     </div>
     <mat-divider vertical></mat-divider>
-    <ng-scrollbar class="content">
+    <ng-scrollbar class="flex-110">
       <div class="lingsan-cads">
         <div class="lingsan-cad" *ngFor="let item of result['零散']; let i = index">
           <img class="cad-preview" [src]="lingsanCadImgs[item.info.houtaiId] || cadImgEnpty" />
-          <div class="content title">
+          <div class="title flex-row flex-110">
             <button mat-icon-button color="primary" (click)="removeLingsanItem(i)">
               <mat-icon>remove_circle</mat-icon>
             </button>
@@ -226,7 +210,7 @@
     <div class="title" *ngIf="getMubanId(cad.data)" (click)="openCad(cad, true, false)">
       <span class="name text-ellipsis">后台修改开料模板</span>
     </div>
-    <div class="content inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
+    <div class="inputs" *ngFor="let zhankai of cad.info.zhankai; let k = index">
       <ng-container [ngSwitch]="type">
         <ng-container *ngSwitchCase="'模块'">
           <ng-container *ngIf="mokuaiInputInfos[i]?.cads?.[j]">
@@ -257,10 +241,10 @@
     <ng-container [ngSwitch]="type">
       <ng-container *ngIf="mokuaiInputInfos[i]?.cads?.[j]">
         <ng-container *ngSwitchCase="'模块'">
-          <div class="content inputs">
+          <div class="inputs">
             <app-input [info]="mokuaiInputInfos[i].cads[j]['板材']" (click)="openBancaiListDialog(cad.info)"></app-input>
           </div>
-          <div class="content inputs" *ngIf="cad.info.bancai">
+          <div class="inputs" *ngIf="cad.info.bancai">
             <app-input [info]="mokuaiInputInfos[i].cads[j]['材料']"></app-input>
             <app-input [info]="mokuaiInputInfos[i].cads[j]['厚度']"></app-input>
           </div>
@@ -268,10 +252,10 @@
       </ng-container>
       <ng-container *ngIf="lingsanInputInfos[i]">
         <ng-container *ngSwitchCase="'零散'">
-          <div class="content inputs">
+          <div class="inputs">
             <app-input [info]="lingsanInputInfos[i]['板材']" (click)="openBancaiListDialog(cad.info)"></app-input>
           </div>
-          <div class="content inputs" *ngIf="cad.info.bancai">
+          <div class="inputs" *ngIf="cad.info.bancai">
             <app-input [info]="lingsanInputInfos[i]['材料']"></app-input>
             <app-input [info]="lingsanInputInfos[i]['厚度']"></app-input>
           </div>

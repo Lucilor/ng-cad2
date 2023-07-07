@@ -774,10 +774,6 @@ export const calcZxpj = async (
 
   const calcCadItem = async (item: ZixuanpeijianCadItem, vars2: Formulas, mokuai?: ZixuanpeijianMokuaiItem): Promise<CalcZxpjResult> => {
     const {data, info} = item;
-    data.entities.forEach((e) => {
-      e.el?.remove();
-      delete e.el;
-    });
     const formulas2: Formulas = {};
 
     const zhankais: [number, CadZhankai][] = [];
