@@ -333,16 +333,6 @@ export const configCadDataForPrint = async (
   const config = cad.getConfig();
   const textMap = params.textMap || {};
   const {isZxpj, lineLengthFontStyle, 使用显示线长} = zxpjConfig || {};
-  let es: CadEntities;
-  if (data instanceof CadData) {
-    es = data.entities;
-  } else if (data instanceof CadEntities) {
-    es = data;
-  } else if (Array.isArray(data)) {
-    es = new CadEntities(data);
-  } else {
-    es = new CadEntities([data]);
-  }
 
   const getConfigBefore = (e: CadEntity) => {
     if (!e.info.configBefore) {
@@ -443,28 +433,6 @@ export const configCadDataForPrint = async (
     }
   };
 
-  for (const e of es.toArray()) {
-    const colorNumber = e.getColor().rgbNumber();
-    if (e instanceof CadLineLike) {
-      configLine(e, colorNumber);
-    } else if (e instanceof CadDimension) {
-      configDimension(e, colorNumber);
-    } else if (e instanceof CadMtext) {
-      configMText(e);
-    }
-    if (colorNumber === 0x808080 || e.layer === "不显示") {
-      e.visible = false;
-    } else if (e.layer === "分体") {
-      if (e instanceof CadCircle) {
-        e.linewidth = Math.max(1, e.linewidth - 1);
-        e.setColor("blue");
-        e.dashArray = [10, 3];
-      }
-    } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
-      e.setColor(0);
-    }
-  }
-
   if (isZxpj && data instanceof CadData) {
     const lineLengthMap: ObjectOf<{text: string; mtext: CadMtext; 显示线长?: string}> = {};
     const shaungxiangCads = splitShuangxiangCad(data);
@@ -532,6 +500,38 @@ export const configCadDataForPrint = async (
       cad.remove(宽度标注);
     }
     await cad.render(data.getAllEntities());
+  }
+
+  let es: CadEntities;
+  if (data instanceof CadData) {
+    es = data.entities;
+  } else if (data instanceof CadEntities) {
+    es = data;
+  } else if (Array.isArray(data)) {
+    es = new CadEntities(data);
+  } else {
+    es = new CadEntities([data]);
+  }
+  for (const e of es.toArray()) {
+    const colorNumber = e.getColor().rgbNumber();
+    if (e instanceof CadLineLike) {
+      configLine(e, colorNumber);
+    } else if (e instanceof CadDimension) {
+      configDimension(e, colorNumber);
+    } else if (e instanceof CadMtext) {
+      configMText(e);
+    }
+    if (colorNumber === 0x808080 || e.layer === "不显示") {
+      e.visible = false;
+    } else if (e.layer === "分体") {
+      if (e instanceof CadCircle) {
+        e.linewidth = Math.max(1, e.linewidth - 1);
+        e.setColor("blue");
+        e.dashArray = [10, 3];
+      }
+    } else if (![0xff0000, 0x0000ff].includes(colorNumber)) {
+      e.setColor(0);
+    }
   }
 };
 
