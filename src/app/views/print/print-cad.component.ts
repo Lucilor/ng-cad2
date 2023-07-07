@@ -127,10 +127,6 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     // return materialResult;
   }
 
-  get CommentInputInfo(): InputInfo {
-    return {validators: Validators.required, type: "string", label: "备注", textarea: {autosize: {minRows: 2, maxRows: 5}}};
-  }
-
   constructor(
     private route: ActivatedRoute,
     private dataService: CadDataService,
@@ -389,6 +385,10 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  private _getCommentInputInfo(value: string): InputInfo {
+    return {value, validators: Validators.required, type: "string", label: "备注", textarea: {autosize: {minRows: 2, maxRows: 5}}};
+  }
+
   async initCad() {
     const cad = this.cad;
     const container = this.cadContainer?.nativeElement;
@@ -410,6 +410,11 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
           v.entities.forEach((e) => (e.selected = true));
         }
       }
+      entities.forEach((e) => {
+        if (e.info.isComment) {
+          e.selected = true;
+        }
+      });
     });
     cad.on("entitiesunselect", (entities) => {
       const data = cad.data.components.data;
@@ -437,12 +442,12 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         }
       });
     });
-    cad.on("entitydblclick", async (event, entity) => {
+    cad.on("entitydblclick", async (_, entity) => {
       if (entity instanceof CadMtext) {
         const isComment = entity.info.isComment;
         const canModify = isNaN(Number(entity.text));
         if (isComment || canModify) {
-          const text = await this.message.prompt(this.CommentInputInfo);
+          const text = await this.message.prompt(this._getCommentInputInfo(entity.text));
           if (text) {
             if (!text) {
               this.printParams.textMap[entity.text] = text;
@@ -520,7 +525,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
           item.displayedData.transform({translate}, true);
         }
       }
-      if (!item.info.hidden && item.data.suanliaochuli.includes("显示展开")) {
+      if (!item.info.hidden) {
         const data = item.displayedData;
         cads.push(data);
         cads2.push(item.data);
@@ -578,15 +583,25 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
         await cad.render(v.entities);
         const rect = v.getBoundingRect();
         let zhankaiText = v.entities.mtext.find((e) => e.info.isZhankaiText);
-        if (!zhankaiText) {
-          zhankaiText = new CadMtext({info: {isZhankaiText: true}});
-          v.entities.add(zhankaiText);
+        if (v.suanliaochuli.includes("显示展开")) {
+          if (!zhankaiText) {
+            zhankaiText = new CadMtext({info: {isZhankaiText: true}});
+            v.entities.add(zhankaiText);
+          }
+          let 展开算料文字大小 = Number(this.status.getProjectConfig("展开算料文字大小"));
+          if (isNaN(展开算料文字大小) || 展开算料文字大小 <= 0) {
+            展开算料文字大小 = 40;
+          }
+          zhankaiText.fontStyle.size = 展开算料文字大小;
+          zhankaiText.text = this.getCalcZhankaiText(v, info);
+          zhankaiText.anchor.set(0, 0);
+          zhankaiText.insert.set(rect.left, rect.bottom - 10);
+          await cad.render(zhankaiText);
+        } else {
+          if (zhankaiText) {
+            v.entities.remove(zhankaiText);
+          }
         }
-        zhankaiText.fontStyle.size = 34;
-        zhankaiText.text = this.getCalcZhankaiText(v, info);
-        zhankaiText.anchor.set(0, 0);
-        zhankaiText.insert.set(rect.left, rect.bottom - 10);
-        await cad.render(zhankaiText);
       }
 
       if (toArrange.length > 0) {
@@ -735,7 +750,7 @@ export class PrintCadComponent implements AfterViewInit, OnDestroy {
       return;
     }
     if (!mtext) {
-      const text = await this.message.prompt(this.CommentInputInfo);
+      const text = await this.message.prompt(this._getCommentInputInfo(""));
       if (!text) {
         return;
       }
