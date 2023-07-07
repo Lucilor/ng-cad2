@@ -2,7 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {session, setGlobal} from "@app/app.common";
-import {timeout} from "@lucilor/utils";
+import {queryString, timeout} from "@lucilor/utils";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/input.types";
 import {MessageService} from "@modules/message/services/message.service";
@@ -78,7 +78,7 @@ export class BancaiListComponent {
     const text = this.filterText;
     this.zidingyiIndex = -1;
     for (const [i, item] of this.list.entries()) {
-      item.hidden = !!text && !item.bancai.mingzi.includes(text);
+      item.hidden = !queryString(text, item.bancai.mingzi);
       if (!item.hidden && item.bancai.mingzi === "自定义") {
         this.zidingyiIndex = i;
       }

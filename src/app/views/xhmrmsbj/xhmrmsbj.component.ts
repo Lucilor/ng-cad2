@@ -171,12 +171,6 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.menshanKeys = menshanKeys;
     this.xinghao = new MrbcjfzXinghaoInfo(this.table, {vid: 1, mingzi: materialResult.型号, morenbancai: JSON.stringify(型号选中板材)});
     await this.selectMenshanKey(this.activeMenshanKey || this.menshanKeys[0]);
-    const msbjInfo = this.activeMsbjInfo;
-    if (msbjInfo?.选中布局数据) {
-      this.wmm.postMessage("calcGongshi2Start", msbjInfo);
-      const result = await this.wmm.waitForMessage("calcGongshi2End");
-      this.mokuaidaxiaoResult = result.values;
-    }
   }
 
   submitData() {
@@ -780,6 +774,12 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     this.activeMsbj?.updateRectsInfo(this.getNode2rectData());
     if (this.msbjRectsComponent) {
       this.msbjRectsComponent.rectInfos = this.activeMsbj?.peizhishuju.模块节点 || [];
+    }
+    const msbjInfo = this.activeMsbjInfo;
+    if (msbjInfo?.选中布局数据) {
+      this.wmm.postMessage("calcGongshi2Start", msbjInfo);
+      const result = await this.wmm.waitForMessage("calcGongshi2End");
+      this.mokuaidaxiaoResult = result.values;
     }
     timer.end(timerName, timerName);
     this.spinner.hide(this.spinner.defaultLoaderId);
