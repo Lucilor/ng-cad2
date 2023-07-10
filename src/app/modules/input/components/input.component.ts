@@ -331,7 +331,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
             if (info.optionInputOnly && !this.options.find((v) => v.value === value)) {
               this.value = "";
             }
-            this.onChange();
+            this.onChange(value, true);
           }, this.onChangeDelayTime);
           this.onChangeDelay = {timeoutId};
         } else {

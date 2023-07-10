@@ -1,18 +1,19 @@
-import {ChangeDetectorRef, Component, OnInit} from "@angular/core";
+import {ChangeDetectorRef, Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {Validators} from "@angular/forms";
-import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
-import {getFilepathUrl, getFormControl, getFormGroup, replaceRemoteHost, TypedFormGroup} from "@app/app.common";
+import {getFilepathUrl, replaceRemoteHost, setGlobal} from "@app/app.common";
 import {openSelectBancaiCadsDialog} from "@components/dialogs/select-bancai-cads/select-bancai-cads.component";
-import {downloadByUrl, ObjectOf} from "@lucilor/utils";
+import {downloadByUrl, ObjectOf, timeout} from "@lucilor/utils";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiCad, BancaiList} from "@modules/http/services/cad-data.service.types";
+import {InputComponent} from "@modules/input/components/input.component";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
 import {AppStatusService} from "@services/app-status.service";
 import {cloneDeep} from "lodash";
 import {DateTime} from "luxon";
+import {BancaiCadExtend, BancaisInfo, guigePattern, houduPattern, OrderBancaiInfo, SelectBancaiDlHistory} from "./select-bancai.types";
 
 @Component({
   selector: "app-select-bancai",
@@ -21,38 +22,27 @@ import {DateTime} from "luxon";
 })
 export class SelectBancaiComponent implements OnInit {
   autoGuige = true;
-  sortedCads: BancaiCadExtend[][] = [];
-  bancaiForms: TypedFormGroup<BancaiForm>[] = [];
+  sortedCads: BancaiCadExtend[][][] = [];
+  orderBancaiInfos: OrderBancaiInfo[] = [];
   bancaiList: ObjectOf<BancaiList> = {};
-  formIdx = -1;
   codes: string[] = [];
   table = "";
   type = "";
-  gasOptions: {value: string; label: string}[] = [
+  gasOptions = [
     {value: "Air", label: "空气"},
     {value: "O2", label: "氧气"},
     {value: "N2", label: "氮气"},
     {value: "H-Air", label: "高压空气"},
     {value: "H-O2", label: "高压氧气"},
     {value: "H-N2", label: "高压氮气"}
-  ];
-  shuangxiazouxianUrl = "";
-  kailiaokongweipeizhiUrl = "";
-  kailiaocanshuzhiUrl = "";
+  ] as const;
   loaderId = "selectBancai";
   submitLoaderId = "selectBancaiSubmit";
   downloadHistory: SelectBancaiDlHistory[] = [];
   downloadName = "";
   showGas = false;
 
-  get currList(): BancaiList {
-    const form = this.bancaiForms[this.formIdx];
-    if (form) {
-      return this.bancaiList[form.controls.mingzi?.value];
-    } else {
-      return {mingzi: "", cailiaoList: [], houduList: [], guigeList: []};
-    }
-  }
+  @ViewChildren("bancaiInfoInput") bancaiInfoInputs?: QueryList<InputComponent>;
 
   constructor(
     private route: ActivatedRoute,
@@ -62,7 +52,9 @@ export class SelectBancaiComponent implements OnInit {
     private cd: ChangeDetectorRef,
     private spinner: SpinnerService,
     private status: AppStatusService
-  ) {}
+  ) {
+    setGlobal("selectBancai", this);
+  }
 
   async ngOnInit() {
     const {codes, table, type} = this.route.snapshot.queryParams;
@@ -73,51 +65,61 @@ export class SelectBancaiComponent implements OnInit {
       document.title = type;
       this.type = type;
       await this.refreshDownloadHistory();
-      const result = await this.dataService.getBancais(this.table, this.codes);
+      const response = await this.dataService.post<BancaisInfo>("order/order/getBancais", {table, codes: this.codes});
+      const result = this.dataService.getResponseData(response);
       this.spinner.hide(this.loaderId);
       if (result) {
         const bancaiZidingyi = result.bancaiList.find((v) => v.mingzi === "自定义");
-        result.bancaiCads.forEach((cad) => {
-          let list = result.bancaiList.find((v) => v.mingzi === cad.bancai.mingzi);
-          if (!list && bancaiZidingyi) {
-            list = cloneDeep(bancaiZidingyi);
-            list.mingzi = cad.bancai.mingzi;
-          }
-          if (list) {
-            this.bancaiList[list.mingzi] = list;
-            if (!cad.bancai.cailiao) {
-              cad.bancai.cailiao = list.cailiaoList[0];
+        const errMsgs: string[] = [];
+        this.orderBancaiInfos = [];
+        for (const orderBancai of result.orderBancais) {
+          const {code, bancaiCads, 上下走线, 开料孔位配置, 开料参数} = orderBancai;
+          for (const cad of bancaiCads) {
+            let list = result.bancaiList.find((v) => v.mingzi === cad.bancai.mingzi);
+            if (!list && bancaiZidingyi) {
+              list = cloneDeep(bancaiZidingyi);
+              list.mingzi = cad.bancai.mingzi;
             }
-            if (!cad.bancai.houdu) {
-              cad.bancai.houdu = list.houduList[0];
-            }
-            if (!cad.bancai.guige) {
-              if (!list.guigeList[0]) {
-                this.message.alert(`${cad.bancai.mingzi}, 没有板材规格`);
-                throw new Error(`${cad.bancai.mingzi}, 没有板材规格`);
+            if (list) {
+              this.bancaiList[list.mingzi] = list;
+              if (!cad.bancai.cailiao) {
+                cad.bancai.cailiao = list.cailiaoList[0];
               }
-              cad.bancai.guige = list.guigeList[0].slice();
-            }
-            if (!cad.bancai.gas) {
-              cad.bancai.gas = "Air";
+              if (!cad.bancai.houdu) {
+                cad.bancai.houdu = list.houduList[0];
+              }
+              if (!cad.bancai.guige) {
+                if (!list.guigeList[0]) {
+                  this.message.alert(`${cad.bancai.mingzi}, 没有板材规格`);
+                  throw new Error(`${cad.bancai.mingzi}, 没有板材规格`);
+                }
+                cad.bancai.guige = list.guigeList[0].slice();
+              }
+              if (!cad.bancai.gas) {
+                cad.bancai.gas = "Air";
+              }
             }
           }
-        });
-        this.updateSortedCads(result.bancaiCads);
-        this.updateBancaiForms();
-        this.shuangxiazouxianUrl = result.上下走线;
-        this.kailiaokongweipeizhiUrl = result.开料孔位配置;
-        this.kailiaocanshuzhiUrl = result.开料参数;
+          const orderBancaiInfo: OrderBancaiInfo = {
+            code,
+            shangxiazouxianUrl: 上下走线,
+            kailiaokongweipeizhiUrl: 开料孔位配置,
+            kailiaocanshuzhiUrl: 开料参数,
+            sortedCads: [],
+            bancaiInfos: []
+          };
+          this.orderBancaiInfos.push(orderBancaiInfo);
+          this.updateSortedCads(orderBancaiInfo, bancaiCads);
+          for (const error of orderBancai.errors) {
+            errMsgs.push(`订单编号:${error.code}<br>${error.msg}`);
+          }
+        }
+        this.updateOrderBancaiInfos();
         this.downloadName = result.downloadName;
         this.showGas = type === "激光喷码开料排版";
         if (this.status.getProjectConfig("激光开料展开信息") === "大族激光") {
           this.showGas = true;
         }
-
-        const errMsgs: string[] = [];
-        result.errors.forEach((error) => {
-          errMsgs.push(`订单编号:${error.code}<br>${error.msg}`);
-        });
         if (errMsgs.length > 0) {
           this.message.alert({title: "开料报错", content: errMsgs.join("<br><br>")});
         }
@@ -158,10 +160,28 @@ export class SelectBancaiComponent implements OnInit {
     );
   }
 
-  updateSortedCads(bancaiCads: TypedFormGroup<BancaiForm> | BancaiCad[]) {
-    const sortedCads = this.sortedCads;
+  updateSortedCads(info: OrderBancaiInfo, bancaiCads: BancaiCad[] | BancaiCad["bancai"], i?: number) {
     if (Array.isArray(bancaiCads)) {
-      sortedCads.length = 0;
+      const sortedCads: BancaiCadExtend[][] = [];
+      for (const bancaiCad of bancaiCads) {
+        const bancai = bancaiCad.bancai;
+        if (sortedCads.length) {
+          const index = sortedCads.findIndex((group) => {
+            if (group.length) {
+              const groupBancai = group[0].bancai;
+              return this.isBancaiDuplicate(bancai, groupBancai);
+            }
+            return true;
+          });
+          if (index > -1) {
+            sortedCads[index].push(this.getBancaiCadExtend(bancaiCad));
+          } else {
+            sortedCads.push([this.getBancaiCadExtend(bancaiCad)]);
+          }
+        } else {
+          sortedCads.push([this.getBancaiCadExtend(bancaiCad)]);
+        }
+      }
       bancaiCads.forEach((bancaiCad) => {
         const bancai = bancaiCad.bancai;
         if (sortedCads.length) {
@@ -181,119 +201,119 @@ export class SelectBancaiComponent implements OnInit {
           sortedCads.push([this.getBancaiCadExtend(bancaiCad)]);
         }
       });
-    } else {
-      const bancai: Partial<BancaiCad["bancai"]> = {};
-      const mingzi = bancaiCads.get("mingzi");
-      if (mingzi && !mingzi.errors) {
-        bancai.mingzi = mingzi.value;
-      }
-      const cailiao = bancaiCads.get("cailiao");
-      if (cailiao && !cailiao.errors) {
-        bancai.cailiao = cailiao.value;
-      }
-      const houdu = bancaiCads.get("houdu");
-      if (houdu && !houdu.errors) {
-        bancai.houdu = houdu.value;
-      }
-      const guige = bancaiCads.get("guige");
-      if (guige && !guige.errors) {
-        const match = (guige.value as string).match(guigePattern);
-        if (match) {
-          bancai.guige = [Number(match[1]), Number(match[3])];
-        }
-      }
-      const gas = bancaiCads.get("gas");
-      if (gas && !gas.errors) {
-        bancai.gas = gas.value;
-      }
-      const group = sortedCads[this.formIdx];
+      info.sortedCads = sortedCads;
+    } else if (typeof i === "number") {
+      const sortedCads = info.sortedCads;
+      const group = sortedCads[i];
+      console.log(bancaiCads);
       group.forEach((v) => {
-        Object.assign(v.bancai, bancai);
+        Object.assign(v.bancai, bancaiCads);
         if (Array.isArray(v.bancai.guige)) {
           v.oversized = v.width > v.bancai.guige[0] || v.height > v.bancai.guige[1];
         } else {
           v.oversized = false;
         }
       });
-      bancaiCads.get("oversized")?.setValue(group.some((v) => v.oversized));
-      const duplicateIdx = sortedCads.findIndex((v, i) => i !== this.formIdx && this.isBancaiDuplicate(v[0].bancai, group[0].bancai));
+      const duplicateIdx = sortedCads.findIndex((v, j) => j !== i && this.isBancaiDuplicate(v[0].bancai, group[0].bancai));
       if (duplicateIdx >= 0) {
         sortedCads[duplicateIdx] = sortedCads[duplicateIdx].concat(group);
-        sortedCads.splice(this.formIdx, 1);
-        this.bancaiForms.splice(this.formIdx, 1);
-        this.formIdx = -1;
+        sortedCads.splice(i, 1);
+        this.orderBancaiInfos.splice(i, 1);
         this.message.snack("板材信息相同, 已合并");
+        this.updateOrderBancaiInfos();
       }
     }
   }
 
-  updateBancaiForms() {
-    const bancaiForms = this.bancaiForms;
-    bancaiForms.length = 0;
-    this.sortedCads.forEach((group) => {
-      const bancai = group[0].bancai;
-      const form = getFormGroup<BancaiForm>({
-        mingzi: getFormControl(bancai.mingzi, {validators: Validators.required}),
-        cailiao: getFormControl(bancai.cailiao || "", {validators: Validators.required}),
-        houdu: getFormControl(bancai.houdu?.toString() || "", {
-          validators: [Validators.required, Validators.pattern(houduPattern)]
-        }),
-        guige: getFormControl(bancai.guige?.join(" × ") || "", {
-          validators: [Validators.required, Validators.pattern(guigePattern)]
-        }),
-        cads: getFormControl(group.map((v) => v.id).join(",")),
-        oversized: getFormControl(group.some((v) => v.oversized)),
-        gas: getFormControl(bancai.gas || "")
-      });
-      bancaiForms.push(form);
-      form.updateValueAndValidity();
-      form.markAllAsTouched();
-      this.cd.detectChanges();
-    });
-  }
-
-  getCailiaoError(index: number) {
-    const control = this.bancaiForms[index].get("cailiao");
-    if (control) {
-      if (control.hasError("required")) {
-        return "材料不能为空";
+  updateOrderBancaiInfos() {
+    for (const info of this.orderBancaiInfos) {
+      info.bancaiInfos = [];
+      for (const [i, group] of info.sortedCads.entries()) {
+        const bancai = cloneDeep(group[0].bancai);
+        const onChange = (key: keyof BancaiCad["bancai"], value: string) => {
+          console.log(key, value);
+          if (key === "guige") {
+            const match = value.match(guigePattern);
+            if (match) {
+              bancai.guige = [Number(match[1]), Number(match[3])];
+            }
+          } else {
+            bancai[key] = value;
+          }
+          this.updateSortedCads(info, bancai, i);
+        };
+        const bancaiList = this.bancaiList[bancai.mingzi];
+        const cailiaos = bancaiList?.cailiaoList || [];
+        const houdus = bancaiList?.houduList || [];
+        const guiges = (bancaiList?.guigeList || []).map((v) => v.join(" × "));
+        const gasOptions = this.gasOptions.slice();
+        const bancaiInfo: (typeof info.bancaiInfos)[0] = {
+          cads: group.map((v) => v.id),
+          oversized: group.some((v) => v.oversized),
+          inputInfos: [
+            {label: "板材", type: "string", readonly: true, value: bancai.mingzi, validators: Validators.required},
+            {
+              label: "材料",
+              type: "string",
+              value: bancai.cailiao || "",
+              options: cailiaos,
+              fixedOptions: cailiaos,
+              onChange: (value) => onChange("cailiao", value),
+              validators: Validators.required
+            },
+            {
+              label: "厚度",
+              type: "string",
+              value: bancai.houdu || "",
+              options: houdus,
+              fixedOptions: houdus,
+              onChange: (value) => onChange("houdu", value),
+              validators: [
+                Validators.required,
+                (control) => {
+                  if (!houduPattern.test(control.value)) {
+                    return {pattern: "厚度必须为数字"};
+                  }
+                  return null;
+                }
+              ]
+            },
+            {
+              label: "规格",
+              type: "string",
+              value: bancai.guige?.join(" × ") || "",
+              options: guiges,
+              fixedOptions: guiges,
+              onChange: (value) => onChange("guige", value),
+              validators: [
+                Validators.required,
+                (control) => {
+                  if (!guigePattern.test(control.value)) {
+                    return {pattern: "规格必须为两个数字(如: 10,10)"};
+                  }
+                  return null;
+                }
+              ]
+            }
+          ]
+        };
+        if (this.showGas) {
+          bancaiInfo.inputInfos.push({
+            label: "切割保护气体",
+            type: "select",
+            value: bancai.gas || "",
+            options: gasOptions,
+            onChange: (value) => onChange("gas", value)
+          });
+        }
+        info.bancaiInfos.push(bancaiInfo);
       }
     }
-    return "";
   }
 
-  getHouduError(index: number) {
-    const control = this.bancaiForms[index].get("houdu");
-    if (control) {
-      if (control.hasError("required")) {
-        return "厚度不能为空";
-      } else if (control.hasError("pattern")) {
-        return "厚度必须为数字";
-      }
-    }
-    return "";
-  }
-
-  getGuigeError(index: number) {
-    const control = this.bancaiForms[index].get("guige");
-    if (control) {
-      if (control.hasError("required")) {
-        return "规格不能为空";
-      } else if (control.hasError("pattern")) {
-        return "规格必须为两个数字(如: 10,10)";
-      }
-    }
-    return "";
-  }
-
-  selectValue(event: MatAutocompleteSelectedEvent, field: string) {
-    const form = this.bancaiForms[this.formIdx];
-    form.get(field)?.setValue(event.option.value);
-    this.updateSortedCads(form);
-  }
-
-  async openCadsDialog(index: number) {
-    const cads = this.sortedCads[index];
+  async openCadsDialog(i: number, j: number) {
+    const info = this.orderBancaiInfos[i];
+    const cads = info.sortedCads[j];
     const result = await openSelectBancaiCadsDialog(this.dialog, {data: {cads}});
     if (result && result.length) {
       const oldGroup: BancaiCadExtend[] = [];
@@ -307,34 +327,48 @@ export class SelectBancaiComponent implements OnInit {
         }
       });
       if (oldGroup.length) {
-        this.sortedCads[index] = oldGroup;
+        info.sortedCads[j] = oldGroup;
       } else {
-        this.sortedCads.splice(index, 1);
+        info.sortedCads.splice(i, 1);
       }
-      this.sortedCads.push(newGroup);
-      this.updateBancaiForms();
+      info.sortedCads.push(newGroup);
+      this.updateOrderBancaiInfos();
     }
   }
 
   async submit() {
-    const bancaiCads: BancaiCad[] = this.sortedCads
-      .map((group) =>
-        group
-          .filter((v) => !v.disabled)
-          .map((v) => {
-            const clone = {...v} as Partial<BancaiCadExtend>;
+    await timeout(0);
+    if (this.bancaiInfoInputs) {
+      for (const bancaiInfoInput of this.bancaiInfoInputs) {
+        if (!bancaiInfoInput.isValid()) {
+          this.message.error("输入有误，请检查");
+          return;
+        }
+      }
+    }
+    const skipCads: string[] = [];
+    const bancaiCadsArr: BancaiCad[][] = [];
+    for (const info of this.orderBancaiInfos) {
+      const arr1: BancaiCad[] = [];
+      for (const group of info.sortedCads) {
+        for (const cad of group) {
+          if (cad.disabled) {
+            skipCads.push(cad.name);
+          } else {
+            const clone = {...cad} as Partial<BancaiCadExtend>;
             delete clone.checked;
             delete clone.oversized;
             delete clone.disabled;
-            return clone as BancaiCad;
-          })
-      )
-      .flat();
+            arr1.push(clone as BancaiCad);
+          }
+        }
+      }
+      bancaiCadsArr.push(arr1);
+    }
     this.spinner.show(this.submitLoaderId);
     const api = "order/order/selectBancai";
     const {codes, table, autoGuige, type} = this;
-    const skipCads = this.sortedCads.map((v) => v.filter((vv) => vv.disabled).map((vv) => vv.name)).flat();
-    const response = await this.dataService.post<string | string[]>(api, {codes, bancaiCads, table, autoGuige, type, skipCads});
+    const response = await this.dataService.post<string | string[]>(api, {codes, bancaiCadsArr, table, autoGuige, type, skipCads});
     await this.refreshDownloadHistory();
     this.spinner.hide(this.submitLoaderId);
     const url = this.dataService.getResponseData(response);
@@ -358,28 +392,8 @@ export class SelectBancaiComponent implements OnInit {
     }
     downloadByUrl(url, {filename: downloadName + ".dxf"});
   }
-}
 
-const houduPattern = /^\d+([.]{1}\d+){0,1}$/;
-const guigePattern = /^(\d+([.]{1}\d+){0,1})[^\d^.]+(\d+([.]{1}\d+){0,1})$/;
-
-export interface BancaiCadExtend extends BancaiCad {
-  checked: boolean;
-  oversized: boolean;
-  disabled: boolean;
-}
-
-export interface BancaiForm {
-  mingzi: string;
-  cailiao: string;
-  houdu: string;
-  guige: string;
-  cads: string;
-  oversized: boolean;
-  gas: string;
-}
-
-export interface SelectBancaiDlHistory {
-  name: string;
-  date: string;
+  returnZero() {
+    return 0;
+  }
 }

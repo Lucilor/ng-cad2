@@ -1,10 +1,10 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
 import {FormsModule} from "@angular/forms";
-import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {RouterTestingModule} from "@angular/router/testing";
 import {HttpModule} from "@modules/http/http.module";
+import {InputModule} from "@modules/input/input.module";
 import {MessageModule} from "@modules/message/message.module";
 import {SpinnerModule} from "@modules/spinner/spinner.module";
 import {NgScrollbarModule} from "ngx-scrollbar";
@@ -20,7 +20,7 @@ describe("SelectBancaiComponent", () => {
       imports: [
         FormsModule,
         HttpModule,
-        MatAutocompleteModule,
+        InputModule,
         MatMenuModule,
         MatSlideToggleModule,
         MessageModule,

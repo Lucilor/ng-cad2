@@ -4,9 +4,6 @@
 <div>
   <mat-slide-toggle [(ngModel)]="autoGuige">自动选择最合适的板材规格</mat-slide-toggle>
   <div class="links">
-    <button mat-flat-button [disabled]="!shuangxiazouxianUrl" (click)="open(shuangxiazouxianUrl)">上下走线</button>
-    <button mat-flat-button [disabled]="!kailiaokongweipeizhiUrl" (click)="open(kailiaokongweipeizhiUrl)">开料孔位配置</button>
-    <button mat-flat-button [disabled]="!kailiaocanshuzhiUrl" (click)="open(kailiaocanshuzhiUrl)">开料参数</button>
     <button mat-flat-button [disabled]="downloadHistory.length < 1" [matMenuTriggerFor]="downloadHistoryList">下载记录</button>
   </div>
   <mat-menu #downloadHistoryList="matMenu">
@@ -16,83 +13,33 @@
   </mat-menu>
 </div>
 
-<ng-scrollbar>
-  <div class="bancais">
-    <mat-card class="bancai" *ngFor="let form of bancaiForms; let i = index" [formGroup]="form">
-      <mat-form-field>
-        <mat-label>板材</mat-label>
-        <input type="text" matInput formControlName="mingzi" readonly />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>材料</mat-label>
-        <input
-          type="text"
-          matInput
-          formControlName="cailiao"
-          (focus)="formIdx = i"
-          (change)="updateSortedCads(form)"
-          [matAutocomplete]="cailiaoAuto"
-        />
-        <mat-error>{{ getCailiaoError(i) }}</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>厚度</mat-label>
-        <input
-          type="text"
-          matInput
-          name="厚度"
-          formControlName="houdu"
-          (focus)="formIdx = i"
-          (change)="updateSortedCads(form)"
-          [matAutocomplete]="houduAuto"
-        />
-        <mat-error>{{ getHouduError(i) }}</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>规格</mat-label>
-        <input
-          type="text"
-          matInput
-          name="规格"
-          formControlName="guige"
-          (focus)="formIdx = i"
-          (change)="updateSortedCads(form)"
-          [matAutocomplete]="guigeAuto"
-        />
-        <mat-error>{{ getGuigeError(i) }}</mat-error>
-      </mat-form-field>
-      <mat-form-field *ngIf="showGas">
-        <mat-label>切割保护气体</mat-label>
-        <mat-select formControlName="gas" (selectionChange)="formIdx = i; updateSortedCads(form)">
-          <mat-option *ngFor="let o of gasOptions" [value]="o.value">{{ o.label }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <button mat-raised-button [color]="form.get('oversized')?.value ? 'accent' : 'primary'" (click)="openCadsDialog(i)">开料CAD</button>
-    </mat-card>
-  </div>
-  <div class="btn-group">
-    <div class="spinner-container">
-      <button mat-raised-button color="primary" (click)="submit()">
-        {{ type }}
-      </button>
-      <app-spinner [id]="submitLoaderId" [inline]="true"></app-spinner>
+<ng-scrollbar class="flex-110">
+  <div class="bancai-infos flex-column">
+    <div class="bancai-info flex-column" *ngFor="let info of orderBancaiInfos; let i = index">
+      <mat-divider *ngIf="i > 0"></mat-divider>
+      <div class="title">{{ info.code }}</div>
+      <div class="links">
+        <button mat-flat-button [disabled]="!info.shangxiazouxianUrl" (click)="open(info.shangxiazouxianUrl)">上下走线</button>
+        <button mat-flat-button [disabled]="!info.kailiaokongweipeizhiUrl" (click)="open(info.kailiaokongweipeizhiUrl)">
+          开料孔位配置
+        </button>
+        <button mat-flat-button [disabled]="!info.kailiaocanshuzhiUrl" (click)="open(info.kailiaocanshuzhiUrl)">开料参数</button>
+      </div>
+      <div class="bancai-info-row flex-row" *ngFor="let bancaiInfo of info.bancaiInfos; let j = index">
+        <app-input #bancaiInfoInput class="flex-110" *ngFor="let inputInfo of bancaiInfo.inputInfos" [info]="inputInfo"></app-input>
+        <div>
+          <button mat-raised-button [color]="bancaiInfo.oversized ? 'accent' : 'primary'" (click)="openCadsDialog(i, j)">开料CAD</button>
+        </div>
+      </div>
     </div>
   </div>
-  <app-spinner [id]="loaderId"></app-spinner>
 </ng-scrollbar>
-
-<mat-autocomplete #cailiaoAuto="matAutocomplete" (optionSelected)="selectValue($event, 'cailiao')">
-  <mat-option *ngFor="let item of currList.cailiaoList" [value]="item">
-    {{ item }}
-  </mat-option>
-</mat-autocomplete>
-<mat-autocomplete #houduAuto="matAutocomplete" (optionSelected)="selectValue($event, 'houdu')">
-  <mat-option *ngFor="let item of currList.houduList" [value]="item">
-    {{ item }}
-  </mat-option>
-</mat-autocomplete>
-<mat-autocomplete #guigeAuto="matAutocomplete" (optionSelected)="selectValue($event, 'guige')">
-  <mat-option *ngFor="let item of currList.guigeList" [value]="item.join(' × ')">
-    {{ item.join(" × ") }}
-  </mat-option>
-</mat-autocomplete>
+<div class="btn-group">
+  <div class="spinner-container">
+    <button mat-raised-button color="primary" (click)="submit()">
+      {{ type }}
+    </button>
+    <app-spinner [id]="submitLoaderId" [inline]="true"></app-spinner>
+  </div>
+</div>
+<app-spinner [id]="loaderId"></app-spinner>
