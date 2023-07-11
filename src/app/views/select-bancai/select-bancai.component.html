@@ -1,7 +1,7 @@
 <div class="title">
   <div>订单编号: {{ codes.join(",") }}</div>
 </div>
-<div>
+<div class="toolbar flex-row">
   <mat-slide-toggle [(ngModel)]="autoGuige">自动选择最合适的板材规格</mat-slide-toggle>
   <div class="links">
     <button mat-flat-button [disabled]="downloadHistory.length < 1" [matMenuTriggerFor]="downloadHistoryList">下载记录</button>
@@ -17,13 +17,15 @@
   <div class="bancai-infos flex-column">
     <div class="bancai-info flex-column" *ngFor="let info of orderBancaiInfos; let i = index">
       <mat-divider *ngIf="i > 0"></mat-divider>
-      <div class="title">{{ info.code }}</div>
-      <div class="links">
-        <button mat-flat-button [disabled]="!info.shangxiazouxianUrl" (click)="open(info.shangxiazouxianUrl)">上下走线</button>
-        <button mat-flat-button [disabled]="!info.kailiaokongweipeizhiUrl" (click)="open(info.kailiaokongweipeizhiUrl)">
-          开料孔位配置
-        </button>
-        <button mat-flat-button [disabled]="!info.kailiaocanshuzhiUrl" (click)="open(info.kailiaocanshuzhiUrl)">开料参数</button>
+      <div class="flex-row">
+        <div class="title">{{ info.code }}</div>
+        <div class="links">
+          <button mat-flat-button [disabled]="!info.shangxiazouxianUrl" (click)="open(info.shangxiazouxianUrl)">上下走线</button>
+          <button mat-flat-button [disabled]="!info.kailiaokongweipeizhiUrl" (click)="open(info.kailiaokongweipeizhiUrl)">
+            开料孔位配置
+          </button>
+          <button mat-flat-button [disabled]="!info.kailiaocanshuzhiUrl" (click)="open(info.kailiaocanshuzhiUrl)">开料参数</button>
+        </div>
       </div>
       <div class="bancai-info-row flex-row" *ngFor="let bancaiInfo of info.bancaiInfos; let j = index">
         <app-input #bancaiInfoInput class="flex-110" *ngFor="let inputInfo of bancaiInfo.inputInfos" [info]="inputInfo"></app-input>
