@@ -22,7 +22,6 @@ import {BancaiCadExtend, BancaisInfo, guigePattern, houduPattern, OrderBancaiInf
 })
 export class SelectBancaiComponent implements OnInit {
   autoGuige = true;
-  sortedCads: BancaiCadExtend[][][] = [];
   orderBancaiInfos: OrderBancaiInfo[] = [];
   bancaiList: ObjectOf<BancaiList> = {};
   codes: string[] = [];
@@ -182,30 +181,10 @@ export class SelectBancaiComponent implements OnInit {
           sortedCads.push([this.getBancaiCadExtend(bancaiCad)]);
         }
       }
-      bancaiCads.forEach((bancaiCad) => {
-        const bancai = bancaiCad.bancai;
-        if (sortedCads.length) {
-          const index = sortedCads.findIndex((group) => {
-            if (group.length) {
-              const groupBancai = group[0].bancai;
-              return this.isBancaiDuplicate(bancai, groupBancai);
-            }
-            return true;
-          });
-          if (index > -1) {
-            sortedCads[index].push(this.getBancaiCadExtend(bancaiCad));
-          } else {
-            sortedCads.push([this.getBancaiCadExtend(bancaiCad)]);
-          }
-        } else {
-          sortedCads.push([this.getBancaiCadExtend(bancaiCad)]);
-        }
-      });
       info.sortedCads = sortedCads;
     } else if (typeof i === "number") {
       const sortedCads = info.sortedCads;
       const group = sortedCads[i];
-      console.log(bancaiCads);
       group.forEach((v) => {
         Object.assign(v.bancai, bancaiCads);
         if (Array.isArray(v.bancai.guige)) {

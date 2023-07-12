@@ -239,7 +239,10 @@ export class SuanliaoComponent implements OnInit, OnDestroy {
         if (!选中模块) {
           continue;
         }
-        const {type2, suanliaogongshi} = 选中模块;
+        const {type2, suanliaogongshi, gongshishuru} = 选中模块;
+        for (const [k, v] of gongshishuru) {
+          suanliaogongshi[k] = v;
+        }
         const calcResult = await this.calc.calcFormulas(suanliaogongshi, vars);
         const title = [menshanKey, type2].join("-");
         if (calcResult) {
