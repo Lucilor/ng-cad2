@@ -11,6 +11,7 @@ export interface Order {
   配合框?: {data: CadData; img: SafeUrl; style: Properties}[];
   materialResult?: Formulas;
   cads: {
+    houtaiId: string;
     data: CadData;
     isLarge: boolean;
     img: SafeUrl;
@@ -49,7 +50,6 @@ export type DdbqData = {
   code: string;
   materialResult: Formulas;
   cads: ObjectOf<any>[];
-  流程单数据: ObjectOf<string>;
   开启锁向示意图: ObjectOf<any>;
   配合框: ObjectOf<any>[];
   质检标签?: ZhijianForm;

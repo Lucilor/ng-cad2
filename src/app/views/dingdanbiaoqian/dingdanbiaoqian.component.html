@@ -113,20 +113,19 @@
             <div class="cad-tags flex-column">
               <div *ngFor="let str of cad.data.info['标签信息']">{{ str }}</div>
             </div>
-            <app-image
-              class="img flex-110"
-              [src]="cad.img"
-              [bigPicSrc]="cad.imgLarge"
-              [ngStyle]="cad.imgStyle"
-              (click)="openCad(cad)"
-            ></app-image>
+            <div class="cad-image flex-110 flex-column" [ngStyle]="cad.imgStyle">
+              <div class="cad-image-inner">
+                <app-image class="img" [src]="cad.img" [bigPicSrc]="cad.imgLarge" (click)="openCad(cad)"></app-image>
+                <div class="排版编号">{{ order.materialResult?.["排版编号"] }}{{ cad.data.numId }}</div>
+              </div>
+            </div>
             <div class="cad-info flex-column">
-              <div class="cad-size" *ngFor="let zhankai of cad.zhankai">
+              <div class="cad-size flex-row" *ngFor="let zhankai of cad.zhankai">
                 <span>{{ zhankai.width }}</span>
-                <span style="font-size: 25px">×</span>
+                <span class="sign">×</span>
                 <span>{{ zhankai.height }}</span>
                 <ng-container *ngIf="hasZhankaiNum(zhankai)">
-                  <span style="font-size: 25px">=</span>
+                  <span class="sign">=</span>
                   <span>{{ zhankai.num }}</span>
                 </ng-container>
               </div>

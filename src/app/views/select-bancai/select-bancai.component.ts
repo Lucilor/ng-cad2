@@ -396,4 +396,11 @@ export class SelectBancaiComponent implements OnInit {
   returnZero() {
     return 0;
   }
+
+  openDdbq() {
+    const url = new URL(location.href);
+    url.pathname = "/dingdanbiaoqian";
+    url.searchParams.set("type", "标签贴纸");
+    this.open(url.href);
+  }
 }

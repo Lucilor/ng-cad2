@@ -188,6 +188,7 @@ export class DingdanbiaoqianComponent implements OnInit {
 
           const isLarge = !!data.info.isLarge;
           return {
+            houtaiId: cad.houtaiId,
             data,
             img,
             imgLarge,
@@ -201,7 +202,7 @@ export class DingdanbiaoqianComponent implements OnInit {
         this.sectionConfig.rows.forEach((row) => {
           row.cells.forEach(({key, isBoolean}) => {
             if (isBoolean) {
-              order.流程单数据[key] = order.流程单数据[key] ? "✔" : "✖";
+              order.materialResult[key] = order.materialResult[key] ? "✔" : "✖";
             }
           });
         });
@@ -221,7 +222,7 @@ export class DingdanbiaoqianComponent implements OnInit {
           cads,
           positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
           style: {},
-          info: Array(3).fill(order.流程单数据) || [],
+          info: Array(3).fill(order.materialResult) || [],
           质检标签: order.质检标签
         };
       });
@@ -404,7 +405,6 @@ export class DingdanbiaoqianComponent implements OnInit {
         order.info = null;
         delete order.开启锁向示意图;
         delete order.配合框;
-        delete order.materialResult;
         let orderCurr: Order | null = null;
         let orderPrev: Order | null = null;
         const group1: Order["cads"][0][] = [];
@@ -517,6 +517,7 @@ export class DingdanbiaoqianComponent implements OnInit {
         cads: mokuai.cads.map((v) => {
           v.data.info.标签信息 = [];
           return {
+            houtaiId: v.data.id,
             data: v.data,
             img: "",
             imgSize: [0, 0],
@@ -664,6 +665,6 @@ export class DingdanbiaoqianComponent implements OnInit {
   }
 
   openCad(cad: Order["cads"][number]) {
-    this.status.openCadInNewTab(cad.data.id, "cad");
+    this.status.openCadInNewTab(cad.houtaiId, "cad");
   }
 }

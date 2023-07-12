@@ -69,10 +69,35 @@ $cads-border: solid 1px grey;
     }
 
     .cad-size {
-      span:first-of-type {
+      height: 25px;
+      line-height: 25px;
+
+      > :first-child {
         border: $cads-border;
         padding: 0 10px;
         background-color: #e5e5e5;
+      }
+
+      .sign {
+        font-size: 25px;
+      }
+    }
+
+    .cad-tags {
+      width: 100%;
+    }
+
+    .cad-image {
+      justify-content: center;
+
+      .cad-image-inner {
+        position: relative;
+      }
+
+      .排版编号 {
+        position: absolute;
+        top: 0;
+        left: 0;
       }
     }
   }
