@@ -17,6 +17,7 @@ const orders: Order[] = [
     code: "1",
     cads: [
       {
+        houtaiId: "",
         data: new CadData({info: {标签信息: [{key: 1, value: 1}]}}),
         isLarge: true,
         img: imgEmpty,
