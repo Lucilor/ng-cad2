@@ -294,7 +294,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
     if (!msbjInfo) {
       throw new Error("没有门扇布局");
     }
-    const vars = {...this.materialResult, ...msbjInfo.模块大小输入};
+    const vars = {...this.materialResult, ...msbjInfo.模块大小输出, ...msbjInfo.模块大小输入};
     this.wmm.postMessage("justifyGongshiObjStart", {gongshiObj, menshanKey, vars});
     return await this.wmm.waitForMessage<{gongshiObj: GongshiObj; values: Formulas}>("justifyGongshiObjEnd");
   }
@@ -746,8 +746,7 @@ export class XhmrmsbjComponent implements OnInit, OnDestroy {
         }
         const 模块大小关系 = 选中布局数据1?.模块大小关系;
         if (模块大小关系) {
-          const {values} = await this.justifyGongshiObj(模块大小关系, menshanKey);
-          msbjInfo1.模块大小输入 = values;
+          await this.justifyGongshiObj(模块大小关系, menshanKey);
         }
       }
     }
