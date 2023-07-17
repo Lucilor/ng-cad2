@@ -1,4 +1,4 @@
-import {ObjectOf} from "@lucilor/utils";
+import {isTypeOf, ObjectOf} from "@lucilor/utils";
 import {isEmpty, trim, uniq} from "lodash";
 import {toFixed} from "../func";
 import {CalcCircularReferenceError, CalcSelfReferenceError} from "./errors";
@@ -342,8 +342,14 @@ export class Calc {
   public static calcFormulas(formulas: Formulas, vars: Formulas = {}) {
     const error: ObjectOf<string> = {};
     const maybeError: ObjectOf<string> = {}; // 计算结果小于等于0
-    const {sortedFormulas, sortedKeys} = this.sortFormulas(formulas);
     formulas = {...formulas};
+    for (const key in formulas) {
+      const value = formulas[key];
+      if (isTypeOf(value, ["NaN", "null", "undefined"])) {
+        formulas[key] = "";
+      }
+    }
+    const {sortedFormulas, sortedKeys} = this.sortFormulas(formulas);
     vars = {...vars};
 
     const formulasRaw = {...formulas};
