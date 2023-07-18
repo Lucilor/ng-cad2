@@ -14,7 +14,11 @@ import {CadStatusSplit} from "@services/cad-status";
 export class CadSplitComponent extends Subscribed() implements OnInit {
   private _splitCadLock = false;
 
-  constructor(private config: AppConfigService, private status: AppStatusService, private message: MessageService) {
+  constructor(
+    private config: AppConfigService,
+    private status: AppStatusService,
+    private message: MessageService
+  ) {
     super();
   }
 

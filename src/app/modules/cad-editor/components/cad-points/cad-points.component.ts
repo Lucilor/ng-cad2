@@ -12,7 +12,10 @@ import {Properties} from "csstype";
 export class CadPointsComponent extends Subscribed() implements OnInit {
   points: CadPoints = [];
 
-  constructor(private config: AppConfigService, private status: AppStatusService) {
+  constructor(
+    private config: AppConfigService,
+    private status: AppStatusService
+  ) {
     super();
   }
 

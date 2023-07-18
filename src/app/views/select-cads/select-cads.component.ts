@@ -13,7 +13,10 @@ import {environment} from "src/environments/environment";
 export class SelectCadsComponent implements OnInit {
   private _paramsKey = "selectCadParams";
 
-  constructor(private dialog: MatDialog, private message: MessageService) {}
+  constructor(
+    private dialog: MatDialog,
+    private message: MessageService
+  ) {}
 
   async ngOnInit() {
     let data = session.load<CadListInput & {fnName?: string}>(this._paramsKey);

@@ -111,7 +111,11 @@ export class CadEditorComponent extends ContextMenu(Subscribed()) implements Aft
   }
   private _scrollChangeLock = false;
 
-  constructor(private config: AppConfigService, private status: AppStatusService, private cadConsole: CadConsoleService) {
+  constructor(
+    private config: AppConfigService,
+    private status: AppStatusService,
+    private cadConsole: CadConsoleService
+  ) {
     super();
   }
 

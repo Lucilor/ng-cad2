@@ -21,7 +21,11 @@ export class XinghaoOverviewComponent implements OnInit {
   xiaodaohangs: ObjectOf<NavsResultItem> = {};
   wmm = new WindowMessageManager("xinghaoOverview", this, window.parent);
 
-  constructor(private spinner: SpinnerService, private dataService: CadDataService, private message: MessageService) {
+  constructor(
+    private spinner: SpinnerService,
+    private dataService: CadDataService,
+    private message: MessageService
+  ) {
     setGlobal("xinghaoOverview", this);
   }
 

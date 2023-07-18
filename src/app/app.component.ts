@@ -14,7 +14,10 @@ export class AppComponent {
   isProd = environment.production;
   routesInfo = routesInfo;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   getRouteTitle(routeInfo: (typeof routesInfo)[number]) {
     const {title, path} = routeInfo;

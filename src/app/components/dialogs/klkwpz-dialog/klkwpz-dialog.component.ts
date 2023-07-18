@@ -12,7 +12,10 @@ import {getOpenDialogFunc} from "../dialog.common";
 export class KlkwpzDialogComponent {
   @ViewChild(KlkwpzComponent) klkwpzComponent?: KlkwpzComponent;
 
-  constructor(public dialogRef: MatDialogRef<KlkwpzDialogComponent, KlkwpzSource>, @Inject(MAT_DIALOG_DATA) public data: KlkwpzDialogData) {
+  constructor(
+    public dialogRef: MatDialogRef<KlkwpzDialogComponent, KlkwpzSource>,
+    @Inject(MAT_DIALOG_DATA) public data: KlkwpzDialogData
+  ) {
     if (!data.source || typeof data.source !== "object" || Array.isArray(data.source)) {
       data.source = {};
     }

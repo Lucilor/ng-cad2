@@ -36,7 +36,10 @@ export class FormulasEditorComponent {
   testResult: CalcResult | null = null;
   @ViewChild("testResultEl", {read: ElementRef}) testResultEl?: ElementRef<HTMLDivElement>;
 
-  constructor(private message: MessageService, private calc: CalcService) {
+  constructor(
+    private message: MessageService,
+    private calc: CalcService
+  ) {
     setGlobal("formulasEditor", this);
   }
 

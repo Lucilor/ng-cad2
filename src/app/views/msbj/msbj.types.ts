@@ -9,7 +9,10 @@ export class MsbjInfo {
   name: string;
   peizhishuju: MsbjPeizhishuju;
 
-  constructor(public rawData: MsbjData, node2rectData?: Node2rectData) {
+  constructor(
+    public rawData: MsbjData,
+    node2rectData?: Node2rectData
+  ) {
     this.vid = rawData.vid;
     this.name = rawData.mingzi;
 

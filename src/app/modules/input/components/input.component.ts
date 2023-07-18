@@ -218,7 +218,10 @@ export class InputComponent extends Utils() implements AfterViewInit {
   valueChange$ = new BehaviorSubject<any>(null);
   filteredOptions$ = new BehaviorSubject<InputComponent["options"]>([]);
 
-  constructor(private message: MessageService, private dialog: MatDialog) {
+  constructor(
+    private message: MessageService,
+    private dialog: MatDialog
+  ) {
     super();
     this.valueChange$.subscribe((val) => {
       const info = this.info;

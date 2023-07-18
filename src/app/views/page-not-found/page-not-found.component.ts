@@ -10,7 +10,10 @@ import {PathResolveData} from "@app/routing/path-resolver";
 export class PageNotFoundComponent {
   data: PathResolveData;
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
     this.data = this.route.snapshot.data.redirect;
   }
 

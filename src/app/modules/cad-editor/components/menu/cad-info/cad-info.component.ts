@@ -174,7 +174,11 @@ export class CadInfoComponent extends Subscribed(Utils()) implements OnInit, OnD
   bjxIntersectionKey = "激光开料标记线";
   emptyBjxItem: NonNullable<CadData["info"]["激光开料标记线"]>[0] = {type: "短直线", ids: []};
 
-  constructor(private status: AppStatusService, private dialog: MatDialog, private message: MessageService) {
+  constructor(
+    private status: AppStatusService,
+    private dialog: MatDialog,
+    private message: MessageService
+  ) {
     super();
   }
 

@@ -29,7 +29,10 @@ export class MessageService {
   openedDialogs: MatDialogRef<MessageComponent, MessageOutput>[] = [];
   open$ = new BehaviorSubject<MatDialogConfig<MessageData>>({});
   close$ = new BehaviorSubject<MessageOutput>(null);
-  constructor(private dialog: MatDialog, private snackBar: MatSnackBar) {}
+  constructor(
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {}
 
   async open(config: MatDialogConfig<MessageData>) {
     config = {width: "40%", ...config};

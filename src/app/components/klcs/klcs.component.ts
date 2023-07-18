@@ -36,7 +36,11 @@ export class KlcsComponent implements OnInit, AfterViewInit {
   cadData?: CadData;
   cadMubanData?: CadData;
 
-  constructor(private dataService: CadDataService, private spinner: SpinnerService, private message: MessageService) {}
+  constructor(
+    private dataService: CadDataService,
+    private spinner: SpinnerService,
+    private message: MessageService
+  ) {}
 
   async ngOnInit() {
     setGlobal("kailiaocanshu", this);

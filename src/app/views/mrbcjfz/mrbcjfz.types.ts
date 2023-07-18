@@ -34,7 +34,10 @@ export class MrbcjfzXinghaoInfo {
   默认板材: ObjectOf<MrbcjfzInfo> = {};
   inputInfos: ObjectOf<InputInfo[]> = {};
 
-  constructor(public table: string, public raw: MrbcjfzXinghao) {
+  constructor(
+    public table: string,
+    public raw: MrbcjfzXinghao
+  ) {
     try {
       this.默认板材 = JSON.parse(raw.morenbancai || "");
     } catch (error) {}

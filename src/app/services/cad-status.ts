@@ -68,7 +68,10 @@ export class CadStatusEditDimension extends CadStatus {
   canExit = true;
   exitWithEsc = true;
 
-  constructor(public type: CadDimensionType, index?: number) {
+  constructor(
+    public type: CadDimensionType,
+    index?: number
+  ) {
     super(index);
   }
 }
@@ -78,7 +81,10 @@ export class CadStatusIntersection extends CadStatus {
   canExit = true;
   exitWithEsc = true;
 
-  constructor(public info: string, index?: number) {
+  constructor(
+    public info: string,
+    index?: number
+  ) {
     super(index);
   }
 }

@@ -40,7 +40,11 @@ export class ChangelogAdminComponent extends Utils() implements AfterViewInit {
     return this.paginator?.pageSize || 5;
   }
 
-  constructor(private dataService: CadDataService, private message: MessageService, private spinner: SpinnerService) {
+  constructor(
+    private dataService: CadDataService,
+    private message: MessageService,
+    private spinner: SpinnerService
+  ) {
     super();
   }
 

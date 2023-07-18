@@ -17,7 +17,11 @@ export class JiaoweiComponent implements OnInit {
   jiaowei = new Jiaowei();
   jiaoweiAnchorOptions = jiaoweiAnchorOptions;
 
-  constructor(private dataService: CadDataService, private router: ActivatedRoute, private message: MessageService) {}
+  constructor(
+    private dataService: CadDataService,
+    private router: ActivatedRoute,
+    private message: MessageService
+  ) {}
 
   async ngOnInit() {
     setGlobal("jiaowei", this);
