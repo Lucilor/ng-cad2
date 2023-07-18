@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, QueryList, ViewChildren} from "@angular/core";
+import {Component, OnInit, QueryList, ViewChildren} from "@angular/core";
 import {Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute} from "@angular/router";
@@ -10,6 +10,7 @@ import {BancaiCad, BancaiList} from "@modules/http/services/cad-data.service.typ
 import {InputComponent} from "@modules/input/components/input.component";
 import {MessageService} from "@modules/message/services/message.service";
 import {SpinnerService} from "@modules/spinner/services/spinner.service";
+import {AppConfigService} from "@services/app-config.service";
 import {AppStatusService} from "@services/app-status.service";
 import {cloneDeep} from "lodash";
 import {DateTime} from "luxon";
@@ -21,7 +22,7 @@ import {BancaiCadExtend, BancaisInfo, guigePattern, houduPattern, OrderBancaiInf
   styleUrls: ["./select-bancai.component.scss"]
 })
 export class SelectBancaiComponent implements OnInit {
-  autoGuige = true;
+  autoGuige = this.config.getConfig("kailiaoAutoGuige");
   orderBancaiInfos: OrderBancaiInfo[] = [];
   bancaiList: ObjectOf<BancaiList> = {};
   codes: string[] = [];
@@ -48,9 +49,9 @@ export class SelectBancaiComponent implements OnInit {
     private dataService: CadDataService,
     private message: MessageService,
     private dialog: MatDialog,
-    private cd: ChangeDetectorRef,
     private spinner: SpinnerService,
-    private status: AppStatusService
+    private status: AppStatusService,
+    private config: AppConfigService
   ) {
     setGlobal("selectBancai", this);
   }
@@ -381,5 +382,9 @@ export class SelectBancaiComponent implements OnInit {
     url.pathname = "/dingdanbiaoqian";
     url.searchParams.set("type", "标签贴纸");
     this.open(url.href);
+  }
+
+  onAutoGuigeChange() {
+    this.config.setConfig("kailiaoAutoGuige", this.autoGuige);
   }
 }

@@ -1,3 +1,5 @@
+import {remoteHost} from "@app/app.common";
+import {environment} from "@env";
 import {CadData, CadDimension, CadImage, CadLineLike, CadMtext, CadViewer, CadViewerConfig} from "@lucilor/cad-viewer";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {CadCollection} from "./collections";
@@ -82,6 +84,9 @@ export const getCadPreview = async (collection: CadCollection, data: CadData, pa
   if (http) {
     url = await http.getCadImg(data.id, useCache, {silent: true});
     if (url) {
+      if (!environment.production) {
+        url = url.replace(remoteHost, origin);
+      }
       return url;
     }
   }

@@ -2,7 +2,7 @@
   <div>订单编号: {{ codes.join(",") }}</div>
 </div>
 <div class="toolbar flex-row">
-  <mat-slide-toggle [(ngModel)]="autoGuige">自动选择最合适的板材规格</mat-slide-toggle>
+  <mat-slide-toggle [(ngModel)]="autoGuige" (change)="onAutoGuigeChange()">自动选择最合适的板材规格</mat-slide-toggle>
   <div class="links">
     <button mat-flat-button (click)="openDdbq()">订单标签</button>
     <button mat-flat-button [disabled]="downloadHistory.length < 1" [matMenuTriggerFor]="downloadHistoryList">下载记录</button>

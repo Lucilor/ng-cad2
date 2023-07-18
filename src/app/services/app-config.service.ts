@@ -14,6 +14,7 @@ export interface AppConfig extends CadViewerConfig {
   subCadsMultiSelect: boolean;
   pointSize: number;
   cadPointsAnywhere: boolean;
+  kailiaoAutoGuige: boolean;
 }
 
 export interface AppConfigChange {
@@ -62,7 +63,8 @@ export class AppConfigService {
       scroll: {},
       subCadsMultiSelect: true,
       pointSize: 20,
-      cadPointsAnywhere: false
+      cadPointsAnywhere: false,
+      kailiaoAutoGuige: false
     };
     this._configKeys = keysOf(defaultConfig);
     const localUserConfig = this._purgeUserConfig(local.load<Partial<AppConfig>>("userConfig") || {});
@@ -184,7 +186,7 @@ export class AppConfigService {
     if (Object.keys(config).length) {
       const response = await this.dataService.post("ngcad/setUserConfig", {config: this._purgeUserConfig(config)});
       local.save("userConfig", {...(local.load<Partial<AppConfig>>("userConfig") || {}), ...config});
-      return response && response.code === 0;
+      return !!(response && response.code === 0);
     }
     return false;
   }
