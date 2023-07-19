@@ -165,32 +165,45 @@ export class MrbcjfzComponent implements OnInit {
           const item: MrbcjfzQiliaoInfo = {data: v, id: String(v.mingzi)};
           this.qiliaos.push(item);
         });
-        const cadsToRemove2: MrbcjfzCadInfo[] = [];
-        const huajiansToRemove2: MrbcjfzHuajianInfo[] = [];
+        const cadsRemoved: string[] = [];
+        const huajiansRemoved: string[] = [];
         for (const bancaiKey in this.xinghao.默认板材) {
           const info = this.xinghao.默认板材[bancaiKey];
-          info.CAD.forEach((cadId) => {
+          const cadIds = info.CAD;
+          info.CAD = [];
+          for (const cadId of cadIds) {
+            if (!this.cads.find((v) => v.id === cadId)) {
+              cadsRemoved.push(cadId);
+              continue;
+            }
             const item = cadsToRemove.find((v) => v.id === cadId);
-            if (item && !cadsToRemove2.find((v) => v.id === cadId)) {
-              cadsToRemove2.push(item);
+            if (item && !cadsRemoved.includes(cadId)) {
+              cadsRemoved.push(item.data.name);
             }
-          });
-          info.CAD = info.CAD.filter((v) => !cadsToRemove2.find((v2) => v2.id === v));
-          info.花件.forEach((huajianId) => {
+            info.CAD.push(cadId);
+          }
+          const huajianIds = info.花件;
+          info.花件 = [];
+          for (const huajianId of huajianIds) {
+            if (!this.huajians.find((v) => v.id === huajianId)) {
+              huajiansRemoved.push(huajianId);
+              continue;
+            }
             const item = huajiansToRemove.find((v) => v.id === huajianId);
-            if (item && !huajiansToRemove2.find((v) => v.id === huajianId)) {
-              huajiansToRemove2.push(item);
+            if (item && !huajiansRemoved.includes(huajianId)) {
+              huajiansRemoved.push(item.data.mingzi);
+              continue;
             }
-          });
-          info.花件 = info.花件.filter((v) => !huajiansToRemove2.find((v2) => v2.id === v));
+            info.花件.push(huajianId);
+          }
           this.justifyBancai(bancaiKey, info);
         }
         const errorMsgs: string[] = [];
-        if (cadsToRemove2.length > 0) {
-          errorMsgs.push(`删除了以下${cadsToRemove2.length}个无效cad: <br>${cadsToRemove2.map((v) => v.data.name).join("，")}`);
+        if (cadsRemoved.length > 0) {
+          errorMsgs.push(`删除了以下${cadsRemoved.length}个无效cad: <br>${cadsRemoved.join("，")}`);
         }
-        if (huajiansToRemove2.length > 0) {
-          errorMsgs.push(`删除了以下${huajiansToRemove2.length}个无效花件: <br>${huajiansToRemove2.map((v) => v.data.mingzi).join("，")}`);
+        if (huajiansRemoved.length > 0) {
+          errorMsgs.push(`删除了以下${huajiansRemoved.length}个无效花件: <br>${huajiansRemoved.join("，")}`);
         }
         this.bancaiList = data.bancaiList;
         this.updateXinghao();
