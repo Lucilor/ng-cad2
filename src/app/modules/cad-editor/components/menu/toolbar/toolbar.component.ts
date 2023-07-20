@@ -1,6 +1,5 @@
 import {Component, HostListener} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {Router} from "@angular/router";
 import {local} from "@app/app.common";
 import {openBbzhmkgzDialog} from "@components/dialogs/bbzhmkgz/bbzhmkgz.component";
 import {openCadLineTiaojianquzhiDialog} from "@components/dialogs/cad-line-tjqz/cad-line-tjqz.component";
@@ -98,8 +97,7 @@ export class ToolbarComponent extends Subscribed() {
     private status: AppStatusService,
     private dialog: MatDialog,
     private dataService: CadDataService,
-    private spinner: SpinnerService,
-    private router: Router
+    private spinner: SpinnerService
   ) {
     super();
     this.subscribe(this.status.changelogTimeStamp$, (changelogTimeStamp) => {
@@ -370,7 +368,8 @@ export class ToolbarComponent extends Subscribed() {
   }
 
   goToBackup() {
-    const url = this.router.createUrlTree(["/backup"], {queryParamsHandling: "merge"});
-    window.open(url.toString());
+    const url = new URL(location.href);
+    url.pathname = url.pathname.slice(0, url.pathname.lastIndexOf("/")) + "/backup";
+    window.open(url.href);
   }
 }

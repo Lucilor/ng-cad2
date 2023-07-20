@@ -379,7 +379,7 @@ export class SelectBancaiComponent implements OnInit {
 
   openDdbq() {
     const url = new URL(location.href);
-    url.pathname = "/dingdanbiaoqian";
+    url.pathname = url.pathname.slice(0, url.pathname.lastIndexOf("/")) + "/dingdanbiaoqian";
     url.searchParams.set("type", "标签贴纸");
     this.open(url.href);
   }

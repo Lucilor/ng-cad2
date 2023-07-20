@@ -891,6 +891,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
       return;
     }
     id = responseData.id;
+    // fixme
     const src = this.router.createUrlTree(["/index"], {queryParams: {project, collection, id}}).toString();
     await this.message.iframe({content: src, title: name});
     this.step3Fetch();
