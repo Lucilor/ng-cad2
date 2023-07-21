@@ -45,6 +45,7 @@ export type ZixuanpeijianTypesInfo = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoIte
 
 export interface ZixuanpeijianTypesInfoItem2 extends ZixuanpeijianTypesInfoItem {
   disableAdd?: boolean;
+  hidden?: boolean;
 }
 export type ZixuanpeijianTypesInfo2 = ObjectOf<ObjectOf<ZixuanpeijianTypesInfoItem2>>;
 

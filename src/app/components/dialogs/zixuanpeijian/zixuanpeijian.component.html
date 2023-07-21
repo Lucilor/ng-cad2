@@ -2,8 +2,8 @@
   <div *ngSwitchCase="1" class="step-1 flex-row flex-110">
     <ng-scrollbar class="flex-110" [ngStyle]="{flex: '0 0 ' + typesButtonsWidth}">
       <div class="types-buttons">
-        <ng-container *ngFor="let item of typesInfo | keyvalue : returnZero">
-          <div *ngIf="showItemType1(item.key)">
+        <ng-container *ngFor="let item of typesInfo | keyvalue: returnZero">
+          <div *ngIf="!typesInfoType1[item.key]?.hidden">
             <button #typesButton mat-raised-button [color]="type1 === item.key ? 'accent' : 'primary'" (click)="setTypesInfo1(item.key)">
               {{ item.key }}
             </button>
@@ -15,8 +15,8 @@
       <app-input [info]="searchMokuaiInputInfo"></app-input>
       <ng-scrollbar class="flex-110">
         <div class="types-info-items flex-row flex-110" *ngIf="typesInfo[type1]">
-          <ng-container *ngFor="let item of typesInfo[type1] | keyvalue : returnZero">
-            <div class="types-info-item" *ngIf="showItemType2(type1, item.key)">
+          <ng-container *ngFor="let item of typesInfo[type1] | keyvalue: returnZero">
+            <div class="types-info-item" *ngIf="!item.value.hidden">
               <div class="images flex-row flex-110">
                 <app-image
                   class="xiaoguotu"
@@ -122,31 +122,38 @@
   <div *ngSwitchCase="3" class="step-3 flex-row flex-110">
     <ng-scrollbar class="flex-110" [ngStyle]="{flex: '0 0 ' + typesButtonsWidth}">
       <div class="types-buttons">
-        <div *ngFor="let type of lingsanCadTypes">
-          <button #typesButton mat-raised-button [color]="type === lingsanCadType ? 'accent' : 'primary'" (click)="setlingsanCadType(type)">
-            {{ type }}
-          </button>
+        <div *ngFor="let item of lingsanCadInfos | keyvalue: returnZero">
+          <ng-container *ngIf="!item.value.hidden">
+            <button
+              #typesButton
+              mat-raised-button
+              [color]="item.key === lingsanCadType ? 'accent' : 'primary'"
+              (click)="setlingsanCadType(item.key)"
+            >
+              {{ item.key }}
+            </button>
+          </ng-container>
         </div>
       </div>
     </ng-scrollbar>
     <div class="flex-column flex-110">
       <div class="btn-group">
         <app-input [info]="lingsanCadsSearchInput" style="padding: 0 10px; flex: 1 1 0"></app-input>
-        <button mat-raised-button color="primary" (click)="step3Fetch()">刷新cad</button>
+        <button mat-raised-button color="primary" (click)="step3Refresh()">刷新cad</button>
       </div>
       <ng-scrollbar class="flex-110">
         <div class="lingsan-cads">
-          <ng-container *ngFor="let item of lingsanCads; let i = index">
+          <ng-container *ngFor="let item of lingsanCads[lingsanCadType]; let i = index">
             <div class="lingsan-cad" *ngIf="!item.hidden">
               <img class="cad-preview" [src]="item.img" />
               <div class="title flex-row flex-110">
-                <button mat-icon-button color="primary" (click)="addLingsanItem(i)">
+                <button mat-icon-button color="primary" (click)="addLingsanItem(lingsanCadType, i)">
                   <mat-icon>add_circle</mat-icon>
                 </button>
-                <button mat-icon-button color="primary" (click)="copyLingsanCad(i)">
+                <button mat-icon-button color="primary" (click)="copyLingsanCad(lingsanCadType, i)">
                   <mat-icon>content_copy</mat-icon>
                 </button>
-                <button mat-icon-button color="primary" (click)="openLingsanCad(i)">
+                <button mat-icon-button color="primary" (click)="openLingsanCad(lingsanCadType, i)">
                   <mat-icon>open_in_new</mat-icon>
                 </button>
                 <div class="name text-ellipsis" [matTooltip]="item.data.name" [matTooltipShowDelay]="500" matTooltipPosition="above">

@@ -4,7 +4,6 @@ import {Validators} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
-import {Router} from "@angular/router";
 import {imgCadEmpty, session, setGlobal} from "@app/app.common";
 import {getCadPreview} from "@app/cad/cad-preview";
 import {CadCollection} from "@app/cad/collections";
@@ -12,7 +11,7 @@ import {setDimensionText} from "@app/cad/utils";
 import {toFixed} from "@app/utils/func";
 import {Debounce} from "@decorators/debounce";
 import {CadData, CadLine, CadLineLike, CadMtext, CadViewer, CadViewerConfig, setLinesLength} from "@lucilor/cad-viewer";
-import {ObjectOf, timeout} from "@lucilor/utils";
+import {ObjectOf, queryStringList, timeout} from "@lucilor/utils";
 import {ContextMenu} from "@mixins/context-menu.mixin";
 import {CadDataService} from "@modules/http/services/cad-data.service";
 import {BancaiList} from "@modules/http/services/cad-data.service.types";
@@ -61,6 +60,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   type2 = "";
   urlPrefix = "";
   typesInfo: ZixuanpeijianTypesInfo2 = {};
+  typesInfoType1: ObjectOf<{hidden: boolean}> = {};
   options: ObjectOf<string[]> = {};
   bancaiList: BancaiList[] = [];
   result: ZixuanpeijianOutput = importZixuanpeijian();
@@ -78,38 +78,30 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   mokuaiInputInfos: MokuaiInputInfos[] = [];
   lingsanInputInfos: CadItemInputInfo[] = [];
   dropDownOptions: {label: string; value: string; customClass?: string}[] = [];
-  lingsanCads: ZixuanpeijianlingsanCadItem[] = [];
-  lingsanCadTypes: string[] = [];
+  lingsanCads: ObjectOf<ZixuanpeijianlingsanCadItem[]> = {};
+  lingsanCadInfos: ObjectOf<{hidden: boolean}> = {};
   lingsanCadType = "";
-  lingsanCadsSearchData = {str: ""};
+  searchLingsanValueKey = "zixuanpeijian-searchLingsanValue";
+  searchLingsanValue = session.load(this.searchLingsanValueKey) || "";
   lingsanCadsSearchInput: InputInfo = {
     type: "string",
     label: "搜索",
     clearable: true,
-    onInput: debounce(
-      ((str: string) => {
-        const type = this.lingsanCadType;
-        str = str.toLowerCase();
-        for (const item of this.lingsanCads) {
-          item.hidden = item.data.type2 !== type || (!!str && !item.data.name.toLowerCase().includes(str));
-        }
-      }).bind(this),
-      500
-    )
+    model: {data: this, key: "searchLingsanValue"},
+    onInput: debounce(this.filterLingsanItems.bind(this), 200)
   };
   lingsanCadImgs: ObjectOf<SafeUrl> = {};
   lingsanCadViewers: CadViewer[] = [];
   imgCadEmpty = imgCadEmpty;
   selectAllForm = {baicai: "", cailiao: "", houdu: ""};
-  searchMokuaiValue = session.load("zixuanpeijian-searchMokuaiValue") || "";
+  searchMokuaiValueKey = "zixuanpeijian-searchMokuaiValue";
+  searchMokuaiValue = session.load(this.searchMokuaiValueKey) || "";
   searchMokuaiInputInfo: InputInfo = {
     type: "string",
     label: "搜索",
     clearable: true,
     model: {data: this, key: "searchMokuaiValue"},
-    onInput: (val) => {
-      session.save("zixuanpeijian-searchMokuaiValue", val);
-    }
+    onInput: debounce(this.filterMokuaiItems.bind(this), 200)
   };
   typesButtonsWidth = "auto";
 
@@ -141,8 +133,7 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     private elRef: ElementRef<HTMLElement>,
     private calc: CalcService,
     private status: AppStatusService,
-    private domSanitizer: DomSanitizer,
-    private router: Router
+    private domSanitizer: DomSanitizer
   ) {
     super();
   }
@@ -361,19 +352,29 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     const responseData = this.dataService.getResponseData(response);
     if (responseData) {
       this.lingsanCadImgs = {};
-      this.lingsanCadTypes = [];
-      this.lingsanCads = responseData.cads.map((v) => {
+      this.lingsanCadInfos = {};
+      this.lingsanCads = {};
+      for (const v of responseData.cads) {
         const data = new CadData(v);
         const item: ZixuanpeijianlingsanCadItem = {data, img: imgCadEmpty, hidden: false};
         const type = item.data.type2;
-        if (!this.lingsanCadTypes.includes(type)) {
-          this.lingsanCadTypes.push(type);
+        if (!this.lingsanCadInfos[type]) {
+          this.lingsanCadInfos[type] = {hidden: false};
         }
-        return item;
-      });
+        if (!this.lingsanCads[type]) {
+          this.lingsanCads[type] = [];
+        }
+        this.lingsanCads[type].push(item);
+      }
       const toRemove: number[] = [];
       for (const [i, item] of this.result.零散.entries()) {
-        const found = this.lingsanCads.find((v) => v.data.id === item.info.houtaiId);
+        let found: ZixuanpeijianlingsanCadItem | undefined;
+        for (const type in this.lingsanCads) {
+          found = this.lingsanCads[type].find((v) => v.data.id === item.info.houtaiId);
+          if (found) {
+            break;
+          }
+        }
         if (found) {
           item.data = found.data.clone(true);
         } else {
@@ -395,6 +396,10 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
       this._updateInputInfos();
     }
     this._step3Fetched = true;
+  }
+
+  async step3Refresh() {
+    this.step$.next({value: 3, refresh: true});
   }
 
   async allFetch() {
@@ -482,32 +487,37 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   }
 
   private async _onStep({value, refresh}: ZixuanpeijianComponent["step$"]["value"]) {
+    let isRefreshed = false;
     if (value === 1) {
       if (refresh || !this._step1Fetched) {
         await this.step1Fetch();
+        isRefreshed = true;
       }
-      if (!this.type1) {
-        this.type1 = Object.keys(this.typesInfo)[0] || "";
+      if (isRefreshed || !this.type1) {
+        this.setTypesInfo1(Object.keys(this.typesInfo)[0] || "");
       }
       await this._updateTypesButtons();
+      this.filterMokuaiItems();
     } else if (value === 2) {
       if (refresh || !this._step2Fetched) {
         await this.step2Fetch();
+        isRefreshed = true;
       }
     } else if (value === 3) {
       if (refresh || !this._step3Fetched) {
         await this.step3Fetch();
+        isRefreshed = true;
       }
-      if (!this.lingsanCadType) {
-        this.setlingsanCadType(this.lingsanCadTypes[0]);
+      if (isRefreshed || !this.lingsanCadType) {
+        const keys = Object.keys(this.lingsanCadInfos);
+        this.setlingsanCadType(keys[0]);
       }
       await this._updateTypesButtons();
+      this.filterLingsanItems();
     }
   }
 
   private async _updateTypesButtons() {
-    const search = this.searchMokuaiValue;
-    this.searchMokuaiValue = "";
     this.typesButtonsWidth = "200px";
     await timeout(0);
     const {typesButtons} = this;
@@ -521,14 +531,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     await timeout(0);
     let maxWidth = 0;
     for (const el of els) {
-      console.log(el.getBoundingClientRect().width);
       maxWidth = Math.max(maxWidth, el.getBoundingClientRect().width);
     }
     for (const el of els) {
       el.style.width = "";
     }
     this.typesButtonsWidth = maxWidth + "px";
-    this.searchMokuaiValue = search;
   }
 
   async submit() {
@@ -861,10 +869,11 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     this._updateInputInfos();
   }
 
-  addLingsanItem(i: number) {
-    const data = this.lingsanCads[i].data.clone(true);
+  addLingsanItem(type: string, i: number) {
+    const data0 = this.lingsanCads[type][i].data;
+    const data = data0.clone(true);
     data.name += "M";
-    this.result.零散.push({data, info: {houtaiId: this.lingsanCads[i].data.id, zhankai: [], calcZhankai: []}});
+    this.result.零散.push({data, info: {houtaiId: data0.id, zhankai: [], calcZhankai: []}});
     this._updateInputInfos();
   }
 
@@ -873,8 +882,8 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     this._updateInputInfos();
   }
 
-  async copyLingsanCad(i: number) {
-    const data = this.lingsanCads[i].data;
+  async copyLingsanCad(type: string, i: number) {
+    const data = this.lingsanCads[type][i].data;
     const name = await this.message.prompt(
       {type: "string", label: "零散配件名字", value: data.name + "_复制", validators: Validators.required},
       {title: "复制零散配件"}
@@ -882,7 +891,6 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     if (!name) {
       return;
     }
-    const project = this.status.project;
     const collection = "cad";
     let id = data.id;
     const response = await this.dataService.post<{id: string}>("peijian/cad/copyCad", {collection, id, data: {名字: name}});
@@ -891,14 +899,12 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
       return;
     }
     id = responseData.id;
-    // fixme
-    const src = this.router.createUrlTree(["/index"], {queryParams: {project, collection, id}}).toString();
-    await this.message.iframe({content: src, title: name});
+    await openCadEditorDialog(this.dialog, {data: {data, collection, center: true}});
     this.step3Fetch();
   }
 
-  openLingsanCad(i: number) {
-    this.status.openCadInNewTab(this.lingsanCads[i].data.id, "cad");
+  openLingsanCad(type: string, i: number) {
+    this.status.openCadInNewTab(this.lingsanCads[type][i].data.id, "cad");
   }
 
   getZhankaiArr(type: CadItemContext["type"], i: number, j: number) {
@@ -959,28 +965,43 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
     }
   }
 
-  showItemType1(type1: string) {
-    const search = this.searchMokuaiValue;
-    if (!search) {
-      return true;
-    }
-    let count = 0;
-    for (const type2 in this.typesInfo[type1]) {
-      if (this.showItemType2(type1, type2)) {
-        count++;
+  filterMokuaiItems() {
+    const needle = this.searchMokuaiValue;
+    for (const type1 in this.typesInfo) {
+      let count = 0;
+      for (const type2 in this.typesInfo[type1]) {
+        const item = this.typesInfo[type1][type2];
+        item.hidden = !queryStringList(needle, [type1, type2]);
+        if (!item.hidden) {
+          count++;
+        }
+      }
+      if (type1 in this.typesInfoType1) {
+        this.typesInfoType1[type1].hidden = count < 1;
+      } else {
+        this.typesInfoType1[type1] = {hidden: count < 1};
       }
     }
-    return count > 0;
+    session.save(this.searchMokuaiValueKey, needle);
   }
 
-  showItemType2(type1: string, type2: string) {
-    const search = this.searchMokuaiValue;
-    if (search && !type1.includes(search) && !type2.includes(search)) {
-      return false;
+  filterLingsanItems() {
+    const needle = this.searchLingsanValue;
+    for (const type in this.lingsanCads) {
+      let count = 0;
+      for (const item of this.lingsanCads[type]) {
+        item.hidden = !queryStringList(needle, [item.data.name, item.data.type2]);
+        if (!item.hidden) {
+          count++;
+        }
+      }
+      if (type in this.lingsanCadInfos) {
+        this.lingsanCadInfos[type].hidden = count < 1;
+      } else {
+        this.lingsanCadInfos[type] = {hidden: count < 1};
+      }
     }
-    const xinghaoId = String(this.materialResult?.型号id || "");
-    const item = this.typesInfo[type1][type2];
-    return !xinghaoId || !(item.xinghaozhuanyong?.length > 0) || item.xinghaozhuanyong.includes(xinghaoId);
+    session.save(this.searchLingsanValueKey, needle);
   }
 
   returnZero() {
@@ -988,13 +1009,14 @@ export class ZixuanpeijianComponent extends ContextMenu() implements OnInit {
   }
 
   setlingsanCadType(type: string) {
-    for (const item of this.lingsanCads) {
-      item.hidden = item.data.type2 !== type;
-      if (!item.hidden && item.img === imgCadEmpty) {
-        getCadPreview("cad", item.data, {http: this.dataService}).then((img) => {
-          item.img = this.domSanitizer.bypassSecurityTrustUrl(img);
-          this.lingsanCadImgs[item.data.id] = item.img;
-        });
+    for (const type2 in this.lingsanCads) {
+      for (const item of this.lingsanCads[type2]) {
+        if (!item.hidden && item.img === imgCadEmpty) {
+          getCadPreview("cad", item.data, {http: this.dataService}).then((img) => {
+            item.img = this.domSanitizer.bypassSecurityTrustUrl(img);
+            this.lingsanCadImgs[item.data.id] = item.img;
+          });
+        }
       }
     }
     this.lingsanCadType = type;
