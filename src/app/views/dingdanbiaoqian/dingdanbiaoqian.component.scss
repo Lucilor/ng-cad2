@@ -219,6 +219,21 @@ $info-border: solid 1px black;
   border-bottom: $info-border;
 }
 
+.配件模块 {
+  --title-size: 1.2em;
+  --title-padding: 3px 0;
+  .title {
+    align-items: center;
+  }
+
+  .image-container {
+    width: 150px;
+    justify-content: flex-start;
+    padding: 0 5px;
+    box-sizing: border-box;
+  }
+}
+
 .form {
   font-family: 宋体;
   white-space: pre;
@@ -226,6 +241,7 @@ $info-border: solid 1px black;
   flex-direction: column;
   align-items: center;
   flex: 0 0 auto;
+  --label-width: auto;
   --label-height: 16px;
   --value-height: 17px;
 
@@ -236,28 +252,36 @@ $info-border: solid 1px black;
     padding: 7px;
   }
 
-  .item {
+  .row {
     display: flex;
-    align-items: center;
-    padding: 5px 0;
     width: 100%;
 
-    > * {
-      height: 100%;
+    .item {
       display: flex;
       align-items: center;
-    }
-
-    .label {
-      font-size: var(--label-height);
-      line-height: var(--label-height);
-    }
-
-    .value {
-      font-size: var(--value-height);
-      line-height: var(--value-height);
-      width: 0;
       flex: 1 1 0;
+
+      > * {
+        padding: 5px 0;
+        box-sizing: border-box;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .label {
+        flex: 0 0 var(--label-width);
+        font-size: var(--label-height);
+        line-height: var(--label-height);
+      }
+
+      .value {
+        font-size: var(--value-height);
+        line-height: var(--value-height);
+        width: 0;
+        flex: 1 1 0;
+      }
     }
   }
 
@@ -276,13 +300,10 @@ $info-border: solid 1px black;
   padding: 10px;
   display: flex;
   flex-direction: column;
+  --label-width: 45px;
 
   .item {
     border-bottom: 1px solid black;
-
-    .label {
-      flex: 0 0 42px;
-    }
 
     .value {
       font-weight: bold;
@@ -290,30 +311,14 @@ $info-border: solid 1px black;
   }
 }
 
-.配件模块 {
-  --title-size: 1.2em;
-  --title-padding: 3px 0;
-  .title {
-    align-items: center;
-  }
-
-  .image-container {
-    width: 150px;
-    justify-content: flex-start;
-    padding: 0 5px;
-    box-sizing: border-box;
-  }
-}
-
 .合格证 {
   width: 9.5cm;
   height: 12.5cm;
-  padding: 0.2cm 0 0 3.4cm;
+  margin: 0.2cm 0 0 3.4cm;
+  --label-width: 70px;
 
   .item {
     .label {
-      width: 65px;
-
       &:empty {
         display: none;
       }
@@ -322,6 +327,36 @@ $info-border: solid 1px black;
         &::after {
           content: ":";
         }
+      }
+    }
+  }
+}
+
+.流程指令卡 {
+  width: 12.2cm;
+  height: 14.5cm;
+  margin: 1cm 0.8cm 0 0.8cm;
+  --label-width: 70px;
+  --border: 1px solid black;
+  border: var(--border);
+
+  .row {
+    flex: 1 1 0;
+    &:not(:last-child) {
+      border-bottom: var(--border);
+    }
+
+    .item {
+      &:not(:last-child) {
+        border-right: var(--border);
+      }
+
+      .label,
+      .value {
+        padding: 5px 2px;
+      }
+      .label {
+        border-right: var(--border);
       }
     }
   }

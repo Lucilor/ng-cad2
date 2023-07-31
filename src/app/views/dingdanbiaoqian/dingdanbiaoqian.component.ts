@@ -34,7 +34,7 @@ import {CalcService} from "@services/calc.service";
 import JsBarcode from "jsbarcode";
 import {cloneDeep, isEmpty} from "lodash";
 import {DateTime} from "luxon";
-import {DdbqData, Order, SectionCell, SectionConfig, Form} from "./dingdanbiaoqian.types";
+import {DdbqData, Order, SectionCell, SectionConfig, Form, DdbqType} from "./dingdanbiaoqian.types";
 
 @Component({
   selector: "app-dingdanbiaoqian",
@@ -90,7 +90,7 @@ export class DingdanbiaoqianComponent implements OnInit {
   };
   production = environment.production;
   materialResult: Formulas = {};
-  type: "流程单" | "标签贴纸" | "质检标签" | "配件模块" | "合格证" | null = null;
+  type: DdbqType | null = null;
   forms: Form[] = [];
   mokuais: ZixuanpeijianMokuaiItem[] = [];
   fractionDigits = 1;
@@ -451,6 +451,7 @@ export class DingdanbiaoqianComponent implements OnInit {
         }
         case "质检标签":
         case "合格证":
+        case "流程指令卡":
           this.forms = order.forms || [];
           console.log(order);
           break;

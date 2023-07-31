@@ -139,9 +139,11 @@
 </div>
 
 <ng-template #formItem let-form [appTypedTemplate]="{$implicit: forms[0]}">
-  <div class="item" *ngFor="let item of form.items" [ngStyle]="item.style">
-    <div class="label" [ngStyle]="item.labelStyle">{{ item.label }}</div>
-    <div class="value" [ngStyle]="item.valueStyle">{{ item.value }}</div>
+  <div class="row" *ngFor="let row of form.rows">
+    <div class="item" *ngFor="let item of row" [ngStyle]="item.style">
+      <div class="label" [ngStyle]="item.labelStyle">{{ item.label }}</div>
+      <div class="value" [ngStyle]="item.valueStyle">{{ item.value }}</div>
+    </div>
   </div>
 </ng-template>
 

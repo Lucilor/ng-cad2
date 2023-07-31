@@ -58,7 +58,7 @@ export type DdbqData = {
 export interface Form {
   title?: string;
   barCode?: string;
-  items: FormItem[];
+  rows: FormItem[][];
 }
 
 export interface FormItem {
@@ -68,3 +68,5 @@ export interface FormItem {
   labelStyle?: Properties;
   valueStyle?: Properties;
 }
+
+export type DdbqType = "流程单" | "标签贴纸" | "质检标签" | "配件模块" | "合格证" | "流程指令卡";
