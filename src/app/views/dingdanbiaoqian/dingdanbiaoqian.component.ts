@@ -34,7 +34,7 @@ import {CalcService} from "@services/calc.service";
 import JsBarcode from "jsbarcode";
 import {cloneDeep, isEmpty} from "lodash";
 import {DateTime} from "luxon";
-import {DdbqData, Order, SectionCell, SectionConfig, ZhijianForm} from "./dingdanbiaoqian.types";
+import {DdbqData, Order, SectionCell, SectionConfig, Form} from "./dingdanbiaoqian.types";
 
 @Component({
   selector: "app-dingdanbiaoqian",
@@ -90,8 +90,8 @@ export class DingdanbiaoqianComponent implements OnInit {
   };
   production = environment.production;
   materialResult: Formulas = {};
-  type: "流程单" | "标签贴纸" | "质检标签" | "配件模块" | null = null;
-  zhijianForms: ZhijianForm[] = [];
+  type: "流程单" | "标签贴纸" | "质检标签" | "配件模块" | "合格证" | null = null;
+  forms: Form[] = [];
   mokuais: ZixuanpeijianMokuaiItem[] = [];
   fractionDigits = 1;
   urlPrefix = "";
@@ -167,7 +167,7 @@ export class DingdanbiaoqianComponent implements OnInit {
       const {cadsRowNum, cadsColNum, 开启锁向示意图Size, 配合框Size} = this;
       this.orders = ddbqData.map<Order>((order) => {
         const maxLength = 80;
-        const cads: Order["cads"] = order.cads.map((cad): Order["cads"][0] => {
+        const cads: Order["cads"] = (order.cads || []).map<Order["cads"][0]>((cad) => {
           const img = imgLoading;
           const imgLarge = imgLoading;
           const data = new CadData(cad);
@@ -201,7 +201,7 @@ export class DingdanbiaoqianComponent implements OnInit {
         });
         this.sectionConfig.rows.forEach((row) => {
           row.cells.forEach(({key, isBoolean}) => {
-            if (isBoolean) {
+            if (isBoolean && order.materialResult) {
               order.materialResult[key] = order.materialResult[key] ? "✔" : "✖";
             }
           });
@@ -214,7 +214,7 @@ export class DingdanbiaoqianComponent implements OnInit {
             img: imgEmpty,
             style: {width: 开启锁向示意图Size[0] + "px", height: 开启锁向示意图Size[1] + "px"}
           },
-          配合框: order.配合框.map((v) => ({
+          配合框: order.配合框?.map((v) => ({
             data: new CadData(v),
             img: imgEmpty,
             style: {width: 配合框Size[0] + "px", height: 配合框Size[1] + "px"}
@@ -223,13 +223,13 @@ export class DingdanbiaoqianComponent implements OnInit {
           positions: Array.from(Array(cadsRowNum), () => Array(cadsColNum).fill(0)),
           style: {},
           info: Array(3).fill(order.materialResult) || [],
-          质检标签: order.质检标签
+          forms: order.forms
         };
       });
       document.title = `${this.orders[0].code}_${DateTime.now().toFormat("yyyyMMdd")}`;
       await this.splitOrders();
       try {
-        JsBarcode(".barcode").init({displayValue: false, margin: 1000});
+        JsBarcode(".barcode").init({displayValue: false, margin: 0, width: 2, height: 40});
       } catch (error) {
         let msg = "未知错误";
         if (typeof error === "string") {
@@ -389,7 +389,6 @@ export class DingdanbiaoqianComponent implements OnInit {
     const orders = this.orders.slice();
     this.orders = [];
     const type = this.type;
-    this.zhijianForms = [];
     const cadsToSet: Parameters<DingdanbiaoqianComponent["setCad"]>[] = [];
     orders.forEach((order) => {
       const cads = order.cads;
@@ -399,54 +398,62 @@ export class DingdanbiaoqianComponent implements OnInit {
         this.orders.push(o);
         return o;
       };
-      if (type === "流程单") {
-        pushOrder();
-      } else if (type === "标签贴纸" || type === "配件模块") {
-        order.info = null;
-        delete order.开启锁向示意图;
-        delete order.配合框;
-        let orderCurr: Order | null = null;
-        let orderPrev: Order | null = null;
-        const group1: Order["cads"][0][] = [];
-        const group2: Order["cads"][0][] = [];
-        for (const cad of cads) {
-          if (cad.data.name.match(/^[左右顶]双包边$/)) {
-            group2.push(cad);
-          } else {
-            group1.push(cad);
-          }
-        }
-        const groups = [group1, group2];
-        for (const group of groups) {
-          if (group.length < 1) {
-            continue;
-          }
-          orderPrev = orderCurr;
-          orderCurr = pushOrder();
-          for (let j = 0; j < group.length; j++) {
-            let result = this.takeEmptyPosition(orderCurr.positions, group[j].isLarge);
-            if (result.position) {
-              cadsToSet.push([group[j], result.position]);
-              orderCurr.cads.push(group[j]);
+      switch (type) {
+        case "流程单":
+          pushOrder();
+          break;
+        case "标签贴纸":
+        case "配件模块": {
+          order.info = null;
+          delete order.开启锁向示意图;
+          delete order.配合框;
+          let orderCurr: Order | null = null;
+          let orderPrev: Order | null = null;
+          const group1: Order["cads"][0][] = [];
+          const group2: Order["cads"][0][] = [];
+          for (const cad of cads) {
+            if (cad.data.name.match(/^[左右顶]双包边$/)) {
+              group2.push(cad);
             } else {
-              if (orderPrev) {
-                result = this.takeEmptyPosition(orderPrev.positions, group[j].isLarge);
-                if (result.position) {
-                  cadsToSet.push([group[j], result.position]);
-                  orderPrev.cads.push(group[j]);
-                } else if (result.isFull) {
-                  orderPrev = null;
-                }
+              group1.push(cad);
+            }
+          }
+          const groups = [group1, group2];
+          for (const group of groups) {
+            if (group.length < 1) {
+              continue;
+            }
+            orderPrev = orderCurr;
+            orderCurr = pushOrder();
+            for (let j = 0; j < group.length; j++) {
+              let result = this.takeEmptyPosition(orderCurr.positions, group[j].isLarge);
+              if (result.position) {
+                cadsToSet.push([group[j], result.position]);
+                orderCurr.cads.push(group[j]);
               } else {
-                orderPrev = orderCurr;
-                orderCurr = pushOrder();
-                j--;
+                if (orderPrev) {
+                  result = this.takeEmptyPosition(orderPrev.positions, group[j].isLarge);
+                  if (result.position) {
+                    cadsToSet.push([group[j], result.position]);
+                    orderPrev.cads.push(group[j]);
+                  } else if (result.isFull) {
+                    orderPrev = null;
+                  }
+                } else {
+                  orderPrev = orderCurr;
+                  orderCurr = pushOrder();
+                  j--;
+                }
               }
             }
           }
+          break;
         }
-      } else if (type === "质检标签" && order.质检标签) {
-        this.zhijianForms.push(order.质检标签);
+        case "质检标签":
+        case "合格证":
+          this.forms = order.forms || [];
+          console.log(order);
+          break;
       }
     });
     this.orders.forEach((order) => this.setPage(order));

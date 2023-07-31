@@ -11,14 +11,7 @@
           </div>
           <div class="row flex-row">
             <div class="cell" style="height: 40px">
-              <svg
-                class="barcode value"
-                [attr.jsbarcode-value]="order.code"
-                [attr.jsbarcode-displayvalue]="false"
-                [attr.jsbarcode-margin]="0"
-                [attr.jsbarcode-width]="2"
-                [attr.jsbarcode-height]="40"
-              ></svg>
+              <svg class="barcode value" [attr.jsbarcode-value]="order.code"></svg>
             </div>
             <div class="cell" style="flex: 0 0 auto">
               <div class="value">{{ section["制单"] }}</div>
@@ -137,23 +130,21 @@
   </div>
 </div>
 
-<div class="质检标签" *ngFor="let form of zhijianForms">
-  <div class="title">{{ form.title }}</div>
+<div class="form" [ngClass]="type" *ngFor="let form of forms">
+  <div class="title" *ngIf="form.title">{{ form.title }}</div>
+  <ng-template *ngTemplateOutlet="formItem; context: {$implicit: form}"></ng-template>
+  <div class="barcode-container" *ngIf="form.barCode">
+    <svg class="barcode value" [attr.jsbarcode-value]="form.barCode"></svg>
+  </div>
+</div>
+
+<ng-template #formItem let-form [appTypedTemplate]="{$implicit: forms[0]}">
   <div class="item" *ngFor="let item of form.items" [ngStyle]="item.style">
     <div class="label" [ngStyle]="item.labelStyle">{{ item.label }}</div>
     <div class="value" [ngStyle]="item.valueStyle">{{ item.value }}</div>
   </div>
-  <div class="barcode-container">
-    <svg
-      class="barcode value"
-      [attr.jsbarcode-value]="form.barCode"
-      [attr.jsbarcode-displayvalue]="false"
-      [attr.jsbarcode-margin]="0"
-      [attr.jsbarcode-width]="2"
-      [attr.jsbarcode-height]="40"
-    ></svg>
-  </div>
-</div>
+</ng-template>
+
 <div class="btn-group toolbar no-print">
   <button mat-raised-button color="primary" (click)="print()">打印</button>
   <ng-container *ngIf="!production">

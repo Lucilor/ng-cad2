@@ -288,7 +288,11 @@ export class SubCadsComponent extends ContextMenu(Subscribed()) implements OnIni
       break;
     }
     if (!sourceData) {
-      const sourceResponse = await this.dataService.post<any[]>("ngcad/getMenshanbujuCads", {xinghao: data.options.型号, flat: true});
+      const sourceResponse = await this.dataService.post<any[]>("ngcad/getMenshanbujuCads", {
+        xinghao: data.options.型号,
+        flat: true,
+        isMuban: true
+      });
       const result = this.dataService.getResponseData(sourceResponse);
       if (result) {
         sourceData = result.map((v) => new CadData(v));

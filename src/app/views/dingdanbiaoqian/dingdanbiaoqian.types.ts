@@ -24,7 +24,7 @@ export interface Order {
   positions: number[][];
   style: Properties;
   info: ObjectOf<string | number>[] | null;
-  质检标签?: ZhijianForm;
+  forms?: Form[];
   mokuaiInfo?: {
     index: number;
     details: {title?: string; value: string}[];
@@ -48,20 +48,20 @@ export interface SectionConfig {
 
 export type DdbqData = {
   code: string;
-  materialResult: Formulas;
-  cads: ObjectOf<any>[];
-  开启锁向示意图: ObjectOf<any>;
-  配合框: ObjectOf<any>[];
-  质检标签?: ZhijianForm;
+  materialResult?: Formulas;
+  cads?: ObjectOf<any>[];
+  开启锁向示意图?: ObjectOf<any>;
+  配合框?: ObjectOf<any>[];
+  forms?: Form[];
 }[];
 
-export interface ZhijianForm {
-  title: string;
-  barCode: string;
-  items: ZhijianFormItem[];
+export interface Form {
+  title?: string;
+  barCode?: string;
+  items: FormItem[];
 }
 
-export interface ZhijianFormItem {
+export interface FormItem {
   label: string;
   value: string;
   style?: Properties;
