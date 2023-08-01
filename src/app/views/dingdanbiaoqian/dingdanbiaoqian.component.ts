@@ -229,7 +229,7 @@ export class DingdanbiaoqianComponent implements OnInit {
       document.title = `${this.orders[0].code}_${DateTime.now().toFormat("yyyyMMdd")}`;
       await this.splitOrders();
       try {
-        JsBarcode(".barcode").init({displayValue: false, margin: 0, width: 2, height: 40});
+        JsBarcode(".barcode").options({displayValue: false, margin: 0, width: 2, height: 30}).init();
       } catch (error) {
         let msg = "未知错误";
         if (typeof error === "string") {
@@ -390,6 +390,7 @@ export class DingdanbiaoqianComponent implements OnInit {
     this.orders = [];
     const type = this.type;
     const cadsToSet: Parameters<DingdanbiaoqianComponent["setCad"]>[] = [];
+    this.forms = [];
     orders.forEach((order) => {
       const cads = order.cads;
       order.cads = [];
@@ -452,8 +453,7 @@ export class DingdanbiaoqianComponent implements OnInit {
         case "质检标签":
         case "合格证":
         case "流程指令卡":
-          this.forms = order.forms || [];
-          console.log(order);
+          this.forms.push(...(order.forms || []));
           break;
       }
     });

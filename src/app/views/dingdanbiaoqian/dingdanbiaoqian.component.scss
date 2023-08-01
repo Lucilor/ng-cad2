@@ -236,11 +236,11 @@ $info-border: solid 1px black;
 
 .form {
   font-family: 宋体;
-  white-space: pre;
   display: flex;
   flex-direction: column;
   align-items: center;
   flex: 0 0 auto;
+  page-break-after: always;
   --label-width: auto;
   --label-height: 16px;
   --value-height: 17px;
@@ -249,7 +249,7 @@ $info-border: solid 1px black;
     text-align: center;
     font-size: 23px;
     font-weight: bold;
-    padding: 7px;
+    padding: 6px;
   }
 
   .row {
@@ -290,6 +290,7 @@ $info-border: solid 1px black;
     justify-content: center;
     align-items: center;
     padding: 4px;
+    overflow: hidden;
   }
 }
 
@@ -315,7 +316,7 @@ $info-border: solid 1px black;
   width: 9.5cm;
   height: 12.5cm;
   margin: 0.2cm 0 0 3.4cm;
-  --label-width: 70px;
+  --label-width: 75px;
 
   .item {
     .label {
@@ -323,7 +324,6 @@ $info-border: solid 1px black;
         display: none;
       }
       &:not(:empty) {
-        padding-right: 8px;
         &::after {
           content: ":";
         }
@@ -335,7 +335,9 @@ $info-border: solid 1px black;
 .流程指令卡 {
   width: 12.2cm;
   height: 14.5cm;
-  margin: 1cm 0.8cm 0 0.8cm;
+  margin: 1cm 0.8cm 1px 0.8cm;
+  --label-height: 15px;
+  --value-height: 15px;
   --label-width: 70px;
   --border: 1px solid black;
   border: var(--border);
@@ -353,7 +355,7 @@ $info-border: solid 1px black;
 
       .label,
       .value {
-        padding: 5px 2px;
+        padding: 2px;
       }
       .label {
         border-right: var(--border);

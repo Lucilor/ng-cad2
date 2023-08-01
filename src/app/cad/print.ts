@@ -654,7 +654,7 @@ const getUnfoldCadViewers = async (
       }
       if (!isBarcodeFailed) {
         const mtext = await addText(barcodeText, [boxRect.x, y], {anchor: [0.5, 1], fontStyle: infoTextFontStyle});
-        y += mtext.boundingRect.height + textMargin;
+        y += mtext.boundingRect.height + imgPadding[2];
         const img = new CadImage();
         img.objectFit = "contain";
         img.anchor.set(0.5, 1);
@@ -663,7 +663,7 @@ const getUnfoldCadViewers = async (
         img.position.set(boxRect.x, y);
         unfoldCad.entities.add(img);
         await unfoldCadViewer.render(img);
-        y += img.targetSize.y + textMargin;
+        y += img.boundingRect.height + imgPadding[0];
       }
     }
 
@@ -877,27 +877,32 @@ export const printCads = async (params: PrintCadsParams) => {
           if (showLarge && isOwn) {
             const data2 = new CadData();
             const cadImages = await drawDesignPics(data2, keyword, currUrls.length, false, rect, styles);
+            const cadImagePadding = [50 * scaleY, 50 * scaleX];
             if (cadImages) {
               await setImageUrl(cadImages);
               data2.entities.image = cadImages;
               const cadImage = cadImages[0];
               if (cadImage && keyword === "设计图") {
-                const {x: x0, y: y0} = cadImage.position;
-                const {x: w1, y: h1} = cadImage.sourceSize || new Point();
-                const {x: w2, y: h2} = cadImage.targetSize || new Point();
-                const imgScale = Math.min(w2 / w1, h2 / h1);
-                const w = w1 * imgScale;
-                const h = h1 * imgScale;
-                const x = x0 + (0.5 - cadImage.anchor.x) * w;
-                const y = y0 + (1 - cadImage.anchor.y) * h;
-                const mtext = new CadMtext({text: params.codes?.[i], insert: [x, y], anchor: [0.5, 1]});
+                const {x: px, y: py} = cadImage.position;
+                const {x: ax, y: ay} = cadImage.anchor;
+                const {x: sw, y: sh} = cadImage.sourceSize || new Point();
+                const {x: tw, y: th} = cadImage.targetSize || new Point();
+                const imgScale = Math.min(tw / sw, th / sh);
+                const w = sw * imgScale;
+                const h = sh * imgScale;
+                const cadImageRect = new Rectangle([px - ax * w, py - ay * h], [px + (1 - ax) * w, py + (1 - ay) * h]);
+                const imgScale2 = Math.min((localWidth * scaleX) / w, (localHeight * scaleY) / h);
+                cadImageRect.transform({scale: imgScale2, origin: cadImageRect.getPoint(0.5, 0.5)});
+                const insert = cadImageRect.getPoint(0.5, 1);
+                insert.y += (localHeight * scaleY - cadImageRect.height) / 2 - cadImagePadding[0];
+                const mtext = new CadMtext({text: params.codes?.[i], insert, anchor: [0.5, 0]});
                 mtext.fontStyle.size = 100;
                 mtext.fontStyle.color = "black";
                 mtext.calcBoundingRect = false;
                 data2.entities.add(mtext);
               }
               img2 = await getCadPreview("cad", data2, {
-                config: {width: localWidth * scaleX, height: localHeight * scaleY, padding: [50 * scaleY, 50 * scaleX]}
+                config: {width: localWidth * scaleX, height: localHeight * scaleY, padding: cadImagePadding}
               });
             }
           }
