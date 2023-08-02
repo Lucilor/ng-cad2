@@ -88,6 +88,9 @@ export class ImageComponent {
     if (_src2) {
       return _src2;
     } else if (prefix && _src) {
+      if (!prefix.endsWith("/") && typeof _src === "string" && !_src.startsWith("/")) {
+        return prefix + "/" + _src;
+      }
       return prefix + _src;
     }
     return _src;

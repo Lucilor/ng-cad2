@@ -1,9 +1,14 @@
 :host {
   display: flex;
   flex-direction: column;
-  width: 100vw;
-  height: 100vh;
   overflow: auto;
+  height: 100%;
+}
+@media print {
+  :host {
+    overflow: visible;
+    height: auto;
+  }
 }
 
 .toolbar {
@@ -21,10 +26,17 @@
 .page {
   box-sizing: border-box;
   padding: 10px;
-  margin: 10px !important;
+  margin: 10px;
+  border: var(--border);
 
   :not(.out-of-page) {
     font-family: "宋体";
+  }
+}
+@media print {
+  .page {
+    margin: 0;
+    border: 0;
   }
 }
 
@@ -234,16 +246,35 @@ $info-border: solid 1px black;
   }
 }
 
-.form {
-  font-family: 宋体;
+.forms {
   display: flex;
   flex-direction: column;
+  background-color: #dddddd;
   align-items: center;
+  --form-space: 10px;
+  padding: var(--form-space);
+  box-sizing: border-box;
+}
+.form {
+  font-family: 宋体;
   flex: 0 0 auto;
   page-break-after: always;
+  background-color: white;
+  box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.3);
   --label-width: auto;
   --label-height: 16px;
   --value-height: 17px;
+  &:not(:last-child) {
+    margin-bottom: var(--form-space);
+  }
+
+  .form-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
 
   .title {
     text-align: center;
@@ -255,33 +286,33 @@ $info-border: solid 1px black;
   .row {
     display: flex;
     width: 100%;
+  }
 
-    .item {
+  .item {
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+
+    > * {
+      padding: 5px 0;
+      box-sizing: border-box;
+      height: 100%;
       display: flex;
       align-items: center;
+      overflow: hidden;
+    }
+
+    .label {
+      flex: 0 0 var(--label-width);
+      font-size: var(--label-height);
+      line-height: var(--label-height);
+    }
+
+    .value {
+      font-size: var(--value-height);
+      line-height: var(--value-height);
+      width: 0;
       flex: 1 1 0;
-
-      > * {
-        padding: 5px 0;
-        box-sizing: border-box;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-      }
-
-      .label {
-        flex: 0 0 var(--label-width);
-        font-size: var(--label-height);
-        line-height: var(--label-height);
-      }
-
-      .value {
-        font-size: var(--value-height);
-        line-height: var(--value-height);
-        width: 0;
-        flex: 1 1 0;
-      }
     }
   }
 
@@ -291,6 +322,17 @@ $info-border: solid 1px black;
     align-items: center;
     padding: 4px;
     overflow: hidden;
+  }
+}
+@media print {
+  .forms {
+    align-items: flex-start;
+    background-color: white;
+    --form-space: 0;
+  }
+  .form {
+    box-shadow: none;
+    margin-bottom: 0;
   }
 }
 
@@ -315,10 +357,13 @@ $info-border: solid 1px black;
 .合格证 {
   width: 9.5cm;
   height: 12.5cm;
-  margin: 0.2cm 0 0 3.4cm;
+  padding: 0.2cm 0 0 3.4cm;
   --label-width: 75px;
 
   .item {
+    > * {
+      padding: 7px 0;
+    }
     .label {
       &:empty {
         display: none;
@@ -335,46 +380,38 @@ $info-border: solid 1px black;
 .流程指令卡 {
   width: 12.2cm;
   height: 14.5cm;
-  margin: 1cm 0.8cm 1px 0.8cm;
+  padding: 0.5cm 0.8cm;
   --label-height: 15px;
   --value-height: 15px;
   --label-width: 70px;
   --border: 1px solid black;
-  border: var(--border);
+
+  .form-inner {
+    border: var(--border);
+  }
 
   .row {
     flex: 1 1 0;
     &:not(:last-child) {
       border-bottom: var(--border);
     }
+  }
 
-    .item {
-      &:not(:last-child) {
-        border-right: var(--border);
-      }
+  .item {
+    &:not(:last-child) {
+      border-right: var(--border);
+    }
 
-      .label,
-      .value {
-        padding: 2px;
-      }
-      .label {
-        border-right: var(--border);
-      }
+    .label,
+    .value {
+      padding: 2px;
+    }
+    .label {
+      border-right: var(--border);
     }
   }
 }
 
-@media print {
-  :host {
-    height: auto;
-    overflow: hidden;
-  }
-
-  .page {
-    margin: 0 !important;
-    box-shadow: none;
-  }
-}
 :host ::ng-deep {
   @media print {
     .no-print {

@@ -64,9 +64,10 @@ export interface Form {
 export interface FormItem {
   label: string;
   value: string;
+  type?: "text" | "image";
   style?: Properties;
   labelStyle?: Properties;
   valueStyle?: Properties;
 }
 
-export type DdbqType = "流程单" | "标签贴纸" | "质检标签" | "配件模块" | "合格证" | "流程指令卡";
+export type DdbqType = "标签贴纸" | "质检标签" | "配件模块" | "合格证" | "流程指令卡";

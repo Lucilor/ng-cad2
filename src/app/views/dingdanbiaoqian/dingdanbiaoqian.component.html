@@ -1,5 +1,5 @@
 <div class="pages flex-column">
-  <div class="page flex-row border" [ngStyle]="order.style" *ngFor="let order of orders; let i = index">
+  <div class="page flex-row" [ngStyle]="order.style" *ngFor="let order of orders; let i = index">
     <ng-container *ngIf="order.info; else cads">
       <div class="info">
         <div class="section" *ngFor="let section of order.info">
@@ -130,11 +130,15 @@
   </div>
 </div>
 
-<div class="form" [ngClass]="type" *ngFor="let form of forms">
-  <div class="title" *ngIf="form.title">{{ form.title }}</div>
-  <ng-template *ngTemplateOutlet="formItem; context: {$implicit: form}"></ng-template>
-  <div class="barcode-container" *ngIf="form.barCode">
-    <svg class="barcode value" [attr.jsbarcode-value]="form.barCode"></svg>
+<div class="forms">
+  <div class="form" [ngClass]="type" *ngFor="let form of forms">
+    <div class="form-inner">
+      <div class="title" *ngIf="form.title">{{ form.title }}</div>
+      <ng-template *ngTemplateOutlet="formItem; context: {$implicit: form}"></ng-template>
+      <div class="barcode-container" *ngIf="form.barCode">
+        <svg class="barcode value" [attr.jsbarcode-value]="form.barCode"></svg>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -142,7 +146,12 @@
   <div class="row" *ngFor="let row of form.rows">
     <div class="item" *ngFor="let item of row" [ngStyle]="item.style">
       <div class="label" [ngStyle]="item.labelStyle">{{ item.label }}</div>
-      <div class="value" [ngStyle]="item.valueStyle">{{ item.value }}</div>
+      <div class="value" [ngStyle]="item.valueStyle">
+        <ng-container [ngSwitch]="item.type">
+          <app-image *ngSwitchCase="'image'" [src]="item.value" [prefix]="remoteFilePath"></app-image>
+          <ng-container *ngSwitchDefault>{{ item.value }}</ng-container>
+        </ng-container>
+      </div>
     </div>
   </div>
 </ng-template>

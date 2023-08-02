@@ -11,14 +11,10 @@ body {
   height: 100vh;
   margin: 0;
   overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
 }
-
 @media print {
   body {
-    overflow: hidden auto;
+    overflow: visible;
   }
 }
 

@@ -2,7 +2,7 @@ import {Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from 
 import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer} from "@angular/platform-browser";
 import {ActivatedRoute} from "@angular/router";
-import {imgCadEmpty, imgEmpty, imgLoading, session, setGlobal} from "@app/app.common";
+import {imgCadEmpty, imgEmpty, imgLoading, remoteFilePath, session, setGlobal} from "@app/app.common";
 import {CadPreviewParams, getCadPreview} from "@app/cad/cad-preview";
 import {configCadDataForPrint} from "@app/cad/print";
 import {
@@ -96,6 +96,7 @@ export class DingdanbiaoqianComponent implements OnInit {
   fractionDigits = 1;
   urlPrefix = "";
   calcResults: CalcZxpjResult[] = [];
+  remoteFilePath = remoteFilePath;
   @ViewChildren("barcode") barcodeEls?: QueryList<ElementRef<HTMLDivElement>>;
   @ViewChild("cadsEl") cadsEl?: ElementRef<HTMLDivElement>;
 
@@ -400,9 +401,6 @@ export class DingdanbiaoqianComponent implements OnInit {
         return o;
       };
       switch (type) {
-        case "流程单":
-          pushOrder();
-          break;
         case "标签贴纸":
         case "配件模块": {
           order.info = null;
