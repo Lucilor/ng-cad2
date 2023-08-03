@@ -1,11 +1,23 @@
-import {AfterViewInit, Component, ElementRef, HostBinding, Input, ViewChild} from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  DoCheck,
+  ElementRef,
+  HostBinding,
+  Input,
+  KeyValueDiffer,
+  KeyValueDiffers,
+  OnChanges,
+  SimpleChanges,
+  ViewChild
+} from "@angular/core";
 import {FormControl, ValidationErrors} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {ErrorStateMatcher} from "@angular/material/core";
 import {MatDialog} from "@angular/material/dialog";
 import {joinOptions, splitOptions} from "@app/app.common";
 import {CadOptionsInput, openCadOptionsDialog} from "@components/dialogs/cad-options/cad-options.component";
-import {ObjectOf, sortArrayByLevenshtein, timeout} from "@lucilor/utils";
+import {ObjectOf, ValueOf, sortArrayByLevenshtein, timeout} from "@lucilor/utils";
 import {Utils} from "@mixins/utils.mixin";
 import {MessageService} from "@modules/message/services/message.service";
 import Color2 from "color";
@@ -21,67 +33,10 @@ import {InputInfo, InputInfoBase, InputInfoTypeMap, InputInfoWithOptions} from "
   templateUrl: "./input.component.html",
   styleUrls: ["./input.component.scss"]
 })
-export class InputComponent extends Utils() implements AfterViewInit {
+export class InputComponent extends Utils() implements AfterViewInit, OnChanges, DoCheck {
   suffixIconsType!: SuffixIconsType;
-  private _info: InputInfo = {type: "string", label: ""};
-  @Input()
-  get info() {
-    return this._info;
-  }
-  set info(value: InputInfo) {
-    this._info = value;
-    if (!value.autocomplete) {
-      value.autocomplete = "off";
-    }
-    if ("value" in value) {
-      this.value = value.value;
-    }
-    const type = value.type;
-    if (type === "select" || type === "selectMulti" || type === "string" || type === "number") {
-      this.options = (value.options || []).map((v) => {
-        if (typeof v === "string") {
-          return {value: v, label: v};
-        }
-        if (typeof v === "number") {
-          return {value: String(v), label: String(v)};
-        }
-        return {label: v.label || String(v.value), value: String(v.value)};
-      });
-    }
-    this.displayValue = null;
-    if (type === "string") {
-      if (value.optionInputOnly && !value.options) {
-        value.readonly = true;
-        if (typeof value.displayValue === "function") {
-          this.displayValue = value.displayValue();
-        } else if (value.displayValue) {
-          this.displayValue = value.displayValue;
-        }
-      }
-    }
-    this.class = [type];
-    if (typeof value.label === "string" && value.label && !value.label.includes(" ")) {
-      this.class.push(value.label);
-    }
-    if (value.readonly) {
-      this.class.push("readonly");
-    }
-    if (value.disabled) {
-      this.class.push("disabled");
-    }
-    if (value.class) {
-      if (Array.isArray(value.class)) {
-        this.class.push(...value.class);
-      } else {
-        this.class.push(value.class);
-      }
-    }
-    this.style = value.styles || {};
-    if (value.initialValidate) {
-      this.validateValue();
-    }
-    this.valueChange$.next(this.value);
-  }
+  @Input() info: InputInfo = {type: "string", label: ""};
+  infoDiffer: KeyValueDiffer<keyof InputInfo, ValueOf<InputInfo>>;
   onChangeDelayTime = 200;
   onChangeDelay: {timeoutId: number} | null = null;
 
@@ -220,7 +175,8 @@ export class InputComponent extends Utils() implements AfterViewInit {
 
   constructor(
     private message: MessageService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private differs: KeyValueDiffers
   ) {
     super();
     this.valueChange$.subscribe((val) => {
@@ -260,6 +216,7 @@ export class InputComponent extends Utils() implements AfterViewInit {
       }
       this.filteredOptions$.next(options);
     });
+    this.infoDiffer = differs.find(this.info).create();
   }
 
   async ngAfterViewInit() {
@@ -274,6 +231,82 @@ export class InputComponent extends Utils() implements AfterViewInit {
       await timeout(0);
       this.setColor(this.colorChrome);
     }
+    this.infoDiffer = this.differs.find(this.info).create();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.info) {
+      this.infoDiffer = this.differs.find(this.info).create();
+    }
+  }
+
+  ngDoCheck() {
+    const changes = this.infoDiffer.diff(this.info);
+    if (changes) {
+      this.infoChanged();
+    }
+  }
+
+  infoChanged() {
+    this._onInfoChange();
+  }
+
+  private _onInfoChange() {
+    const {info} = this;
+    if (!info.autocomplete) {
+      info.autocomplete = "off";
+    }
+    if ("value" in info) {
+      this.value = info.value;
+    }
+    const type = info.type;
+    if (type === "select" || type === "selectMulti" || type === "string" || type === "number") {
+      this.options = (info.options || []).map((v) => {
+        if (typeof v === "string") {
+          return {value: v, label: v};
+        }
+        if (typeof v === "number") {
+          return {value: String(v), label: String(v)};
+        }
+        return {label: v.label || String(v.value), value: String(v.value)};
+      });
+    }
+    this.displayValue = null;
+    if (type === "string") {
+      if (info.optionInputOnly && !info.options) {
+        info.readonly = true;
+        if (typeof info.displayValue === "function") {
+          this.displayValue = info.displayValue();
+        } else if (info.displayValue) {
+          this.displayValue = info.displayValue;
+        }
+      }
+    }
+    this.class = [type];
+    if (typeof info.label === "string" && info.label && !info.label.includes(" ")) {
+      this.class.push(info.label);
+    }
+    if (info.readonly) {
+      this.class.push("readonly");
+    }
+    if (info.disabled) {
+      this.class.push("disabled");
+    }
+    if (info.class) {
+      if (Array.isArray(info.class)) {
+        this.class.push(...info.class);
+      } else {
+        this.class.push(info.class);
+      }
+    }
+    this.style = {...info.styles};
+    if (info.hidden) {
+      this.style.display = "none";
+    }
+    if (info.initialValidate) {
+      this.validateValue();
+    }
+    this.valueChange$.next(this.value);
   }
 
   clear() {

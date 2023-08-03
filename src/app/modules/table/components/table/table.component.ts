@@ -10,7 +10,9 @@ import {
   KeyValueChanges,
   KeyValueDiffer,
   KeyValueDiffers,
+  OnChanges,
   Output,
+  SimpleChanges,
   ViewChild
 } from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
@@ -41,7 +43,7 @@ import {getInputInfosFromTableColumns} from "./table.utils";
   templateUrl: "./table.component.html",
   styleUrls: ["./table.component.scss"]
 })
-export class TableComponent<T> implements AfterViewInit, DoCheck {
+export class TableComponent<T> implements AfterViewInit, OnChanges, DoCheck {
   @Input() info: TableRenderInfo<T> = {data: [], columns: []};
 
   @Output() rowButtonClick = new EventEmitter<RowButtonEvent<T>>();
@@ -100,6 +102,12 @@ export class TableComponent<T> implements AfterViewInit, DoCheck {
     }
     if (this.dataSource instanceof MatTableDataSource) {
       this.dataSource.sort = this.sort || null;
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.info) {
+      this.infoDiffer = this.differs.find(this.info).create();
     }
   }
 

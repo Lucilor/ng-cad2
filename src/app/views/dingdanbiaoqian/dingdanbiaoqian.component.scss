@@ -357,8 +357,10 @@ $info-border: solid 1px black;
 .合格证 {
   width: 9.5cm;
   height: 12.5cm;
-  padding: 0.2cm 0 0 3.4cm;
-  --label-width: 75px;
+  padding: 0.2cm 0 0 4.4cm;
+  --label-width: 84px;
+  --label-height: 18px;
+  --value-height: 22px;
 
   .item {
     > * {

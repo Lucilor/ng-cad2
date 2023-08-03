@@ -3,7 +3,7 @@ import {CadData} from "@lucilor/cad-viewer";
 import {ObjectOf} from "@lucilor/utils";
 import {BancaiList, TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/input.types";
-import {isEqual} from "lodash";
+import {difference, isEqual, uniq} from "lodash";
 
 export interface MrbcjfzResponseData {
   xinghao: MrbcjfzXinghao;
@@ -49,6 +49,22 @@ export class MrbcjfzXinghaoInfo {
     for (const key in this.默认板材) {
       this.默认板材[key] = {...getEmptyMrbcjfzInfo(key), ...this.默认板材[key]};
       const value = this.默认板材[key];
+      const showItemOptions = ["全都显示", "只显示颜色", "全不显示"] as const;
+      let 显示内容: (typeof showItemOptions)[number] | undefined;
+      if (value.不显示) {
+        显示内容 = "全不显示";
+      } else {
+        if (value.不显示内容 && value.不显示内容.length > 0) {
+          const showItems = uniq(difference(mrbcjfzInfoShowItems, value.不显示内容, ["颜色"]));
+          if (showItems.length > 0) {
+            显示内容 = "全都显示";
+          } else {
+            显示内容 = "只显示颜色";
+          }
+        } else {
+          显示内容 = "全都显示";
+        }
+      }
       this.inputInfos[key] = [
         {
           type: "string",
@@ -77,7 +93,35 @@ export class MrbcjfzXinghaoInfo {
           styles: {flex: "1 1 9px"},
           readonly: key === "底框板材"
         },
-        {type: "boolean", label: "不显示", model: {data: value, key: "不显示"}, styles: {flex: "1 1 8px"}}
+        {
+          type: "select",
+          label: "显示内容",
+          options: showItemOptions.slice(),
+          value: 显示内容,
+          styles: {flex: "1 1 12px"},
+          onChange: (val: string) => {
+            switch (val) {
+              case "全都显示":
+                value.不显示 = false;
+                delete value.不显示内容;
+                break;
+              case "只显示颜色":
+                value.不显示 = true;
+                value.不显示内容 = ["材料", "厚度"];
+                break;
+              case "全不显示":
+                value.不显示 = true;
+                value.不显示内容 = ["颜色", "材料", "厚度"];
+                break;
+              default:
+                console.error("未知的显示内容选项", val);
+            }
+            const info = this.inputInfos[key].find((v) => v.label === "显示内容");
+            if (info && info.styles) {
+              info.styles.opacity = value.不显示 ? "0.5" : "1";
+            }
+          }
+        }
       ];
       if (this.raw.编辑默认对应板材分组) {
         this.inputInfos[key].push({
@@ -126,7 +170,11 @@ export interface MrbcjfzInfo {
   允许修改?: boolean;
   独立变化?: boolean;
   不显示?: boolean;
+  不显示内容?: MrbcjfzInfoShowItem[];
 }
+
+export const mrbcjfzInfoShowItems = ["颜色", "材料", "厚度"] as const;
+export type MrbcjfzInfoShowItem = (typeof mrbcjfzInfoShowItems)[number];
 
 export const getMrbcjfzInfo = (source: Partial<MrbcjfzInfo> = {}): MrbcjfzInfo => ({
   默认开料板材: "",

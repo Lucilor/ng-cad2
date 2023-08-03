@@ -26,6 +26,7 @@ export interface InputInfoBase<T = any> {
   initialValidate?: boolean;
   name?: string;
   styles?: csstype.Properties;
+  hidden?: boolean;
 }
 
 export interface InputInfoString<T = any> extends InputInfoWithOptions<T, string> {
