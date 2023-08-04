@@ -3,7 +3,7 @@ import {CadData} from "@lucilor/cad-viewer";
 import {ObjectOf} from "@lucilor/utils";
 import {BancaiList, TableDataBase} from "@modules/http/services/cad-data.service.types";
 import {InputInfo} from "@modules/input/components/input.types";
-import {difference, isEqual, uniq} from "lodash";
+import {difference, isEqual} from "lodash";
 
 export interface MrbcjfzResponseData {
   xinghao: MrbcjfzXinghao;
@@ -52,18 +52,18 @@ export class MrbcjfzXinghaoInfo {
       const showItemOptions = ["全都显示", "只显示颜色", "全不显示"] as const;
       let 显示内容: (typeof showItemOptions)[number] | undefined;
       if (value.不显示) {
-        显示内容 = "全不显示";
-      } else {
         if (value.不显示内容 && value.不显示内容.length > 0) {
-          const showItems = uniq(difference(mrbcjfzInfoShowItems, value.不显示内容, ["颜色"]));
+          const showItems = difference(mrbcjfzInfoShowItems, value.不显示内容, ["颜色"]);
           if (showItems.length > 0) {
             显示内容 = "全都显示";
           } else {
             显示内容 = "只显示颜色";
           }
         } else {
-          显示内容 = "全都显示";
+          显示内容 = "全不显示";
         }
+      } else {
+        显示内容 = "全都显示";
       }
       this.inputInfos[key] = [
         {

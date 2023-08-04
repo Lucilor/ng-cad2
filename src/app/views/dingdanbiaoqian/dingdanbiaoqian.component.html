@@ -132,8 +132,8 @@
 
 <div class="forms">
   <div class="form" [ngClass]="type" *ngFor="let form of forms">
+    <div class="title" *ngIf="form.title">{{ form.title }}</div>
     <div class="form-inner">
-      <div class="title" *ngIf="form.title">{{ form.title }}</div>
       <ng-template *ngTemplateOutlet="formItem; context: {$implicit: form}"></ng-template>
       <div class="barcode-container" *ngIf="form.barCode">
         <svg class="barcode value" [attr.jsbarcode-value]="form.barCode"></svg>

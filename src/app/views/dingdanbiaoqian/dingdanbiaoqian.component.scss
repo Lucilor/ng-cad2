@@ -388,6 +388,12 @@ $info-border: solid 1px black;
   --label-width: 70px;
   --border: 1px solid black;
 
+  .title {
+    padding: 0 0 2px 0;
+    font-size: 15px;
+    line-height: 15px;
+  }
+
   .form-inner {
     border: var(--border);
   }
